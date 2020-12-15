@@ -1,0 +1,7 @@
+cypress
+node_modules
+static
+public
+.cache
+.gitignore
+.cypress-*

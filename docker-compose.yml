@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  careerfair:
+    container_name: careerfair
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "3000:3000"
+  cypress:
+    container_name: cypress
+    depends_on:
+      - careerfair
+    build:
+      context: cypress
+    environment:
+      - "CYPRESS_BASE_URL=http://careerfair:3000"
+      - "CYPRESS_SNAPSHOT_DIFF_DIR=/app/cypress/snapshots/snapshot_failed_diffs"
