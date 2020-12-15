@@ -1,5 +1,6 @@
 import axios from "axios";
 import { UserAccessToken, Mentor, Topic, Question, Connection } from "types";
+import * as fakeApis from "./fake_servers"
 
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 interface GQLResponse<T> {
@@ -271,6 +272,9 @@ export async function fetchTopic(id: string, accessToken: string): Promise<Topic
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
+  if(fakeApis.useFakeApis()) {
+    return fakeApis.login(accessToken);
+  }
   const result = await axios.post<GQLResponse<Login>>(GRAPHQL_ENDPOINT, {
     query: `
       mutation {

@@ -35,8 +35,8 @@ dependencies-update:
 	npm run dependencies-update
 
 .PHONY: develop
-develop: node_modules/gatsby-cli
-	npx gatsby develop
+develop: node_modules/gatsby
+	GATSBY_USE_FAKE_APIS=1 npx gatsby develop
 
 .PHONY: format
 format: node_modules/prettier
