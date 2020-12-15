@@ -1,0 +1,117 @@
+{
+  "updateMentor": {
+    "id": "clint",
+    "videoId": "newclintanderson",
+    "name": "New Clinton Anderson",
+    "shortName": "New Clint",
+    "title": "New Nuclear Electrician's Mate",
+    "topics": [
+      {
+        "id": "advice",
+        "name": "Advice",
+        "description": "",
+        "category": "What Does it Take?"
+      },
+      {
+        "id": "background",
+        "name": "Background",
+        "description": "These questions will ask general questions about your background, that might be relevant to how people understand your career",
+        "category": "About Me"
+      }
+    ],
+    "questions": [
+      {
+        "question": "Who are you and what do you do?",
+        "topics": [
+          {
+            "id": "background",
+            "name": "Background",
+            "description": "These questions will ask general questions about your background, that might be relevant to how people understand your career",
+            "category": "About Me"
+          }
+        ],
+        "videoId": "A1_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      },
+      {
+        "question": "How old are you now?",
+        "topics": [
+          {
+            "id": "background",
+            "name": "Background",
+            "description": "These questions will ask general questions about your background, that might be relevant to how people understand your career",
+            "category": "About Me"
+          }
+        ],
+        "videoId": "A2_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      },
+      {
+        "question": "Can you give me some advice?",
+        "topics": [
+          {
+            "id": "advice",
+            "name": "Advice",
+            "description": "",
+            "category": "What Does it Take?"
+          }
+        ],
+        "videoId": "A3_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      }
+    ],
+    "utterances": [
+      {
+        "question": "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+        "topics": [
+          {
+            "id": "_IDLE_",
+            "name": "Idle",
+            "description": "",
+            "category": "Utterance"
+          }
+        ],
+        "videoId": "U1_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      },
+      {
+        "question": "Please give a short introduction of yourself, which includes your name, current job, and title.",
+        "topics": [
+          {
+            "id": "_INTRO_",
+            "name": "Intro",
+            "description": "",
+            "category": "Utterance"
+          }
+        ],
+        "videoId": "U2_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      },
+      {
+        "question": "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+        "topics": [
+          {
+            "id": "_OFF_TOPIC_",
+            "name": "OffTopic",
+            "description": "",
+            "category": "Utterance"
+          }
+        ],
+        "videoId": "U3_1_1",
+        "video": null,
+        "transcript": null,
+        "status": "Incomplete"
+      }
+    ]
+  }
+}

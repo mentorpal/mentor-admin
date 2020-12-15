@@ -26,14 +26,14 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
 
 # Dependency directories
 node_modules/
 jspm_packages/
 
-# TypeScript v1 declaration files
+# Typescript v1 declaration files
 typings/
 
 # Optional eslint cache
@@ -44,10 +44,14 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.development
 
-# next.js build output
-.next
+# gatsby files
+.cache/
+public
 
+# Mac files
 .DS_Store
 
-.cypress-*
+.pnp/
+.pnp.js

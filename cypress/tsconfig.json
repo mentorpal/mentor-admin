@@ -1,0 +1,22 @@
+{
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "jsx": "preserve",
+    "module": "commonjs",
+    "noEmit": true,
+    "lib": ["dom", "es2017"],
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./src/*", "node_modules/*"]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext",
+    "typeRoots": ["node_modules/@types", "src/types"]
+  }
+}
