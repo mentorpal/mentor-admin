@@ -16,6 +16,9 @@ interface UpdateMentor {
 interface UpdateQuestion {
   updateQuestion: Mentor;
 }
+interface UploadVideo {
+  uploadVideo: Mentor;
+}
 interface GenerateTranscript {
   transcript: string;
 }
@@ -33,6 +36,9 @@ interface LoginGoogle {
 }
 
 export async function fetchMentor(id: string, accessToken: string): Promise<Mentor> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.fetchMentor(id, accessToken);
+  }
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<FetchMentor>>(GRAPHQL_ENDPOINT, {
     query: `
@@ -84,6 +90,9 @@ export async function fetchMentor(id: string, accessToken: string): Promise<Ment
 }
 
 export async function updateMentor(mentor: Mentor, accessToken: string): Promise<Mentor> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.updateMentor(mentor, accessToken);
+  }
   const convertedMentor = { ...mentor, topics: mentor.topics.map((t: Topic) => t.id) }
   const encodedMentor = encodeURI(JSON.stringify(convertedMentor));
   const headers = { Authorization: `bearer ${accessToken}` };
@@ -137,6 +146,9 @@ export async function updateMentor(mentor: Mentor, accessToken: string): Promise
 }
 
 export async function updateQuestion(mentorId: string, question: Question, accessToken: string): Promise<Mentor> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.updateQuestion(mentorId, question, accessToken);
+  }
   const convertedQuestion = { ...question, topics: question.topics.map((t: Topic) => t.id) }
   const encodedQuestion = encodeURI(JSON.stringify(convertedQuestion));
   const headers = { Authorization: `bearer ${accessToken}` };
@@ -189,7 +201,65 @@ export async function updateQuestion(mentorId: string, question: Question, acces
   return result.data.data!.updateQuestion;
 }
 
+export async function uploadVideo(mentorId: string, videoId: string, video: any, accessToken: string): Promise<Mentor> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.uploadVideo(mentorId, videoId, video, accessToken);
+  }
+  const encodedVideo = encodeURI(JSON.stringify(video));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UploadVideo>>(GRAPHQL_ENDPOINT, {
+    query: `
+      mutation {
+        uploadVideo(mentorId: "${mentorId}", videoId: "${videoId}", video: "${encodedVideo}") {
+          id
+          videoId
+          name
+          shortName
+          title
+          topics {
+            name
+            description
+            category
+          }
+          questions {
+            question
+            topics {
+              id
+              name
+              description
+              category
+            }
+            videoId
+            video
+            transcript
+            status
+            recordedAt
+          }
+          utterances {
+            question
+            topics {
+              id
+              name
+              description
+              category
+            }
+            videoId
+            video
+            transcript
+            status
+            recordedAt
+          }
+        }
+      }
+    `,
+  }, { headers: headers });
+  return result.data.data!.uploadVideo;
+}
+
 export async function generateTranscript(mentorId: string, videoId: string, accessToken: string): Promise<string> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.generateTranscript(mentorId, videoId, accessToken);
+  }
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<GenerateTranscript>>(GRAPHQL_ENDPOINT, {
     query: `
@@ -272,7 +342,7 @@ export async function fetchTopic(id: string, accessToken: string): Promise<Topic
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  if(fakeApis.useFakeApis()) {
+  if (fakeApis.useFakeApis()) {
     return fakeApis.login(accessToken);
   }
   const result = await axios.post<GQLResponse<Login>>(GRAPHQL_ENDPOINT, {

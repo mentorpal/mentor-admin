@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { updateMentor } from "api";
+import { updateMentor, fetchMentor } from "api";
 import { Mentor, Question, Status, UtteranceType } from "types";
 import Context from "context";
 import Alerts, { IAlert } from "components/alert";
@@ -51,23 +51,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function QuestionsPanel(props: {
+  questions: Question[],
   classes: any,
 }): JSX.Element {
-  const { classes } = props;
-  const context = useContext(Context);
-  const [topicFilter, setTopicFilter] = useState("");
-  const [selected, setSelected] = useState<Question[]>([]);
-  const questions = context.mentor!.questions;
+  const { questions, classes } = props;
   const complete = questions.filter((q) => { return q.status === Status.COMPLETE })
   const incomplete = questions.filter((q) => { return q.status === Status.INCOMPLETE });
 
   function onRecord() {
-    if (!selected || selected.length === 0) {
-      navigate(`/record`);
-    }
-    else {
-      
-    }
+    navigate(`/record`);
   }
 
   return (
@@ -75,7 +67,7 @@ function QuestionsPanel(props: {
       <Typography id="progress" variant="h6" className={classes.title}>
         My Questions ({complete.length} / {questions.length})
       </Typography>
-      <ProgressBar value={complete.length / questions.length} />
+      <ProgressBar value={(complete.length / questions.length) * 100} />
       <QuestionList id="complete-questions" header="Recorded" questions={complete} classes={classes} />
       <QuestionList id="incomplete-questions" header="Unrecorded" questions={incomplete} classes={classes} />
       <Button id="record-btn" variant="contained" color="primary" onClick={onRecord}>
@@ -87,19 +79,17 @@ function QuestionsPanel(props: {
 
 function MentorPanel(props: {
   classes: any,
+  mentor: Mentor,
+  onMentorUpdated: (mentor: Mentor) => void,
 }): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
-  const [mentor, setMentor] = useState<Mentor>(context.mentor!)
+  const [mentor, setMentor] = useState<Mentor>(props.mentor);
 
   async function updateProfile() {
-    try {
-      context.updateMentor(await updateMentor(mentor, cookies.accessToken));
-      toast("Profile updated!");
-    } catch (err) {
-      toast(err);
-    }
+    const updatedMentor = await updateMentor(mentor, cookies.accessToken);
+    props.onMentorUpdated(updatedMentor);
+    toast("Profile updated!");
   }
 
   return (
@@ -140,7 +130,7 @@ function MentorPanel(props: {
         className={classes.inputField}
       />
       <Button id="update-btn" variant="contained" color="primary" onClick={updateProfile}>
-        Update Profile
+        Save Changes
       </Button>
     </Paper>
   )
@@ -150,6 +140,7 @@ function IndexPage(): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
+  const [mentor, setMentor] = useState<Mentor>();
   const [alerts, setAlerts] = useState<IAlert[]>([]);
 
   React.useEffect(() => {
@@ -159,19 +150,28 @@ function IndexPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    if (!context.mentor) {
+    const loadMentor = async () => {
+      if (!context.user) {
+        return;
+      }
+      setMentor(await fetchMentor(context.user.id, cookies.accessToken));
+    }
+    loadMentor();
+  }, [context.user]);
+
+  React.useEffect(() => {
+    if (!mentor) {
       return;
     }
     const _alerts: IAlert[] = [];
-    const mentor = context.mentor;
-    const idle = mentor.utterances.find(u => u.topics[0].id === UtteranceType.IDLE && u.status === Status.INCOMPLETE );
+    const idle = mentor.utterances.find(u => u.topics[0].id === UtteranceType.IDLE && u.status === Status.INCOMPLETE);
     if (idle) {
       _alerts.push({
         severity: "warning",
         title: "Missing Idle Video",
         message: "You have not yet recorded a 30 second calibration idle video of yourself. Click the button to record one now.",
         actionText: "Record",
-        actionFunction: function () { navigate(`/record?videoId=${idle.videoId}`) }
+        actionFunction: function () { navigate(`/record?videoId=${idle.id}`) }
       });
     }
     const utterances = mentor.utterances.find(u => u.status === Status.INCOMPLETE);
@@ -184,7 +184,7 @@ function IndexPage(): JSX.Element {
         actionFunction: function () { navigate(`/record?utterance=true&status=${Status.INCOMPLETE}`) }
       });
     }
-    const questions = mentor.questions.find(q => q.status === Status.INCOMPLETE );
+    const questions = mentor.questions.find(q => q.status === Status.INCOMPLETE);
     if (questions) {
       const topic = questions.topics[0];
       _alerts.push({
@@ -196,9 +196,13 @@ function IndexPage(): JSX.Element {
       });
     }
     setAlerts(_alerts);
-  }, [context.mentor]);
+  }, [mentor]);
 
-  if (!context.mentor) {
+  function onMentorUpdated(mentor: Mentor) {
+    setMentor(mentor);
+  }
+
+  if (!mentor) {
     return (
       <div>
         <NavBar title="Mentor Studio" />
@@ -211,8 +215,8 @@ function IndexPage(): JSX.Element {
     <div className={classes.root}>
       <NavBar title="Mentor Studio" />
       <Alerts alerts={alerts} />
-      <QuestionsPanel classes={classes} />
-      <MentorPanel classes={classes} />
+      <QuestionsPanel classes={classes} questions={mentor.questions} />
+      <MentorPanel classes={classes} mentor={mentor} onMentorUpdated={onMentorUpdated} />
       <ToastContainer />
     </div>
   )

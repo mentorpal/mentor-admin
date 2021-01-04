@@ -37,7 +37,7 @@ function LoginPage(): JSX.Element {
 
   React.useEffect(() => {
     if (context.user) {
-      navigate("/");
+      navigate("/setup");
     }
   }, [context.user]);
 

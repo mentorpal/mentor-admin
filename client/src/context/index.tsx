@@ -6,26 +6,20 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { useCookies } from "react-cookie";
-import { login, fetchMentor } from "api";
-import { User, UserAccessToken, Mentor } from "types";
+import { login } from "api";
+import { User, UserAccessToken } from "types";
 
 type ContextType = {
   user: User | undefined;
-  mentor: Mentor | undefined;
-  updateMentor: (mentor?: Mentor) => void;
 };
 
 const Context = React.createContext<ContextType>({
-  user: undefined,
-  mentor: undefined,
-  // eslint-disable-next-line
-  updateMentor: (mentor?: Mentor) => { },
+  user: undefined
 });
 
 function Provider(props: { children: any }) {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
   const [user, setUser] = React.useState<User>();
-  const [mentor, setMentor] = React.useState<Mentor>();
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -44,31 +38,9 @@ function Provider(props: { children: any }) {
     }
   }, [cookies]);
 
-  React.useEffect(() => {
-    updateMentor();
-  }, [user]);
-
-  async function updateMentor(m?: Mentor) {
-    if (!user) {
-      return;
-    }
-    try {
-      if (m) {
-        setMentor(m);
-      } else {
-        const updated = await fetchMentor(user.id, cookies.accessToken);
-        setMentor(updated);
-        console.log(`updateMentor: ${JSON.stringify(updated, null, " ")}`)
-      }
-    }
-    catch (err) {
-      console.error(err);
-    }
-  }
-
   return (
     <Context.Provider
-      value={{ user, mentor, updateMentor }}
+      value={{ user }}
     >
       {props.children}
     </Context.Provider>

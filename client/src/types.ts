@@ -53,10 +53,10 @@ export interface Topic {
 }
 
 export interface Question {
+  id: string;
   question: string;
   topics: Topic[];
-  videoId: string;
-  video: any;
+  video: string;
   transcript: string;
   status: Status;
   recordedAt: string;
