@@ -11,7 +11,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { updateMentor, fetchMentor } from "api";
-import { Mentor, Question, Status, UtteranceType } from "types";
+import { Mentor, Question, Status } from "types";
 import Context from "context";
 import Alerts, { IAlert } from "components/alert";
 import NavBar from "components/nav-bar";
@@ -98,11 +98,11 @@ function MentorPanel(props: {
         My Details
       </Typography>
       <TextField
-        id="video-id"
-        label="Video ID"
+        id="id"
+        label="ID"
         variant="outlined"
-        value={mentor.videoId}
-        onChange={(e) => { setMentor({ ...mentor, videoId: e.target.value }) }}
+        value={mentor.id}
+        onChange={(e) => { setMentor({ ...mentor, id: e.target.value }) }}
         className={classes.inputField}
       />
       <TextField
@@ -164,24 +164,24 @@ function IndexPage(): JSX.Element {
       return;
     }
     const _alerts: IAlert[] = [];
-    const idle = mentor.utterances.find(u => u.topics[0].id === UtteranceType.IDLE && u.status === Status.INCOMPLETE);
+    const idle = mentor.questions.find(q => q.topics[0].id === "idle" && q.status === Status.INCOMPLETE);
     if (idle) {
       _alerts.push({
         severity: "warning",
         title: "Missing Idle Video",
         message: "You have not yet recorded a 30 second calibration idle video of yourself. Click the button to record one now.",
         actionText: "Record",
-        actionFunction: function () { navigate(`/record?videoId=${idle.id}`) }
+        actionFunction: function () { navigate(`/record?id=${idle.id}`) }
       });
     }
-    const utterances = mentor.utterances.find(u => u.status === Status.INCOMPLETE);
+    const utterances = mentor.questions.find(q => q.set !== undefined && q.set.id === "repeat_after_me" && q.status === Status.INCOMPLETE);
     if (utterances) {
       _alerts.push({
         severity: "info",
         title: `Record Utterances`,
         message: `You have unrecorded utterances. You will be asked to repeat various lines.`,
         actionText: "Record",
-        actionFunction: function () { navigate(`/record?utterance=true&status=${Status.INCOMPLETE}`) }
+        actionFunction: function () { navigate(`/record?set=${utterances.set!.id}&status=${Status.INCOMPLETE}`) }
       });
     }
     const questions = mentor.questions.find(q => q.status === Status.INCOMPLETE);

@@ -10,8 +10,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { fetchMentor, updateMentor } from "api";
-import { Mentor, Topic } from "types";
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import { fetchMentor, updateMentor, fetchSets } from "api";
+import { Mentor, Set } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
@@ -21,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100vh',
+    backgroundColor: "#eee"
   },
   row: {
     display: "flex",
@@ -29,13 +31,26 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     padding: 25,
   },
-  paper: {
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginLeft: 25,
+    marginRight: 25,
     padding: 25,
     flexGrow: 1,
   },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    width: "100%",
+  },
   title: {
     fontWeight: "bold",
-    marginBottom: 75,
+    margin: 15,
   },
   text: {
     marginBottom: 15,
@@ -54,16 +69,18 @@ function WelcomeSlide(props: { classes: any }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
   return (
-    <Paper className={classes.paper} elevation={0}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Welcome to MentorPal!
       </Typography>
-      <Typography variant="h6" className={classes.text}>
-        It's nice to meet you, {context.user!.name}!
-      </Typography>
-      <Typography variant="h6" className={classes.text}>
-        Let's get started by setting up your new mentor and recording a few questions.
-      </Typography>
+      <div className={classes.column}>
+        <Typography variant="h6" className={classes.text}>
+          It's nice to meet you, {context.user!.name}!
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          Let's get started setting up your new mentor.
+        </Typography>
+      </div>
     </Paper>
   )
 }
@@ -85,50 +102,197 @@ function MentorSlide(props: {
   }
 
   return (
-    <Paper className={classes.paper} elevation={0}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Tell us a little about yourself.
       </Typography>
-      <TextField
-        id="short-name"
-        label="First Name"
-        variant="outlined"
-        value={shortName}
-        onChange={(e) => { setShortName(e.target.value) }}
-        className={classes.inputField}
-      />
-      <TextField
-        id="name"
-        label="Full Name"
-        variant="outlined"
-        value={name}
-        onChange={(e) => { setName(e.target.value) }}
-        className={classes.inputField}
-      />
-      <TextField
-        id="title"
-        label="Job Title"
-        variant="outlined"
-        value={title}
-        onChange={(e) => { setTitle(e.target.value) }}
-        className={classes.inputField}
-      />
+      <div className={classes.column}>
+        <TextField
+          id="short-name"
+          label="First Name"
+          variant="outlined"
+          value={shortName}
+          onChange={(e) => { setShortName(e.target.value) }}
+          className={classes.inputField}
+        />
+        <TextField
+          id="name"
+          label="Full Name"
+          variant="outlined"
+          value={name}
+          onChange={(e) => { setName(e.target.value) }}
+          className={classes.inputField}
+        />
+        <TextField
+          id="title"
+          label="Job Title"
+          variant="outlined"
+          value={title}
+          onChange={(e) => { setTitle(e.target.value) }}
+          className={classes.inputField}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          disabled={mentor.name === name && mentor.shortName === shortName && mentor.title === title}
+          onClick={onSave}
+        >
+          Save Changes
+        </Button>
+      </div>
+    </Paper>
+  )
+}
+
+function IntroductionSlide(props: { classes: any }): JSX.Element {
+  const { classes } = props;
+  return (
+    <Paper className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        Let's start recording.
+      </Typography>
+      <div className={classes.column}>
+        <Typography variant="h6" className={classes.text}>
+          You'll be asked to answer some background questions and repeat after mes.
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          Once you're done recording, you can build and preview your mentor.
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          If you'd like to stop, press done at any point. You can always do this later!
+        </Typography>
+      </div>
+    </Paper>
+  )
+}
+
+function IdleSlide(props: {
+  classes: any,
+  i: number
+}): JSX.Element {
+  const { classes, i } = props;
+  return (
+    <Paper className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        Idle
+      </Typography>
+      <div className={classes.column}>
+        <Typography variant="h6" className={classes.text}>
+          Let's record a short idle calibration.
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          Click the record button and you'll be taken to a recording screen.
+        </Typography>
+      </div>
       <Button
+        className={classes.button}
         variant="contained"
         color="primary"
-        disabled={mentor.name === name && mentor.shortName === shortName && mentor.title === title}
-        onClick={onSave}
+        onClick={() => { navigate(`/record?topic=idle&back=${encodeURI(`/setup?i=${i}`)}`) }}
       >
-        Save Changes
+        Record
       </Button>
     </Paper>
   )
 }
 
-function VideoIntroductionSlide(props: { classes: any }): JSX.Element {
+function RecordSlide(props: {
+  classes: any,
+  i: number,
+  set: Set,
+}): JSX.Element {
+  const { classes, set, i } = props;
+  return (
+    <Paper className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        {set.name} questions
+      </Typography>
+      <Typography variant="h6" className={classes.text}>
+        {set.description}
+      </Typography>
+      <Button
+        className={classes.button}
+        variant="contained"
+        color="primary"
+        onClick={() => { navigate(`/record?set=${set.id}&back=${encodeURI(`/setup?i=${i}`)}`) }}
+      >
+        Record
+      </Button>
+    </Paper>
+  )
+}
+
+function PreviewSlide(props: { classes: any }): JSX.Element {
+  const { classes } = props;
+  const [isBuilt, setIsBuilt] = useState(false);
+  const [isBuilding, setIsBuilding] = useState(false);
+
+  async function buildMentor() {
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+    setIsBuilding(true);
+    await delay(5000);
+    setIsBuilding(false);
+    setIsBuilt(true);
+  }
+
+  return (
+    <Paper className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        Great job! You're ready to build your mentor!
+      </Typography>
+      {
+        isBuilding ? (
+          <div>
+            <Typography variant="h6" className={classes.text}>
+              Building your mentor...
+            </Typography>
+            <CircularProgress />
+          </div>
+        ) : (
+            isBuilt ? (
+              <div>
+                <Typography variant="h6" className={classes.text}>
+                  Congratulations! Your brand-new mentor is ready!
+                </Typography>
+                <Typography variant="h6" className={classes.text}>
+                  Click the preview button to see your mentor.
+                </Typography>
+              </div >
+            ) : (
+                <div>
+                  <Typography variant="h6" className={classes.text}>
+                    Click the build button to start building your mentor.
+                </Typography>
+                  <Typography variant="h6" className={classes.text}>
+                    Once its complete, click preview to see your mentor.
+                </Typography>
+                </div >
+              )
+          )
+      }
+      <Button
+        className={classes.button}
+        variant="contained"
+        color="primary"
+        disabled={isBuilding}
+        onClick={() => {
+          if (isBuilt) {
+            navigate(`http://mentorpal.org/mentorpanel/?mentor=clint`)
+          } else {
+            buildMentor();
+          }
+        }}
+      >
+        {isBuilt ? "Preview" : "Build"}
+      </Button>
+    </Paper >
+  )
+}
+
+function SetSlide(props: { classes: any }): JSX.Element {
   const { classes } = props;
   return (
-    <Paper className={classes.paper} elevation={0}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Let's start recording!
       </Typography>
@@ -145,62 +309,12 @@ function VideoIntroductionSlide(props: { classes: any }): JSX.Element {
   )
 }
 
-function VideoRecordSlide(props: {
-  classes: any,
-  i: number,
-  topic: Topic,
-}): JSX.Element {
-  const { classes, topic, i } = props;
-  return (
-    <Paper className={classes.paper} elevation={0}>
-      <Typography variant="h3" className={classes.title}>
-        {topic.name} questions
-      </Typography>
-      <Typography variant="h6" className={classes.text}>
-        {topic.description}
-      </Typography>
-      <Button
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        onClick={() => { navigate(`/record?topic=${topic.id}&back=${encodeURI(`/setup?i=${i}`)}`) }}
-      >
-        Record
-      </Button>
-    </Paper>
-  )
-}
-
-function UtteranceRecordSlide(props: {
-  classes: any,
-  i: number,
-}): JSX.Element {
-  const { classes, i } = props;
-  return (
-    <Paper className={classes.paper} elevation={0}>
-      <Typography variant="h3" className={classes.title}>
-        Record utterances
-      </Typography>
-      <Typography variant="h6" className={classes.text}>
-        These are miscellaneous videos that will ask you to do things like sit still or repeat certain lines.
-      </Typography>
-      <Button
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        onClick={() => { navigate(`/record?utterance=true&back=${encodeURI(`/setup?i=${i}`)}`) }}
-      >
-        Record
-      </Button>
-    </Paper>
-  )
-}
-
 function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
+  const [sets, setSets] = useState<Set[]>([]);
   const [slides, setSlides] = useState<JSX.Element[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
 
@@ -211,13 +325,14 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    const loadMentor = async () => {
+    const load = async () => {
       if (!context.user) {
         return;
       }
+      setSets(await fetchSets(cookies.accessToken));
       setMentor(await fetchMentor(context.user.id, cookies.accessToken));
     }
-    loadMentor();
+    load();
   }, [context.user]);
 
   React.useEffect(() => {
@@ -227,9 +342,11 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     setSlides([
       <WelcomeSlide key='welcome' classes={classes} />,
       <MentorSlide key='mentor-info' classes={classes} mentor={mentor} onUpdated={setMentor} />,
-      <VideoIntroductionSlide key='record' classes={classes} />,
-      ...mentor.topics.map((t, i) => <VideoRecordSlide key={`topic-${t.id}`} classes={classes} i={i + 3} topic={t} />),
-      <UtteranceRecordSlide key='utterances' classes={classes} i={mentor.topics.length + 3} />
+      <IntroductionSlide key='record' classes={classes} />,
+      <IdleSlide key='idle' classes={classes} i={3} />,
+      <RecordSlide key='background-questions' classes={classes} i={4} set={sets.find(s => s.id === 'background')!} />,
+      <RecordSlide key='utterances' classes={classes} i={5} set={sets.find(s => s.id === 'repeat_after_me')!} />,
+      <PreviewSlide key='preview' classes={classes} />
     ]);
   }, [mentor])
 
@@ -255,16 +372,16 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
           ) : undefined
         }
         {
-          idx !== slides.length - 1 ? (
-            <Button className={classes.button} variant="contained" color="primary" onClick={() => { setIdx(idx + 1) }}>
-              Next
+          idx > 1 ? (
+            <Button className={classes.button} variant="contained" color="secondary" onClick={() => { navigate("/") }}>
+              Done
             </Button>
           ) : undefined
         }
         {
-          idx > 1 ? (
-            <Button className={classes.button} variant="contained" color="secondary" onClick={() => { navigate("/") }}>
-              Done
+          idx !== slides.length - 1 ? (
+            <Button className={classes.button} variant="contained" color="primary" onClick={() => { setIdx(idx + 1) }}>
+              Next
             </Button>
           ) : undefined
         }

@@ -29,8 +29,8 @@ import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import DeleteIcon from '@material-ui/icons/Delete';
 import UndoIcon from '@material-ui/icons/Undo';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { fetchMentor, updateQuestion, uploadVideo, generateTranscript } from "api";
-import { Question, Status, Mentor } from "types";
+import { fetchMentor, fetchTopics, updateQuestion, uploadVideo, generateTranscript } from "api";
+import { Question, Status, Mentor, Topic } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -91,7 +91,7 @@ const useStyles = makeStyles((theme) => ({
 function RecordPage(props: {
   search: {
     videoId?: string[] | string,
-    utterance?: string,
+    set?: string,
     topic?: string,
     status?: string,
     back?: string,
@@ -108,6 +108,7 @@ function RecordPage(props: {
   const [videoInput, setVideoInput] = useState<any>();
   const [video, setVideo] = useState("");
   const [idx, setIdx] = useState(0);
+  const [allTopics, setAllTopics] = useState<Topic[]>([]);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -116,32 +117,32 @@ function RecordPage(props: {
   }, [cookies]);
 
   React.useEffect(() => {
-    const loadQuestions = async () => {
+    const load = async () => {
       if (!context.user) {
         return;
       }
+      const topics = await fetchTopics(cookies.accessToken);
+      setAllTopics(topics);
       const mentor = await fetchMentor(context.user.id, cookies.accessToken);
-      const { videoId, utterance, topic, status } = props.search;
+      const { videoId, set, topic, status } = props.search;
       const _questions: Question[] = [];
       if (videoId) {
         const ids = Array.isArray(videoId) ? videoId : [videoId];
         _questions.push(...mentor.questions.filter(q => ids.includes(q.id)));
-        _questions.push(...mentor.utterances.filter(u => ids.includes(u.id)));
       }
-      else if (utterance) {
-        _questions.push(...mentor.utterances.filter(u => status ? u.status === status : true));
+      else if (set) {
+        _questions.push(...mentor.questions.filter(q => q.set !== undefined && q.set.id === set && (!status || q.status === status)));
       }
       else if (topic) {
-        _questions.push(...mentor.questions.filter(q => status ? q.status === status && q.topics.map(t => t.id).includes(topic) : q.topics.map(t => t.id).includes(topic)));
+        _questions.push(...mentor.questions.filter(q => q.topics.map(t => t.id).includes(topic) && (!status || q.status === status)));
       }
       else {
         _questions.push(...mentor.questions.filter(q => status ? q.status === status : true));
-        _questions.push(...mentor.utterances.filter(u => status ? u.status === status : true));
       }
       setMentor(mentor);
       setQuestions(_questions);
     }
-    loadQuestions();
+    load();
   }, [context.user]);
 
   React.useEffect(() => {
@@ -167,7 +168,7 @@ function RecordPage(props: {
     toast("Uploading video...");
     const videoId = questions[idx].id;
     const updatedMentor = await uploadVideo(context.user!.id, videoId, videoInput, cookies.accessToken);
-    const question = videoId.startsWith("U") ? updatedMentor.utterances.find(u => u.id === videoId) : updatedMentor.questions.find(q => q.id === videoId);
+    const question = updatedMentor.questions.find(q => q.id === videoId);
     if (!question) {
       toast("Failed to upload video");
       return;
@@ -190,7 +191,7 @@ function RecordPage(props: {
   }
 
   function addTopic() {
-    const existingTopic = mentor!.topics.find(t => t.name === topicInput);
+    const existingTopic = allTopics.find(t => t.name === topicInput);
     if (existingTopic) {
       question.topics.push(existingTopic);
     }
@@ -198,8 +199,7 @@ function RecordPage(props: {
       question.topics.push({
         id: topicInput.toLowerCase().replace(" ", ""),
         name: topicInput,
-        description: "",
-        category: ""
+        description: ""
       })
     }
     onUpdateQuestion(question);
@@ -287,6 +287,7 @@ function RecordPage(props: {
           <OutlinedInput
             id="question-input"
             value={questionInput}
+            disabled={question.set !== undefined}
             onChange={(e) => { setQuestionInput(e.target.value) }}
             endAdornment={
               <InputAdornment position="end">
@@ -359,7 +360,7 @@ function RecordPage(props: {
               <Autocomplete
                 id="topic-input"
                 freeSolo
-                options={mentor.topics.map(t => t.name)}
+                options={allTopics.map(t => t.name)}
                 onChange={(e, v) => { setTopicInput(v || "") }}
                 style={{ marginLeft: 15, marginRight: 15 }}
                 renderInput={(params) => (
