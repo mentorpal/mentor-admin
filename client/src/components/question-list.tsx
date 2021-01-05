@@ -16,6 +16,28 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Question, Topic } from "types";
 
+function QuestionItem(props: {
+  question: Question,
+  i: number
+}): JSX.Element {
+  const { question, i } = props;
+  const set = question.set ? `Set: ${question.set.name}` : null;
+  const topics = question.topics.length === 0 ? null : `Topics: ${question.topics.map((topic: Topic) => { return topic.name }).join(", ")}`
+  return (
+    <ListItem id={`item-${i}`} style={{ backgroundColor: "#eee" }}>
+      <ListItemIcon>
+        <Checkbox
+          id="check"
+          edge="start"
+        />
+      </ListItemIcon>
+      <ListItemText
+        primary={question.question}
+        secondary={`${set}${set ? ", ": ""}${topics}`} />
+    </ListItem>
+  )
+}
+
 function QuestionList(props: {
   id: string,
   header: string,
@@ -54,19 +76,7 @@ function QuestionList(props: {
         >
           <List id="list" style={{ border: 1 }}>
             {
-              questions.map((question: Question, i: number) =>
-                <ListItem id={`item-${i}`} key={`${id}-${i}`} style={{ backgroundColor: "#eee" }}>
-                  <ListItemIcon>
-                    <Checkbox
-                      id="check"
-                      edge="start"
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={question.question}
-                    secondary={question.topics.map((topic: Topic) => { return topic.name }).join(", ")} />
-                </ListItem>
-              )
+              questions.map((question: Question, i: number) => <QuestionItem question={question} i={i}/>)
             }
           </List>
         </Collapse>
