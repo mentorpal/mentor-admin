@@ -41,6 +41,7 @@ export interface Mentor {
   title: string;
   sets: Set[];
   questions: Question[];
+  isBuilt: boolean;
 }
 
 export interface QuestionSet {

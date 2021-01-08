@@ -10,17 +10,22 @@ export const sets: Set[] = [
   {
     id: "repeat_after_me",
     name: "Repeat After Me",
-    description: "These are miscellaneous phrases you'll be asked to repeat",
+    description: "These are miscellaneous phrases you'll be asked to repeat.",
   },
   {
     id: "background",
     name: "Background",
-    description: "These questions will ask general questions about your background that might be relevant to how people understand your career",
+    description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
   },
   {
     id: "stem",
     name: "STEM",
-    description: "These questions will ask about STEM careers",
+    description: "These questions will ask about STEM careers.",
+  },
+  {
+    id: "leadership",
+    name: "Leadership",
+    description: "These questions will ask about being in a leadership role.",
   },
 ]
 
@@ -75,7 +80,7 @@ export const questions: Question[] = [
   },
   {
     id: "A3_1_1",
-    question: "Do I need to go to college to get a job in STEM?",
+    question: "Should I get a college degree if I want a job in STEM?",
     set: sets[2],
     topics: [topics[1]],
     video: "",
@@ -112,7 +117,17 @@ export const questions: Question[] = [
     transcript: "",
     recordedAt: "",
     status: Status.INCOMPLETE
-  }
+  },
+  {
+    id: "A7_1_1",
+    question: "What's the hardest decision you've had to make as a leader?",
+    set: sets[3],
+    topics: [topics[1]],
+    video: "",
+    transcript: "",
+    recordedAt: "",
+    status: Status.INCOMPLETE,
+  },
 ]
 
 export const newMentor: Mentor = {
@@ -120,6 +135,7 @@ export const newMentor: Mentor = {
   name: "",
   shortName: "",
   title: "",
+  isBuilt: false,
   sets: [sets[0], sets[1]],
   questions: [questions[0], questions[1], questions[3], questions[4], questions[5]],
 }
