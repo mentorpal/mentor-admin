@@ -56,6 +56,18 @@ export function updateMentor(mentor: Mentor, accessToken: string): Mentor {
   return mentor;
 }
 
+export async function buildMentor(id: string, accessToken: string): Promise<Mentor> {
+  await delay(5000);
+  const mentor: Mentor = state.mentor ? state.mentor : newMentor;
+  mentor.isBuilt = true;
+  state = {
+    ...state,
+    mentor
+  }
+  return mentor;
+}
+
+
 export function updateQuestion(mentorId: string, question: Question, accessToken: string): Mentor {
   const mentor: Mentor = fetchMentor(mentorId, accessToken);
   const idx = mentor.questions.findIndex((q: Question) => q.id === question.id);

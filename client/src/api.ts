@@ -13,6 +13,9 @@ interface FetchMentor {
 interface UpdateMentor {
   updateMentor: Mentor;
 }
+interface BuildMentor {
+  buildMentor: Mentor;
+}
 interface UpdateQuestion {
   updateQuestion: Mentor;
 }
@@ -51,6 +54,7 @@ export async function fetchMentor(id: string, accessToken: string): Promise<Ment
           name
           shortName
           title
+          isBuilt
           sets {
             id
             name
@@ -106,6 +110,7 @@ export async function updateMentor(mentor: Mentor, accessToken: string): Promise
           name
           shortName
           title
+          isBuilt
           sets {
             id
             name
@@ -136,6 +141,50 @@ export async function updateMentor(mentor: Mentor, accessToken: string): Promise
   return result.data.data!.updateMentor;
 }
 
+export async function buildMentor(id: string, accessToken: string): Promise<Mentor> {
+  if (fakeApis.useFakeApis()) {
+    return fakeApis.buildMentor(id, accessToken);
+  }
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<BuildMentor>>(GRAPHQL_ENDPOINT, {
+    query: `
+      mutation {
+        buildMentor(id: "${id}") {
+          id
+          name
+          shortName
+          title
+          isBuilt
+          sets {
+            id
+            name
+            description
+          }
+          questions {
+            id
+            question
+            set {
+              id
+              name
+              description
+            }
+            topics {
+              id
+              name
+              description
+            }
+            video
+            transcript
+            status
+            recordedAt
+          }
+        }
+      }
+    `,
+  }, { headers: headers });
+  return result.data.data!.buildMentor
+}
+
 export async function updateQuestion(mentorId: string, question: Question, accessToken: string): Promise<Mentor> {
   if (fakeApis.useFakeApis()) {
     return fakeApis.updateQuestion(mentorId, question, accessToken);
@@ -155,6 +204,7 @@ export async function updateQuestion(mentorId: string, question: Question, acces
           name
           shortName
           title
+          isBuilt
           sets {
             id
             name
@@ -199,6 +249,7 @@ export async function uploadVideo(mentorId: string, questionId: string, video: a
           name
           shortName
           title
+          isBuilt
           sets {
             id
             name

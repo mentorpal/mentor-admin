@@ -4,52 +4,103 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyLogin, cyMockGraphQL, cyMockByQueryName } from "../support/functions";
+declare var require: any
+import { cySetup, cyMockGraphQL, cyMockLogin } from "../support/functions";
 
 describe("Login", () => {
 
-  describe("navbar", () => {
-    it("navbar shows username if the user is logged in", () => {
+  describe("redirects to login page if the user is not logged in", () => {
+    it("from home page", () => {
       cySetup(cy);
-      cyMockGraphQL(cy, {
-        mocks: [cyLogin(cy)],
-      });
+      cy.visit("/");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from setup page", () => {
+      cySetup(cy);
+      cy.visit("/setup");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from record page", () => {
+      cySetup(cy);
+      cy.visit("/record");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from training page", () => {
+      cySetup(cy);
+      cy.visit("/train");
+      cy.location("pathname").should("contain", "/login");
+    });
+  });
+
+  describe("navbar", () => {
+    it("shows username if the user is logged in", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        }
+      ]);
       cy.visit("/");
       cy.get("#nav-bar #login-option").contains("Clinton Anderson");
     });
 
-    it("navbar does not show username if the user is not logged in", () => {
+    it("does not show username if the user is not logged in", () => {
       cySetup(cy);
-      cyMockGraphQL(cy, {
-        mocks: [cyLogin(cy)],
-      });
       cy.visit("/");
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
-    it("can logout from navbar and redirect to login page", () => {
+    it("can logout and redirect to login page", () => {
       cySetup(cy);
-      cyMockGraphQL(cy, {
-        mocks: [cyLogin(cy)],
-      });
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-setup3")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        },
+      ]);
       cy.visit("/");
-      cy.get("#nav-bar #login-option").trigger('mouseover').click();
-      cy.get("#nav-bar #login-menu #logout-button").trigger('mouseover').click();
+      cy.get("#login-option").trigger('mouseover').click();
+      cy.get("#logout-button").trigger('mouseover').click();
       cy.location("pathname").should("contain", "/login");
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.get("#login-option").should("not.exist");
     });
 
-    it("can navigate to home page from navbar", () => {
+    it("can navigate to home page", () => {
       cySetup(cy);
-      cyMockGraphQL(cy, {
-        mocks: [cyLogin(cy)],
-      });
-      cy.visit("/");
-      cy.get("#nav-bar #login-option").trigger('mouseover').click();
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-setup3")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        },
+      ]);
+      cy.visit("/setup");
+      cy.get("#login-option").trigger('mouseover').click();
       cy.get("#home-button").trigger('mouseover').click();
       cy.location("pathname").should("eq", "/");
-      cy.get("#nav-bar #login-option").contains("Clinton Anderson");
-    })
+    });
   });
 
   it("shows login page", () => {
@@ -60,39 +111,32 @@ describe("Login", () => {
     cy.get("#login-button").contains("Sign in");
   });
 
-  it("redirects to login page from home page if the user is not logged in", () => {
+  it("logs in automatically if the user has an accessToken", () => {
     cySetup(cy);
-    cy.visit("/");
-    cy.location("pathname").should("contain", "/login");
+    cyMockLogin();
+    cyMockGraphQL(cy, [
+      {
+        query: "login",
+        data: require("../fixtures/login")
+      },
+    ]);
+    cy.visit("/login");
+    cy.location("pathname").should("not.contain", "/login");
   });
 
-  it("redirects to home page after the user logs in", () => {
+  it("redirects to setup page after logging in for the first time", () => {
     cySetup(cy);
-    cyMockGraphQL(cy, {
-      mocks: [cyMockByQueryName("login", {
-        login: {
-          user: {
-            id: "kayla",
-            name: "Kayla Carr",
-          },
-          accessToken: 'accessToken'
-        },
-      })],
-    });
+    cyMockGraphQL(cy, [
+      {
+        query: "login",
+        data: require("../fixtures/login")
+      },
+    ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/login");
     cy.get("#login-button").trigger('mouseover').click();
+    cy.location("pathname").should("contain", "/setup");
     cy.location("pathname").should("not.contain", "/login");
-    cy.get("#nav-bar #title").contains("Mentor Studio");
-  });
-
-  it("logs in automatically if the user has an accessToken", () => {
-    cySetup(cy);
-    cyMockGraphQL(cy, {
-      mocks: [cyLogin(cy)],
-    });
-    cy.visit("/login");
-    cy.location("pathname").should("not.contain", "/login");
-    cy.get("#nav-bar #title").contains("Mentor Studio");
+    cy.get("#nav-bar #title").contains("Mentor Setup");
   });
 });

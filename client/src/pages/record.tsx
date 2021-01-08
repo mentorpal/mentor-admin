@@ -423,6 +423,7 @@ function RecordPage(props: {
           {
             idx === questions.length - 1 ? (
               <Button
+                id="done-btn"
                 className={classes.nextBtn}
                 variant="contained"
                 color="primary"

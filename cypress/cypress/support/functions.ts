@@ -1,67 +1,89 @@
+export interface StaticResponse {
+  /**
+   * Serve a fixture as the response body.
+   */
+  fixture?: string;
+  /**
+   * Serve a static string/JSON object as the response body.
+   */
+  body?: string | object | object[];
+  /**
+   * HTTP headers to accompany the response.
+   * @default {}
+   */
+  headers?: { [key: string]: string };
+  /**
+   * The HTTP status code to send.
+   * @default 200
+   */
+  statusCode?: number;
+  /**
+   * If 'forceNetworkError' is truthy, Cypress will destroy the browser connection
+   * and send no response. Useful for simulating a server that is not reachable.
+   * Must not be set in combination with other options.
+   */
+  forceNetworkError?: boolean;
+  /**
+   * Milliseconds to delay before the response is sent.
+   */
+  delayMs?: number;
+  /**
+   * Kilobits per second to send 'body'.
+   */
+  throttleKbps?: number;
+}
+
+export interface MockGraphQLQuery {
+  query: string,
+  data: any | any[]
+}
+
+export function staticResponse(s: StaticResponse): StaticResponse {
+  return {
+    ...{
+      headers: {
+        "access-control-allow-origin": window.location.origin,
+        "Access-Control-Allow-Credentials": "true",
+      },
+      ...s,
+    },
+  };
+}
+
 export function cySetup(cy) {
   cy.server();
   cy.viewport(1280, 720);
 }
 
-export interface MockGraphQLQuery {
-  (req: any, grapqlBody: any): void;
-}
-
-export interface MockGraphQLArgs {
-  mocks: MockGraphQLQuery[];
-  alias?: string;
-}
-
-export function cyMockByQueryName(query: string, data: any): MockGraphQLQuery {
-  return (req: any, grapqlBody: any) => {
-    const q = grapqlBody.query.replace(/\s+/g, " ").replace("\n", "").trim();
-    if (q.indexOf(`{ ${query}`) !== -1) {
-      req.reply({
-        body: {
-          data: data,
-          errors: null,
-        },
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      req.alias = query;
-    }
-  };
-}
-
-export function cyMockGraphQL(cy, args: MockGraphQLArgs): void {
-  const r = cy.route2(
-    {
-      method: "POST",
-      url: "**/graphql",
-    },
-    (req) => {
-      const g = JSON.parse(req.body);
-      for (const m of args.mocks) {
-        m(req, g);
+export function cyMockGraphQL(cy, mocks: MockGraphQLQuery[]): void {
+  const queryCalls: any = {}
+  for (const mock of mocks) {
+    queryCalls[mock.query] = 0;
+  }
+  cy.intercept('POST', '**/graphql', (req) => {
+    const { body } = req;
+    const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
+    for (const mock of mocks) {
+      if (queryBody.indexOf(`mutation { ${mock.query}`) !== -1 ||
+        queryBody.indexOf(`query { ${mock.query}`) !== -1
+      ) {
+        const data = Array.isArray(mock.data) ? mock.data : [mock.data];
+        const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
+        req.alias = mock.query;
+        req.reply(staticResponse({
+          body: {
+            data: val,
+            errors: null,
+          }
+        }));
+        queryCalls[mock.query] = queryCalls[mock.query] + 1;
+        break;
       }
     }
-  );
-  if (args.alias) {
-    r.as(args.alias);
-  }
-}
-
-export function cyMockMentor(mentor: any): MockGraphQLQuery {
-  return cyMockByQueryName("mentor", mentor);
-}
-
-export function cyLogin(cy): MockGraphQLQuery {
-  cy.route("**/config", { GOOGLE_CLIENT_ID: "test" });
-  cy.setCookie("accessToken", "accessToken");
-  return cyMockByQueryName("login", {
-    login: {
-      user: {
-        id: "clint",
-        name: "Clinton Anderson",
-      },
-      accessToken: 'accessToken'
-    },
   });
+}
+
+export function cyMockLogin(): void {
+  cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
+  cy.setCookie("accessToken", "accessToken");
 }
