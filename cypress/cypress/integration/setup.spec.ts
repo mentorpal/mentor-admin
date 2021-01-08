@@ -9,131 +9,131 @@ import { cySetup, cyMockGraphQL, cyMockLogin } from "../support/functions";
 
 describe("Setup", () => {
 
-  // describe("can navigate through slides", () => {
-  //   it("with next button", () => {
-  //     cySetup(cy);
-  //     cyMockLogin();
-  //     cyMockGraphQL(cy, [
-  //       {
-  //         query: "login",
-  //         data: require("../fixtures/login")
-  //       },
-  //       {
-  //         query: "mentor",
-  //         data: require("../fixtures/mentor/clint-new")
-  //       },
-  //       {
-  //         query: "sets",
-  //         data: require("../fixtures/sets")
-  //       }
-  //     ]);
-  //     cy.visit("/setup");
-  //     cy.get("#slide").contains("Welcome to MentorPal!");
-  //     cy.get("#next-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Tell us a little about yourself.");
-  //     cy.get("#next-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Let's start recording.");
-  //     cy.get("#next-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Idle");
-  //     cy.get("#next-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Background questions");
-  //     cy.get("#next-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Repeat After Me questions");
-  //   });
+  describe("can navigate through slides", () => {
+    it("with next button", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-new")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        }
+      ]);
+      cy.visit("/setup");
+      cy.get("#slide").contains("Welcome to MentorPal!");
+      cy.get("#next-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Tell us a little about yourself.");
+      cy.get("#next-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Let's start recording.");
+      cy.get("#next-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Idle");
+      cy.get("#next-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Background questions");
+      cy.get("#next-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Repeat After Me questions");
+    });
 
-  //   it("with back button", () => {
-  //     cySetup(cy);
-  //     cyMockLogin();
-  //     cyMockGraphQL(cy, [
-  //       {
-  //         query: "login",
-  //         data: require("../fixtures/login")
-  //       },
-  //       {
-  //         query: "mentor",
-  //         data: require("../fixtures/mentor/clint-new")
-  //       },
-  //       {
-  //         query: "sets",
-  //         data: require("../fixtures/sets")
-  //       }
-  //     ]);
-  //     cy.visit("/setup?i=5");
-  //     cy.get("#slide").contains("Repeat After Me questions");
-  //     cy.get("#back-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Background questions");
-  //     cy.get("#back-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Idle");
-  //     cy.get("#back-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Let's start recording.");
-  //     cy.get("#back-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Tell us a little about yourself.");
-  //     cy.get("#back-btn").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Welcome to MentorPal!");
-  //   });
+    it("with back button", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-new")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        }
+      ]);
+      cy.visit("/setup?i=5");
+      cy.get("#slide").contains("Repeat After Me questions");
+      cy.get("#back-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Background questions");
+      cy.get("#back-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Idle");
+      cy.get("#back-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Let's start recording.");
+      cy.get("#back-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Tell us a little about yourself.");
+      cy.get("#back-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Welcome to MentorPal!");
+    });
 
-  //   it("with radio buttons", () => {
-  //     cySetup(cy);
-  //     cyMockLogin();
-  //     cyMockGraphQL(cy, [
-  //       {
-  //         query: "login",
-  //         data: require("../fixtures/login")
-  //       },
-  //       {
-  //         query: "mentor",
-  //         data: require("../fixtures/mentor/clint-new")
-  //       },
-  //       {
-  //         query: "sets",
-  //         data: require("../fixtures/sets")
-  //       }
-  //     ]);
-  //     cy.visit("/setup");
-  //     cy.get("#slide").contains("Welcome to MentorPal!");
-  //     cy.get("#radio-1").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Tell us a little about yourself.");
-  //     cy.get("#radio-2").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Let's start recording.");
-  //     cy.get("#radio-3").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Idle");
-  //     cy.get("#radio-4").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Background questions");
-  //     cy.get("#radio-5").trigger('mouseover').click();
-  //     cy.get("#slide").contains("Repeat After Me questions");
-  //   });
+    it("with radio buttons", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-new")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        }
+      ]);
+      cy.visit("/setup");
+      cy.get("#slide").contains("Welcome to MentorPal!");
+      cy.get("#radio-1").trigger('mouseover').click();
+      cy.get("#slide").contains("Tell us a little about yourself.");
+      cy.get("#radio-2").trigger('mouseover').click();
+      cy.get("#slide").contains("Let's start recording.");
+      cy.get("#radio-3").trigger('mouseover').click();
+      cy.get("#slide").contains("Idle");
+      cy.get("#radio-4").trigger('mouseover').click();
+      cy.get("#slide").contains("Background questions");
+      cy.get("#radio-5").trigger('mouseover').click();
+      cy.get("#slide").contains("Repeat After Me questions");
+    });
 
-  //   it("with query param i", () => {
-  //     cySetup(cy);
-  //     cyMockLogin();
-  //     cyMockGraphQL(cy, [
-  //       {
-  //         query: "login",
-  //         data: require("../fixtures/login")
-  //       },
-  //       {
-  //         query: "mentor",
-  //         data: require("../fixtures/mentor/clint-new")
-  //       },
-  //       {
-  //         query: "sets",
-  //         data: require("../fixtures/sets")
-  //       }
-  //     ]);
-  //     cy.visit("/setup?i=0");
-  //     cy.get("#slide").contains("Welcome to MentorPal!");
-  //     cy.visit("/setup?i=1");
-  //     cy.get("#slide").contains("Tell us a little about yourself.");
-  //     cy.visit("/setup?i=2");
-  //     cy.get("#slide").contains("Let's start recording.");
-  //     cy.visit("/setup?i=3");
-  //     cy.get("#slide").contains("Idle");
-  //     cy.visit("/setup?i=4");
-  //     cy.get("#slide").contains("Background questions");
-  //     cy.visit("/setup?i=5");
-  //     cy.get("#slide").contains("Repeat After Me questions");
-  //   });
-  // });
+    it("with query param i", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyMockGraphQL(cy, [
+        {
+          query: "login",
+          data: require("../fixtures/login")
+        },
+        {
+          query: "mentor",
+          data: require("../fixtures/mentor/clint-new")
+        },
+        {
+          query: "sets",
+          data: require("../fixtures/sets")
+        }
+      ]);
+      cy.visit("/setup?i=0");
+      cy.get("#slide").contains("Welcome to MentorPal!");
+      cy.visit("/setup?i=1");
+      cy.get("#slide").contains("Tell us a little about yourself.");
+      cy.visit("/setup?i=2");
+      cy.get("#slide").contains("Let's start recording.");
+      cy.visit("/setup?i=3");
+      cy.get("#slide").contains("Idle");
+      cy.visit("/setup?i=4");
+      cy.get("#slide").contains("Background questions");
+      cy.visit("/setup?i=5");
+      cy.get("#slide").contains("Repeat After Me questions");
+    });
+  });
 
   it("shows setup page after logging in", () => {
     cySetup(cy);
