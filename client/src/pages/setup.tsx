@@ -13,12 +13,11 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { fetchMentor, updateMentor, fetchSets } from "api";
+import { fetchMentor, updateMentor, fetchSets, fetchQuestionSet, buildMentor } from "api";
 import { Mentor, Set, Status, Question } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
-import { fetchQuestionSet, buildMentor } from "fake_servers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -329,7 +328,7 @@ function BuildMentorSlide(props: {
         disabled={isBuilding}
         onClick={() => {
           if (isBuilt) {
-            navigate(`http://mentorpal.org/mentorpanel/?mentor=clint`)
+            navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor.id}`)
           } else {
             build();
           }
@@ -397,7 +396,7 @@ function QuestionSetSlide(props: {
       </div>
       <div className={classes.row}>
         <Select
-          id="sets"
+          id="select-set"
           value={set ? set.id : ""}
           onChange={(event: React.ChangeEvent<{ value: unknown; name?: unknown }>) => {
             setSet(sets.find(s => s.id === event.target.value as string))
@@ -415,6 +414,7 @@ function QuestionSetSlide(props: {
         {
           isAdding ? <CircularProgress /> : (
             <Button
+              id="set-btn"
               className={classes.button}
               variant="contained"
               color="primary"
@@ -436,7 +436,7 @@ function QuestionSetSlide(props: {
       {
         isSetAdded ? (
           isRecorded ? (
-            <CheckCircleIcon style={{ color: 'green' }} />
+            <CheckCircleIcon id="check" style={{ color: 'green' }} />
           ) : (
               <Typography variant="h6" className={classes.text}>
                 {recorded.length} / {questions.length}
