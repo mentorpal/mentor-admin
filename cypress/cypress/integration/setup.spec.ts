@@ -4,8 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-declare var require: any
-import { cySetup, cyMockGraphQL, cyMockLogin } from "../support/functions";
+import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
+import login from "../fixtures/login";
+import sets from "../fixtures/sets";
+import topics from "../fixtures/topics";
+import leadership from "../fixtures/questionSet/leadership";
+import { setup0, setup1, setup10, setup11, setup2, setup3, setup4, setup5, setup6, setup7, setup8, setup9 } from "../fixtures/mentor/setup"
 
 describe("Setup", () => {
 
@@ -13,19 +17,10 @@ describe("Setup", () => {
     it("with next button", () => {
       cySetup(cy);
       cyMockLogin();
-      cyMockGraphQL(cy, [
-        {
-          query: "login",
-          data: require("../fixtures/login")
-        },
-        {
-          query: "mentor",
-          data: require("../fixtures/mentor/clint-new")
-        },
-        {
-          query: "sets",
-          data: require("../fixtures/sets")
-        }
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", setup0),
+        cyMockGQL("sets", [sets])
       ]);
       cy.visit("/setup");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -44,19 +39,10 @@ describe("Setup", () => {
     it("with back button", () => {
       cySetup(cy);
       cyMockLogin();
-      cyMockGraphQL(cy, [
-        {
-          query: "login",
-          data: require("../fixtures/login")
-        },
-        {
-          query: "mentor",
-          data: require("../fixtures/mentor/clint-new")
-        },
-        {
-          query: "sets",
-          data: require("../fixtures/sets")
-        }
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", setup0),
+        cyMockGQL("sets", [sets])
       ]);
       cy.visit("/setup?i=5");
       cy.get("#slide").contains("Repeat After Me questions");
@@ -75,19 +61,10 @@ describe("Setup", () => {
     it("with radio buttons", () => {
       cySetup(cy);
       cyMockLogin();
-      cyMockGraphQL(cy, [
-        {
-          query: "login",
-          data: require("../fixtures/login")
-        },
-        {
-          query: "mentor",
-          data: require("../fixtures/mentor/clint-new")
-        },
-        {
-          query: "sets",
-          data: require("../fixtures/sets")
-        }
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", setup0),
+        cyMockGQL("sets", [sets])
       ]);
       cy.visit("/setup");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -106,19 +83,10 @@ describe("Setup", () => {
     it("with query param i", () => {
       cySetup(cy);
       cyMockLogin();
-      cyMockGraphQL(cy, [
-        {
-          query: "login",
-          data: require("../fixtures/login")
-        },
-        {
-          query: "mentor",
-          data: require("../fixtures/mentor/clint-new")
-        },
-        {
-          query: "sets",
-          data: require("../fixtures/sets")
-        }
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", setup0),
+        cyMockGQL("sets", [sets])
       ]);
       cy.visit("/setup?i=0");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -138,19 +106,10 @@ describe("Setup", () => {
   it("shows setup page after logging in", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: require("../fixtures/mentor/clint-new")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", setup0),
+      cyMockGQL("sets", [sets])
     ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
@@ -159,19 +118,10 @@ describe("Setup", () => {
   it("shows welcome slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: require("../fixtures/mentor/clint-new")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", setup0),
+      cyMockGQL("sets", [sets])
     ]);
     cy.visit("/setup?i=0");
     cy.get("#slide").contains("Welcome to MentorPal!");
@@ -186,32 +136,11 @@ describe("Setup", () => {
   it("shows mentor slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: [
-          require("../fixtures/mentor/clint-new"),
-          require("../fixtures/mentor/clint-setup1"),
-          require("../fixtures/mentor/clint-setup2"),
-          require("../fixtures/mentor/clint-setup3"),
-        ]
-      },
-      {
-        query: "updateMentor",
-        data: [
-          require("../fixtures/updateMentor/clint-setup1"),
-          require("../fixtures/updateMentor/clint-setup2"),
-          require("../fixtures/updateMentor/clint-setup3"),
-        ]
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup0, setup1, setup2, setup3]),
+      cyMockGQL("updateMentor", [setup1, setup2, setup3]),
+      cyMockGQL("sets", [sets])
     ]);
     cy.visit("/setup?i=1");
     // empty mentor slide
@@ -256,19 +185,10 @@ describe("Setup", () => {
   it("shows introduction slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: require("../fixtures/mentor/clint-setup3")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup3]),
+      cyMockGQL("sets", [sets])
     ]);
     cy.visit("/setup?i=2");
     cy.get("#slide").contains("Let's start recording.");
@@ -290,32 +210,12 @@ describe("Setup", () => {
   it("shows idle slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: [
-          require("../fixtures/mentor/clint-setup3"),
-          require("../fixtures/mentor/clint-setup3"),
-          require("../fixtures/mentor/clint-setup4"),
-          require("../fixtures/mentor/clint-setup4"),
-        ]
-      },
-      {
-        query: "updateQuestion",
-        data: require("../fixtures/updateQuestion/clint-setup4")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      },
-      {
-        query: "topics",
-        data: require("../fixtures/topics")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup3, setup3, setup4, setup4]),
+      cyMockGQL("updateQuestion", [setup4]),
+      cyMockGQL("sets", [sets]),
+      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=3");
     cy.get("#slide").contains("Idle");
@@ -356,38 +256,12 @@ describe("Setup", () => {
   it("shows background questions slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: [
-          require("../fixtures/mentor/clint-setup4"),
-          require("../fixtures/mentor/clint-setup4"),
-          require("../fixtures/mentor/clint-setup5"),
-          require("../fixtures/mentor/clint-setup5"),
-          require("../fixtures/mentor/clint-setup6"),
-          require("../fixtures/mentor/clint-setup6"),
-        ]
-      },
-      {
-        query: "updateQuestion",
-        data: [
-          require("../fixtures/updateQuestion/clint-setup4"),
-          require("../fixtures/updateQuestion/clint-setup5"),
-          require("../fixtures/updateQuestion/clint-setup6"),
-        ]
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      },
-      {
-        query: "topics",
-        data: require("../fixtures/topics")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup4, setup4, setup5, setup5, setup6, setup6]),
+      cyMockGQL("updateQuestion", [setup5, setup6]),
+      cyMockGQL("sets", [sets]),
+      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=4");
     cy.get("#slide").contains("Background questions");
@@ -457,37 +331,12 @@ describe("Setup", () => {
   it("shows repeat after me questions slide", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: [
-          require("../fixtures/mentor/clint-setup6"),
-          require("../fixtures/mentor/clint-setup6"),
-          require("../fixtures/mentor/clint-setup7"),
-          require("../fixtures/mentor/clint-setup7"),
-          require("../fixtures/mentor/clint-setup8"),
-          require("../fixtures/mentor/clint-setup8"),
-        ]
-      },
-      {
-        query: "updateQuestion",
-        data: [
-          require("../fixtures/updateQuestion/clint-setup7"),
-          require("../fixtures/updateQuestion/clint-setup8"),
-        ]
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      },
-      {
-        query: "topics",
-        data: require("../fixtures/topics")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup6, setup6, setup7, setup7, setup8, setup8]),
+      cyMockGQL("updateQuestion", [setup7, setup8]),
+      cyMockGQL("sets", [sets]),
+      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=5");
     cy.get("#slide").contains("Repeat After Me questions");
@@ -568,19 +417,10 @@ describe("Setup", () => {
   it("shows build mentor error slide if setup isn't complete", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: require("../fixtures/mentor/clint-new")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup0]),
+      cyMockGQL("sets", [sets]),
     ]);
     cy.visit("/setup?i=6");
     cy.get("#slide").contains("Oops! We aren't done just yet!");
@@ -595,23 +435,11 @@ describe("Setup", () => {
   it("shows build mentor slide after completing setup", () => {
     cySetup(cy);
     cyMockLogin();
-    cyMockGraphQL(cy, [
-      {
-        query: "login",
-        data: require("../fixtures/login")
-      },
-      {
-        query: "mentor",
-        data: require("../fixtures/mentor/clint-setup8")
-      },
-      {
-        query: "buildMentor",
-        data: require("../fixtures/buildMentor/clint-setup9")
-      },
-      {
-        query: "sets",
-        data: require("../fixtures/sets")
-      }
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup8, setup9]),
+      cyMockGQL("buildMentor", setup9),
+      cyMockGQL("sets", [sets]),
     ]);
     cy.visit("/setup?i=6");
     cy.get("#slide").contains("Great job! You're ready to build your mentor!");
@@ -624,12 +452,103 @@ describe("Setup", () => {
     cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // build mentor
     cy.get("#build-btn").trigger('mouseover').click();
-    cy.get("#build-btn").should("be.disabled");
-    cy.get("#slide").contains("Building your mentor...");
-    // mentor built
     cy.get("#slide").contains("Congratulations! Your brand-new mentor is ready!");
     cy.get("#slide").contains("Click the preview button to see your mentor.");
     cy.get("#build-btn").contains("Preview");
     cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
+    // preview mentor
+    cy.get("#build-btn").trigger('mouseover').click();
+    cy.location("hostname").should("contain", "mentorpal.org");
+    cy.location("pathname").should("contain", "mentorpanel/");
+    cy.location("search").should("contain", "?mentor=clintanderson");
+  });
+
+  it("hides add set slide if mentor has not been built", () => {
+    cySetup(cy);
+    cyMockLogin();
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup8]),
+      cyMockGQL("sets", [sets]),
+    ]);
+    cy.visit("/setup");
+    cy.get("#radio-7").should("not.exist");
+  });
+
+  it.only("shows add set slide after mentor has been built", () => {
+    cySetup(cy);
+    cyMockLogin();
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup9, setup10, setup11]),
+      cyMockGQL("updateMentor", [setup10]),
+      cyMockGQL("updateQuestion", [setup11]),
+      cyMockGQL("questionSet", [leadership]),
+      cyMockGQL("sets", [sets]),
+      cyMockGQL("topics", [topics]),
+    ]);
+    cy.visit("/setup?i=7");
+    cy.get("#slide").contains("Pick a Field?");
+    cy.get("#slide").contains("Your basic mentor is done, but you can make it better by picking a question set.");
+    cy.get("#slide").contains("These question sets are specific to your field of expertise. Pick the one you are most qualified to mentor in.");
+    cy.get("#slide").contains("Each set will ask you some related questions. After answering, you'll be placed in a panel with other mentors in your field.");
+    cy.get("#radio-7").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
+    // shows options
+    cy.get("#select-set").trigger("mouseover").click();
+    cy.get("#repeat_after_me").trigger("mouseover").click();
+    cy.get("#select-set").contains("Repeat After Me");
+    cy.get("#slide").contains("These are miscellaneous phrases you'll be asked to repeat.");
+    cy.get("#set-btn").contains("Record");
+    cy.get("#check").should("exist");
+    cy.get("#select-set").trigger("mouseover").click();
+    cy.get("#background").trigger("mouseover").click();
+    cy.get("#select-set").contains("Background");
+    cy.get("#slide").contains("These questions will ask general questions about your background that might be relevant to how people understand your career.");
+    cy.get("#set-btn").contains("Record");
+    cy.get("#check").should("exist");
+    cy.get("#select-set").trigger("mouseover").click();
+    cy.get("#stem").trigger("mouseover").click();
+    cy.get("#select-set").contains("STEM");
+    cy.get("#slide").contains("These questions will ask about STEM careers.");
+    cy.get("#set-btn").contains("Add");
+    cy.get("#check").should("not.exist");
+    cy.get("#select-set").trigger("mouseover").click();
+    cy.get("#leadership").trigger("mouseover").click();
+    cy.get("#select-set").contains("Leadership");
+    cy.get("#slide").contains("These questions will ask about being in a leadership role.");
+    cy.get("#set-btn").contains("Add");
+    cy.get("#check").should("not.exist");
+    // add question set
+    cy.get("#set-btn").trigger("mouseover").click();
+    cy.get("#set-btn").contains("Record");
+    cy.get("#slide").contains("0 / 1");
+    // record question set
+    cy.get("#set-btn").trigger("mouseover").click();
+    cy.location("pathname").should("contain", "/record");
+    cy.location("search").should("contain", "?set=leadership&back=/setup?i=7");
+    cy.get("#progress").contains("Questions 1 / 1");
+    cy.get("#question-input").should("have.value", "What's the hardest decision you've had to make as a leader?");
+    cy.get("#question-input").should("be.disabled");
+    cy.get("#transcript-input").should("have.value", "");
+    cy.get("#topics").contains("Advice");
+    cy.get("#status").contains("Incomplete");
+    cy.get("#select-status").trigger('mouseover').click();
+    cy.get("#complete").trigger('mouseover').click();
+    cy.get("#status").contains("Complete");
+    // back to setup
+    cy.visit("/setup?i=7");
+    cy.location("pathname").should("contain", "/setup");
+    cy.location("search").should("contain", "?i=7");
+    cy.get("#select-set").trigger("mouseover").click();
+    cy.get("#leadership").trigger("mouseover").click();
+    cy.get("#select-set").contains("Leadership");
+    cy.get("#set-btn").contains("Record");
+    cy.get("#check");
+    // click done
+    cy.get("#done-btn").trigger("mouseover").click();
+    cy.location("pathname").should("not.contain", "/setup");
+    cy.get("#questions #progress").contains("Questions (6 / 6)");
+    cy.get("#complete-questions").contains("Recorded (6)");
+    cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
 });

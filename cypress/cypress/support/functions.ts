@@ -55,7 +55,7 @@ export function cySetup(cy) {
   cy.viewport(1280, 720);
 }
 
-export function cyMockGraphQL(cy, mocks: MockGraphQLQuery[]): void {
+export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
   const queryCalls: any = {}
   for (const mock of mocks) {
     queryCalls[mock.query] = 0;
@@ -69,10 +69,13 @@ export function cyMockGraphQL(cy, mocks: MockGraphQLQuery[]): void {
       ) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
+        const body = {};
+        body[mock.query] = val;
+        console.log(body);
         req.alias = mock.query;
         req.reply(staticResponse({
           body: {
-            data: val,
+            data: body,
             errors: null,
           }
         }));
@@ -81,6 +84,13 @@ export function cyMockGraphQL(cy, mocks: MockGraphQLQuery[]): void {
       }
     }
   });
+}
+
+export function cyMockGQL(query: string, data: any | any[]): MockGraphQLQuery {
+  return {
+    query,
+    data
+  }
 }
 
 export function cyMockLogin(): void {
