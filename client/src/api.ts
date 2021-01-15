@@ -1,35 +1,44 @@
 import axios from "axios";
-import { UserAccessToken, Mentor, Topic, Question, Set, QuestionSet } from "types";
-import * as fakeApis from "./fake_servers"
+import {
+  UserAccessToken,
+  Mentor,
+  Topic,
+  Question,
+  Subject as Subject,
+  QuestionSet,
+  Connection,
+} from "types";
+import * as fakeApis from "./fake_servers";
 
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+
 interface GQLResponse<T> {
   errors?: { message: string }[];
   data?: T;
 }
+interface SearchParams {
+  limit?: number;
+  filter?: any;
+  cursor?: string;
+  sortBy?: string;
+  sortAscending?: boolean;
+}
+const defaultSearchParams = {
+  limit: 1000,
+  filter: {},
+  cursor: null,
+  sortBy: null,
+  sortAscending: true,
+};
+
 interface FetchMentor {
   mentor: Mentor;
 }
-interface UpdateMentor {
-  updateMentor: Mentor;
-}
-interface BuildMentor {
-  buildMentor: Mentor;
-}
-interface UpdateQuestion {
-  updateQuestion: Mentor;
-}
-interface UploadVideo {
-  uploadVideo: Mentor;
-}
-interface GenerateTranscript {
-  transcript: string;
-}
-interface FetchSets {
-  sets: Set[];
+interface FetchSubjects {
+  subjects: Connection<Subject>;
 }
 interface FetchTopics {
-  topics: Topic[];
+  topics: Connection<Topic>;
 }
 interface FetchQuestionSet {
   questionSet: QuestionSet;
@@ -40,36 +49,68 @@ interface Login {
 interface LoginGoogle {
   loginGoogle: UserAccessToken;
 }
+interface UpdateMentor {
+  me: {
+    updateMentor: Mentor;
+  };
+}
+interface UpdateQuestion {
+  me: {
+    updateQuestion: Mentor;
+  };
+}
+interface UploadVideo {
+  me: {
+    uploadVideo: Mentor;
+  };
+}
+interface AddQuestionSet {
+  me: {
+    addQuestionSet: Mentor;
+  };
+}
+interface BuildMentor {
+  me: {
+    buildMentor: Mentor;
+  };
+}
+interface GenerateTranscript {
+  me: {
+    generateTranscript: string;
+  };
+}
 
-export async function fetchMentor(id: string, accessToken: string): Promise<Mentor> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.fetchMentor(id, accessToken);
-  }
+export async function fetchMentor(
+  id: string,
+  accessToken: string
+): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<FetchMentor>>(GRAPHQL_ENDPOINT, {
-    query: `
+  const result = await axios.post<GQLResponse<FetchMentor>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
       query {
         mentor(id: "${id}") {
-          id
+          _id
           name
-          shortName
+          firstName
           title
           isBuilt
-          sets {
-            id
+          subjects {
+            _id
             name
             description
           }
           questions {
             id
             question
-            set {
-              id
+            subject {
+              _id
               name
               description
             }
             topics {
-              id
+              _id
               name
               description
             }
@@ -81,280 +122,120 @@ export async function fetchMentor(id: string, accessToken: string): Promise<Ment
         }
       }
     `,
-  }, { headers: headers });
+    },
+    { headers: headers }
+  );
   return result.data.data!.mentor;
 }
 
-export async function updateMentor(mentor: Mentor, accessToken: string): Promise<Mentor> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.updateMentor(mentor, accessToken);
-  }
-  const convertedMentor = {
-    ...mentor,
-    sets: mentor.sets.map((s: Set) => s.id),
-    questions: mentor.questions.map((q: Question) => {
-      return {
-        ...q,
-        set: q.set ? q.set.id : null,
-        topics: q.topics.map((t: Topic) => t.id)
-      }
-    })
-  }
-  const encodedMentor = encodeURI(JSON.stringify(convertedMentor));
+export async function fetchSubjects(
+  accessToken: string,
+  searchParams?: SearchParams
+): Promise<Connection<Subject>> {
+  const params = { ...defaultSearchParams, ...searchParams };
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<UpdateMentor>>(GRAPHQL_ENDPOINT, {
-    query: `
-      mutation {
-        updateMentor(mentor: "${encodedMentor}") {
-          id
-          name
-          shortName
-          title
-          isBuilt
-          sets {
-            id
-            name
-            description
-          }
-          questions {
-            id
-            question
-            set {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            video
-            transcript
-            status
-            recordedAt
-          }
-        }
-      }
-    `,
-  }, { headers: headers });
-  return result.data.data!.updateMentor;
-}
-
-export async function buildMentor(id: string, accessToken: string): Promise<Mentor> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.buildMentor(id, accessToken);
-  }
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<BuildMentor>>(GRAPHQL_ENDPOINT, {
-    query: `
-      mutation {
-        buildMentor(id: "${id}") {
-          id
-          name
-          shortName
-          title
-          isBuilt
-          sets {
-            id
-            name
-            description
-          }
-          questions {
-            id
-            question
-            set {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            video
-            transcript
-            status
-            recordedAt
-          }
-        }
-      }
-    `,
-  }, { headers: headers });
-  return result.data.data!.buildMentor
-}
-
-export async function updateQuestion(mentorId: string, question: Question, accessToken: string): Promise<Mentor> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.updateQuestion(mentorId, question, accessToken);
-  }
-  const convertedQuestion = {
-    ...question,
-    set: question.set ? question.set.id : undefined,
-    topics: question.topics.map((t: Topic) => t.id)
-  }
-  const encodedQuestion = encodeURI(JSON.stringify(convertedQuestion));
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<UpdateQuestion>>(GRAPHQL_ENDPOINT, {
-    query: `
-      mutation {
-        updateQuestion(mentor: "${mentorId}", question: "${encodedQuestion}") {
-          id
-          name
-          shortName
-          title
-          isBuilt
-          sets {
-            id
-            name
-            description
-          }
-          questions {
-            id
-            question
-            set {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            video
-            transcript
-            status
-            recordedAt
-          }
-        }
-      }
-    `,
-  }, { headers: headers });
-  return result.data.data!.updateQuestion;
-}
-
-export async function uploadVideo(mentorId: string, questionId: string, video: any, accessToken: string): Promise<Mentor> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.uploadVideo(mentorId, questionId, video, accessToken);
-  }
-  const encodedVideo = encodeURI(JSON.stringify(video));
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<UploadVideo>>(GRAPHQL_ENDPOINT, {
-    query: `
-      mutation {
-        uploadVideo(mentorId: "${mentorId}", questionId: "${questionId}", video: "${encodedVideo}") {
-          id
-          name
-          shortName
-          title
-          isBuilt
-          sets {
-            id
-            name
-            description
-          }
-          questions {
-            id
-            question
-            set {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            video
-            transcript
-            status
-            recordedAt
-          }
-        }
-      }
-    `,
-  }, { headers: headers });
-  return result.data.data!.uploadVideo;
-}
-
-export async function generateTranscript(mentorId: string, questionId: string, accessToken: string): Promise<string> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.generateTranscript(mentorId, questionId, accessToken);
-  }
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<GenerateTranscript>>(GRAPHQL_ENDPOINT, {
-    query: `
-      mutation {
-        generateTranscript(mentor: "${mentorId}", questionId: "${questionId}") {
-          transcript
-        }
-      }
-    `,
-  }, { headers: headers });
-  return result.data.data!.transcript;
-}
-
-export async function fetchSets(accessToken: string): Promise<Set[]> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.fetchSets(accessToken);
-  }
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<FetchSets>>(GRAPHQL_ENDPOINT, {
-    query: `
+  const result = await axios.post<GQLResponse<FetchSubjects>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
       query {
-        sets {
-          id
-          name
-          description
+        subjects(
+          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          limit:${params.limit},
+          cursor:${params.cursor},
+          sortBy:"${params.sortBy}",
+          sortAscending:${params.sortAscending}
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              name
+              description    
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
         }
       }
     `,
-  }, { headers: headers });
-  return result.data.data!.sets;
+    },
+    { headers: headers }
+  );
+  return result.data.data!.subjects;
 }
 
-export async function fetchTopics(accessToken: string): Promise<Topic[]> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.fetchTopics(accessToken);
-  }
+export async function fetchTopics(
+  accessToken: string,
+  searchParams?: SearchParams
+): Promise<Connection<Topic>> {
+  const params = { ...defaultSearchParams, ...searchParams };
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<FetchTopics>>(GRAPHQL_ENDPOINT, {
-    query: `
+  const result = await axios.post<GQLResponse<FetchTopics>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
       query {
-        topics {
-          id
-          name
-          description
+        topics(
+          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          limit:${params.limit},
+          cursor:${params.cursor},
+          sortBy:"${params.sortBy}",
+          sortAscending:${params.sortAscending}
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              name
+              description
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
         }
       }
     `,
-  }, { headers: headers });
+    },
+    { headers: headers }
+  );
   return result.data.data!.topics;
 }
 
-export async function fetchQuestionSet(id: string, accessToken: string): Promise<QuestionSet> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.fetchQuestionSet(id, accessToken);
-  }
+export async function fetchQuestionSet(
+  id: string,
+  accessToken: string
+): Promise<QuestionSet> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<FetchQuestionSet>>(GRAPHQL_ENDPOINT, {
-    query: `
+  const result = await axios.post<GQLResponse<FetchQuestionSet>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
       query {
         questionSet(id: "${id}")) {
-          set {
-            id
+          subject {
+            _id
             name
             description
           }
           questions {
             id
             question
-            set
+            subject {
+              _id
+              name
+              description
+            }
             topic {
-              id
+              _id
               name
               description
             }
@@ -362,20 +243,310 @@ export async function fetchQuestionSet(id: string, accessToken: string): Promise
         }
       }
     `,
-  }, { headers: headers });
+    },
+    { headers: headers }
+  );
   return result.data.data!.questionSet;
 }
 
+export async function updateMentor(
+  mentor: Mentor,
+  accessToken: string
+): Promise<Mentor> {
+  const convertedMentor = {
+    _id: mentor._id,
+    name: mentor.name,
+    firstName: mentor.firstName,
+    title: mentor.title,
+    isBuilt: mentor.isBuilt,
+  };
+  const encodedMentor = encodeURI(JSON.stringify(convertedMentor));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UpdateMentor>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          updateMentor(mentor: "${encodedMentor}") {
+            _id
+            name
+            firstName
+            title
+            isBuilt
+            subjects {
+              _id
+              name
+              description
+            }
+            questions {
+              id
+              question
+              subject {
+                _id
+                name
+                description
+              }
+              topics {
+                _id
+                name
+                description
+              }
+              video
+              transcript
+              status
+              recordedAt
+            }
+          }  
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateMentor;
+}
+
+export async function updateQuestion(
+  mentorId: string,
+  question: Question,
+  accessToken: string
+): Promise<Mentor> {
+  const convertedQuestion = {
+    ...question,
+    subject: question.subject ? question.subject._id : undefined,
+    topics: question.topics.map((t: Topic) => t._id),
+  };
+  const encodedQuestion = encodeURI(JSON.stringify(convertedQuestion));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UpdateQuestion>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          updateQuestion(mentorId: "${mentorId}", question: "${encodedQuestion}") {
+            _id
+            name
+            firstName
+            title
+            isBuilt
+            subjects {
+              _id
+              name
+              description
+            }
+            questions {
+              id
+              question
+              subject {
+                _id
+                name
+                description
+              }
+              topics {
+                _id
+                name
+                description
+              }
+              video
+              transcript
+              status
+              recordedAt
+            }
+          }  
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateQuestion;
+}
+
+export async function uploadVideo(
+  mentorId: string,
+  questionId: string,
+  video: any,
+  accessToken: string
+): Promise<Mentor> {
+  const encodedVideo = encodeURI(JSON.stringify(video));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UploadVideo>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          uploadVideo(mentorId: "${mentorId}", questionId: "${questionId}", video: "${encodedVideo}") {
+            _id
+            name
+            firstName
+            title
+            isBuilt
+            subjects {
+              _id
+              name
+              description
+            }
+            questions {
+              id
+              question
+              subject {
+                _id
+                name
+                description
+              }
+              topics {
+                _id
+                name
+                description
+              }
+              video
+              transcript
+              status
+              recordedAt
+            }
+          }  
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.uploadVideo;
+}
+
+export async function addQuestionSet(
+  mentorId: string,
+  subjectId: string,
+  accessToken: string
+): Promise<Mentor> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<AddQuestionSet>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          addQuestionSet(mentorId: "${mentorId}", subjectId: "${subjectId}") {
+            _id
+            name
+            firstName
+            title
+            isBuilt
+            subjects {
+              _id
+              name
+              description
+            }
+            questions {
+              id
+              question
+              subject {
+                _id
+                name
+                description
+              }
+              topics {
+                _id
+                name
+                description
+              }
+              video
+              transcript
+              status
+              recordedAt
+            }
+          }  
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.addQuestionSet;
+}
+
+export async function buildMentor(
+  id: string,
+  accessToken: string
+): Promise<Mentor> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<BuildMentor>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          buildMentor(mentorId: "${id}") {
+            _id
+            name
+            firstName
+            title
+            isBuilt
+            subjects {
+              _id
+              name
+              description
+            }
+            questions {
+              id
+              question
+              subject {
+                _id
+                name
+                description
+              }
+              topics {
+                _id
+                name
+                description
+              }
+              video
+              transcript
+              status
+              recordedAt
+            }
+          }            
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.buildMentor;
+}
+
+export async function generateTranscript(
+  mentorId: string,
+  questionId: string,
+  accessToken: string
+): Promise<string> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<GenerateTranscript>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          generateTranscript(mentor: "${mentorId}", questionId: "${questionId}")
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.generateTranscript;
+}
+
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  if (fakeApis.useFakeApis()) {
-    return fakeApis.login(accessToken);
-  }
   const result = await axios.post<GQLResponse<Login>>(GRAPHQL_ENDPOINT, {
     query: `
       mutation {
         login(accessToken: "${accessToken}") {
           user {
-            id
+            _id
             name
           }
           accessToken
@@ -386,13 +557,15 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
   return result.data.data!.login;
 }
 
-export async function loginGoogle(accessToken: string): Promise<UserAccessToken> {
+export async function loginGoogle(
+  accessToken: string
+): Promise<UserAccessToken> {
   const result = await axios.post<GQLResponse<LoginGoogle>>(GRAPHQL_ENDPOINT, {
     query: `
       mutation {
         loginGoogle(accessToken: "${accessToken}") {
           user {
-            id
+            _id
             name
           }
           accessToken

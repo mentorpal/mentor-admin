@@ -145,7 +145,7 @@ describe("Setup", () => {
     cy.visit("/setup?i=1");
     // empty mentor slide
     cy.get("#slide").contains("Tell us a little about yourself.");
-    cy.get("#slide #short-name").should("have.value", "");
+    cy.get("#slide #first-name").should("have.value", "");
     cy.get("#slide #name").should("have.value", "");
     cy.get("#slide #title").should("have.value", "");
     cy.get("#slide #save-btn").should("be.disabled");
@@ -154,10 +154,10 @@ describe("Setup", () => {
     cy.get("#done-btn").should("not.exist");
     cy.get("#radio-1").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // fill out first name and save
-    cy.get("#slide #short-name").clear().type("Clint");
+    cy.get("#slide #first-name").clear().type("Clint");
     cy.get("#slide #save-btn").should("not.be.disabled");
     cy.get("#slide #save-btn").trigger("mouseover").click();
-    cy.get("#slide #short-name").should("have.value", "Clint");
+    cy.get("#slide #first-name").should("have.value", "Clint");
     cy.get("#slide #name").should("have.value", "");
     cy.get("#slide #title").should("have.value", "");
     cy.get("#slide #save-btn").should("be.disabled");
@@ -166,7 +166,7 @@ describe("Setup", () => {
     cy.get("#slide #name").clear().type("Clinton Anderson");
     cy.get("#slide #save-btn").should("not.be.disabled");
     cy.get("#slide #save-btn").trigger("mouseover").click();
-    cy.get("#slide #short-name").should("have.value", "Clint");
+    cy.get("#slide #first-name").should("have.value", "Clint");
     cy.get("#slide #name").should("have.value", "Clinton Anderson");
     cy.get("#slide #title").should("have.value", "");
     cy.get("#slide #save-btn").should("be.disabled");
@@ -175,7 +175,7 @@ describe("Setup", () => {
     cy.get("#slide #title").clear().type("Nuclear Electrician's Mate");
     cy.get("#slide #save-btn").should("not.be.disabled");
     cy.get("#slide #save-btn").trigger("mouseover").click();
-    cy.get("#slide #short-name").should("have.value", "Clint");
+    cy.get("#slide #first-name").should("have.value", "Clint");
     cy.get("#slide #name").should("have.value", "Clinton Anderson");
     cy.get("#slide #title").should("have.value", "Nuclear Electrician's Mate");
     cy.get("#slide #save-btn").should("be.disabled");

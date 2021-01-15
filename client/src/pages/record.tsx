@@ -24,13 +24,19 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
-import DeleteIcon from '@material-ui/icons/Delete';
-import UndoIcon from '@material-ui/icons/Undo';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { fetchMentor, fetchTopics, updateQuestion, uploadVideo, generateTranscript } from "api";
-import { Question, Status, Mentor, Topic } from "types";
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import DeleteIcon from "@material-ui/icons/Delete";
+import UndoIcon from "@material-ui/icons/Undo";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import {
+  fetchMentor,
+  fetchTopics,
+  updateQuestion,
+  uploadVideo,
+  generateTranscript,
+} from "api";
+import { Question, Status, Mentor, Topic, Edge } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -40,15 +46,15 @@ import "react-toastify/dist/ReactToastify.css";
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   block: {
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 75,
     paddingRight: 75,
-    textAlign: "left"
+    textAlign: "left",
   },
   row: {
     display: "flex",
@@ -56,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   video: {
-    position: 'relative',
+    position: "relative",
     margin: "0 auto",
   },
   title: {
@@ -73,29 +79,29 @@ const useStyles = makeStyles((theme) => ({
     margin: 5,
   },
   footer: {
-    top: 'auto',
+    top: "auto",
     bottom: 0,
     backgroundColor: "#eee",
     opacity: 0.8,
   },
   backBtn: {
     position: "absolute",
-    left: 0
+    left: 0,
   },
   nextBtn: {
     position: "absolute",
-    right: 0
+    right: 0,
   },
 }));
 
 function RecordPage(props: {
   search: {
-    videoId?: string[] | string,
-    set?: string,
-    topic?: string,
-    status?: string,
-    back?: string,
-  }
+    videoId?: string[] | string;
+    subject?: string;
+    topic?: string;
+    status?: string;
+    back?: string;
+  };
 }): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
@@ -121,27 +127,41 @@ function RecordPage(props: {
       if (!context.user) {
         return;
       }
-      const topics = await fetchTopics(cookies.accessToken);
-      setAllTopics(topics);
-      const mentor = await fetchMentor(context.user.id, cookies.accessToken);
-      const { videoId, set, topic, status } = props.search;
+      const topics = await fetchTopics(cookies.accessToken, { sortBy: "name" });
+      setAllTopics(topics.edges.map((e: Edge<Topic>) => e.node));
+      const mentor = await fetchMentor(context.user._id, cookies.accessToken);
+      const { videoId, subject, topic, status } = props.search;
       const _questions: Question[] = [];
       if (videoId) {
         const ids = Array.isArray(videoId) ? videoId : [videoId];
-        _questions.push(...mentor.questions.filter(q => ids.includes(q.id)));
-      }
-      else if (set) {
-        _questions.push(...mentor.questions.filter(q => q.set !== undefined && q.set.id === set && (!status || q.status === status)));
-      }
-      else if (topic) {
-        _questions.push(...mentor.questions.filter(q => q.topics.map(t => t.id).includes(topic) && (!status || q.status === status)));
-      }
-      else {
-        _questions.push(...mentor.questions.filter(q => status ? q.status === status : true));
+        _questions.push(...mentor.questions.filter((q) => ids.includes(q.id)));
+      } else if (subject) {
+        _questions.push(
+          ...mentor.questions.filter(
+            (q) =>
+              q.subject !== undefined &&
+              q.subject._id === subject &&
+              (!status || q.status === status)
+          )
+        );
+      } else if (topic) {
+        _questions.push(
+          ...mentor.questions.filter(
+            (q) =>
+              q.topics.map((t) => t._id).includes(topic) &&
+              (!status || q.status === status)
+          )
+        );
+      } else {
+        _questions.push(
+          ...mentor.questions.filter((q) =>
+            status ? q.status === status : true
+          )
+        );
       }
       setMentor(mentor);
       setQuestions(_questions);
-    }
+    };
     load();
   }, [context.user]);
 
@@ -157,7 +177,11 @@ function RecordPage(props: {
   }, [questions, idx]);
 
   async function onUpdateQuestion(question: Question) {
-    const updatedMentor = await updateQuestion(context.user!.id, question, cookies.accessToken);
+    const updatedMentor = await updateQuestion(
+      context.user!._id,
+      question,
+      cookies.accessToken
+    );
     const updatedQuestions = questions;
     questions.splice(idx, 1, question);
     setMentor({ ...updatedMentor });
@@ -167,8 +191,13 @@ function RecordPage(props: {
   async function onUploadVideo() {
     toast("Uploading video...");
     const videoId = questions[idx].id;
-    const updatedMentor = await uploadVideo(context.user!.id, videoId, videoInput, cookies.accessToken);
-    const question = updatedMentor.questions.find(q => q.id === videoId);
+    const updatedMentor = await uploadVideo(
+      context.user!._id,
+      videoId,
+      videoInput,
+      cookies.accessToken
+    );
+    const question = updatedMentor.questions.find((q) => q.id === videoId);
     if (!question) {
       toast("Failed to upload video");
       return;
@@ -176,7 +205,11 @@ function RecordPage(props: {
     setMentor({ ...updatedMentor });
     onUpdateQuestion(question);
     toast("Transcribing video...");
-    const transcript = await generateTranscript(context.user!.id, question.id, cookies.accessToken);
+    const transcript = await generateTranscript(
+      context.user!._id,
+      question.id,
+      cookies.accessToken
+    );
     onUpdateQuestion({ ...question!, transcript: transcript });
   }
 
@@ -191,23 +224,22 @@ function RecordPage(props: {
   }
 
   function addTopic() {
-    const existingTopic = allTopics.find(t => t.name === topicInput);
+    const existingTopic = allTopics.find((t) => t.name === topicInput);
     if (existingTopic) {
       question.topics.push(existingTopic);
-    }
-    else {
+    } else {
       question.topics.push({
-        id: topicInput.toLowerCase().replace(" ", ""),
+        _id: topicInput.toLowerCase().replace(" ", ""),
         name: topicInput,
-        description: ""
-      })
+        description: "",
+      });
     }
     onUpdateQuestion(question);
   }
 
   function onBack() {
     if (props.search.back) {
-      navigate(decodeURI(props.search.back))
+      navigate(decodeURI(props.search.back));
     } else {
       navigate("/");
     }
@@ -234,7 +266,7 @@ function RecordPage(props: {
           Re-Record
         </Button>
       </div>
-    )
+    );
   }
 
   function renderVideoRecorder(): JSX.Element {
@@ -243,20 +275,22 @@ function RecordPage(props: {
         <VideoRecorder
           isFlipped={false}
           showReplayControls
-          onRecordingComplete={(v: any) => { setVideoInput(v) }}
+          onRecordingComplete={(v: any) => {
+            setVideoInput(v);
+          }}
         />
-        {
-          videoInput ? <Button
+        {videoInput ? (
+          <Button
             id="upload-btn"
             variant="contained"
             disableElevation
             onClick={onUploadVideo}
           >
             Upload
-        </Button> : undefined
-        }
+          </Button>
+        ) : undefined}
       </div>
-    )
+    );
   }
 
   if (!mentor || !questions || questions.length === 0) {
@@ -265,7 +299,7 @@ function RecordPage(props: {
         <NavBar title="Record Mentor" />
         <CircularProgress />
       </div>
-    )
+    );
   }
 
   const question = questions[idx];
@@ -273,29 +307,35 @@ function RecordPage(props: {
     <div className={classes.root}>
       <NavBar title="Record Mentor" back={true} onBack={onBack} />
       <div id="progress" className={classes.block}>
-        <Typography variant="h6" className={classes.title} style={{ textAlign: "center" }}>
-          Questions {(idx + 1)} / {questions.length}
+        <Typography
+          variant="h6"
+          className={classes.title}
+          style={{ textAlign: "center" }}
+        >
+          Questions {idx + 1} / {questions.length}
         </Typography>
         <ProgressBar value={((idx + 1) / questions.length) * 100} />
       </div>
       {video ? renderVideo() : renderVideoRecorder()}
       <div id="question" className={classes.block}>
-        <Typography className={classes.title}>
-          Question:
-        </Typography>
+        <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             id="question-input"
             value={questionInput}
-            disabled={question.set !== undefined}
-            onChange={(e) => { setQuestionInput(e.target.value) }}
+            disabled={question.subject !== undefined}
+            onChange={(e) => {
+              setQuestionInput(e.target.value);
+            }}
             endAdornment={
               <InputAdornment position="end">
                 <div>
                   <IconButton
                     id="undo-question-btn"
                     disabled={question.question === questionInput}
-                    onClick={() => { setQuestionInput(question.question) }}
+                    onClick={() => {
+                      setQuestionInput(question.question);
+                    }}
                   >
                     <UndoIcon />
                   </IconButton>
@@ -304,7 +344,12 @@ function RecordPage(props: {
                     variant="contained"
                     color="primary"
                     disabled={question.question === questionInput}
-                    onClick={() => { onUpdateQuestion({ ...questions[idx], question: questionInput }) }}
+                    onClick={() => {
+                      onUpdateQuestion({
+                        ...questions[idx],
+                        question: questionInput,
+                      });
+                    }}
                     disableElevation
                   >
                     Save
@@ -316,21 +361,23 @@ function RecordPage(props: {
         </FormControl>
       </div>
       <div id="transcript" className={classes.block}>
-        <Typography className={classes.title}>
-          Answer Transcript:
-        </Typography>
+        <Typography className={classes.title}>Answer Transcript:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             id="transcript-input"
             value={transcriptInput}
-            onChange={(e) => { setTranscriptInput(e.target.value) }}
+            onChange={(e) => {
+              setTranscriptInput(e.target.value);
+            }}
             endAdornment={
               <InputAdornment position="end">
                 <div>
                   <IconButton
                     id="undo-transcript-btn"
                     disabled={question.transcript === transcriptInput}
-                    onClick={() => { setTranscriptInput(question.transcript) }}
+                    onClick={() => {
+                      setTranscriptInput(question.transcript);
+                    }}
                   >
                     <UndoIcon />
                   </IconButton>
@@ -339,7 +386,12 @@ function RecordPage(props: {
                     variant="contained"
                     color="primary"
                     disabled={question.transcript === transcriptInput}
-                    onClick={() => { onUpdateQuestion({ ...questions[idx], transcript: transcriptInput }) }}
+                    onClick={() => {
+                      onUpdateQuestion({
+                        ...questions[idx],
+                        transcript: transcriptInput,
+                      });
+                    }}
                     disableElevation
                   >
                     Save
@@ -352,16 +404,16 @@ function RecordPage(props: {
       </div>
       <div className={classes.block}>
         <Grid container spacing={1}>
-          <Grid item xs={6}>
+          <Grid item xs={12} sm={12} md={8} lg={6}>
             <div className={classes.row}>
-              <Typography className={classes.title}>
-                Topics:
-              </Typography>
+              <Typography className={classes.title}>Topics:</Typography>
               <Autocomplete
                 id="topic-input"
                 freeSolo
-                options={allTopics.map(t => t.name)}
-                onChange={(e, v) => { setTopicInput(v || "") }}
+                options={allTopics.map((t) => t.name)}
+                onChange={(e, v) => {
+                  setTopicInput(v || "");
+                }}
                 style={{ marginLeft: 15, marginRight: 15 }}
                 renderInput={(params) => (
                   <TextField
@@ -369,24 +421,43 @@ function RecordPage(props: {
                     margin="normal"
                     variant="outlined"
                     style={{ marginLeft: 15, width: 300 }}
-                    onChange={(ev) => { setTopicInput(ev.target.value) }}
+                    onChange={(ev) => {
+                      setTopicInput(ev.target.value);
+                    }}
                   />
                 )}
               />
-              <Button id="add-topic-btn" variant="contained" onClick={addTopic} disabled={topicInput === ""} disableElevation>
+              <Button
+                id="add-topic-btn"
+                variant="contained"
+                onClick={addTopic}
+                disabled={topicInput === ""}
+                disableElevation
+              >
                 Add
               </Button>
             </div>
           </Grid>
-          <Grid id="status" item xs={6} className={classes.row}>
-            <Typography className={classes.title}>
-              Status:
-            </Typography>
+          <Grid
+            id="status"
+            item
+            xs={12}
+            sm={12}
+            md={4}
+            lg={6}
+            className={classes.row}
+          >
+            <Typography className={classes.title}>Status:</Typography>
             <Select
               id="select-status"
               value={question.status.toString()}
-              onChange={(event: React.ChangeEvent<{ value: unknown; name?: unknown }>) => {
-                onUpdateQuestion({ ...question, status: event.target.value as Status })
+              onChange={(
+                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+              ) => {
+                onUpdateQuestion({
+                  ...question,
+                  status: event.target.value as Status,
+                });
               }}
               style={{ marginLeft: 10 }}
             >
@@ -399,50 +470,70 @@ function RecordPage(props: {
             </Select>
           </Grid>
         </Grid>
-        <List id="topics" className={classes.row} style={{ overflow: "auto", whiteSpace: "nowrap" }}>
-          {
-            question.topics.map((t, i) =>
-              <ListItem id={`topic-${i}`} key={`topic-${i}`} className={classes.topicItem}>
-                <ListItemText primary={t.name} />
-                <ListItemSecondaryAction>
-                  <IconButton id="delete-topic-btn" edge="end" onClick={() => { deleteTopic(i) }}>
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            )
-          }
+        <List
+          id="topics"
+          className={classes.row}
+          style={{ overflow: "auto", whiteSpace: "nowrap" }}
+        >
+          {question.topics.map((t, i) => (
+            <ListItem
+              id={`topic-${i}`}
+              key={`topic-${i}`}
+              className={classes.topicItem}
+            >
+              <ListItemText primary={t.name} />
+              <ListItemSecondaryAction>
+                <IconButton
+                  id="delete-topic-btn"
+                  edge="end"
+                  onClick={() => {
+                    deleteTopic(i);
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
         </List>
       </div>
       <div className={classes.toolbar} />
       <AppBar position="fixed" className={classes.footer}>
         <Toolbar>
-          <IconButton id="back-btn" className={classes.backBtn} disabled={idx === 0} onClick={() => setIdx(idx - 1)}>
+          <IconButton
+            id="back-btn"
+            className={classes.backBtn}
+            disabled={idx === 0}
+            onClick={() => setIdx(idx - 1)}
+          >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          {
-            idx === questions.length - 1 ? (
-              <Button
-                id="done-btn"
-                className={classes.nextBtn}
-                variant="contained"
-                color="primary"
-                disableElevation
-                onClick={onBack}
-              >
-                Done
-              </Button>
-            ) : (
-                <IconButton id="next-btn" className={classes.nextBtn} disabled={idx === questions.length - 1} onClick={() => setIdx(idx + 1)}>
-                  <ArrowForwardIcon fontSize="large" />
-                </IconButton>
-              )
-          }
+          {idx === questions.length - 1 ? (
+            <Button
+              id="done-btn"
+              className={classes.nextBtn}
+              variant="contained"
+              color="primary"
+              disableElevation
+              onClick={onBack}
+            >
+              Done
+            </Button>
+          ) : (
+            <IconButton
+              id="next-btn"
+              className={classes.nextBtn}
+              disabled={idx === questions.length - 1}
+              onClick={() => setIdx(idx + 1)}
+            >
+              <ArrowForwardIcon fontSize="large" />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <ToastContainer />
-    </div >
-  )
+    </div>
+  );
 }
 
 export default withLocation(RecordPage);

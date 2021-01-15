@@ -14,7 +14,7 @@ type ContextType = {
 };
 
 const Context = React.createContext<ContextType>({
-  user: undefined
+  user: undefined,
 });
 
 function Provider(props: { children: any }) {
@@ -24,8 +24,7 @@ function Provider(props: { children: any }) {
   React.useEffect(() => {
     if (!cookies.accessToken) {
       setUser(undefined);
-    }
-    else if (!user) {
+    } else if (!user) {
       login(cookies.accessToken)
         .then((token: UserAccessToken) => {
           setUser(token.user);
@@ -38,13 +37,7 @@ function Provider(props: { children: any }) {
     }
   }, [cookies]);
 
-  return (
-    <Context.Provider
-      value={{ user }}
-    >
-      {props.children}
-    </Context.Provider>
-  );
+  return <Context.Provider value={{ user }}>{props.children}</Context.Provider>;
 }
 
 export default Context;

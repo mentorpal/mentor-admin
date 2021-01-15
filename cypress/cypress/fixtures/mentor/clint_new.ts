@@ -3,7 +3,7 @@ import { Mentor, Status } from "../../support/types";
 export const mentor: Mentor = {
   id: "clintanderson",
   name: "",
-  shortName: "",
+  firstName: "",
   title: "",
   isBuilt: false,
   sets: [

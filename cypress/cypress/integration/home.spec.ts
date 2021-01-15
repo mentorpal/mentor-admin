@@ -122,7 +122,7 @@
 //       cy.get("#mentor").contains("My Details");
 //       cy.get("#mentor #video-id").should("have.value", "clintanderson");
 //       cy.get("#mentor #name").should("have.value", "Clinton Anderson");
-//       cy.get("#mentor #short-name").should("have.value", "Clint");
+//       cy.get("#mentor #first-name").should("have.value", "Clint");
 //       cy.get("#mentor #title").should("have.value", "Nuclear Electrician's Mate");
 //     });
 
@@ -134,7 +134,7 @@
 //       cy.visit("/");
 //       cy.get("#mentor #video-id").fill("newclintanderson");
 //       cy.get("#mentor #name").fill("New Clinton Anderson");
-//       cy.get("#mentor #short-name").fill("New Clint");
+//       cy.get("#mentor #first-name").fill("New Clint");
 //       cy.get("#mentor #title").fill("New Nuclear Electrician's Mate");
 //       cyMockGraphQL(cy, {
 //         mocks: [cyLogin(cy), cyMockByQueryName("updateMentor", require("../fixtures/clint-updatementor-details"))],
@@ -142,7 +142,7 @@
 //       cy.get("#update-btn").trigger("mouseover").click();
 //       cy.get("#mentor #video-id").should("have.value", "newclintanderson");
 //       cy.get("#mentor #name").should("have.value", "New Clinton Anderson");
-//       cy.get("#mentor #short-name").should("have.value", "New Clint");
+//       cy.get("#mentor #first-name").should("have.value", "New Clint");
 //       cy.get("#mentor #title").should("have.value", "New Nuclear Electrician's Mate");
 //     });
 
