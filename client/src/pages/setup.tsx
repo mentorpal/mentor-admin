@@ -12,19 +12,25 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import { fetchMentor, updateMentor, fetchSets, fetchQuestionSet, buildMentor } from "api";
-import { Mentor, Set, Status, Question } from "types";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import {
+  fetchMentor,
+  updateMentor,
+  fetchSubjects,
+  addQuestionSet,
+  buildMentor,
+} from "api";
+import { Mentor, Subject, Status, Question, Edge } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    backgroundColor: "#eee"
+    display: "flex",
+    flexDirection: "column",
+    height: "100vh",
+    backgroundColor: "#eee",
   },
   row: {
     display: "flex",
@@ -84,22 +90,25 @@ function WelcomeSlide(props: { classes: any }): JSX.Element {
         </Typography>
       </div>
     </Paper>
-  )
+  );
 }
 
 function MentorSlide(props: {
-  classes: any,
-  mentor: Mentor,
-  onUpdated: (mentor: Mentor) => void,
+  classes: any;
+  mentor: Mentor;
+  onUpdated: (mentor: Mentor) => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
   const [name, setName] = useState(mentor.name);
-  const [shortName, setShortName] = useState(mentor.shortName);
+  const [firstName, setFirstName] = useState(mentor.firstName);
   const [title, setTitle] = useState(mentor.title);
 
   async function onSave() {
-    const updatedMentor = await updateMentor({ ...mentor, name, shortName, title }, cookies.accessToken);
+    const updatedMentor = await updateMentor(
+      { ...mentor, name, firstName, title },
+      cookies.accessToken
+    );
     onUpdated(updatedMentor);
   }
 
@@ -110,11 +119,13 @@ function MentorSlide(props: {
       </Typography>
       <div className={classes.column}>
         <TextField
-          id="short-name"
+          id="first-name"
           label="First Name"
           variant="outlined"
-          value={shortName}
-          onChange={(e) => { setShortName(e.target.value) }}
+          value={firstName}
+          onChange={(e) => {
+            setFirstName(e.target.value);
+          }}
           className={classes.inputField}
         />
         <TextField
@@ -122,7 +133,9 @@ function MentorSlide(props: {
           label="Full Name"
           variant="outlined"
           value={name}
-          onChange={(e) => { setName(e.target.value) }}
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
           className={classes.inputField}
         />
         <TextField
@@ -130,21 +143,27 @@ function MentorSlide(props: {
           label="Job Title"
           variant="outlined"
           value={title}
-          onChange={(e) => { setTitle(e.target.value) }}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
           className={classes.inputField}
         />
         <Button
           id="save-btn"
           variant="contained"
           color="primary"
-          disabled={mentor.name === name && mentor.shortName === shortName && mentor.title === title}
+          disabled={
+            mentor.name === name &&
+            mentor.firstName === firstName &&
+            mentor.title === title
+          }
           onClick={onSave}
         >
           Save Changes
         </Button>
       </div>
     </Paper>
-  )
+  );
 }
 
 function IntroductionSlide(props: { classes: any }): JSX.Element {
@@ -156,24 +175,28 @@ function IntroductionSlide(props: { classes: any }): JSX.Element {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          You'll be asked to answer some background questions and repeat after mes.
+          You'll be asked to answer some background questions and repeat after
+          mes.
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Once you're done recording, you can build and preview your mentor.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          If you'd like to stop, press done at any point. You can always finish later.
+          If you'd like to stop, press done at any point. You can always finish
+          later.
         </Typography>
       </div>
     </Paper>
-  )
+  );
 }
 
-function IdleSlide(props: {
-  classes: any,
-  isRecorded: boolean,
-}): JSX.Element {
-  const { classes, isRecorded } = props;
+function IdleSlide(props: { classes: any; mentor: Mentor }): JSX.Element {
+  const { classes, mentor } = props;
+  const idle = mentor.questions.find(
+    (q) => q.topics.findIndex((t) => t.name === "Idle") !== -1
+  );
+  const isRecorded = idle !== undefined && idle.status === Status.COMPLETE;
+
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -192,37 +215,45 @@ function IdleSlide(props: {
         className={classes.button}
         variant="contained"
         color="primary"
-        onClick={() => { navigate(`/record?topic=idle&back=${encodeURI(`/setup?i=3`)}`) }}
+        onClick={() => {
+          navigate(
+            `/record?videoId=${idle?.id}&back=${encodeURI(`/setup?i=3`)}`
+          );
+        }}
       >
         Record
       </Button>
-      {
-        isRecorded ? (
-          <CheckCircleIcon id="check" style={{ color: 'green' }} />
-        ) : undefined
-      }
+      {isRecorded ? (
+        <CheckCircleIcon id="check" style={{ color: "green" }} />
+      ) : undefined}
     </Paper>
-  )
+  );
 }
 
 function RecordSlide(props: {
-  classes: any,
-  i: number,
-  set: Set,
-  questions: Question[],
+  classes: any;
+  i: number;
+  subject: Subject;
+  questions: Question[];
 }): JSX.Element {
-  const { classes, set, i, questions } = props;
-  const recorded = questions.filter(q => q.status === Status.COMPLETE);
+  const { classes, subject, i, questions } = props;
+  const recorded = questions.filter((q) => q.status === Status.COMPLETE);
   const isRecorded = recorded.length === questions.length;
+
+  function onRecord() {
+    navigate(
+      `/record?subject=${subject._id}&back=${encodeURI(`/setup?i=${i}`)}`
+    );
+  }
 
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        {set.name} questions
+        {subject.name}
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          {set.description}
+          {subject.description}
         </Typography>
       </div>
       <Button
@@ -230,21 +261,19 @@ function RecordSlide(props: {
         className={classes.button}
         variant="contained"
         color="primary"
-        onClick={() => { navigate(`/record?set=${set.id}&back=${encodeURI(`/setup?i=${i}`)}`) }}
+        onClick={onRecord}
       >
         Record
       </Button>
-      {
-        isRecorded ? (
-          <CheckCircleIcon id="check" style={{ color: 'green' }} />
-        ) : (
-            <Typography variant="h6" className={classes.text}>
-              {recorded.length} / {questions.length}
-            </Typography>
-          )
-      }
+      {isRecorded ? (
+        <CheckCircleIcon id="check" style={{ color: "green" }} />
+      ) : (
+        <Typography variant="h6" className={classes.text}>
+          {recorded.length} / {questions.length}
+        </Typography>
+      )}
     </Paper>
-  )
+  );
 }
 
 function BuildErrorSlide(props: { classes: any }): JSX.Element {
@@ -259,17 +288,18 @@ function BuildErrorSlide(props: { classes: any }): JSX.Element {
           You're still missing some steps before you can build a mentor.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Please check the previous steps and make sure you've recorded all videos and filled out all fields.
+          Please check the previous steps and make sure you've recorded all
+          videos and filled out all fields.
         </Typography>
       </div>
     </Paper>
-  )
+  );
 }
 
 function BuildMentorSlide(props: {
-  classes: any,
-  mentor: Mentor,
-  onUpdated: (mentor: Mentor) => void,
+  classes: any;
+  mentor: Mentor;
+  onUpdated: (mentor: Mentor) => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -278,7 +308,7 @@ function BuildMentorSlide(props: {
 
   async function build() {
     setIsBuilding(true);
-    const updatedMentor = await buildMentor(mentor.id, cookies.accessToken);
+    const updatedMentor = await buildMentor(mentor._id, cookies.accessToken);
     onUpdated(updatedMentor);
     setIsBuilding(false);
   }
@@ -289,36 +319,32 @@ function BuildMentorSlide(props: {
         Great job! You're ready to build your mentor!
       </Typography>
       <div className={classes.column}>
-        {
-          isBuilding ? (
-            <div>
-              <Typography variant="h6" className={classes.text}>
-                Building your mentor...
+        {isBuilding ? (
+          <div>
+            <Typography variant="h6" className={classes.text}>
+              Building your mentor...
             </Typography>
-              <CircularProgress />
-            </div>
-          ) : (
-              isBuilt ? (
-                <div>
-                  <Typography variant="h6" className={classes.text}>
-                    Congratulations! Your brand-new mentor is ready!
-                </Typography>
-                  <Typography variant="h6" className={classes.text}>
-                    Click the preview button to see your mentor.
-                </Typography>
-                </div >
-              ) : (
-                  <div>
-                    <Typography variant="h6" className={classes.text}>
-                      Click the build button to start building your mentor.
-                </Typography>
-                    <Typography variant="h6" className={classes.text}>
-                      Once its complete, click preview to see your mentor.
-                </Typography>
-                  </div >
-                )
-            )
-        }
+            <CircularProgress />
+          </div>
+        ) : isBuilt ? (
+          <div>
+            <Typography variant="h6" className={classes.text}>
+              Congratulations! Your brand-new mentor is ready!
+            </Typography>
+            <Typography variant="h6" className={classes.text}>
+              Click the preview button to see your mentor.
+            </Typography>
+          </div>
+        ) : (
+          <div>
+            <Typography variant="h6" className={classes.text}>
+              Click the build button to start building your mentor.
+            </Typography>
+            <Typography variant="h6" className={classes.text}>
+              Once its complete, click preview to see your mentor.
+            </Typography>
+          </div>
+        )}
       </div>
       <Button
         id="build-btn"
@@ -328,7 +354,7 @@ function BuildMentorSlide(props: {
         disabled={isBuilding}
         onClick={() => {
           if (isBuilt) {
-            navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor.id}`)
+            navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`);
           } else {
             build();
           }
@@ -336,46 +362,51 @@ function BuildMentorSlide(props: {
       >
         {isBuilt ? "Preview" : "Build"}
       </Button>
-    </Paper >
-  )
+    </Paper>
+  );
 }
 
 function QuestionSetSlide(props: {
-  classes: any,
-  sets: Set[],
-  mentor: Mentor,
-  onUpdated: (mentor: Mentor) => void,
+  classes: any;
+  subjects: Subject[];
+  mentor: Mentor;
+  onUpdated: (mentor: Mentor) => void;
 }): JSX.Element {
-  const { classes, mentor, onUpdated, sets } = props;
+  const { classes, mentor, onUpdated, subjects } = props;
   const [cookies] = useCookies(["accessToken"]);
-  const [set, setSet] = React.useState<Set>();
+  const [subject, setSubject] = React.useState<Subject>();
   const [isAdding, setIsAdding] = React.useState(false);
-
-  const isSetAdded = set !== undefined && mentor.sets.findIndex(s => s.id === set.id) !== -1;
-  const questions = set !== undefined ? mentor.questions.filter(q => q.set !== undefined && q.set.id === set.id) : [];
-  const recorded = questions.filter(q => q.status === Status.COMPLETE);
+  const isSubjectAdded =
+    subject !== undefined &&
+    mentor.subjects.findIndex((s) => s._id === subject._id) !== -1;
+  const questions =
+    subject !== undefined
+      ? mentor.questions.filter(
+          (q) => q.subject !== undefined && q.subject._id === subject._id
+        )
+      : [];
+  const recorded = questions.filter((q) => q.status === Status.COMPLETE);
   const isRecorded = recorded.length === questions.length;
 
-  async function addSet() {
-    if (!set) {
+  async function addSubject() {
+    if (!subject) {
       return;
     }
     setIsAdding(true);
-    const questionSet = await fetchQuestionSet(set.id, cookies.accessToken);
-    const updatedMentor = await updateMentor({
-      ...mentor,
-      sets: [...mentor.sets, set],
-      questions: [...mentor.questions, ...questionSet.questions]
-    }, cookies.accessToken);
+    const updatedMentor = await addQuestionSet(
+      mentor._id,
+      subject._id,
+      cookies.accessToken
+    );
     onUpdated(updatedMentor);
     setIsAdding(false);
   }
 
   async function record() {
-    if (!set) {
+    if (!subject) {
       return;
     }
-    navigate(`/record?set=${set.id}&back=${encodeURI(`/setup?i=7`)}`)
+    navigate(`/record?subject=${subject._id}&back=${encodeURI(`/setup?i=7`)}`);
   }
 
   return (
@@ -385,67 +416,68 @@ function QuestionSetSlide(props: {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          Your basic mentor is done, but you can make it better by picking a question set.
+          Your basic mentor is done, but you can make it better by picking a
+          question set.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          These question sets are specific to your field of expertise. Pick the one you are most qualified to mentor in.
+          These question sets are specific to your field of expertise. Pick the
+          one you are most qualified to mentor in.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Each set will ask you some related questions. After answering, you'll be placed in a panel with other mentors in your field.
+          Each set will ask you some related questions. After answering, you'll
+          be placed in a panel with other mentors in your field.
         </Typography>
       </div>
       <div className={classes.row}>
         <Select
           id="select-set"
-          value={set ? set.id : ""}
-          onChange={(event: React.ChangeEvent<{ value: unknown; name?: unknown }>) => {
-            setSet(sets.find(s => s.id === event.target.value as string))
+          value={subject ? subject._id : ""}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) => {
+            setSubject(
+              subjects.find((s) => s._id === (event.target.value as string))
+            );
           }}
           style={{ marginLeft: 10, marginRight: 10, minWidth: 100 }}
         >
-          {
-            sets.map(s => (
-              <MenuItem id={s.id} value={s.id}>
-                {s.name}
-              </MenuItem>
-            ))
-          }
+          {subjects.map((s) => (
+            <MenuItem id={s._id} value={s._id}>
+              {s.name}
+            </MenuItem>
+          ))}
         </Select>
-        {
-          isAdding ? <CircularProgress /> : (
-            <Button
-              id="set-btn"
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              disabled={set === undefined}
-              onClick={isSetAdded ? record : addSet}
-            >
-              {isSetAdded ? "Record" : "Add"}
-            </Button>
-          )
-        }
+        {isAdding ? (
+          <CircularProgress />
+        ) : (
+          <Button
+            id="set-btn"
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            disabled={subject === undefined}
+            onClick={isSubjectAdded ? record : addSubject}
+          >
+            {isSubjectAdded ? "Record" : "Add"}
+          </Button>
+        )}
       </div>
-      {
-        set ? (
+      {subject ? (
+        <Typography variant="h6" className={classes.text}>
+          {subject.description}
+        </Typography>
+      ) : undefined}
+      {isSubjectAdded ? (
+        isRecorded ? (
+          <CheckCircleIcon id="check" style={{ color: "green" }} />
+        ) : (
           <Typography variant="h6" className={classes.text}>
-            {set.description}
+            {recorded.length} / {questions.length}
           </Typography>
-        ) : undefined
-      }
-      {
-        isSetAdded ? (
-          isRecorded ? (
-            <CheckCircleIcon id="check" style={{ color: 'green' }} />
-          ) : (
-              <Typography variant="h6" className={classes.text}>
-                {recorded.length} / {questions.length}
-              </Typography>
-          )
-        ) : undefined
-      }
+        )
+      ) : undefined}
     </Paper>
-  )
+  );
 }
 
 function SetupPage(props: { search: { i?: string } }): JSX.Element {
@@ -456,7 +488,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const [slides, setSlides] = useState<JSX.Element[]>([]);
   const [slideStatus, setSlideStatus] = useState<boolean[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
-  const [sets, setSets] = useState<Set[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -469,9 +501,13 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       if (!context.user) {
         return;
       }
-      setSets(await fetchSets(cookies.accessToken));
-      setMentor(await fetchMentor(context.user.id, cookies.accessToken));
-    }
+      const subjects = await fetchSubjects(cookies.accessToken, {
+        sortBy: "name",
+        sortAscending: true,
+      });
+      setSubjects(subjects.edges.map((e: Edge<Subject>) => e.node));
+      setMentor(await fetchMentor(context.user._id, cookies.accessToken));
+    };
     load();
   }, [context.user]);
 
@@ -479,34 +515,66 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     if (!mentor) {
       return;
     }
-    const idle = mentor.questions.filter(q => q.topics.findIndex(t => t.id === 'idle') !== -1);
-    const background = mentor.questions.filter(q => q.set !== undefined && q.set.id === 'background');
-    const repeatAfterMe = mentor.questions.filter(q => q.set !== undefined && q.set.id === 'repeat_after_me');
-    const isMentorFilled = mentor.name !== "" && mentor.shortName !== "" && mentor.title !== "";
-    const isIdleRecorded = idle.every(q => q.status === Status.COMPLETE);
-    const isBackgroundRecorded = background.every(q => q.status === Status.COMPLETE);
-    const isRepeatRecorded = repeatAfterMe.every(q => q.status === Status.COMPLETE);
-    const isBuildReady = isMentorFilled && isIdleRecorded && isBackgroundRecorded && isRepeatRecorded;
+    const idle = mentor.questions.find(
+      (q) => q.topics.findIndex((t) => t.name === "Idle") !== -1
+    );
+    const background = mentor.questions.filter(
+      (q) => q.subject !== undefined && q.subject.name === "Background"
+    );
+    const repeatAfterMe = mentor.questions.filter(
+      (q) => q.subject !== undefined && q.subject.name === "Repeat After Me"
+    );
+    const isMentorFilled =
+      mentor.name !== "" && mentor.firstName !== "" && mentor.title !== "";
+    const isIdleRecorded =
+      idle !== undefined && idle.status === Status.COMPLETE;
+    const isBackgroundRecorded = background.every(
+      (q) => q.status === Status.COMPLETE
+    );
+    const isRepeatRecorded = repeatAfterMe.every(
+      (q) => q.status === Status.COMPLETE
+    );
+    const isBuildReady =
+      isMentorFilled &&
+      isIdleRecorded &&
+      isBackgroundRecorded &&
+      isRepeatRecorded;
     const isBuilt = mentor.isBuilt;
     const _slides = [
-      <WelcomeSlide key='welcome' classes={classes} />,
-      <MentorSlide key='mentor-info' classes={classes} mentor={mentor} onUpdated={setMentor} />,
-      <IntroductionSlide key='introduction' classes={classes} />,
-      <IdleSlide key='idle' classes={classes} isRecorded={isIdleRecorded} />,
-      <RecordSlide key='background'
-        classes={classes} i={4}
-        set={sets.find(s => s.id === 'background')!}
+      <WelcomeSlide key="welcome" classes={classes} />,
+      <MentorSlide
+        key="mentor-info"
+        classes={classes}
+        mentor={mentor}
+        onUpdated={setMentor}
+      />,
+      <IntroductionSlide key="introduction" classes={classes} />,
+      <IdleSlide key="idle" classes={classes} mentor={mentor} />,
+      <RecordSlide
+        key="background"
+        classes={classes}
+        i={4}
+        subject={subjects.find((s) => s.name === "Background")!}
         questions={background}
       />,
-      <RecordSlide key='utterances'
-        classes={classes} i={5}
-        set={sets.find(s => s.id === 'repeat_after_me')!}
+      <RecordSlide
+        key="utterances"
+        classes={classes}
+        i={5}
+        subject={subjects.find((s) => s.name === "Repeat After Me")!}
         questions={repeatAfterMe}
       />,
-      isBuildReady ?
-        <BuildMentorSlide key='build' classes={classes} mentor={mentor} onUpdated={setMentor} /> :
-        <BuildErrorSlide key='build-error' classes={classes} />
-    ]
+      isBuildReady ? (
+        <BuildMentorSlide
+          key="build"
+          classes={classes}
+          mentor={mentor}
+          onUpdated={setMentor}
+        />
+      ) : (
+        <BuildErrorSlide key="build-error" classes={classes} />
+      ),
+    ];
     const _slideStatus = [
       true,
       isMentorFilled,
@@ -514,15 +582,73 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       isIdleRecorded,
       isBackgroundRecorded,
       isRepeatRecorded,
-      isBuilt
+      isBuilt,
     ];
     if (isBuilt) {
-    _slides.push(<QuestionSetSlide classes={classes} mentor={mentor} sets={sets} onUpdated={setMentor} />);
-    _slideStatus.push(true);
+      _slides.push(
+        <QuestionSetSlide
+          classes={classes}
+          mentor={mentor}
+          subjects={subjects}
+          onUpdated={setMentor}
+        />
+      );
+      _slideStatus.push(true);
     }
     setSlides(_slides);
     setSlideStatus(_slideStatus);
-  }, [mentor, sets])
+  }, [mentor, subjects]);
+
+  function renderButtons(): JSX.Element {
+    const backButton =
+      idx > 0 ? (
+        <Button
+          id="back-btn"
+          className={classes.button}
+          variant="contained"
+          onClick={() => {
+            setIdx(idx - 1);
+          }}
+        >
+          Back
+        </Button>
+      ) : undefined;
+    const doneButton =
+      idx > 1 ? (
+        <Button
+          id="done-btn"
+          className={classes.button}
+          variant="contained"
+          color="secondary"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
+          Done
+        </Button>
+      ) : undefined;
+    const nextButton =
+      idx !== slides.length - 1 ? (
+        <Button
+          id="next-btn"
+          className={classes.button}
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            setIdx(idx + 1);
+          }}
+        >
+          Next
+        </Button>
+      ) : undefined;
+    return (
+      <div className={classes.row} style={{ height: 150 }}>
+        {backButton}
+        {doneButton}
+        {nextButton}
+      </div>
+    );
+  }
 
   if (!mentor || slides.length === 0) {
     return (
@@ -530,36 +656,14 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         <NavBar title="Mentor Setup" />
         <CircularProgress />
       </div>
-    )
+    );
   }
 
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Setup" />
       {slides[idx]}
-      <div className={classes.row} style={{ height: 150 }}>
-        {
-          idx > 0 ? (
-            <Button id="back-btn" className={classes.button} variant="contained" onClick={() => { setIdx(idx - 1) }}>
-              Back
-            </Button>
-          ) : undefined
-        }
-        {
-          idx > 1 ? (
-            <Button id="done-btn" className={classes.button} variant="contained" color="secondary" onClick={() => { navigate("/") }}>
-              Done
-            </Button>
-          ) : undefined
-        }
-        {
-          idx !== slides.length - 1 ? (
-            <Button id="next-btn" className={classes.button} variant="contained" color="primary" onClick={() => { setIdx(idx + 1) }}>
-              Next
-            </Button>
-          ) : undefined
-        }
-      </div>
+      {renderButtons()}
       <div className={classes.row}>
         {slides.map((v, i) => (
           <Radio
@@ -573,7 +677,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 export default withLocation(SetupPage);

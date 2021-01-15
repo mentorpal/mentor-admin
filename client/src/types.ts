@@ -5,6 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface Connection<T> {
+  edges: Edge<T>[];
+  pageInfo: PageInfo;
+}
+
 export interface Edge<T> {
   cursor: string;
   node: T;
@@ -17,13 +22,8 @@ export interface PageInfo {
   endCursor: string;
 }
 
-export interface Connection<T> {
-  edges: Edge<T>[];
-  pageInfo: PageInfo;
-}
-
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
 }
@@ -35,28 +35,28 @@ export interface UserAccessToken {
 }
 
 export interface Mentor {
-  id: string;
+  _id: string;
   name: string;
-  shortName: string;
+  firstName: string;
   title: string;
-  sets: Set[];
-  questions: Question[];
   isBuilt: boolean;
+  subjects: Subject[];
+  questions: Question[];
 }
 
 export interface QuestionSet {
-  set: Set;
+  subject: Subject;
   questions: Question[];
 }
 
-export interface Set {
-  id: string;
+export interface Subject {
+  _id: string;
   name: string;
   description: string;
 }
 
 export interface Topic {
-  id: string;
+  _id: string;
   name: string;
   description: string;
 }
@@ -64,7 +64,7 @@ export interface Topic {
 export interface Question {
   id: string;
   question: string;
-  set?: Set;
+  subject?: Subject;
   topics: Topic[];
   video: string;
   transcript: string;

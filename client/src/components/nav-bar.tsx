@@ -115,20 +115,20 @@ export function NavBar(props: {
     <div id="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          {
-            back ?
-              <IconButton
-                id="back-button"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                className={classes.menuButton}
-                onClick={() => { onBack ? onBack() : navigate("/") }}
-              >
-                <CloseIcon />
-              </IconButton>
-              : undefined
-          }
+          {back ? (
+            <IconButton
+              id="back-button"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              className={classes.menuButton}
+              onClick={() => {
+                onBack ? onBack() : navigate("/");
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : undefined}
           <Typography id="title" variant="h6" className={classes.title}>
             {title}
           </Typography>
