@@ -13,7 +13,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import { updateMentor, fetchMentor } from "api";
 import { Mentor, Question, Status } from "types";
 import Context from "context";
-import Alerts, { IAlert } from "components/alert";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import QuestionList from "components/question-list";
