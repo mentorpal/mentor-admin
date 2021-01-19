@@ -3,6 +3,7 @@ import clint_prev from "./clint_setup8";
 
 export const mentor: Mentor = {
   ...clint_prev,
-  isBuilt: true
+  isBuilt: true,
+  lastTrainedAt: "Today",
 }
 export default mentor;

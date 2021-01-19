@@ -40,6 +40,7 @@ export interface Mentor {
   firstName: string;
   title: string;
   isBuilt: boolean;
+  lastTrainedAt: string;
   subjects: Subject[];
   questions: Question[];
 }
@@ -75,4 +76,37 @@ export interface Question {
 export enum Status {
   INCOMPLETE = "Incomplete",
   COMPLETE = "Complete",
+}
+
+export interface TrainJob {
+  id: string;
+  mentor: boolean;
+  statusUrl: string;
+}
+
+export enum TrainState {
+  NONE = "NONE",
+  FAILURE = "FAILURE",
+  SUCCESS = "SUCCESS",
+  PENDING = "PENDING",
+  STARTED = "STARTED",
+}
+
+export interface TrainStatus {
+  state: TrainState;
+  status?: string;
+  info?: TrainingInfo;
+}
+
+export interface TrainExpectionResult {
+  accuracy: number;
+}
+
+export interface TrainResult {
+  questions: TrainExpectionResult[];
+}
+
+export interface TrainingInfo {
+  mentor: string;
+  questions?: TrainExpectionResult[];
 }

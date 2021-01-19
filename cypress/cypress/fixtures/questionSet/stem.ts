@@ -1,8 +1,8 @@
 import { QuestionSet, Status } from "../../support/types";
 
-export const set: QuestionSet = {
-  set: {
-    id: "stem",
+export const subject: QuestionSet = {
+  subject: {
+    _id: "stem",
     name: "STEM",
     description: "These questions will ask about STEM careers.",
   },
@@ -10,14 +10,14 @@ export const set: QuestionSet = {
     {
       id: "A3_1_1",
       question: "Should I get a college degree if I want a job in STEM?",
-      set: {
-        id: "stem",
+      subject: {
+        _id: "stem",
         name: "STEM",
         description: "These questions will ask about STEM careers.",    
       },
       topics: [
         {
-          id: "advice",
+          _id: "advice",
           name: "Advice",
           description: "These questions will ask you to give some general advice to newcomers interested in entering into your field",
         }
@@ -29,4 +29,4 @@ export const set: QuestionSet = {
       },
   ]
 }
-export default set;
+export default subject;

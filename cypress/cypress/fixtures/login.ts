@@ -2,7 +2,7 @@ import { UserAccessToken } from "../support/types";
 
 export const login: UserAccessToken = {
   user: {
-    id: "clintanderson",
+    _id: "clintanderson",
     name: "Clinton Anderson",
     email: "clint@anderson.com"
   },

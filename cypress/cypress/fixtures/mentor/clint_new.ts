@@ -1,19 +1,20 @@
 import { Mentor, Status } from "../../support/types";
 
 export const mentor: Mentor = {
-  id: "clintanderson",
+  _id: "clintanderson",
   name: "",
   firstName: "",
   title: "",
   isBuilt: false,
-  sets: [
+  lastTrainedAt: "",
+  subjects: [
     {
-      id: "repeat_after_me",
+      _id: "repeat_after_me",
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
     },
     {
-      id: "background",
+      _id: "background",
       name: "Background",
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
@@ -23,15 +24,15 @@ export const mentor: Mentor = {
     {
       id: "A1_1_1",
       question: "Who are you and what do you do?",
-      set: {
-        id: "background",
+      subject: {
+        _id: "background",
         name: "Background",
         description:
           "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       },
       topics: [
         {
-          id: "background",
+          _id: "background",
           name: "Background",
           description:
             "These questions will ask general questions about your background, that might be relevant to how people understand your career",
@@ -45,15 +46,15 @@ export const mentor: Mentor = {
     {
       id: "A2_1_1",
       question: "How old are you now?",
-      set: {
-        id: "background",
+      subject: {
+        _id: "background",
         name: "Background",
         description:
           "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       },
       topics: [
         {
-          id: "background",
+          _id: "background",
           name: "Background",
           description:
             "These questions will ask general questions about your background, that might be relevant to how people understand your career",
@@ -68,15 +69,15 @@ export const mentor: Mentor = {
       id: "A3_1_1",
       question:
         "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-      set: {
-        id: "repeat_after_me",
+      subject: {
+        _id: "repeat_after_me",
         name: "Repeat After Me",
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
       },
       topics: [
         {
-          id: "idle",
+          _id: "idle",
           name: "Idle",
           description: "30-second idle clip",
         },
@@ -90,15 +91,15 @@ export const mentor: Mentor = {
       id: "A4_1_1",
       question:
         "Please give a short introduction of yourself, which includes your name, current job, and title.",
-      set: {
-        id: "repeat_after_me",
+      subject: {
+        _id: "repeat_after_me",
         name: "Repeat After Me",
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
       },
       topics: [
         {
-          id: "intro",
+          _id: "intro",
           name: "Intro",
           description: "Short introduction about you",
         },
@@ -112,15 +113,15 @@ export const mentor: Mentor = {
       id: "A5_1_1",
       question:
         "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-      set: {
-        id: "repeat_after_me",
+      subject: {
+        _id: "repeat_after_me",
         name: "Repeat After Me",
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
       },
       topics: [
         {
-          id: "off_topic",
+          _id: "off_topic",
           name: "Off-Topic",
           description:
             "Short responses to off-topic questions you do not have answers for or do not understand",

@@ -4,13 +4,17 @@ import {
   Mentor,
   Topic,
   Question,
-  Subject as Subject,
+  Subject,
   QuestionSet,
   Connection,
+  TrainJob,
+  TrainStatus,
 } from "types";
-import * as fakeApis from "./fake_servers";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const urljoin = require("url-join");
 
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+const PIPELINE_ENTRYPOINT = process.env.PIPELINE_ENTRYPOINT || "/pipeline";
 
 interface GQLResponse<T> {
   errors?: { message: string }[];
@@ -30,7 +34,6 @@ const defaultSearchParams = {
   sortBy: null,
   sortAscending: true,
 };
-
 interface FetchMentor {
   mentor: Mentor;
 }
@@ -67,11 +70,6 @@ interface UploadVideo {
 interface AddQuestionSet {
   me: {
     addQuestionSet: Mentor;
-  };
-}
-interface BuildMentor {
-  me: {
-    buildMentor: Mentor;
   };
 }
 interface GenerateTranscript {
@@ -364,59 +362,6 @@ export async function updateQuestion(
   return result.data.data!.me.updateQuestion;
 }
 
-export async function uploadVideo(
-  mentorId: string,
-  questionId: string,
-  video: any,
-  accessToken: string
-): Promise<Mentor> {
-  const encodedVideo = encodeURI(JSON.stringify(video));
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<UploadVideo>>(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
-      mutation {
-        me {
-          uploadVideo(mentorId: "${mentorId}", questionId: "${questionId}", video: "${encodedVideo}") {
-            _id
-            name
-            firstName
-            title
-            isBuilt
-            subjects {
-              _id
-              name
-              description
-            }
-            questions {
-              id
-              question
-              subject {
-                _id
-                name
-                description
-              }
-              topics {
-                _id
-                name
-                description
-              }
-              video
-              transcript
-              status
-              recordedAt
-            }
-          }  
-        }
-      }
-    `,
-    },
-    { headers: headers }
-  );
-  return result.data.data!.me.uploadVideo;
-}
-
 export async function addQuestionSet(
   mentorId: string,
   subjectId: string,
@@ -468,18 +413,21 @@ export async function addQuestionSet(
   return result.data.data!.me.addQuestionSet;
 }
 
-export async function buildMentor(
-  id: string,
+export async function uploadVideo(
+  mentorId: string,
+  questionId: string,
+  video: any,
   accessToken: string
 ): Promise<Mentor> {
+  const encodedVideo = encodeURI(JSON.stringify(video));
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<BuildMentor>>(
+  const result = await axios.post<GQLResponse<UploadVideo>>(
     GRAPHQL_ENDPOINT,
     {
       query: `
       mutation {
         me {
-          buildMentor(mentorId: "${id}") {
+          uploadVideo(mentorId: "${mentorId}", questionId: "${questionId}", video: "${encodedVideo}") {
             _id
             name
             firstName
@@ -508,14 +456,14 @@ export async function buildMentor(
               status
               recordedAt
             }
-          }            
+          }  
         }
       }
     `,
     },
     { headers: headers }
   );
-  return result.data.data!.me.buildMentor;
+  return result.data.data!.me.uploadVideo;
 }
 
 export async function generateTranscript(
@@ -574,4 +522,21 @@ export async function loginGoogle(
     `,
   });
   return result.data.data!.loginGoogle;
+}
+
+export async function trainMentor(mentorId: string): Promise<TrainJob> {
+  const res = await axios.post<GQLResponse<TrainJob>>(
+    urljoin(PIPELINE_ENTRYPOINT, "train"),
+    {
+      mentor: mentorId,
+    }
+  );
+  return res.data.data!;
+}
+
+export async function fetchTrainingStatus(
+  statusUrl: string
+): Promise<TrainStatus> {
+  const result = await axios.get<GQLResponse<TrainStatus>>(statusUrl);
+  return result.data.data!;
 }

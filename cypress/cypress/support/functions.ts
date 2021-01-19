@@ -1,4 +1,4 @@
-export interface StaticResponse {
+interface StaticResponse {
   /**
    * Serve a fixture as the response body.
    */
@@ -33,12 +33,13 @@ export interface StaticResponse {
   throttleKbps?: number;
 }
 
-export interface MockGraphQLQuery {
+interface MockGraphQLQuery {
   query: string,
-  data: any | any[]
+  data: any | any[],
+  me: boolean
 }
 
-export function staticResponse(s: StaticResponse): StaticResponse {
+function staticResponse(s: StaticResponse): StaticResponse {
   return {
     ...{
       headers: {
@@ -60,18 +61,21 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
   for (const mock of mocks) {
     queryCalls[mock.query] = 0;
   }
-  cy.intercept('POST', '**/graphql', (req) => {
+  cy.intercept('**/graphql', (req) => {
     const { body } = req;
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
     for (const mock of mocks) {
-      if (queryBody.indexOf(`mutation { ${mock.query}`) !== -1 ||
-        queryBody.indexOf(`query { ${mock.query}`) !== -1
-      ) {
+      if (queryBody.indexOf(`{ ${mock.query}`) !== -1) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
         const body = {};
-        body[mock.query] = val;
-        console.log(body);
+        if (mock.me) {
+          const _inner = {};
+          _inner[mock.query] = val;
+          body["me"] = _inner;
+        } else {
+          body[mock.query] = val;
+        }
         req.alias = mock.query;
         req.reply(staticResponse({
           body: {
@@ -86,14 +90,66 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
   });
 }
 
-export function cyMockGQL(query: string, data: any | any[]): MockGraphQLQuery {
+export function cyMockGQL(query: string, data: any | any[], me = false): MockGraphQLQuery {
   return {
     query,
-    data
+    data,
+    me,
   }
 }
 
 export function cyMockLogin(): void {
   cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
   cy.setCookie("accessToken", "accessToken");
+}
+
+import { TrainStatus } from "./types";
+const TRAIN_STATUS_URL = `/pipeline/train`;
+
+export function cyMockTrain(
+  cy,
+  params: {
+    statusUrl?: string;
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("**/pipeline/train", (req) => {
+    req.alias = "train";
+    req.reply(staticResponse({
+      statusCode: params.statusCode || 200,
+      body: {
+        data: {
+          statusUrl: params.statusUrl || TRAIN_STATUS_URL,
+        },
+        errors: null,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }))
+  });
+}
+
+export function cyMockTrainStatus(
+  cy,
+  params: {
+    status?: TrainStatus;
+    statusUrl?: string;
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept(`**/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
+    req.reply(staticResponse({
+      statusCode: params.statusCode || 200,
+      body: {
+        data: params.status,
+        errors: null,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }))
+  });
 }
