@@ -5,6 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface Connection<T> {
+  edges: Edge<T>[];
+  pageInfo: PageInfo;
+}
+
 export interface Edge<T> {
   cursor: string;
   node: T;
@@ -17,13 +22,8 @@ export interface PageInfo {
   endCursor: string;
 }
 
-export interface Connection<T> {
-  edges: Edge<T>[];
-  pageInfo: PageInfo;
-}
-
 export interface User {
-  id: string;
+  _id: string;
   name: string;
   email: string;
 }
@@ -35,28 +35,39 @@ export interface UserAccessToken {
 }
 
 export interface Mentor {
-  id: string;
-  videoId: string;
+  _id: string;
   name: string;
-  shortName: string;
+  firstName: string;
   title: string;
-  topics: Topic[];
+  isBuilt: boolean;
+  lastTrainedAt: string;
+  subjects: Subject[];
   questions: Question[];
-  utterances: Question[];
+}
+
+export interface QuestionSet {
+  subject: Subject;
+  questions: Question[];
+}
+
+export interface Subject {
+  _id: string;
+  name: string;
+  description: string;
 }
 
 export interface Topic {
-  id: string;
+  _id: string;
   name: string;
-  category: string;
   description: string;
 }
 
 export interface Question {
+  id: string;
   question: string;
+  subject?: Subject;
   topics: Topic[];
-  videoId: string;
-  video: any;
+  video: string;
   transcript: string;
   status: Status;
   recordedAt: string;
@@ -67,13 +78,35 @@ export enum Status {
   COMPLETE = "Complete",
 }
 
-export enum UtteranceType {
-  IDLE = "_IDLE_",
-  INTRO = "_INTRO_",
-  FEEDBACK = "_FEEDBACK_",
-  OFF_TOPIC = "_OFF_TOPIC_",
-  REPEAT = "_REPEAT_",
-  REPEAT_BUMP = "_REPEAT_BUMP_",
-  PROMPT = "_PROMPT_",
-  PROFANITY = "_PROFANITY_",
+export interface TrainJob {
+  id: string;
+  mentor: boolean;
+  statusUrl: string;
+}
+
+export enum TrainState {
+  NONE = "NONE",
+  FAILURE = "FAILURE",
+  SUCCESS = "SUCCESS",
+  PENDING = "PENDING",
+  STARTED = "STARTED",
+}
+
+export interface TrainStatus {
+  state: TrainState;
+  status?: string;
+  info?: TrainingInfo;
+}
+
+export interface TrainExpectionResult {
+  accuracy: number;
+}
+
+export interface TrainResult {
+  questions: TrainExpectionResult[];
+}
+
+export interface TrainingInfo {
+  mentor: string;
+  questions?: TrainExpectionResult[];
 }

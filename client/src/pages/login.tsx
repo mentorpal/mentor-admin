@@ -37,13 +37,13 @@ function LoginPage(): JSX.Element {
 
   React.useEffect(() => {
     if (context.user) {
-      navigate("/");
+      navigate("/setup");
     }
   }, [context.user]);
 
   function onLogin() {
-    // TODO: replace with actual login (either Google auth or username/password)
-    setCookie("accessToken", "temp_fake_cookie", { path: "/" });
+    // TODO: replace with actual login (Google Auth)
+    setCookie("accessToken", process.env.ACCESS_TOKEN);
   }
 
   if (cookies.accessToken) {
@@ -52,14 +52,14 @@ function LoginPage(): JSX.Element {
         <NavBar title="Mentor Studio" />
         <CircularProgress />
       </div>
-    )
+    );
   }
 
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Studio" />
       <Typography variant="h5" className={classes.title}>
-        Please sign in to access the Mentor Studio portal 
+        Please sign in to access the Mentor Studio portal
       </Typography>
       <Button
         id="login-button"
@@ -72,6 +72,6 @@ function LoginPage(): JSX.Element {
       </Button>
     </div>
   );
-};
+}
 
 export default LoginPage;

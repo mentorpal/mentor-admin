@@ -14,9 +14,7 @@ const theme = createMuiTheme({
 export const wrapRootElement = ({ element }) => (
   <MuiThemeProvider theme={theme}>
     <CookiesProvider>
-      <Provider>
-        {element}
-      </Provider>
+      <Provider>{element}</Provider>
     </CookiesProvider>
   </MuiThemeProvider>
 );

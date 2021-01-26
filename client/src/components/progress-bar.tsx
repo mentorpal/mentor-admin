@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Box, LinearProgress, Typography } from '@material-ui/core';
-import { createStyles, withStyles } from '@material-ui/core/styles';
+import React from "react";
+import PropTypes from "prop-types";
+import { Box, LinearProgress, Typography } from "@material-ui/core";
+import { createStyles, withStyles } from "@material-ui/core/styles";
 
 const LinearProgressBar = withStyles((theme) =>
   createStyles({
@@ -10,27 +10,25 @@ const LinearProgressBar = withStyles((theme) =>
       borderRadius: 5,
     },
     colorPrimary: {
-      backgroundColor: theme.palette.grey[theme.palette.type === 'light' ? 200 : 700],
+      backgroundColor:
+        theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
     },
     bar: {
       borderRadius: 5,
-      backgroundColor: '#1a90ff',
+      backgroundColor: "#1a90ff",
     },
-  }),
+  })
 )(LinearProgress);
 
 function ProgressBar(props: { value: number }) {
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
-        <LinearProgressBar
-          id="progress-bar"
-          variant="determinate"
-          {...props} />
+        <LinearProgressBar id="progress-bar" variant="determinate" {...props} />
       </Box>
       <Box minWidth={35}>
         <Typography variant="body2" color="textSecondary">{`${Math.round(
-          props.value,
+          props.value
         )}%`}</Typography>
       </Box>
     </Box>
@@ -45,4 +43,4 @@ ProgressBar.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-export default ProgressBar
+export default ProgressBar;

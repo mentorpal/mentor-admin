@@ -106,29 +106,31 @@ function Login(props: { classes: any }): JSX.Element {
 export function NavBar(props: {
   title: string;
   back?: boolean;
+  onBack?: () => void;
 }): JSX.Element {
+  const { title, back, onBack } = props;
   const classes = useStyles();
 
   return (
     <div id="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          {
-            props.back ?
-              <IconButton
-                id="back-button"
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                className={classes.menuButton}
-                onClick={() => { navigate("/") }}
-              >
-                <CloseIcon />
-              </IconButton>
-              : undefined
-          }
+          {back ? (
+            <IconButton
+              id="back-button"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              className={classes.menuButton}
+              onClick={() => {
+                onBack ? onBack() : navigate("/");
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : undefined}
           <Typography id="title" variant="h6" className={classes.title}>
-            {props.title}
+            {title}
           </Typography>
           <Login classes={classes} />
         </Toolbar>

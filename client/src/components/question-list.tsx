@@ -13,20 +13,39 @@ import {
   ListItemText,
   Typography,
 } from "@material-ui/core";
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Question, Topic } from "types";
 
+function QuestionItem(props: { question: Question; i: number }): JSX.Element {
+  const { question, i } = props;
+  return (
+    <ListItem id={`item-${i}`} style={{ backgroundColor: "#eee" }}>
+      <ListItemIcon>
+        <Checkbox id="check" edge="start" />
+      </ListItemIcon>
+      <ListItemText
+        primary={question.question}
+        secondary={`${question.topics
+          .map((topic: Topic) => {
+            return topic.name;
+          })
+          .join(", ")}`}
+      />
+    </ListItem>
+  );
+}
+
 function QuestionList(props: {
-  id: string,
-  header: string,
-  questions: Question[],
-  classes: any,
+  id: string;
+  header: string;
+  questions: Question[];
+  classes: any;
 }): JSX.Element {
   const { id, header, questions, classes } = props;
   const [isExpanded, setExpanded] = React.useState(questions.length > 0);
 
   return (
-    <Card id={id} elevation={0} style={{ textAlign: "left" }} >
+    <Card id={id} elevation={0} style={{ textAlign: "left" }}>
       <CardContent style={{ padding: 0 }}>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <CardActions>
@@ -53,26 +72,14 @@ function QuestionList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List id="list" style={{ border: 1 }}>
-            {
-              questions.map((question: Question, i: number) =>
-                <ListItem id={`item-${i}`} key={`${id}-${i}`} style={{ backgroundColor: "#eee" }}>
-                  <ListItemIcon>
-                    <Checkbox
-                      id="check"
-                      edge="start"
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={question.question}
-                    secondary={question.topics.map((topic: Topic) => { return topic.name }).join(", ")} />
-                </ListItem>
-              )
-            }
+            {questions.map((question: Question, i: number) => (
+              <QuestionItem question={question} i={i} />
+            ))}
           </List>
         </Collapse>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default QuestionList
+export default QuestionList;
