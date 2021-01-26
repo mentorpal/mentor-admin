@@ -105,16 +105,16 @@ function LoginPage(): JSX.Element {
           )}
         />
       ) : (
-          <Button
-            id="login-button"
-            variant="contained"
-            color="primary"
-            disabled={true}
-            className={classes.button}
-          >
-            Sign in
-          </Button>
-        )}
+        <Button
+          id="login-button"
+          variant="contained"
+          color="primary"
+          disabled={true}
+          className={classes.button}
+        >
+          Sign in
+        </Button>
+      )}
     </div>
   );
 }
