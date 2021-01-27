@@ -63,7 +63,7 @@ describe("Login", () => {
       cy.get("#login-option").should("not.exist");
     });
 
-    it("can navigate to home page", () => {
+    it.skip("can navigate to home page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
