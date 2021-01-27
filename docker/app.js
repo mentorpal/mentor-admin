@@ -12,7 +12,7 @@ app.use(express.urlencoded({
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use("/", express.static(path.join(__dirname, "public", "admin")));
-app.get("/config", (req, res) => {
+app.get("/admin/config", (req, res) => {
     res.send({
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
     });
