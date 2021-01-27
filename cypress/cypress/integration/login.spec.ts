@@ -29,12 +29,6 @@ describe("Login", () => {
       cy.visit("/record");
       cy.location("pathname").should("contain", "/login");
     });
-
-    it.skip("from training page", () => {
-      cySetup(cy);
-      cy.visit("/train");
-      cy.location("pathname").should("contain", "/login");
-    });
   });
 
   describe("navbar", () => {
@@ -69,7 +63,7 @@ describe("Login", () => {
       cy.get("#login-option").should("not.exist");
     });
 
-    it.skip("can navigate to home page", () => {
+    it("can navigate to home page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
@@ -95,7 +89,6 @@ describe("Login", () => {
   it("logs in automatically if the user has an accessToken", () => {
     cySetup(cy);
     cyMockLogin();
-    console.log(login);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login)
     ]);
@@ -105,12 +98,11 @@ describe("Login", () => {
 
   it("redirects to setup page after logging in for the first time", () => {
     cySetup(cy);
+    cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login)
     ]);
     cy.visit("/login");
-    cy.location("pathname").should("contain", "/login");
-    cy.get("#login-button").trigger('mouseover').click();
     cy.location("pathname").should("contain", "/setup");
     cy.location("pathname").should("not.contain", "/login");
     cy.get("#nav-bar #title").contains("Mentor Setup");

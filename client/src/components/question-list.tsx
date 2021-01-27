@@ -79,7 +79,7 @@ function QuestionList(props: {
         >
           <List id="list" style={{ border: 1 }}>
             {questions.map((question: Question, i: number) => (
-              <QuestionItem question={question} i={i} />
+              <QuestionItem key={i} question={question} i={i} />
             ))}
           </List>
         </Collapse>

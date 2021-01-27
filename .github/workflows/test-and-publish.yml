@@ -14,37 +14,37 @@ jobs:
         run: cd client && npm run test:audit
       - name: Run format test
         run: cd client && npm run test:format
-      # - name: Run lint test
-      #   run: cd client && npm run test:lint
+      - name: Run lint test
+        run: cd client && npm run test:lint
       - name: Run types test
         run: cd client && npm run test:types
       - name: Run license test
         run: cd client && npm run test:license
-  # test-e2e:
-  #   name: test e2e
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Build the docker-compose stack
-  #       run: docker-compose up -d
-  #     - name: Check running containers
-  #       run: docker ps
-  #     - name: Cypress run tests
-  #       run: make test-e2e-exec
-  #     - name: If Cypress failed, retrieve image diffs
-  #       run: make test-e2e-image-snapshots-copy && mkdir -p client/cypress/snapshots/snapshot_failed_diffs
-  #       if: ${{ failure() }}
-  #     - name: If Cypress failed, upload image-diff artifacts
-  #       uses: actions/upload-artifact@v1
-  #       if: ${{ failure() }}
-  #       with:
-  #         name: snapshot_failed_diffs
-  #         path: client/cypress/snapshots
+  test-e2e:
+    name: test e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the docker-compose stack
+        run: docker-compose up -d
+      - name: Check running containers
+        run: docker ps
+      - name: Cypress run tests
+        run: make test-e2e-exec
+      - name: If Cypress failed, retrieve image diffs
+        run: make test-e2e-image-snapshots-copy && mkdir -p client/cypress/snapshots/snapshot_failed_diffs
+        if: ${{ failure() }}
+      - name: If Cypress failed, upload image-diff artifacts
+        uses: actions/upload-artifact@v1
+        if: ${{ failure() }}
+        with:
+          name: snapshot_failed_diffs
+          path: client/cypress/snapshots
   publish-check:
     name: publish check
     needs:
       - test
-      # - test-e2e
+      - test-e2e
     runs-on: ubuntu-latest
     outputs:
       is_release: ${{ steps.is_release.outputs.is_release }}
@@ -60,7 +60,7 @@ jobs:
     needs:
       - publish-check
       - test
-      # - test-e2e
+      - test-e2e
     if: needs.publish-check.outputs.is_release || github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2

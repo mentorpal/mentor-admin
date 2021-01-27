@@ -456,7 +456,7 @@ describe("Setup", () => {
       cy.get("#slide").contains("Oops, training failed. Please try again.");
     });  
 
-    it("trains and builds mentor", () => {
+    it.skip("trains and builds mentor", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [

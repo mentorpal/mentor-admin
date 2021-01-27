@@ -14,7 +14,7 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import { navigate } from "@reach/router";
+import { navigate } from "gatsby";
 import {
   updateMentor,
   trainMentor,
@@ -36,10 +36,10 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          It's nice to meet you, {context.user!.name}!
+          It&apos;s nice to meet you, {context.user!.name}!
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Let's get started setting up your new mentor.
+          Let&apos;s get started setting up your new mentor.
         </Typography>
       </div>
     </Paper>
@@ -124,19 +124,20 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Let's start recording.
+        Let&apos;s start recording.
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          You'll be asked to answer some background questions and repeat after
-          mes.
+          You&apos;ll be asked to answer some background questions and repeat
+          after mes.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Once you're done recording, you can build and preview your mentor.
+          Once you&apos;re done recording, you can build and preview your
+          mentor.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          If you'd like to stop, press done at any point. You can always finish
-          later.
+          If you&apos;d like to stop, press done at any point. You can always
+          finish later.
         </Typography>
       </div>
     </Paper>
@@ -160,10 +161,11 @@ export function IdleSlide(props: {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          Let's record a short idle calibration.
+          Let&apos;s record a short idle calibration.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Click the record button and you'll be taken to a recording screen.
+          Click the record button and you&apos;ll be taken to a recording
+          screen.
         </Typography>
       </div>
       <Button
@@ -240,14 +242,14 @@ export function BuildErrorSlide(props: { classes: any }): JSX.Element {
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Oops! We aren't done just yet!
+        Oops! We aren&apos;t done just yet!
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          You're still missing some steps before you can build a mentor.
+          You&apos;re still missing some steps before you can build a mentor.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Please check the previous steps and make sure you've recorded all
+          Please check the previous steps and make sure you&apos;ve recorded all
           videos and filled out all fields.
         </Typography>
       </div>
@@ -375,7 +377,7 @@ export function BuildMentorSlide(props: {
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Great job! You're ready to build your mentor!
+        Great job! You&apos;re ready to build your mentor!
       </Typography>
       <div className={classes.column}>{renderMessage()}</div>
       <Button
@@ -456,8 +458,8 @@ export function QuestionSetSlide(props: {
           one you are most qualified to mentor in.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Each set will ask you some related questions. After answering, you'll
-          be placed in a panel with other mentors in your field.
+          Each set will ask you some related questions. After answering,
+          you&apos;ll be placed in a panel with other mentors in your field.
         </Typography>
       </div>
       <div className={classes.row}>
@@ -474,7 +476,7 @@ export function QuestionSetSlide(props: {
           style={{ marginLeft: 10, marginRight: 10, minWidth: 100 }}
         >
           {subjects.map((s) => (
-            <MenuItem id={s._id} value={s._id}>
+            <MenuItem key={s._id} id={s._id} value={s._id}>
               {s.name}
             </MenuItem>
           ))}
