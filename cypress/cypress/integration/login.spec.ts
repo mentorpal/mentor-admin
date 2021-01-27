@@ -105,6 +105,5 @@ describe("Login", () => {
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
     cy.location("pathname").should("not.contain", "/login");
-    cy.get("#nav-bar #title").contains("Mentor Setup");
   });
 });
