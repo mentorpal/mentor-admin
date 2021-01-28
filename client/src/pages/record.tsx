@@ -38,7 +38,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
   fetchMentor,
   fetchTopics,
-  updateQuestion,
+  updateAnswer,
   uploadVideo,
   generateTranscript,
 } from "api";
@@ -183,7 +183,7 @@ function RecordPage(props: {
   }, [questions, idx]);
 
   async function onUpdateQuestion(question: Question) {
-    const updatedMentor = await updateQuestion(
+    const updatedMentor = await updateAnswer(
       context.user!._id,
       question,
       cookies.accessToken

@@ -15,12 +15,13 @@ import {
   Connection,
   TrainJob,
   TrainStatus,
+  Status,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
-const PIPELINE_ENTRYPOINT = process.env.PIPELINE_ENTRYPOINT || "/pipeline";
+const CLASSIFIER_ENTRYPOINT = process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 
 interface GQLResponse<T> {
   errors?: { message: string }[];
@@ -84,6 +85,67 @@ interface GenerateTranscript {
   };
 }
 
+interface Answer {
+  question: {
+    _id: string;
+    text: string;
+    subject: Subject;
+  }
+  video: string;
+  transcript: string;
+  status: Status;
+  recordedAt: string;
+}
+interface FetchAnswersForSubjects {
+  mentorAnswersForSubjects: {
+    answers: Answer[]
+  }
+}
+function convertAnswersToOldQuestions(answers: Answer[]): Question[] {
+  return answers.map((a: Answer) => {
+    const question: Question = {
+      id: a.question._id,
+      question: a.question.text,
+      subject: a.question.subject,
+      topics: [],
+      video: a.video,
+      transcript: a.transcript,
+      status: a.status,
+      recordedAt: a.recordedAt
+    }
+    return question
+  })
+}
+async function fetchAnswersForSubjects(mentorId: string, subjectIds: string[]) {
+  const result = await axios.post<GQLResponse<FetchAnswersForSubjects>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        mentorAnswersForSubjects(mentor: "${mentorId}", subjects: "${subjectIds}") {
+          answers {
+            question {
+              _id
+              text
+              subject {
+                _id
+                name
+                description
+              }  
+            }
+            video
+            transcript
+            status
+            recordedAt
+          }
+        }
+      }
+    `,
+    },
+  );
+  return result.data.data!.mentorAnswersForSubjects;
+}
+
 export async function fetchMentor(
   id: string,
   accessToken: string
@@ -105,31 +167,16 @@ export async function fetchMentor(
             name
             description
           }
-          questions {
-            id
-            question
-            subject {
-              _id
-              name
-              description
-            }
-            topics {
-              _id
-              name
-              description
-            }
-            video
-            transcript
-            status
-            recordedAt
-          }
         }
       }
     `,
     },
     { headers: headers }
   );
-  return result.data.data!.mentor;
+  const mentor = result.data.data!.mentor;
+  const answers = await fetchAnswersForSubjects(mentor._id, mentor.subjects.map(s => s._id));
+  mentor.questions = convertAnswersToOldQuestions(answers.answers);
+  return mentor;
 }
 
 export async function fetchSubjects(
@@ -254,15 +301,15 @@ export async function fetchQuestionSet(
 }
 
 export async function updateMentor(
-  mentor: Mentor,
+  updateMentor: Mentor,
   accessToken: string
 ): Promise<Mentor> {
   const convertedMentor = {
-    _id: mentor._id,
-    name: mentor.name,
-    firstName: mentor.firstName,
-    title: mentor.title,
-    isBuilt: mentor.isBuilt,
+    _id: updateMentor._id,
+    name: updateMentor.name,
+    firstName: updateMentor.firstName,
+    title: updateMentor.title,
+    isBuilt: updateMentor.isBuilt,
   };
   const encodedMentor = encodeURI(JSON.stringify(convertedMentor));
   const headers = { Authorization: `bearer ${accessToken}` };
@@ -283,24 +330,6 @@ export async function updateMentor(
               name
               description
             }
-            questions {
-              id
-              question
-              subject {
-                _id
-                name
-                description
-              }
-              topics {
-                _id
-                name
-                description
-              }
-              video
-              transcript
-              status
-              recordedAt
-            }
           }  
         }
       }
@@ -308,10 +337,13 @@ export async function updateMentor(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateMentor;
+  const mentor = result.data.data!.me.updateMentor;
+  const answers = await fetchAnswersForSubjects(mentor._id, mentor.subjects.map(s => s._id));
+  mentor.questions = convertAnswersToOldQuestions(answers.answers);
+  return mentor;
 }
 
-export async function updateQuestion(
+export async function updateAnswer(
   mentorId: string,
   question: Question,
   accessToken: string
@@ -329,7 +361,7 @@ export async function updateQuestion(
       query: `
       mutation {
         me {
-          updateQuestion(mentorId: "${mentorId}", question: "${encodedQuestion}") {
+          updateAnswer(mentorId: "${mentorId}", question: "${encodedQuestion}") {
             _id
             name
             firstName
@@ -340,24 +372,6 @@ export async function updateQuestion(
               name
               description
             }
-            questions {
-              id
-              question
-              subject {
-                _id
-                name
-                description
-              }
-              topics {
-                _id
-                name
-                description
-              }
-              video
-              transcript
-              status
-              recordedAt
-            }
           }  
         }
       }
@@ -365,7 +379,10 @@ export async function updateQuestion(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateQuestion;
+  const mentor = result.data.data!.me.updateQuestion;
+  const answers = await fetchAnswersForSubjects(mentor._id, mentor.subjects.map(s => s._id));
+  mentor.questions = convertAnswersToOldQuestions(answers.answers);
+  return mentor;
 }
 
 export async function addQuestionSet(
@@ -391,24 +408,6 @@ export async function addQuestionSet(
               name
               description
             }
-            questions {
-              id
-              question
-              subject {
-                _id
-                name
-                description
-              }
-              topics {
-                _id
-                name
-                description
-              }
-              video
-              transcript
-              status
-              recordedAt
-            }
           }  
         }
       }
@@ -416,7 +415,10 @@ export async function addQuestionSet(
     },
     { headers: headers }
   );
-  return result.data.data!.me.addQuestionSet;
+  const mentor = result.data.data!.me.addQuestionSet;
+  const answers = await fetchAnswersForSubjects(mentor._id, mentor.subjects.map(s => s._id));
+  mentor.questions = convertAnswersToOldQuestions(answers.answers);
+  return mentor;
 }
 
 export async function uploadVideo(
@@ -444,24 +446,6 @@ export async function uploadVideo(
               name
               description
             }
-            questions {
-              id
-              question
-              subject {
-                _id
-                name
-                description
-              }
-              topics {
-                _id
-                name
-                description
-              }
-              video
-              transcript
-              status
-              recordedAt
-            }
           }  
         }
       }
@@ -469,7 +453,10 @@ export async function uploadVideo(
     },
     { headers: headers }
   );
-  return result.data.data!.me.uploadVideo;
+  const mentor = result.data.data!.me.uploadVideo;
+  const answers = await fetchAnswersForSubjects(mentor._id, mentor.subjects.map(s => s._id));
+  mentor.questions = convertAnswersToOldQuestions(answers.answers);
+  return mentor;
 }
 
 export async function generateTranscript(
@@ -532,7 +519,7 @@ export async function loginGoogle(
 
 export async function trainMentor(mentorId: string): Promise<TrainJob> {
   const res = await axios.post<GQLResponse<TrainJob>>(
-    urljoin(PIPELINE_ENTRYPOINT, "train"),
+    urljoin(CLASSIFIER_ENTRYPOINT, "train"),
     {
       mentor: mentorId,
     }

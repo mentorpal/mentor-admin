@@ -104,7 +104,7 @@ export function cyMockLogin(): void {
 }
 
 import { TrainStatus } from "./types";
-const TRAIN_STATUS_URL = `/pipeline/train`;
+const TRAIN_STATUS_URL = `/classifier/train`;
 
 export function cyMockTrain(
   cy,
@@ -114,7 +114,7 @@ export function cyMockTrain(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("**/pipeline/train", (req) => {
+  cy.intercept("**/classifier/train", (req) => {
     req.alias = "train";
     req.reply(staticResponse({
       statusCode: params.statusCode || 200,
