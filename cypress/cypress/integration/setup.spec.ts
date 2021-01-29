@@ -8,7 +8,23 @@ import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL, cyMockTrain, cyMoc
 import login from "../fixtures/login";
 import subjects from "../fixtures/subjects";
 import topics from "../fixtures/topics";
-import { setup0, setup1, setup10, setup11, setup2, setup3, setup4, setup5, setup6, setup7, setup8, setup9 } from "../fixtures/mentor/setup"
+import {
+  setup0,
+  setup1,
+  setup2,
+  setup3,
+  setup4,
+  setup5,
+  setup6,
+  setup7,
+  setup8,
+  setup9,
+  setup10,
+  setup11,
+  setupa,
+  setupb,
+  setupc
+} from "../fixtures/mentor/setup"
 import { TrainState } from "../support/types";
 
 describe("Setup", () => {
@@ -113,6 +129,25 @@ describe("Setup", () => {
     ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
+  });
+
+  it("adds required subjects if missing from mentor initially", () => {
+    cySetup(cy);
+    cyMockLogin();
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setupa, setupb, setupc], true),
+      cyMockGQL("addQuestionSet", true, true),
+      cyMockGQL("subjects", [subjects])
+    ]);
+    cy.visit("/setup?i=4");
+    cy.get("#slide").contains("Background questions");
+    cy.get("#slide").contains("These questions will ask general questions about your background that might be relevant to how people understand your career.");
+    cy.get("#slide").contains("0 / 2");
+    cy.visit("/setup?i=5");
+    cy.get("#slide").contains("Repeat After Me questions");
+    cy.get("#slide").contains("These are miscellaneous phrases you'll be asked to repeat.");
+    cy.get("#slide").contains("0 / 3");
   });
 
   it("shows welcome slide", () => {

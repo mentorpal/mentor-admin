@@ -51,7 +51,7 @@ export interface Subject {
   _id: string;
   name: string;
   description: string;
-  // isRequired: boolean;
+  isRequired: boolean;
 }
 
 export interface Topic {
@@ -69,6 +69,8 @@ export interface Question {
   transcript: string; // remove this
   status: Status; // remove this
   recordedAt: string; // remove this
+  // questionType: QuestionType;
+  // utteranceType: UtteranceType;
 }
 
 export interface Answer {
@@ -76,8 +78,6 @@ export interface Answer {
     _id: string;
     text: string;
     subject: Subject;
-    // questionType: QuestionType;
-    // utteranceType: UtteranceType;
   };
   video: string;
   transcript: string;

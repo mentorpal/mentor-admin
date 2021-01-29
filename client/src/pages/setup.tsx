@@ -9,7 +9,7 @@ import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { fetchMentor, fetchSubjects } from "api";
+import { addQuestionSet, fetchMentor, fetchSubjects } from "api";
 import { Mentor, Subject, Status, Edge } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
@@ -91,47 +91,43 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    loadSubjects();
-    loadMentor();
+    const load = async () => {
+      if (!context.user) {
+        return;
+      }
+      const s = await fetchSubjects(cookies.accessToken, {
+        sortBy: "name",
+        sortAscending: true,
+      });
+      const subjects = s.edges.map((e: Edge<Subject>) => e.node);
+      let mentor = await fetchMentor(cookies.accessToken);
+      for (const subject of subjects) {
+        if (
+          subject.isRequired &&
+          !mentor.subjects.find((s) => s._id === subject._id)
+        ) {
+          await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
+          mentor = await fetchMentor(cookies.accessToken);
+        }
+      }
+      setSubjects(subjects);
+      setMentor(mentor);
+    };
+    load();
   }, [context.user]);
-
-  async function loadSubjects() {
-    const subjects = await fetchSubjects(cookies.accessToken, {
-      sortBy: "name",
-      sortAscending: true,
-    });
-    setSubjects(subjects.edges.map((e: Edge<Subject>) => e.node));
-  }
-
-  async function loadMentor() {
-    if (!context.user) {
-      return;
-    }
-    setMentor(await fetchMentor(cookies.accessToken));
-  }
 
   React.useEffect(() => {
     if (!mentor) {
       return;
     }
-    const mentorFilled =
-      mentor.name !== "" && mentor.firstName !== "" && mentor.title !== "";
-    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
-    let idleRecorded = true;
-    let backgroundRecorded = true;
-    let utteranceRecorded = true;
-    mentor.questions.forEach((q) => {
-      if (q.subject?.name === "Background" && q.status !== Status.COMPLETE) {
-        backgroundRecorded = false;
-      }
-      if (q.subject?.name === "Repeat After Me") {
-        if (q.status !== Status.COMPLETE) {
-          utteranceRecorded = false;
-        }
-      }
-    });
-    const isBuildReady =
-      mentorFilled && idleRecorded && backgroundRecorded && utteranceRecorded;
+    const mentorFilled = Boolean(
+      mentor.name && mentor.firstName && mentor.title
+    );
+    const idleRecorded = true; // todo: get this from question with idle type?
+    const reqRecorded = mentor.questions.every(
+      (q) => !q.subject?.isRequired || q.status === Status.COMPLETE
+    );
+    const isBuildReady = mentorFilled && idleRecorded && reqRecorded;
 
     const _slides = [];
     _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
@@ -156,34 +152,24 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         <IdleSlide key="idle" classes={classes} mentor={mentor} />
       )
     );
-    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
-    const bgSubject = mentor.subjects.find((s) => s.name === "Background");
-    _slides.push(
-      Slide(
-        backgroundRecorded,
-        <RecordSlide
-          key="background"
-          classes={classes}
-          mentor={mentor}
-          subject={bgSubject!}
-          i={_slides.length}
-        />
-      )
-    );
-    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
-    const utSubject = mentor.subjects.find((s) => s.name === "Repeat After Me");
-    _slides.push(
-      Slide(
-        utteranceRecorded,
-        <RecordSlide
-          key="utterances"
-          classes={classes}
-          mentor={mentor}
-          subject={utSubject!}
-          i={_slides.length}
-        />
-      )
-    );
+    mentor.subjects.forEach((s) => {
+      if (s.isRequired) {
+        _slides.push(
+          Slide(
+            mentor.questions
+              .filter((q) => q.subject?._id === s._id)
+              .every((q) => q.status === Status.COMPLETE),
+            <RecordSlide
+              key={`${s.name}`}
+              classes={classes}
+              mentor={mentor}
+              subject={s}
+              i={_slides.length}
+            />
+          )
+        );
+      }
+    });
     _slides.push(
       Slide(
         mentor.isBuilt,
@@ -213,7 +199,11 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       );
     }
     setSlides(_slides);
-  }, [mentor, subjects]);
+  }, [mentor]);
+
+  async function loadMentor() {
+    setMentor(await fetchMentor(cookies.accessToken));
+  }
 
   if (!mentor) {
     return (

@@ -124,7 +124,8 @@ export async function fetchSubjects(
             node {
               _id
               name
-              description    
+              description
+              isRequired
             }
           }
           pageInfo {
@@ -166,6 +167,7 @@ export async function fetchTopics(
               _id
               name
               description
+              isRequired
             }
           }
           pageInfo {

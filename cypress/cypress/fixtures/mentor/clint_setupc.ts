@@ -1,60 +1,19 @@
 import { Status } from "../../support/types";
+import clint_prev from "./clint_setupb";
 
 export const mentor = {
-  _id: "clintanderson",
-  name: "",
-  firstName: "",
-  title: "",
-  isBuilt: false,
-  lastTrainedAt: "",
+  ...clint_prev,
   subjects: [
-    {
-      _id: "background",
-      name: "Background",
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      isRequired: true,
-    },
+    ...clint_prev.subjects,
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
-    },
+    }
   ],
   answers: [
-    {
-      question: {
-        _id: "A1_1_1",
-        text: "Who are you and what do you do?",
-        subject: {
-          _id: "background",
-          name: "Background",
-          description:
-            "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-        },
-      },
-      video: "",
-      transcript: "",
-      recordedAt: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      question: {
-        _id: "A2_1_1",
-        text: "How old are you now?",
-        subject: {
-          _id: "background",
-          name: "Background",
-          description:
-            "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-        },
-      },
-      video: "",
-      transcript: "",
-      recordedAt: "",
-      status: Status.INCOMPLETE,
-    },
+    ...clint_prev.answers,
     {
       question: {
         _id: "A3_1_1",

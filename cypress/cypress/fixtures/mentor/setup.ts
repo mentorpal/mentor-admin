@@ -11,6 +11,10 @@ import setup9 from "./clint_setup9"
 import setup10 from "./clint_setup10"
 import setup11 from "./clint_setup11"
 
+import setupa from "./clint_setupa"
+import setupb from "./clint_setupb"
+import setupc from "./clint_setupc"
+
 export {
   setup0,
   setup1,
@@ -24,4 +28,7 @@ export {
   setup9,
   setup10,
   setup11,
+  setupa,
+  setupb,
+  setupc,
 }

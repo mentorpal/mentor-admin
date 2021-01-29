@@ -42,18 +42,16 @@ export interface Mentor {
   isBuilt: boolean;
   lastTrainedAt: string;
   subjects: Subject[];
-  questions: Question[];
-}
-
-export interface QuestionSet {
-  subject: Subject;
-  questions: Question[];
+  questions: Question[]; // remove this
+  // user: User;
+  // answers: Answer[];
 }
 
 export interface Subject {
   _id: string;
   name: string;
   description: string;
+  isRequired: boolean;
 }
 
 export interface Topic {
@@ -66,7 +64,21 @@ export interface Question {
   id: string;
   question: string;
   subject?: Subject;
-  topics: Topic[];
+  topics: Topic[]; // remove this
+  video: string; // remove this
+  transcript: string; // remove this
+  status: Status; // remove this
+  recordedAt: string; // remove this
+  // questionType: QuestionType;
+  // utteranceType: UtteranceType;
+}
+
+export interface Answer {
+  question: {
+    _id: string;
+    text: string;
+    subject: Subject;
+  };
   video: string;
   transcript: string;
   status: Status;
@@ -76,6 +88,18 @@ export interface Question {
 export enum Status {
   INCOMPLETE = "Incomplete",
   COMPLETE = "Complete",
+}
+
+export enum QuestionType {
+  UTTERANCE = "Utterance",
+  QUESTION = "Question",
+}
+
+export enum UtteranceType {
+  IDLE = "_IDLE_",
+  OFF_TOPIC = "_OFF_TOPIC_",
+  REPEAT = "_REPEAT_",
+  PROFANITY = "_PROFANITY_",
 }
 
 export interface TrainJob {
