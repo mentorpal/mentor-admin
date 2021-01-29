@@ -1,7 +1,7 @@
-import { Mentor, Status } from "../../support/types";
+import { Status } from "../../support/types";
 import clint_prev from "./clint_setup9";
 
-export const mentor: Mentor = {
+export const mentor = {
   ...clint_prev,
   subjects: [
     ...clint_prev.subjects,
@@ -11,23 +11,18 @@ export const mentor: Mentor = {
       description: "These questions will ask about being in a leadership role.",
     }
   ],
-  questions: [
-    ...clint_prev.questions,
+  answers: [
+    ...clint_prev.answers,
     {
-      id: "A7_1_1",
-      question: "What's the hardest decision you've had to make as a leader?",
-      subject: {
-        _id: "leadership",
-        name: "Leadership",
-        description: "These questions will ask about being in a leadership role.",
+      question: {
+        _id: "A7_1_1",
+        text: "What's the hardest decision you've had to make as a leader?",
+        subject: {
+          _id: "leadership",
+          name: "Leadership",
+          description: "These questions will ask about being in a leadership role.",
+        },
       },
-      topics: [
-        {
-          _id: "advice",
-          name: "Advice",
-          description: "These questions will ask you to give some general advice to newcomers interested in entering into your field",
-        }
-      ],
       video: "",
       transcript: "",
       recordedAt: "",

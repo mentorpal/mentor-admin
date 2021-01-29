@@ -1,7 +1,6 @@
-import { Mentor } from "../../support/types";
 import clint_prev from "./clint_setup8";
 
-export const mentor: Mentor = {
+export const mentor = {
   ...clint_prev,
   isBuilt: true,
   lastTrainedAt: "Today",

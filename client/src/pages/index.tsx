@@ -104,15 +104,15 @@ function QuestionsPanel(props: {
 function MentorPanel(props: {
   classes: any;
   mentor: Mentor;
-  onMentorUpdated: (mentor: Mentor) => void;
+  onMentorUpdated: () => void;
 }): JSX.Element {
   const { classes } = props;
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>(props.mentor);
 
   async function updateProfile() {
-    const updatedMentor = await updateMentor(mentor, cookies.accessToken);
-    props.onMentorUpdated(updatedMentor);
+    await updateMentor(mentor, cookies.accessToken);
+    props.onMentorUpdated();
     toast("Profile updated!");
   }
 
@@ -176,17 +176,14 @@ function IndexPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    const loadMentor = async () => {
-      if (!context.user) {
-        return;
-      }
-      setMentor(await fetchMentor(context.user._id, cookies.accessToken));
-    };
     loadMentor();
   }, [context.user]);
 
-  function onMentorUpdated(mentor: Mentor) {
-    setMentor(mentor);
+  async function loadMentor() {
+    if (!context.user) {
+      return;
+    }
+    setMentor(await fetchMentor(cookies.accessToken));
   }
 
   if (!mentor) {
@@ -205,7 +202,7 @@ function IndexPage(): JSX.Element {
       <MentorPanel
         classes={classes}
         mentor={mentor}
-        onMentorUpdated={onMentorUpdated}
+        onMentorUpdated={loadMentor}
       />
       <ToastContainer />
     </div>

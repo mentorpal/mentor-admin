@@ -1,21 +1,41 @@
-import { Mentor, Question } from "../support/types";
 
-export function updateQuestion(
-  m: Mentor,
+export function updateAnswers(
+  answers: any[],
   qid: string,
-  update: Partial<Question>
-): Mentor {
+  update: any
+) {
   return {
-    ...m,
-    questions: m.questions.map((q) => {
-      if(q.id === qid) {
+    answers: answers.map((answer) => {
+      if(answer.question._id === qid) {
         return {
-          ...q,
+          ...answer,
           ...update
         }
       }
       else {
-        return q
+        return answer
+      }
+    })
+  };
+}
+
+
+export function updateAnswer(
+  m: any,
+  qid: string,
+  update: any
+) {
+  return {
+    ...m,
+    answers: m.answers.map((answer) => {
+      if(answer.question._id === qid) {
+        return {
+          ...answer,
+          ...update
+        }
+      }
+      else {
+        return answer
       }
     })
   };

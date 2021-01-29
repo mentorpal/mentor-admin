@@ -51,10 +51,12 @@ function LoginPage(): JSX.Element {
   }, []);
 
   React.useEffect(() => {
-    // TODO:
-    //   only go to setup if still things to set up
-    //   otherwise, go to home page
     if (context.user) {
+      /**
+       * TODO:
+       * - only go to setup if still things to set up
+       * - otherwise, go to home page
+       */
       navigate("/setup");
     }
   }, [context.user]);

@@ -26,6 +26,18 @@ import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Mentor, Status, Subject, TrainStatus, TrainState } from "types";
 
+export interface SlideType {
+  status: boolean;
+  element: JSX.Element;
+}
+
+export function Slide(status: boolean, element: JSX.Element) {
+  return {
+    status,
+    element,
+  };
+}
+
 export function WelcomeSlide(props: { classes: any }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
@@ -49,7 +61,7 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
 export function MentorSlide(props: {
   classes: any;
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -58,11 +70,11 @@ export function MentorSlide(props: {
   const [title, setTitle] = useState(mentor.title);
 
   async function onSave() {
-    const updatedMentor = await updateMentor(
+    await updateMentor(
       { ...mentor, name, firstName, title },
       cookies.accessToken
     );
-    onUpdated(updatedMentor);
+    onUpdated();
   }
 
   return (
@@ -261,7 +273,7 @@ const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
   classes: any;
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -358,9 +370,8 @@ export function BuildMentorSlide(props: {
             trainStatus.state === TrainState.FAILURE
           ) {
             if (trainStatus.state === TrainState.SUCCESS) {
-              const updatedMentor = { ...mentor, isBuilt: true };
-              updateMentor(updatedMentor, cookies.accessToken);
-              onUpdated(updatedMentor);
+              updateMentor({ ...mentor, isBuilt: true }, cookies.accessToken);
+              onUpdated();
             }
             setIsBuilding(false);
           }
@@ -404,7 +415,7 @@ export function QuestionSetSlide(props: {
   classes: any;
   subjects: Subject[];
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated, subjects } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -427,12 +438,8 @@ export function QuestionSetSlide(props: {
       return;
     }
     setIsAdding(true);
-    const updatedMentor = await addQuestionSet(
-      mentor._id,
-      subject._id,
-      cookies.accessToken
-    );
-    onUpdated(updatedMentor);
+    await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
+    onUpdated();
     setIsAdding(false);
   }
 

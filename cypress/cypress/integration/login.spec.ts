@@ -53,7 +53,7 @@ describe("Login", () => {
       cyMockLogin();
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor),
+        cyMockGQL("mentor", mentor, true),
         cyMockGQL("subjects", [subjects])
       ]);
       cy.visit("/");
@@ -68,7 +68,7 @@ describe("Login", () => {
       cyMockLogin();
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor),
+        cyMockGQL("mentor", mentor, true),
         cyMockGQL("subjects", [subjects])
       ]);
       cy.visit("/setup");

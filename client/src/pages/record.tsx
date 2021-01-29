@@ -135,41 +135,45 @@ function RecordPage(props: {
       }
       const topics = await fetchTopics(cookies.accessToken, { sortBy: "name" });
       setAllTopics(topics.edges.map((e: Edge<Topic>) => e.node));
-      const mentor = await fetchMentor(context.user._id, cookies.accessToken);
-      const { videoId, subject, topic, status } = props.search;
-      const _questions: Question[] = [];
-      if (videoId) {
-        const ids = Array.isArray(videoId) ? videoId : [videoId];
-        _questions.push(...mentor.questions.filter((q) => ids.includes(q.id)));
-      } else if (subject) {
-        _questions.push(
-          ...mentor.questions.filter(
-            (q) =>
-              q.subject !== undefined &&
-              q.subject._id === subject &&
-              (!status || q.status === status)
-          )
-        );
-      } else if (topic) {
-        _questions.push(
-          ...mentor.questions.filter(
-            (q) =>
-              q.topics.map((t) => t._id).includes(topic) &&
-              (!status || q.status === status)
-          )
-        );
-      } else {
-        _questions.push(
-          ...mentor.questions.filter((q) =>
-            status ? q.status === status : true
-          )
-        );
-      }
+      const mentor = await fetchMentor(cookies.accessToken);
       setMentor(mentor);
-      setQuestions(_questions);
     };
     load();
   }, [context.user]);
+
+  React.useEffect(() => {
+    if (!mentor) {
+      return;
+    }
+    const { videoId, subject, topic, status } = props.search;
+    const _questions: Question[] = [];
+    if (videoId) {
+      const ids = Array.isArray(videoId) ? videoId : [videoId];
+      _questions.push(...mentor.questions.filter((q) => ids.includes(q.id)));
+    } else if (subject) {
+      _questions.push(
+        ...mentor.questions.filter(
+          (q) =>
+            q.subject !== undefined &&
+            q.subject._id === subject &&
+            (!status || q.status === status)
+        )
+      );
+    } else if (topic) {
+      _questions.push(
+        ...mentor.questions.filter(
+          (q) =>
+            q.topics.map((t) => t._id).includes(topic) &&
+            (!status || q.status === status)
+        )
+      );
+    } else {
+      _questions.push(
+        ...mentor.questions.filter((q) => (status ? q.status === status : true))
+      );
+    }
+    setQuestions(_questions);
+  }, [mentor]);
 
   React.useEffect(() => {
     if (!questions || questions.length === 0) {
@@ -182,41 +186,35 @@ function RecordPage(props: {
     setTranscriptInput(question.transcript);
   }, [questions, idx]);
 
-  async function onUpdateQuestion(question: Question) {
-    const updatedMentor = await updateAnswer(
-      context.user!._id,
-      question,
-      cookies.accessToken
-    );
-    const updatedQuestions = questions;
-    questions.splice(idx, 1, question);
-    setMentor({ ...updatedMentor });
-    setQuestions([...updatedQuestions]);
+  async function loadMentor() {
+    setMentor(await fetchMentor(cookies.accessToken));
+  }
+
+  async function onUpdateAnswer(question: Question) {
+    await updateAnswer(context.user!._id, question, cookies.accessToken);
+    loadMentor();
   }
 
   async function onUploadVideo() {
     toast("Uploading video...");
     const videoId = questions[idx].id;
-    const updatedMentor = await uploadVideo(
+    const uploadedVideo = await uploadVideo(
       context.user!._id,
       videoId,
       videoInput,
       cookies.accessToken
     );
-    const question = updatedMentor.questions.find((q) => q.id === videoId);
-    if (!question) {
+    if (!uploadedVideo) {
       toast("Failed to upload video");
       return;
     }
-    setMentor({ ...updatedMentor });
-    onUpdateQuestion(question);
     toast("Transcribing video...");
     const transcript = await generateTranscript(
       context.user!._id,
       question.id,
       cookies.accessToken
     );
-    onUpdateQuestion({ ...question!, transcript: transcript });
+    onUpdateAnswer({ ...question!, transcript: transcript });
   }
 
   function onRerecord() {
@@ -226,7 +224,7 @@ function RecordPage(props: {
   function deleteTopic(i: number) {
     const question = questions[idx];
     question.topics.splice(i, 1);
-    onUpdateQuestion(question);
+    onUpdateAnswer(question);
   }
 
   function addTopic() {
@@ -240,7 +238,7 @@ function RecordPage(props: {
         description: "",
       });
     }
-    onUpdateQuestion(question);
+    onUpdateAnswer(question);
   }
 
   function onBack() {
@@ -351,7 +349,7 @@ function RecordPage(props: {
                     color="primary"
                     disabled={question.question === questionInput}
                     onClick={() => {
-                      onUpdateQuestion({
+                      onUpdateAnswer({
                         ...questions[idx],
                         question: questionInput,
                       });
@@ -393,7 +391,7 @@ function RecordPage(props: {
                     color="primary"
                     disabled={question.transcript === transcriptInput}
                     onClick={() => {
-                      onUpdateQuestion({
+                      onUpdateAnswer({
                         ...questions[idx],
                         transcript: transcriptInput,
                       });
@@ -460,7 +458,7 @@ function RecordPage(props: {
               onChange={(
                 event: React.ChangeEvent<{ value: unknown; name?: unknown }>
               ) => {
-                onUpdateQuestion({
+                onUpdateAnswer({
                   ...question,
                   status: event.target.value as Status,
                 });

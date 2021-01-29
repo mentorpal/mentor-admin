@@ -15,6 +15,8 @@ import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
 import {
+  Slide,
+  SlideType,
   WelcomeSlide,
   MentorSlide,
   IntroductionSlide,
@@ -78,10 +80,9 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
-  const [steps, setSteps] = useState<boolean[]>([]);
+  const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [isBuildReady, setBuildReady] = useState(false);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -90,19 +91,24 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    const load = async () => {
-      if (!context.user) {
-        return;
-      }
-      const subjects = await fetchSubjects(cookies.accessToken, {
-        sortBy: "name",
-        sortAscending: true,
-      });
-      setSubjects(subjects.edges.map((e: Edge<Subject>) => e.node));
-      setMentor(await fetchMentor(context.user._id, cookies.accessToken));
-    };
-    load();
+    loadSubjects();
+    loadMentor();
   }, [context.user]);
+
+  async function loadSubjects() {
+    const subjects = await fetchSubjects(cookies.accessToken, {
+      sortBy: "name",
+      sortAscending: true,
+    });
+    setSubjects(subjects.edges.map((e: Edge<Subject>) => e.node));
+  }
+
+  async function loadMentor() {
+    if (!context.user) {
+      return;
+    }
+    setMentor(await fetchMentor(cookies.accessToken));
+  }
 
   React.useEffect(() => {
     if (!mentor) {
@@ -110,6 +116,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     }
     const mentorFilled =
       mentor.name !== "" && mentor.firstName !== "" && mentor.title !== "";
+    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
     let idleRecorded = true;
     let backgroundRecorded = true;
     let utteranceRecorded = true;
@@ -121,34 +128,106 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         if (q.status !== Status.COMPLETE) {
           utteranceRecorded = false;
         }
-        if (
-          q.topics.find((t) => t.name === "Idle") &&
-          q.status !== Status.COMPLETE
-        ) {
-          idleRecorded = false;
-        }
       }
     });
-    const _slideStatus = [
-      true,
-      mentorFilled,
-      true,
-      idleRecorded,
-      backgroundRecorded,
-      utteranceRecorded,
-      mentor.isBuilt,
-    ];
-    if (mentor.isBuilt) {
-      _slideStatus.push(true);
-    }
-    setSteps(_slideStatus);
-    setBuildReady(
-      mentorFilled && idleRecorded && backgroundRecorded && utteranceRecorded
+    const isBuildReady =
+      mentorFilled && idleRecorded && backgroundRecorded && utteranceRecorded;
+
+    const _slides = [];
+    _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
+    _slides.push(
+      Slide(
+        mentorFilled,
+        <MentorSlide
+          key="mentor-info"
+          classes={classes}
+          mentor={mentor}
+          onUpdated={loadMentor}
+        />
+      )
     );
+    _slides.push(
+      Slide(true, <IntroductionSlide key="introduction" classes={classes} />)
+    );
+    // TODO: we removed topics, so need another way of finding idle video
+    _slides.push(
+      Slide(
+        idleRecorded,
+        <IdleSlide key="idle" classes={classes} mentor={mentor} />
+      )
+    );
+    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
+    const bgSubject = mentor.subjects.find((s) => s.name === "Background");
+    _slides.push(
+      Slide(
+        backgroundRecorded,
+        <RecordSlide
+          key="background"
+          classes={classes}
+          mentor={mentor}
+          subject={bgSubject!}
+          i={_slides.length}
+        />
+      )
+    );
+    // TODO: replace with checking isRequired subjects instead of checking hard-coded subject names
+    const utSubject = mentor.subjects.find((s) => s.name === "Repeat After Me");
+    _slides.push(
+      Slide(
+        utteranceRecorded,
+        <RecordSlide
+          key="utterances"
+          classes={classes}
+          mentor={mentor}
+          subject={utSubject!}
+          i={_slides.length}
+        />
+      )
+    );
+    _slides.push(
+      Slide(
+        mentor.isBuilt,
+        isBuildReady ? (
+          <BuildMentorSlide
+            key="build"
+            classes={classes}
+            mentor={mentor}
+            onUpdated={loadMentor}
+          />
+        ) : (
+          <BuildErrorSlide key="build-error" classes={classes} />
+        )
+      )
+    );
+    if (mentor.isBuilt) {
+      _slides.push(
+        Slide(
+          true,
+          <QuestionSetSlide
+            classes={classes}
+            mentor={mentor}
+            subjects={subjects}
+            onUpdated={loadMentor}
+          />
+        )
+      );
+    }
+    setSlides(_slides);
   }, [mentor, subjects]);
 
-  function renderButtons(): JSX.Element {
+  if (!mentor) {
     return (
+      <div>
+        <NavBar title="Mentor Setup" />
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  return (
+    <div className={classes.root}>
+      <NavBar title="Mentor Setup" />
+      {idx >= slides.length ? "Invalid slide" : slides[idx].element}
       <div className={classes.row} style={{ height: 150 }}>
         {idx > 0 ? (
           <Button
@@ -175,7 +254,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
             Done
           </Button>
         ) : undefined}
-        {idx !== steps.length - 1 ? (
+        {idx !== slides.length - 1 ? (
           <Button
             id="next-btn"
             className={classes.button}
@@ -189,108 +268,15 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
           </Button>
         ) : undefined}
       </div>
-    );
-  }
-
-  function renderSlide(): JSX.Element {
-    if (!mentor) {
-      return <div>ERROR: NO MENTOR</div>;
-    }
-    if (idx === 0) {
-      return <WelcomeSlide key="welcome" classes={classes} />;
-    }
-    if (idx === 1) {
-      return (
-        <MentorSlide
-          key="mentor-info"
-          classes={classes}
-          mentor={mentor}
-          onUpdated={setMentor}
-        />
-      );
-    }
-    if (idx === 2) {
-      return <IntroductionSlide key="introduction" classes={classes} />;
-    }
-    if (idx === 3) {
-      return <IdleSlide key="idle" classes={classes} mentor={mentor} />;
-    }
-    if (idx === 4) {
-      const subject = mentor.subjects.find((s) => s.name === "Background");
-      return subject ? (
-        <RecordSlide
-          key="background"
-          classes={classes}
-          mentor={mentor}
-          subject={subject}
-          i={4}
-        />
-      ) : (
-        <div>ERROR: NO BACKGROUND</div>
-      );
-    }
-    if (idx === 5) {
-      const subject = mentor.subjects.find((s) => s.name === "Repeat After Me");
-      return subject ? (
-        <RecordSlide
-          key="utterances"
-          classes={classes}
-          mentor={mentor}
-          subject={subject}
-          i={5}
-        />
-      ) : (
-        <div>ERROR: NO UTTERANCES</div>
-      );
-    }
-    if (idx === 6) {
-      return isBuildReady ? (
-        <BuildMentorSlide
-          key="build"
-          classes={classes}
-          mentor={mentor}
-          onUpdated={setMentor}
-        />
-      ) : (
-        <BuildErrorSlide key="build-error" classes={classes} />
-      );
-    }
-    if (idx === 7) {
-      return (
-        <QuestionSetSlide
-          classes={classes}
-          mentor={mentor}
-          subjects={subjects}
-          onUpdated={setMentor}
-        />
-      );
-    }
-    return <div>ERROR: INVALID SLIDE NUMBER</div>;
-  }
-
-  if (!mentor) {
-    return (
-      <div>
-        <NavBar title="Mentor Setup" />
-        <CircularProgress />
-      </div>
-    );
-  }
-
-  return (
-    <div className={classes.root}>
-      <NavBar title="Mentor Setup" />
-      {renderSlide()}
-      {renderButtons()}
       <div className={classes.row}>
-        {steps.map((done, i) => (
+        {slides.map((s, i) => (
           <Radio
             id={`radio-${i}`}
             key={i}
             checked={i === idx}
             onClick={() => setIdx(i)}
-            color={done ? "primary" : "default"}
-            style={{ color: done ? "" : "red" }}
+            color={s.status ? "primary" : "default"}
+            style={{ color: s.status ? "" : "red" }}
           />
         ))}
       </div>
