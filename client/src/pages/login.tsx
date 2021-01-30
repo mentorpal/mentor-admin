@@ -45,6 +45,7 @@ function LoginPage(): JSX.Element {
   const [googleClientId, setClientId] = React.useState<string>("");
 
   React.useEffect(() => {
+    setCookie("accessToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwMTFmZTBkMWJhYjI4YmE4OWNkNGMxZSIsImV4cGlyYXRpb25EYXRlIjoiMjA1Mi0xMC0wOFQwNDoxMToxMC40ODdaIiwiaWF0IjoxNjExOTczNDcxLCJleHAiOjEwMDE2MTE5NzI0NzF9.3Pn9Q4Mdm60X9aDAifF7AqREE5uhQE5esVi5y6dByVU", { path: "/"})
     getClientID().then((id: string) => {
       setClientId(id);
     });

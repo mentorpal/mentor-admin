@@ -157,7 +157,6 @@ export async function fetchTopics(
               _id
               name
               description
-              isRequired
             }
           }
           pageInfo {
