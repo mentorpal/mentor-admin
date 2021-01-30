@@ -18,7 +18,7 @@ export const mentor = {
     {
       question: {
         _id: "A1_1_1",
-        text: "Who are you and what do you do?",
+        question: "Who are you and what do you do?",
         subject: {
           _id: "background",
           name: "Background",
@@ -34,7 +34,7 @@ export const mentor = {
     {
       question: {
         _id: "A2_1_1",
-        text: "How old are you now?",
+        question: "How old are you now?",
         subject: {
           _id: "background",
           name: "Background",

@@ -16,7 +16,7 @@ export const mentor = {
     {
       question: {
         _id: "A7_1_1",
-        text: "What's the hardest decision you've had to make as a leader?",
+        question: "What's the hardest decision you've had to make as a leader?",
         subject: {
           _id: "leadership",
           name: "Leadership",

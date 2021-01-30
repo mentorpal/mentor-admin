@@ -111,7 +111,11 @@ function MentorPanel(props: {
   const [mentor, setMentor] = useState<Mentor>(props.mentor);
 
   async function updateProfile() {
-    await updateMentor(mentor, cookies.accessToken);
+    const updated = await updateMentor(mentor, cookies.accessToken);
+    if (!updated) {
+      toast("Update failed");
+      return;
+    }
     props.onMentorUpdated();
     toast("Profile updated!");
   }

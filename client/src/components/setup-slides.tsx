@@ -70,10 +70,14 @@ export function MentorSlide(props: {
   const [title, setTitle] = useState(mentor.title);
 
   async function onSave() {
-    await updateMentor(
+    const update = await updateMentor(
       { ...mentor, name, firstName, title },
       cookies.accessToken
     );
+    if (!update) {
+      console.error("failed to update");
+      return;
+    }
     onUpdated();
   }
 
@@ -370,8 +374,12 @@ export function BuildMentorSlide(props: {
             trainStatus.state === TrainState.FAILURE
           ) {
             if (trainStatus.state === TrainState.SUCCESS) {
-              updateMentor({ ...mentor, isBuilt: true }, cookies.accessToken);
-              onUpdated();
+              updateMentor(
+                { ...mentor, isBuilt: true },
+                cookies.accessToken
+              ).then((tf) => {
+                onUpdated();
+              });
             }
             setIsBuilding(false);
           }

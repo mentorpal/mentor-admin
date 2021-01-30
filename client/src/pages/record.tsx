@@ -35,13 +35,7 @@ import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import DeleteIcon from "@material-ui/icons/Delete";
 import UndoIcon from "@material-ui/icons/Undo";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import {
-  fetchMentor,
-  fetchTopics,
-  updateAnswer,
-  uploadVideo,
-  generateTranscript,
-} from "api";
+import { fetchMentor, fetchTopics, updateAnswer } from "api";
 import { Question, Status, Mentor, Topic, Edge } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
@@ -197,24 +191,13 @@ function RecordPage(props: {
 
   async function onUploadVideo() {
     toast("Uploading video...");
-    const videoId = questions[idx].id;
-    const uploadedVideo = await uploadVideo(
-      context.user!._id,
-      videoId,
-      videoInput,
-      cookies.accessToken
-    );
-    if (!uploadedVideo) {
-      toast("Failed to upload video");
-      return;
-    }
-    toast("Transcribing video...");
-    const transcript = await generateTranscript(
-      context.user!._id,
-      question.id,
-      cookies.accessToken
-    );
-    onUpdateAnswer({ ...question!, transcript: transcript });
+    //todo
+    onUpdateAnswer({
+      ...question!,
+      video:
+        "https://video.mentorpal.org/videos/mentors/clint/web/clintanderson_U1_1_1.mp4",
+      transcript: "fake transcript",
+    });
   }
 
   function onRerecord() {

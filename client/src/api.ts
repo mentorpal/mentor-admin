@@ -52,12 +52,6 @@ interface FetchSubjects {
 interface FetchTopics {
   topics: Connection<Topic>;
 }
-interface Login {
-  login: UserAccessToken;
-}
-interface LoginGoogle {
-  loginGoogle: UserAccessToken;
-}
 interface UpdateMentor {
   me: {
     updateMentor: boolean;
@@ -68,20 +62,16 @@ interface UpdateAnswer {
     updateAnswer: boolean;
   };
 }
-interface UploadVideo {
-  me: {
-    uploadVideo: boolean;
-  };
-}
 interface AddQuestionSet {
   me: {
     addQuestionSet: boolean;
   };
 }
-interface GenerateTranscript {
-  me: {
-    generateTranscript: string;
-  };
+interface Login {
+  login: UserAccessToken;
+}
+interface LoginGoogle {
+  loginGoogle: UserAccessToken;
 }
 
 // remove this later
@@ -89,7 +79,7 @@ function convertAnswersToOldQuestions(answers: Answer[]): Question[] {
   return answers.map((a: Answer) => {
     const question: Question = {
       id: a.question._id,
-      question: a.question.text,
+      question: a.question.question,
       subject: a.question.subject,
       topics: [],
       video: a.video,
@@ -207,7 +197,7 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
             answers {
               question {
                 _id
-                text
+                question
                 subject {
                   _id
                   name
@@ -310,52 +300,6 @@ export async function addQuestionSet(
     { headers: headers }
   );
   return result.data.data!.me.addQuestionSet;
-}
-
-export async function uploadVideo(
-  mentorId: string,
-  questionId: string,
-  video: any,
-  accessToken: string
-): Promise<boolean> {
-  const encodedVideo = encodeURI(JSON.stringify(video));
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<UploadVideo>>(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
-      mutation {
-        me {
-          uploadVideo(mentorId: "${mentorId}", questionId: "${questionId}", video: "${encodedVideo}")
-        }
-      }
-    `,
-    },
-    { headers: headers }
-  );
-  return result.data.data!.me.uploadVideo;
-}
-
-export async function generateTranscript(
-  mentorId: string,
-  questionId: string,
-  accessToken: string
-): Promise<string> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<GenerateTranscript>>(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
-      mutation {
-        me {
-          generateTranscript(mentor: "${mentorId}", questionId: "${questionId}")
-        }
-      }
-    `,
-    },
-    { headers: headers }
-  );
-  return result.data.data!.me.generateTranscript;
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {

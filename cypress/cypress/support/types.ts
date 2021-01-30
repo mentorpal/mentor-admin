@@ -76,7 +76,7 @@ export interface Question {
 export interface Answer {
   question: {
     _id: string;
-    text: string;
+    question: string;
     subject: Subject;
   };
   video: string;
