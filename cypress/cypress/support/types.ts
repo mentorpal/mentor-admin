@@ -42,9 +42,8 @@ export interface Mentor {
   isBuilt: boolean;
   lastTrainedAt: string;
   subjects: Subject[];
-  questions: Question[]; // remove this
+  answers: Answer[];
   // user: User;
-  // answers: Answer[];
 }
 
 export interface Subject {
@@ -52,6 +51,7 @@ export interface Subject {
   name: string;
   description: string;
   isRequired: boolean;
+  questions: Question[];
 }
 
 export interface Topic {
@@ -61,23 +61,14 @@ export interface Topic {
 }
 
 export interface Question {
-  id: string;
+  _id: string;
   question: string;
-  subject?: Subject;
-  topics: Topic[]; // remove this
-  video: string; // remove this
-  transcript: string; // remove this
-  status: Status; // remove this
-  recordedAt: string; // remove this
-  // questionType: QuestionType;
-  // utteranceType: UtteranceType;
 }
 
 export interface Answer {
   question: {
     _id: string;
     question: string;
-    subject: Subject;
   };
   video: string;
   transcript: string;

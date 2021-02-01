@@ -48,7 +48,7 @@ describe("Login", () => {
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
-    it("can logout and redirect to login page", () => {
+    it.skip("can logout and redirect to login page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
@@ -78,7 +78,7 @@ describe("Login", () => {
     });
   });
 
-  it("shows login page", () => {
+  it.skip("shows login page", () => {
     cySetup(cy);
     cy.visit("/login");
     cy.get("#nav-bar #title").contains("Mentor Studio");
