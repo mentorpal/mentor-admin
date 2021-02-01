@@ -9,7 +9,6 @@ import {
   UserAccessToken,
   Mentor,
   Topic,
-  Question,
   Subject,
   Connection,
   TrainJob,
@@ -43,8 +42,11 @@ const defaultSearchParams = {
 };
 interface FetchMentor {
   me: {
-    mentor: any;
+    mentor: Mentor;
   };
+}
+interface FetchSubject {
+  subject: Subject;
 }
 interface FetchSubjects {
   subjects: Connection<Subject>;
@@ -74,29 +76,29 @@ interface LoginGoogle {
   loginGoogle: UserAccessToken;
 }
 
-// remove this later
-function convertAnswersToOldQuestions(answers: Answer[]): Question[] {
-  return answers.map((a: Answer) => {
-    const question: Question = {
-      id: a.question._id,
-      question: a.question.question,
-      subject: a.question.subject,
-      topics: [],
-      video: a.video,
-      transcript: a.transcript,
-      status: a.status,
-      recordedAt: a.recordedAt,
-    };
-    return question;
+export async function fetchSubject(id: string): Promise<Subject> {
+  const result = await axios.post<GQLResponse<FetchSubject>>(GRAPHQL_ENDPOINT, {
+    query: `
+      query {
+        subject(id: "${id}") {
+          _id
+          name
+          description
+          questions {
+            _id
+            question
+          }
+        }
+      }
+    `,
   });
+  return result.data.data!.subject;
 }
 
 export async function fetchSubjects(
-  accessToken: string,
   searchParams?: SearchParams
 ): Promise<Connection<Subject>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<FetchSubjects>>(
     GRAPHQL_ENDPOINT,
     {
@@ -116,6 +118,10 @@ export async function fetchSubjects(
               name
               description
               isRequired
+              questions {
+                _id
+                question
+              }
             }
           }
           pageInfo {
@@ -127,22 +133,17 @@ export async function fetchSubjects(
         }
       }
     `,
-    },
-    { headers: headers }
+    }
   );
   return result.data.data!.subjects;
 }
 
 export async function fetchTopics(
-  accessToken: string,
   searchParams?: SearchParams
 ): Promise<Connection<Topic>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post<GQLResponse<FetchTopics>>(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
+  const result = await axios.post<GQLResponse<FetchTopics>>(GRAPHQL_ENDPOINT, {
+    query: `
       query {
         topics(
           filter:"${encodeURI(JSON.stringify(params.filter))}",
@@ -157,7 +158,6 @@ export async function fetchTopics(
               _id
               name
               description
-              isRequired
             }
           }
           pageInfo {
@@ -169,9 +169,7 @@ export async function fetchTopics(
         }
       }
     `,
-    },
-    { headers: headers }
-  );
+  });
   return result.data.data!.topics;
 }
 
@@ -193,16 +191,16 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               _id
               name
               description
+              isRequired
+              questions {
+                _id
+                question
+              }
             }
             answers {
               question {
                 _id
                 question
-                subject {
-                  _id
-                  name
-                  description
-                }  
               }
               video
               transcript
@@ -216,9 +214,7 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
     },
     { headers: headers }
   );
-  const mentor = result.data.data!.me.mentor;
-  mentor.questions = convertAnswersToOldQuestions(mentor.answers);
-  return mentor;
+  return result.data.data!.me.mentor;
 }
 
 export async function updateMentor(
@@ -252,18 +248,21 @@ export async function updateMentor(
 
 export async function updateAnswer(
   mentorId: string,
-  question: Question,
+  answer: Answer,
   accessToken: string
 ): Promise<boolean> {
-  const questionId = question.id;
+  const questionId = answer.question._id;
   const convertedAnswer = {
-    video: question.video,
-    transcript: question.transcript,
-    status: question.status,
-    recordedAt: question.recordedAt,
+    video: answer.video,
+    transcript: answer.transcript,
+    status: answer.status,
+    recordedAt: answer.recordedAt,
   };
   const encodedAnswer = encodeURI(JSON.stringify(convertedAnswer));
   const headers = { Authorization: `bearer ${accessToken}` };
+  console.log(
+    `updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: "${encodedAnswer}")`
+  );
   const result = await axios.post<GQLResponse<UpdateAnswer>>(
     GRAPHQL_ENDPOINT,
     {

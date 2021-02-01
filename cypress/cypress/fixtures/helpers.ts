@@ -1,30 +1,10 @@
-
-export function updateAnswers(
-  answers: any[],
-  qid: string,
-  update: any
-) {
-  return {
-    answers: answers.map((answer) => {
-      if(answer.question._id === qid) {
-        return {
-          ...answer,
-          ...update
-        }
-      }
-      else {
-        return answer
-      }
-    })
-  };
-}
-
+import { Mentor } from "../support/types";
 
 export function updateAnswer(
-  m: any,
+  m: Mentor,
   qid: string,
   update: any
-) {
+): Mentor {
   return {
     ...m,
     answers: m.answers.map((answer) => {

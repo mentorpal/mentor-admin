@@ -24,7 +24,14 @@ import {
 import Context from "context";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
-import { Mentor, Status, Subject, TrainStatus, TrainState } from "types";
+import {
+  Mentor,
+  Status,
+  Subject,
+  TrainStatus,
+  TrainState,
+  Answer,
+} from "types";
 
 export interface SlideType {
   status: boolean;
@@ -160,16 +167,13 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
   );
 }
 
+//TODO: fix this
 export function IdleSlide(props: {
   classes: any;
   mentor: Mentor;
 }): JSX.Element {
-  const { classes, mentor } = props;
-  const idle = mentor.questions.find(
-    (q) => q.topics.findIndex((t) => t.name === "Idle") !== -1
-  );
-  const isRecorded = idle !== undefined && idle.status === Status.COMPLETE;
-
+  const { classes } = props;
+  const isRecorded = false;
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -189,11 +193,6 @@ export function IdleSlide(props: {
         className={classes.button}
         variant="contained"
         color="primary"
-        onClick={() => {
-          navigate(
-            `/record?videoId=${idle?.id}&back=${encodeURI(`/setup?i=3`)}`
-          );
-        }}
       >
         Record
       </Button>
@@ -206,16 +205,13 @@ export function IdleSlide(props: {
 
 export function RecordSlide(props: {
   classes: any;
-  mentor: Mentor;
+  isRecorded: boolean;
   subject: Subject;
+  questions: Answer[];
   i: number;
 }): JSX.Element {
-  const { classes, subject, i, mentor } = props;
-  const questions = mentor.questions.filter(
-    (q) => q.subject !== undefined && q.subject._id === subject._id
-  );
+  const { classes, subject, questions, isRecorded, i } = props;
   const recorded = questions.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = recorded.length === questions.length;
 
   function onRecord() {
     navigate(
@@ -419,7 +415,7 @@ export function BuildMentorSlide(props: {
   );
 }
 
-export function QuestionSetSlide(props: {
+export function AddQuestionSetSlide(props: {
   classes: any;
   subjects: Subject[];
   mentor: Mentor;
@@ -432,14 +428,14 @@ export function QuestionSetSlide(props: {
   const isSubjectAdded =
     subject !== undefined &&
     mentor.subjects.findIndex((s) => s._id === subject._id) !== -1;
-  const questions =
+  const answers =
     subject !== undefined
-      ? mentor.questions.filter(
-          (q) => q.subject !== undefined && q.subject._id === subject._id
+      ? mentor.answers.filter((a) =>
+          subject.questions.map((q) => q._id).includes(a.question._id)
         )
       : [];
-  const recorded = questions.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = recorded.length === questions.length;
+  const recorded = answers.filter((q) => q.status === Status.COMPLETE);
+  const isRecorded = recorded.length === answers.length;
 
   async function addSubject() {
     if (!subject) {
@@ -521,7 +517,7 @@ export function QuestionSetSlide(props: {
           <CheckCircleIcon id="check" style={{ color: "green" }} />
         ) : (
           <Typography variant="h6" className={classes.text}>
-            {recorded.length} / {questions.length}
+            {recorded.length} / {answers.length}
           </Typography>
         )
       ) : undefined}

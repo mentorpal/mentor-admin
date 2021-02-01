@@ -1,5 +1,6 @@
+import { Mentor } from "../../support/types";
 
-export const mentor = {
+export const mentor: Mentor = {
   _id: "clintanderson",
   name: "",
   firstName: "",
