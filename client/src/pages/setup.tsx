@@ -24,7 +24,7 @@ import {
   RecordSlide,
   BuildMentorSlide,
   BuildErrorSlide,
-  QuestionSetSlide,
+  AddQuestionSetSlide,
 } from "components/setup-slides";
 
 const useStyles = makeStyles((theme) => ({
@@ -95,7 +95,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       if (!context.user) {
         return;
       }
-      const s = await fetchSubjects(cookies.accessToken, {
+      const s = await fetchSubjects({
         sortBy: "name",
         sortAscending: true,
       });
@@ -120,17 +120,12 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     if (!mentor) {
       return;
     }
+    const _slides = [];
+    _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
+
     const mentorFilled = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
-    const idleRecorded = true; // todo: get this from question with idle type?
-    const reqRecorded = mentor.questions.every(
-      (q) => !q.subject?.isRequired || q.status === Status.COMPLETE
-    );
-    const isBuildReady = mentorFilled && idleRecorded && reqRecorded;
-
-    const _slides = [];
-    _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
     _slides.push(
       Slide(
         mentorFilled,
@@ -145,31 +140,44 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     _slides.push(
       Slide(true, <IntroductionSlide key="introduction" classes={classes} />)
     );
+
     // TODO: we removed topics, so need another way of finding idle video
+    const idleRecorded = true;
     _slides.push(
       Slide(
         idleRecorded,
         <IdleSlide key="idle" classes={classes} mentor={mentor} />
       )
     );
+
+    let requiredSubjectsRecorded = true;
     mentor.subjects.forEach((s) => {
       if (s.isRequired) {
+        const questions = mentor.answers.filter((a) =>
+          s.questions.map((q) => q._id).includes(a.question._id)
+        );
+        const isRecorded = questions.every((a) => a.status === Status.COMPLETE);
+        if (!isRecorded) {
+          requiredSubjectsRecorded = false;
+        }
         _slides.push(
           Slide(
-            mentor.questions
-              .filter((q) => q.subject?._id === s._id)
-              .every((q) => q.status === Status.COMPLETE),
+            isRecorded,
             <RecordSlide
               key={`${s.name}`}
               classes={classes}
-              mentor={mentor}
               subject={s}
+              questions={questions}
+              isRecorded={isRecorded}
               i={_slides.length}
             />
           )
         );
       }
     });
+
+    const isBuildReady =
+      mentorFilled && idleRecorded && requiredSubjectsRecorded;
     _slides.push(
       Slide(
         mentor.isBuilt,
@@ -185,11 +193,12 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         )
       )
     );
-    if (mentor.isBuilt) {
+
+    if (isBuildReady) {
       _slides.push(
         Slide(
           true,
-          <QuestionSetSlide
+          <AddQuestionSetSlide
             classes={classes}
             mentor={mentor}
             subjects={subjects}

@@ -17,11 +17,11 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { updateMentor, fetchMentor } from "api";
-import { Mentor, Question, Status } from "types";
+import { Answer, Mentor, Status } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
-import QuestionList from "components/question-list";
+import AnswerList from "components/answer-list";
 import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -55,11 +55,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function QuestionsPanel(props: {
-  questions: Question[];
-  classes: any;
-}): JSX.Element {
-  const { questions, classes } = props;
+function AnswersPanel(props: { answers: Answer[]; classes: any }): JSX.Element {
+  const { answers: questions, classes } = props;
   const complete = questions.filter((q) => {
     return q.status === Status.COMPLETE;
   });
@@ -72,21 +69,21 @@ function QuestionsPanel(props: {
   }
 
   return (
-    <Paper id="questions" className={classes.paper}>
+    <Paper id="answers" className={classes.paper}>
       <Typography id="progress" variant="h6" className={classes.title}>
-        My Questions ({complete.length} / {questions.length})
+        My Answers ({complete.length} / {questions.length})
       </Typography>
       <ProgressBar value={(complete.length / questions.length) * 100} />
-      <QuestionList
+      <AnswerList
         id="complete-questions"
         header="Recorded"
-        questions={complete}
+        answers={complete}
         classes={classes}
       />
-      <QuestionList
+      <AnswerList
         id="incomplete-questions"
         header="Unrecorded"
-        questions={incomplete}
+        answers={incomplete}
         classes={classes}
       />
       <Button
@@ -113,11 +110,11 @@ function MentorPanel(props: {
   async function updateProfile() {
     const updated = await updateMentor(mentor, cookies.accessToken);
     if (!updated) {
-      toast("Update failed");
-      return;
+      toast("Failed to save changes");
+    } else {
+      props.onMentorUpdated();
+      toast("Profile updated!");
     }
-    props.onMentorUpdated();
-    toast("Profile updated!");
   }
 
   return (
@@ -202,7 +199,7 @@ function IndexPage(): JSX.Element {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Studio" />
-      <QuestionsPanel classes={classes} questions={mentor.questions} />
+      <AnswersPanel classes={classes} answers={mentor.answers} />
       <MentorPanel
         classes={classes}
         mentor={mentor}

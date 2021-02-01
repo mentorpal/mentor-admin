@@ -15,28 +15,20 @@ import {
   Button,
   CircularProgress,
   FormControl,
-  Grid,
   IconButton,
   InputAdornment,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
-import DeleteIcon from "@material-ui/icons/Delete";
 import UndoIcon from "@material-ui/icons/Undo";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import { fetchMentor, fetchTopics, updateAnswer } from "api";
-import { Question, Status, Mentor, Topic, Edge } from "types";
+import { fetchMentor, fetchSubject, updateAnswer } from "api";
+import { Answer, Status, Mentor, Subject } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -71,13 +63,6 @@ const useStyles = makeStyles((theme) => ({
   inputField: {
     width: "100%",
   },
-  topicItem: {
-    border: 1,
-    borderRadius: 5,
-    width: "auto",
-    backgroundColor: "#eee",
-    margin: 5,
-  },
   footer: {
     top: "auto",
     bottom: 0,
@@ -98,7 +83,6 @@ function RecordPage(props: {
   search: {
     videoId?: string[] | string;
     subject?: string;
-    topic?: string;
     status?: string;
     back?: string;
   };
@@ -107,14 +91,11 @@ function RecordPage(props: {
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [questionInput, setQuestionInput] = useState("");
-  const [transcriptInput, setTranscriptInput] = useState("");
-  const [topicInput, setTopicInput] = useState("");
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answerInput, setAnswerInput] = useState("");
   const [videoInput, setVideoInput] = useState<any>();
   const [video, setVideo] = useState("");
   const [idx, setIdx] = useState(0);
-  const [allTopics, setAllTopics] = useState<Topic[]>([]);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -123,69 +104,58 @@ function RecordPage(props: {
   }, [cookies]);
 
   React.useEffect(() => {
-    const load = async () => {
-      if (!context.user) {
-        return;
-      }
-      const topics = await fetchTopics(cookies.accessToken, { sortBy: "name" });
-      setAllTopics(topics.edges.map((e: Edge<Topic>) => e.node));
-      const mentor = await fetchMentor(cookies.accessToken);
-      setMentor(mentor);
-    };
-    load();
+    loadMentor();
   }, [context.user]);
 
   React.useEffect(() => {
+    loadAnswers();
+  }, [mentor]);
+
+  React.useEffect(() => {
+    if (!answers || answers.length === 0) {
+      return;
+    }
+    const answer = answers[idx];
+    setVideoInput(null);
+    setVideo(answer.video);
+    setAnswerInput(answer.transcript);
+  }, [answers, idx]);
+
+  async function loadMentor() {
+    if (!context.user) {
+      return;
+    }
+    setMentor(await fetchMentor(cookies.accessToken));
+  }
+
+  async function loadAnswers() {
     if (!mentor) {
       return;
     }
-    const { videoId, subject, topic, status } = props.search;
-    const _questions: Question[] = [];
+    const { videoId, subject, status } = props.search;
+    const _questions: Answer[] = [];
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      _questions.push(...mentor.questions.filter((q) => ids.includes(q.id)));
-    } else if (subject) {
       _questions.push(
-        ...mentor.questions.filter(
-          (q) =>
-            q.subject !== undefined &&
-            q.subject._id === subject &&
-            (!status || q.status === status)
-        )
+        ...mentor.answers.filter((a) => ids.includes(a.question._id))
       );
-    } else if (topic) {
+    } else if (subject) {
+      const s: Subject = await fetchSubject(subject);
       _questions.push(
-        ...mentor.questions.filter(
-          (q) =>
-            q.topics.map((t) => t._id).includes(topic) &&
-            (!status || q.status === status)
+        ...mentor.answers.filter((a) =>
+          s.questions.map((q) => q._id).includes(a.question._id)
         )
       );
     } else {
       _questions.push(
-        ...mentor.questions.filter((q) => (status ? q.status === status : true))
+        ...mentor.answers.filter((a) => !status || a.status === status)
       );
     }
-    setQuestions(_questions);
-  }, [mentor]);
-
-  React.useEffect(() => {
-    if (!questions || questions.length === 0) {
-      return;
-    }
-    const question = questions[idx];
-    setVideoInput(null);
-    setVideo(question.video);
-    setQuestionInput(question.question);
-    setTranscriptInput(question.transcript);
-  }, [questions, idx]);
-
-  async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    setAnswers(_questions);
   }
 
-  async function onUpdateAnswer(question: Question) {
-    await updateAnswer(context.user!._id, question, cookies.accessToken);
+  async function onUpdateAnswer(answer: Answer) {
+    await updateAnswer(mentor!._id, answer, cookies.accessToken);
     loadMentor();
   }
 
@@ -193,7 +163,7 @@ function RecordPage(props: {
     toast("Uploading video...");
     //todo
     onUpdateAnswer({
-      ...question!,
+      ...curAnswer!,
       video:
         "https://video.mentorpal.org/videos/mentors/clint/web/clintanderson_U1_1_1.mp4",
       transcript: "fake transcript",
@@ -202,26 +172,6 @@ function RecordPage(props: {
 
   function onRerecord() {
     setVideo("");
-  }
-
-  function deleteTopic(i: number) {
-    const question = questions[idx];
-    question.topics.splice(i, 1);
-    onUpdateAnswer(question);
-  }
-
-  function addTopic() {
-    const existingTopic = allTopics.find((t) => t.name === topicInput);
-    if (existingTopic) {
-      question.topics.push(existingTopic);
-    } else {
-      question.topics.push({
-        _id: topicInput.toLowerCase().replace(" ", ""),
-        name: topicInput,
-        description: "",
-      });
-    }
-    onUpdateAnswer(question);
   }
 
   function onBack() {
@@ -280,7 +230,7 @@ function RecordPage(props: {
     );
   }
 
-  if (!mentor || !questions || questions.length === 0) {
+  if (!mentor || !answers || answers.length === 0) {
     return (
       <div>
         <NavBar title="Record Mentor" />
@@ -289,7 +239,7 @@ function RecordPage(props: {
     );
   }
 
-  const question = questions[idx];
+  const curAnswer = answers[idx];
   return (
     <div className={classes.root}>
       <NavBar title="Record Mentor" back={true} onBack={onBack} />
@@ -299,9 +249,9 @@ function RecordPage(props: {
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {idx + 1} / {questions.length}
+          Questions {idx + 1} / {answers.length}
         </Typography>
-        <ProgressBar value={((idx + 1) / questions.length) * 100} />
+        <ProgressBar value={((idx + 1) / answers.length) * 100} />
       </div>
       {video ? renderVideo() : renderVideoRecorder()}
       <div id="question" className={classes.block}>
@@ -309,41 +259,8 @@ function RecordPage(props: {
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             id="question-input"
-            value={questionInput}
-            disabled={question.subject !== undefined}
-            onChange={(e) => {
-              setQuestionInput(e.target.value);
-            }}
-            endAdornment={
-              <InputAdornment position="end">
-                <div>
-                  <IconButton
-                    id="undo-question-btn"
-                    disabled={question.question === questionInput}
-                    onClick={() => {
-                      setQuestionInput(question.question);
-                    }}
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                  <Button
-                    id="save-question-btn"
-                    variant="contained"
-                    color="primary"
-                    disabled={question.question === questionInput}
-                    onClick={() => {
-                      onUpdateAnswer({
-                        ...questions[idx],
-                        question: questionInput,
-                      });
-                    }}
-                    disableElevation
-                  >
-                    Save
-                  </Button>
-                </div>
-              </InputAdornment>
-            }
+            value={curAnswer.question.question}
+            disabled={true}
           />
         </FormControl>
       </div>
@@ -352,18 +269,18 @@ function RecordPage(props: {
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             id="transcript-input"
-            value={transcriptInput}
+            value={answerInput}
             onChange={(e) => {
-              setTranscriptInput(e.target.value);
+              setAnswerInput(e.target.value);
             }}
             endAdornment={
               <InputAdornment position="end">
                 <div>
                   <IconButton
                     id="undo-transcript-btn"
-                    disabled={question.transcript === transcriptInput}
+                    disabled={curAnswer.transcript === answerInput}
                     onClick={() => {
-                      setTranscriptInput(question.transcript);
+                      setAnswerInput(curAnswer.transcript);
                     }}
                   >
                     <UndoIcon />
@@ -372,11 +289,11 @@ function RecordPage(props: {
                     id="save-transcript-btn"
                     variant="contained"
                     color="primary"
-                    disabled={question.transcript === transcriptInput}
+                    disabled={curAnswer.transcript === answerInput}
                     onClick={() => {
                       onUpdateAnswer({
-                        ...questions[idx],
-                        transcript: transcriptInput,
+                        ...curAnswer,
+                        transcript: answerInput,
                       });
                     }}
                     disableElevation
@@ -390,99 +307,27 @@ function RecordPage(props: {
         </FormControl>
       </div>
       <div className={classes.block}>
-        <Grid container spacing={1}>
-          <Grid item xs={12} sm={12} md={8} lg={6}>
-            <div className={classes.row}>
-              <Typography className={classes.title}>Topics:</Typography>
-              <Autocomplete
-                id="topic-input"
-                freeSolo
-                options={allTopics.map((t) => t.name)}
-                onChange={(e, v) => {
-                  setTopicInput(v || "");
-                }}
-                style={{ marginLeft: 15, marginRight: 15 }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    margin="normal"
-                    variant="outlined"
-                    style={{ marginLeft: 15, width: 300 }}
-                    onChange={(ev) => {
-                      setTopicInput(ev.target.value);
-                    }}
-                  />
-                )}
-              />
-              <Button
-                id="add-topic-btn"
-                variant="contained"
-                onClick={addTopic}
-                disabled={topicInput === ""}
-                disableElevation
-              >
-                Add
-              </Button>
-            </div>
-          </Grid>
-          <Grid
-            id="status"
-            item
-            xs={12}
-            sm={12}
-            md={4}
-            lg={6}
-            className={classes.row}
-          >
-            <Typography className={classes.title}>Status:</Typography>
-            <Select
-              id="select-status"
-              value={question.status.toString()}
-              onChange={(
-                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-              ) => {
-                onUpdateAnswer({
-                  ...question,
-                  status: event.target.value as Status,
-                });
-              }}
-              style={{ marginLeft: 10 }}
-            >
-              <MenuItem id="incomplete" value={Status.INCOMPLETE}>
-                {Status.INCOMPLETE}
-              </MenuItem>
-              <MenuItem id="complete" value={Status.COMPLETE}>
-                {Status.COMPLETE}
-              </MenuItem>
-            </Select>
-          </Grid>
-        </Grid>
-        <List
-          id="topics"
-          className={classes.row}
-          style={{ overflow: "auto", whiteSpace: "nowrap" }}
+        <Typography className={classes.title}>Status:</Typography>
+        <Select
+          id="select-status"
+          value={curAnswer.status.toString()}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) => {
+            onUpdateAnswer({
+              ...curAnswer,
+              status: event.target.value as Status,
+            });
+          }}
+          style={{ marginLeft: 10 }}
         >
-          {question.topics.map((t, i) => (
-            <ListItem
-              id={`topic-${i}`}
-              key={`topic-${i}`}
-              className={classes.topicItem}
-            >
-              <ListItemText primary={t.name} />
-              <ListItemSecondaryAction>
-                <IconButton
-                  id="delete-topic-btn"
-                  edge="end"
-                  onClick={() => {
-                    deleteTopic(i);
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
-        </List>
+          <MenuItem id="incomplete" value={Status.INCOMPLETE}>
+            {Status.INCOMPLETE}
+          </MenuItem>
+          <MenuItem id="complete" value={Status.COMPLETE}>
+            {Status.COMPLETE}
+          </MenuItem>
+        </Select>
       </div>
       <div className={classes.toolbar} />
       <AppBar position="fixed" className={classes.footer}>
@@ -495,7 +340,7 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          {idx === questions.length - 1 ? (
+          {idx === answers.length - 1 ? (
             <Button
               id="done-btn"
               className={classes.nextBtn}
@@ -510,7 +355,7 @@ function RecordPage(props: {
             <IconButton
               id="next-btn"
               className={classes.nextBtn}
-              disabled={idx === questions.length - 1}
+              disabled={idx === answers.length - 1}
               onClick={() => setIdx(idx + 1)}
             >
               <ArrowForwardIcon fontSize="large" />

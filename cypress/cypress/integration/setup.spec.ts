@@ -24,7 +24,8 @@ import {
   setupa,
   setupb,
   setupc
-} from "../fixtures/mentor/setup"
+} from "../fixtures/mentor"
+import { background, repeatAfterMe, leadership } from "../fixtures/subjects";
 import { TrainState } from "../support/types";
 
 describe("Setup", () => {
@@ -237,7 +238,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#questions #progress").contains("Questions (0 / 5)");
+    cy.get("#answers #progress").contains("My Answers (0 / 5)");
     cy.get("#complete-questions").contains("Recorded (0)");
     cy.get("#incomplete-questions").contains("Unrecorded (5)");
   });
@@ -283,7 +284,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#questions #progress").contains("Questions (1 / 5)");
+    cy.get("#answers #progress").contains("Questions (1 / 5)");
     cy.get("#complete-questions").contains("Recorded (1)");
     cy.get("#incomplete-questions").contains("Unrecorded (4)");
   });
@@ -295,6 +296,7 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup4, setup4, setup5, setup5, setup5, setup6, setup6], true),
       cyMockGQL("updateAnswer", true, true),
+      cyMockGQL("subject", background),
       cyMockGQL("subjects", [subjects]),
       cyMockGQL("topics", [topics])
     ]);
@@ -358,7 +360,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#questions #progress").contains("Questions (3 / 5)");
+    cy.get("#answers #progress").contains("Questions (3 / 5)");
     cy.get("#complete-questions").contains("Recorded (3)");
     cy.get("#incomplete-questions").contains("Unrecorded (2)");
   });
@@ -370,6 +372,7 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup6, setup6, setup7, setup7, setup7, setup8, setup8], true),
       cyMockGQL("updateAnswer", true, true),
+      cyMockGQL("subject", repeatAfterMe),
       cyMockGQL("subjects", [subjects]),
       cyMockGQL("topics", [topics])
     ]);
@@ -444,7 +447,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#questions #progress").contains("Questions (5 / 5)");
+    cy.get("#answers #progress").contains("Questions (5 / 5)");
     cy.get("#complete-questions").contains("Recorded (5)");
     cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
@@ -543,6 +546,7 @@ describe("Setup", () => {
       cyMockGQL("mentor", [setup9, setup10, setup10, setup11], true),
       cyMockGQL("addQuestionSet", true, true),
       cyMockGQL("updateAnswer", true, true),
+      cyMockGQL("subject", leadership),
       cyMockGQL("subjects", [subjects]),
       cyMockGQL("topics", [topics]),
     ]);
@@ -606,7 +610,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#questions #progress").contains("Questions (6 / 6)");
+    cy.get("#answers #progress").contains("Questions (6 / 6)");
     cy.get("#complete-questions").contains("Recorded (6)");
     cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
