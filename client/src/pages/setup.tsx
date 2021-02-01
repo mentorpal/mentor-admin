@@ -194,7 +194,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       )
     );
 
-    if (mentor.isBuilt) {
+    if (isBuildReady) {
       _slides.push(
         Slide(
           true,
