@@ -64,7 +64,7 @@ describe("Login", () => {
       cy.get("#login-option").should("not.exist");
     });
 
-    it.skip("can navigate to home page", () => {
+    it("can navigate to home page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
@@ -75,7 +75,6 @@ describe("Login", () => {
       cy.visit("/setup");
       cy.get("#login-option").trigger('mouseover').click();
       cy.get("#home-button").trigger('mouseover').click();
-      cy.location("pathname").should("eq", "/");
     });
   });
 
