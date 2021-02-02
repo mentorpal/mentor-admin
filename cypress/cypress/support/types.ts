@@ -63,13 +63,11 @@ export interface Topic {
 export interface Question {
   _id: string;
   question: string;
+  name: string;
 }
 
 export interface Answer {
-  question: {
-    _id: string;
-    question: string;
-  };
+  question: Question;
   video: string;
   transcript: string;
   status: Status;
@@ -84,13 +82,6 @@ export enum Status {
 export enum QuestionType {
   UTTERANCE = "Utterance",
   QUESTION = "Question",
-}
-
-export enum UtteranceType {
-  IDLE = "_IDLE_",
-  OFF_TOPIC = "_OFF_TOPIC_",
-  REPEAT = "_REPEAT_",
-  PROFANITY = "_PROFANITY_",
 }
 
 export interface TrainJob {

@@ -306,7 +306,7 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      <div className={classes.block}>
+      <div id="status" className={classes.block}>
         <Typography className={classes.title}>Status:</Typography>
         <Select
           id="select-status"

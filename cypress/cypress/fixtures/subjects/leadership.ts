@@ -8,8 +8,9 @@ export const subject: Subject = {
   questions: [
     {
       _id: "A7_1_1",
-      question: "What's the hardest decision you've had to make as a leader?",  
-    }  
+      question: "What's the hardest decision you've had to make as a leader?",
+      name: null,
+    }
   ]
 }
 export default subject;

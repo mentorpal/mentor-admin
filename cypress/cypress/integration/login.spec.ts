@@ -36,7 +36,8 @@ describe("Login", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
-        cyMockGQL("login", login)
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true)
       ]);
       cy.visit("/");
       cy.get("#nav-bar #login-option").contains("Clinton Anderson");
@@ -48,7 +49,7 @@ describe("Login", () => {
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
-    it.skip("can logout and redirect to login page", () => {
+    it("can logout and redirect to login page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
@@ -78,7 +79,7 @@ describe("Login", () => {
     });
   });
 
-  it.skip("shows login page", () => {
+  it("shows login page", () => {
     cySetup(cy);
     cy.visit("/login");
     cy.get("#nav-bar #title").contains("Mentor Studio");
@@ -100,7 +101,8 @@ describe("Login", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login)
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", mentor, true)
     ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");

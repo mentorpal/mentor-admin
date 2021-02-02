@@ -104,7 +104,7 @@ export function cyMockLogin(): void {
 }
 
 import { TrainStatus } from "./types";
-const TRAIN_STATUS_URL = `/classifier/train`;
+const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(
   cy,
