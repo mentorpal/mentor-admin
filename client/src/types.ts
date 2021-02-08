@@ -43,7 +43,6 @@ export interface Mentor {
   lastTrainedAt: string;
   subjects: Subject[];
   answers: Answer[];
-  // user: User;
 }
 
 export interface Subject {
@@ -63,6 +62,7 @@ export interface Topic {
 export interface Question {
   _id: string;
   question: string;
+  type: QuestionType;
   name: string;
 }
 
@@ -75,13 +75,24 @@ export interface Answer {
 }
 
 export enum Status {
-  INCOMPLETE = "Incomplete",
-  COMPLETE = "Complete",
+  INCOMPLETE = "INCOMPLETE",
+  COMPLETE = "COMPLETE",
 }
 
 export enum QuestionType {
-  UTTERANCE = "Utterance",
-  QUESTION = "Question",
+  UTTERANCE = "UTTERANCE",
+  QUESTION = "QUESTION",
+}
+
+export enum UtteranceName {
+  IDLE = "_IDLE_",
+  INTRO = "_INTRO_",
+  OFF_TOPIC = "_OFF_TOPIC_",
+  PROMPT = "_PROMPT_",
+  FEEDBACK = "_FEEDBACK_",
+  REPEAT = "_REPEAT_",
+  REPEAT_BUMP = "_REPEAT_BUMP_",
+  PROFANIY = "_PROFANITY_",
 }
 
 export interface TrainJob {

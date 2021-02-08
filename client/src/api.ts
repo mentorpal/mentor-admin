@@ -18,6 +18,7 @@ import {
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
+export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/client";
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
@@ -87,6 +88,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
           questions {
             _id
             question
+            type
             name
           }
         }
@@ -122,6 +124,7 @@ export async function fetchSubjects(
               questions {
                 _id
                 question
+                type
                 name
               }
             }
@@ -197,6 +200,7 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               questions {
                 _id
                 question
+                type
                 name
               }
             }
@@ -264,9 +268,6 @@ export async function updateAnswer(
   };
   const encodedAnswer = encodeURI(JSON.stringify(convertedAnswer));
   const headers = { Authorization: `bearer ${accessToken}` };
-  console.log(
-    `updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: "${encodedAnswer}")`
-  );
   const result = await axios.post<GQLResponse<UpdateAnswer>>(
     GRAPHQL_ENDPOINT,
     {

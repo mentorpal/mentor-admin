@@ -9,6 +9,7 @@ export const subject: Subject = {
     {
       _id: "A7_1_1",
       question: "What's the hardest decision you've had to make as a leader?",
+      type: null,
       name: null,
     }
   ]

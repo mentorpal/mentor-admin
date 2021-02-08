@@ -9,11 +9,13 @@ export const subject: Subject = {
     {
       _id: "A1_1_1",
       question: "Who are you and what do you do?",
+      type: null,
       name: null,
     },
     {
       _id: "A2_1_1",
       question: "How old are you now?",
+      type: null,
       name: null,
     }
   ]

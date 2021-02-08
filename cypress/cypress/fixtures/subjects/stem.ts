@@ -9,8 +9,9 @@ export const subject: Subject = {
     {
       _id: "A6_1_1",
       question: "What does STEM mean?",
+      type: null,
       name: null,
-    }
+}
   ]
 }
 export default subject;

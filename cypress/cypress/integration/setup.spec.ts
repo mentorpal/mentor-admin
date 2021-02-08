@@ -270,10 +270,10 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
@@ -315,10 +315,10 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.visit("/setup?i=4");
     cy.location("pathname").should("contain", "/setup");
@@ -333,7 +333,7 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson and I'm a Nuclear Electrician's Mate");
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     cy.get("#rerecord-btn").should("exist");
     // record second question
     cy.get("#next-btn").trigger("mouseover").click();
@@ -341,11 +341,11 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "How old are you now?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
@@ -387,7 +387,7 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     cy.get("#rerecord-btn").should("exist");
     // record second question
     cy.get("#next-btn").trigger("mouseover").click();
@@ -395,11 +395,11 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please give a short introduction of yourself, which includes your name, current job, and title.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.visit("/setup?i=5");
     cy.location("pathname").should("contain", "/setup");
@@ -415,7 +415,7 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please give a short introduction of yourself, which includes your name, current job, and title.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson I'm a Nuclear Electrician's Mate");
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     cy.get("#rerecord-btn").should("exist");
     // record third question
     cy.get("#next-btn").trigger("mouseover").click();
@@ -423,11 +423,11 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
@@ -511,8 +511,8 @@ describe("Setup", () => {
       cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
       // preview mentor
       cy.get("#preview-btn").trigger('mouseover').click();
-      cy.location("hostname").should("contain", "mentorpal.org");
-      cy.location("pathname").should("contain", "mentorpanel/");
+      cy.location("pathname").should("contain", "client/");
+      // cy.location("search").should("contain", "?mentor=clintanderson&hideVideo=true");
     });
   });
 
@@ -582,10 +582,10 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "What's the hardest decision you've had to make as a leader?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("Incomplete");
+    cy.get("#status").contains("INCOMPLETE");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("Complete");
+    cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.visit("/setup?i=7");
     cy.location("pathname").should("contain", "/setup");

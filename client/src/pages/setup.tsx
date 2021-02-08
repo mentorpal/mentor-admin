@@ -10,7 +10,7 @@ import { useCookies } from "react-cookie";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { addQuestionSet, fetchMentor, fetchSubjects } from "api";
-import { Mentor, Subject, Status, Edge } from "types";
+import { Mentor, Subject, Status, Edge, UtteranceName } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
@@ -142,7 +142,9 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     );
 
     // TODO: we removed topics, so need another way of finding idle video
-    const idle = mentor.answers.find((a) => a.question.name === "Idle");
+    const idle = mentor.answers.find(
+      (a) => a.question.name === UtteranceName.IDLE
+    );
     const idleRecorded = idle === undefined || idle.status === Status.COMPLETE;
     if (idle) {
       _slides.push(

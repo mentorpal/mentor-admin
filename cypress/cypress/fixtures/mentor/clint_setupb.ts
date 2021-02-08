@@ -15,12 +15,14 @@ export const mentor: Mentor = {
         {
           _id: "A1_1_1",
           question: "Who are you and what do you do?",  
-          name: null
+          type: null,
+          name: null,
         },
         {
           _id: "A2_1_1",
           question: "How old are you now?",  
-          name: null
+          type: null,
+          name: null,
         }
       ]
     }
@@ -31,8 +33,9 @@ export const mentor: Mentor = {
       question: {
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
-        name: null
-      },
+        type: null,
+        name: null,
+    },
       video: "",
       transcript: "",
       recordedAt: "",
@@ -42,8 +45,9 @@ export const mentor: Mentor = {
       question: {
         _id: "A2_1_1",
         question: "How old are you now?",
-        name: null
-      },
+        type: null,
+        name: null,
+    },
       video: "",
       transcript: "",
       recordedAt: "",
