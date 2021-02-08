@@ -14,7 +14,8 @@ export const mentor: Mentor = {
         {
           _id: "A7_1_1",
           question: "What's the hardest decision you've had to make as a leader?",  
-          name: null
+          type: null,
+          name: null,
         }
       ]
     }
@@ -25,8 +26,9 @@ export const mentor: Mentor = {
       question: {
         _id: "A7_1_1",
         question: "What's the hardest decision you've had to make as a leader?",
-        name: null
-      },
+        type: null,
+        name: null,
+    },
       video: "",
       transcript: "",
       recordedAt: "",

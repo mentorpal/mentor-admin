@@ -20,6 +20,7 @@ import {
   trainMentor,
   addQuestionSet,
   fetchTrainingStatus,
+  CLIENT_ENDPOINT,
 } from "api";
 import Context from "context";
 import React, { useContext, useState } from "react";
@@ -430,7 +431,9 @@ export function BuildMentorSlide(props: {
             color="secondary"
             disabled={isBuilding}
             onClick={() =>
-              navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`)
+              navigate(
+                `${CLIENT_ENDPOINT}/?mentor=${mentor._id}&hideVideo=true`
+              )
             }
           >
             Preview

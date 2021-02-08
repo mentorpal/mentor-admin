@@ -1,4 +1,4 @@
-import { Connection, Subject } from "../support/types";
+import { Connection, QuestionType, Subject, UtteranceName } from "../support/types";
 
 export const subjects: Connection<Subject> = {
   edges: [
@@ -13,11 +13,13 @@ export const subjects: Connection<Subject> = {
           {
             _id: "A1_1_1",
             question: "Who are you and what do you do?",
+            type: null,
             name: null,
           },
           {
             _id: "A2_1_1",
             question: "How old are you now?",
+            type: null,
             name: null,
           }
         ]
@@ -35,20 +37,23 @@ export const subjects: Connection<Subject> = {
             _id: "A3_1_1",
             question:
               "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-            name: "Idle"
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.IDLE
           },
           {
             _id: "A4_1_1",
             question:
               "Please give a short introduction of yourself, which includes your name, current job, and title.",
-              name: null,
-            },
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.INTRO
+          },
           {
             _id: "A5_1_1",
             question:
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-              name: null,
-            }
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.OFF_TOPIC
+          }
         ]
       }
     },
@@ -63,6 +68,7 @@ export const subjects: Connection<Subject> = {
           {
             _id: "A6_1_1",
             question: "What does STEM mean?",
+            type: null,
             name: null,
           }
         ]
@@ -79,6 +85,7 @@ export const subjects: Connection<Subject> = {
           {
             _id: "A7_1_1",
             question: "What's the hardest decision you've had to make as a leader?",
+            type: null,
             name: null,
           }
         ]
