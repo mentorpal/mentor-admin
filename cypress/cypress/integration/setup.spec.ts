@@ -360,7 +360,7 @@ describe("Setup", () => {
     cy.get("#incomplete-questions").contains("Unrecorded (2)");
   });
 
-  it("shows repeat after me questions slide", () => {
+  it.skip("shows repeat after me questions slide", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [
@@ -511,8 +511,8 @@ describe("Setup", () => {
       cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
       // preview mentor
       cy.get("#preview-btn").trigger('mouseover').click();
-      cy.location("pathname").should("contain", "client/");
-      // cy.location("search").should("contain", "?mentor=clintanderson&hideVideo=true");
+      cy.location("pathname").should("contain", "chat");
+      cy.location("search").should("contain", "?mentor=clintanderson&hideVideo=true");
     });
   });
 
