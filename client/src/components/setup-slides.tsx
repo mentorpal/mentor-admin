@@ -430,11 +430,11 @@ export function BuildMentorSlide(props: {
             variant="contained"
             color="secondary"
             disabled={isBuilding}
-            onClick={() =>
-              navigate(
-                `${CLIENT_ENDPOINT}/?mentor=${mentor._id}&hideVideo=true`
-              )
-            }
+            onClick={() => {
+              const host = process.env.CLIENT_ENDPOINT || location.origin;
+              const path = `${host}/chat?mentor=${mentor._id}&hideVideo=true`;
+              window.location.href = path;
+            }}
           >
             Preview
           </Button>
