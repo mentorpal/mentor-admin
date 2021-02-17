@@ -156,6 +156,7 @@ function QuestionsPage(): JSX.Element {
               <TableBody id="questions">
                 {questions.edges.map((row, i) => (
                   <TableRow
+                    key={`question-${i}`}
                     id={`question-${i}`}
                     hover
                     role="checkbox"

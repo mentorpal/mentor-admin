@@ -176,7 +176,10 @@ function SubjectsPage(): JSX.Element {
     setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
   }
 
-  async function deleteSubject(id: string) {}
+  async function deleteSubject(id: string) {
+    // todo
+    loadSubjects();
+  }
 
   function setSort(id: string) {
     if (sortBy === id) {
@@ -212,6 +215,7 @@ function SubjectsPage(): JSX.Element {
               <TableBody id="subjects">
                 {subjects.edges.map((row, i) => (
                   <SubjectItem
+                    key={`subject-${i}`}
                     id={`subject-${i}`}
                     subject={row.node}
                     onDelete={deleteSubject}
