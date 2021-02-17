@@ -40,8 +40,8 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  const [cookies, setCookie] = useCookies(["accessToken"]);
   const context = useContext(Context);
+  const [cookies, setCookie] = useCookies(["accessToken"]);
   const [googleClientId, setClientId] = React.useState<string>("");
 
   React.useEffect(() => {

@@ -32,7 +32,6 @@ import {
   TrainStatus,
   TrainState,
   Answer,
-  Question,
 } from "types";
 
 export interface SlideType {
@@ -431,8 +430,7 @@ export function BuildMentorSlide(props: {
             color="secondary"
             disabled={isBuilding}
             onClick={() => {
-              const host = process.env.CLIENT_ENDPOINT || location.origin;
-              const path = `${host}/chat?mentor=${mentor._id}&hideVideo=true`;
+              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}&hideVideo=true`;
               window.location.href = path;
             }}
           >

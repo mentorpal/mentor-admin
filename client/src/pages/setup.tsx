@@ -96,6 +96,8 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         return;
       }
       const s = await fetchSubjects({
+        filter: {},
+        cursor: "",
         sortBy: "name",
         sortAscending: true,
       });

@@ -123,7 +123,7 @@ export function NavBar(props: {
               aria-label="menu"
               className={classes.menuButton}
               onClick={() => {
-                onBack ? onBack() : navigate("/");
+                onBack ? onBack() : navigate(-1);
               }}
             >
               <CloseIcon />

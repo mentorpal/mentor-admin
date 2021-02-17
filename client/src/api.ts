@@ -14,11 +14,12 @@ import {
   TrainJob,
   TrainStatus,
   Answer,
+  Question,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
-export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/client";
+export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
@@ -37,10 +38,11 @@ interface SearchParams {
 const defaultSearchParams = {
   limit: 1000,
   filter: {},
-  cursor: null,
-  sortBy: null,
+  cursor: "",
+  sortBy: "",
   sortAscending: true,
 };
+
 interface FetchMentor {
   me: {
     mentor: Mentor;
@@ -52,9 +54,19 @@ interface FetchSubject {
 interface FetchSubjects {
   subjects: Connection<Subject>;
 }
+interface FetchTopic {
+  topic: Topic;
+}
 interface FetchTopics {
   topics: Connection<Topic>;
 }
+interface FetchQuestion {
+  question: Question;
+}
+interface FetchQuestions {
+  questions: Connection<Question>;
+}
+
 interface UpdateMentor {
   me: {
     updateMentor: boolean;
@@ -65,11 +77,27 @@ interface UpdateAnswer {
     updateAnswer: boolean;
   };
 }
+interface UpdateSubject {
+  me: {
+    updateSubject: boolean;
+  };
+}
+interface UpdateTopic {
+  me: {
+    updateTopic: boolean;
+  };
+}
+interface UpdateQuestion {
+  me: {
+    updateQuestion: boolean;
+  };
+}
 interface AddQuestionSet {
   me: {
     addQuestionSet: boolean;
   };
 }
+
 interface Login {
   login: UserAccessToken;
 }
@@ -88,6 +116,12 @@ export async function fetchSubject(id: string): Promise<Subject> {
           questions {
             _id
             question
+            topics {
+              _id
+              name
+              description
+            }
+            paraphrases
             type
             name
           }
@@ -110,7 +144,7 @@ export async function fetchSubjects(
         subjects(
           filter:"${encodeURI(JSON.stringify(params.filter))}",
           limit:${params.limit},
-          cursor:${params.cursor},
+          cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
           sortAscending:${params.sortAscending}
         ) {
@@ -124,6 +158,12 @@ export async function fetchSubjects(
               questions {
                 _id
                 question
+                topics {
+                  _id
+                  name
+                  description
+                }
+                paraphrases
                 type
                 name
               }
@@ -143,6 +183,21 @@ export async function fetchSubjects(
   return result.data.data!.subjects;
 }
 
+export async function fetchTopic(id: string): Promise<Topic> {
+  const result = await axios.post<GQLResponse<FetchTopic>>(GRAPHQL_ENDPOINT, {
+    query: `
+      query {
+        topic(id: "${id}") {
+          _id
+          name
+          description
+        }
+      }
+    `,
+  });
+  return result.data.data!.topic;
+}
+
 export async function fetchTopics(
   searchParams?: SearchParams
 ): Promise<Connection<Topic>> {
@@ -153,7 +208,7 @@ export async function fetchTopics(
         topics(
           filter:"${encodeURI(JSON.stringify(params.filter))}",
           limit:${params.limit},
-          cursor:${params.cursor},
+          cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
           sortAscending:${params.sortAscending}
         ) {
@@ -178,6 +233,76 @@ export async function fetchTopics(
   return result.data.data!.topics;
 }
 
+export async function fetchQuestion(id: string): Promise<Question> {
+  const result = await axios.post<GQLResponse<FetchQuestion>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        question(id: "${id}") {
+          _id
+          question
+          topics {
+            _id
+            name
+            description
+          }
+          paraphrases
+          type
+          name
+        }
+      }
+    `,
+    }
+  );
+  return result.data.data!.question;
+}
+
+export async function fetchQuestions(
+  searchParams?: SearchParams
+): Promise<Connection<Question>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const result = await axios.post<GQLResponse<FetchQuestions>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        questions(
+          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          limit:${params.limit},
+          cursor:"${params.cursor}",
+          sortBy:"${params.sortBy}",
+          sortAscending:${params.sortAscending}
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              question
+              topics {
+                _id
+                name
+                description
+              }  
+              paraphrases
+              type
+              name
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+    }
+  );
+  return result.data.data!.questions;
+}
+
 export async function fetchMentor(accessToken: string): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<FetchMentor>>(
@@ -200,6 +325,12 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               questions {
                 _id
                 question
+                topics {
+                  _id
+                  name
+                  description
+                }    
+                paraphrases
                 type
                 name
               }
@@ -208,6 +339,13 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               question {
                 _id
                 question
+                topics {
+                  _id
+                  name
+                  description
+                }    
+                paraphrases
+                type
                 name
               }
               video
@@ -282,6 +420,72 @@ export async function updateAnswer(
     { headers: headers }
   );
   return result.data.data!.me.updateAnswer;
+}
+
+export async function updateSubject(
+  subject: Partial<Subject>,
+  accessToken: string
+): Promise<boolean> {
+  const encodedSubject = encodeURI(JSON.stringify(subject));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UpdateSubject>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          updateSubject(subject: "${encodedSubject}")
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateSubject;
+}
+
+export async function updateTopic(
+  topic: Partial<Topic>,
+  accessToken: string
+): Promise<boolean> {
+  const encodedTopic = encodeURI(JSON.stringify(topic));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UpdateTopic>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          updateTopic(topic: "${encodedTopic}")
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateTopic;
+}
+
+export async function updateQuestion(
+  question: Partial<Question>,
+  accessToken: string
+): Promise<boolean> {
+  const encodedQuestion = encodeURI(JSON.stringify(question));
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post<GQLResponse<UpdateQuestion>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        me {
+          updateQuestion(question: "${encodedQuestion}")
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateQuestion;
 }
 
 export async function addQuestionSet(
