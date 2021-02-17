@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL, cyMockTrain, cyMockTrainStatus } from "../support/functions";
 import login from "../fixtures/login";
 import subjects from "../fixtures/subjects";
-import topics from "../fixtures/topics";
 import {
   setup0,
   setup1,
@@ -25,7 +24,9 @@ import {
   setupb,
   setupc
 } from "../fixtures/mentor"
-import { background, repeatAfterMe, leadership } from "../fixtures/subjects";
+import background from "../fixtures/subjects/background"
+import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
+import leadership from "../fixtures/subjects/leadership";
 import { TrainState } from "../support/types";
 
 describe("Setup", () => {
@@ -243,7 +244,7 @@ describe("Setup", () => {
     cy.get("#incomplete-questions").contains("Unrecorded (5)");
   });
 
-  it.skip("shows idle slide", () => {
+  it("shows idle slide", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [
@@ -251,11 +252,10 @@ describe("Setup", () => {
       cyMockGQL("mentor", [setup3, setup3, setup4, setup4], true),
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subjects", [subjects]),
-      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=3");
     cy.get("#slide").contains("Idle");
-    cy.get("#slide").contains("Let's record a short idle calibration.");
+    cy.get("#slide").contains("Let's record a short idle calibration video.");
     cy.get("#slide").contains("Click the record button and you'll be taken to a recording screen.");
     cy.get("#next-btn").should("exist");
     cy.get("#back-btn").should("exist");
@@ -270,7 +270,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    cy.get("#topics").contains("Idle");
     cy.get("#status").contains("Incomplete");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
@@ -284,7 +283,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("Questions (1 / 5)");
+    cy.get("#answers #progress").contains("My Answers (1 / 5)");
     cy.get("#complete-questions").contains("Recorded (1)");
     cy.get("#incomplete-questions").contains("Unrecorded (4)");
   });
@@ -298,7 +297,6 @@ describe("Setup", () => {
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subject", background),
       cyMockGQL("subjects", [subjects]),
-      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=4");
     cy.get("#slide").contains("Background questions");
@@ -317,7 +315,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Background");
     cy.get("#status").contains("Incomplete");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
@@ -336,7 +333,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson and I'm a Nuclear Electrician's Mate");
-    // cy.get("#topics").contains("Background");
     cy.get("#status").contains("Complete");
     cy.get("#rerecord-btn").should("exist");
     // record second question
@@ -345,7 +341,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "How old are you now?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Background");
     cy.get("#status").contains("Incomplete");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
@@ -360,7 +355,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("Questions (3 / 5)");
+    cy.get("#answers #progress").contains("My Answers (3 / 5)");
     cy.get("#complete-questions").contains("Recorded (3)");
     cy.get("#incomplete-questions").contains("Unrecorded (2)");
   });
@@ -374,7 +369,6 @@ describe("Setup", () => {
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subject", repeatAfterMe),
       cyMockGQL("subjects", [subjects]),
-      cyMockGQL("topics", [topics])
     ]);
     cy.visit("/setup?i=5");
     cy.get("#slide").contains("Repeat After Me questions");
@@ -393,7 +387,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Idle");
     cy.get("#status").contains("Complete");
     cy.get("#rerecord-btn").should("exist");
     // record second question
@@ -402,7 +395,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please give a short introduction of yourself, which includes your name, current job, and title.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Intro");
     cy.get("#status").contains("Incomplete");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
@@ -423,7 +415,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please give a short introduction of yourself, which includes your name, current job, and title.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson I'm a Nuclear Electrician's Mate");
-    // cy.get("#topics").contains("Intro");
     cy.get("#status").contains("Complete");
     cy.get("#rerecord-btn").should("exist");
     // record third question
@@ -432,7 +423,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Off-Topic");
     cy.get("#status").contains("Incomplete");
     cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
@@ -447,7 +437,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("Questions (5 / 5)");
+    cy.get("#answers #progress").contains("My Answers (5 / 5)");
     cy.get("#complete-questions").contains("Recorded (5)");
     cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
@@ -487,18 +477,18 @@ describe("Setup", () => {
       cy.get("#next-btn").should("not.exist");
       cy.get("#back-btn").should("exist");
       cy.get("#done-btn").should("exist");
-      cy.get("#build-btn").contains("Build");
+      cy.get("#train-btn").contains("Build");
       cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
-      cy.get("#build-btn").trigger('mouseover').click();
+      cy.get("#train-btn").trigger('mouseover').click();
       cy.get("#slide").contains("Oops, training failed. Please try again.");
     });  
 
-    it.skip("trains and builds mentor", () => {
+    it("builds mentor", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
-        cyMockGQL("mentor", [setup8, setup9]),
+        cyMockGQL("mentor", [setup8, setup9], true),
         cyMockGQL("updateMentor", setup9, true),
         cyMockGQL("subjects", [subjects]),
       ]);
@@ -511,18 +501,18 @@ describe("Setup", () => {
       cy.get("#next-btn").should("not.exist");
       cy.get("#back-btn").should("exist");
       cy.get("#done-btn").should("exist");
-      cy.get("#build-btn").contains("Build");
+      cy.get("#train-btn").contains("Build");
       cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
-      cy.get("#build-btn").trigger('mouseover').click();
+      cy.get("#train-btn").trigger('mouseover').click();
+      cy.get("#slide").contains("Building your mentor...");
       cy.get("#slide").contains("Congratulations! Your brand-new mentor is ready!");
       cy.get("#slide").contains("Click the preview button to see your mentor.");
-      cy.get("#build-btn").contains("Preview");
+      cy.get("#preview-btn").contains("Preview");
       cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
       // preview mentor
-      cy.get("#build-btn").trigger('mouseover').click();
+      cy.get("#preview-btn").trigger('mouseover').click();
       cy.location("hostname").should("contain", "mentorpal.org");
       cy.location("pathname").should("contain", "mentorpanel/");
-      cy.location("search").should("contain", "?mentor=clintanderson");
     });
   });
 
@@ -548,7 +538,6 @@ describe("Setup", () => {
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subject", leadership),
       cyMockGQL("subjects", [subjects]),
-      cyMockGQL("topics", [topics]),
     ]);
     cy.visit("/setup?i=7");
     cy.get("#slide").contains("Pick a Field?");
@@ -593,7 +582,6 @@ describe("Setup", () => {
     cy.get("#question-input").should("have.value", "What's the hardest decision you've had to make as a leader?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
-    // cy.get("#topics").contains("Advice");
     cy.get("#status").contains("Incomplete");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
@@ -610,7 +598,7 @@ describe("Setup", () => {
     // click done
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("Questions (6 / 6)");
+    cy.get("#answers #progress").contains("My Answers (6 / 6)");
     cy.get("#complete-questions").contains("Recorded (6)");
     cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });

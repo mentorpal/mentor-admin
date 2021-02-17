@@ -142,8 +142,10 @@ function RecordPage(props: {
     } else if (subject) {
       const s: Subject = await fetchSubject(subject);
       _questions.push(
-        ...mentor.answers.filter((a) =>
-          s.questions.map((q) => q._id).includes(a.question._id)
+        ...mentor.answers.filter(
+          (a) =>
+            s.questions.map((q) => q._id).includes(a.question._id) &&
+            (!status || a.status === status)
         )
       );
     } else {
@@ -306,7 +308,7 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      <div className={classes.block}>
+      <div id="status" className={classes.block}>
         <Typography className={classes.title}>Status:</Typography>
         <Select
           id="select-status"

@@ -31,6 +31,7 @@ import {
   TrainStatus,
   TrainState,
   Answer,
+  Question,
 } from "types";
 
 export interface SlideType {
@@ -167,21 +168,28 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
   );
 }
 
-//TODO: fix this
-export function IdleSlide(props: {
+export function RecordQuestionSlide(props: {
   classes: any;
-  mentor: Mentor;
+  isRecorded: boolean;
+  name: string;
+  id: string;
+  description: string;
+  i: number;
 }): JSX.Element {
-  const { classes } = props;
-  const isRecorded = false;
+  const { classes, name, id, description, isRecorded, i } = props;
+
+  function onRecord() {
+    navigate(`/record?videoId=${id}&back=${encodeURI(`/setup?i=${i}`)}`);
+  }
+
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Idle
+        {name}
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          Let&apos;s record a short idle calibration.
+          {description}
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Click the record button and you&apos;ll be taken to a recording
@@ -193,6 +201,7 @@ export function IdleSlide(props: {
         className={classes.button}
         variant="contained"
         color="primary"
+        onClick={onRecord}
       >
         Record
       </Button>
@@ -203,7 +212,7 @@ export function IdleSlide(props: {
   );
 }
 
-export function RecordSlide(props: {
+export function RecordSubjectSlide(props: {
   classes: any;
   isRecorded: boolean;
   subject: Subject;
@@ -227,6 +236,10 @@ export function RecordSlide(props: {
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
           {subject.description}
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          Click the record button and you&apos;ll be taken to a recording
+          screen.
         </Typography>
       </div>
       <Button
@@ -327,6 +340,15 @@ export function BuildMentorSlide(props: {
         </div>
       );
     }
+    if (trainData.state === TrainState.FAILURE) {
+      return (
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            Oops, training failed. Please try again.
+          </Typography>
+        </div>
+      );
+    }
     if (mentor.isBuilt || trainData.state === TrainState.SUCCESS) {
       return (
         <div>
@@ -336,14 +358,8 @@ export function BuildMentorSlide(props: {
           <Typography variant="h6" className={classes.text}>
             Click the preview button to see your mentor.
           </Typography>
-        </div>
-      );
-    }
-    if (trainData.state === TrainState.FAILURE) {
-      return (
-        <div>
           <Typography variant="h6" className={classes.text}>
-            Oops, training failed. Please try again.
+            Click the build button to retrain your mentor.
           </Typography>
         </div>
       );
@@ -395,22 +411,32 @@ export function BuildMentorSlide(props: {
         Great job! You&apos;re ready to build your mentor!
       </Typography>
       <div className={classes.column}>{renderMessage()}</div>
-      <Button
-        id="build-btn"
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        disabled={isBuilding}
-        onClick={() => {
-          if (isBuilt) {
-            navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`);
-          } else {
-            trainAndBuild();
-          }
-        }}
-      >
-        {isBuilt ? "Preview" : "Build"}
-      </Button>
+      <div className={classes.row}>
+        <Button
+          id="train-btn"
+          className={classes.button}
+          variant="contained"
+          color="primary"
+          disabled={isBuilding}
+          onClick={trainAndBuild}
+        >
+          Build
+        </Button>
+        {isBuilt ? (
+          <Button
+            id="preview-btn"
+            className={classes.button}
+            variant="contained"
+            color="secondary"
+            disabled={isBuilding}
+            onClick={() =>
+              navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`)
+            }
+          >
+            Preview
+          </Button>
+        ) : undefined}
+      </div>
     </Paper>
   );
 }

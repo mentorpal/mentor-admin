@@ -20,8 +20,8 @@ import {
   WelcomeSlide,
   MentorSlide,
   IntroductionSlide,
-  IdleSlide,
-  RecordSlide,
+  RecordQuestionSlide,
+  RecordSubjectSlide,
   BuildMentorSlide,
   BuildErrorSlide,
   AddQuestionSetSlide,
@@ -142,13 +142,24 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     );
 
     // TODO: we removed topics, so need another way of finding idle video
-    const idleRecorded = true;
-    _slides.push(
-      Slide(
-        idleRecorded,
-        <IdleSlide key="idle" classes={classes} mentor={mentor} />
-      )
-    );
+    const idle = mentor.answers.find((a) => a.question.name === "Idle");
+    const idleRecorded = idle === undefined || idle.status === Status.COMPLETE;
+    if (idle) {
+      _slides.push(
+        Slide(
+          idleRecorded,
+          <RecordQuestionSlide
+            key="idle"
+            classes={classes}
+            isRecorded={idleRecorded}
+            id={idle.question._id}
+            name={"Idle"}
+            description={"Let's record a short idle calibration video."}
+            i={_slides.length}
+          />
+        )
+      );
+    }
 
     let requiredSubjectsRecorded = true;
     mentor.subjects.forEach((s) => {
@@ -163,7 +174,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         _slides.push(
           Slide(
             isRecorded,
-            <RecordSlide
+            <RecordSubjectSlide
               key={`${s.name}`}
               classes={classes}
               subject={s}
@@ -194,7 +205,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       )
     );
 
-    if (isBuildReady) {
+    if (mentor.isBuilt) {
       _slides.push(
         Slide(
           true,

@@ -87,6 +87,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
           questions {
             _id
             question
+            name
           }
         }
       }
@@ -121,6 +122,7 @@ export async function fetchSubjects(
               questions {
                 _id
                 question
+                name
               }
             }
           }
@@ -195,12 +197,14 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               questions {
                 _id
                 question
+                name
               }
             }
             answers {
               question {
                 _id
                 question
+                name
               }
               video
               transcript
