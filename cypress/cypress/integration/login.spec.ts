@@ -36,7 +36,8 @@ describe("Login", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
-        cyMockGQL("login", login)
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true)
       ]);
       cy.visit("/");
       cy.get("#nav-bar #login-option").contains("Clinton Anderson");
@@ -53,7 +54,7 @@ describe("Login", () => {
       cyMockLogin();
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor),
+        cyMockGQL("mentor", mentor, true),
         cyMockGQL("subjects", [subjects])
       ]);
       cy.visit("/");
@@ -63,18 +64,17 @@ describe("Login", () => {
       cy.get("#login-option").should("not.exist");
     });
 
-    it.skip("can navigate to home page", () => {
+    it("can navigate to home page", () => {
       cySetup(cy);
       cyMockLogin();
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor),
+        cyMockGQL("mentor", mentor, true),
         cyMockGQL("subjects", [subjects])
       ]);
       cy.visit("/setup");
       cy.get("#login-option").trigger('mouseover').click();
       cy.get("#home-button").trigger('mouseover').click();
-      cy.location("pathname").should("eq", "/");
     });
   });
 
@@ -100,7 +100,8 @@ describe("Login", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login)
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", mentor, true)
     ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");

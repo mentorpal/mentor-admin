@@ -1,32 +1,10 @@
 import { Mentor, Status } from "../../support/types";
+import clint_prev from "./clint_setupb";
 
 export const mentor: Mentor = {
-  _id: "clintanderson",
-  name: "",
-  firstName: "",
-  title: "",
-  isBuilt: false,
-  lastTrainedAt: "",
+  ...clint_prev,
   subjects: [
-    {
-      _id: "background",
-      name: "Background",
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      isRequired: true,
-      questions: [
-        {
-          _id: "A1_1_1",
-          question: "Who are you and what do you do?",
-          name: null,
-        },
-        {
-          _id: "A2_1_1",
-          question: "How old are you now?",
-          name: null
-        }
-      ]
-    },
+    ...clint_prev.subjects,
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
@@ -52,31 +30,10 @@ export const mentor: Mentor = {
           name: null
         }
       ]
-    },
+    }
   ],
   answers: [
-    {
-      question: {
-        _id: "A1_1_1",
-        question: "Who are you and what do you do?",
-        name: null
-      },
-      video: "",
-      transcript: "",
-      recordedAt: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      question: {
-        _id: "A2_1_1",
-        question: "How old are you now?",
-        name: null
-      },
-      video: "",
-      transcript: "",
-      recordedAt: "",
-      status: Status.INCOMPLETE,
-    },
+    ...clint_prev.answers,
     {
       question: {
         _id: "A3_1_1",

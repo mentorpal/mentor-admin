@@ -9,25 +9,24 @@ export const mentor: Mentor = {
       _id: "leadership",
       name: "Leadership",
       description: "These questions will ask about being in a leadership role.",
+      isRequired: false,
+      questions: [
+        {
+          _id: "A7_1_1",
+          question: "What's the hardest decision you've had to make as a leader?",  
+          name: null
+        }
+      ]
     }
   ],
-  questions: [
-    ...clint_prev.questions,
+  answers: [
+    ...clint_prev.answers,
     {
-      id: "A7_1_1",
-      question: "What's the hardest decision you've had to make as a leader?",
-      subject: {
-        _id: "leadership",
-        name: "Leadership",
-        description: "These questions will ask about being in a leadership role.",
+      question: {
+        _id: "A7_1_1",
+        question: "What's the hardest decision you've had to make as a leader?",
+        name: null
       },
-      topics: [
-        {
-          _id: "advice",
-          name: "Advice",
-          description: "These questions will ask you to give some general advice to newcomers interested in entering into your field",
-        }
-      ],
       video: "",
       transcript: "",
       recordedAt: "",

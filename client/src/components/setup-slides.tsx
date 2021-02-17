@@ -24,7 +24,27 @@ import {
 import Context from "context";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
-import { Mentor, Status, Subject, TrainStatus, TrainState } from "types";
+import {
+  Mentor,
+  Status,
+  Subject,
+  TrainStatus,
+  TrainState,
+  Answer,
+  Question,
+} from "types";
+
+export interface SlideType {
+  status: boolean;
+  element: JSX.Element;
+}
+
+export function Slide(status: boolean, element: JSX.Element) {
+  return {
+    status,
+    element,
+  };
+}
 
 export function WelcomeSlide(props: { classes: any }): JSX.Element {
   const { classes } = props;
@@ -49,7 +69,7 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
 export function MentorSlide(props: {
   classes: any;
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -58,11 +78,15 @@ export function MentorSlide(props: {
   const [title, setTitle] = useState(mentor.title);
 
   async function onSave() {
-    const updatedMentor = await updateMentor(
+    const update = await updateMentor(
       { ...mentor, name, firstName, title },
       cookies.accessToken
     );
-    onUpdated(updatedMentor);
+    if (!update) {
+      console.error("failed to update");
+      return;
+    }
+    onUpdated();
   }
 
   return (
@@ -144,24 +168,28 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
   );
 }
 
-export function IdleSlide(props: {
+export function RecordQuestionSlide(props: {
   classes: any;
-  mentor: Mentor;
+  isRecorded: boolean;
+  name: string;
+  id: string;
+  description: string;
+  i: number;
 }): JSX.Element {
-  const { classes, mentor } = props;
-  const idle = mentor.questions.find(
-    (q) => q.topics.findIndex((t) => t.name === "Idle") !== -1
-  );
-  const isRecorded = idle !== undefined && idle.status === Status.COMPLETE;
+  const { classes, name, id, description, isRecorded, i } = props;
+
+  function onRecord() {
+    navigate(`/record?videoId=${id}&back=${encodeURI(`/setup?i=${i}`)}`);
+  }
 
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Idle
+        {name}
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          Let&apos;s record a short idle calibration.
+          {description}
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Click the record button and you&apos;ll be taken to a recording
@@ -173,11 +201,7 @@ export function IdleSlide(props: {
         className={classes.button}
         variant="contained"
         color="primary"
-        onClick={() => {
-          navigate(
-            `/record?videoId=${idle?.id}&back=${encodeURI(`/setup?i=3`)}`
-          );
-        }}
+        onClick={onRecord}
       >
         Record
       </Button>
@@ -188,18 +212,15 @@ export function IdleSlide(props: {
   );
 }
 
-export function RecordSlide(props: {
+export function RecordSubjectSlide(props: {
   classes: any;
-  mentor: Mentor;
+  isRecorded: boolean;
   subject: Subject;
+  questions: Answer[];
   i: number;
 }): JSX.Element {
-  const { classes, subject, i, mentor } = props;
-  const questions = mentor.questions.filter(
-    (q) => q.subject !== undefined && q.subject._id === subject._id
-  );
+  const { classes, subject, questions, isRecorded, i } = props;
   const recorded = questions.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = recorded.length === questions.length;
 
   function onRecord() {
     navigate(
@@ -215,6 +236,10 @@ export function RecordSlide(props: {
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
           {subject.description}
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          Click the record button and you&apos;ll be taken to a recording
+          screen.
         </Typography>
       </div>
       <Button
@@ -261,7 +286,7 @@ const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
   classes: any;
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -315,6 +340,15 @@ export function BuildMentorSlide(props: {
         </div>
       );
     }
+    if (trainData.state === TrainState.FAILURE) {
+      return (
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            Oops, training failed. Please try again.
+          </Typography>
+        </div>
+      );
+    }
     if (mentor.isBuilt || trainData.state === TrainState.SUCCESS) {
       return (
         <div>
@@ -324,14 +358,8 @@ export function BuildMentorSlide(props: {
           <Typography variant="h6" className={classes.text}>
             Click the preview button to see your mentor.
           </Typography>
-        </div>
-      );
-    }
-    if (trainData.state === TrainState.FAILURE) {
-      return (
-        <div>
           <Typography variant="h6" className={classes.text}>
-            Oops, training failed. Please try again.
+            Click the build button to retrain your mentor.
           </Typography>
         </div>
       );
@@ -358,9 +386,12 @@ export function BuildMentorSlide(props: {
             trainStatus.state === TrainState.FAILURE
           ) {
             if (trainStatus.state === TrainState.SUCCESS) {
-              const updatedMentor = { ...mentor, isBuilt: true };
-              updateMentor(updatedMentor, cookies.accessToken);
-              onUpdated(updatedMentor);
+              updateMentor(
+                { ...mentor, isBuilt: true },
+                cookies.accessToken
+              ).then((tf) => {
+                onUpdated();
+              });
             }
             setIsBuilding(false);
           }
@@ -380,31 +411,41 @@ export function BuildMentorSlide(props: {
         Great job! You&apos;re ready to build your mentor!
       </Typography>
       <div className={classes.column}>{renderMessage()}</div>
-      <Button
-        id="build-btn"
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        disabled={isBuilding}
-        onClick={() => {
-          if (isBuilt) {
-            navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`);
-          } else {
-            trainAndBuild();
-          }
-        }}
-      >
-        {isBuilt ? "Preview" : "Build"}
-      </Button>
+      <div className={classes.row}>
+        <Button
+          id="train-btn"
+          className={classes.button}
+          variant="contained"
+          color="primary"
+          disabled={isBuilding}
+          onClick={trainAndBuild}
+        >
+          Build
+        </Button>
+        {isBuilt ? (
+          <Button
+            id="preview-btn"
+            className={classes.button}
+            variant="contained"
+            color="secondary"
+            disabled={isBuilding}
+            onClick={() =>
+              navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`)
+            }
+          >
+            Preview
+          </Button>
+        ) : undefined}
+      </div>
     </Paper>
   );
 }
 
-export function QuestionSetSlide(props: {
+export function AddQuestionSetSlide(props: {
   classes: any;
   subjects: Subject[];
   mentor: Mentor;
-  onUpdated: (mentor: Mentor) => void;
+  onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated, subjects } = props;
   const [cookies] = useCookies(["accessToken"]);
@@ -413,26 +454,22 @@ export function QuestionSetSlide(props: {
   const isSubjectAdded =
     subject !== undefined &&
     mentor.subjects.findIndex((s) => s._id === subject._id) !== -1;
-  const questions =
+  const answers =
     subject !== undefined
-      ? mentor.questions.filter(
-          (q) => q.subject !== undefined && q.subject._id === subject._id
+      ? mentor.answers.filter((a) =>
+          subject.questions.map((q) => q._id).includes(a.question._id)
         )
       : [];
-  const recorded = questions.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = recorded.length === questions.length;
+  const recorded = answers.filter((q) => q.status === Status.COMPLETE);
+  const isRecorded = recorded.length === answers.length;
 
   async function addSubject() {
     if (!subject) {
       return;
     }
     setIsAdding(true);
-    const updatedMentor = await addQuestionSet(
-      mentor._id,
-      subject._id,
-      cookies.accessToken
-    );
-    onUpdated(updatedMentor);
+    await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
+    onUpdated();
     setIsAdding(false);
   }
 
@@ -506,7 +543,7 @@ export function QuestionSetSlide(props: {
           <CheckCircleIcon id="check" style={{ color: "green" }} />
         ) : (
           <Typography variant="h6" className={classes.text}>
-            {recorded.length} / {questions.length}
+            {recorded.length} / {answers.length}
           </Typography>
         )
       ) : undefined}

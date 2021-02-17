@@ -65,7 +65,7 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
     const { body } = req;
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
     for (const mock of mocks) {
-      if (queryBody.indexOf(`{ ${mock.query}`) !== -1) {
+      if (queryBody.indexOf(`{ ${mock.query}(`) !== -1 || queryBody.indexOf(`{ ${mock.query} {`) !== -1) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
         const body = {};
@@ -104,7 +104,7 @@ export function cyMockLogin(): void {
 }
 
 import { TrainStatus } from "./types";
-const TRAIN_STATUS_URL = `/pipeline/train`;
+const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(
   cy,
@@ -114,7 +114,7 @@ export function cyMockTrain(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("**/pipeline/train", (req) => {
+  cy.intercept("**/classifier/train", (req) => {
     req.alias = "train";
     req.reply(staticResponse({
       statusCode: params.statusCode || 200,

@@ -42,18 +42,16 @@ export interface Mentor {
   isBuilt: boolean;
   lastTrainedAt: string;
   subjects: Subject[];
-  questions: Question[];
-}
-
-export interface QuestionSet {
-  subject: Subject;
-  questions: Question[];
+  answers: Answer[];
+  // user: User;
 }
 
 export interface Subject {
   _id: string;
   name: string;
   description: string;
+  isRequired: boolean;
+  questions: Question[];
 }
 
 export interface Topic {
@@ -63,10 +61,13 @@ export interface Topic {
 }
 
 export interface Question {
-  id: string;
+  _id: string;
   question: string;
-  subject?: Subject;
-  topics: Topic[];
+  name: string;
+}
+
+export interface Answer {
+  question: Question;
   video: string;
   transcript: string;
   status: Status;
@@ -76,6 +77,11 @@ export interface Question {
 export enum Status {
   INCOMPLETE = "Incomplete",
   COMPLETE = "Complete",
+}
+
+export enum QuestionType {
+  UTTERANCE = "Utterance",
+  QUESTION = "Question",
 }
 
 export interface TrainJob {
