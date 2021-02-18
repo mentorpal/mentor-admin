@@ -100,13 +100,17 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   }
 
   async function saveSubject() {
-    const updated = await updateSubject(
-      subjectEdit.subject,
-      cookies.accessToken
-    );
-    if (updated) {
-      setSubjectEdit({ subject: subjectEdit.subject, dirty: false });
-    } else {
+    try {
+      const updated = await updateSubject(
+        subjectEdit.subject,
+        cookies.accessToken
+      );
+      if (props.search.id === updated._id) {
+        setSubjectEdit({ subject: updated, dirty: false });
+      } else {
+        navigate(`/author/subjects/subject?id=${updated._id}`);
+      }
+    } catch (err) {
       toast("Failed to save");
     }
   }

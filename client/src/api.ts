@@ -79,17 +79,17 @@ interface UpdateAnswer {
 }
 interface UpdateSubject {
   me: {
-    updateSubject: boolean;
+    updateSubject: Subject;
   };
 }
 interface UpdateTopic {
   me: {
-    updateTopic: boolean;
+    updateTopic: Topic;
   };
 }
 interface UpdateQuestion {
   me: {
-    updateQuestion: boolean;
+    updateQuestion: Question;
   };
 }
 interface AddQuestionSet {
@@ -425,7 +425,7 @@ export async function updateAnswer(
 export async function updateSubject(
   subject: Partial<Subject>,
   accessToken: string
-): Promise<boolean> {
+): Promise<Subject> {
   const encodedSubject = encodeURI(JSON.stringify(subject));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<UpdateSubject>>(
@@ -434,7 +434,23 @@ export async function updateSubject(
       query: `
       mutation {
         me {
-          updateSubject(subject: "${encodedSubject}")
+          updateSubject(subject: "${encodedSubject}") {
+            _id
+            name
+            description
+            questions {
+              _id
+              question
+              topics {
+                _id
+                name
+                description
+              }
+              paraphrases
+              type
+              name
+            }  
+          }
         }
       }
     `,
@@ -447,7 +463,7 @@ export async function updateSubject(
 export async function updateTopic(
   topic: Partial<Topic>,
   accessToken: string
-): Promise<boolean> {
+): Promise<Topic> {
   const encodedTopic = encodeURI(JSON.stringify(topic));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<UpdateTopic>>(
@@ -456,7 +472,11 @@ export async function updateTopic(
       query: `
       mutation {
         me {
-          updateTopic(topic: "${encodedTopic}")
+          updateTopic(topic: "${encodedTopic}") {
+            _id
+            name
+            description  
+          }
         }
       }
     `,
@@ -469,7 +489,7 @@ export async function updateTopic(
 export async function updateQuestion(
   question: Partial<Question>,
   accessToken: string
-): Promise<boolean> {
+): Promise<Question> {
   const encodedQuestion = encodeURI(JSON.stringify(question));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<UpdateQuestion>>(
@@ -478,7 +498,18 @@ export async function updateQuestion(
       query: `
       mutation {
         me {
-          updateQuestion(question: "${encodedQuestion}")
+          updateQuestion(question: "${encodedQuestion}") {
+            _id
+            question
+            topics {
+              _id
+              name
+              description
+            }
+            paraphrases
+            type
+            name  
+          }
         }
       }
     `,
