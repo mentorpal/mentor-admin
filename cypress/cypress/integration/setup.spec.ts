@@ -360,7 +360,7 @@ describe("Setup", () => {
     cy.get("#incomplete-questions").contains("Unrecorded (2)");
   });
 
-  it.skip("shows repeat after me questions slide", () => {
+  it("shows repeat after me questions slide", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [
@@ -442,7 +442,7 @@ describe("Setup", () => {
     cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
 
-  it("shows build mentor error slide if setup isn't complete", () => {
+  it.skip("shows build mentor error slide if setup isn't complete", () => {
     cySetup(cy);
     cyMockLogin();
     cyInterceptGraphQL(cy, [

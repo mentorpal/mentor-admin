@@ -191,21 +191,21 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       }
     });
 
-    const isBuildReady =
-      mentorFilled && idleRecorded && requiredSubjectsRecorded;
+    // const isBuildReady =
+    //   mentorFilled && idleRecorded && requiredSubjectsRecorded;
     _slides.push(
       Slide(
         mentor.isBuilt,
-        isBuildReady ? (
-          <BuildMentorSlide
-            key="build"
-            classes={classes}
-            mentor={mentor}
-            onUpdated={loadMentor}
-          />
-        ) : (
-          <BuildErrorSlide key="build-error" classes={classes} />
-        )
+        // isBuildReady ? (
+        <BuildMentorSlide
+          key="build"
+          classes={classes}
+          mentor={mentor}
+          onUpdated={loadMentor}
+        />
+        // ) : (
+        //   <BuildErrorSlide key="build-error" classes={classes} />
+        // )
       )
     );
 
