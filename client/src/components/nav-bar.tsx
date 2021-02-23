@@ -4,27 +4,43 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
+import { navigate, Link } from "gatsby";
 import React, { useContext } from "react";
 import { useCookies } from "react-cookie";
 import {
   AppBar,
   Button,
+  Divider,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
+  SwipeableDrawer,
   Toolbar,
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CloseIcon from "@material-ui/icons/Close";
+import MenuIcon from "@material-ui/icons/Menu";
+
+import { CLIENT_ENDPOINT, fetchMentor } from "api";
 import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
     flexGrow: 1,
+  },
+  menu: {
+    width: 300,
+  },
+  menuHeader: {
+    color: "#999",
+    textAlign: "left",
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -59,11 +75,7 @@ function Login(props: { classes: any }): JSX.Element {
     navigate("/");
   }
 
-  function onHome(): void {
-    navigate("/");
-  }
-
-  if (!cookies.accessToken || !context.user) {
+  if (!context.user) {
     return <div></div>;
   }
 
@@ -92,9 +104,6 @@ function Login(props: { classes: any }): JSX.Element {
         open={open}
         onClose={handleClose}
       >
-        <MenuItem id="home-button" onClick={onHome}>
-          Home
-        </MenuItem>
         <MenuItem id="logout-button" onClick={onLogout}>
           Logout
         </MenuItem>
@@ -103,30 +112,120 @@ function Login(props: { classes: any }): JSX.Element {
   );
 }
 
+function NavMenu(props: { classes: any }): JSX.Element {
+  const { classes } = props;
+  const [cookies, setCookie] = useCookies(["accessToken"]);
+
+  async function openChat() {
+    const mentor = await fetchMentor(cookies.accessToken);
+    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}&hideVideo=true`;
+    window.location.href = path;
+  }
+
+  return (
+    <List dense className={classes.menu}>
+      <Divider />
+      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
+      <ListItem
+        button
+        component={Link}
+        to={"/"}
+        selected={location.pathname === "/"}
+      >
+        <ListItemText primary="View Answers" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/profile"}
+        selected={location.pathname === "/profile"}
+      >
+        <ListItemText primary="Edit Profile" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/feedback"}
+        selected={location.pathname.includes("/feedback")}
+      >
+        <ListItemText primary="Review Feedback" />
+      </ListItem>
+      <ListItem button onClick={openChat}>
+        <ListItemText primary="Go to Chat" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/setup"}
+        selected={location.pathname === "/setup"}
+      >
+        <ListItemText primary="Setup" />
+      </ListItem>
+      <Divider style={{ marginTop: 15 }} />
+      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
+      <ListItem
+        button
+        component={Link}
+        to={"/author/subjects"}
+        selected={location.pathname.includes("/author/subject")}
+      >
+        <ListItemText primary="Subjects" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/author/topics"}
+        selected={location.pathname.includes("/author/topic")}
+      >
+        <ListItemText primary="Topics" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/author/questions"}
+        selected={location.pathname.includes("/author/question")}
+      >
+        <ListItemText primary="Questions" />
+      </ListItem>
+      <Divider />
+    </List>
+  );
+}
+
 export function NavBar(props: {
   title: string;
   back?: boolean;
   onBack?: () => void;
 }): JSX.Element {
-  const { title, back, onBack } = props;
   const classes = useStyles();
+  const { title, back, onBack } = props;
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const context = useContext(Context);
+
+  function toggleDrawer(tf: boolean): void {
+    setIsDrawerOpen(tf);
+  }
 
   return (
     <div id="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          {back ? (
+          {context.user ? (
             <IconButton
-              id="back-button"
+              id={back ? "back-button" : "menu-button"}
               edge="start"
               color="inherit"
               aria-label="menu"
               className={classes.menuButton}
               onClick={() => {
-                onBack ? onBack() : navigate(-1);
+                if (back) {
+                  onBack ? onBack() : navigate(-1);
+                } else {
+                  toggleDrawer(true);
+                }
               }}
             >
-              <CloseIcon />
+              {back ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
           ) : undefined}
           <Typography id="title" variant="h6" className={classes.title}>
@@ -135,6 +234,16 @@ export function NavBar(props: {
           <Login classes={classes} />
         </Toolbar>
       </AppBar>
+      <SwipeableDrawer
+        id="drawer"
+        anchor="left"
+        open={isDrawerOpen}
+        onClose={() => toggleDrawer(false)}
+        onOpen={() => toggleDrawer(true)}
+      >
+        <Toolbar />
+        <NavMenu classes={classes} />
+      </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>
   );

@@ -69,6 +69,7 @@ export interface Question {
 }
 
 export interface Answer {
+  _id: string;
   question: Question;
   video: string;
   transcript: string;
@@ -76,9 +77,25 @@ export interface Answer {
   recordedAt: string;
 }
 
+export interface UserQuestion {
+  _id: string;
+  question: string;
+  confidence: number;
+  feedback: Feedback;
+  mentor: Mentor;
+  classifierAnswer: Answer;
+  graderAnswer: Answer;
+}
+
 export enum Status {
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
+}
+
+export enum Feedback {
+  GOOD = "GOOD",
+  BAD = "BAD",
+  NEUTRAL = "NEUTRAL",
 }
 
 export enum QuestionType {

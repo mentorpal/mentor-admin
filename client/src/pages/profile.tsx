@@ -6,15 +6,21 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
+import { ToastContainer, toast } from "react-toastify";
 import { navigate } from "gatsby";
-import { Button, CircularProgress, Paper, Typography } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  Paper,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { fetchMentor } from "api";
-import { Answer, Mentor, Status, Subject } from "types";
+import { updateMentor, fetchMentor } from "api";
+import { Mentor } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
-import ProgressBar from "components/progress-bar";
-import AnswerList from "components/answer-list";
+import "react-toastify/dist/ReactToastify.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,15 +39,9 @@ const useStyles = makeStyles((theme) => ({
   title: {
     fontWeight: "bold",
   },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
+  inputField: {
+    width: "100%",
+    margin: 10,
   },
 }));
 
@@ -50,12 +50,6 @@ function IndexPage(): JSX.Element {
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
-  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
-  const [selectedAnswers, setSelectedAnswers] = useState<Answer[]>([]);
-
-  const complete = (mentor?.answers || []).filter((q) => {
-    return q.status === Status.COMPLETE;
-  });
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -67,14 +61,6 @@ function IndexPage(): JSX.Element {
     loadMentor();
   }, [context.user]);
 
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
-    setSelectedAnswers(mentor.answers);
-    setSelectedSubjects(mentor.subjects);
-  }, [mentor]);
-
   async function loadMentor() {
     if (!context.user) {
       return;
@@ -82,22 +68,13 @@ function IndexPage(): JSX.Element {
     setMentor(await fetchMentor(cookies.accessToken));
   }
 
-  function onRecord() {
-    navigate(
-      `/record?${selectedAnswers
-        .map((a) => `videoId=${a.question._id}`)
-        .join("&")}`
-    );
-  }
-
-  function onAnswerChecked(answer: Answer) {
-    const i = selectedAnswers.findIndex((a) => a._id === answer._id);
-    if (i === -1) {
-      setSelectedAnswers([...selectedAnswers, answer]);
+  async function updateProfile() {
+    const updated = await updateMentor(mentor!, cookies.accessToken);
+    if (!updated) {
+      toast("Failed to save changes");
     } else {
-      setSelectedAnswers([
-        ...selectedAnswers.filter((a) => a._id !== answer._id),
-      ]);
+      loadMentor();
+      toast("Profile updated!");
     }
   }
 
@@ -113,34 +90,50 @@ function IndexPage(): JSX.Element {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Studio" />
-      <Paper id="answers" className={classes.paper}>
-        <Typography id="progress" variant="h6" className={classes.title}>
-          My Answers ({complete.length} / {mentor.answers.length})
+      <Paper id="mentor" className={classes.paper}>
+        <Typography variant="h6" className={classes.title}>
+          My Profile
         </Typography>
-        <ProgressBar value={(complete.length / mentor.answers.length) * 100} />
-        <AnswerList
-          classes={classes}
-          header="Selected"
-          answers={selectedAnswers}
-          selected={selectedAnswers}
-          onCheck={onAnswerChecked}
+        <TextField
+          id="name"
+          label="Name"
+          variant="outlined"
+          value={mentor.name}
+          onChange={(e) => {
+            setMentor({ ...mentor, name: e.target.value });
+          }}
+          className={classes.inputField}
         />
-        <AnswerList
-          classes={classes}
-          header="All"
-          answers={mentor.answers}
-          selected={selectedAnswers}
-          onCheck={onAnswerChecked}
+        <TextField
+          id="first-name"
+          label="First Name"
+          variant="outlined"
+          value={mentor.firstName}
+          onChange={(e) => {
+            setMentor({ ...mentor, firstName: e.target.value });
+          }}
+          className={classes.inputField}
+        />
+        <TextField
+          id="title"
+          label="Job Title"
+          variant="outlined"
+          value={mentor.title}
+          onChange={(e) => {
+            setMentor({ ...mentor, title: e.target.value });
+          }}
+          className={classes.inputField}
         />
         <Button
-          id="record-btn"
+          id="update-btn"
           variant="contained"
           color="primary"
-          onClick={onRecord}
+          onClick={updateProfile}
         >
-          Record Questions
+          Save Changes
         </Button>
       </Paper>
+      <ToastContainer />
     </div>
   );
 }

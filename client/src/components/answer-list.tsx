@@ -23,16 +23,17 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Answer } from "types";
 
 function AnswerList(props: {
-  id: string;
   header: string;
   answers: Answer[];
+  selected: Answer[];
+  onCheck: (answer: Answer) => void;
   classes: any;
 }): JSX.Element {
-  const { id, header, answers, classes } = props;
+  const { header, answers, selected, onCheck, classes } = props;
   const [isExpanded, setExpanded] = React.useState(answers.length > 0);
 
   return (
-    <Card id={id} elevation={0} style={{ textAlign: "left" }}>
+    <Card elevation={0} style={{ textAlign: "left" }}>
       <CardContent style={{ padding: 0 }}>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <CardActions>
@@ -66,7 +67,12 @@ function AnswerList(props: {
                 style={{ backgroundColor: "#eee" }}
               >
                 <ListItemIcon>
-                  <Checkbox id="check" edge="start" />
+                  <Checkbox
+                    id={`check-${i}`}
+                    edge="start"
+                    checked={selected.some((a) => a._id === answer._id)}
+                    onChange={() => onCheck(answer)}
+                  />
                 </ListItemIcon>
                 <ListItemText
                   primary={answer.question.question}

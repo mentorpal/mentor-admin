@@ -126,11 +126,7 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar
-        title="Edit Subject"
-        back={true}
-        onBack={() => navigate("/author/subjects")}
-      />
+      <NavBar title="Edit Subject" />
       <Grid
         container
         direction="column"

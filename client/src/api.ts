@@ -15,14 +15,18 @@ import {
   TrainStatus,
   Answer,
   Question,
+  UserQuestion,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
-const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
-const CLASSIFIER_ENTRYPOINT =
+export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
+export const CLASSIFIER_OFFTOPIC_CUTOFF = process.env.CLASSIFIER_OFFTOPIC_CUTOFF
+  ? parseInt(process.env.CLASSIFIER_OFFTOPIC_CUTOFF)
+  : 0;
 
 interface GQLResponse<T> {
   errors?: { message: string }[];
@@ -66,6 +70,12 @@ interface FetchQuestion {
 interface FetchQuestions {
   questions: Connection<Question>;
 }
+interface FetchUserQuestion {
+  userQuestion: UserQuestion;
+}
+interface FetchUserQuestions {
+  userQuestions: Connection<UserQuestion>;
+}
 
 interface UpdateMentor {
   me: {
@@ -91,6 +101,9 @@ interface UpdateQuestion {
   me: {
     updateQuestion: Question;
   };
+}
+interface UpdateUserQuestion {
+  userQuestionSetAnswer: UserQuestion;
 }
 interface AddQuestionSet {
   me: {
@@ -303,6 +316,106 @@ export async function fetchQuestions(
   return result.data.data!.questions;
 }
 
+export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
+  const result = await axios.post<GQLResponse<FetchUserQuestion>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        userQuestion(id: "${id}") {
+          _id
+          question
+          confidence
+          feedback
+          mentor {
+            _id
+            name
+          }
+          classifierAnswer {
+            _id
+            transcript
+            question {
+              _id
+              question
+            }
+          }
+          graderAnswer {
+            _id
+            transcript
+            question {
+              _id
+              question
+            }
+          }
+        }
+      }
+    `,
+    }
+  );
+  return result.data.data!.userQuestion;
+}
+
+export async function fetchUserQuestions(
+  searchParams?: SearchParams
+): Promise<Connection<UserQuestion>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  console.log(params);
+  console.log(encodeURI(JSON.stringify(params.filter)));
+  const result = await axios.post<GQLResponse<FetchUserQuestions>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        userQuestions(
+          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          limit:${params.limit},
+          cursor:"${params.cursor}",
+          sortBy:"${params.sortBy}",
+          sortAscending:${params.sortAscending}
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              question
+              confidence
+              feedback
+              mentor {
+                _id
+                name
+              }
+              classifierAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
+                }
+              }
+              graderAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
+                }
+              }
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+    }
+  );
+  return result.data.data!.userQuestions;
+}
+
 export async function fetchMentor(accessToken: string): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post<GQLResponse<FetchMentor>>(
@@ -336,6 +449,7 @@ export async function fetchMentor(accessToken: string): Promise<Mentor> {
               }
             }
             answers {
+              _id
               question {
                 _id
                 question
@@ -515,6 +629,48 @@ export async function updateQuestion(
     `,
     },
     { headers: headers }
+  );
+  return result.data.data!.me.updateQuestion;
+}
+
+export async function updateUserQuestion(
+  feedbackId: string,
+  answerId: string
+): Promise<Question> {
+  const result = await axios.post<GQLResponse<UpdateQuestion>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation {
+        userQuestionSetAnswer(id: "${feedbackId}", answer: "${answerId}") {
+          _id
+          question
+          confidence
+          feedback
+          mentor {
+            _id
+            name
+          }
+          classifierAnswer {
+            _id
+            transcript
+            question {
+              _id
+              question
+            }
+          }
+          graderAnswer {
+            _id
+            transcript
+            question {
+              _id
+              question
+            }
+          }
+        }
+      }
+    `,
+    }
   );
   return result.data.data!.me.updateQuestion;
 }

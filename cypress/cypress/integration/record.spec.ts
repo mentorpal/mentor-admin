@@ -61,8 +61,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows all incomplete questions if ?status=INCOMPLETE", () => {
@@ -97,8 +95,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows all complete questions if ?status=COMPLETE", () => {
@@ -126,8 +122,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows a single question if ?videoId={questionId}", () => {
@@ -148,8 +142,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
@@ -184,8 +176,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows all questions for a subject if ?subject={subjectId}", () => {
@@ -214,8 +204,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
@@ -237,8 +225,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
 
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
@@ -260,8 +246,6 @@ describe("Record", () => {
       cy.get("#done-btn").trigger("mouseover").click();
 
       cy.get("#answers #progress").contains("My Answers (2 / 5)");
-      cy.get("#complete-questions").contains("Recorded (2)");
-      cy.get("#incomplete-questions").contains("Unrecorded (3)");
     });
   });
 

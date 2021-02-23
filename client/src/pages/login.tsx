@@ -48,6 +48,10 @@ function LoginPage(): JSX.Element {
     getClientID().then((id: string) => {
       setClientId(id);
     });
+    // USED FOR TEST PURPOSES ONLY
+    if (process.env.ACCESS_TOKEN) {
+      setCookie("accessToken", process.env.ACCESS_TOKEN, { path: "/" });
+    }
   }, []);
 
   React.useEffect(() => {

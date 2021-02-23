@@ -18,6 +18,12 @@ describe("Login", () => {
       cy.location("pathname").should("contain", "/login");
     });
 
+    it("from profile page", () => {
+      cySetup(cy);
+      cy.visit("/profile");
+      cy.location("pathname").should("contain", "/login");
+    });
+
     it("from setup page", () => {
       cySetup(cy);
       cy.visit("/setup");
@@ -27,6 +33,30 @@ describe("Login", () => {
     it("from record page", () => {
       cySetup(cy);
       cy.visit("/record");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from subjects page", () => {
+      cySetup(cy);
+      cy.visit("/author/subjects");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from subject page", () => {
+      cySetup(cy);
+      cy.visit("/author/subject");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from questions page", () => {
+      cySetup(cy);
+      cy.visit("/author/questions");
+      cy.location("pathname").should("contain", "/login");
+    });
+
+    it("from feedback page", () => {
+      cySetup(cy);
+      cy.visit("/feedback");
       cy.location("pathname").should("contain", "/login");
     });
   });
@@ -62,19 +92,6 @@ describe("Login", () => {
       cy.get("#logout-button").trigger('mouseover').click();
       cy.location("pathname").should("contain", "/login");
       cy.get("#login-option").should("not.exist");
-    });
-
-    it("can navigate to home page", () => {
-      cySetup(cy);
-      cyMockLogin();
-      cyInterceptGraphQL(cy, [
-        cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor, true),
-        cyMockGQL("subjects", [subjects])
-      ]);
-      cy.visit("/setup");
-      cy.get("#login-option").trigger('mouseover').click();
-      cy.get("#home-button").trigger('mouseover').click();
     });
   });
 

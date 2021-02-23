@@ -240,8 +240,6 @@ describe("Setup", () => {
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
     cy.get("#answers #progress").contains("My Answers (0 / 5)");
-    cy.get("#complete-questions").contains("Recorded (0)");
-    cy.get("#incomplete-questions").contains("Unrecorded (5)");
   });
 
   it("shows idle slide", () => {
@@ -284,8 +282,6 @@ describe("Setup", () => {
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
     cy.get("#answers #progress").contains("My Answers (1 / 5)");
-    cy.get("#complete-questions").contains("Recorded (1)");
-    cy.get("#incomplete-questions").contains("Unrecorded (4)");
   });
 
   it("shows background questions slide", () => {
@@ -356,8 +352,6 @@ describe("Setup", () => {
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
     cy.get("#answers #progress").contains("My Answers (3 / 5)");
-    cy.get("#complete-questions").contains("Recorded (3)");
-    cy.get("#incomplete-questions").contains("Unrecorded (2)");
   });
 
   it("shows repeat after me questions slide", () => {
@@ -438,8 +432,6 @@ describe("Setup", () => {
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
     cy.get("#answers #progress").contains("My Answers (5 / 5)");
-    cy.get("#complete-questions").contains("Recorded (5)");
-    cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
 
   it.skip("shows build mentor error slide if setup isn't complete", () => {
@@ -599,7 +591,5 @@ describe("Setup", () => {
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("not.contain", "/setup");
     cy.get("#answers #progress").contains("My Answers (6 / 6)");
-    cy.get("#complete-questions").contains("Recorded (6)");
-    cy.get("#incomplete-questions").contains("Unrecorded (0)");
   });
 });
