@@ -10,8 +10,8 @@ jobs:
           node-version: "14.15"
       - name: Install
         run: cd client && npm ci
-      - name: Run audit
-        run: cd client && npm run test:audit
+      # - name: Run audit
+      #   run: cd client && npm run test:audit
       - name: Run format test
         run: cd client && npm run test:format
       - name: Run lint test
