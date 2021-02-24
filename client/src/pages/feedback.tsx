@@ -4,12 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/*
-This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
-Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and feedback to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
-*/
 import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
@@ -18,25 +12,32 @@ import {
   CircularProgress,
   Fab,
   IconButton,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
   TableContainer,
+  TableHead,
   TableRow,
   TextField,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import ThumbUpIcon from "@material-ui/icons/ThumbUp";
+import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import Context from "context";
 import {
+  CLASSIFIER_OFFTOPIC_CUTOFF,
   fetchMentor,
   fetchTrainingStatus,
   fetchUserQuestions,
@@ -46,6 +47,7 @@ import {
 import {
   Answer,
   Connection,
+  Feedback,
   Mentor,
   TrainState,
   TrainStatus,
@@ -84,14 +86,14 @@ const columns: ColumnDef[] = [
     id: "feedback",
     label: "Feedback",
     minWidth: 100,
-    align: "left",
+    align: "center",
     sortable: true,
   },
   {
     id: "confidence",
     label: "Confidence",
     minWidth: 100,
-    align: "left",
+    align: "center",
     sortable: true,
   },
   {
@@ -104,14 +106,14 @@ const columns: ColumnDef[] = [
   {
     id: "classifierAnswer",
     label: "Classifier Match",
-    minWidth: 100,
+    minWidth: 300,
     align: "left",
     sortable: true,
   },
   {
     id: "graderAnswer",
     label: "Correct Match",
-    minWidth: 100,
+    minWidth: 300,
     align: "left",
     sortable: true,
   },
@@ -134,17 +136,35 @@ function FeedbackItem(props: {
 
   return (
     <TableRow hover role="checkbox" tabIndex={-1}>
-      <TableCell id="grade" align="left">
-        {feedback.feedback}
+      <TableCell id="grade" align="center">
+        {feedback.feedback === Feedback.BAD ? (
+          <ThumbDownIcon style={{ color: "red" }} />
+        ) : feedback.feedback === Feedback.GOOD ? (
+          <ThumbUpIcon style={{ color: "green" }} />
+        ) : (
+          "N/A"
+        )}
       </TableCell>
-      <TableCell id="confidence" align="left">
-        {feedback.confidence}
+      <TableCell id="confidence" align="center">
+        <Typography
+          variant="body2"
+          style={{
+            color:
+              feedback.confidence <= CLASSIFIER_OFFTOPIC_CUTOFF ? "red" : "",
+          }}
+        >
+          {Math.round(feedback.confidence * 100) / 100}
+        </Typography>
       </TableCell>
       <TableCell id="question" align="left">
         {feedback.question}
       </TableCell>
       <TableCell id="classifierAnswer" align="left">
-        {feedback.classifierAnswer?.question.question || ""}
+        <Tooltip title={feedback.classifierAnswer?.transcript || ""}>
+          <Typography variant="body2">
+            {feedback.classifierAnswer?.question.question || ""}
+          </Typography>
+        </Tooltip>
       </TableCell>
       <TableCell id="graderAnswer" align="left">
         <Autocomplete
@@ -154,7 +174,10 @@ function FeedbackItem(props: {
           onChange={(e, v) => {
             onUpdateAnswer(v?._id);
           }}
-          style={{ minWidth: 300 }}
+          style={{
+            minWidth: 300,
+            background: feedback.graderAnswer ? "#eee" : "",
+          }}
           renderOption={(option) => (
             <Typography align="left">{option.question.question}</Typography>
           )}
@@ -174,7 +197,10 @@ function FeedbackPage(): JSX.Element {
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
   const [sortAscending, setSortAscending] = React.useState(false);
-  const limit = 10;
+  const [feedbackFilter, setFeedbackFilter] = React.useState<Feedback>();
+  const [confidenceFilter, setConfidenceFilter] = React.useState<number>();
+  const [classifierFilter, setClassifierFilter] = React.useState<Answer>();
+  const limit = 20;
 
   const [mentor, setMentor] = React.useState<Mentor>();
   const [statusUrl, setStatusUrl] = React.useState("");
@@ -197,10 +223,28 @@ function FeedbackPage(): JSX.Element {
 
   React.useEffect(() => {
     loadFeedback();
-  }, [cursor, sortBy, sortAscending]);
+  }, [
+    mentor,
+    cursor,
+    sortBy,
+    sortAscending,
+    feedbackFilter,
+    confidenceFilter,
+    classifierFilter,
+  ]);
 
   async function loadFeedback() {
-    const filter = {};
+    const filter: any = { mentor: mentor?._id };
+    if (feedbackFilter !== undefined) {
+      filter["feedback"] = feedbackFilter;
+    }
+    if (confidenceFilter !== undefined) {
+      filter["confidence"] = { $lte: confidenceFilter };
+    }
+    if (classifierFilter !== undefined) {
+      filter["classifierAnswer"] = classifierFilter._id;
+    }
+    console.log(filter);
     setFeedback(
       await fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending })
     );
@@ -294,6 +338,86 @@ function FeedbackPage(): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
+              <TableHead id="column-filter">
+                <TableRow>
+                  <TableCell align="center">
+                    <Select
+                      id="filter-feedback"
+                      value={feedbackFilter}
+                      style={{ flexGrow: 1, marginLeft: 10 }}
+                      onChange={(
+                        event: React.ChangeEvent<{
+                          value: unknown;
+                          name?: unknown;
+                        }>
+                      ) => {
+                        setFeedbackFilter(event.target.value as Feedback);
+                      }}
+                    >
+                      <MenuItem id="none" value={undefined}>
+                        None
+                      </MenuItem>
+                      <MenuItem id="good" value={Feedback.GOOD}>
+                        {Feedback.GOOD}
+                      </MenuItem>
+                      <MenuItem id="bad" value={Feedback.BAD}>
+                        {Feedback.BAD}
+                      </MenuItem>
+                      <MenuItem id="neutral" value={Feedback.NEUTRAL}>
+                        {Feedback.NEUTRAL}
+                      </MenuItem>
+                    </Select>
+                  </TableCell>
+                  <TableCell align="center">
+                    <Select
+                      id="filter-confidence"
+                      value={feedbackFilter}
+                      style={{ flexGrow: 1, marginLeft: 10 }}
+                      onChange={(
+                        event: React.ChangeEvent<{
+                          value: unknown;
+                          name?: unknown;
+                        }>
+                      ) => {
+                        setConfidenceFilter(event.target.value as number);
+                      }}
+                    >
+                      <MenuItem id="none" value={undefined}>
+                        None
+                      </MenuItem>
+                      <MenuItem id="good" value={1}>
+                        Good
+                      </MenuItem>
+                      <MenuItem id="bad" value={0}>
+                        Off-Topic
+                      </MenuItem>
+                    </Select>
+                  </TableCell>
+                  <TableCell />
+                  <TableCell>
+                    <Autocomplete
+                      id="filter-classifier"
+                      options={mentor.answers}
+                      getOptionLabel={(option: Answer) =>
+                        option.question.question
+                      }
+                      onChange={(e, v) => {
+                        setClassifierFilter(v || undefined);
+                      }}
+                      style={{ minWidth: 300 }}
+                      renderOption={(option) => (
+                        <Typography align="left">
+                          {option.question.question}
+                        </Typography>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} variant="outlined" />
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
               <TableBody id="feedbacks">
                 {feedback.edges.map((row, i) => (
                   <FeedbackItem

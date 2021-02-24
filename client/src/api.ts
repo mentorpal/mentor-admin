@@ -19,6 +19,8 @@ import {
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const JSON5 = require("json5");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
@@ -46,6 +48,10 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
+function formatFilter(params: SearchParams) {
+  const filter = JSON5.stringify(params.filter).replaceAll("'", '"');
+  return filter;
+}
 
 interface FetchMentor {
   me: {
@@ -76,7 +82,6 @@ interface FetchUserQuestion {
 interface FetchUserQuestions {
   userQuestions: Connection<UserQuestion>;
 }
-
 interface UpdateMentor {
   me: {
     updateMentor: boolean;
@@ -110,7 +115,6 @@ interface AddQuestionSet {
     addQuestionSet: boolean;
   };
 }
-
 interface Login {
   login: UserAccessToken;
 }
@@ -155,7 +159,7 @@ export async function fetchSubjects(
       query: `
       query {
         subjects(
-          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          filter:${formatFilter(params)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -219,7 +223,7 @@ export async function fetchTopics(
     query: `
       query {
         topics(
-          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          filter:${formatFilter(params)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -281,7 +285,7 @@ export async function fetchQuestions(
       query: `
       query {
         questions(
-          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          filter:${formatFilter(params)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -359,15 +363,13 @@ export async function fetchUserQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<UserQuestion>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  console.log(params);
-  console.log(encodeURI(JSON.stringify(params.filter)));
   const result = await axios.post<GQLResponse<FetchUserQuestions>>(
     GRAPHQL_ENDPOINT,
     {
       query: `
       query {
         userQuestions(
-          filter:"${encodeURI(JSON.stringify(params.filter))}",
+          filter:${formatFilter(params)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -636,8 +638,8 @@ export async function updateQuestion(
 export async function updateUserQuestion(
   feedbackId: string,
   answerId: string
-): Promise<Question> {
-  const result = await axios.post<GQLResponse<UpdateQuestion>>(
+): Promise<UserQuestion> {
+  const result = await axios.post<GQLResponse<UpdateUserQuestion>>(
     GRAPHQL_ENDPOINT,
     {
       query: `
@@ -672,7 +674,7 @@ export async function updateUserQuestion(
     `,
     }
   );
-  return result.data.data!.me.updateQuestion;
+  return result.data.data!.userQuestionSetAnswer;
 }
 
 export async function addQuestionSet(
