@@ -504,7 +504,7 @@ describe("Setup", () => {
       // preview mentor
       cy.get("#preview-btn").trigger('mouseover').click();
       cy.location("pathname").should("contain", "chat");
-      cy.location("search").should("contain", "?mentor=clintanderson&hideVideo=true");
+      cy.location("search").should("contain", "?mentor=clintanderson");
     });
   });
 

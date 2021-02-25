@@ -430,7 +430,7 @@ export function BuildMentorSlide(props: {
             color="secondary"
             disabled={isBuilding}
             onClick={() => {
-              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}&hideVideo=true`;
+              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
               window.location.href = path;
             }}
           >

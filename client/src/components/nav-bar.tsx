@@ -118,7 +118,7 @@ function NavMenu(props: { classes: any }): JSX.Element {
 
   async function openChat() {
     const mentor = await fetchMentor(cookies.accessToken);
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}&hideVideo=true`;
+    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
     window.location.href = path;
   }
 
