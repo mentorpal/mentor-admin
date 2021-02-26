@@ -28,7 +28,7 @@ export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 export const CLASSIFIER_OFFTOPIC_CUTOFF = process.env.CLASSIFIER_OFFTOPIC_CUTOFF
   ? parseInt(process.env.CLASSIFIER_OFFTOPIC_CUTOFF)
-  : 0;
+  : -0.55;
 
 interface GQLResponse<T> {
   errors?: { message: string }[];
