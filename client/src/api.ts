@@ -26,9 +26,6 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
-export const CLASSIFIER_OFFTOPIC_CUTOFF = process.env.CLASSIFIER_OFFTOPIC_CUTOFF
-  ? parseInt(process.env.CLASSIFIER_OFFTOPIC_CUTOFF)
-  : -0.55;
 
 interface GQLResponse<T> {
   errors?: { message: string }[];
@@ -330,7 +327,10 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
           _id
           question
           confidence
+          classifierAnswerType
           feedback
+          updatedAt
+          createdAt
           mentor {
             _id
             name
@@ -381,7 +381,10 @@ export async function fetchUserQuestions(
               _id
               question
               confidence
+              classifierAnswerType
               feedback
+              updatedAt
+              createdAt
               mentor {
                 _id
                 name
@@ -648,7 +651,10 @@ export async function updateUserQuestion(
           _id
           question
           confidence
+          classifierAnswerType
           feedback
+          updatedAt
+          createdAt
           mentor {
             _id
             name

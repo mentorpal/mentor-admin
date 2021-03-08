@@ -83,8 +83,11 @@ export interface UserQuestion {
   confidence: number;
   feedback: Feedback;
   mentor: Mentor;
+  classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
   graderAnswer: Answer;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export enum Status {
@@ -96,6 +99,13 @@ export enum Feedback {
   GOOD = "GOOD",
   BAD = "BAD",
   NEUTRAL = "NEUTRAL",
+}
+
+export enum ClassifierAnswerType {
+  CLASSIFIER = "CLASSIFIER",
+  OFF_TOPIC = "OFF_TOPIC",
+  EXACT_MATCH = "EXACT",
+  PARAPHRASE = "PARAPHRASE",
 }
 
 export enum QuestionType {

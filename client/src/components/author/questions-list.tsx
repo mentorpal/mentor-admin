@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import clsx from "clsx";
 import React, { useState } from "react";
 import {
   Paper,
@@ -13,134 +12,146 @@ import {
   ListItem,
   Button,
   Card,
-  CardActions,
   CardContent,
-  Collapse,
-  IconButton,
   TextField,
   Select,
   MenuItem,
   Grid,
+  CardActions,
+  IconButton,
+  CardHeader,
+  FormControl,
+  InputLabel,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddIcon from "@material-ui/icons/Add";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 import { Question, QuestionType, Topic } from "types";
 import ParaphraseList from "components/author/paraphrase-list";
 import TopicsList from "components/author/topics-list";
 import { fetchQuestions } from "api";
 
-export function QuestionCard(props: {
-  classes: any;
+export function QuestionListItem(props: {
   question: Question;
+  isSelected: boolean;
   editQuestion: (val: Question) => void;
   removeQuestion: () => void;
+  selectQuestion: () => void;
+  deselectQuestion: () => void;
 }) {
-  const { classes, question, editQuestion, removeQuestion } = props;
-  const [expanded, setExpanded] = React.useState(false);
-
+  const {
+    question,
+    isSelected,
+    editQuestion,
+    removeQuestion,
+    selectQuestion,
+    deselectQuestion,
+  } = props;
   return (
-    <Card style={{ width: "100%" }}>
-      <CardContent>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <TextField
-            id="edit-question"
-            label="Question"
-            variant="outlined"
-            fullWidth
-            value={question.question || ""}
-            onChange={(e) =>
-              editQuestion({ ...question, question: e.target.value })
-            }
-          />
-          <CardActions>
-            <IconButton id="delete" size="small" onClick={removeQuestion}>
+    <Card
+      style={{
+        width: "100%",
+        backgroundColor: isSelected ? "#FFF8CD" : undefined,
+      }}
+    >
+      <CardContent style={{ display: "flex", flexDirection: "row" }}>
+        <TextField
+          id="edit-question"
+          label="Question"
+          variant="outlined"
+          fullWidth
+          multiline
+          value={question.question || ""}
+          onChange={(e) =>
+            editQuestion({ ...question, question: e.target.value })
+          }
+          onFocus={selectQuestion}
+        />
+        <CardActions>
+          <IconButton id="delete" size="small" onClick={removeQuestion}>
+            <DeleteIcon />
+          </IconButton>
+          {isSelected ? (
+            <IconButton id="close" size="small" onClick={deselectQuestion}>
               <ClearOutlinedIcon />
             </IconButton>
-            <IconButton
-              id="expand"
-              size="small"
-              aria-expanded={expanded}
-              className={clsx(classes.expand, {
-                [classes.expandOpen]: expanded,
-              })}
-              onClick={() => setExpanded(!expanded)}
-            >
-              <ExpandMoreIcon />
-            </IconButton>
-          </CardActions>
-        </div>
-        <Collapse
-          in={expanded}
-          timeout="auto"
-          unmountOnExit
-          style={{ padding: 25, paddingRight: 25 }}
-        >
-          <Grid container spacing={3}>
-            <Grid
-              item
-              xs={6}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Typography>Question Type:</Typography>
-              <Select
-                id="select-type"
-                value={question.type}
-                style={{ flexGrow: 1, marginLeft: 10 }}
-                onChange={(
-                  event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-                ) => {
-                  editQuestion({
-                    ...question,
-                    type: event.target.value as QuestionType,
-                  });
-                }}
-              >
-                <MenuItem id="question" value={QuestionType.QUESTION}>
-                  {QuestionType.QUESTION}
-                </MenuItem>
-                <MenuItem id="utterance" value={QuestionType.UTTERANCE}>
-                  {QuestionType.UTTERANCE}
-                </MenuItem>
-              </Select>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField
-                id="edit-name"
-                label="Tag"
-                placeholder="Additional tag for question, e.g. _IDLE_"
-                variant="outlined"
-                fullWidth
-                value={question.name || ""}
-                onChange={(e) =>
-                  editQuestion({ ...question, name: e.target.value })
-                }
-              />
-            </Grid>
-          </Grid>
-          <TopicsList
-            classes={classes}
-            topics={question.topics}
-            updateTopics={(t: Topic[]) =>
-              editQuestion({ ...question, topics: t })
-            }
-          />
-          <ParaphraseList
-            classes={classes}
-            paraphrases={question.paraphrases}
-            updateParaphrases={(p: string[]) =>
-              editQuestion({ ...question, paraphrases: p })
-            }
-          />
-        </Collapse>
+          ) : undefined}
+        </CardActions>
       </CardContent>
     </Card>
+  );
+}
+
+export function QuestionEditCard(props: {
+  classes: any;
+  question: Question | null;
+  editQuestion: (val: Question) => void;
+  onDeselect: () => void;
+}) {
+  const { classes, question, editQuestion, onDeselect } = props;
+
+  if (!question) {
+    return <div></div>;
+  }
+  return (
+    <div style={{ padding: 20 }}>
+      <CardHeader
+        action={
+          <Button onClick={onDeselect} startIcon={<ClearOutlinedIcon />}>
+            Close Details
+          </Button>
+        }
+      />
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <FormControl style={{ width: 250, marginRight: 20 }}>
+          <InputLabel>Question Type</InputLabel>
+          <Select
+            id="select-type"
+            value={question?.type}
+            style={{ flexGrow: 1, marginLeft: 10 }}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              editQuestion({
+                ...question,
+                type: event.target.value as QuestionType,
+              });
+            }}
+          >
+            <MenuItem id="question" value={QuestionType.QUESTION}>
+              {QuestionType.QUESTION}
+            </MenuItem>
+            <MenuItem id="utterance" value={QuestionType.UTTERANCE}>
+              {QuestionType.UTTERANCE}
+            </MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          id="edit-name"
+          label="Tag"
+          placeholder="Additional tag for question, e.g. _IDLE_"
+          variant="outlined"
+          fullWidth
+          value={question?.name || ""}
+          onChange={(e) => editQuestion({ ...question, name: e.target.value })}
+          style={{ flexGrow: 1 }}
+        />
+      </div>
+      <TopicsList
+        classes={classes}
+        topics={question?.topics}
+        updateTopics={(t: Topic[]) => editQuestion({ ...question, topics: t })}
+      />
+      <ParaphraseList
+        classes={classes}
+        paraphrases={question?.paraphrases}
+        updateParaphrases={(p: string[]) =>
+          editQuestion({ ...question, paraphrases: p })
+        }
+      />
+    </div>
   );
 }
 
@@ -152,6 +163,7 @@ export function QuestionsList(props: {
   const { classes, questions, updateQuestions } = props;
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [questionSearch, setQuestionSearch] = useState<Question>();
+  const [selectedQuestion, setSelectedQuestion] = useState<number>(-1);
 
   React.useEffect(() => {
     fetchQuestions().then((q) => setAllQuestions(q.edges.map((e) => e.node)));
@@ -186,33 +198,90 @@ export function QuestionsList(props: {
     ]);
   }
 
-  const removeQuestion = (idx: number) => {
+  function removeQuestion(idx: number) {
     questions.splice(idx, 1);
     updateQuestions([...questions]);
-  };
+  }
+
+  function selectQuestion(idx: number) {
+    setSelectedQuestion(idx);
+  }
+
+  const question = selectedQuestion !== -1 ? questions[selectedQuestion] : null;
 
   return (
-    <Paper elevation={0} style={{ textAlign: "left" }}>
-      <Typography variant="body2" style={{ padding: 15 }}>
+    <Paper
+      elevation={0}
+      className={classes.flexExpandChild}
+      style={{ textAlign: "left" }}
+    >
+      <Typography variant="body2" style={{ flexShrink: 0, padding: 15 }}>
         Questions
       </Typography>
-      <List id="questions" className={classes.list}>
-        {questions.map((q, i) => (
-          <ListItem key={`question-${i}`} id={`question-${i}`}>
-            <QuestionCard
+      <Grid
+        container
+        style={{
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "0",
+        }}
+      >
+        <Grid
+          item
+          xs={question ? 5 : 12}
+          style={{ flexGrow: 1, overflow: "auto", minHeight: "100%" }}
+        >
+          <List id="questions" className={classes.list}>
+            {questions.map((q, i) => (
+              <ListItem key={`question-${i}`} id={`question-${i}`}>
+                <QuestionListItem
+                  question={q}
+                  isSelected={selectedQuestion === i}
+                  editQuestion={(val: Question) => {
+                    updateQuestion(val, i);
+                  }}
+                  removeQuestion={() => {
+                    removeQuestion(i);
+                  }}
+                  selectQuestion={() => {
+                    selectQuestion(i);
+                  }}
+                  deselectQuestion={() => {
+                    selectQuestion(-1);
+                  }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Grid>
+        {question ? (
+          <Grid
+            item
+            xs={7}
+            style={{ flexGrow: 1, overflow: "auto", minHeight: "0" }}
+          >
+            <QuestionEditCard
               classes={classes}
-              question={q}
+              question={question}
               editQuestion={(val: Question) => {
-                updateQuestion(val, i);
+                updateQuestion(val, selectedQuestion!);
               }}
-              removeQuestion={() => {
-                removeQuestion(i);
+              onDeselect={() => {
+                selectQuestion(-1);
               }}
             />
-          </ListItem>
-        ))}
-      </List>
-      <div style={{ display: "flex", flexDirection: "row" }}>
+          </Grid>
+        ) : undefined}
+      </Grid>
+      <div
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
         <Autocomplete
           id="question-input"
           options={allQuestions}
