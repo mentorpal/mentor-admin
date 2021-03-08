@@ -29,6 +29,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import CloseIcon from "@material-ui/icons/Close";
 import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
@@ -46,6 +47,7 @@ import {
 } from "api";
 import {
   Answer,
+  ClassifierAnswerType,
   Connection,
   Feedback,
   Mentor,
@@ -81,18 +83,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const columns: ColumnDef[] = [
+const columnHeaders: ColumnDef[] = [
   {
     id: "feedback",
     label: "Feedback",
-    minWidth: 100,
+    minWidth: 50,
     align: "center",
     sortable: true,
   },
   {
     id: "confidence",
     label: "Confidence",
-    minWidth: 100,
+    minWidth: 50,
     align: "center",
     sortable: true,
   },
@@ -117,6 +119,13 @@ const columns: ColumnDef[] = [
     align: "left",
     sortable: true,
   },
+  {
+    id: "updatedAt",
+    label: "Date",
+    minWidth: 100,
+    align: "center",
+    sortable: true,
+  },
 ];
 
 function FeedbackItem(props: {
@@ -128,10 +137,8 @@ function FeedbackItem(props: {
   const { feedback, mentor, onUpdated } = props;
 
   async function onUpdateAnswer(answerId: string | undefined) {
-    if (answerId) {
-      await updateUserQuestion(feedback._id, answerId);
-      onUpdated();
-    }
+    await updateUserQuestion(feedback._id, answerId || "");
+    onUpdated();
   }
 
   return (
@@ -141,19 +148,23 @@ function FeedbackItem(props: {
           <ThumbDownIcon style={{ color: "red" }} />
         ) : feedback.feedback === Feedback.GOOD ? (
           <ThumbUpIcon style={{ color: "green" }} />
-        ) : (
-          "N/A"
-        )}
+        ) : undefined}
       </TableCell>
       <TableCell id="confidence" align="center">
         <Typography
           variant="body2"
           style={{
             color:
-              feedback.confidence <= CLASSIFIER_OFFTOPIC_CUTOFF ? "red" : "",
+              feedback.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
+                ? "red"
+                : "",
           }}
         >
-          {Math.round(feedback.confidence * 100) / 100}
+          {feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
+            ? "Exact"
+            : feedback.classifierAnswerType === ClassifierAnswerType.PARAPHRASE
+            ? "Paraphrase"
+            : Math.round(feedback.confidence * 100) / 100}
         </Typography>
       </TableCell>
       <TableCell id="question" align="left">
@@ -167,23 +178,37 @@ function FeedbackItem(props: {
         </Tooltip>
       </TableCell>
       <TableCell id="graderAnswer" align="left">
-        <Autocomplete
-          id="select-answer"
-          options={mentor.answers}
-          getOptionLabel={(option: Answer) => option.question.question}
-          onChange={(e, v) => {
-            onUpdateAnswer(v?._id);
-          }}
-          style={{
-            minWidth: 300,
-            background: feedback.graderAnswer ? "#eee" : "",
-          }}
-          renderOption={(option) => (
-            <Typography align="left">{option.question.question}</Typography>
-          )}
-          renderInput={(params) => <TextField {...params} variant="outlined" />}
-        />
+        {feedback.classifierAnswerType ===
+        ClassifierAnswerType.EXACT_MATCH ? undefined : (
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <Autocomplete
+              id="select-answer"
+              options={mentor.answers}
+              getOptionLabel={(option: Answer) => option.question.question}
+              onChange={(e, v) => {
+                onUpdateAnswer(v?._id);
+              }}
+              style={{
+                minWidth: 300,
+                background: feedback.graderAnswer ? "#eee" : "",
+                flexGrow: 1,
+              }}
+              renderOption={(option) => (
+                <Typography align="left">{option.question.question}</Typography>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} variant="outlined" />
+              )}
+            />
+            <IconButton onClick={() => onUpdateAnswer(undefined)}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        )}
         {feedback.graderAnswer?.question.question || ""}
+      </TableCell>
+      <TableCell id="date" align="center">
+        {feedback.updatedAt || ""}
       </TableCell>
     </TableRow>
   );
@@ -198,8 +223,12 @@ function FeedbackPage(): JSX.Element {
   const [sortBy, setSortBy] = React.useState("name");
   const [sortAscending, setSortAscending] = React.useState(false);
   const [feedbackFilter, setFeedbackFilter] = React.useState<Feedback>();
-  const [confidenceFilter, setConfidenceFilter] = React.useState<number>();
+  const [
+    confidenceFilter,
+    setConfidenceFilter,
+  ] = React.useState<ClassifierAnswerType>();
   const [classifierFilter, setClassifierFilter] = React.useState<Answer>();
+  const [graderFilter, setGraderFilter] = React.useState<Answer>();
   const limit = 20;
 
   const [mentor, setMentor] = React.useState<Mentor>();
@@ -208,6 +237,7 @@ function FeedbackPage(): JSX.Element {
     state: TrainState.NONE,
   });
   const [isTraining, setIsTraining] = useState(false);
+  const [trainPopup, setTrainPopup] = useState(false);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -231,6 +261,7 @@ function FeedbackPage(): JSX.Element {
     feedbackFilter,
     confidenceFilter,
     classifierFilter,
+    graderFilter,
   ]);
 
   async function loadFeedback() {
@@ -238,13 +269,15 @@ function FeedbackPage(): JSX.Element {
     if (feedbackFilter !== undefined) {
       filter["feedback"] = feedbackFilter;
     }
-    if (confidenceFilter !== undefined) {
-      filter["confidence"] = { $lte: confidenceFilter };
-    }
     if (classifierFilter !== undefined) {
       filter["classifierAnswer"] = classifierFilter._id;
     }
-    console.log(filter);
+    if (graderFilter !== undefined) {
+      filter["graderAnswer"] = graderFilter._id;
+    }
+    if (confidenceFilter !== undefined) {
+      filter["classifierAnswerType"] = confidenceFilter;
+    }
     setFeedback(
       await fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending })
     );
@@ -333,7 +366,7 @@ function FeedbackPage(): JSX.Element {
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
-                columns={columns}
+                columns={columnHeaders}
                 sortBy={sortBy}
                 sortAsc={sortAscending}
                 onSort={setSort}
@@ -355,7 +388,7 @@ function FeedbackPage(): JSX.Element {
                       }}
                     >
                       <MenuItem id="none" value={undefined}>
-                        None
+                        No Filter
                       </MenuItem>
                       <MenuItem id="good" value={Feedback.GOOD}>
                         {Feedback.GOOD}
@@ -379,16 +412,36 @@ function FeedbackPage(): JSX.Element {
                           name?: unknown;
                         }>
                       ) => {
-                        setConfidenceFilter(event.target.value as number);
+                        setConfidenceFilter(
+                          event.target.value as ClassifierAnswerType
+                        );
                       }}
                     >
                       <MenuItem id="none" value={undefined}>
-                        None
+                        No Filter
                       </MenuItem>
-                      <MenuItem id="good" value={1}>
-                        Good
+                      <MenuItem
+                        id="exact"
+                        value={ClassifierAnswerType.EXACT_MATCH}
+                      >
+                        Exact Match
                       </MenuItem>
-                      <MenuItem id="bad" value={0}>
+                      <MenuItem
+                        id="paraphrase"
+                        value={ClassifierAnswerType.PARAPHRASE}
+                      >
+                        Paraphrase
+                      </MenuItem>
+                      <MenuItem
+                        id="classifier"
+                        value={ClassifierAnswerType.CLASSIFIER}
+                      >
+                        Classifier
+                      </MenuItem>
+                      <MenuItem
+                        id="offtopic"
+                        value={ClassifierAnswerType.OFF_TOPIC}
+                      >
                         Off-Topic
                       </MenuItem>
                     </Select>
@@ -403,6 +456,27 @@ function FeedbackPage(): JSX.Element {
                       }
                       onChange={(e, v) => {
                         setClassifierFilter(v || undefined);
+                      }}
+                      style={{ minWidth: 300 }}
+                      renderOption={(option) => (
+                        <Typography align="left">
+                          {option.question.question}
+                        </Typography>
+                      )}
+                      renderInput={(params) => (
+                        <TextField {...params} variant="outlined" />
+                      )}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Autocomplete
+                      id="filter-grader"
+                      options={mentor.answers}
+                      getOptionLabel={(option: Answer) =>
+                        option.question.question
+                      }
+                      onChange={(e, v) => {
+                        setGraderFilter(v || undefined);
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (

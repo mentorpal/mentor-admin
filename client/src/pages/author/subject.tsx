@@ -8,15 +8,7 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
-import {
-  Button,
-  CircularProgress,
-  FormControlLabel,
-  FormGroup,
-  Grid,
-  Switch,
-  TextField,
-} from "@material-ui/core";
+import { Button, CircularProgress, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import NavBar from "components/nav-bar";
@@ -28,25 +20,28 @@ import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: 20,
+    height: "100vh",
     display: "flex",
     flexDirection: "column",
-    "& .MuiTextField-root": {
-      margin: theme.spacing(1),
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
-    },
-    "& > *": {
-      borderBottom: "unset",
-    },
+    alignItems: "center",
+    margin: 0,
+  },
+  flexFixedChild: {
+    flexShrink: 0,
+    width: "calc(100% - 40px)",
+  },
+  flexExpandChild: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    width: "calc(100% - 40px)",
+    minHeight: 0,
   },
   button: {
     width: 200,
     margin: theme.spacing(2),
   },
   list: {
-    paddingTop: 5,
-    paddingBottom: 5,
     background: "#F5F5F5",
   },
   expand: {
@@ -127,12 +122,7 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   return (
     <div className={classes.root}>
       <NavBar title="Edit Subject" />
-      <Grid
-        container
-        direction="column"
-        justify="flex-start"
-        alignItems="center"
-      >
+      <div className={classes.flexFixedChild}>
         <TextField
           id="name"
           label="Subject Name"
@@ -142,6 +132,7 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
           onChange={(e) =>
             editSubject({ ...subjectEdit.subject, name: e.target.value })
           }
+          style={{ marginTop: 20, marginBottom: 20 }}
           variant="outlined"
         />
         <TextField
@@ -156,23 +147,8 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
           }
           variant="outlined"
         />
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={subjectEdit.subject.isRequired}
-                onChange={(ev: any) => {
-                  editSubject({
-                    ...subjectEdit.subject,
-                    isRequired: ev.target.checked,
-                  });
-                }}
-              />
-            }
-            label="Is Required"
-          />
-        </FormGroup>
-      </Grid>
+      </div>
+      {/* <div className={classes.flexExpandChild}> */}
       <QuestionsList
         classes={classes}
         questions={subjectEdit.subject.questions || []}
@@ -183,12 +159,8 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
           })
         }
       />
-      <Grid
-        container
-        direction="column"
-        justify="flex-start"
-        alignItems="center"
-      >
+      {/* </div> */}
+      <div className={classes.flexFixedChild}>
         <Button
           id="save-btn"
           variant="contained"
@@ -199,7 +171,7 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
         >
           Save
         </Button>
-      </Grid>
+      </div>
       <ToastContainer />
     </div>
   );

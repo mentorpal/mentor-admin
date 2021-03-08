@@ -18,7 +18,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 export function ParaphraseCard(props: {
   paraphrase: string;
@@ -41,7 +41,7 @@ export function ParaphraseCard(props: {
           />
           <CardActions>
             <IconButton id="delete" size="small" onClick={removeParaphrase}>
-              <ClearOutlinedIcon />
+              <DeleteIcon />
             </IconButton>
           </CardActions>
         </div>

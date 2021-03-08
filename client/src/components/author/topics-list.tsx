@@ -21,7 +21,7 @@ import {
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddIcon from "@material-ui/icons/Add";
-import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
+import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import { Topic } from "types";
@@ -50,7 +50,7 @@ export function TopicCard(props: {
           />
           <CardActions>
             <IconButton id="delete" size="small" onClick={removeTopic}>
-              <ClearOutlinedIcon />
+              <DeleteIcon />
             </IconButton>
             <IconButton
               id="expand"
