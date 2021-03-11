@@ -146,10 +146,10 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Setup" />
       </ListItem>
-      
+
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
-      
+
       <ListItem
         button
         component={Link}
@@ -180,10 +180,12 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem button onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-            
+
       <Divider style={{ marginTop: 15 }} />
 
-      <ListSubheader className={classes.menuHeader}>Subjects and Templates</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>
+        Subjects and Templates
+      </ListSubheader>
       <ListItem
         button
         component={Link}
@@ -215,8 +217,7 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem button onClick={onLogout}>
         <ListItemText primary="Log Out" />
       </ListItem>
-      <Divider/>
-
+      <Divider />
     </List>
   );
 }
