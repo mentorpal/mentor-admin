@@ -114,7 +114,7 @@ function Login(props: { classes: any }): JSX.Element {
 
 function NavMenu(props: { classes: any }): JSX.Element {
   const { classes } = props;
-  const [cookies, setCookie] = useCookies(["accessToken"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
 
   async function openChat() {
     const mentor = await fetchMentor(cookies.accessToken);
@@ -122,9 +122,13 @@ function NavMenu(props: { classes: any }): JSX.Element {
     window.location.href = path;
   }
 
+  function onLogout(): void {
+    removeCookie("accessToken", { path: "/" });
+    navigate("/");
+  }
+
   return (
     <List dense className={classes.menu}>
-      <Divider />
       <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
       <ListItem
         button
@@ -176,10 +180,9 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem button onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-      
-      <Divider />
-
+            
       <Divider style={{ marginTop: 15 }} />
+
       <ListSubheader className={classes.menuHeader}>Subjects and Templates</ListSubheader>
       <ListItem
         button
@@ -206,12 +209,12 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Questions" />
       </ListItem>
-      <Divider />
-
       <Divider style={{ marginTop: 15 }} />
-      <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
 
-      <ListItemText primary="Logout" />
+      <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
+      <ListItem button onClick={onLogout}>
+        <ListItemText primary="Log Out" />
+      </ListItem>
       <Divider/>
 
     </List>
