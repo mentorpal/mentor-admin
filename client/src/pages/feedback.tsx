@@ -204,7 +204,11 @@ function FeedbackItem(props: {
             </IconButton>
           </div>
         )}
-        {feedback.graderAnswer?.question.question || ""}
+        <Tooltip title={feedback.graderAnswer?.transcript || ""}>
+          <Typography variant="body2">
+          {feedback.graderAnswer?.question.question || ""}
+          </Typography>
+        </Tooltip>        
       </TableCell>
       <TableCell id="date" align="center">
         {feedback.updatedAt || ""}
