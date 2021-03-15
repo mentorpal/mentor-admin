@@ -39,9 +39,10 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
-  isBuilt: boolean;
+  mentorType: MentorType;
   lastTrainedAt: string;
   subjects: Subject[];
+  topics: Topic[];
   answers: Answer[];
 }
 
@@ -50,7 +51,9 @@ export interface Subject {
   name: string;
   description: string;
   isRequired: boolean;
+  topicsOrder: Topic[];
   questions: Question[];
+  topics?: Topic[];
 }
 
 export interface Topic {
@@ -71,7 +74,6 @@ export interface Question {
 export interface Answer {
   _id: string;
   question: Question;
-  video: string;
   transcript: string;
   status: Status;
   recordedAt: string;
@@ -88,6 +90,11 @@ export interface UserQuestion {
   graderAnswer: Answer;
   updatedAt: string;
   createdAt: string;
+}
+
+export enum MentorType {
+  VIDEO = "VIDEO",
+  CHAT = "CHAT",
 }
 
 export enum Status {

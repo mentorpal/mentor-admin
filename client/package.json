@@ -32,6 +32,7 @@
     "json5": "^2.2.0",
     "mongoose": "^5.11.17",
     "react": "^16.13.1",
+    "react-beautiful-dnd": "^13.0.0",
     "react-cookie": "^4.0.3",
     "react-dom": "^16.13.1",
     "react-google-login": "^5.2.2",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@types/node": "^14.14.13",
+    "@types/react-beautiful-dnd": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
     "eslint": "^7.13.0",

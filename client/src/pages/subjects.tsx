@@ -4,17 +4,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Link, navigate } from "gatsby";
+import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
-import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
+  Checkbox,
   CircularProgress,
   Fab,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -24,8 +22,6 @@ import {
   Toolbar,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
@@ -33,7 +29,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import Context from "context";
 import { Connection, Subject } from "types";
-import { fetchSubjects } from "api";
+import { fetchMentor, fetchSubjects, setQuestionSets, updateMentor } from "api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -56,9 +52,7 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: theme.spacing(1),
     zIndex: 1,
-  },
-  progress: {
-    marginLeft: "50%",
+    width: 100,
   },
 }));
 
@@ -78,88 +72,25 @@ const columns: ColumnDef[] = [
     sortable: true,
   },
   {
-    id: "delete",
-    label: "Delete",
+    id: "select",
+    label: "Select?",
     minWidth: 0,
     align: "center",
     sortable: false,
   },
 ];
 
-function SubjectItem(props: {
-  id: string;
-  subject: Subject;
-  onDelete: (id: string) => void;
-}): JSX.Element {
-  const { subject, onDelete } = props;
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const deleteMenuOpen = Boolean(anchorEl);
-
-  function onClickDelete(e: any) {
-    setAnchorEl(e.currentTarget);
-  }
-
-  function onCloseDelete() {
-    setAnchorEl(null);
-  }
-
-  async function deleteSubject(id: string) {
-    toast("Deleting...");
-    setAnchorEl(null);
-    onDelete(id);
-  }
-
-  return (
-    <TableRow hover role="checkbox" tabIndex={-1}>
-      <TableCell id="name" align="left">
-        <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
-      </TableCell>
-      <TableCell id="description" align="left">
-        {subject.description}
-      </TableCell>
-      <TableCell id="delete" align="center">
-        <IconButton onClick={onClickDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-      <Menu
-        id="delete-menu"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={deleteMenuOpen}
-        onClose={onCloseDelete}
-      >
-        <MenuItem
-          id="confirm-delete"
-          onClick={() => deleteSubject(subject._id)}
-        >
-          Confirm
-        </MenuItem>
-        <MenuItem id="cancel-delete" onClick={onCloseDelete}>
-          Cancel
-        </MenuItem>
-      </Menu>
-    </TableRow>
-  );
-}
-
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
-  const [subjects, setSubjects] = useState<Connection<Subject>>();
+  const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
+  const [subjects, setSubjects] = useState<Subject[]>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
   const [sortAscending, setSortAscending] = React.useState(false);
-  const limit = 10;
+  const [isSaving, setIsSaving] = React.useState(false);
+  const limit = 20;
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -168,16 +99,42 @@ function SubjectsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    loadSubjects();
-  }, [cursor, sortBy, sortAscending]);
+    if (context.user) {
+      loadCurrentSubjects();
+    }
+  }, [context.user]);
 
-  async function loadSubjects() {
-    setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
+  React.useEffect(() => {
+    loadAllSubjects();
+  }, [cursor, sortBy, sortAscending, limit]);
+
+  async function loadAllSubjects() {
+    setAllSubjects(
+      await fetchSubjects({ cursor, limit, sortBy, sortAscending })
+    );
   }
 
-  async function deleteSubject(id: string) {
-    // todo
-    loadSubjects();
+  async function loadCurrentSubjects() {
+    const mentor = await fetchMentor(cookies.accessToken);
+    setSubjects(mentor.subjects);
+  }
+
+  async function onSave() {
+    if (!subjects) {
+      return;
+    }
+    setIsSaving(true);
+    let mentor = await fetchMentor(cookies.accessToken);
+    await updateMentor(
+      {
+        ...mentor,
+        subjects: subjects,
+      },
+      cookies.accessToken
+    );
+    mentor = await fetchMentor(cookies.accessToken);
+    setSubjects(mentor.subjects);
+    setIsSaving(false);
   }
 
   function setSort(id: string) {
@@ -189,7 +146,21 @@ function SubjectsPage(): JSX.Element {
     setCursor("");
   }
 
-  if (!context.user || !subjects) {
+  function onToggle(subject: Subject) {
+    if (!subjects) {
+      return;
+    }
+    const i = subjects.findIndex((s) => s._id === subject._id);
+    const _subjects = [...subjects];
+    if (i === -1) {
+      _subjects.push(subject);
+    } else {
+      _subjects.splice(i, 1);
+    }
+    setSubjects(_subjects);
+  }
+
+  if (!context.user || !allSubjects || !subjects) {
     return (
       <div>
         <NavBar title="Subjects" />
@@ -212,14 +183,35 @@ function SubjectsPage(): JSX.Element {
                 onSort={setSort}
               />
               <TableBody id="subjects">
-                {subjects.edges.map((row, i) => (
-                  <SubjectItem
-                    key={`subject-${i}`}
-                    id={`subject-${i}`}
-                    subject={row.node}
-                    onDelete={deleteSubject}
-                  />
-                ))}
+                {allSubjects.edges.map((edge) => {
+                  const subject = edge.node;
+                  return (
+                    <TableRow
+                      key={`${subject._id}`}
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                    >
+                      <TableCell id="name" align="left">
+                        {subject.name}
+                      </TableCell>
+                      <TableCell id="description" align="left">
+                        {subject.description}
+                      </TableCell>
+                      <TableCell id="select" align="center">
+                        <Checkbox
+                          checked={
+                            subjects.find((s) => s._id === subject._id) !==
+                            undefined
+                          }
+                          disabled={subject.isRequired}
+                          color="primary"
+                          onClick={() => onToggle(subject)}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
@@ -228,33 +220,34 @@ function SubjectsPage(): JSX.Element {
           <Toolbar>
             <IconButton
               id="prev-page"
-              disabled={!subjects.pageInfo.hasPreviousPage}
+              disabled={!allSubjects.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + subjects.pageInfo.startCursor)
+                setCursor("prev__" + allSubjects.pageInfo.startCursor)
               }
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               id="next-page"
-              disabled={!subjects.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
+              disabled={!allSubjects.pageInfo.hasNextPage}
+              onClick={() =>
+                setCursor("next__" + allSubjects.pageInfo.endCursor)
+              }
             >
               <KeyboardArrowRightIcon />
             </IconButton>
             <Fab
-              id="create-button"
+              id="save-button"
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={() => navigate(`/author/subject`)}
+              onClick={onSave}
+              disabled={isSaving}
             >
-              <AddIcon />
-              Create Subject
+              {isSaving ? "Saving..." : "Save"}
             </Fab>
           </Toolbar>
         </AppBar>
-        <ToastContainer />
       </div>
     </div>
   );
