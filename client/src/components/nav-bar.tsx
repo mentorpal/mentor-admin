@@ -29,6 +29,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 
 import { CLIENT_ENDPOINT, fetchMentor } from "api";
 import Context from "context";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -156,6 +157,14 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem
         button
         component={Link}
+        to={"/subjects"}
+        selected={location.pathname === "/subject"}
+      >
+        <ListItemText primary="Select Subjects" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
         to={"/setup"}
         selected={location.pathname === "/setup"}
       >
@@ -194,11 +203,12 @@ function NavMenu(props: { classes: any }): JSX.Element {
 
 export function NavBar(props: {
   title: string;
-  back?: boolean;
-  onBack?: () => void;
+  search: {
+    back?: string;
+  };
 }): JSX.Element {
   const classes = useStyles();
-  const { title, back, onBack } = props;
+  const { back } = props.search;
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const context = useContext(Context);
 
@@ -219,7 +229,7 @@ export function NavBar(props: {
               className={classes.menuButton}
               onClick={() => {
                 if (back) {
-                  onBack ? onBack() : navigate(-1);
+                  navigate(decodeURI(back));
                 } else {
                   toggleDrawer(true);
                 }
@@ -229,7 +239,7 @@ export function NavBar(props: {
             </IconButton>
           ) : undefined}
           <Typography id="title" variant="h6" className={classes.title}>
-            {title}
+            {props.title}
           </Typography>
           <Login classes={classes} />
         </Toolbar>
@@ -249,4 +259,4 @@ export function NavBar(props: {
   );
 }
 
-export default NavBar;
+export default withLocation(NavBar);

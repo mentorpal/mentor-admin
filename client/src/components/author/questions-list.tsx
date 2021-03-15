@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useState } from "react";
 import {
-  Paper,
   Typography,
   List,
   ListItem,
@@ -210,7 +209,7 @@ export function QuestionsList(props: {
   const question = selectedQuestion !== -1 ? questions[selectedQuestion] : null;
 
   return (
-    <Paper
+    <Card
       elevation={0}
       className={classes.flexExpandChild}
       style={{ textAlign: "left" }}
@@ -307,7 +306,7 @@ export function QuestionsList(props: {
           {questionSearch ? "Add Question" : "New Question"}
         </Button>
       </div>
-    </Paper>
+    </Card>
   );
 }
 

@@ -28,7 +28,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 import { fetchMentor, fetchSubject, updateAnswer } from "api";
-import { Answer, Status, Mentor, Subject } from "types";
+import { Answer, Status, Mentor, Subject, MentorType } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -94,7 +94,7 @@ function RecordPage(props: {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [answerInput, setAnswerInput] = useState("");
   const [videoInput, setVideoInput] = useState<any>();
-  const [video, setVideo] = useState("");
+  const [video, setVideo] = useState<string>();
   const [idx, setIdx] = useState(0);
 
   React.useEffect(() => {
@@ -112,12 +112,16 @@ function RecordPage(props: {
   }, [mentor]);
 
   React.useEffect(() => {
-    if (!answers || answers.length === 0) {
+    if (!mentor || !answers || answers.length === 0) {
       return;
     }
     const answer = answers[idx];
     setVideoInput(null);
-    setVideo(answer.video);
+    setVideo(
+      Boolean(answer.recordedAt)
+        ? `https://video.mentorpal.org/videos/mentors/${mentor._id}/web/${answer._id}.mp4`
+        : undefined
+    );
     setAnswerInput(answer.transcript);
   }, [answers, idx]);
 
@@ -161,19 +165,8 @@ function RecordPage(props: {
     loadMentor();
   }
 
-  async function onUploadVideo() {
-    toast("Uploading video...");
-    //todo
-    onUpdateAnswer({
-      ...curAnswer!,
-      video:
-        "https://video.mentorpal.org/videos/mentors/clint/web/clintanderson_U1_1_1.mp4",
-      transcript: "fake transcript",
-    });
-  }
-
   function onRerecord() {
-    setVideo("");
+    setVideo(undefined);
   }
 
   function onBack() {
@@ -185,30 +178,32 @@ function RecordPage(props: {
   }
 
   function renderVideo(): JSX.Element {
-    return (
-      <div className={classes.block}>
-        <ReactPlayer
-          id="video-player"
-          className={classes.video}
-          url={video}
-          controls={true}
-          playing={true}
-          playsinline
-          webkit-playsinline="true"
-        />
-        <Button
-          id="rerecord-btn"
-          variant="contained"
-          disableElevation
-          onClick={onRerecord}
-        >
-          Re-Record
-        </Button>
-      </div>
-    );
-  }
-
-  function renderVideoRecorder(): JSX.Element {
+    if (!mentor || mentor.mentorType === MentorType.CHAT) {
+      return <div></div>;
+    }
+    if (video) {
+      return (
+        <div className={classes.block}>
+          <ReactPlayer
+            id="video-player"
+            className={classes.video}
+            url={video}
+            controls={true}
+            playing={true}
+            playsinline
+            webkit-playsinline="true"
+          />
+          <Button
+            id="rerecord-btn"
+            variant="contained"
+            disableElevation
+            onClick={onRerecord}
+          >
+            Re-Record
+          </Button>
+        </div>
+      );
+    }
     return (
       <div className={classes.block}>
         <VideoRecorder
@@ -219,12 +214,7 @@ function RecordPage(props: {
           }}
         />
         {videoInput ? (
-          <Button
-            id="upload-btn"
-            variant="contained"
-            disableElevation
-            onClick={onUploadVideo}
-          >
+          <Button id="upload-btn" variant="contained" disableElevation>
             Upload
           </Button>
         ) : undefined}
@@ -244,7 +234,7 @@ function RecordPage(props: {
   const curAnswer = answers[idx];
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" back={true} onBack={onBack} />
+      <NavBar title="Record Mentor" />
       <div id="progress" className={classes.block}>
         <Typography
           variant="h6"
@@ -255,7 +245,7 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={((idx + 1) / answers.length) * 100} />
       </div>
-      {video ? renderVideo() : renderVideoRecorder()}
+      {renderVideo()}
       <div id="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
@@ -277,32 +267,30 @@ function RecordPage(props: {
             }}
             endAdornment={
               <InputAdornment position="end">
-                <div>
-                  <IconButton
-                    id="undo-transcript-btn"
-                    disabled={curAnswer.transcript === answerInput}
-                    onClick={() => {
-                      setAnswerInput(curAnswer.transcript);
-                    }}
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                  <Button
-                    id="save-transcript-btn"
-                    variant="contained"
-                    color="primary"
-                    disabled={curAnswer.transcript === answerInput}
-                    onClick={() => {
-                      onUpdateAnswer({
-                        ...curAnswer,
-                        transcript: answerInput,
-                      });
-                    }}
-                    disableElevation
-                  >
-                    Save
-                  </Button>
-                </div>
+                <IconButton
+                  id="undo-transcript-btn"
+                  disabled={curAnswer.transcript === answerInput}
+                  onClick={() => {
+                    setAnswerInput(curAnswer.transcript);
+                  }}
+                >
+                  <UndoIcon />
+                </IconButton>
+                <Button
+                  id="save-transcript-btn"
+                  variant="contained"
+                  color="primary"
+                  disabled={curAnswer.transcript === answerInput}
+                  onClick={() => {
+                    onUpdateAnswer({
+                      ...curAnswer,
+                      transcript: answerInput,
+                    });
+                  }}
+                  disableElevation
+                >
+                  Save
+                </Button>
               </InputAdornment>
             }
           />
