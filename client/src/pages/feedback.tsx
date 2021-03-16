@@ -204,7 +204,7 @@ function FeedbackItem(props: {
             </IconButton>
           </div>
         )}
-        <Tooltip title={feedback.graderAnswer?.transcript || ""}>
+        <Tooltip placement="top-start" title={feedback.graderAnswer?.transcript || ""}>
           <Typography variant="body2">
             {feedback.graderAnswer?.question.question || ""}
           </Typography>
