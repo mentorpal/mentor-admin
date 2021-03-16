@@ -134,6 +134,7 @@ function FeedbackItem(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentor, onUpdated } = props;
+
   async function onUpdateAnswer(answerId: string | undefined) {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
@@ -181,7 +182,6 @@ function FeedbackItem(props: {
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
               id="select-answer"
-              value={feedback.graderAnswer || null}
               options={mentor.answers}
               getOptionLabel={(option: Answer) => option.question.question}
               onChange={(e, v) => {
