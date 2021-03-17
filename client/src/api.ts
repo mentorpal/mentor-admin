@@ -429,7 +429,8 @@ export async function updateUserQuestion(
 export async function fetchMentor(
   accessToken: string,
   subject?: string,
-  topic?: string
+  topic?: string,
+  status?: string
 ): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
@@ -444,6 +445,7 @@ export async function fetchMentor(
             firstName
             title
             mentorType
+            lastTrainedAt
             subjects {
               _id
               name
@@ -467,7 +469,9 @@ export async function fetchMentor(
               name
               description
             }
-            answers(subject: "${subject || ""}", topic: "${topic || ""}") {
+            answers(subject: "${subject || ""}", topic: "${
+        topic || ""
+      }", status: "${status || ""}") {
               _id
               question {
                 _id

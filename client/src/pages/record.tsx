@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
-import { ToastContainer, toast } from "react-toastify";
 import ReactPlayer from "react-player";
 import VideoRecorder from "react-video-recorder";
 import { navigate } from "gatsby";
@@ -27,8 +26,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
-import { fetchMentor, fetchSubject, updateAnswer } from "api";
-import { Answer, Status, Mentor, Subject, MentorType } from "types";
+import { fetchMentor, updateAnswer } from "api";
+import { Answer, Status, Mentor, MentorType } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -83,6 +82,7 @@ function RecordPage(props: {
   search: {
     videoId?: string[] | string;
     subject?: string;
+    topic?: string;
     status?: string;
     back?: string;
   };
@@ -136,28 +136,19 @@ function RecordPage(props: {
     if (!mentor) {
       return;
     }
-    const { videoId, subject, status } = props.search;
-    const _questions: Answer[] = [];
+    const { videoId, subject, topic, status } = props.search;
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      _questions.push(
-        ...mentor.answers.filter((a) => ids.includes(a.question._id))
-      );
-    } else if (subject) {
-      const s: Subject = await fetchSubject(subject);
-      _questions.push(
-        ...mentor.answers.filter(
-          (a) =>
-            s.questions.map((q) => q._id).includes(a.question._id) &&
-            (!status || a.status === status)
-        )
-      );
+      setAnswers(mentor.answers.filter((a) => ids.includes(a.question._id)));
     } else {
-      _questions.push(
-        ...mentor.answers.filter((a) => !status || a.status === status)
+      const _answers = await fetchMentor(
+        cookies.accessToken,
+        subject,
+        topic,
+        status
       );
+      setAnswers(_answers.answers);
     }
-    setAnswers(_questions);
   }
 
   async function onUpdateAnswer(answer: Answer) {
@@ -353,7 +344,6 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
-      <ToastContainer />
     </div>
   );
 }

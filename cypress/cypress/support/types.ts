@@ -35,61 +35,61 @@ export interface UserAccessToken {
 }
 
 export interface Mentor {
-  _id: string;
-  name: string;
-  firstName: string;
-  title: string;
-  mentorType: MentorType;
-  lastTrainedAt: string;
-  subjects: Subject[];
-  topics: Topic[];
-  answers: Answer[];
+  _id?: string;
+  name?: string;
+  firstName?: string;
+  title?: string;
+  mentorType?: MentorType;
+  lastTrainedAt?: string;
+  subjects?: Subject[];
+  topics?: Topic[];
+  answers?: Answer[];
 }
 
 export interface Subject {
-  _id: string;
-  name: string;
-  description: string;
-  isRequired: boolean;
-  topicsOrder: Topic[];
-  questions: Question[];
+  _id?: string;
+  name?: string;
+  description?: string;
+  isRequired?: boolean;
   topics?: Topic[];
+  topicsOrder?: Topic[];
+  questions?: Question[];
 }
 
 export interface Topic {
-  _id: string;
-  name: string;
-  description: string;
+  _id?: string;
+  name?: string;
+  description?: string;
 }
 
 export interface Question {
-  _id: string;
-  question: string;
-  topics: Topic[];
-  paraphrases: string[];
-  type: QuestionType;
-  name: string;
+  _id?: string;
+  question?: string;
+  topics?: Topic[];
+  paraphrases?: string[];
+  type?: QuestionType;
+  name?: string;
 }
 
 export interface Answer {
-  _id: string;
-  question: Question;
-  transcript: string;
-  status: Status;
-  recordedAt: string;
+  _id?: string;
+  question?: Question;
+  transcript?: string;
+  status?: Status;
+  recordedAt?: string;
 }
 
 export interface UserQuestion {
-  _id: string;
-  question: string;
-  confidence: number;
-  feedback: Feedback;
-  mentor: Mentor;
-  classifierAnswerType: ClassifierAnswerType;
-  classifierAnswer: Answer;
-  graderAnswer: Answer;
-  updatedAt: string;
-  createdAt: string;
+  _id?: string;
+  question?: string;
+  confidence?: number;
+  feedback?: Feedback;
+  mentor?: Mentor;
+  classifierAnswerType?: ClassifierAnswerType;
+  classifierAnswer?: Answer;
+  graderAnswer?: Answer;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
 export enum MentorType {
@@ -152,14 +152,14 @@ export interface TrainStatus {
 }
 
 export interface TrainExpectionResult {
-  accuracy: number;
+  accuracy?: number;
 }
 
 export interface TrainResult {
-  questions: TrainExpectionResult[];
+  questions?: TrainExpectionResult[];
 }
 
 export interface TrainingInfo {
-  mentor: string;
+  mentor?: string;
   questions?: TrainExpectionResult[];
 }
