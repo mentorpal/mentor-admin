@@ -1,12 +1,13 @@
-import { Mentor } from "../../support/types";
+import { Mentor, MentorType } from "../../support/types";
 
 export const mentor: Mentor = {
   _id: "clintanderson",
   name: "",
   firstName: "",
   title: "",
-  isBuilt: false,
+  mentorType: MentorType.CHAT,
   lastTrainedAt: "",
+  topics: [],
   subjects: [],
   answers: [],
 };
