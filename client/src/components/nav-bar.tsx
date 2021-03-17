@@ -153,8 +153,8 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem
         button
         component={Link}
-        to={"/author/questions"}
-        selected={location.pathname.includes("/author/question")}
+        to={"/record"}
+        selected={location.pathname.includes("/record")}
       >
         <ListItemText primary="Record Questions" />
       </ListItem>
