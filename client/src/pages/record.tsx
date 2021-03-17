@@ -118,7 +118,7 @@ function RecordPage(props: {
     const answer = answers[idx];
     setVideoInput(null);
     setVideo(
-      Boolean(answer.recordedAt)
+      answer.recordedAt
         ? `https://video.mentorpal.org/videos/mentors/${mentor._id}/web/${answer._id}.mp4`
         : undefined
     );

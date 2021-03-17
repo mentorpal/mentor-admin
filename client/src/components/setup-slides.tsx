@@ -487,7 +487,7 @@ export function BuildMentorSlide(props: {
         >
           Build
         </Button>
-        {Boolean(mentor.lastTrainedAt) ? (
+        {mentor.lastTrainedAt ? (
           <Button
             id="preview-btn"
             className={classes.button}

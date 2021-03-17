@@ -29,7 +29,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import Context from "context";
 import { Connection, Subject } from "types";
-import { fetchMentor, fetchSubjects, setQuestionSets, updateMentor } from "api";
+import { fetchMentor, fetchSubjects, updateMentor } from "api";
 
 const useStyles = makeStyles((theme) => ({
   root: {

@@ -39,9 +39,10 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
-  isBuilt: boolean;
+  mentorType: MentorType;
   lastTrainedAt: string;
   subjects: Subject[];
+  topics: Topic[];
   answers: Answer[];
 }
 
@@ -50,7 +51,9 @@ export interface Subject {
   name: string;
   description: string;
   isRequired: boolean;
+  topicsOrder: Topic[];
   questions: Question[];
+  topics?: Topic[];
 }
 
 export interface Topic {
@@ -62,21 +65,54 @@ export interface Topic {
 export interface Question {
   _id: string;
   question: string;
+  topics: Topic[];
+  paraphrases: string[];
   type: QuestionType;
   name: string;
 }
 
 export interface Answer {
+  _id: string;
   question: Question;
-  video: string;
   transcript: string;
   status: Status;
   recordedAt: string;
 }
 
+export interface UserQuestion {
+  _id: string;
+  question: string;
+  confidence: number;
+  feedback: Feedback;
+  mentor: Mentor;
+  classifierAnswerType: ClassifierAnswerType;
+  classifierAnswer: Answer;
+  graderAnswer: Answer;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export enum MentorType {
+  VIDEO = "VIDEO",
+  CHAT = "CHAT",
+}
+
 export enum Status {
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
+}
+
+export enum Feedback {
+  GOOD = "GOOD",
+  BAD = "BAD",
+  NEUTRAL = "NEUTRAL",
+}
+
+export enum ClassifierAnswerType {
+  CLASSIFIER = "CLASSIFIER",
+  OFF_TOPIC = "OFF_TOPIC",
+  EXACT_MATCH = "EXACT",
+  PARAPHRASE = "PARAPHRASE",
 }
 
 export enum QuestionType {
@@ -92,7 +128,7 @@ export enum UtteranceName {
   FEEDBACK = "_FEEDBACK_",
   REPEAT = "_REPEAT_",
   REPEAT_BUMP = "_REPEAT_BUMP_",
-  PROFANIY = "_PROFANITY_"
+  PROFANIY = "_PROFANITY_",
 }
 
 export interface TrainJob {

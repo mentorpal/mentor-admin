@@ -10,27 +10,34 @@ export const mentor: Mentor = {
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
+      topicsOrder: [],
       questions: [
         {
           _id: "A3_1_1",
           question:
             "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
           type: QuestionType.UTTERANCE,
-          name: UtteranceName.IDLE
+          name: UtteranceName.IDLE,
+          paraphrases: [],
+          topics: []
         },
         {
           _id: "A4_1_1",
           question:
             "Please give a short introduction of yourself, which includes your name, current job, and title.",
           type: QuestionType.UTTERANCE,
-          name: UtteranceName.INTRO
+          name: UtteranceName.INTRO,
+          paraphrases: [],
+          topics: []
         },
         {
           _id: "A5_1_1",
           question:
             "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
           type: QuestionType.UTTERANCE,
-          name: UtteranceName.OFF_TOPIC
+          name: UtteranceName.OFF_TOPIC,
+          paraphrases: [],
+          topics: []
         }
       ]
     }
@@ -38,40 +45,46 @@ export const mentor: Mentor = {
   answers: [
     ...clint_prev.answers,
     {
+      _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
         type: QuestionType.UTTERANCE,
-        name: UtteranceName.IDLE
-      },
-      video: "",
+        name: UtteranceName.IDLE,
+        paraphrases: [],
+        topics: []
+    },
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
         question:
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
         type: QuestionType.UTTERANCE,
-        name: UtteranceName.INTRO
-      },
-      video: "",
+        name: UtteranceName.INTRO,
+        paraphrases: [],
+        topics: []
+    },
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
         question:
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
         type: QuestionType.UTTERANCE,
-        name: UtteranceName.OFF_TOPIC
-      },
-      video: "",
+        name: UtteranceName.OFF_TOPIC,
+        paraphrases: [],
+        topics: []
+    },
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
