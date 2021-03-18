@@ -114,7 +114,7 @@ function Login(props: { classes: any }): JSX.Element {
 
 function NavMenu(props: { classes: any }): JSX.Element {
   const { classes } = props;
-  const [cookies, setCookie] = useCookies(["accessToken"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
 
   async function openChat() {
     const mentor = await fetchMentor(cookies.accessToken);
@@ -122,36 +122,21 @@ function NavMenu(props: { classes: any }): JSX.Element {
     window.location.href = path;
   }
 
+  function onLogout(): void {
+    removeCookie("accessToken", { path: "/" });
+    navigate("/");
+  }
+
   return (
     <List dense className={classes.menu}>
-      <Divider />
-      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemText primary="View Answers" />
-      </ListItem>
+      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/profile"}
         selected={location.pathname === "/profile"}
       >
-        <ListItemText primary="Edit Profile" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/feedback"}
-        selected={location.pathname.includes("/feedback")}
-      >
-        <ListItemText primary="Review Feedback" />
-      </ListItem>
-      <ListItem button onClick={openChat}>
-        <ListItemText primary="Go to Chat" />
+        <ListItemText primary="Profile" />
       </ListItem>
       <ListItem
         button
@@ -161,15 +146,53 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Setup" />
       </ListItem>
+
       <Divider style={{ marginTop: 15 }} />
-      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
+
+      <ListItem
+        button
+        component={Link}
+        to={"/record"}
+        selected={location.pathname.includes("/record")}
+      >
+        <ListItemText primary="Record Questions" />
+      </ListItem>
+
+      <ListItem
+        button
+        component={Link}
+        to={"/"}
+        selected={location.pathname === "/"}
+      >
+        <ListItemText primary="Review Answers" />
+      </ListItem>
+
+      <ListItem
+        button
+        component={Link}
+        to={"/feedback"}
+        selected={location.pathname.includes("/feedback")}
+      >
+        <ListItemText primary="Corrections and User Feedback" />
+      </ListItem>
+
+      <ListItem button onClick={openChat}>
+        <ListItemText primary="Chat with Mentor" />
+      </ListItem>
+
+      <Divider style={{ marginTop: 15 }} />
+
+      <ListSubheader className={classes.menuHeader}>
+        Subjects and Templates
+      </ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/author/subjects"}
         selected={location.pathname.includes("/author/subject")}
       >
-        <ListItemText primary="Subjects" />
+        <ListItemText primary="Subjects Areas" />
       </ListItem>
       <ListItem
         button
@@ -179,6 +202,7 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Topics" />
       </ListItem>
+
       <ListItem
         button
         component={Link}
@@ -186,6 +210,12 @@ function NavMenu(props: { classes: any }): JSX.Element {
         selected={location.pathname.includes("/author/question")}
       >
         <ListItemText primary="Questions" />
+      </ListItem>
+      <Divider style={{ marginTop: 15 }} />
+
+      <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
+      <ListItem button onClick={onLogout}>
+        <ListItemText primary="Log Out" />
       </ListItem>
       <Divider />
     </List>
