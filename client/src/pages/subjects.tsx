@@ -73,7 +73,14 @@ const columns: ColumnDef[] = [
   },
   {
     id: "select",
-    label: "Select?",
+    label: "Add subject?",
+    minWidth: 0,
+    align: "center",
+    sortable: false,
+  },
+  {
+    id: "default",
+    label: "Set to primary?",
     minWidth: 0,
     align: "center",
     sortable: false,
@@ -86,6 +93,7 @@ function SubjectsPage(): JSX.Element {
   const [cookies] = useCookies(["accessToken"]);
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
   const [subjects, setSubjects] = useState<Subject[]>();
+  const [defaultSubject, setDefaultSubject] = useState<Subject>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
   const [sortAscending, setSortAscending] = React.useState(false);
@@ -117,24 +125,7 @@ function SubjectsPage(): JSX.Element {
   async function loadCurrentSubjects() {
     const mentor = await fetchMentor(cookies.accessToken);
     setSubjects(mentor.subjects);
-  }
-
-  async function onSave() {
-    if (!subjects) {
-      return;
-    }
-    setIsSaving(true);
-    let mentor = await fetchMentor(cookies.accessToken);
-    await updateMentor(
-      {
-        ...mentor,
-        subjects: subjects,
-      },
-      cookies.accessToken
-    );
-    mentor = await fetchMentor(cookies.accessToken);
-    setSubjects(mentor.subjects);
-    setIsSaving(false);
+    setDefaultSubject(mentor.defaultSubject);
   }
 
   function setSort(id: string) {
@@ -146,7 +137,7 @@ function SubjectsPage(): JSX.Element {
     setCursor("");
   }
 
-  function onToggle(subject: Subject) {
+  function toggleSubject(subject: Subject) {
     if (!subjects) {
       return;
     }
@@ -156,8 +147,38 @@ function SubjectsPage(): JSX.Element {
       _subjects.push(subject);
     } else {
       _subjects.splice(i, 1);
+      if (defaultSubject?._id === subject._id) {
+        setDefaultSubject(undefined);
+      }
     }
     setSubjects(_subjects);
+  }
+
+  function toggleDefaultSubject(subject: Subject) {
+    if (defaultSubject?._id === subject._id) {
+      setDefaultSubject(undefined);
+    } else {
+      setDefaultSubject(subject);
+    }
+  }
+
+  async function saveMentor() {
+    if (!subjects) {
+      return;
+    }
+    setIsSaving(true);
+    let mentor = await fetchMentor(cookies.accessToken);
+    await updateMentor(
+      {
+        ...mentor,
+        defaultSubject,
+        subjects: subjects,
+      },
+      cookies.accessToken
+    );
+    mentor = await fetchMentor(cookies.accessToken);
+    setSubjects(mentor.subjects);
+    setIsSaving(false);
   }
 
   if (!context.user || !allSubjects || !subjects) {
@@ -206,7 +227,18 @@ function SubjectsPage(): JSX.Element {
                           }
                           disabled={subject.isRequired}
                           color="primary"
-                          onClick={() => onToggle(subject)}
+                          onClick={() => toggleSubject(subject)}
+                        />
+                      </TableCell>
+                      <TableCell id="default" align="center">
+                        <Checkbox
+                          checked={subject._id === defaultSubject?._id}
+                          disabled={
+                            subjects.find((s) => s._id === subject._id) ===
+                            undefined
+                          }
+                          color="secondary"
+                          onClick={() => toggleDefaultSubject(subject)}
                         />
                       </TableCell>
                     </TableRow>
@@ -241,7 +273,7 @@ function SubjectsPage(): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={onSave}
+              onClick={saveMentor}
               disabled={isSaving}
             >
               {isSaving ? "Saving..." : "Save"}

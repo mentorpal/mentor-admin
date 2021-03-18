@@ -446,6 +446,9 @@ export async function fetchMentor(
             title
             mentorType
             lastTrainedAt
+            defaultSubject {
+              _id
+            }
             subjects {
               _id
               name
@@ -509,6 +512,9 @@ export async function updateMentor(
     firstName: updateMentor.firstName,
     title: updateMentor.title,
     mentorType: updateMentor.mentorType,
+    defaultSubject: updateMentor.defaultSubject
+      ? updateMentor.defaultSubject._id
+      : null,
     subjects: updateMentor.subjects.map((s) => s._id),
   };
   const encodedMentor = encodeURI(JSON.stringify(convertedMentor));

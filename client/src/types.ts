@@ -41,6 +41,7 @@ export interface Mentor {
   title: string;
   mentorType: MentorType;
   lastTrainedAt: string;
+  defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];
   answers: Answer[];
