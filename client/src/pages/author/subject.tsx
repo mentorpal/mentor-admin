@@ -15,8 +15,9 @@ import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
 import { fetchSubject, updateSubject } from "api";
 import Context from "context";
-import { Question, Subject } from "types";
+import { Question, Subject, Topic } from "types";
 import withLocation from "wrap-with-location";
+import TopicsOrderList from "components/author/topics-order-list";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     width: "calc(100% - 40px)",
-    minHeight: 0,
+    minHeight: 50,
   },
   button: {
     width: 200,
@@ -71,10 +72,12 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
       name: "",
       description: "",
       isRequired: false,
+      topicsOrder: [],
       questions: [],
     },
     dirty: false,
   });
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -84,11 +87,13 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
 
   React.useEffect(() => {
     if (props.search.id) {
-      fetchSubject(props.search.id).then((s) =>
-        setSubjectEdit({ subject: s, dirty: false })
-      );
+      loadSubject(props.search.id);
     }
   }, []);
+
+  async function loadSubject(id: string) {
+    setSubjectEdit({ subject: await fetchSubject(id), dirty: false });
+  }
 
   function editSubject(subject: Subject) {
     setSubjectEdit({ subject, dirty: true });
@@ -96,16 +101,20 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
 
   async function saveSubject() {
     try {
+      setIsSaving(true);
       const updated = await updateSubject(
         subjectEdit.subject,
         cookies.accessToken
       );
-      if (props.search.id === updated._id) {
-        setSubjectEdit({ subject: updated, dirty: false });
-      } else {
+      console.log(updated);
+      if (props.search.id !== updated._id) {
         navigate(`/author/subjects/subject?id=${updated._id}`);
       }
+      await loadSubject(updated._id);
+      setIsSaving(false);
     } catch (err) {
+      console.error(err);
+      setIsSaving(false);
       toast("Failed to save");
     }
   }
@@ -148,7 +157,16 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
           variant="outlined"
         />
       </div>
-      {/* <div className={classes.flexExpandChild}> */}
+      <TopicsOrderList
+        classes={classes}
+        subject={subjectEdit.subject}
+        updateTopics={(ts: Topic[]) =>
+          editSubject({
+            ...subjectEdit.subject,
+            topicsOrder: ts,
+          })
+        }
+      />
       <QuestionsList
         classes={classes}
         questions={subjectEdit.subject.questions || []}
@@ -159,17 +177,16 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
           })
         }
       />
-      {/* </div> */}
       <div className={classes.flexFixedChild}>
         <Button
           id="save-btn"
           variant="contained"
           color="primary"
           className={classes.button}
-          disabled={!subjectEdit.dirty}
+          disabled={!subjectEdit.dirty || isSaving}
           onClick={saveSubject}
         >
-          Save
+          {isSaving ? "Saving..." : "Save"}
         </Button>
       </div>
       <ToastContainer />

@@ -18,3 +18,14 @@ export const wrapRootElement = ({ element }) => (
     </CookiesProvider>
   </MuiThemeProvider>
 );
+
+export const onRouteUpdate = ({ location, prevLocation }) => {
+  if (
+    typeof window !== "undefined" &&
+    !window.location.protocol.toLowerCase().startsWith("https") &&
+    !window.location.hostname.toLowerCase() === "localhost"
+  ) {
+    const redirect = `https://${window.location.host}${window.location.pathname}${window.location.search}`;
+    window.location.href = redirect;
+  }
+};

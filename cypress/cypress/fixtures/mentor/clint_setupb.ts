@@ -1,4 +1,4 @@
-import { Mentor, Status } from "../../support/types";
+import { Mentor, QuestionType, Status } from "../../support/types";
 import clint_prev from "./clint_setupa";
 
 export const mentor: Mentor = {
@@ -11,18 +11,23 @@ export const mentor: Mentor = {
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      topicsOrder: [],
       questions: [
         {
           _id: "A1_1_1",
-          question: "Who are you and what do you do?",  
-          type: null,
+          question: "Who are you and what do you do?",
+          type: QuestionType.QUESTION,
           name: null,
+          paraphrases: [],
+          topics: []
         },
         {
           _id: "A2_1_1",
-          question: "How old are you now?",  
-          type: null,
+          question: "How old are you now?",
+          type: QuestionType.QUESTION,
           name: null,
+          paraphrases: [],
+          topics: []
         }
       ]
     }
@@ -30,25 +35,29 @@ export const mentor: Mentor = {
   answers: [
     ...clint_prev.answers,
     {
+      _id: "A1_1_1",
       question: {
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
-        type: null,
+        type: QuestionType.QUESTION,
         name: null,
-    },
-      video: "",
+        paraphrases: [],
+        topics: []
+      },
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
         question: "How old are you now?",
-        type: null,
+        type: QuestionType.QUESTION,
         name: null,
-    },
-      video: "",
+        paraphrases: [],
+        topics: []
+      },
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,

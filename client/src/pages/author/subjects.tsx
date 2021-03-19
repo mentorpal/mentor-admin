@@ -34,7 +34,6 @@ import NavBar from "components/nav-bar";
 import Context from "context";
 import { Connection, Subject } from "types";
 import { fetchSubjects } from "api";
-import subject from "./subject";
 
 const useStyles = makeStyles((theme) => ({
   root: {

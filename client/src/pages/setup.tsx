@@ -9,8 +9,15 @@ import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { addQuestionSet, fetchMentor, fetchSubjects } from "api";
-import { Mentor, Subject, Status, Edge, UtteranceName } from "types";
+import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import {
+  Mentor,
+  Subject,
+  Status,
+  Edge,
+  UtteranceName,
+  MentorType,
+} from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
@@ -18,13 +25,13 @@ import {
   Slide,
   SlideType,
   WelcomeSlide,
-  MentorSlide,
+  MentorInfoSlide,
   IntroductionSlide,
-  RecordQuestionSlide,
+  RecordIdleSlide,
   RecordSubjectSlide,
   BuildMentorSlide,
-  BuildErrorSlide,
-  AddQuestionSetSlide,
+  SelectSubjectsSlide,
+  MentorTypeSlide,
 } from "components/setup-slides";
 
 const useStyles = makeStyles((theme) => ({
@@ -82,7 +89,6 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -95,24 +101,27 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       if (!context.user) {
         return;
       }
-      const s = await fetchSubjects({
-        filter: {},
-        cursor: "",
-        sortBy: "name",
-        sortAscending: true,
-      });
-      const subjects = s.edges.map((e: Edge<Subject>) => e.node);
+      const requiredSubjects = (
+        await fetchSubjects({ filter: { isRequired: true } })
+      ).edges.map((e: Edge<Subject>) => e.node);
       let mentor = await fetchMentor(cookies.accessToken);
-      for (const subject of subjects) {
-        if (
-          subject.isRequired &&
-          !mentor.subjects.find((s) => s._id === subject._id)
-        ) {
-          await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
-          mentor = await fetchMentor(cookies.accessToken);
-        }
+      if (
+        !requiredSubjects.every(
+          (s) => mentor.subjects.find((i) => i._id === s._id) !== undefined
+        )
+      ) {
+        const subjects = [
+          ...new Set([...requiredSubjects, ...mentor.subjects]),
+        ];
+        await updateMentor(
+          {
+            ...mentor,
+            subjects: subjects,
+          },
+          cookies.accessToken
+        );
+        mentor = await fetchMentor(cookies.accessToken);
       }
-      setSubjects(subjects);
       setMentor(mentor);
     };
     load();
@@ -122,106 +131,75 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     if (!mentor) {
       return;
     }
-    const _slides = [];
-    _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
-
-    const mentorFilled = Boolean(
-      mentor.name && mentor.firstName && mentor.title
-    );
-    _slides.push(
+    const _slides = [
+      Slide(true, <WelcomeSlide key="welcome" classes={classes} />),
       Slide(
-        mentorFilled,
-        <MentorSlide
+        Boolean(mentor.name && mentor.firstName && mentor.title),
+        <MentorInfoSlide
           key="mentor-info"
           classes={classes}
           mentor={mentor}
           onUpdated={loadMentor}
         />
-      )
-    );
-    _slides.push(
-      Slide(true, <IntroductionSlide key="introduction" classes={classes} />)
-    );
-
-    // TODO: we removed topics, so need another way of finding idle video
-    const idle = mentor.answers.find(
-      (a) => a.question.name === UtteranceName.IDLE
-    );
-    const idleRecorded = idle === undefined || idle.status === Status.COMPLETE;
-    if (idle) {
-      _slides.push(
-        Slide(
-          idleRecorded,
-          <RecordQuestionSlide
-            key="idle"
-            classes={classes}
-            isRecorded={idleRecorded}
-            id={idle.question._id}
-            name={"Idle"}
-            description={"Let's record a short idle calibration video."}
-            i={_slides.length}
-          />
-        )
+      ),
+      Slide(
+        Boolean(mentor.mentorType),
+        <MentorTypeSlide
+          key="chat-type"
+          classes={classes}
+          mentor={mentor}
+          onUpdated={loadMentor}
+        />
+      ),
+      Slide(true, <IntroductionSlide key="introduction" classes={classes} />),
+      Slide(true, <SelectSubjectsSlide classes={classes} i={4} />),
+    ];
+    if (mentor.mentorType === MentorType.VIDEO) {
+      const idle = mentor.answers.find(
+        (a) => a.question.name === UtteranceName.IDLE
       );
-    }
-
-    let requiredSubjectsRecorded = true;
-    mentor.subjects.forEach((s) => {
-      if (s.isRequired) {
-        const questions = mentor.answers.filter((a) =>
-          s.questions.map((q) => q._id).includes(a.question._id)
-        );
-        const isRecorded = questions.every((a) => a.status === Status.COMPLETE);
-        if (!isRecorded) {
-          requiredSubjectsRecorded = false;
-        }
+      if (idle) {
         _slides.push(
           Slide(
-            isRecorded,
-            <RecordSubjectSlide
-              key={`${s.name}`}
+            idle.status === Status.COMPLETE,
+            <RecordIdleSlide
+              key="idle"
               classes={classes}
-              subject={s}
-              questions={questions}
-              isRecorded={isRecorded}
+              idle={idle}
               i={_slides.length}
             />
           )
         );
       }
+    }
+    mentor.subjects.forEach((s) => {
+      const questions = mentor.answers.filter((a) =>
+        s.questions.map((q) => q._id).includes(a.question._id)
+      );
+      _slides.push(
+        Slide(
+          questions.every((a) => a.status === Status.COMPLETE),
+          <RecordSubjectSlide
+            key={`${s.name}`}
+            classes={classes}
+            subject={s}
+            questions={questions}
+            i={_slides.length}
+          />
+        )
+      );
     });
-
-    // const isBuildReady =
-    //   mentorFilled && idleRecorded && requiredSubjectsRecorded;
     _slides.push(
       Slide(
-        mentor.isBuilt,
-        // isBuildReady ? (
+        Boolean(mentor.lastTrainedAt),
         <BuildMentorSlide
           key="build"
           classes={classes}
           mentor={mentor}
           onUpdated={loadMentor}
         />
-        // ) : (
-        //   <BuildErrorSlide key="build-error" classes={classes} />
-        // )
       )
     );
-
-    if (mentor.isBuilt) {
-      _slides.push(
-        Slide(
-          true,
-          <AddQuestionSetSlide
-            classes={classes}
-            mentor={mentor}
-            subjects={subjects}
-            onUpdated={loadMentor}
-          />
-        )
-      );
-    }
     setSlides(_slides);
   }, [mentor]);
 
@@ -255,7 +233,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
             Back
           </Button>
         ) : undefined}
-        {idx > 1 ? (
+        {idx > 2 ? (
           <Button
             id="done-btn"
             className={classes.button}
