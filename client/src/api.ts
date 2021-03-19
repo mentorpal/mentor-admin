@@ -19,8 +19,6 @@ import {
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const JSON5 = require("json5");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
@@ -41,9 +39,8 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
-function formatFilter(params: SearchParams) {
-  const filter = JSON5.stringify(params.filter).replaceAll("'", '"');
-  return filter;
+function stringifyObject(value: any) {
+  return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
 export async function fetchSubjects(
@@ -54,7 +51,7 @@ export async function fetchSubjects(
     query: `
       query {
         subjects(
-          filter:${formatFilter(params)},
+          filter:${stringifyObject(params.filter)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -127,10 +124,14 @@ export async function updateSubject(
   accessToken: string
 ): Promise<Subject> {
   const convertedSubject = {
-    ...subject,
-    topicsOrder: subject.topicsOrder?.map((t) => t._id),
+    _id: subject._id,
+    name: subject.name,
+    description: subject.description,
+    isRequired: subject.isRequired,
+    topicsOrder: subject.topicsOrder?.map((t) => t._id) || [],
+    questions: subject.questions,
   };
-  const encodedSubject = encodeURI(JSON.stringify(convertedSubject));
+  console.log(stringifyObject(convertedSubject));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -138,7 +139,7 @@ export async function updateSubject(
       query: `
       mutation {
         me {
-          updateSubject(subject: "${encodedSubject}") {
+          updateSubject(subject: ${stringifyObject(convertedSubject)}) {
             _id
           }
         }
@@ -158,7 +159,7 @@ export async function fetchTopics(
     query: `
       query {
         topics(
-          filter:${formatFilter(params)},
+          filter:${stringifyObject(params.filter)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -204,7 +205,6 @@ export async function updateTopic(
   topic: Partial<Topic>,
   accessToken: string
 ): Promise<Topic> {
-  const encodedTopic = encodeURI(JSON.stringify(topic));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -212,7 +212,7 @@ export async function updateTopic(
       query: `
       mutation {
         me {
-          updateTopic(topic: "${encodedTopic}") {
+          updateTopic(topic: ${stringifyObject(topic)}) {
             _id
           }
         }
@@ -232,7 +232,7 @@ export async function fetchQuestions(
     query: `
       query {
         questions(
-          filter:${formatFilter(params)},
+          filter:${stringifyObject(params.filter)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -292,7 +292,6 @@ export async function updateQuestion(
   question: Partial<Question>,
   accessToken: string
 ): Promise<Question> {
-  const encodedQuestion = encodeURI(JSON.stringify(question));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -300,7 +299,7 @@ export async function updateQuestion(
       query: `
       mutation {
         me {
-          updateQuestion(question: "${encodedQuestion}") {
+          updateQuestion(question: ${stringifyObject(question)}) {
             _id
           }
         }
@@ -320,7 +319,7 @@ export async function fetchUserQuestions(
     query: `
       query {
         userQuestions(
-          filter:${formatFilter(params)},
+          filter:${stringifyObject(params.filter)},
           limit:${params.limit},
           cursor:"${params.cursor}",
           sortBy:"${params.sortBy}",
@@ -512,12 +511,9 @@ export async function updateMentor(
     firstName: updateMentor.firstName,
     title: updateMentor.title,
     mentorType: updateMentor.mentorType,
-    defaultSubject: updateMentor.defaultSubject
-      ? updateMentor.defaultSubject._id
-      : null,
+    defaultSubject: updateMentor.defaultSubject?._id,
     subjects: updateMentor.subjects.map((s) => s._id),
   };
-  const encodedMentor = encodeURI(JSON.stringify(convertedMentor));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -525,7 +521,7 @@ export async function updateMentor(
       query: `
       mutation {
         me {
-          updateMentor(mentor: "${encodedMentor}")
+          updateMentor(mentor: ${stringifyObject(convertedMentor)})
         }
       }
     `,

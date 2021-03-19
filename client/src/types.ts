@@ -66,10 +66,10 @@ export interface Topic {
 export interface Question {
   _id: string;
   question: string;
-  topics: Topic[];
-  paraphrases: string[];
   type: QuestionType;
   name: string;
+  paraphrases: string[];
+  topics: Topic[];
 }
 
 export interface Answer {

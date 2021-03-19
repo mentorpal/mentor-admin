@@ -142,6 +142,14 @@ function NavMenu(props: { classes: any }): JSX.Element {
       <ListItem
         button
         component={Link}
+        to={"/subjects"}
+        selected={location.pathname === "/subjects"}
+      >
+        <ListItemText primary="Select Subjects" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
         to={"/setup"}
         selected={location.pathname === "/setup"}
       >

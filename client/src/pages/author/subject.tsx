@@ -106,12 +106,15 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
         subjectEdit.subject,
         cookies.accessToken
       );
+      console.log(updated);
       if (props.search.id !== updated._id) {
         navigate(`/author/subjects/subject?id=${updated._id}`);
       }
       await loadSubject(updated._id);
       setIsSaving(false);
     } catch (err) {
+      console.error(err);
+      setIsSaving(false);
       toast("Failed to save");
     }
   }
