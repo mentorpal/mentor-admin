@@ -33,6 +33,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
+import { CallMissedSharp } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -46,6 +47,14 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 75,
     paddingRight: 75,
     textAlign: "left",
+  },
+  recorder: { //1280 * 800
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 75,
+    paddingRight: 75,
+    textAlign: "left",
+    height: 760,
   },
   row: {
     display: "flex",
@@ -196,7 +205,7 @@ function RecordPage(props: {
       );
     }
     return (
-      <div className={classes.block}>
+      <div className={classes.recorder}>
         <VideoRecorder
           isFlipped={false}
           showReplayControls
