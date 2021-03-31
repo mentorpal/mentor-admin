@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import ReactPlayer from "react-player";
+import { toast, ToastContainer } from "react-toastify";
 import VideoRecorder from "react-video-recorder";
 import { navigate } from "gatsby";
 import {
@@ -24,6 +25,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { CallMissedSharp } from "@material-ui/icons";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
@@ -33,7 +35,6 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -47,6 +48,14 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 75,
     paddingRight: 75,
     textAlign: "left",
+  },
+  recorder: { //1280 * 800
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 75,
+    paddingRight: 75,
+    textAlign: "left",
+    height: 760,
   },
   row: {
     display: "flex",
@@ -215,7 +224,7 @@ function RecordPage(props: {
       );
     }
     return (
-      <div className={classes.block}>
+      <div className={classes.recorder}>
         <VideoRecorder
           isFlipped={false}
           showReplayControls
