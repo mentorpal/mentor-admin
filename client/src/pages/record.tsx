@@ -8,6 +8,7 @@ import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import ReactPlayer from "react-player";
 import VideoRecorder from "react-video-recorder";
+import ReactVideoTrimmer from "react-video-trimmer";
 import { navigate } from "gatsby";
 import {
   AppBar,
@@ -34,6 +35,7 @@ import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
 import { CallMissedSharp } from "@material-ui/icons";
+import "react-video-trimmer/dist/style.css";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -48,13 +50,12 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 75,
     textAlign: "left",
   },
-  recorder: { //1280 * 800
+  recorder: { //1280 * 720 standard hd resolution
     paddingTop: 15,
     paddingBottom: 15,
-    paddingLeft: 75,
-    paddingRight: 75,
-    textAlign: "left",
-    height: 760,
+    alignSelf:"center",
+    width: 1280,
+    height: 720,
   },
   row: {
     display: "flex",
@@ -213,13 +214,32 @@ function RecordPage(props: {
             setVideoInput(v);
           }}
         />
+        
         {videoInput ? (
+          <div>
           <Button id="upload-btn" variant="contained" disableElevation>
-            Upload
+              Upload
           </Button>
+            <Button id="trim-btn" variant="contained" disableElevation
+              onClick={() => {
+                trimVideo(videoInput);
+              }}>
+              Trim
+          </Button>
+            </div>
         ) : undefined}
       </div>
     );
+  }
+
+  function trimVideo(video): JSX.Element {
+
+    return (
+        <div className={classes.block}>
+          <ReactVideoTrimmer timeLimit={300} showEncodeBtn />
+        </div>
+    );
+
   }
 
   if (!mentor || !answers || answers.length === 0) {
@@ -246,6 +266,7 @@ function RecordPage(props: {
         <ProgressBar value={((idx + 1) / answers.length) * 100} />
       </div>
       {renderVideo()}
+      {trimVideo()}
       <div id="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
