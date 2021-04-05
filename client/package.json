@@ -39,6 +39,7 @@
     "react-player": "^2.7.0",
     "react-toastify": "^6.2.0",
     "react-video-recorder": "^3.17.1",
+    "react-video-trimmer": "^1.3.0-0",
     "styled-components": "^5.2.1",
     "url-join": "^4.0.1",
     "uuid": "^8.3.2"
