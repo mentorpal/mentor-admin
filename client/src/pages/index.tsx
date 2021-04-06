@@ -4,34 +4,51 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
-import { navigate } from "gatsby";
-import { Button, CircularProgress, Paper, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  CircularProgress,
+  Fab,
+  List,
+  ListItem,
+  MenuItem,
+  Select,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { fetchMentor } from "api";
-import { Answer, Mentor, Status, Subject } from "types";
+
+import { fetchMentor, updateSubject } from "api";
+import { Answer, Category, Mentor, QuestionType, Status, Subject } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
-import ProgressBar from "components/progress-bar";
-import AnswerList from "components/answer-list";
+import RecordingBlock, { Block } from "components/record/recording-block";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
+  toolbar: theme.mixins.toolbar,
   root: {
+    height: "100vh",
     display: "flex",
     flexDirection: "column",
-    backgroundColor: "#ddd",
-    width: "100%",
-    height: "100%",
-  },
-  paper: {
-    flexGrow: 1,
-    height: "100%",
-    padding: 25,
-    margin: 25,
   },
   title: {
     fontWeight: "bold",
+  },
+  subtitle: {
+    marginLeft: 10,
+    fontStyle: "italic",
+  },
+  paper: {
+    width: "100%",
+    padding: 25,
+  },
+  appBar: {
+    top: "auto",
+    bottom: 0,
+    flexShrink: 0,
   },
   expand: {
     transform: "rotate(0deg)",
@@ -45,17 +62,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function IndexPage(): JSX.Element {
+interface Progress {
+  complete: number;
+  total: number;
+}
+
+function IndexPage(props: { search: { subject?: string } }): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
-  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([]);
-  const [selectedAnswers, setSelectedAnswers] = useState<Answer[]>([]);
-
-  const complete = (mentor?.answers || []).filter((q) => {
-    return q.status === Status.COMPLETE;
-  });
+  const [selectedSubject, setSelectedSubject] = useState<string>();
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -64,46 +83,136 @@ function IndexPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    loadMentor();
-  }, [context.user]);
-
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
-    setSelectedAnswers(mentor.answers);
-    setSelectedSubjects(mentor.subjects);
-  }, [mentor]);
-
-  async function loadMentor() {
     if (!context.user) {
       return;
     }
-    setMentor(await fetchMentor(cookies.accessToken));
+    if (props.search.subject) {
+      setSelectedSubject(props.search.subject);
+    }
+    fetchMentor(cookies.accessToken).then((m) => {
+      setMentor(m);
+    });
+  }, [context.user]);
+
+  React.useEffect(() => {
+    loadAnswers();
+  }, [mentor, selectedSubject]);
+
+  function onSelectSubject(id: string) {
+    setSelectedSubject(id);
   }
 
-  function onRecord() {
+  function onRecordAll(
+    status: Status,
+    subject: string | undefined,
+    category: string | undefined
+  ) {
     navigate(
-      `/record?${selectedAnswers
-        .map((a) => `videoId=${a.question._id}`)
-        .join("&")}`
+      `/record?status=${status}&back=${encodeURI(`/?subject=${subject}`)}${
+        subject !== undefined ? `&subject=${subject}` : ""
+      }${category !== undefined ? `&category=${category}` : ""}`
     );
   }
 
-  function onAnswerChecked(answer: Answer) {
-    const i = selectedAnswers.findIndex((a) => a._id === answer._id);
-    if (i === -1) {
-      setSelectedAnswers([...selectedAnswers, answer]);
-    } else {
-      setSelectedAnswers([
-        ...selectedAnswers.filter((a) => a._id !== answer._id),
-      ]);
+  function onRecordOne(answer: Answer) {
+    navigate(`/record?videoId=${answer.question._id}`);
+  }
+
+  async function onAddMentorQuestion(
+    subject: Subject,
+    category: Category | undefined
+  ) {
+    await updateSubject(
+      {
+        ...subject,
+        questions: [
+          ...subject.questions,
+          {
+            question: {
+              _id: "",
+              question: "",
+              paraphrases: [],
+              type: QuestionType.QUESTION,
+              name: "",
+              mentor: mentor?._id,
+            },
+            category: category,
+            topics: [],
+          },
+        ],
+      },
+      cookies.accessToken
+    );
+    setMentor(await fetchMentor(cookies.accessToken));
+  }
+
+  async function loadAnswers() {
+    if (!mentor) {
+      return;
     }
+    const _blocks: Block[] = [];
+    let answers = mentor.answers;
+    if (selectedSubject) {
+      const subject = mentor.subjects.find((s) => s._id === selectedSubject);
+      if (subject) {
+        answers = answers.filter((a) =>
+          subject.questions.map((q) => q.question._id).includes(a.question._id)
+        );
+        subject.categories.forEach((c) => {
+          const questions = subject.questions.filter(
+            (q) => q.category?.id === c.id
+          );
+          _blocks.push({
+            name: c.name,
+            description: c.description,
+            answers: answers.filter((a) =>
+              questions.map((q) => q.question._id).includes(a.question._id)
+            ),
+            recordAll: (status) => onRecordAll(status, subject._id, c.id),
+            recordOne: onRecordOne,
+            addQuestion: () => onAddMentorQuestion(subject, c),
+          });
+        });
+        const uncategorizedQuestions = subject.questions.filter(
+          (q) => !q.category
+        );
+        _blocks.push({
+          name: subject.name,
+          description: subject.description,
+          answers: answers.filter((a) =>
+            uncategorizedQuestions
+              .map((q) => q.question._id)
+              .includes(a.question._id)
+          ),
+          recordAll: (status) => onRecordAll(status, subject._id, ""),
+          recordOne: onRecordOne,
+          addQuestion: () => onAddMentorQuestion(subject, undefined),
+        });
+      }
+    } else {
+      mentor.subjects.forEach((s) => {
+        _blocks.push({
+          name: s.name,
+          description: s.description,
+          answers: answers.filter((a) =>
+            s.questions.map((q) => q.question._id).includes(a.question._id)
+          ),
+          recordAll: (status) => onRecordAll(status, s._id, undefined),
+          recordOne: onRecordOne,
+          addQuestion: () => onAddMentorQuestion(s, undefined),
+        });
+      });
+    }
+    setProgress({
+      complete: answers.filter((a) => a.status === Status.COMPLETE).length,
+      total: answers.length,
+    });
+    setBlocks(_blocks);
   }
 
   if (!mentor) {
     return (
-      <div>
+      <div className={classes.root}>
         <NavBar title="Mentor Studio" />
         <CircularProgress />
       </div>
@@ -112,37 +221,62 @@ function IndexPage(): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" />
-      <Paper id="answers" className={classes.paper}>
-        <Typography id="progress" variant="h6" className={classes.title}>
-          My Answers ({complete.length} / {mentor.answers.length})
-        </Typography>
-        <ProgressBar value={(complete.length / mentor.answers.length) * 100} />
-        <AnswerList
-          classes={classes}
-          header="Selected"
-          answers={selectedAnswers}
-          selected={selectedAnswers}
-          onCheck={onAnswerChecked}
-        />
-        <AnswerList
-          classes={classes}
-          header="All"
-          answers={mentor.answers}
-          selected={selectedAnswers}
-          onCheck={onAnswerChecked}
-        />
-        <Button
-          id="record-btn"
-          variant="contained"
-          color="primary"
-          onClick={onRecord}
+      <div style={{ flexShrink: 0 }}>
+        <NavBar title="Mentor Studio" />
+        <Select
+          id="select-subject"
+          value={mentor.subjects.find((s) => s._id === selectedSubject)}
+          displayEmpty
+          renderValue={() => (
+            <Typography id="progress" variant="h6" className={classes.title}>
+              {mentor.subjects.find((s) => s._id === selectedSubject)?.name ||
+                "All Answers"}{" "}
+              ({progress.complete} / {progress.total})
+            </Typography>
+          )}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) => {
+            onSelectSubject(event.target.value as string);
+          }}
         >
-          Record Questions
-        </Button>
-      </Paper>
+          <MenuItem id="all-subjects" value={undefined}>
+            Show All Subjects
+          </MenuItem>
+          {mentor.subjects.map((s) => (
+            <MenuItem id="utterance" value={s._id}>
+              {s.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </div>
+      <List
+        style={{
+          flex: "auto",
+          backgroundColor: "#eee",
+        }}
+      >
+        {blocks.map((b) => (
+          <ListItem key={b.name}>
+            <RecordingBlock classes={classes} block={b} />
+          </ListItem>
+        ))}
+      </List>
+      <div className={classes.toolbar} />
+      <AppBar position="fixed" color="default" className={classes.appBar}>
+        <Toolbar>
+          <Fab
+            id="build-button"
+            variant="extended"
+            color="primary"
+            style={{ position: "absolute", right: 10 }}
+          >
+            Build Mentor
+          </Fab>
+        </Toolbar>
+      </AppBar>
     </div>
   );
 }
 
-export default IndexPage;
+export default withLocation(IndexPage);

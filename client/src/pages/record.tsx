@@ -26,8 +26,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
-import { fetchMentor, updateAnswer } from "api";
-import { Answer, Status, Mentor, MentorType } from "types";
+import { fetchMentor, updateAnswer, updateQuestion } from "api";
+import { Answer, Status, Mentor, MentorType, Question } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
@@ -82,8 +82,8 @@ function RecordPage(props: {
   search: {
     videoId?: string[] | string;
     subject?: string;
-    topic?: string;
     status?: string;
+    category?: string;
     back?: string;
   };
 }): JSX.Element {
@@ -92,6 +92,7 @@ function RecordPage(props: {
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [questionInput, setQuestionInput] = useState("");
   const [answerInput, setAnswerInput] = useState("");
   const [videoInput, setVideoInput] = useState<any>();
   const [video, setVideo] = useState<string>();
@@ -122,6 +123,7 @@ function RecordPage(props: {
         ? `https://video.mentorpal.org/videos/mentors/${mentor._id}/web/${answer._id}.mp4`
         : undefined
     );
+    setQuestionInput(answer.question.question);
     setAnswerInput(answer.transcript);
   }, [answers, idx]);
 
@@ -136,23 +138,41 @@ function RecordPage(props: {
     if (!mentor) {
       return;
     }
-    const { videoId, subject, topic, status } = props.search;
+    const { videoId, subject, category, status } = props.search;
+    const _questions: Answer[] = [];
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      setAnswers(mentor.answers.filter((a) => ids.includes(a.question._id)));
-    } else {
-      const _answers = await fetchMentor(
-        cookies.accessToken,
-        subject,
-        topic,
-        status
+      _questions.push(
+        ...mentor.answers.filter((a) => ids.includes(a.question._id))
       );
-      setAnswers(_answers.answers);
+    } else if (subject) {
+      const s = mentor.subjects.find((a) => a._id === subject);
+      const sQuestions =
+        s?.questions.filter(
+          (q) => !category || !q.category || q.category.id === category
+        ) || [];
+      _questions.push(
+        ...mentor.answers.filter(
+          (a) =>
+            sQuestions.map((q) => q.question._id).includes(a.question._id) &&
+            (!status || a.status === status)
+        )
+      );
+    } else {
+      _questions.push(
+        ...mentor.answers.filter((a) => !status || a.status === status)
+      );
     }
+    setAnswers(_questions);
   }
 
   async function onUpdateAnswer(answer: Answer) {
     await updateAnswer(mentor!._id, answer, cookies.accessToken);
+    loadMentor();
+  }
+
+  async function onUpdateQuestion(question: Question) {
+    await updateQuestion(question, cookies.accessToken);
     loadMentor();
   }
 
@@ -234,7 +254,7 @@ function RecordPage(props: {
         >
           Questions {idx + 1} / {answers.length}
         </Typography>
-        <ProgressBar value={((idx + 1) / answers.length) * 100} />
+        <ProgressBar value={idx + 1} total={answers.length} />
       </div>
       {renderVideo()}
       <div id="question" className={classes.block}>
@@ -242,8 +262,39 @@ function RecordPage(props: {
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             id="question-input"
-            value={curAnswer.question.question}
-            disabled={true}
+            value={questionInput}
+            disabled={curAnswer?.question.mentor !== mentor._id}
+            onChange={(e) => {
+              setQuestionInput(e.target.value);
+            }}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  id="undo-question-btn"
+                  disabled={curAnswer?.question.question === questionInput}
+                  onClick={() => {
+                    setQuestionInput(curAnswer?.question.question);
+                  }}
+                >
+                  <UndoIcon />
+                </IconButton>
+                <Button
+                  id="save-question-btn"
+                  variant="contained"
+                  color="primary"
+                  disabled={curAnswer?.question.question === questionInput}
+                  onClick={() => {
+                    onUpdateQuestion({
+                      ...curAnswer?.question,
+                      question: questionInput,
+                    });
+                  }}
+                  disableElevation
+                >
+                  Save
+                </Button>
+              </InputAdornment>
+            }
           />
         </FormControl>
       </div>
@@ -260,9 +311,9 @@ function RecordPage(props: {
               <InputAdornment position="end">
                 <IconButton
                   id="undo-transcript-btn"
-                  disabled={curAnswer.transcript === answerInput}
+                  disabled={curAnswer?.transcript === answerInput}
                   onClick={() => {
-                    setAnswerInput(curAnswer.transcript);
+                    setAnswerInput(curAnswer?.transcript);
                   }}
                 >
                   <UndoIcon />
@@ -271,7 +322,7 @@ function RecordPage(props: {
                   id="save-transcript-btn"
                   variant="contained"
                   color="primary"
-                  disabled={curAnswer.transcript === answerInput}
+                  disabled={curAnswer?.transcript === answerInput}
                   onClick={() => {
                     onUpdateAnswer({
                       ...curAnswer,
@@ -291,7 +342,7 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           id="select-status"
-          value={curAnswer.status.toString()}
+          value={curAnswer?.status.toString()}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => {

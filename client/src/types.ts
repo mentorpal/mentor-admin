@@ -45,6 +45,7 @@ export interface Mentor {
   subjects: Subject[];
   topics: Topic[];
   answers: Answer[];
+  questions: SubjectQuestion[];
 }
 
 export interface Subject {
@@ -52,13 +53,25 @@ export interface Subject {
   name: string;
   description: string;
   isRequired: boolean;
-  topicsOrder: Topic[];
-  questions: Question[];
-  topics?: Topic[];
+  categories: Category[];
+  topics: Topic[];
+  questions: SubjectQuestion[];
+}
+
+export interface SubjectQuestion {
+  question: Question;
+  category?: Category;
+  topics: Topic[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  description: string;
 }
 
 export interface Topic {
-  _id: string;
+  id: string;
   name: string;
   description: string;
 }
@@ -69,7 +82,7 @@ export interface Question {
   type: QuestionType;
   name: string;
   paraphrases: string[];
-  topics: Topic[];
+  mentor?: string;
 }
 
 export interface Answer {

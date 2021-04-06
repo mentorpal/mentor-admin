@@ -7,30 +7,39 @@ The full terms of this copyright and license should always be found in the root 
 import clsx from "clsx";
 import React from "react";
 import {
+  Button,
   Card,
   CardActions,
   CardContent,
-  Checkbox,
   Collapse,
   IconButton,
   List,
   ListItem,
-  ListItemIcon,
   ListItemText,
   Typography,
 } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer } from "types";
 
 function AnswerList(props: {
+  classes: any;
   header: string;
   answers: Answer[];
-  selected: Answer[];
-  onCheck: (answer: Answer) => void;
-  classes: any;
+  onRecordAll: () => void;
+  onRecordOne: (answer: Answer) => void;
+  onAddQuestion?: () => void;
 }): JSX.Element {
-  const { header, answers, selected, onCheck, classes } = props;
-  const [isExpanded, setExpanded] = React.useState(answers.length > 0);
+  const {
+    classes,
+    header,
+    answers,
+    onRecordAll,
+    onRecordOne,
+    onAddQuestion,
+  } = props;
+  const [isExpanded, setExpanded] = React.useState(false);
 
   return (
     <Card elevation={0} style={{ textAlign: "left" }}>
@@ -52,6 +61,26 @@ function AnswerList(props: {
           <Typography variant="h6" style={{ padding: 15 }}>
             {header} ({answers.length})
           </Typography>
+          <CardActions>
+            <Button
+              variant="outlined"
+              onClick={onRecordAll}
+              disabled={answers.length === 0}
+            >
+              Record All
+            </Button>
+            {onAddQuestion ? (
+              <Button
+                color="primary"
+                variant="outlined"
+                startIcon={<AddIcon />}
+                className={classes.button}
+                onClick={onAddQuestion}
+              >
+                Question
+              </Button>
+            ) : undefined}
+          </CardActions>
         </div>
         <Collapse
           in={isExpanded}
@@ -66,18 +95,19 @@ function AnswerList(props: {
                 id={`item-${i}`}
                 style={{ backgroundColor: "#eee" }}
               >
-                <ListItemIcon>
-                  <Checkbox
-                    id={`check-${i}`}
-                    edge="start"
-                    checked={selected.some((a) => a._id === answer._id)}
-                    onChange={() => onCheck(answer)}
-                  />
-                </ListItemIcon>
                 <ListItemText
                   primary={answer.question.question}
-                  secondary={answer.transcript}
+                  secondary={`${answer.transcript.substring(0, 100)}${
+                    answer.transcript.length > 100 ? "..." : ""
+                  }`}
                 />
+                <Button
+                  variant="outlined"
+                  endIcon={<PlayArrowIcon />}
+                  onClick={() => onRecordOne(answer)}
+                >
+                  Record
+                </Button>
               </ListItem>
             ))}
           </List>

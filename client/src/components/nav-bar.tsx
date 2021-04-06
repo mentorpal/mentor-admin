@@ -27,7 +27,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import CloseIcon from "@material-ui/icons/Close";
 import MenuIcon from "@material-ui/icons/Menu";
 
-import { CLIENT_ENDPOINT, fetchMentor } from "api";
+import { CLIENT_ENDPOINT, fetchMentorId } from "api";
 import Context from "context";
 import withLocation from "wrap-with-location";
 
@@ -118,7 +118,7 @@ function NavMenu(props: { classes: any }): JSX.Element {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
 
   async function openChat() {
-    const mentor = await fetchMentor(cookies.accessToken);
+    const mentor = await fetchMentorId(cookies.accessToken);
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
     window.location.href = path;
   }
@@ -203,15 +203,6 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Subjects Areas" />
       </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/topics"}
-        selected={location.pathname.includes("/author/topic")}
-      >
-        <ListItemText primary="Topics" />
-      </ListItem>
-
       <ListItem
         button
         component={Link}

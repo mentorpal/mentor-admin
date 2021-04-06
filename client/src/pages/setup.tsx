@@ -173,17 +173,17 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       }
     }
     mentor.subjects.forEach((s) => {
-      const questions = mentor.answers.filter((a) =>
-        s.questions.map((q) => q._id).includes(a.question._id)
+      const answers = mentor.answers.filter((a) =>
+        s.questions.map((q) => q.question._id).includes(a.question._id)
       );
       _slides.push(
         Slide(
-          questions.every((a) => a.status === Status.COMPLETE),
+          answers.every((a) => a.status === Status.COMPLETE),
           <RecordSubjectSlide
             key={`${s.name}`}
             classes={classes}
             subject={s}
-            questions={questions}
+            questions={answers}
             i={_slides.length}
           />
         )

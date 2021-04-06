@@ -8,35 +8,40 @@ import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
-import { Button, CircularProgress, TextField } from "@material-ui/core";
+import {
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+  Collapse,
+  IconButton,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
+import { fetchMentorId, fetchSubject, updateSubject } from "api";
+import Context from "context";
+import { Subject, Category, Topic, SubjectQuestion } from "types";
+import withLocation from "wrap-with-location";
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
-import { fetchSubject, updateSubject } from "api";
-import Context from "context";
-import { Question, Subject, Topic } from "types";
-import withLocation from "wrap-with-location";
-import TopicsOrderList from "components/author/topics-order-list";
+import TopicsList from "components/author/topics-list";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    height: "100vh",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     margin: 0,
   },
-  flexFixedChild: {
-    flexShrink: 0,
+  flexChild: {
     width: "calc(100% - 40px)",
-  },
-  flexExpandChild: {
-    flexGrow: 1,
-    display: "flex",
-    flexDirection: "column",
-    width: "calc(100% - 40px)",
-    minHeight: 50,
+    textAlign: "left",
+    padding: 0,
+    margin: 0,
   },
   button: {
     width: 200,
@@ -66,17 +71,23 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
+  const [mentorId, setMentorId] = useState<string>();
   const [subjectEdit, setSubjectEdit] = useState<SubjectUnderEdit>({
     subject: {
       _id: "",
       name: "",
       description: "",
       isRequired: false,
-      topicsOrder: [],
+      categories: [],
+      topics: [],
       questions: [],
     },
     dirty: false,
   });
+  const [isSubjectInfoExpanded, setIsSubjectInfoExpanded] = useState(true);
+  const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
+  const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
+  const [windowHeight, setWindowHeight] = React.useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   React.useEffect(() => {
@@ -86,17 +97,43 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    if (props.search.id) {
-      loadSubject(props.search.id);
+    if (context.user) {
+      fetchMentorId(cookies.accessToken).then((m) => {
+        setMentorId(m._id);
+      });
     }
+  }, [context.user]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handleResize = () => setWindowHeight(window.innerHeight);
+    window.addEventListener("resize", handleResize);
+    setWindowHeight(window.innerHeight);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
-  async function loadSubject(id: string) {
-    setSubjectEdit({ subject: await fetchSubject(id), dirty: false });
+  React.useEffect(() => {
+    if (props.search.id) {
+      loadSubject(props.search.id, mentorId || "");
+    }
+  }, [mentorId]);
+
+  async function loadSubject(id: string, mentor: string) {
+    setSubjectEdit({ subject: await fetchSubject(id, mentor), dirty: false });
   }
 
   function editSubject(subject: Subject) {
     setSubjectEdit({ subject, dirty: true });
+  }
+
+  function toggleExpand(s: boolean, t: boolean, q: boolean) {
+    setIsSubjectInfoExpanded(s);
+    setIsTopicsExpanded(t);
+    setIsQuestionsExpanded(q);
   }
 
   async function saveSubject() {
@@ -106,11 +143,10 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
         subjectEdit.subject,
         cookies.accessToken
       );
-      console.log(updated);
       if (props.search.id !== updated._id) {
         navigate(`/author/subjects/subject?id=${updated._id}`);
       }
-      await loadSubject(updated._id);
+      await loadSubject(updated._id, mentorId || "");
       setIsSaving(false);
     } catch (err) {
       console.error(err);
@@ -128,56 +164,103 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
     );
   }
 
+  const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
   return (
     <div className={classes.root}>
       <NavBar title="Edit Subject" />
-      <div className={classes.flexFixedChild}>
-        <TextField
-          id="name"
-          label="Subject Name"
-          placeholder="Display name for the subject"
-          fullWidth
-          value={subjectEdit.subject.name || ""}
-          onChange={(e) =>
-            editSubject({ ...subjectEdit.subject, name: e.target.value })
-          }
-          style={{ marginTop: 20, marginBottom: 20 }}
-          variant="outlined"
-        />
-        <TextField
-          id="description"
-          label="Subject Description"
-          placeholder="Description about the types of questions in the subject"
-          fullWidth
-          multiline
-          value={subjectEdit.subject.description || ""}
-          onChange={(e) =>
-            editSubject({ ...subjectEdit.subject, description: e.target.value })
-          }
-          variant="outlined"
-        />
-      </div>
-      <TopicsOrderList
+      <Card
+        elevation={0}
+        className={classes.flexChild}
+        style={{ maxHeight: maxChildHeight }}
+      >
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <IconButton
+            id="expand"
+            size="small"
+            aria-expanded={isSubjectInfoExpanded}
+            onClick={() => toggleExpand(!isSubjectInfoExpanded, false, false)}
+          >
+            <ExpandMoreIcon
+              style={{
+                transform: isSubjectInfoExpanded
+                  ? "rotate(180deg)"
+                  : "rotate(0deg)",
+              }}
+            />
+          </IconButton>
+          <Typography variant="body2">Subject Info</Typography>
+        </div>
+        <CardContent style={{ padding: 0 }}>
+          <Collapse in={isSubjectInfoExpanded} timeout="auto" unmountOnExit>
+            <TextField
+              id="name"
+              label="Subject Name"
+              placeholder="Display name for the subject"
+              fullWidth
+              value={subjectEdit.subject.name || ""}
+              onChange={(e) =>
+                editSubject({ ...subjectEdit.subject, name: e.target.value })
+              }
+              style={{ marginTop: 20, marginBottom: 20 }}
+              variant="outlined"
+            />
+            <TextField
+              id="description"
+              label="Subject Description"
+              placeholder="Description about the types of questions in the subject"
+              fullWidth
+              multiline
+              value={subjectEdit.subject.description || ""}
+              onChange={(e) =>
+                editSubject({
+                  ...subjectEdit.subject,
+                  description: e.target.value,
+                })
+              }
+              variant="outlined"
+            />
+          </Collapse>
+        </CardContent>
+      </Card>
+      <TopicsList
         classes={classes}
-        subject={subjectEdit.subject}
+        topics={subjectEdit.subject.topics}
+        maxHeight={maxChildHeight}
+        expanded={isTopicsExpanded}
+        toggleExpanded={() => toggleExpand(false, !isTopicsExpanded, false)}
         updateTopics={(ts: Topic[]) =>
           editSubject({
             ...subjectEdit.subject,
-            topicsOrder: ts,
+            topics: ts,
           })
         }
       />
       <QuestionsList
         classes={classes}
-        questions={subjectEdit.subject.questions || []}
-        updateQuestions={(qs: Question[]) =>
+        subject={subjectEdit.subject}
+        maxHeight={maxChildHeight}
+        expanded={isQuestionsExpanded}
+        toggleExpanded={() => toggleExpand(false, false, !isQuestionsExpanded)}
+        updateCategories={(cs: Category[]) =>
+          editSubject({
+            ...subjectEdit.subject,
+            categories: cs,
+          })
+        }
+        updateQuestions={(qs: SubjectQuestion[]) =>
           editSubject({
             ...subjectEdit.subject,
             questions: qs,
           })
         }
       />
-      <div className={classes.flexFixedChild}>
+      <div style={{ height: 65 }}>
         <Button
           id="save-btn"
           variant="contained"
