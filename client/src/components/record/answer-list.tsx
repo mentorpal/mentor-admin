@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import clsx from "clsx";
-import React from "react";
+import React, { useContext } from "react";
 import {
   Button,
   Card,
@@ -15,13 +15,18 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemSecondaryAction,
   ListItemText,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import { Answer } from "types";
+import { Answer, Question } from "types";
+import { fetchMentor } from "api";
+import Context from "context";
+import { useCookies } from "react-cookie";
 
 function AnswerList(props: {
   classes: any;
@@ -29,6 +34,7 @@ function AnswerList(props: {
   answers: Answer[];
   onRecordAll: () => void;
   onRecordOne: (answer: Answer) => void;
+  onEditQuestion: (question: Question) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
   const {
@@ -37,9 +43,22 @@ function AnswerList(props: {
     answers,
     onRecordAll,
     onRecordOne,
+    onEditQuestion,
     onAddQuestion,
   } = props;
+  const context = useContext(Context);
+  const [cookies] = useCookies(["accessToken"]);
+  const [mentor, setMentor] = React.useState<string>();
   const [isExpanded, setExpanded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
+    fetchMentor(cookies.accessToken).then((m) => {
+      setMentor(m._id);
+    });
+  }, [context.user]);
 
   return (
     <Card elevation={0} style={{ textAlign: "left" }}>
@@ -95,19 +114,38 @@ function AnswerList(props: {
                 id={`item-${i}`}
                 style={{ backgroundColor: "#eee" }}
               >
-                <ListItemText
-                  primary={answer.question.question}
-                  secondary={`${answer.transcript.substring(0, 100)}${
-                    answer.transcript.length > 100 ? "..." : ""
-                  }`}
-                />
-                <Button
-                  variant="outlined"
-                  endIcon={<PlayArrowIcon />}
-                  onClick={() => onRecordOne(answer)}
-                >
-                  Record
-                </Button>
+                {answer.question.mentor === mentor ? (
+                  <TextField
+                    placeholder="New question"
+                    fullWidth
+                    multiline
+                    value={answer.question.question}
+                    style={{ marginRight: 100 }}
+                    onChange={(e) =>
+                      onEditQuestion({
+                        ...answer.question,
+                        question: e.target.value,
+                      })
+                    }
+                  />
+                ) : (
+                  <ListItemText
+                    primary={answer.question.question}
+                    secondary={`${answer.transcript.substring(0, 100)}${
+                      answer.transcript.length > 100 ? "..." : ""
+                    }`}
+                    style={{ marginRight: 100 }}
+                  />
+                )}
+                <ListItemSecondaryAction>
+                  <Button
+                    variant="outlined"
+                    endIcon={<PlayArrowIcon />}
+                    onClick={() => onRecordOne(answer)}
+                  >
+                    Record
+                  </Button>
+                </ListItemSecondaryAction>
               </ListItem>
             ))}
           </List>

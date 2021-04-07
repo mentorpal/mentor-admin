@@ -515,7 +515,7 @@ export function QuestionsList(props: {
               <DragDropContext onDragEnd={onDragEnd}>
                 <List id="categories" className={classes.list}>
                   {categories.map((category, i) => (
-                    <ListItem>
+                    <ListItem key={category.id}>
                       <CategoryListItem
                         subject={subject}
                         category={category}

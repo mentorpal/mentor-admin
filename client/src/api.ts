@@ -8,7 +8,6 @@ import axios from "axios";
 import {
   UserAccessToken,
   Mentor,
-  Topic,
   Subject,
   Connection,
   TrainJob,
