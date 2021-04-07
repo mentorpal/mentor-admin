@@ -4,28 +4,31 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import clsx from "clsx";
-import React, { useState } from "react";
+import React from "react";
 import {
-  Paper,
-  Typography,
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "react-beautiful-dnd";
+import { v4 as uuid } from "uuid";
+import {
   List,
   ListItem,
   Button,
   Card,
-  CardActions,
   CardContent,
   Collapse,
   IconButton,
   TextField,
+  Typography,
+  CardActions,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-
 import { Topic } from "types";
-import { fetchTopics } from "api";
+import clsx from "clsx";
 
 export function TopicCard(props: {
   classes: any;
@@ -49,19 +52,17 @@ export function TopicCard(props: {
             onChange={(e) => editTopic({ ...topic, name: e.target.value })}
           />
           <CardActions>
-            <IconButton id="delete" size="small" onClick={removeTopic}>
-              <DeleteIcon />
-            </IconButton>
             <IconButton
-              id="expand"
               size="small"
-              aria-expanded={expanded}
               className={clsx(classes.expand, {
                 [classes.expandOpen]: expanded,
               })}
               onClick={() => setExpanded(!expanded)}
             >
               <ExpandMoreIcon />
+            </IconButton>
+            <IconButton size="small" onClick={removeTopic}>
+              <DeleteIcon />
             </IconButton>
           </CardActions>
         </div>
@@ -90,40 +91,34 @@ export function TopicCard(props: {
 export function TopicsList(props: {
   classes: any;
   topics: Topic[];
+  maxHeight: number;
+  expanded: boolean;
+  toggleExpanded: () => void;
   updateTopics: (val: Topic[]) => void;
 }): JSX.Element {
-  const { classes, topics, updateTopics } = props;
-  const [allTopics, setAllTopics] = useState<Topic[]>([]);
-  const [topicSearch, setTopicSearch] = useState<Topic>();
+  const {
+    classes,
+    topics,
+    maxHeight,
+    expanded,
+    toggleExpanded,
+    updateTopics,
+  } = props;
 
-  React.useEffect(() => {
-    fetchTopics().then((t) => setAllTopics(t.edges.map((e) => e.node)));
-  }, []);
-
-  function replaceItem<T>(a: Array<T>, index: number, item: T): Array<T> {
-    const newArr = [...a];
-    newArr[index] = item;
-    return newArr;
-  }
-
-  function updateTopic(val: Topic, idx: number) {
-    updateTopics(
-      replaceItem(topics, idx, {
-        ...topics[idx],
-        ...val,
-      })
-    );
-  }
-
-  function addTopic(val?: Topic) {
+  function addTopic() {
     updateTopics([
       ...topics,
       {
-        _id: val?._id || "",
-        name: val?.name || "",
-        description: val?.description || "",
+        id: uuid(),
+        name: "",
+        description: "",
       },
     ]);
+  }
+
+  function updateTopic(idx: number, newVal: Topic) {
+    topics[idx] = newVal;
+    updateTopics([...topics]);
   }
 
   const removeTopic = (idx: number) => {
@@ -131,62 +126,108 @@ export function TopicsList(props: {
     updateTopics([...topics]);
   };
 
+  function onDragEnd(result: DropResult) {
+    if (!result.destination) {
+      return;
+    }
+    const startIdx = result.source.index;
+    const endIdx = result.destination.index;
+    const [removed] = topics.splice(startIdx, 1);
+    topics.splice(endIdx, 0, removed);
+    updateTopics([...topics]);
+  }
+
   return (
-    <Paper
+    <Card
       elevation={0}
-      style={{
-        textAlign: "left",
-        borderRadius: 10,
-        border: "1px solid #ccc",
-        marginTop: 25,
-      }}
+      className={classes.flexChild}
+      style={{ textAlign: "left" }}
     >
-      <Typography variant="body2" style={{ padding: 15 }}>
-        Topics
-      </Typography>
-      <List id="topics" className={classes.list}>
-        {topics.map((t, i) => (
-          <ListItem key={`topic-${i}`} id={`topic-${i}`}>
-            <TopicCard
-              classes={classes}
-              topic={t}
-              editTopic={(val: Topic) => {
-                updateTopic(val, i);
-              }}
-              removeTopic={() => {
-                removeTopic(i);
-              }}
-            />
-          </ListItem>
-        ))}
-      </List>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <Autocomplete
-          id="topic-input"
-          options={allTopics}
-          getOptionLabel={(option: Topic) => option.name}
-          onChange={(e, v) => {
-            setTopicSearch(v || undefined);
-          }}
-          style={{ width: "100%" }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="outlined"
-              placeholder="Choose an existing topic to add?"
-            />
-          )}
-        />
-        <Button
-          id="add-topic"
-          startIcon={<AddIcon />}
-          className={classes.button}
-          onClick={() => addTopic(topicSearch)}
+      <div
+        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+      >
+        <IconButton
+          id="expand"
+          size="small"
+          aria-expanded={expanded}
+          onClick={toggleExpanded}
         >
-          {topicSearch ? "Add Topic" : "New Topic"}
-        </Button>
+          <ExpandMoreIcon
+            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          />
+        </IconButton>
+        <Typography variant="body2">Topics</Typography>
       </div>
-    </Paper>
+      <CardContent style={{ padding: 0 }}>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <div
+            style={{
+              maxHeight: maxHeight - 70,
+              overflow: "auto",
+            }}
+          >
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="droppable">
+                {(provided, snapshot) => (
+                  <List
+                    {...provided.droppableProps}
+                    id="topics"
+                    ref={provided.innerRef}
+                    className={classes.list}
+                  >
+                    {topics.map((t, i) => (
+                      <Draggable
+                        key={`topic-${i}`}
+                        draggableId={`topic-${i}`}
+                        index={i}
+                      >
+                        {(provided, snapshot) => (
+                          <ListItem
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <TopicCard
+                              classes={classes}
+                              topic={t}
+                              editTopic={(val: Topic) => {
+                                updateTopic(i, val);
+                              }}
+                              removeTopic={() => {
+                                removeTopic(i);
+                              }}
+                            />
+                          </ListItem>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </List>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              id="add-topic"
+              startIcon={<AddIcon />}
+              className={classes.button}
+              variant="outlined"
+              color="primary"
+              onClick={addTopic}
+            >
+              Add Topic
+            </Button>
+          </div>
+        </Collapse>
+      </CardContent>
+    </Card>
   );
 }
 

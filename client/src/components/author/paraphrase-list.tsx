@@ -6,49 +6,19 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import {
-  Paper,
-  Typography,
-  List,
-  ListItem,
   Button,
   Card,
   CardActions,
   CardContent,
   IconButton,
+  List,
+  ListItem,
+  ListSubheader,
+  Paper,
   TextField,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
-
-export function ParaphraseCard(props: {
-  paraphrase: string;
-  editParaphrase: (val: string) => void;
-  removeParaphrase: () => void;
-}) {
-  const { paraphrase, editParaphrase, removeParaphrase } = props;
-
-  return (
-    <Card style={{ width: "100%" }} elevation={0}>
-      <CardContent>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <TextField
-            id="edit-paraphrase"
-            label="Paraphrase"
-            variant="outlined"
-            fullWidth
-            value={paraphrase}
-            onChange={(e) => editParaphrase(e.target.value)}
-          />
-          <CardActions>
-            <IconButton id="delete" size="small" onClick={removeParaphrase}>
-              <DeleteIcon />
-            </IconButton>
-          </CardActions>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function ParaphraseList(props: {
   classes: any;
@@ -57,18 +27,13 @@ export function ParaphraseList(props: {
 }): JSX.Element {
   const { classes, paraphrases, updateParaphrases } = props;
 
-  function replaceItem<T>(a: Array<T>, index: number, item: T): Array<T> {
-    const newArr = [...a];
-    newArr[index] = item;
-    return newArr;
+  function addParaphrase() {
+    updateParaphrases([...paraphrases, ""]);
   }
 
   function updateParaphrase(val: string, idx: number) {
-    updateParaphrases(replaceItem(paraphrases, idx, val));
-  }
-
-  function addParaphrase() {
-    updateParaphrases([...paraphrases, ""]);
+    paraphrases[idx] = val;
+    updateParaphrases([...paraphrases]);
   }
 
   const removeParaphrase = (idx: number) => {
@@ -86,26 +51,38 @@ export function ParaphraseList(props: {
         marginTop: 25,
       }}
     >
-      <Typography variant="body2" style={{ padding: 15 }}>
-        Paraphrases
-      </Typography>
       <List id="paraphrases" dense disablePadding>
-        {paraphrases.map((q, i) => (
+        <ListSubheader>Paraphrases</ListSubheader>
+        {paraphrases.map((paraphrase, i) => (
           <ListItem
             key={`paraphrase-${i}`}
             id={`paraphrase-${i}`}
             dense
             disableGutters
           >
-            <ParaphraseCard
-              paraphrase={q}
-              editParaphrase={(val: string) => {
-                updateParaphrase(val, i);
-              }}
-              removeParaphrase={() => {
-                removeParaphrase(i);
-              }}
-            />
+            <Card style={{ width: "100%" }} elevation={0}>
+              <CardContent>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <TextField
+                    id="edit-paraphrase"
+                    label="Paraphrase"
+                    variant="outlined"
+                    fullWidth
+                    value={paraphrase}
+                    onChange={(e) => updateParaphrase(e.target.value, i)}
+                  />
+                  <CardActions>
+                    <IconButton
+                      id="delete"
+                      size="small"
+                      onClick={() => removeParaphrase(i)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </CardActions>
+                </div>
+              </CardContent>
+            </Card>
           </ListItem>
         ))}
       </List>
