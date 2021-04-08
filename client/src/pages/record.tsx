@@ -9,7 +9,7 @@ import { useCookies } from "react-cookie";
 import ReactPlayer from "react-player";
 import { toast, ToastContainer } from "react-toastify";
 import VideoRecorder from "react-video-recorder";
-import ReactVideoTrimmer from "react-video-trimmer";
+//import ReactVideoTrimmer from "react-video-trimmer";
 import { navigate } from "gatsby";
 import {
   AppBar,
@@ -36,7 +36,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
-import "react-video-trimmer/dist/style.css";
+//import "react-video-trimmer/dist/style.css";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -51,12 +51,14 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 75,
     textAlign: "left",
   },
-  recorder: { //1280 * 720 standard hd resolution
+  recorder: { //1280 * 720 standard hd resolution 16*9
     paddingTop: 15,
     paddingBottom: 15,
+    paddingLeft: 75,
+    paddingRight: 75,
     alignSelf: "center",
-    width: 1280,
-    height: 720,
+    width: '90%',
+    //height: 720,
   },
   row: {
     display: "flex",
@@ -107,6 +109,19 @@ function RecordPage(props: {
   const [idx, setIdx] = useState(0);
   const [curAnswer, setCurAnswer] = useState<Answer>();
   const [videoInput, setVideoInput] = useState<any>();
+  const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handleResize = () => setRecorderHeight(window.innerWidth * 0.8 / 16 * 9);
+    window.addEventListener("resize", handleResize);
+    setRecorderHeight(window.innerWidth * 0.8 / 16 * 9);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -225,7 +240,7 @@ function RecordPage(props: {
       );
     }
     return (
-      <div className={classes.recorder}>
+      <div className={classes.recorder} style={{ height: recorderHeight }} >
         <VideoRecorder
           isFlipped={false}
           showReplayControls
@@ -254,7 +269,7 @@ function RecordPage(props: {
   function trimVideo(video): JSX.Element {
     return (
       <div className={classes.block}>
-        <ReactVideoTrimmer timeLimit={300} showEncodeBtn />
+        {/* <ReactVideoTrimmer timeLimit={300} showEncodeBtn /> */}
       </div>
     );
   }
