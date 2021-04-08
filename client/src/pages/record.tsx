@@ -57,7 +57,6 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 75,
     paddingRight: 75,
     alignSelf: "center",
-    width: '80%',
   },
   row: {
     display: "flex",
@@ -117,9 +116,9 @@ function RecordPage(props: {
     if (typeof window === "undefined") {
       return;
     }
-    const handleResize = () => setRecorderHeight(window.innerWidth * 0.8 / 16 * 9);
+    const handleResize = () => setRecorderHeight(window.innerHeight * 0.75);
     window.addEventListener("resize", handleResize);
-    setRecorderHeight(window.innerWidth * 0.8 / 16 * 9);
+    setRecorderHeight(window.innerHeight * 0.75);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -243,7 +242,7 @@ function RecordPage(props: {
     }
     return (
 
-      <div className={classes.recorder} style={{ height: recorderHeight }} >
+      <div className={classes.recorder} style={{ height: recorderHeight, width: recorderHeight /9 *16 }} >
         <VideoRecorder
             isFlipped={false}
             showReplayControls
