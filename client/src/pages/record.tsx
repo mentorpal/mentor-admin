@@ -57,8 +57,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 75,
     paddingRight: 75,
     alignSelf: "center",
-    width: '90%',
-    //height: 720,
+    width: '80%',
   },
   row: {
     display: "flex",
@@ -254,22 +253,8 @@ function RecordPage(props: {
             <Button id="upload-btn" variant="contained" disableElevation>
               Upload
           </Button>
-            <Button id="trim-btn" variant="contained" disableElevation
-              onClick={() => {
-                trimVideo(videoInput);
-              }}>
-              Trim
-          </Button>
           </div>
         ) : undefined}
-      </div>
-    );
-  }
-
-  function trimVideo(video): JSX.Element {
-    return (
-      <div className={classes.block}>
-        {/* <ReactVideoTrimmer timeLimit={300} showEncodeBtn /> */}
       </div>
     );
   }
@@ -297,7 +282,6 @@ function RecordPage(props: {
         <ProgressBar value={idx + 1} total={answers.length} />
       </div>
       {renderVideo()}
-      {trimVideo()}
       <div id="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
