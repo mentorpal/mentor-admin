@@ -36,7 +36,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
-//import "react-video-trimmer/dist/style.css";
+import Actions from "react-video-recorder";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -88,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
+  faceOutline: {
+    opacity: 0.5,
+  }
 }));
 
 function RecordPage(props: {
@@ -239,13 +242,16 @@ function RecordPage(props: {
       );
     }
     return (
+
       <div className={classes.recorder} style={{ height: recorderHeight }} >
         <VideoRecorder
-          isFlipped={false}
-          showReplayControls
-          onRecordingComplete={(v: any) => {
-            setVideoInput(v);
-          }}
+            isFlipped={false}
+            showReplayControls
+            onRecordingComplete={(v: any) => {
+              setVideoInput(v);//      {/* <img className={ classes.faceOutline} src={require("../images/face-position.png")} alt="Face Outline" /> */}
+
+            }}
+            // renderActions={() => <Actions />}
         />
         
         {videoInput ? (
