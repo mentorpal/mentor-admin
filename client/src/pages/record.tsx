@@ -7,7 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import ReactPlayer from "react-player";
+import { toast, ToastContainer } from "react-toastify";
 import VideoRecorder from "react-video-recorder";
+//import ReactVideoTrimmer from "react-video-trimmer";
 import { navigate } from "gatsby";
 import {
   AppBar,
@@ -24,16 +26,17 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { CallMissedSharp } from "@material-ui/icons";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
-import { Answer, Status, Mentor, MentorType, Question } from "types";
+import { Answer, Status, Mentor, MentorType } from "types";
 import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
+import Actions from "react-video-recorder";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -47,6 +50,14 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 75,
     paddingRight: 75,
     textAlign: "left",
+  },
+  recorder: {
+    //1280 * 720 standard hd resolution 16*9
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 75,
+    paddingRight: 75,
+    alignSelf: "center",
   },
   row: {
     display: "flex",
@@ -77,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
+  faceOutline: {
+    opacity: 0.5,
+  },
 }));
 
 function RecordPage(props: {
@@ -97,6 +111,19 @@ function RecordPage(props: {
   const [idx, setIdx] = useState(0);
   const [curAnswer, setCurAnswer] = useState<Answer>();
   const [videoInput, setVideoInput] = useState<any>();
+  const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const handleResize = () => setRecorderHeight(window.innerHeight * 0.75);
+    window.addEventListener("resize", handleResize);
+    setRecorderHeight(window.innerHeight * 0.75);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -215,18 +242,25 @@ function RecordPage(props: {
       );
     }
     return (
-      <div className={classes.block}>
+      <div
+        className={classes.recorder}
+        style={{ height: recorderHeight, width: (recorderHeight / 9) * 16 }}
+      >
         <VideoRecorder
           isFlipped={false}
           showReplayControls
           onRecordingComplete={(v: any) => {
-            setVideoInput(v);
+            setVideoInput(v); //      {/* <img className={ classes.faceOutline} src={require("../images/face-position.png")} alt="Face Outline" /> */}
           }}
+          // renderActions={() => <Actions />}
         />
+
         {videoInput ? (
-          <Button id="upload-btn" variant="contained" disableElevation>
-            Upload
-          </Button>
+          <div>
+            <Button id="upload-btn" variant="contained" disableElevation>
+              Upload
+            </Button>
+          </div>
         ) : undefined}
       </div>
     );
