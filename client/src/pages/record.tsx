@@ -51,7 +51,8 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 75,
     textAlign: "left",
   },
-  recorder: { //1280 * 720 standard hd resolution 16*9
+  recorder: {
+    //1280 * 720 standard hd resolution 16*9
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 75,
@@ -89,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
   },
   faceOutline: {
     opacity: 0.5,
-  }
+  },
 }));
 
 function RecordPage(props: {
@@ -241,23 +242,24 @@ function RecordPage(props: {
       );
     }
     return (
-
-      <div className={classes.recorder} style={{ height: recorderHeight, width: recorderHeight /9 *16 }} >
+      <div
+        className={classes.recorder}
+        style={{ height: recorderHeight, width: (recorderHeight / 9) * 16 }}
+      >
         <VideoRecorder
-            isFlipped={false}
-            showReplayControls
-            onRecordingComplete={(v: any) => {
-              setVideoInput(v);//      {/* <img className={ classes.faceOutline} src={require("../images/face-position.png")} alt="Face Outline" /> */}
-
-            }}
-            // renderActions={() => <Actions />}
+          isFlipped={false}
+          showReplayControls
+          onRecordingComplete={(v: any) => {
+            setVideoInput(v); //      {/* <img className={ classes.faceOutline} src={require("../images/face-position.png")} alt="Face Outline" /> */}
+          }}
+          // renderActions={() => <Actions />}
         />
-        
+
         {videoInput ? (
           <div>
             <Button id="upload-btn" variant="contained" disableElevation>
               Upload
-          </Button>
+            </Button>
           </div>
         ) : undefined}
       </div>
@@ -413,15 +415,15 @@ function RecordPage(props: {
               Done
             </Button>
           ) : (
-              <IconButton
-                id="next-btn"
-                className={classes.nextBtn}
-                disabled={idx === answers.length - 1}
-                onClick={() => setIdx(idx + 1)}
-              >
-                <ArrowForwardIcon fontSize="large" />
-              </IconButton>
-            )}
+            <IconButton
+              id="next-btn"
+              className={classes.nextBtn}
+              disabled={idx === answers.length - 1}
+              onClick={() => setIdx(idx + 1)}
+            >
+              <ArrowForwardIcon fontSize="large" />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <ToastContainer />
