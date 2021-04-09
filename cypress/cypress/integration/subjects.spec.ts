@@ -1,5 +1,4 @@
-import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
-import login from "../fixtures/login";
+import { cySetup } from "../support/functions";
 
 describe("Select Subjects", () => {
   it("redirects to login page if the user is not logged in", () => {

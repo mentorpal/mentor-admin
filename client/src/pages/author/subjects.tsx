@@ -176,8 +176,7 @@ function SubjectsPage(): JSX.Element {
   }
 
   async function deleteSubject(id: string) {
-    // todo
-    loadSubjects();
+    // TODO
   }
 
   function setSort(id: string) {

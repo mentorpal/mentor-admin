@@ -19,25 +19,27 @@ import {
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { Subject, Topic } from "types";
+import { Topic } from "types";
 
 export function TopicsList(props: {
   classes: any;
-  subject: Subject;
-  topics: Topic[];
+  allTopics: Topic[];
+  questionTopics: Topic[];
   updateTopics: (val: Topic[]) => void;
 }): JSX.Element {
-  const { classes, subject, topics, updateTopics } = props;
+  const { classes, questionTopics, allTopics } = props;
   const [topicSearch, setTopicSearch] = useState<Topic>();
-  const allTopics = subject.topics;
 
   function addTopic(val: Topic) {
-    updateTopics([...topics, val]);
+    props.updateTopics([...questionTopics, val]);
   }
 
-  const removeTopic = (idx: number) => {
-    topics.splice(idx, 1);
-    updateTopics([...topics]);
+  const removeTopic = (val: Topic) => {
+    const idx = questionTopics.findIndex((t) => t.id === val.id);
+    if (idx !== -1) {
+      questionTopics.splice(idx, 1);
+      props.updateTopics([...questionTopics]);
+    }
   };
 
   return (
@@ -52,16 +54,18 @@ export function TopicsList(props: {
     >
       <List id="topics">
         <ListSubheader>Topics</ListSubheader>
-        {topics.map((t, i) => (
+        {questionTopics.map((t, i) => (
           <ListItem key={`topic-${i}`} id={`topic-${i}`}>
-            <ListItemText primary={t.name} />
+            <ListItemText
+              id="name"
+              primary={allTopics.find((topic) => topic.id === t.id)?.name || ""}
+            />
             <ListItemSecondaryAction>
               <IconButton
+                id="delete"
                 edge="end"
                 size="small"
-                onClick={() => {
-                  removeTopic(i);
-                }}
+                onClick={() => removeTopic(t)}
               >
                 <DeleteIcon />
               </IconButton>
@@ -69,14 +73,7 @@ export function TopicsList(props: {
           </ListItem>
         ))}
       </List>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          marginLeft: 5,
-        }}
-      >
+      <div className={classes.row} style={{ marginLeft: 5 }}>
         <Autocomplete
           id="topic-input"
           options={allTopics}

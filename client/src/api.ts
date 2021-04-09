@@ -78,11 +78,7 @@ export async function fetchSubjects(
   return result.data.data!.subjects;
 }
 
-export async function fetchSubject(
-  id: string,
-  mentor: string,
-  topic?: string
-): Promise<Subject> {
+export async function fetchSubject(id: string): Promise<Subject> {
   const result = await axios.post(GRAPHQL_ENDPOINT, {
     query: `
       query {
@@ -100,7 +96,7 @@ export async function fetchSubject(
             name
             description
           }
-          questions(topic: "${topic || ""}", mentor: "${mentor}") {
+          questions {
             question {
               _id
               question
@@ -386,11 +382,23 @@ export async function fetchMentor(
                 description
               }
               questions {
-                category {
-                  id
-                }
                 question {
                   _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
                 }
               }
             }
@@ -487,9 +495,7 @@ export async function updateAnswer(
   const convertedAnswer = {
     transcript: answer.transcript,
     status: answer.status,
-    recordedAt: answer.recordedAt,
   };
-  const encodedAnswer = encodeURI(JSON.stringify(convertedAnswer));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -497,7 +503,9 @@ export async function updateAnswer(
       query: `
       mutation {
         me {
-          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: "${encodedAnswer}")
+          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: ${stringifyObject(
+        convertedAnswer
+      )})
         }
       }
     `,

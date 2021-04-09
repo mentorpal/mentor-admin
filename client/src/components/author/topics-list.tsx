@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import clsx from "clsx";
 import React from "react";
 import {
   DragDropContext,
@@ -11,7 +12,6 @@ import {
   Draggable,
   DropResult,
 } from "react-beautiful-dnd";
-import { v4 as uuid } from "uuid";
 import {
   List,
   ListItem,
@@ -28,15 +28,14 @@ import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Topic } from "types";
-import clsx from "clsx";
 
 export function TopicCard(props: {
   classes: any;
   topic: Topic;
   editTopic: (val: Topic) => void;
-  removeTopic: () => void;
+  removeTopic: (val: Topic) => void;
 }) {
-  const { classes, topic, editTopic, removeTopic } = props;
+  const { classes, topic } = props;
   const [expanded, setExpanded] = React.useState(false);
 
   return (
@@ -44,15 +43,19 @@ export function TopicCard(props: {
       <CardContent>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <TextField
-            id="edit-topic"
+            id="name"
             label="Topic"
             variant="outlined"
+            value={topic.name}
+            onChange={(e) =>
+              props.editTopic({ ...topic, name: e.target.value })
+            }
             fullWidth
-            value={topic.name || ""}
-            onChange={(e) => editTopic({ ...topic, name: e.target.value })}
+            multiline
           />
           <CardActions>
             <IconButton
+              id="toggle"
               size="small"
               className={clsx(classes.expand, {
                 [classes.expandOpen]: expanded,
@@ -61,7 +64,11 @@ export function TopicCard(props: {
             >
               <ExpandMoreIcon />
             </IconButton>
-            <IconButton size="small" onClick={removeTopic}>
+            <IconButton
+              id="delete"
+              size="small"
+              onClick={() => props.removeTopic(topic)}
+            >
               <DeleteIcon />
             </IconButton>
           </CardActions>
@@ -73,14 +80,15 @@ export function TopicCard(props: {
           style={{ padding: 25, paddingRight: 25 }}
         >
           <TextField
-            id="edit-topic-description"
+            id="description"
             label="Description"
             variant="outlined"
-            fullWidth
-            value={topic.description || ""}
+            value={topic.description}
             onChange={(e) =>
-              editTopic({ ...topic, description: e.target.value })
+              props.editTopic({ ...topic, description: e.target.value })
             }
+            fullWidth
+            multiline
           />
         </Collapse>
       </CardContent>
@@ -90,51 +98,22 @@ export function TopicCard(props: {
 
 export function TopicsList(props: {
   classes: any;
-  topics: Topic[];
   maxHeight: number;
   expanded: boolean;
+  topics: Topic[];
   toggleExpanded: () => void;
-  updateTopics: (val: Topic[]) => void;
+  addTopic: () => void;
+  editTopic: (val: Topic) => void;
+  removeTopic: (val: Topic) => void;
+  moveTopic: (toMove: number, moveTo: number) => void;
 }): JSX.Element {
-  const {
-    classes,
-    topics,
-    maxHeight,
-    expanded,
-    toggleExpanded,
-    updateTopics,
-  } = props;
-
-  function addTopic() {
-    updateTopics([
-      ...topics,
-      {
-        id: uuid(),
-        name: "",
-        description: "",
-      },
-    ]);
-  }
-
-  function updateTopic(idx: number, newVal: Topic) {
-    topics[idx] = newVal;
-    updateTopics([...topics]);
-  }
-
-  const removeTopic = (idx: number) => {
-    topics.splice(idx, 1);
-    updateTopics([...topics]);
-  };
+  const { classes } = props;
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
       return;
     }
-    const startIdx = result.source.index;
-    const endIdx = result.destination.index;
-    const [removed] = topics.splice(startIdx, 1);
-    topics.splice(endIdx, 0, removed);
-    updateTopics([...topics]);
+    props.moveTopic(result.source.index, result.destination.index);
   }
 
   return (
@@ -143,26 +122,25 @@ export function TopicsList(props: {
       className={classes.flexChild}
       style={{ textAlign: "left" }}
     >
-      <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
+      <div className={classes.row}>
         <IconButton
-          id="expand"
+          id="toggle-topics"
           size="small"
-          aria-expanded={expanded}
-          onClick={toggleExpanded}
+          onClick={props.toggleExpanded}
         >
           <ExpandMoreIcon
-            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+            style={{
+              transform: props.expanded ? "rotate(180deg)" : "rotate(0deg)",
+            }}
           />
         </IconButton>
         <Typography variant="body2">Topics</Typography>
       </div>
       <CardContent style={{ padding: 0 }}>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Collapse in={props.expanded} timeout="auto" unmountOnExit>
           <div
             style={{
-              maxHeight: maxHeight - 70,
+              maxHeight: props.maxHeight - 70,
               overflow: "auto",
             }}
           >
@@ -170,19 +148,20 @@ export function TopicsList(props: {
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => (
                   <List
-                    {...provided.droppableProps}
                     id="topics"
                     ref={provided.innerRef}
                     className={classes.list}
+                    {...provided.droppableProps}
                   >
-                    {topics.map((t, i) => (
+                    {props.topics.map((t, i) => (
                       <Draggable
+                        index={i}
                         key={`topic-${i}`}
                         draggableId={`topic-${i}`}
-                        index={i}
                       >
                         {(provided, snapshot) => (
                           <ListItem
+                            id={`topic-${i}`}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
@@ -190,12 +169,8 @@ export function TopicsList(props: {
                             <TopicCard
                               classes={classes}
                               topic={t}
-                              editTopic={(val: Topic) => {
-                                updateTopic(i, val);
-                              }}
-                              removeTopic={() => {
-                                removeTopic(i);
-                              }}
+                              editTopic={props.editTopic}
+                              removeTopic={props.removeTopic}
                             />
                           </ListItem>
                         )}
@@ -220,7 +195,7 @@ export function TopicsList(props: {
               className={classes.button}
               variant="outlined"
               color="primary"
-              onClick={addTopic}
+              onClick={props.addTopic}
             >
               Add Topic
             </Button>

@@ -1,11 +1,14 @@
 import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
 import login from "../fixtures/login";
-import {
-  setup0,
-  setup1,
-  setup2,
-  setup3,
-} from "../fixtures/mentor"
+
+const mentor = {
+  _id: "clintanderson",
+  name: "",
+  firstName: "",
+  title: "",
+  lastTrainedAt: null,
+  subjects: [],
+};
 
 describe("Profile", () => {
   it("redirects to login page if the user is not logged in", () => {
@@ -19,39 +22,43 @@ describe("Profile", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [setup0, setup1, setup2, setup3], true),
+      cyMockGQL("mentor", [
+        mentor,
+        { ...mentor, name: "Clinton Anderson" },
+        { ...mentor, name: "Clinton Anderson", firstName: "Clint" },
+        { ...mentor, name: "Clinton Anderson", firstName: "Clint", title: "Nuclear Electrician's Mate" }
+      ],
+        true),
       cyMockGQL("updateMentor", true, true),
     ]);
     cy.visit("/profile");
-
     cy.contains("My Profile");
     cy.get("#name").should("have.value", "");
     cy.get("#first-name").should("have.value", "");
-    cy.get("#title").should("have.value", "");
-    cy.get("#update-btn");
+    cy.get("#job-title").should("have.value", "");
 
     // fill out full name and save
     cy.get("#name").clear().type("Clinton Anderson");
     cy.get("#update-btn").trigger("mouseover").click();
-    cy.get("Profile updated!");
+    cy.contains("Profile updated!");
     cy.get("#name").should("have.value", "Clinton Anderson");
-    cy.get("#first-name").should("have.value", "Clint");
-    cy.get("#title").should("have.value", "");
+    cy.get("#first-name").should("have.value", "");
+    cy.get("#job-title").should("have.value", "");
 
     // fill out first name and save
     cy.get("#first-name").clear().type("Clint");
     cy.get("#update-btn").trigger("mouseover").click();
-    cy.get("Profile updated!");
-    cy.get("#name").should("have.value", "");
-    cy.get("#first-name").should("have.value", "Clint");
-    cy.get("#title").should("have.value", "");
-
-    // fill out title and save
-    cy.get("#title").clear().type("Nuclear Electrician's Mate");
-    cy.get("#update-btn").trigger("mouseover").click();
-    cy.get("Profile updated!");
+    cy.contains("Profile updated!");
     cy.get("#name").should("have.value", "Clinton Anderson");
     cy.get("#first-name").should("have.value", "Clint");
-    cy.get("#title").should("have.value", "Nuclear Electrician's Mate");
+    cy.get("#job-title").should("have.value", "");
+
+    // fill out title and save
+    cy.get("#job-title").clear().type("Nuclear Electrician's Mate");
+    cy.get("#update-btn").trigger("mouseover").click();
+    cy.contains("Profile updated!");
+    cy.get("#name").should("have.value", "Clinton Anderson");
+    cy.get("#first-name").should("have.value", "Clint");
+    cy.get("#job-title").should("have.value", "Nuclear Electrician's Mate");
   });
 });

@@ -243,6 +243,7 @@ function RecordPage(props: {
     }
     return (
       <div
+        id="video-recorder"
         className={classes.recorder}
         style={{ height: recorderHeight, width: (recorderHeight / 9) * 16 }}
       >
@@ -392,7 +393,7 @@ function RecordPage(props: {
             <ArrowBackIcon fontSize="large" />
           </IconButton>
           <Button
-            id="done-btn"
+            id="save-btn"
             variant="contained"
             color="primary"
             disableElevation

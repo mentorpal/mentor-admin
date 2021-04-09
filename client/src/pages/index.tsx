@@ -288,7 +288,13 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
     for (const sId of editedSubjects) {
       const subject = mentor.subjects.find((s) => s._id === sId);
       if (subject) {
-        const update = await updateSubject(subject, cookies.accessToken);
+        // don't save empty questions
+        for (const [i, sQuestion] of subject.questions.entries()) {
+          if (!sQuestion.question.question) {
+            subject.questions.splice(i, 1);
+          }
+        }
+        await updateSubject(subject, cookies.accessToken);
       }
     }
     setMentor(await fetchMentor(cookies.accessToken));

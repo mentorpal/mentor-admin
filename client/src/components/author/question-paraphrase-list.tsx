@@ -55,8 +55,8 @@ export function ParaphraseList(props: {
         <ListSubheader>Paraphrases</ListSubheader>
         {paraphrases.map((paraphrase, i) => (
           <ListItem
-            key={`paraphrase-${i}`}
             id={`paraphrase-${i}`}
+            key={`paraphrase-${i}`}
             dense
             disableGutters
           >
