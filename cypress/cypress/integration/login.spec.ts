@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
 import login from "../fixtures/login"
-import subjects from "../fixtures/subjects";
 import mentor from "../fixtures/mentor/clint_new"
 
 describe("Login", () => {
@@ -85,7 +84,6 @@ describe("Login", () => {
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
-        cyMockGQL("subjects", [subjects])
       ]);
       cy.visit("/");
       cy.get("#login-option").trigger('mouseover').click();

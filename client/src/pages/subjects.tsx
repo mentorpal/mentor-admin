@@ -28,7 +28,7 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import Context from "context";
-import { Connection, Subject } from "types";
+import { Connection, Mentor, Subject } from "types";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 
 const useStyles = makeStyles((theme) => ({
@@ -91,6 +91,7 @@ function SubjectsPage(): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
+  const [mentor, setMentor] = useState<Mentor>();
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
   const [subjects, setSubjects] = useState<Subject[]>();
   const [defaultSubject, setDefaultSubject] = useState<Subject>();
@@ -107,26 +108,25 @@ function SubjectsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    if (context.user) {
-      loadCurrentSubjects();
+    if (!context.user) {
+      return;
     }
+    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
   }, [context.user]);
 
   React.useEffect(() => {
-    loadAllSubjects();
-  }, [cursor, sortBy, sortAscending, limit]);
-
-  async function loadAllSubjects() {
-    setAllSubjects(
-      await fetchSubjects({ cursor, limit, sortBy, sortAscending })
-    );
-  }
-
-  async function loadCurrentSubjects() {
-    const mentor = await fetchMentor(cookies.accessToken);
+    if (!mentor) {
+      return;
+    }
     setSubjects(mentor.subjects);
     setDefaultSubject(mentor.defaultSubject);
-  }
+  }, [mentor]);
+
+  React.useEffect(() => {
+    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
+      setAllSubjects(subjects);
+    });
+  }, [cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
     if (sortBy === id) {
@@ -163,11 +163,10 @@ function SubjectsPage(): JSX.Element {
   }
 
   async function saveMentor() {
-    if (!subjects) {
+    if (!subjects || !mentor) {
       return;
     }
     setIsSaving(true);
-    let mentor = await fetchMentor(cookies.accessToken);
     await updateMentor(
       {
         ...mentor,
@@ -176,8 +175,7 @@ function SubjectsPage(): JSX.Element {
       },
       cookies.accessToken
     );
-    mentor = await fetchMentor(cookies.accessToken);
-    setSubjects(mentor.subjects);
+    setMentor(await fetchMentor(cookies.accessToken));
     setIsSaving(false);
   }
 
@@ -208,6 +206,7 @@ function SubjectsPage(): JSX.Element {
                   const subject = edge.node;
                   return (
                     <TableRow
+                      id={`subject-${subject._id}`}
                       key={`${subject._id}`}
                       hover
                       role="checkbox"

@@ -126,7 +126,6 @@ const mentor = {
   ],
 };
 
-
 describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {

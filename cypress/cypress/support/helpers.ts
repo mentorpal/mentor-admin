@@ -1,10 +1,10 @@
 import { Mentor } from "./types";
 
 export function updateAnswer(
-  mentor: Mentor,
+  mentor: Partial<Mentor>,
   answerId: string,
   update: any
-): Mentor {
+): Partial<Mentor> {
   return {
     ...mentor,
     answers: mentor.answers.map((answer) => {

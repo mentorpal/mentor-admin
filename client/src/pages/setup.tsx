@@ -101,27 +101,46 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       if (!context.user) {
         return;
       }
-      const requiredSubjects = (
-        await fetchSubjects({ filter: { isRequired: true } })
-      ).edges.map((e: Edge<Subject>) => e.node);
-      let mentor = await fetchMentor(cookies.accessToken);
-      if (
-        !requiredSubjects.every(
-          (s) => mentor.subjects.find((i) => i._id === s._id) !== undefined
-        )
-      ) {
-        const subjects = [
-          ...new Set([...requiredSubjects, ...mentor.subjects]),
-        ];
-        await updateMentor(
-          {
-            ...mentor,
-            subjects: subjects,
-          },
-          cookies.accessToken
+      const mentor = await fetchMentor(cookies.accessToken);
+      fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
+        const requiredSubjects = subjects.edges.map(
+          (e: Edge<Subject>) => e.node
         );
-        mentor = await fetchMentor(cookies.accessToken);
-      }
+        const subjectIds = mentor.subjects.map((s) => s._id);
+        if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+          const subjects = [
+            ...new Set([...requiredSubjects, ...mentor.subjects]),
+          ];
+          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
+            (updated) => {
+              if (updated) {
+                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+              }
+            }
+          );
+        }
+      });
+      // const requiredSubjects = (
+      //   await fetchSubjects({ filter: { isRequired: true } })
+      // ).edges.map((e: Edge<Subject>) => e.node);
+      // let mentor = await fetchMentor(cookies.accessToken);
+      // if (
+      //   !requiredSubjects.every(
+      //     (s) => mentor.subjects.find((i) => i._id === s._id) !== undefined
+      //   )
+      // ) {
+      //   const subjects = [
+      //     ...new Set([...requiredSubjects, ...mentor.subjects]),
+      //   ];
+      //   await updateMentor(
+      //     {
+      //       ...mentor,
+      //       subjects: subjects,
+      //     },
+      //     cookies.accessToken
+      //   );
+      //   mentor = await fetchMentor(cookies.accessToken);
+      // }
       setMentor(mentor);
     };
     load();

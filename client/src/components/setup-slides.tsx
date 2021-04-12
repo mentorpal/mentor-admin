@@ -17,7 +17,6 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-
 import {
   updateMentor,
   trainMentor,
@@ -190,6 +189,7 @@ export function MentorTypeSlide(props: {
             </MenuItem>
           </Select>
           <Button
+            id="save-btn"
             onClick={onSave}
             disabled={isSaving || mentor.mentorType === type}
             variant="contained"
@@ -257,7 +257,12 @@ export function SelectSubjectsSlide(props: {
           After completing a subject, you&apos;ll be placed in a panel with
           other mentors in your field.
         </Typography>
-        <Button variant="contained" color="primary" onClick={onClick}>
+        <Button
+          id="button"
+          variant="contained"
+          color="primary"
+          onClick={onClick}
+        >
           View Subjects
         </Button>
       </div>

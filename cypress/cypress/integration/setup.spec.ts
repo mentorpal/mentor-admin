@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL, cyMockTrain, cyMockTrainStatus } from "../support/functions";
 import login from "../fixtures/login";
-import subjects from "../fixtures/subjects";
 import {
   setup0,
   setup1,
@@ -18,16 +17,14 @@ import {
   setup7,
   setup8,
   setup9,
-  setup10,
-  setup11,
   setupa,
-  setupb,
   setupc
 } from "../fixtures/mentor"
 import background from "../fixtures/subjects/background"
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
-import leadership from "../fixtures/subjects/leadership";
-import { TrainState } from "../support/types";
+import allSubjects from "../fixtures/subjects/all-subjects"
+import requiredSubjects from "../fixtures/subjects/required-subjects"
+import { MentorType, TrainState } from "../support/types";
 
 describe("Setup", () => {
 
@@ -39,7 +36,7 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
         cyMockGQL("updateMentor", true, true),
-        cyMockGQL("subjects", [subjects])
+        cyMockGQL("subjects", [requiredSubjects])
       ]);
       cy.visit("/setup");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -66,7 +63,7 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
         cyMockGQL("updateMentor", true, true),
-        cyMockGQL("subjects", [subjects])
+        cyMockGQL("subjects", [requiredSubjects])
       ]);
       cy.visit("/setup?i=7");
       cy.get("#slide").contains("Repeat After Me questions");
@@ -93,7 +90,7 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
         cyMockGQL("updateMentor", true, true),
-        cyMockGQL("subjects", [subjects])
+        cyMockGQL("subjects", [requiredSubjects])
       ]);
       cy.visit("/setup");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -120,7 +117,7 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
         cyMockGQL("updateMentor", true, true),
-        cyMockGQL("subjects", [subjects])
+        cyMockGQL("subjects", [requiredSubjects])
       ]);
       cy.visit("/setup?i=0");
       cy.get("#slide").contains("Welcome to MentorPal!");
@@ -148,7 +145,7 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup0, true),
       cyMockGQL("updateMentor", true, true),
-      cyMockGQL("subjects", [subjects])
+      cyMockGQL("subjects", [requiredSubjects])
     ]);
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
@@ -161,13 +158,18 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setupa, setupc], true),
       cyMockGQL("updateMentor", true, true),
-      cyMockGQL("subjects", [subjects])
+      cyMockGQL("subjects", [requiredSubjects])
     ]);
-    cy.visit("/setup?i=5");
+    cy.visit("/setup");
+    cy.get("#next-btn").trigger('mouseover').click();
+    cy.get("#next-btn").trigger('mouseover').click();
+    cy.get("#next-btn").trigger('mouseover').click();
+    cy.get("#next-btn").trigger('mouseover').click();
+    cy.get("#next-btn").trigger('mouseover').click();
     cy.get("#slide").contains("Background questions");
     cy.get("#slide").contains("These questions will ask general questions about your background that might be relevant to how people understand your career.");
     cy.get("#slide").contains("0 / 2");
-    cy.visit("/setup?i=6");
+    cy.get("#next-btn").trigger('mouseover').click();
     cy.get("#slide").contains("Repeat After Me questions");
     cy.get("#slide").contains("These are miscellaneous phrases you'll be asked to repeat.");
     cy.get("#slide").contains("0 / 3");
@@ -180,7 +182,7 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup0, true),
       cyMockGQL("updateMentor", true, true),
-      cyMockGQL("subjects", [subjects])
+      cyMockGQL("subjects", [requiredSubjects])
     ]);
     cy.visit("/setup?i=0");
     cy.get("#slide").contains("Welcome to MentorPal!");
@@ -199,7 +201,7 @@ describe("Setup", () => {
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup0, setup1, setup2, setup3], true),
       cyMockGQL("updateMentor", true, true),
-      cyMockGQL("subjects", [subjects])
+      cyMockGQL("subjects", [requiredSubjects])
     ]);
     cy.visit("/setup?i=1");
     // empty mentor slide
@@ -241,8 +243,65 @@ describe("Setup", () => {
     cy.get("#radio-1").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
   });
 
-  it("shows mentor type slide", () => {
+  describe("shows mentor type slide", () => {
+    it("type is CHAT by default if no mentorType", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", { ...setup0, mentorType: null }, true),
+        cyMockGQL("subjects", [requiredSubjects])
+      ]);
+      cy.visit("/setup?i=2");
+      cy.get("#slide").contains("Pick a mentor type");
+      cy.get("#slide").contains("Make a text-only mentor that responds with chat bubbles");
+      cy.get("#slide #select-chat-type").contains("Chat");
+    });
 
+    it("loads mentor chat type", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", setup0, true),
+        cyMockGQL("subjects", [requiredSubjects])
+      ]);
+      cy.visit("/setup?i=2");
+      cy.get("#slide").contains("Pick a mentor type");
+      cy.get("#slide").contains("Make a video mentor that responds with pre-recorded video answers");
+      cy.get("#slide #select-chat-type").contains("Video");
+      cy.get("#slide #save-btn").should("be.disabled")
+    });
+
+    it("updates mentor chat type", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", [setup0, { ...setup0, mentorType: MentorType.CHAT }], true),
+        cyMockGQL("subjects", [requiredSubjects]),
+        cyMockGQL("updateMentor", true, true),
+      ]);
+      cy.visit("/setup?i=2");
+      cy.get("#slide").contains("Pick a mentor type");
+      cy.get("#slide").contains("Make a video mentor that responds with pre-recorded video answers");
+      cy.get("#slide #select-chat-type").contains("Video");
+      cy.get("#slide #save-btn").should("be.disabled")
+      cy.get("#next-btn").should("exist");
+      cy.get("#back-btn").should("exist");
+      cy.get("#done-btn").should("not.exist");
+      cy.get("#radio-2").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
+
+      cy.get("#slide #select-chat-type").trigger("mouseover").click();
+      cy.get("#video")
+      cy.get("#chat").trigger("mouseover").click();
+      cy.get("#slide").contains("Make a text-only mentor that responds with chat bubbles");
+      cy.get("#slide #save-btn").should("not.be.disabled")
+      cy.get("#slide #save-btn").trigger("mouseover").click();
+
+      cy.get("#slide #save-btn").should("be.disabled")
+      cy.get("#slide").contains("Make a text-only mentor that responds with chat bubbles");
+    });
   });
 
   it("shows introduction slide", () => {
@@ -251,26 +310,90 @@ describe("Setup", () => {
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup3], true),
-      cyMockGQL("updateMentor", true, true),
-      cyMockGQL("subjects", [subjects])
+      cyMockGQL("subjects", [requiredSubjects])
     ]);
     cy.visit("/setup?i=3");
-    cy.get("#slide").contains("Let's start recording.");
-    cy.get("#slide").contains("You'll be asked to answer some background questions and repeat after mes.");
-    cy.get("#slide").contains("Once you're done recording, you can build and preview your mentor.");
+    cy.get("#slide").contains("Let's start recording");
+    cy.get("#slide").contains("You'll be asked to pick some subjects and answer some questions.");
+    cy.get("#slide").contains("Once you're done, you can build and preview your mentor.");
     cy.get("#slide").contains("If you'd like to stop, press done at any point. You can always finish later.");
     cy.get("#next-btn").should("exist");
     cy.get("#back-btn").should("exist");
     cy.get("#done-btn").should("exist");
-    cy.get("#radio-2").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
-    // click done
-    cy.get("#done-btn").trigger("mouseover").click();
-    cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("My Answers (0 / 5)");
+    cy.get("#radio-3").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
   });
 
   it("shows select subjects slide", () => {
+    cySetup(cy);
+    cyMockLogin();
+    cyInterceptGraphQL(cy, [
+      cyMockGQL("login", login),
+      cyMockGQL("mentor", [setup3, setup3, {...setup3, defaultSubject: {_id: "background"},  subjects: [...setup3.subjects, {
+        _id: "leadership",
+        name: "Leadership",
+        description: "These questions will ask about being in a leadership role.",
+        isRequired: false,
+        categories: [],
+        topics: [],
+        questions: []
+      }]}], true),
+      cyMockGQL("updateMentor", true, true),
+      cyMockGQL("subjects", [requiredSubjects, allSubjects])
+    ]);
+    cy.visit("/setup?i=4");
+    cy.get("#slide").contains("Select subjects");
+    cy.get("#slide").contains("Subjects will ask questions related to a particular field or topic. Pick the ones you feel qualified to mentor in!");
+    cy.get("#slide").contains("After completing a subject, you'll be placed in a panel with other mentors in your field.");
+    cy.get("#next-btn").should("exist");
+    cy.get("#back-btn").should("exist");
+    cy.get("#done-btn").should("exist");
+    cy.get("#radio-4").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
+    cy.get("#radio-6").trigger('mouseover').click();
+    cy.get("#slide").contains("Background questions")
+    cy.get("#radio-7").trigger('mouseover').click();
+    cy.get("#slide").contains("Repeat After Me questions")
+    cy.get("#radio-8").trigger('mouseover').click();
+    cy.get("#slide").contains("Great job! You're ready to build your mentor!")
+    cy.get("#radio-4").trigger('mouseover').click();
 
+    cy.get("#slide #button").trigger("mouseover").click();
+    cy.location("pathname").should("contain", "/subjects");
+    cy.location("search").should("contain", "?back=/setup?i=4");
+    cy.get("#subjects").children().should("have.length", 3);
+    cy.get("#subjects #subject-background #name").contains("Background");
+    cy.get("#subjects #subject-background #description").contains("These questions will ask general questions about your background that might ");
+    cy.get('#subjects #subject-background #select [type="checkbox"]').should("be.disabled");
+    cy.get('#subjects #subject-background #select [type="checkbox"]').should("be.checked");
+    cy.get('#subjects #subject-background #default [type="checkbox"]').should("not.be.disabled");
+    cy.get('#subjects #subject-background #default [type="checkbox"]').should("not.be.checked");
+    cy.get("#subjects #subject-repeat_after_me #name").contains("Repeat After Me");
+    cy.get("#subjects #subject-repeat_after_me #description").contains("These are miscellaneous phrases you'll be asked to repeat");
+    cy.get('#subjects #subject-repeat_after_me #select [type="checkbox"]').should("be.disabled");
+    cy.get('#subjects #subject-repeat_after_me #select [type="checkbox"]').should("be.checked");
+    cy.get('#subjects #subject-repeat_after_me #default [type="checkbox"]').should("not.be.disabled");
+    cy.get('#subjects #subject-repeat_after_me #default [type="checkbox"]').should("not.be.checked");
+    cy.get("#subjects #subject-leadership #name").contains("Leadership");
+    cy.get("#subjects #subject-leadership #description").contains("These questions will ask about being in a leadership role");
+    cy.get('#subjects #subject-leadership #select [type="checkbox"]').should("not.be.disabled");
+    cy.get('#subjects #subject-leadership #select [type="checkbox"]').should("not.be.checked");
+    cy.get('#subjects #subject-leadership #default [type="checkbox"]').should("be.disabled");
+    cy.get('#subjects #subject-leadership #default [type="checkbox"]').should("not.be.checked");
+    // select subject and primary subject and go back
+    cy.get('#subjects #subject-background #default [type="checkbox"]').check().should('be.checked');
+    cy.get('#subjects #subject-leadership #select [type="checkbox"]').check().should('be.checked');
+    cy.get('#subjects #subject-leadership #default [type="checkbox"]').should("not.be.disabled");
+    cy.get("#save-button").trigger("mouseover").click();
+    cy.get("#save-button").should("not.be.disabled");
+    cy.get("#nav-bar #back-button").trigger("mouseover").click();
+
+    cy.location("pathname").should("contain", "/setup");
+    cy.location("search").should("contain", "?i=4");
+    cy.get("#radio-6").trigger('mouseover').click();
+    cy.get("#slide").contains("Background questions")
+    cy.get("#radio-7").trigger('mouseover').click();
+    cy.get("#slide").contains("Repeat After Me questions")
+    cy.get("#radio-8").trigger('mouseover').click();
+    cy.get("#slide").contains("Leadership questions")
   });
 
   it("shows idle slide", () => {
@@ -281,7 +404,7 @@ describe("Setup", () => {
       cyMockGQL("mentor", [setup3, setup3, setup4, setup4], true),
       cyMockGQL("updateMentor", true, true),
       cyMockGQL("updateAnswer", true, true),
-      cyMockGQL("subjects", [subjects]),
+      cyMockGQL("subjects", [requiredSubjects]),
     ]);
     cy.visit("/setup?i=5");
     cy.get("#slide").contains("Idle");
@@ -291,11 +414,11 @@ describe("Setup", () => {
     cy.get("#back-btn").should("exist");
     cy.get("#done-btn").should("exist");
     cy.get("#check").should("not.exist");
-    cy.get("#radio-3").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("#radio-5").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // record idle
     cy.get("#record-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?videoId=A3_1_1&back=/setup?i=3");
+    cy.location("search").should("contain", "?videoId=A3_1_1&back=/setup?i=5");
     cy.get("#progress").contains("Questions 1 / 1");
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
@@ -307,13 +430,9 @@ describe("Setup", () => {
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=3");
+    cy.location("search").should("contain", "?i=5");
     cy.get("#check").should("exist");
-    cy.get("#radio-3").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
-    // click done
-    cy.get("#done-btn").trigger("mouseover").click();
-    cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("My Answers (1 / 5)");
+    cy.get("#radio-5").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
   });
 
   it("shows background questions slide", () => {
@@ -321,11 +440,11 @@ describe("Setup", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [setup4, setup4, setup5, setup5, setup5, setup6, setup6], true),
+      cyMockGQL("mentor", [setup4, setup4, setup5, setup5, setup6, setup6], true),
       cyMockGQL("updateMentor", true, true),
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subject", background),
-      cyMockGQL("subjects", [subjects]),
+      cyMockGQL("subjects", [requiredSubjects]),
     ]);
     cy.visit("/setup?i=6");
     cy.get("#slide").contains("Background questions");
@@ -335,11 +454,11 @@ describe("Setup", () => {
     cy.get("#back-btn").should("exist");
     cy.get("#done-btn").should("exist");
     cy.get("#check").should("not.exist");
-    cy.get("#radio-4").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // record first question
     cy.get("#record-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?subject=background&back=/setup?i=4");
+    cy.location("search").should("contain", "?subject=background&back=/setup?i=6");
     cy.get("#progress").contains("Questions 1 / 2");
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
@@ -348,22 +467,22 @@ describe("Setup", () => {
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
     cy.get("#status").contains("COMPLETE");
+    cy.get("#save-btn").trigger('mouseover').click();
     // back to setup
-    cy.visit("/setup?i=4");
+    cy.get("#nav-bar #back-button").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=4");
+    cy.location("search").should("contain", "?i=6");
     cy.get("#slide").contains("1 / 2");
-    cy.get("#radio-4").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // back to record
     cy.get("#record-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?subject=background&back=/setup?i=4");
+    cy.location("search").should("contain", "?subject=background&back=/setup?i=6");
     cy.get("#progress").contains("Questions 1 / 2");
     cy.get("#question-input").should("have.value", "Who are you and what do you do?");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson and I'm a Nuclear Electrician's Mate");
     cy.get("#status").contains("COMPLETE");
-    cy.get("#rerecord-btn").should("exist");
     // record second question
     cy.get("#next-btn").trigger("mouseover").click();
     cy.get("#progress").contains("Questions 2 / 2");
@@ -375,16 +494,13 @@ describe("Setup", () => {
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
     cy.get("#status").contains("COMPLETE");
+    cy.get("#save-btn").trigger('mouseover').click();
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=4");
+    cy.location("search").should("contain", "?i=6");
     cy.get("#check").should("exist");
-    cy.get("#radio-4").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
-    // click done
-    cy.get("#done-btn").trigger("mouseover").click();
-    cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("My Answers (3 / 5)");
+    cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
   });
 
   it("shows repeat after me questions slide", () => {
@@ -392,11 +508,11 @@ describe("Setup", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [setup6, setup6, setup7, setup7, setup7, setup8, setup8], true),
+      cyMockGQL("mentor", [setup6, setup6, setup7, setup7, setup8, setup8], true),
       cyMockGQL("updateMentor", true, true),
       cyMockGQL("updateAnswer", true, true),
       cyMockGQL("subject", repeatAfterMe),
-      cyMockGQL("subjects", [subjects]),
+      cyMockGQL("subjects", [requiredSubjects]),
     ]);
     cy.visit("/setup?i=7");
     cy.get("#slide").contains("Repeat After Me questions");
@@ -406,17 +522,16 @@ describe("Setup", () => {
     cy.get("#back-btn").should("exist");
     cy.get("#done-btn").should("exist");
     cy.get("#check").should("not.exist");
-    cy.get("#radio-5").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("#radio-7").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // go to record
     cy.get("#record-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?subject=repeat_after_me&back=/setup?i=5");
+    cy.location("search").should("contain", "?subject=repeat_after_me&back=/setup?i=7");
     cy.get("#progress").contains("Questions 1 / 3");
     cy.get("#question-input").should("have.value", "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
     cy.get("#status").contains("COMPLETE");
-    cy.get("#rerecord-btn").should("exist");
     // record second question
     cy.get("#next-btn").trigger("mouseover").click();
     cy.get("#progress").contains("Questions 2 / 3");
@@ -424,27 +539,25 @@ describe("Setup", () => {
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
     cy.get("#status").contains("INCOMPLETE");
-    cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
     cy.get("#status").contains("COMPLETE");
     // back to setup
-    cy.visit("/setup?i=5");
+    cy.get("#nav-bar #back-button").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=5");
+    cy.location("search").should("contain", "?i=7");
     cy.get("#slide").contains("2 / 3");
-    cy.get("#radio-5").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("#radio-7").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
     // back to record
     cy.get("#record-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?subject=repeat_after_me&back=/setup?i=5");
+    cy.location("search").should("contain", "?subject=repeat_after_me&back=/setup?i=7");
     cy.get("#next-btn").trigger("mouseover").click();
     cy.get("#progress").contains("Questions 2 / 3");
     cy.get("#question-input").should("have.value", "Please give a short introduction of yourself, which includes your name, current job, and title.");
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "My name is Clint Anderson I'm a Nuclear Electrician's Mate");
     cy.get("#status").contains("COMPLETE");
-    cy.get("#rerecord-btn").should("exist");
     // record third question
     cy.get("#next-btn").trigger("mouseover").click();
     cy.get("#progress").contains("Questions 3 / 3");
@@ -452,20 +565,15 @@ describe("Setup", () => {
     cy.get("#question-input").should("be.disabled");
     cy.get("#transcript-input").should("have.value", "");
     cy.get("#status").contains("INCOMPLETE");
-    cy.get("#rerecord-btn").should("not.exist");
     cy.get("#select-status").trigger('mouseover').click();
     cy.get("#complete").trigger('mouseover').click();
     cy.get("#status").contains("COMPLETE");
     // back to setup
     cy.get("#done-btn").trigger("mouseover").click();
     cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=5");
+    cy.location("search").should("contain", "?i=7");
     cy.get("#check").should("exist");
-    cy.get("#radio-5").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
-    // click done
-    cy.get("#done-btn").trigger("mouseover").click();
-    cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("My Answers (5 / 5)");
+    cy.get("#radio-7").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
   });
 
   describe("shows build mentor slide after completing setup", () => {
@@ -476,9 +584,9 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", [setup8, setup9], true),
         cyMockGQL("updateMentor", true, true),
-        cyMockGQL("subjects", [subjects]),
+        cyMockGQL("subjects", [requiredSubjects]),
       ]);
-      cy.visit("/setup?i=6");
+      cy.visit("/setup?i=8");
       cy.get("#slide").contains("Great job! You're ready to build your mentor!");
       cy.get("#slide").contains("Click the build button to start building your mentor.");
       cy.get("#slide").contains("Once its complete, click preview to see your mentor.");
@@ -486,10 +594,10 @@ describe("Setup", () => {
       cy.get("#back-btn").should("exist");
       cy.get("#done-btn").should("exist");
       cy.get("#train-btn").contains("Build");
-      cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+      cy.get("#radio-8").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("#train-btn").trigger('mouseover').click();
       cy.get("#slide").contains("Oops, training failed. Please try again.");
-    });  
+    });
 
     it("builds mentor", () => {
       cySetup(cy);
@@ -498,11 +606,11 @@ describe("Setup", () => {
         cyMockGQL("login", login),
         cyMockGQL("mentor", [setup8, setup9], true),
         cyMockGQL("updateMentor", setup9, true),
-        cyMockGQL("subjects", [subjects]),
+        cyMockGQL("subjects", [requiredSubjects]),
       ]);
       cyMockTrain(cy);
-      cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS }});
-      cy.visit("/setup?i=6");
+      cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS } });
+      cy.visit("/setup?i=8");
       cy.get("#slide").contains("Great job! You're ready to build your mentor!");
       cy.get("#slide").contains("Click the build button to start building your mentor.");
       cy.get("#slide").contains("Once its complete, click preview to see your mentor.");
@@ -510,102 +618,17 @@ describe("Setup", () => {
       cy.get("#back-btn").should("exist");
       cy.get("#done-btn").should("exist");
       cy.get("#train-btn").contains("Build");
-      cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
+      cy.get("#radio-8").parent().parent().should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("#train-btn").trigger('mouseover').click();
       cy.get("#slide").contains("Building your mentor...");
       cy.get("#slide").contains("Congratulations! Your brand-new mentor is ready!");
       cy.get("#slide").contains("Click the preview button to see your mentor.");
       cy.get("#preview-btn").contains("Preview");
-      cy.get("#radio-6").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
+      cy.get("#radio-8").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
       // preview mentor
       cy.get("#preview-btn").trigger('mouseover').click();
       cy.location("pathname").should("contain", "chat");
       cy.location("search").should("contain", "?mentor=clintanderson");
     });
-  });
-
-  it("hides add set slide if mentor has not been built", () => {
-    cySetup(cy);
-    cyMockLogin();
-    cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login),
-      cyMockGQL("mentor", [setup8], true),
-      cyMockGQL("subjects", [subjects]),
-    ]);
-    cy.visit("/setup");
-    cy.get("#radio-7").should("not.exist");
-  });
-
-  it("shows add set slide after mentor has been built", () => {
-    cySetup(cy);
-    cyMockLogin();
-    cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login),
-      cyMockGQL("mentor", [setup9, setup10, setup10, setup11], true),
-      cyMockGQL("addQuestionSet", true, true),
-      cyMockGQL("updateAnswer", true, true),
-      cyMockGQL("subject", leadership),
-      cyMockGQL("subjects", [subjects]),
-    ]);
-    cy.visit("/setup?i=7");
-    cy.get("#slide").contains("Pick a Field?");
-    cy.get("#slide").contains("Your basic mentor is done, but you can make it better by picking a question set.");
-    cy.get("#slide").contains("These question sets are specific to your field of expertise. Pick the one you are most qualified to mentor in.");
-    cy.get("#slide").contains("Each set will ask you some related questions. After answering, you'll be placed in a panel with other mentors in your field.");
-    cy.get("#radio-7").parent().parent().should("have.css", "color", "rgb(27, 106, 156)");
-    // shows options
-    cy.get("#select-set").trigger("mouseover").click();
-    cy.get("#repeat_after_me").trigger("mouseover").click();
-    cy.get("#select-set").contains("Repeat After Me");
-    cy.get("#slide").contains("These are miscellaneous phrases you'll be asked to repeat.");
-    cy.get("#set-btn").contains("Record");
-    cy.get("#check").should("exist");
-    cy.get("#select-set").trigger("mouseover").click();
-    cy.get("#background").trigger("mouseover").click();
-    cy.get("#select-set").contains("Background");
-    cy.get("#slide").contains("These questions will ask general questions about your background that might be relevant to how people understand your career.");
-    cy.get("#set-btn").contains("Record");
-    cy.get("#check").should("exist");
-    cy.get("#select-set").trigger("mouseover").click();
-    cy.get("#stem").trigger("mouseover").click();
-    cy.get("#select-set").contains("STEM");
-    cy.get("#slide").contains("These questions will ask about STEM careers.");
-    cy.get("#set-btn").contains("Add");
-    cy.get("#check").should("not.exist");
-    cy.get("#select-set").trigger("mouseover").click();
-    cy.get("#leadership").trigger("mouseover").click();
-    cy.get("#select-set").contains("Leadership");
-    cy.get("#slide").contains("These questions will ask about being in a leadership role.");
-    cy.get("#set-btn").contains("Add");
-    cy.get("#check").should("not.exist");
-    // add question set
-    cy.get("#set-btn").trigger("mouseover").click();
-    cy.get("#set-btn").contains("Record");
-    cy.get("#slide").contains("0 / 1");
-    // record question set
-    cy.get("#set-btn").trigger("mouseover").click();
-    cy.location("pathname").should("contain", "/record");
-    cy.location("search").should("contain", "?subject=leadership&back=/setup?i=7");
-    cy.get("#progress").contains("Questions 1 / 1");
-    cy.get("#question-input").should("have.value", "What's the hardest decision you've had to make as a leader?");
-    cy.get("#question-input").should("be.disabled");
-    cy.get("#transcript-input").should("have.value", "");
-    cy.get("#status").contains("INCOMPLETE");
-    cy.get("#select-status").trigger('mouseover').click();
-    cy.get("#complete").trigger('mouseover').click();
-    cy.get("#status").contains("COMPLETE");
-    // back to setup
-    cy.visit("/setup?i=7");
-    cy.location("pathname").should("contain", "/setup");
-    cy.location("search").should("contain", "?i=7");
-    cy.get("#select-set").trigger("mouseover").click();
-    cy.get("#leadership").trigger("mouseover").click();
-    cy.get("#select-set").contains("Leadership");
-    cy.get("#set-btn").contains("Record");
-    cy.get("#check");
-    // click done
-    cy.get("#done-btn").trigger("mouseover").click();
-    cy.location("pathname").should("not.contain", "/setup");
-    cy.get("#answers #progress").contains("My Answers (6 / 6)");
   });
 });
