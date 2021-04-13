@@ -30,11 +30,11 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Topic } from "types";
 
 export function TopicCard(props: {
-  classes: any;
+  classes: Record<string, string>;
   topic: Topic;
   editTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
-}) {
+}): JSX.Element {
   const { classes, topic } = props;
   const [expanded, setExpanded] = React.useState(false);
 
@@ -97,7 +97,7 @@ export function TopicCard(props: {
 }
 
 export function TopicsList(props: {
-  classes: any;
+  classes: Record<string, string>;
   maxHeight: number;
   expanded: boolean;
   topics: Topic[];
@@ -146,7 +146,7 @@ export function TopicsList(props: {
           >
             <DragDropContext onDragEnd={onDragEnd}>
               <Droppable droppableId="droppable">
-                {(provided, snapshot) => (
+                {(provided) => (
                   <List
                     id="topics"
                     ref={provided.innerRef}
@@ -159,7 +159,7 @@ export function TopicsList(props: {
                         key={`topic-${i}`}
                         draggableId={`topic-${i}`}
                       >
-                        {(provided, snapshot) => (
+                        {(provided) => (
                           <ListItem
                             id={`topic-${i}`}
                             ref={provided.innerRef}

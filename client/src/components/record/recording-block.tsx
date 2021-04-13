@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Paper, Typography } from "@material-ui/core";
-
 import { Answer, Question, Status } from "types";
 import AnswerList from "components/record/answer-list";
 import ProgressBar from "components/progress-bar";
@@ -22,7 +21,7 @@ export interface RecordingBlock {
 }
 
 export default function RecordingBlockItem(props: {
-  classes: any;
+  classes: Record<string, string>;
   block: RecordingBlock;
 }): JSX.Element {
   const { classes, block } = props;

@@ -24,7 +24,7 @@ export function QuestionListItem(props: {
   removeQuestion: (val: SubjectQuestion) => void;
   selectQuestion: (val: SubjectQuestion) => void;
   deselectQuestion: () => void;
-}) {
+}): JSX.Element {
   const {
     question,
     isSelected,

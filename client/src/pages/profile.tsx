@@ -22,7 +22,7 @@ import Context from "context";
 import NavBar from "components/nav-bar";
 import "react-toastify/dist/ReactToastify.css";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",

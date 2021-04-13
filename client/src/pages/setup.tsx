@@ -34,7 +34,7 @@ import {
   MentorTypeSlide,
 } from "components/setup-slides";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -120,27 +120,6 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
           );
         }
       });
-      // const requiredSubjects = (
-      //   await fetchSubjects({ filter: { isRequired: true } })
-      // ).edges.map((e: Edge<Subject>) => e.node);
-      // let mentor = await fetchMentor(cookies.accessToken);
-      // if (
-      //   !requiredSubjects.every(
-      //     (s) => mentor.subjects.find((i) => i._id === s._id) !== undefined
-      //   )
-      // ) {
-      //   const subjects = [
-      //     ...new Set([...requiredSubjects, ...mentor.subjects]),
-      //   ];
-      //   await updateMentor(
-      //     {
-      //       ...mentor,
-      //       subjects: subjects,
-      //     },
-      //     cookies.accessToken
-      //   );
-      //   mentor = await fetchMentor(cookies.accessToken);
-      // }
       setMentor(mentor);
     };
     load();
