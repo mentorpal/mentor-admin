@@ -100,8 +100,11 @@ function QuestionsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     loadQuestions();
-  }, [cursor, sortBy, sortAscending]);
+  }, [context.user, cursor, sortBy, sortAscending]);
 
   async function loadQuestions() {
     setQuestions(

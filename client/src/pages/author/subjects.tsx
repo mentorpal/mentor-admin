@@ -168,8 +168,11 @@ function SubjectsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     loadSubjects();
-  }, [cursor, sortBy, sortAscending]);
+  }, [context.user, cursor, sortBy, sortAscending]);
 
   async function loadSubjects() {
     setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));

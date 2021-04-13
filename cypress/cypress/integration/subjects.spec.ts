@@ -21,9 +21,8 @@ const mentor = {
 };
 
 describe("Select Subjects", () => {
-  it.only("redirects to login page if the user is not logged in", () => {
+  it("redirects to login page if the user is not logged in", () => {
     cySetup(cy);
-    cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
     cy.visit("/subjects");
     cy.location("pathname").should("contain", "/login");
   });

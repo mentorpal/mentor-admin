@@ -258,6 +258,9 @@ function FeedbackPage(): JSX.Element {
   }, [context.user]);
 
   React.useEffect(() => {
+    if (!mentor) {
+      return;
+    }
     loadFeedback();
   }, [
     mentor,

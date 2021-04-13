@@ -123,10 +123,13 @@ function SubjectsPage(): JSX.Element {
   }, [mentor]);
 
   React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
       setAllSubjects(subjects);
     });
-  }, [cursor, sortBy, sortAscending, limit]);
+  }, [context.user, cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
     if (sortBy === id) {
