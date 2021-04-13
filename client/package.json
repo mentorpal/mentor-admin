@@ -16,7 +16,7 @@
     "clean": "gatsby clean",
     "license:fix": "license-check-and-add remove -f license-config.json && license-check-and-add add -f license-config.json",
     "test:license": "license-check-and-add check -f license-config.json",
-    "test:audit": "npm audit --production --level=moderate",
+    "test:audit": "npm audit --production --audit-level=moderate",
     "test:format": "prettier --check '**/*.{js,jsx,json,ts,tsx}'",
     "test:lint": "eslint src --ext ts --ext tsx --ext js --ext jsx",
     "test:types": "tsc --noEmit"
