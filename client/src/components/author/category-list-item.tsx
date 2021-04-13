@@ -80,7 +80,7 @@ export function CategoryListItem(props: {
             </IconButton>
             <IconButton
               size="small"
-              id="delete"
+              id="delete-category"
               onClick={() => removeCategory(category)}
               style={{ padding: 0, marginLeft: 10 }}
             >

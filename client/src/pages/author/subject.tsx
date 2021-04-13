@@ -293,9 +293,6 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
     );
   }
 
-  console.log(JSON.stringify(subject));
-  console.log(JSON.stringify(subjectEdit));
-
   const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
   return (
     <div className={classes.root}>

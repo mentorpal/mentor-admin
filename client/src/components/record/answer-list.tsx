@@ -61,7 +61,7 @@ function AnswerList(props: {
   }, [context.user]);
 
   return (
-    <Card elevation={0} style={{ textAlign: "left" }}>
+    <Card id={`answers-${header}`} elevation={0} style={{ textAlign: "left" }}>
       <CardContent style={{ padding: 0 }}>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <CardActions>
@@ -77,11 +77,12 @@ function AnswerList(props: {
               <ExpandMoreIcon />
             </IconButton>
           </CardActions>
-          <Typography variant="h6" style={{ padding: 15 }}>
+          <Typography id="header" variant="h6" style={{ padding: 15 }}>
             {header} ({answers.length})
           </Typography>
           <CardActions>
             <Button
+              id="record-all"
               variant="outlined"
               onClick={onRecordAll}
               disabled={answers.length === 0}
@@ -90,6 +91,7 @@ function AnswerList(props: {
             </Button>
             {onAddQuestion ? (
               <Button
+                id="add-question"
                 color="primary"
                 variant="outlined"
                 startIcon={<AddIcon />}
@@ -116,6 +118,7 @@ function AnswerList(props: {
               >
                 {answer.question.mentor === mentor ? (
                   <TextField
+                    id="edit-question"
                     placeholder="New question"
                     fullWidth
                     multiline
@@ -139,6 +142,7 @@ function AnswerList(props: {
                 )}
                 <ListItemSecondaryAction>
                   <Button
+                    id="record-one"
                     variant="outlined"
                     endIcon={<PlayArrowIcon />}
                     onClick={() => onRecordOne(answer)}

@@ -62,7 +62,7 @@ export function TopicsList(props: {
             />
             <ListItemSecondaryAction>
               <IconButton
-                id="delete"
+                id="delete-topic"
                 edge="end"
                 size="small"
                 onClick={() => removeTopic(t)}

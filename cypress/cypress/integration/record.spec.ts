@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
 import login from "../fixtures/login";
 import { Mentor, MentorType, Status } from "../support/types";
-import { updateAnswer } from "../support/helpers";
+import { updateMentorAnswer } from "../support/helpers";
 
 const mentor = {
   _id: "clintanderson",
@@ -399,7 +399,7 @@ describe("Record", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [mentor, updateAnswer(mentor as unknown as Mentor, "A2_1_1", { status: Status.COMPLETE })], true),
+      cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", { status: Status.COMPLETE })], true),
       cyMockGQL("updateAnswer", true, true),
     ]);
     cy.visit("/record?subject=background&status=INCOMPLETE");
@@ -423,7 +423,7 @@ describe("Record", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [mentor, updateAnswer(mentor as unknown as Mentor, "A2_1_1", { transcript: "37" })], true),
+      cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", { transcript: "37" })], true),
       cyMockGQL("updateAnswer", true, true),
     ]);
     cy.visit("/record?subject=background&status=INCOMPLETE");
@@ -466,7 +466,7 @@ describe("Record", () => {
     cyMockLogin();
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
-      cyMockGQL("mentor", [mentor, updateAnswer(mentor as unknown as Mentor, "A2_1_1", {
+      cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", {
         question: {
           _id: "A2_1_1",
           question: "test",

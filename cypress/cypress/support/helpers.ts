@@ -1,6 +1,6 @@
-import { Mentor } from "./types";
+import { Mentor, Subject } from "./types";
 
-export function updateAnswer(
+export function updateMentorAnswer(
   mentor: Partial<Mentor>,
   answerId: string,
   update: any
@@ -16,6 +16,27 @@ export function updateAnswer(
       }
       else {
         return answer
+      }
+    })
+  };
+}
+
+export function updateSubjectQuestion(
+  subject: Partial<Subject>,
+  questionId: string,
+  update: any
+): Partial<Mentor> {
+  return {
+    ...subject,
+    questions: subject.questions.map((subjectQuestion) => {
+      if(subjectQuestion.question._id === questionId) {
+        return {
+          ...subjectQuestion,
+          ...update
+        }
+      }
+      else {
+        return subjectQuestion
       }
     })
   };
