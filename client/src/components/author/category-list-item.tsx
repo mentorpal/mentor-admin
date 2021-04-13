@@ -108,7 +108,7 @@ export function CategoryListItem(props: {
             }}
           />
           <Droppable droppableId={`category-${category.id}`}>
-            {(provided, snapshot) => (
+            {(provided) => (
               <List
                 id="category-questions"
                 {...provided.droppableProps}
@@ -121,7 +121,7 @@ export function CategoryListItem(props: {
                     draggableId={`category-question-${question.question._id}`}
                     index={j}
                   >
-                    {(provided, snapshot) => (
+                    {(provided) => (
                       <ListItem
                         id={`category-question-${j}`}
                         ref={provided.innerRef}
