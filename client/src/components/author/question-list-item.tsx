@@ -59,7 +59,7 @@ export function QuestionListItem(props: {
         />
         <CardActions>
           <IconButton
-            id="delete"
+            id="delete-question"
             size="small"
             onClick={() => removeQuestion(question)}
           >

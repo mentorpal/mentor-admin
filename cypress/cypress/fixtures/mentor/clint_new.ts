@@ -13,7 +13,11 @@ export const mentor: Partial<Mentor> = {
       name: "Background",
       description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
-      categories: [],
+      categories: [{
+        id: "category",
+        name: "Category",
+        description: "A category"
+      }],
       topics: [],
       questions: [
         {
@@ -22,9 +26,10 @@ export const mentor: Partial<Mentor> = {
             question: "Who are you and what do you do?",
             type: QuestionType.QUESTION,
             name: null,
-            paraphrases: [],  
+            paraphrases: [],
           },
-          topics: []
+          topics: [],
+          category: { id: "category" }
         },
         {
           question: {
@@ -32,7 +37,7 @@ export const mentor: Partial<Mentor> = {
             question: "How old are you now?",
             type: QuestionType.QUESTION,
             name: null,
-            paraphrases: [],  
+            paraphrases: [],
           },
           topics: []
         }
@@ -43,7 +48,11 @@ export const mentor: Partial<Mentor> = {
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
-      categories: [],
+      categories: [{
+        id: "category2",
+        name: "Category2",
+        description: "Another category"
+      }],
       topics: [],
       questions: [
         {
@@ -53,7 +62,7 @@ export const mentor: Partial<Mentor> = {
               "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
             type: QuestionType.UTTERANCE,
             name: UtteranceName.IDLE,
-            paraphrases: [],  
+            paraphrases: [],
           },
           topics: []
         },
@@ -64,7 +73,7 @@ export const mentor: Partial<Mentor> = {
               "Please give a short introduction of yourself, which includes your name, current job, and title.",
             type: QuestionType.UTTERANCE,
             name: UtteranceName.INTRO,
-            paraphrases: [],  
+            paraphrases: [],
           },
           topics: []
         },
@@ -75,9 +84,10 @@ export const mentor: Partial<Mentor> = {
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
             type: QuestionType.UTTERANCE,
             name: UtteranceName.OFF_TOPIC,
-            paraphrases: [],  
+            paraphrases: [],
           },
-          topics: []
+          topics: [],
+          category: { id: "category2" }
         }
       ]
     },

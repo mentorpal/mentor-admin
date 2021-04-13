@@ -49,15 +49,7 @@ export function QuestionsList(props: {
     category: string | undefined
   ) => void;
 }): JSX.Element {
-  const {
-    classes,
-    maxHeight,
-    expanded,
-    categories,
-    topics,
-    questions,
-    toggleExpanded,
-  } = props;
+  const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
 
@@ -148,7 +140,7 @@ export function QuestionsList(props: {
             >
               <DragDropContext onDragEnd={onDragEnd}>
                 <List id="categories" className={classes.list}>
-                  {categories.map((category, i) => (
+                  {props.categories.map((category, i) => (
                     <ListItem id={`category-${i}`} key={category.id}>
                       <CategoryListItem
                         category={category}

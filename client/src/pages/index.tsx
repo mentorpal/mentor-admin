@@ -251,6 +251,7 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
     if (!editedSubjects.includes(subject._id)) {
       setEditedSubjects([...editedSubjects, subject._id]);
     }
+    console.log("add question");
     setMentor({ ...mentor });
   }
 
@@ -379,20 +380,21 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
             Show All Subjects
           </MenuItem>
           {mentor?.subjects.map((s) => (
-            <MenuItem key={s._id} id={s._id} value={s._id}>
+            <MenuItem key={s._id} id={`select-${s._id}`} value={s._id}>
               {s.name}
             </MenuItem>
           ))}
         </Select>
       </div>
       <List
+        id="recording-blocks"
         style={{
           flex: "auto",
           backgroundColor: "#eee",
         }}
       >
-        {blocks.map((b) => (
-          <ListItem key={b.name}>
+        {blocks.map((b, i) => (
+          <ListItem key={b.name} id={`block-${i}`}>
             <RecordingBlockItem classes={classes} block={b} />
           </ListItem>
         ))}
@@ -407,6 +409,7 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
           }}
         >
           <Fab
+            id="save-button"
             variant="extended"
             color="secondary"
             disabled={editedSubjects.length === 0}
@@ -416,6 +419,7 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
             Save Changes
           </Fab>
           <Fab
+            id="train-button"
             variant="extended"
             color="primary"
             disabled={isBuilding}

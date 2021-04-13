@@ -31,18 +31,23 @@ export default function RecordingBlockItem(props: {
   const incomplete = answers.filter((a) => a.status === Status.INCOMPLETE);
 
   return (
-    <Paper id="answers" className={classes.paper}>
+    <Paper className={classes.paper}>
       <div
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
-        <Typography id="progress" variant="h6" className={classes.title}>
+        <Typography id="block-name" variant="h6" className={classes.title}>
           {block.name}
         </Typography>
-        <div style={{ flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
+        <div
+          id="block-progress"
+          style={{ flexGrow: 1, marginLeft: 25, marginRight: 25 }}
+        >
           <ProgressBar value={complete.length} total={answers.length} />
         </div>
       </div>
-      <Typography className={classes.subtitle}>{block.description}</Typography>
+      <Typography id="block-description" className={classes.subtitle}>
+        {block.description}
+      </Typography>
       <div style={{ marginTop: 10 }}>
         <div style={{ flex: "auto" }}>
           <AnswerList

@@ -56,7 +56,7 @@ export function QuestionEditCard(props: {
             });
           }}
         >
-          <MenuItem id="question" value={QuestionType.QUESTION}>
+          <MenuItem id="question-type" value={QuestionType.QUESTION}>
             {QuestionType.QUESTION}
           </MenuItem>
           <MenuItem id="utterance" value={QuestionType.UTTERANCE}>

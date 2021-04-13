@@ -110,7 +110,7 @@ function SubjectItem(props: {
   }
 
   return (
-    <TableRow hover role="checkbox" tabIndex={-1}>
+    <TableRow id={props.id} hover role="checkbox" tabIndex={-1}>
       <TableCell id="name" align="left">
         <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
       </TableCell>

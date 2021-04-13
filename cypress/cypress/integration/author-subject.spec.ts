@@ -291,47 +291,249 @@ describe("Edit subject", () => {
     });
 
     it("can reorder topics by dragging them", () => {
-
+      // hard to simulate in cypress due to drag and drop
     });
   })
 
   describe("can add, delete, and edit categories", () => {
     it("can add a category", () => {
-
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("updateSubject", {}, true),
+        cyMockGQL("subject", [subject, {
+          ...subject, categories: [...subject.categories, {
+            id: "c2",
+            name: "category 2",
+            description: "2"
+          }]
+        }]),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#add-category").trigger("mouseover").click();
+      cy.get("#categories").children().should("have.length", 2);
+      cy.get("#category-1 #name").should("have.value", "");
+      cy.get("#category-1 #description").should("have.value", "");
+      cy.get("#category-1 #category-questions li").children().should("have.length", "0");
+      cy.get("#category-1 #name").clear().type("category 2");
+      cy.get("#category-1 #description").clear().type("2");
+      cy.get("#category-1 #name").should("have.value", "category 2");
+      cy.get("#category-1 #description").should("have.value", "2");
+      cy.get("#save-button").should("not.be.disabled");
+      cy.get("#save-button").trigger("mouseover").click();
+      cy.get("#save-button").should("be.disabled");
+      cy.get("#category-1 #name").should("have.value", "category 2");
+      cy.get("#category-1 #description").should("have.value", "2");
     });
 
     it("can delete a category and send its questions back to uncategorized list", () => {
-
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("updateSubject", {}, true),
+        cyMockGQL("subject", [subject, {
+          ...subject, categories: []
+        }]),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#categories").children().should("have.length", 1);
+      cy.get("#category-0 #name").should("have.value", "Category1");
+      cy.get("#category-0 #description").should("have.value", "1");
+      cy.get("#category-0 #category-questions li").children().should("have.length", "1");
+      cy.get("#category-0 #category-questions #category-question-0 #question").should("have.value", "question1");
+      cy.get("#questions li").children().should("have.length", 1);
+      cy.get("#questions #question-0 #question").should("have.value", "clintquestion");
+      // delete category
+      cy.get("#categories #category-0 #delete-category").trigger("mouseover").click();
+      cy.get("#categories").children().should("have.length", 0);
+      cy.get("#questions li").children().should("have.length", 2);
+      cy.get("#questions #question-0 #question").should("have.value", "question1");
+      cy.get("#questions #question-1 #question").should("have.value", "clintquestion");
+      cy.get("#save-button").should("not.be.disabled");
     });
 
     it("can edit a category", () => {
-
-    });
-
-    it("can add a question to a category by dragging it from questions list", () => {
-
-    });
-
-    it("can add a question to a category by dragging it from another category, removing it from original category", () => {
-
-    });
-
-    it("can remove a question from a category by dragging it to questions list", () => {
-
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("updateSubject", {}, true),
+        cyMockGQL("subject", [subject, {
+          ...subject, categories: [
+            {
+              id: "c1",
+              name: "Category1 Edited",
+              description: "1 Edited"
+            }
+          ]
+        }]),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#categories").children().should("have.length", 1);
+      cy.get("#category-0 #name").should("have.value", "Category1");
+      cy.get("#category-0 #description").should("have.value", "1");
+      cy.get("#category-0 #category-questions li").children().should("have.length", "1");
+      cy.get("#category-0 #category-questions #category-question-0 #question").should("have.value", "question1");
+      cy.get("#questions li").children().should("have.length", 1);
+      cy.get("#questions #question-0 #question").should("have.value", "clintquestion");
+      // edit category
+      cy.get("#category-0 #name").clear().type("Category1 Edited").should("have.value", "Category1 Edited");
+      cy.get("#category-0 #description").clear().type("1 Edited").should("have.value", "1 Edited");
+      cy.get("#save-button").should("not.be.disabled");
+      cy.get("#save-button").trigger("mouseover").click();
+      cy.get("#save-button").should("be.disabled");
+      cy.get("#category-0 #name").should("have.value", "Category1 Edited");
+      cy.get("#category-0 #description").should("have.value", "1 Edited");
+      cy.get("#category-0 #category-questions li").children().should("have.length", "1");
+      cy.get("#category-0 #category-questions #category-question-0 #question").should("have.value", "question1");
+      cy.get("#questions li").children().should("have.length", 1);
+      cy.get("#questions #question-0 #question").should("have.value", "clintquestion");
     });
 
     it("can delete a question in a category", () => {
-
-    })
-
-    it("can edit a question in a category", () => {
-
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("subject", subject),
+        cyMockGQL("updateSubject", {}, true),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#category-0 #category-questions li").children().should("have.length", "1");
+      cy.get("#category-0 #category-questions #category-question-0 #delete-question").trigger("mouseover").click();
+      cy.get("#category-0 #category-questions li").children().should("have.length", "0");
+      cy.get("#questions li").children().should("have.length", 1);
+      cy.get("#save-button").should("not.be.disabled");
     });
 
+    it("can edit a question in a category", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("subject", subject),
+        cyMockGQL("updateSubject", {}, true),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#categories").children().should("have.length", 1);
+      cy.get("#category-0 #category-questions li").children().should("have.length", "1");
+      cy.get("#category-0 #category-questions #category-question-0 #question").trigger("mouseover").click();
+      cy.get("#edit-question #select-type").contains("QUESTION").trigger("mouseover").click();
+      cy.get("#utterance").trigger("mouseover").click();
+      cy.get("#edit-question #select-type").contains("UTTERANCE")
+      cy.get("#save-button").should("not.be.disabled");
+
+      cy.get("#edit-question #paraphrases li").should("have.length", 2);
+      cy.get("#edit-question #paraphrases #paraphrase-0 #delete").trigger("mouseover").click();
+      cy.get("#edit-question #paraphrases li").should("have.length", 1);
+      cy.get("#edit-question #topics li").should("have.length", 2);
+      cy.get("#edit-question #delete-topic").trigger("mouseover").click();
+      cy.get("#edit-question #topics li").should("have.length", 1);
+      cy.get("#save-button").should("not.be.disabled");
+    });
+
+    it("can add a question to a category by dragging it from questions list", () => {
+      // hard to simulate in cypress due to drag and drop
+    });
+
+    it("can add a question to a category by dragging it from another category, removing it from original category", () => {
+      // hard to simulate in cypress due to drag and drop
+    });
+
+    it("can remove a question from a category by dragging it to questions list", () => {
+      // hard to simulate in cypress due to drag and drop
+    });
   })
 
-  it("can add, delete, and edit questions", () => {
+  describe("can add, delete, and edit questions", () => {
+    it("can add a question", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("updateSubject", {}, true),
+        cyMockGQL("subject", [subject, {
+          ...subject, questions: [...subject.questions, {
+            question: {
+              _id: "q4",
+              question: "new question",
+              type: QuestionType.QUESTION,
+              name: "",
+              paraphrases: [],
+              mentor: null
+            },
+            topics: [],
+            category: null
+          }]
+        }]),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#add-question").trigger("mouseover").click();
+      cy.get("#questions li").children().should("have.length", 2);
+      cy.get("#questions #question-1 #question").should("have.value", "");
+      cy.get("#questions #question-1 #question").trigger("mouseover").click();
+      cy.get("#edit-question #select-type").contains("QUESTION")
+      cy.get("#edit-question #topics li").should("have.length", 1);
+      cy.get("#edit-question #paraphrases li").should("have.length", 1);
+      cy.get("#save-button").should("not.be.disabled");
+      cy.get("#save-button").trigger("mouseover").click();
+      cy.get("#save-button").should("be.disabled");
+      cy.get("#questions li").children().should("have.length", 2);
+    });
 
+    it("can delete a question", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("subject", subject),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#questions li").children().should("have.length", 1);
+      cy.get("#questions #question-0 #delete-question").trigger("mouseover").click();
+      cy.get("#questions li").should("not.exist")
+      cy.get("#save-button").should("not.be.disabled");
+    });
+
+    it("can edit a question", () => {
+      cySetup(cy);
+      cyMockLogin();
+      cyInterceptGraphQL(cy, [
+        cyMockGQL("login", login),
+        cyMockGQL("mentor", mentor, true),
+        cyMockGQL("subject", subject),
+      ]);
+      cy.visit("/author/subject?id=background");
+      cy.get("#toggle-questions").trigger("mouseover").click();
+      cy.get("#questions #question-0 #question").trigger("mouseover").click();
+      cy.get("#edit-question #select-type").contains("UTTERANCE").trigger("mouseover").click();
+      cy.get("#question-type").trigger("mouseover").click();
+      cy.get("#edit-question #select-type").contains("QUESTION")
+      cy.get("#save-button").should("not.be.disabled");
+
+      cy.get("#edit-question #paraphrases li").should("have.length", 1);
+      cy.get("#edit-question #add-paraphrase").trigger("mouseover").click();
+      cy.get("#edit-question #paraphrases li").should("have.length", 2);
+      cy.get("#edit-question #paraphrases #paraphrase-0 #edit-paraphrase").should("have.value", "");
+      cy.get("#edit-question #paraphrases #paraphrase-0 #edit-paraphrase").clear().type("test").should("have.value", "test")
+      cy.get("#save-button").should("not.be.disabled");
+    });
   })
 
   it("save button is disabled until edits are made", () => {
