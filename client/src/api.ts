@@ -39,6 +39,7 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
