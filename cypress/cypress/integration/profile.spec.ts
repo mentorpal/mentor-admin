@@ -19,7 +19,7 @@ describe("Profile", () => {
 
   it("views, saves, and updates profile data", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [

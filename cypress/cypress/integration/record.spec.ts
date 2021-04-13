@@ -130,7 +130,7 @@ describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -175,7 +175,7 @@ describe("Record", () => {
 
     it("shows all incomplete questions if ?status=INCOMPLETE", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -206,7 +206,7 @@ describe("Record", () => {
 
     it("shows all complete questions if ?status=COMPLETE", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -230,7 +230,7 @@ describe("Record", () => {
 
     it("shows a single question if ?videoId={questionId}", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -247,7 +247,7 @@ describe("Record", () => {
 
     it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -271,7 +271,7 @@ describe("Record", () => {
 
     it("shows all questions for a subject if ?subject={subjectId}", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -295,7 +295,7 @@ describe("Record", () => {
 
     it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -312,7 +312,7 @@ describe("Record", () => {
 
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -329,7 +329,7 @@ describe("Record", () => {
 
     it("shows all questions for a category in a subject if ?category={categoryId}", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -347,7 +347,7 @@ describe("Record", () => {
 
   it("hides video if mentor type is CHAT", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", { ...mentor, mentorType: MentorType.CHAT }, true),
@@ -359,7 +359,7 @@ describe("Record", () => {
 
   it("shows video recorder if mentor type is VIDEO and no video recorded", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", { ...mentor, mentorType: MentorType.VIDEO }, true),
@@ -371,7 +371,7 @@ describe("Record", () => {
 
   it("shows video player if mentor type is VIDEO and was video recorded", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", {
@@ -396,7 +396,7 @@ describe("Record", () => {
 
   it("can update status", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", { status: Status.COMPLETE })], true),
@@ -420,7 +420,7 @@ describe("Record", () => {
 
   it("can update transcript", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", { transcript: "37" })], true),
@@ -451,7 +451,7 @@ describe("Record", () => {
 
   it("cannot update question for a question not belonging to mentor", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true),
@@ -463,7 +463,7 @@ describe("Record", () => {
 
   it("can update question for a question belonging to mentor", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [mentor, updateMentorAnswer(mentor as unknown as Mentor, "A2_1_1", {

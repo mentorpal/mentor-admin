@@ -31,7 +31,7 @@ describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
@@ -58,7 +58,7 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
@@ -85,7 +85,7 @@ describe("Setup", () => {
 
     it("with radio buttons", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
@@ -112,7 +112,7 @@ describe("Setup", () => {
 
     it("with query param i", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
@@ -140,7 +140,7 @@ describe("Setup", () => {
 
   it("shows setup page after logging in", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup0, true),
@@ -153,7 +153,7 @@ describe("Setup", () => {
 
   it("adds required subjects if missing from mentor initially", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setupa, setupc], true),
@@ -177,7 +177,7 @@ describe("Setup", () => {
 
   it("shows welcome slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup0, true),
@@ -196,7 +196,7 @@ describe("Setup", () => {
 
   it("shows mentor slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup0, setup1, setup2, setup3], true),
@@ -246,7 +246,7 @@ describe("Setup", () => {
   describe("shows mentor type slide", () => {
     it("type is CHAT by default if no mentorType", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", { ...setup0, mentorType: null }, true),
@@ -260,7 +260,7 @@ describe("Setup", () => {
 
     it("loads mentor chat type", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", setup0, true),
@@ -275,7 +275,7 @@ describe("Setup", () => {
 
     it("updates mentor chat type", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", [setup0, { ...setup0, mentorType: MentorType.CHAT }], true),
@@ -306,7 +306,7 @@ describe("Setup", () => {
 
   it("shows introduction slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup3], true),
@@ -325,7 +325,7 @@ describe("Setup", () => {
 
   it("shows select subjects slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup3, setup3, {...setup3, defaultSubject: {_id: "background"},  subjects: [...setup3.subjects, {
@@ -398,7 +398,7 @@ describe("Setup", () => {
 
   it("shows idle slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup3, setup3, setup4, setup4], true),
@@ -437,7 +437,7 @@ describe("Setup", () => {
 
   it("shows background questions slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup4, setup4, setup5, setup5, setup6, setup6], true),
@@ -505,7 +505,7 @@ describe("Setup", () => {
 
   it("shows repeat after me questions slide", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [setup6, setup6, setup7, setup7, setup8, setup8], true),
@@ -579,7 +579,7 @@ describe("Setup", () => {
   describe("shows build mentor slide after completing setup", () => {
     it("fails to train mentor", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", [setup8, setup9], true),
@@ -601,7 +601,7 @@ describe("Setup", () => {
 
     it("builds mentor", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", [setup8, setup9], true),

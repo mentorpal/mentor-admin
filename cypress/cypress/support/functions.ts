@@ -98,10 +98,10 @@ export function cyMockGQL(query: string, data: any | any[], me = false): MockGra
   }
 }
 
-export function cyMockLogin(): void {
+export function cyMockLogin(cy): void {
   cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
   cy.setCookie("accessToken", "accessToken");
-}
+}  
 
 import { TrainStatus } from "./types";
 const TRAIN_STATUS_URL = `/classifier/train/status`;

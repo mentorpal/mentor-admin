@@ -21,15 +21,16 @@ const mentor = {
 };
 
 describe("Select Subjects", () => {
-  it("redirects to login page if the user is not logged in", () => {
+  it.only("redirects to login page if the user is not logged in", () => {
     cySetup(cy);
+    cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
     cy.visit("/subjects");
     cy.location("pathname").should("contain", "/login");
   });
 
   it("can select subjects", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [mentor, {...mentor, defaultSubject: {_id: "leadership"},  subjects: [...mentor.subjects, {
