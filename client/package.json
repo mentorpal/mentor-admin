@@ -16,7 +16,7 @@
     "clean": "gatsby clean",
     "license:fix": "license-check-and-add remove -f license-config.json && license-check-and-add add -f license-config.json",
     "test:license": "license-check-and-add check -f license-config.json",
-    "test:audit": "npm audit --level=moderate",
+    "test:audit": "npm audit --production --level=moderate",
     "test:format": "prettier --check '**/*.{js,jsx,json,ts,tsx}'",
     "test:lint": "eslint src --ext ts --ext tsx --ext js --ext jsx",
     "test:types": "tsc --noEmit"
@@ -48,7 +48,6 @@
     "@typescript-eslint/parser": "^4.22.0",
     "eslint": "^7.24.0",
     "eslint-config-prettier": "^8.2.0",
-    "eslint-loader": "^4.0.2",
     "eslint-plugin-react": "^7.23.2",
     "gatsby-plugin-env-variables": "^2.1.0",
     "gatsby-plugin-eslint": "^3.0.0",
