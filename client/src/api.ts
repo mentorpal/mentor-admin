@@ -44,6 +44,44 @@ function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
+interface GraphQLResponse<T> {
+  errors?: { message: string }[];
+  data?: T;
+}
+
+interface Config {
+  googleClientId: string;
+}
+
+export async function fetchConfig(graphqlUrl = "/graphql"): Promise<Config> {
+  const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
+    graphqlUrl,
+    {
+      query: `
+      query {
+        config {
+          googleClientId
+        }
+      }
+    `,
+    }
+  );
+  if (gqlRes.status !== 200) {
+    throw new Error(`config load failed: ${gqlRes.statusText}}`);
+  }
+  if (gqlRes.data.errors) {
+    throw new Error(
+      `errors reponse to config query: ${JSON.stringify(gqlRes.data.errors)}`
+    );
+  }
+  if (!gqlRes.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(gqlRes.data)}`
+    );
+  }
+  return gqlRes.data.data.config;
+}
+
 export async function fetchSubjects(
   searchParams?: SearchParams
 ): Promise<Connection<Subject>> {
