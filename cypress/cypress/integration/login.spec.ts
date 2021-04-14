@@ -63,7 +63,7 @@ describe("Login", () => {
   describe("navbar", () => {
     it("shows username if the user is logged in", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true)
@@ -80,7 +80,7 @@ describe("Login", () => {
 
     it("can logout and redirect to login page", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -103,7 +103,7 @@ describe("Login", () => {
 
   it("logs in automatically if the user has an accessToken", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login)
     ]);
@@ -113,7 +113,7 @@ describe("Login", () => {
 
   it("redirects to setup page after logging in for the first time", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true)

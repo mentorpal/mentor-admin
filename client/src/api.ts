@@ -26,6 +26,7 @@ export const CLASSIFIER_ENTRYPOINT =
 
 interface SearchParams {
   limit?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter?: any;
   cursor?: string;
   sortBy?: string;
@@ -38,6 +39,7 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }

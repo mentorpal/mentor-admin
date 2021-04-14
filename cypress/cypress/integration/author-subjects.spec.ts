@@ -23,7 +23,7 @@ describe("Edit subjects", () => {
 
   it("shows list of subjects", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true),
@@ -41,7 +41,7 @@ describe("Edit subjects", () => {
 
   it("can go to edit subject page", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true),

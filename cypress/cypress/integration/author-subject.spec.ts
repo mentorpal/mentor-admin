@@ -81,7 +81,7 @@ describe("Edit subject", () => {
 
   it("can open and collapse different sections", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true)
@@ -118,7 +118,7 @@ describe("Edit subject", () => {
 
   it("shows new empty subject if no subject id in url parameters", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true)
@@ -135,7 +135,7 @@ describe("Edit subject", () => {
 
   it("loads subject with default and mentor-specific questions if no subject id in url parameters", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true),
@@ -171,7 +171,7 @@ describe("Edit subject", () => {
 
   it("shows mentor-specific questions to that mentor only", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", { _id: "notclint" }, true),
@@ -189,7 +189,7 @@ describe("Edit subject", () => {
   describe("can add, delete, and edit topics", () => {
     it("can add a topic", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -223,7 +223,7 @@ describe("Edit subject", () => {
 
     it("can delete a topic", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -254,7 +254,7 @@ describe("Edit subject", () => {
 
     it("can edit a topic", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -298,7 +298,7 @@ describe("Edit subject", () => {
   describe("can add, delete, and edit categories", () => {
     it("can add a category", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -331,7 +331,7 @@ describe("Edit subject", () => {
 
     it("can delete a category and send its questions back to uncategorized list", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -360,7 +360,7 @@ describe("Edit subject", () => {
 
     it("can edit a category", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -400,7 +400,7 @@ describe("Edit subject", () => {
 
     it("can delete a question in a category", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -418,7 +418,7 @@ describe("Edit subject", () => {
 
     it("can edit a question in a category", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -460,7 +460,7 @@ describe("Edit subject", () => {
   describe("can add, delete, and edit questions", () => {
     it("can add a question", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -497,7 +497,7 @@ describe("Edit subject", () => {
 
     it("can delete a question", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -513,7 +513,7 @@ describe("Edit subject", () => {
 
     it("can edit a question", () => {
       cySetup(cy);
-      cyMockLogin();
+      cyMockLogin(cy);
       cyInterceptGraphQL(cy, [
         cyMockGQL("login", login),
         cyMockGQL("mentor", mentor, true),
@@ -538,7 +538,7 @@ describe("Edit subject", () => {
 
   it("save button is disabled until edits are made", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", mentor, true),

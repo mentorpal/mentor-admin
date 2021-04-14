@@ -29,7 +29,7 @@ import Context from "context";
 import { useCookies } from "react-cookie";
 
 function AnswerList(props: {
-  classes: any;
+  classes: Record<string, string>;
   header: string;
   answers: Answer[];
   onRecordAll: () => void;

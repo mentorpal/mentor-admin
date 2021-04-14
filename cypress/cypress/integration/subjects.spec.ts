@@ -29,7 +29,7 @@ describe("Select Subjects", () => {
 
   it("can select subjects", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", [mentor, {...mentor, defaultSubject: {_id: "leadership"},  subjects: [...mentor.subjects, {

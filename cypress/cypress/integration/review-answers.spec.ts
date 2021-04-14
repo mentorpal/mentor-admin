@@ -19,7 +19,7 @@ describe("Review answers page", () => {
 
   it("shows all questions for all subjects by default", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -66,7 +66,7 @@ describe("Review answers page", () => {
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -111,7 +111,7 @@ describe("Review answers page", () => {
 
   it("can pick a subject from query params and view questions and categories", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -153,7 +153,7 @@ describe("Review answers page", () => {
 
   it("can record all complete for a subject", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -168,7 +168,7 @@ describe("Review answers page", () => {
 
   it("can record all incomplete for a subject", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -183,7 +183,7 @@ describe("Review answers page", () => {
 
   it("can record a single question in a subject", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -202,7 +202,7 @@ describe("Review answers page", () => {
 
   it("can add a mentor question to a subject", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -225,7 +225,7 @@ describe("Review answers page", () => {
 
   it("can record all complete for a category", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -240,7 +240,7 @@ describe("Review answers page", () => {
 
   it("can record all incomplete for a category", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -255,7 +255,7 @@ describe("Review answers page", () => {
 
   it("can record a single question in a category", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -274,7 +274,7 @@ describe("Review answers page", () => {
 
   it("can add a mentor question to a category", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -297,7 +297,7 @@ describe("Review answers page", () => {
 
   it("can edit a mentor question", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true)
@@ -321,7 +321,7 @@ describe("Review answers page", () => {
 
   it("fails to train mentor", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true),
@@ -334,7 +334,7 @@ describe("Review answers page", () => {
 
   it("can train mentor", () => {
     cySetup(cy);
-    cyMockLogin();
+    cyMockLogin(cy);
     cyInterceptGraphQL(cy, [
       cyMockGQL("login", login),
       cyMockGQL("mentor", setup7, true),

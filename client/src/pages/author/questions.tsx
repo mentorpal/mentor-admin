@@ -89,7 +89,9 @@ function QuestionsPage(): JSX.Element {
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("question");
   const [sortAscending, setSortAscending] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<
+    EventTarget & HTMLButtonElement
+  >();
   const deleteMenuOpen = Boolean(anchorEl);
   const limit = 10;
 
@@ -100,8 +102,11 @@ function QuestionsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     loadQuestions();
-  }, [cursor, sortBy, sortAscending]);
+  }, [context.user, cursor, sortBy, sortAscending]);
 
   async function loadQuestions() {
     setQuestions(
@@ -109,17 +114,17 @@ function QuestionsPage(): JSX.Element {
     );
   }
 
-  function onClickDelete(e: any) {
+  function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);
   }
 
   function onCloseDelete() {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   }
 
-  async function deleteQuestion(id: string) {
+  async function deleteQuestion() {
     toast("Deleting...");
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   }
 
   function setSort(id: string) {
@@ -193,10 +198,7 @@ function QuestionsPage(): JSX.Element {
                       open={deleteMenuOpen}
                       onClose={onCloseDelete}
                     >
-                      <MenuItem
-                        id="confirm-delete"
-                        onClick={() => deleteQuestion(row.node._id)}
-                      >
+                      <MenuItem id="confirm-delete" onClick={deleteQuestion}>
                         Confirm
                       </MenuItem>
                       <MenuItem id="cancel-delete" onClick={onCloseDelete}>

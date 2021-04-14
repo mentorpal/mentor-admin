@@ -20,12 +20,12 @@ import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 
 export function QuestionEditCard(props: {
-  classes: any;
+  classes: Record<string, string>;
   question: SubjectQuestion | undefined;
   topics: Topic[];
   updateQuestion: (val: SubjectQuestion) => void;
   onDeselect: () => void;
-}) {
+}): JSX.Element {
   const { classes, question } = props;
   if (!question) {
     return <div />;

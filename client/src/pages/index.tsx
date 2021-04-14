@@ -311,21 +311,23 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
         setStatusUrl(trainJob.statusUrl);
         setIsBuilding(true);
       })
-      .catch((err: any) => {
+      .catch((err) => {
         toast(`Training failed: ${err.message || err}`);
         setLoadingMessage(undefined);
         setIsBuilding(false);
       });
   }
 
-  function useInterval(callback: any, delay: number | null) {
-    const savedCallback = React.useRef() as any;
+  function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = React.useRef<() => void>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay) {
         const id = setInterval(tick, delay);

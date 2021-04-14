@@ -243,7 +243,6 @@ function FeedbackPage(): JSX.Element {
     state: TrainState.NONE,
   });
   const [isTraining, setIsTraining] = useState(false);
-  const [trainPopup, setTrainPopup] = useState(false);
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
@@ -258,6 +257,9 @@ function FeedbackPage(): JSX.Element {
   }, [context.user]);
 
   React.useEffect(() => {
+    if (!mentor) {
+      return;
+    }
     loadFeedback();
   }, [
     mentor,
@@ -271,7 +273,13 @@ function FeedbackPage(): JSX.Element {
   ]);
 
   async function loadFeedback() {
-    const filter: any = { mentor: mentor?._id };
+    const filter: {
+      mentor?: string;
+      classifierAnswer?: string;
+      graderAnswer?: string;
+      feedback?: Feedback;
+      classifierAnswerType?: ClassifierAnswerType;
+    } = { mentor: mentor?._id };
     if (feedbackFilter !== undefined) {
       filter["feedback"] = feedbackFilter;
     }
@@ -298,7 +306,7 @@ function FeedbackPage(): JSX.Element {
         setStatusUrl(trainJob.statusUrl);
         setIsTraining(true);
       })
-      .catch((err: any) => {
+      .catch((err) => {
         console.error(err);
         setTrainData({
           state: TrainState.FAILURE,
@@ -317,14 +325,16 @@ function FeedbackPage(): JSX.Element {
     setCursor("");
   }
 
-  function useInterval(callback: any, delay: number | null) {
-    const savedCallback = React.useRef() as any;
+  function useInterval(callback: () => void, delay: number | null): void {
+    const savedCallback = React.useRef<() => void>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay) {
         const id = setInterval(tick, delay);

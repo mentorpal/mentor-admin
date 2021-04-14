@@ -17,7 +17,8 @@ const Context = React.createContext<ContextType>({
   user: undefined,
 });
 
-function Provider(props: { children: any }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function Provider(props: { children: any }): JSX.Element {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
   const [user, setUser] = React.useState<User>();
 

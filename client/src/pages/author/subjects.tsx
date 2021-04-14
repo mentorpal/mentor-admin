@@ -92,20 +92,22 @@ function SubjectItem(props: {
   onDelete: (id: string) => void;
 }): JSX.Element {
   const { subject, onDelete } = props;
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<
+    EventTarget & HTMLButtonElement
+  >();
   const deleteMenuOpen = Boolean(anchorEl);
 
-  function onClickDelete(e: any) {
+  function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);
   }
 
   function onCloseDelete() {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   }
 
   async function deleteSubject(id: string) {
     toast("Deleting...");
-    setAnchorEl(null);
+    setAnchorEl(undefined);
     onDelete(id);
   }
 
@@ -168,14 +170,17 @@ function SubjectsPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     loadSubjects();
-  }, [cursor, sortBy, sortAscending]);
+  }, [context.user, cursor, sortBy, sortAscending]);
 
   async function loadSubjects() {
     setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
   }
 
-  async function deleteSubject(id: string) {
+  async function deleteSubject() {
     // TODO
   }
 

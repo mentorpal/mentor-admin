@@ -30,7 +30,7 @@ import QuestionListItem from "./question-list-item";
 import QuestionEditCard from "./question-edit";
 
 export function QuestionsList(props: {
-  classes: any;
+  classes: Record<string, string>;
   maxHeight: number;
   expanded: boolean;
   categories: Category[];
@@ -159,7 +159,7 @@ export function QuestionsList(props: {
                   ))}
                 </List>
                 <Droppable droppableId="questions">
-                  {(provided, snapshot) => (
+                  {(provided) => (
                     <List
                       id="questions"
                       {...provided.droppableProps}
@@ -172,7 +172,7 @@ export function QuestionsList(props: {
                           draggableId={`question-${q.question._id}`}
                           index={i}
                         >
-                          {(provided, snapshot) => (
+                          {(provided) => (
                             <ListItem
                               id={`question-${i}`}
                               ref={provided.innerRef}

@@ -39,14 +39,16 @@ export interface SlideType {
   element: JSX.Element;
 }
 
-export function Slide(status: boolean, element: JSX.Element) {
+export function Slide(status: boolean, element: JSX.Element): SlideType {
   return {
     status,
     element,
   };
 }
 
-export function WelcomeSlide(props: { classes: any }): JSX.Element {
+export function WelcomeSlide(props: {
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
   return (
@@ -67,7 +69,7 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
 }
 
 export function MentorInfoSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
@@ -144,7 +146,7 @@ export function MentorInfoSlide(props: {
 }
 
 export function MentorTypeSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
@@ -177,7 +179,12 @@ export function MentorTypeSlide(props: {
             id="select-chat-type"
             value={type}
             style={{ width: 100, marginRight: 20 }}
-            onChange={(event: any) => {
+            onChange={(
+              event: React.ChangeEvent<{
+                name?: string | undefined;
+                value: unknown;
+              }>
+            ) => {
               onSelect(event.target.value as MentorType);
             }}
           >
@@ -210,7 +217,9 @@ export function MentorTypeSlide(props: {
   );
 }
 
-export function IntroductionSlide(props: { classes: any }): JSX.Element {
+export function IntroductionSlide(props: {
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
   return (
     <Paper id="slide" className={classes.card}>
@@ -234,7 +243,7 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
 }
 
 export function SelectSubjectsSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   i: number;
 }): JSX.Element {
   const { classes, i } = props;
@@ -271,7 +280,7 @@ export function SelectSubjectsSlide(props: {
 }
 
 export function RecordIdleSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   idle: Answer;
   i: number;
 }): JSX.Element {
@@ -314,7 +323,7 @@ export function RecordIdleSlide(props: {
 }
 
 export function RecordSubjectSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   subject: Subject;
   questions: Answer[];
   i: number;
@@ -361,7 +370,7 @@ export function RecordSubjectSlide(props: {
 
 const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
@@ -378,7 +387,7 @@ export function BuildMentorSlide(props: {
         setStatusUrl(trainJob.statusUrl);
         setIsBuilding(true);
       })
-      .catch((err: any) => {
+      .catch((err) => {
         setTrainData({
           state: TrainState.FAILURE,
           status: err.message || `${err}`,
@@ -387,14 +396,16 @@ export function BuildMentorSlide(props: {
       });
   }
 
-  function useInterval(callback: any, delay: number | null) {
-    const savedCallback = React.useRef() as any;
+  function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = React.useRef<() => void>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay) {
         const id = setInterval(tick, delay);

@@ -21,7 +21,7 @@ import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 export function ParaphraseList(props: {
-  classes: any;
+  classes: Record<string, string>;
   paraphrases: string[];
   updateParaphrases: (val: string[]) => void;
 }): JSX.Element {

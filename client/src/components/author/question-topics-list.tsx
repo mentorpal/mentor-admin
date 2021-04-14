@@ -22,7 +22,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { Topic } from "types";
 
 export function TopicsList(props: {
-  classes: any;
+  classes: Record<string, string>;
   allTopics: Topic[];
   questionTopics: Topic[];
   updateTopics: (val: Topic[]) => void;
