@@ -1,5 +1,4 @@
-import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
-import login from "../fixtures/login";
+import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 
 const mentor = {
   _id: "clintanderson",
@@ -19,18 +18,20 @@ describe("Profile", () => {
 
   it("views, saves, and updates profile data", () => {
     cySetup(cy);
-    cyMockLogin(cy);
-    cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login),
-      cyMockGQL("mentor", [
+    cyMockDefault(cy, {
+      mentor: [
         mentor,
         { ...mentor, name: "Clinton Anderson" },
         { ...mentor, name: "Clinton Anderson", firstName: "Clint" },
-        { ...mentor, name: "Clinton Anderson", firstName: "Clint", title: "Nuclear Electrician's Mate" }
+        {
+          ...mentor,
+          name: "Clinton Anderson",
+          firstName: "Clint",
+          title: "Nuclear Electrician's Mate",
+        },
       ],
-        true),
-      cyMockGQL("updateMentor", true, true),
-    ]);
+      gqlQueries: [mockGQL("updateMentor", true, true)],
+    });
     cy.visit("/profile");
     cy.contains("My Profile");
     cy.get("#name").should("have.value", "");

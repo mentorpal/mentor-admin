@@ -49,6 +49,44 @@ function isValidObjectID(id: string) {
   return id.match(/^[0-9a-fA-F]{24}$/);
 }
 
+interface GraphQLResponse<T> {
+  errors?: { message: string }[];
+  data?: T;
+}
+
+interface Config {
+  googleClientId: string;
+}
+
+export async function fetchConfig(graphqlUrl = "/graphql"): Promise<Config> {
+  const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
+    graphqlUrl,
+    {
+      query: `
+      query {
+        config {
+          googleClientId
+        }
+      }
+    `,
+    }
+  );
+  if (gqlRes.status !== 200) {
+    throw new Error(`config load failed: ${gqlRes.statusText}}`);
+  }
+  if (gqlRes.data.errors) {
+    throw new Error(
+      `errors reponse to config query: ${JSON.stringify(gqlRes.data.errors)}`
+    );
+  }
+  if (!gqlRes.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(gqlRes.data)}`
+    );
+  }
+  return gqlRes.data.data.config;
+}
+
 export async function fetchSubjects(
   searchParams?: SearchParams
 ): Promise<Connection<Subject>> {
@@ -142,7 +180,7 @@ export async function updateSubject(
     questions: subject.questions,
   };
   if (isValidObjectID(subject._id || "")) {
-    convertedSubject._id = subject._id
+    convertedSubject._id = subject._id;
   }
 
   const headers = { Authorization: `bearer ${accessToken}` };

@@ -4,12 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyInterceptGraphQL, cyMockLogin, cyMockGQL } from "../support/functions";
-import login from "../fixtures/login"
-import mentor from "../fixtures/mentor/clint_new"
+import { cySetup, cyMockDefault } from "../support/functions";
+import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
-
   describe("redirects to login page if the user is not logged in", () => {
     it("from home page", () => {
       cySetup(cy);
@@ -63,11 +61,7 @@ describe("Login", () => {
   describe("navbar", () => {
     it("shows username if the user is logged in", () => {
       cySetup(cy);
-      cyMockLogin(cy);
-      cyInterceptGraphQL(cy, [
-        cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor, true)
-      ]);
+      cyMockDefault(cy, { mentor });
       cy.visit("/");
       cy.get("#nav-bar #login-option").contains("Clinton Anderson");
     });
@@ -80,14 +74,10 @@ describe("Login", () => {
 
     it("can logout and redirect to login page", () => {
       cySetup(cy);
-      cyMockLogin(cy);
-      cyInterceptGraphQL(cy, [
-        cyMockGQL("login", login),
-        cyMockGQL("mentor", mentor, true),
-      ]);
+      cyMockDefault(cy, { mentor });
       cy.visit("/");
-      cy.get("#login-option").trigger('mouseover').click();
-      cy.get("#logout-button").trigger('mouseover').click();
+      cy.get("#login-option").trigger("mouseover").click();
+      cy.get("#logout-button").trigger("mouseover").click();
       cy.location("pathname").should("contain", "/login");
       cy.get("#login-option").should("not.exist");
     });
@@ -103,21 +93,14 @@ describe("Login", () => {
 
   it("logs in automatically if the user has an accessToken", () => {
     cySetup(cy);
-    cyMockLogin(cy);
-    cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login)
-    ]);
+    cyMockDefault(cy);
     cy.visit("/login");
     cy.location("pathname").should("not.contain", "/login");
   });
 
   it("redirects to setup page after logging in for the first time", () => {
     cySetup(cy);
-    cyMockLogin(cy);
-    cyInterceptGraphQL(cy, [
-      cyMockGQL("login", login),
-      cyMockGQL("mentor", mentor, true)
-    ]);
+    cyMockDefault(cy, { mentor });
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
     cy.location("pathname").should("not.contain", "/login");
