@@ -26,7 +26,7 @@ function Provider(props: { children: any }): JSX.Element {
     if (!cookies.accessToken) {
       setUser(undefined);
       return;
-    } 
+    }
     if (!user) {
       login(cookies.accessToken)
         .then((token: UserAccessToken) => {
