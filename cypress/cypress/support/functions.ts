@@ -107,9 +107,9 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         handled = true;
         break;
       }
-      if(!handled) {
-        console.error(`failed to handle query for...`)
-        console.error(req)
+      if (!handled) {
+        console.error(`failed to handle query for...`);
+        console.error(req);
       }
     }
   });
@@ -150,15 +150,16 @@ export function cyMockDefault(
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    mockGQL("mentor", args?.mentor || {}, Boolean(args?.mentor)),
-    mockGQL("subject", args.subject || {}),
-    mockGQL("subjects", args?.subjects || []),
+    ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
+    ...(args.subject ? [mockGQL("subject", args.subject)] : []),
+    ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
+    ...(args.noLogin ? [] : [mockGQL("login", args?.login || loginDefault)]),
     ...gqlQueries,
-    ...args.noLogin ? [] : [mockGQL("login", args?.login || loginDefault)]
   ]);
 }
 
 import { TrainStatus, UserAccessToken } from "./types";
+import { mock } from "cypress/types/sinon";
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(
