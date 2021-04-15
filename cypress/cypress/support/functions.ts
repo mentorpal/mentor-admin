@@ -67,7 +67,7 @@ export const CONFIG_DEFAULT: Config = {
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
-  return mockGQL("config", { ...CONFIG_DEFAULT, ...config }, false);
+  return mockGQL("config", { ...CONFIG_DEFAULT, ...(config || {}) }, false);
 }
 
 export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
