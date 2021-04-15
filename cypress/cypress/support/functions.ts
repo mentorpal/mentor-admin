@@ -153,7 +153,7 @@ export function cyMockDefault(
     ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
-    ...(args.noLogin ? [] : [mockGQL("login", args?.login || loginDefault)]),
+    ...(args.noLogin ? [] : [mockGQL("login", args.login || loginDefault)]),
     ...gqlQueries,
   ]);
 }
