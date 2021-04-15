@@ -244,7 +244,6 @@ describe("Edit subject", () => {
 
     it("can delete a topic", () => {
       cySetup(cy);
-      cyMockDefault(cy);
       cyMockDefault(cy, {
         mentor: { _id: "notclint" },
         subject: [

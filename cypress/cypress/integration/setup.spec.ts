@@ -259,7 +259,6 @@ describe("Setup", () => {
 
     it("updates mentor chat type", () => {
       cySetup(cy);
-      cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup0, { ...setup0, mentorType: MentorType.CHAT }],
@@ -496,7 +495,6 @@ describe("Setup", () => {
   });
 
   it("shows background questions slide", () => {
-    cySetup(cy);
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,

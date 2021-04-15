@@ -23,6 +23,7 @@ const mentor = {
 describe("Select Subjects", () => {
   it("redirects to login page if the user is not logged in", () => {
     cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
     cy.visit("/subjects");
     cy.location("pathname").should("contain", "/login");
   });

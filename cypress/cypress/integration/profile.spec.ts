@@ -12,6 +12,7 @@ const mentor = {
 describe("Profile", () => {
   it("redirects to login page if the user is not logged in", () => {
     cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
     cy.visit("/profile");
     cy.location("pathname").should("contain", "/login");
   });

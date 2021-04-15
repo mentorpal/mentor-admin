@@ -17,6 +17,7 @@ import { TrainState } from "../support/types";
 describe("Review answers page", () => {
   it("redirects to login page if not logged in", () => {
     cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
     cy.visit("/");
     cy.location("pathname").should("contain", "/login");
   });
@@ -573,7 +574,6 @@ describe("Review answers page", () => {
 
   it("can train mentor", () => {
     cySetup(cy);
-    cyMockDefault(cy);
     cyMockDefault(cy, {
       mentor: setup7,
       gqlQueries: [mockGQL("updateMentor", true, true)],

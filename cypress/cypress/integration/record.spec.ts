@@ -450,7 +450,6 @@ describe("Record", () => {
 
   it("can update transcript", () => {
     cySetup(cy);
-    cyMockDefault(cy);
     cyMockDefault(cy, {
       mentor: [
         mentor,
