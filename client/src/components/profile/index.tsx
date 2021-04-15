@@ -7,12 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { ToastContainer, toast } from "react-toastify";
-import {
-  Button,
-  Paper,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import { Button, Paper, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { updateMentor, fetchMentor } from "api";
 import { Mentor } from "types";

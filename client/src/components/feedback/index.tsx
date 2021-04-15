@@ -159,8 +159,8 @@ function FeedbackItem(props: {
           {feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
             ? "Exact"
             : feedback.classifierAnswerType === ClassifierAnswerType.PARAPHRASE
-              ? "Paraphrase"
-              : Math.round(feedback.confidence * 100) / 100}
+            ? "Paraphrase"
+            : Math.round(feedback.confidence * 100) / 100}
         </Typography>
       </TableCell>
       <TableCell id="question" align="left">
@@ -175,32 +175,32 @@ function FeedbackItem(props: {
       </TableCell>
       <TableCell id="graderAnswer" align="left">
         {feedback.classifierAnswerType ===
-          ClassifierAnswerType.EXACT_MATCH ? undefined : (
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <Autocomplete
-                id="select-answer"
-                options={mentor.answers}
-                getOptionLabel={(option: Answer) => option.question.question}
-                onChange={(e, v) => {
-                  onUpdateAnswer(v?._id);
-                }}
-                style={{
-                  minWidth: 300,
-                  background: feedback.graderAnswer ? "#eee" : "",
-                  flexGrow: 1,
-                }}
-                renderOption={(option) => (
-                  <Typography align="left">{option.question.question}</Typography>
-                )}
-                renderInput={(params) => (
-                  <TextField {...params} variant="outlined" />
-                )}
-              />
-              <IconButton onClick={() => onUpdateAnswer(undefined)}>
-                <CloseIcon />
-              </IconButton>
-            </div>
-          )}
+        ClassifierAnswerType.EXACT_MATCH ? undefined : (
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <Autocomplete
+              id="select-answer"
+              options={mentor.answers}
+              getOptionLabel={(option: Answer) => option.question.question}
+              onChange={(e, v) => {
+                onUpdateAnswer(v?._id);
+              }}
+              style={{
+                minWidth: 300,
+                background: feedback.graderAnswer ? "#eee" : "",
+                flexGrow: 1,
+              }}
+              renderOption={(option) => (
+                <Typography align="left">{option.question.question}</Typography>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} variant="outlined" />
+              )}
+            />
+            <IconButton onClick={() => onUpdateAnswer(undefined)}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        )}
         <Tooltip
           placement="top-start"
           title={feedback.graderAnswer?.transcript || ""}
@@ -538,8 +538,8 @@ function FeedbackPage(): JSX.Element {
               {isTraining
                 ? "Training..."
                 : trainData.state === TrainState.FAILURE
-                  ? "Training Failed. Retry?"
-                  : "Train Mentor"}
+                ? "Training Failed. Retry?"
+                : "Train Mentor"}
             </Fab>
           </Toolbar>
         </AppBar>

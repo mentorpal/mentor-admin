@@ -1,11 +1,11 @@
 import React from "react";
 import { Router } from "@reach/router";
 
-import AuthorQuestions from "components/author/questions"
-import AuthorSubject from "components/author/subject"
-import AuthorSubjects from "components/author/subjects"
-import Feedback from "components/feedback"
-import Profile from "components/profile"
+import AuthorQuestions from "components/author/questions";
+import AuthorSubject from "components/author/subject";
+import AuthorSubjects from "components/author/subjects";
+import Feedback from "components/feedback";
+import Profile from "components/profile";
 import Record from "components/record";
 import Setup from "components/setup";
 import Subjects from "components/subjects";

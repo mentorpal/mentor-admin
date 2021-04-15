@@ -11,6 +11,7 @@ describe("Login", () => {
   describe("redirects to login page if the user visits a client-only page and is not authorized", () => {
     it("from author questions page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/author/questions");
       cy.location("pathname").should("not.contain", "/app/author/questions");
       cy.get("#login-button");
@@ -18,6 +19,7 @@ describe("Login", () => {
 
     it("from author subjects page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/author/subjects");
       cy.location("pathname").should("not.contain", "/app/author/subjects");
       cy.get("#login-button");
@@ -25,6 +27,7 @@ describe("Login", () => {
 
     it("from author subject page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/author/subject");
       cy.location("pathname").should("not.contain", "/app/author/subject");
       cy.get("#login-button");
@@ -32,6 +35,7 @@ describe("Login", () => {
 
     it("from feedback page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/feedback");
       cy.location("pathname").should("not.contain", "/app/feedback");
       cy.get("#login-button");
@@ -39,6 +43,7 @@ describe("Login", () => {
 
     it("from profile page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/profile");
       cy.location("pathname").should("not.contain", "/app/profile");
       cy.get("#login-button");
@@ -46,6 +51,7 @@ describe("Login", () => {
 
     it("from record page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/record");
       cy.location("pathname").should("not.contain", "/app/record");
       cy.get("#login-button");
@@ -53,6 +59,7 @@ describe("Login", () => {
 
     it("from profile page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/app/setup");
       cy.location("pathname").should("not.contain", "/app/setup");
       cy.get("#login-button");
@@ -74,7 +81,7 @@ describe("Login", () => {
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
-    it.skip("can logout and redirect to login page", () => {
+    it("can logout and redirect to login page", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
       cy.visit("/");
@@ -87,6 +94,7 @@ describe("Login", () => {
 
   it("shows login page if user is not logged in", () => {
     cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
     cy.visit("/");
     cy.get("#login-button");
   });

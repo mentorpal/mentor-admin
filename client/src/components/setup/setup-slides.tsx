@@ -288,7 +288,9 @@ export function RecordIdleSlide(props: {
 
   function onRecord() {
     navigate(
-      `/app/record?videoId=${idle.question._id}&back=${encodeURI(`/app/setup?i=${i}`)}`
+      `/app/record?videoId=${idle.question._id}&back=${encodeURI(
+        `/app/setup?i=${i}`
+      )}`
     );
   }
 
@@ -334,7 +336,9 @@ export function RecordSubjectSlide(props: {
 
   function onRecord() {
     navigate(
-      `/app/record?subject=${subject._id}&back=${encodeURI(`/app/setup?i=${i}`)}`
+      `/app/record?subject=${subject._id}&back=${encodeURI(
+        `/app/setup?i=${i}`
+      )}`
     );
   }
 

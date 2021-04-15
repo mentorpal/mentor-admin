@@ -93,26 +93,25 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       const mentor = await fetchMentor(cookies.accessToken);
       // check for any required subjects the mentor does not have
       // TODO: should this step be moved somewhere else?
-      fetchSubjects({ filter: { isRequired: true } })
-        .then((subjects) => {
-          const requiredSubjects = subjects.edges.map(
-            (e: Edge<Subject>) => e.node
-          );
-          const subjectIds = mentor.subjects.map((s) => s._id);
-          // if any unassigned required subjects are found, assign them to the mentor
-          if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-            const subjects = [
-              ...new Set([...requiredSubjects, ...mentor.subjects]),
-            ];
-            updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
-              (updated) => {
-                if (updated) {
-                  fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-                }
+      fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
+        const requiredSubjects = subjects.edges.map(
+          (e: Edge<Subject>) => e.node
+        );
+        const subjectIds = mentor.subjects.map((s) => s._id);
+        // if any unassigned required subjects are found, assign them to the mentor
+        if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+          const subjects = [
+            ...new Set([...requiredSubjects, ...mentor.subjects]),
+          ];
+          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
+            (updated) => {
+              if (updated) {
+                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
               }
-            );
-          }
-        });
+            }
+          );
+        }
+      });
       setMentor(mentor);
     };
     load();

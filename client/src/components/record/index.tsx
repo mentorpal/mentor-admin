@@ -401,15 +401,15 @@ function RecordPage(props: {
               Done
             </Button>
           ) : (
-              <IconButton
-                id="next-btn"
-                className={classes.nextBtn}
-                disabled={idx === answers.length - 1}
-                onClick={() => setIdx(idx + 1)}
-              >
-                <ArrowForwardIcon fontSize="large" />
-              </IconButton>
-            )}
+            <IconButton
+              id="next-btn"
+              className={classes.nextBtn}
+              disabled={idx === answers.length - 1}
+              onClick={() => setIdx(idx + 1)}
+            >
+              <ArrowForwardIcon fontSize="large" />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <ToastContainer />

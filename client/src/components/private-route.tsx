@@ -51,7 +51,7 @@ const PrivateRoute = ({ component: Component, location, ...rest }) => {
       </div>
     );
   }
-  
+
   return <Component {...rest} />;
 };
 

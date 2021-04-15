@@ -86,24 +86,24 @@ function LoginPage(): JSX.Element {
           Test Login
         </Button>
       ) : (
-          <GoogleLogin
-            clientId={googleClientId}
-            onSuccess={onGoogleLogin}
-            cookiePolicy={"single_host_origin"}
-            render={(renderProps) => (
-              <Button
-                id="login-button"
-                variant="contained"
-                color="primary"
-                onClick={renderProps.onClick}
-                className={classes.button}
-                disabled={renderProps.disabled}
-              >
-                Sign in with Google
-              </Button>
-            )}
-          />
-        )}
+        <GoogleLogin
+          clientId={googleClientId}
+          onSuccess={onGoogleLogin}
+          cookiePolicy={"single_host_origin"}
+          render={(renderProps) => (
+            <Button
+              id="login-button"
+              variant="contained"
+              color="primary"
+              onClick={renderProps.onClick}
+              className={classes.button}
+              disabled={renderProps.disabled}
+            >
+              Sign in with Google
+            </Button>
+          )}
+        />
+      )}
     </div>
   );
 }
