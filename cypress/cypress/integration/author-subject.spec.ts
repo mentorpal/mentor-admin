@@ -72,21 +72,12 @@ const subject = {
 };
 
 describe("Edit subject", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      noLogin: true,
-    });
-    cy.visit("/profile");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("can open and collapse different sections", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
     });
-    cy.visit("/author/subject");
+    cy.visit("/app/author/subject");
     // info opened by default
     cy.get("#name").should("exist");
     cy.get("#description").should("exist");
@@ -121,7 +112,7 @@ describe("Edit subject", () => {
     cyMockDefault(cy, {
       mentor,
     });
-    cy.visit("/author/subject");
+    cy.visit("/app/author/subject");
     cy.get("#name").should("have.value", "");
     cy.get("#description").should("have.value", "");
     cy.get("#toggle-topics").trigger("mouseover").click();
@@ -137,7 +128,7 @@ describe("Edit subject", () => {
       mentor,
       subject,
     });
-    cy.visit("/author/subject?id=background");
+    cy.visit("/app/author/subject?id=background");
     cy.get("#name").should("have.value", "Background");
     cy.get("#description").should(
       "have.value",
@@ -186,7 +177,7 @@ describe("Edit subject", () => {
       mentor: { _id: "notclint" },
       subject,
     });
-    cy.visit("/author/subject?id=background");
+    cy.visit("/app/author/subject?id=background");
     cy.get("#toggle-questions").trigger("mouseover").click();
     cy.get("#categories").children().should("have.length", 1);
     cy.get("#category-0 #category-questions li")
@@ -223,7 +214,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-topics").trigger("mouseover").click();
       cy.get("#add-topic").trigger("mouseover").click();
       cy.get("#topics").children().should("have.length", 2);
@@ -262,7 +253,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-topics").trigger("mouseover").click();
       cy.get("#topics").children().should("have.length", 1);
       cy.get("#topic-0 #delete").trigger("mouseover").click();
@@ -305,7 +296,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-topics").trigger("mouseover").click();
       cy.get("#topic-0 #toggle").trigger("mouseover").click();
       cy.get("#topic-0 #name").clear().type("Topic1 Edited");
@@ -358,7 +349,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#add-category").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 2);
@@ -391,7 +382,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 1);
       cy.get("#category-0 #name").should("have.value", "Category1");
@@ -443,7 +434,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 1);
       cy.get("#category-0 #name").should("have.value", "Category1");
@@ -493,7 +484,7 @@ describe("Edit subject", () => {
         subject,
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#category-0 #category-questions li")
         .children()
@@ -517,7 +508,7 @@ describe("Edit subject", () => {
         subject,
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 1);
       cy.get("#category-0 #category-questions li")
@@ -586,7 +577,7 @@ describe("Edit subject", () => {
         ],
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#add-question").trigger("mouseover").click();
       cy.get("#questions li").children().should("have.length", 2);
@@ -607,7 +598,7 @@ describe("Edit subject", () => {
         mentor,
         subject,
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#questions li").children().should("have.length", 1);
       cy.get("#questions #question-0 #delete-question")
@@ -623,7 +614,7 @@ describe("Edit subject", () => {
         mentor,
         subject,
       });
-      cy.visit("/author/subject?id=background");
+      cy.visit("/app/author/subject?id=background");
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#questions #question-0 #question").trigger("mouseover").click();
       cy.get("#edit-question #select-type")
@@ -654,7 +645,7 @@ describe("Edit subject", () => {
       mentor,
       subject,
     });
-    cy.visit("/author/subject?id=background");
+    cy.visit("/app/author/subject?id=background");
     cy.get("#save-button").should("be.disabled");
     cy.get("#name").should("have.value", "Background");
     cy.get("#name").clear().type("New name");

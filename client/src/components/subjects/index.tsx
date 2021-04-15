@@ -4,13 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import {
   AppBar,
   Checkbox,
-  CircularProgress,
   Fab,
   IconButton,
   Paper,
@@ -27,7 +25,6 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
 import { Connection, Mentor, Subject } from "types";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 
@@ -89,7 +86,6 @@ const columns: ColumnDef[] = [
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
@@ -102,34 +98,19 @@ function SubjectsPage(): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
-    setSubjects(mentor.subjects);
-    setDefaultSubject(mentor.defaultSubject);
+    setSubjects(mentor?.subjects || []);
+    setDefaultSubject(mentor?.defaultSubject);
   }, [mentor]);
 
   React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
       setAllSubjects(subjects);
     });
-  }, [context.user, cursor, sortBy, sortAscending, limit]);
+  }, [cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
     if (sortBy === id) {
@@ -182,11 +163,10 @@ function SubjectsPage(): JSX.Element {
     setIsSaving(false);
   }
 
-  if (!context.user || !allSubjects || !subjects) {
+  if (!allSubjects || !subjects) {
     return (
       <div>
         <NavBar title="Subjects" />
-        <CircularProgress />
       </div>
     );
   }

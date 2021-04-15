@@ -4,22 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext } from "react";
+import React from "react";
 import { useCookies } from "react-cookie";
 import {
   GoogleLogin,
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { Button, CircularProgress, Typography } from "@material-ui/core";
+import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import NavBar from "components/nav-bar";
-import Context from "context";
 import { getClientID } from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
-import "styles/layout.css";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,7 +36,6 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies, setCookie] = useCookies(["accessToken"]);
   const [googleClientId, setClientId] = React.useState<string>("");
 
@@ -49,24 +44,6 @@ function LoginPage(): JSX.Element {
       setClientId(id);
     });
   }, []);
-
-  React.useEffect(() => {
-    // USED FOR TEST PURPOSES ONLY
-    if (process.env.ACCESS_TOKEN) {
-      setCookie("accessToken", process.env.ACCESS_TOKEN, { path: "/" });
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (context.user) {
-      /**
-       * TODO:
-       * - only go to setup if still things to set up
-       * - otherwise, go to home page
-       */
-      navigate("/setup");
-    }
-  }, [context.user]);
 
   const onGoogleLogin = (
     response: GoogleLoginResponse | GoogleLoginResponseOffline
@@ -80,50 +57,53 @@ function LoginPage(): JSX.Element {
     });
   };
 
-  if (cookies.accessToken || !googleClientId) {
-    return (
-      <div className={classes.root}>
-        <NavBar title="Mentor Studio" />
-        <CircularProgress />
-      </div>
-    );
+  if (!googleClientId) {
+    return <div>Error</div>;
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" />
+      <AppBar position="fixed">
+        <Toolbar>
+          <Typography id="title" variant="h6">
+            Mentor Studio
+          </Typography>
+        </Toolbar>
+      </AppBar>
       <Typography variant="h5" className={classes.title}>
         Please sign in to access the Mentor Studio portal
       </Typography>
-      {googleClientId ? (
-        <GoogleLogin
-          clientId={googleClientId}
-          onSuccess={onGoogleLogin}
-          cookiePolicy={"single_host_origin"}
-          render={(renderProps) => (
-            <Button
-              id="login-button"
-              variant="contained"
-              color="primary"
-              onClick={renderProps.onClick}
-              className={classes.button}
-              disabled={renderProps.disabled}
-            >
-              Sign in with Google
-            </Button>
-          )}
-        />
-      ) : (
+      {process.env.ACCESS_TOKEN ? (
         <Button
           id="login-button"
-          variant="contained"
           color="primary"
-          disabled={true}
+          variant="contained"
           className={classes.button}
+          onClick={() =>
+            setCookie("accessToken", process.env.ACCESS_TOKEN, { path: "/" })
+          }
         >
-          Sign in
+          Test Login
         </Button>
-      )}
+      ) : (
+          <GoogleLogin
+            clientId={googleClientId}
+            onSuccess={onGoogleLogin}
+            cookiePolicy={"single_host_origin"}
+            render={(renderProps) => (
+              <Button
+                id="login-button"
+                variant="contained"
+                color="primary"
+                onClick={renderProps.onClick}
+                className={classes.button}
+                disabled={renderProps.disabled}
+              >
+                Sign in with Google
+              </Button>
+            )}
+          />
+        )}
     </div>
   );
 }

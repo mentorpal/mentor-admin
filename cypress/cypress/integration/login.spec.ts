@@ -8,61 +8,54 @@ import { cySetup, cyMockDefault } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
-  describe("redirects to login page if the user is not logged in", () => {
-    it("from home page", () => {
+  describe("redirects to login page if the user visits a client-only page and is not authorized", () => {
+    it("from author questions page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/");
-      cy.location("pathname").should("contain", "/login");
+      cy.visit("/app/author/questions");
+      cy.location("pathname").should("not.contain", "/app/author/questions");
+      cy.get("#login-button");
     });
 
-    it("from profile page", () => {
+    it("from author subjects page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/profile");
-      cy.location("pathname").should("contain", "/login");
+      cy.visit("/app/author/subjects");
+      cy.location("pathname").should("not.contain", "/app/author/subjects");
+      cy.get("#login-button");
     });
 
-    it("from setup page", () => {
+    it("from author subject page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/setup");
-      cy.location("pathname").should("contain", "/login");
-    });
-
-    it("from record page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/record");
-      cy.location("pathname").should("contain", "/login");
-    });
-
-    it("from subjects page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/author/subjects");
-      cy.location("pathname").should("contain", "/login");
-    });
-
-    it("from subject page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/author/subject");
-      cy.location("pathname").should("contain", "/login");
-    });
-
-    it("from questions page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/author/questions");
-      cy.location("pathname").should("contain", "/login");
+      cy.visit("/app/author/subject");
+      cy.location("pathname").should("not.contain", "/app/author/subject");
+      cy.get("#login-button");
     });
 
     it("from feedback page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/feedback");
-      cy.location("pathname").should("contain", "/login");
+      cy.visit("/app/feedback");
+      cy.location("pathname").should("not.contain", "/app/feedback");
+      cy.get("#login-button");
+    });
+
+    it("from profile page", () => {
+      cySetup(cy);
+      cy.visit("/app/profile");
+      cy.location("pathname").should("not.contain", "/app/profile");
+      cy.get("#login-button");
+    });
+
+    it("from record page", () => {
+      cySetup(cy);
+      cy.visit("/app/record");
+      cy.location("pathname").should("not.contain", "/app/record");
+      cy.get("#login-button");
+    });
+
+    it("from profile page", () => {
+      cySetup(cy);
+      cy.visit("/app/setup");
+      cy.location("pathname").should("not.contain", "/app/setup");
+      cy.get("#login-button");
     });
   });
 
@@ -92,27 +85,17 @@ describe("Login", () => {
     });
   });
 
-  it("shows login page", () => {
+  it("shows login page if user is not logged in", () => {
     cySetup(cy);
     cyMockDefault(cy, { noLogin: true });
-    cy.visit("/login");
-    cy.get("#nav-bar #title").contains("Mentor Studio");
-    cy.contains("Please sign in to access the Mentor Studio portal");
-    cy.get("#login-button").contains("Sign in");
+    cy.visit("/app");
+    cy.get("#login-button");
   });
 
-  it("logs in automatically if the user has an accessToken", () => {
+  it("shows home page if user is logged in", () => {
     cySetup(cy);
     cyMockDefault(cy);
-    cy.visit("/login");
-    cy.location("pathname").should("not.contain", "/login");
-  });
-
-  it("redirects to setup page after logging in for the first time", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor, noLogin: true });
-    cy.visit("/login");
-    cy.location("pathname").should("contain", "/setup");
-    cy.location("pathname").should("not.contain", "/login");
+    cy.visit("/app/login");
+    cy.get("#login-button").should("not.exist");
   });
 });

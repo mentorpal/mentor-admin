@@ -10,6 +10,10 @@ module.exports = {
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
     {
+      resolve: `gatsby-plugin-create-client-paths`,
+      options: { prefixes: [`/app/*`] },
+    },
+    {
       resolve: "gatsby-plugin-material-ui",
     },
     {

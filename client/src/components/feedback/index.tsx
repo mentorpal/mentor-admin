@@ -4,12 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import {
   AppBar,
-  CircularProgress,
   Fab,
   IconButton,
   MenuItem,
@@ -36,7 +34,6 @@ import { Autocomplete } from "@material-ui/lab";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
 import {
   fetchMentor,
   fetchTrainingStatus,
@@ -162,8 +159,8 @@ function FeedbackItem(props: {
           {feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
             ? "Exact"
             : feedback.classifierAnswerType === ClassifierAnswerType.PARAPHRASE
-            ? "Paraphrase"
-            : Math.round(feedback.confidence * 100) / 100}
+              ? "Paraphrase"
+              : Math.round(feedback.confidence * 100) / 100}
         </Typography>
       </TableCell>
       <TableCell id="question" align="left">
@@ -178,32 +175,32 @@ function FeedbackItem(props: {
       </TableCell>
       <TableCell id="graderAnswer" align="left">
         {feedback.classifierAnswerType ===
-        ClassifierAnswerType.EXACT_MATCH ? undefined : (
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <Autocomplete
-              id="select-answer"
-              options={mentor.answers}
-              getOptionLabel={(option: Answer) => option.question.question}
-              onChange={(e, v) => {
-                onUpdateAnswer(v?._id);
-              }}
-              style={{
-                minWidth: 300,
-                background: feedback.graderAnswer ? "#eee" : "",
-                flexGrow: 1,
-              }}
-              renderOption={(option) => (
-                <Typography align="left">{option.question.question}</Typography>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} variant="outlined" />
-              )}
-            />
-            <IconButton onClick={() => onUpdateAnswer(undefined)}>
-              <CloseIcon />
-            </IconButton>
-          </div>
-        )}
+          ClassifierAnswerType.EXACT_MATCH ? undefined : (
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <Autocomplete
+                id="select-answer"
+                options={mentor.answers}
+                getOptionLabel={(option: Answer) => option.question.question}
+                onChange={(e, v) => {
+                  onUpdateAnswer(v?._id);
+                }}
+                style={{
+                  minWidth: 300,
+                  background: feedback.graderAnswer ? "#eee" : "",
+                  flexGrow: 1,
+                }}
+                renderOption={(option) => (
+                  <Typography align="left">{option.question.question}</Typography>
+                )}
+                renderInput={(params) => (
+                  <TextField {...params} variant="outlined" />
+                )}
+              />
+              <IconButton onClick={() => onUpdateAnswer(undefined)}>
+                <CloseIcon />
+              </IconButton>
+            </div>
+          )}
         <Tooltip
           placement="top-start"
           title={feedback.graderAnswer?.transcript || ""}
@@ -222,7 +219,6 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [feedback, setFeedback] = useState<Connection<UserQuestion>>();
   const [cursor, setCursor] = React.useState("");
@@ -245,21 +241,10 @@ function FeedbackPage(): JSX.Element {
   const [isTraining, setIsTraining] = useState(false);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
+    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+  }, []);
 
   React.useEffect(() => {
-    if (context.user) {
-      fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-    }
-  }, [context.user]);
-
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
     loadFeedback();
   }, [
     mentor,
@@ -273,13 +258,16 @@ function FeedbackPage(): JSX.Element {
   ]);
 
   async function loadFeedback() {
+    if (!mentor) {
+      return;
+    }
     const filter: {
-      mentor?: string;
+      mentor: string;
       classifierAnswer?: string;
       graderAnswer?: string;
       feedback?: Feedback;
       classifierAnswerType?: ClassifierAnswerType;
-    } = { mentor: mentor?._id };
+    } = { mentor: mentor._id };
     if (feedbackFilter !== undefined) {
       filter["feedback"] = feedbackFilter;
     }
@@ -369,7 +357,6 @@ function FeedbackPage(): JSX.Element {
     return (
       <div>
         <NavBar title="Feedback" />
-        <CircularProgress />
       </div>
     );
   }
@@ -551,8 +538,8 @@ function FeedbackPage(): JSX.Element {
               {isTraining
                 ? "Training..."
                 : trainData.state === TrainState.FAILURE
-                ? "Training Failed. Retry?"
-                : "Train Mentor"}
+                  ? "Training Failed. Retry?"
+                  : "Train Mentor"}
             </Fab>
           </Toolbar>
         </AppBar>

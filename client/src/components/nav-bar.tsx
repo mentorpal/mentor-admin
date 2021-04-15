@@ -16,8 +16,6 @@ import {
   ListItem,
   ListItemText,
   ListSubheader,
-  Menu,
-  MenuItem,
   SwipeableDrawer,
   Toolbar,
   Typography,
@@ -55,66 +53,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Login(props: { classes: Record<string, string> }): JSX.Element {
-  const { classes } = props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
-  const [anchorEl, setAnchorEl] = React.useState<
-    EventTarget & HTMLButtonElement
-  >();
-  const open = Boolean(anchorEl);
-  const context = useContext(Context);
-
-  function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
-    setAnchorEl(e.currentTarget);
-  }
-
-  function handleClose(): void {
-    setAnchorEl(undefined);
-  }
-
-  function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
-    navigate("/");
-  }
-
-  if (!context.user) {
-    return <div></div>;
-  }
-
-  return (
-    <div className={classes.login}>
-      <Button
-        id="login-option"
-        onClick={handleMenu}
-        startIcon={<AccountCircle />}
-        style={{ color: "white" }}
-      >
-        {context.user.name}
-      </Button>
-      <Menu
-        id="login-menu"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={open}
-        onClose={handleClose}
-      >
-        <MenuItem id="logout-button" onClick={onLogout}>
-          Logout
-        </MenuItem>
-      </Menu>
-    </div>
-  );
-}
-
 function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -128,7 +66,6 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
 
   function onLogout(): void {
     removeCookie("accessToken", { path: "/" });
-    navigate("/");
   }
 
   return (
@@ -137,40 +74,30 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       <ListItem
         button
         component={Link}
-        to={"/profile"}
-        selected={location.pathname === "/profile"}
+        to={"/app/profile"}
+        selected={location.pathname === "/app/profile"}
       >
         <ListItemText primary="Profile" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/subjects"}
-        selected={location.pathname === "/subjects"}
+        to={"/app/subjects"}
+        selected={location.pathname === "/app/subjects"}
       >
         <ListItemText primary="Select Subjects" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
+        to={"/app/setup"}
+        selected={location.pathname === "/app/setup"}
       >
         <ListItemText primary="Setup" />
       </ListItem>
-
       <Divider style={{ marginTop: 15 }} />
+
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
-
-      <ListItem
-        button
-        component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
-      >
-        <ListItemText primary="Record Questions" />
-      </ListItem>
-
       <ListItem
         button
         component={Link}
@@ -179,20 +106,17 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       >
         <ListItemText primary="Review Answers" />
       </ListItem>
-
       <ListItem
         button
         component={Link}
-        to={"/feedback"}
-        selected={location.pathname.includes("/feedback")}
+        to={"/app/feedback"}
+        selected={location.pathname.includes("/app/feedback")}
       >
         <ListItemText primary="Corrections and User Feedback" />
       </ListItem>
-
       <ListItem button onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>
@@ -201,16 +125,16 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       <ListItem
         button
         component={Link}
-        to={"/author/subjects"}
-        selected={location.pathname.includes("/author/subject")}
+        to={"/app/author/subjects"}
+        selected={location.pathname.includes("/app/author/subject")}
       >
         <ListItemText primary="Subjects Areas" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/author/questions"}
-        selected={location.pathname.includes("/author/question")}
+        to={"/app/author/questions"}
+        selected={location.pathname.includes("/app/author/question")}
       >
         <ListItemText primary="Questions" />
       </ListItem>
@@ -244,28 +168,34 @@ export function NavBar(props: {
     <div id="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          {context.user ? (
-            <IconButton
-              id={back ? "back-button" : "menu-button"}
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              className={classes.menuButton}
-              onClick={() => {
-                if (back) {
-                  navigate(decodeURI(back));
-                } else {
-                  toggleDrawer(true);
-                }
-              }}
-            >
-              {back ? <CloseIcon /> : <MenuIcon />}
-            </IconButton>
-          ) : undefined}
+          <IconButton
+            id={back ? "back-button" : "menu-button"}
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            className={classes.menuButton}
+            onClick={() => {
+              if (back) {
+                navigate(decodeURI(back));
+              } else {
+                toggleDrawer(true);
+              }
+            }}
+          >
+            {back ? <CloseIcon /> : <MenuIcon />}
+          </IconButton>
           <Typography id="title" variant="h6" className={classes.title}>
             {props.title}
           </Typography>
-          <Login classes={classes} />
+          <Button
+            id="login-option"
+            disabled
+            className={classes.login}
+            startIcon={<AccountCircle />}
+            style={{ color: "white" }}
+          >
+            {context.user?.name}
+          </Button>
         </Toolbar>
       </AppBar>
       <SwipeableDrawer

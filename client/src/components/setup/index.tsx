@@ -5,9 +5,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
-import { Button, CircularProgress, Radio } from "@material-ui/core";
+import { Button, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 import {
@@ -18,7 +18,6 @@ import {
   UtteranceName,
   MentorType,
 } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
 import {
@@ -32,7 +31,7 @@ import {
   BuildMentorSlide,
   SelectSubjectsSlide,
   MentorTypeSlide,
-} from "components/setup-slides";
+} from "./setup-slides";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -84,46 +83,40 @@ const useStyles = makeStyles(() => ({
 
 function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
     const load = async () => {
-      if (!context.user) {
-        return;
-      }
       const mentor = await fetchMentor(cookies.accessToken);
-      fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
-        const requiredSubjects = subjects.edges.map(
-          (e: Edge<Subject>) => e.node
-        );
-        const subjectIds = mentor.subjects.map((s) => s._id);
-        if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-          const subjects = [
-            ...new Set([...requiredSubjects, ...mentor.subjects]),
-          ];
-          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
-            (updated) => {
-              if (updated) {
-                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-              }
-            }
+      // check for any required subjects the mentor does not have
+      // TODO: should this step be moved somewhere else?
+      fetchSubjects({ filter: { isRequired: true } })
+        .then((subjects) => {
+          const requiredSubjects = subjects.edges.map(
+            (e: Edge<Subject>) => e.node
           );
-        }
-      });
+          const subjectIds = mentor.subjects.map((s) => s._id);
+          // if any unassigned required subjects are found, assign them to the mentor
+          if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+            const subjects = [
+              ...new Set([...requiredSubjects, ...mentor.subjects]),
+            ];
+            updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
+              (updated) => {
+                if (updated) {
+                  fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+                }
+              }
+            );
+          }
+        });
       setMentor(mentor);
     };
     load();
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
@@ -209,7 +202,6 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     return (
       <div>
         <NavBar title="Mentor Setup" />
-        <CircularProgress />
       </div>
     );
   }

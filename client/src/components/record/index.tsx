@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import ReactPlayer from "react-player";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,7 +13,6 @@ import { navigate } from "gatsby";
 import {
   AppBar,
   Button,
-  CircularProgress,
   FormControl,
   IconButton,
   InputAdornment,
@@ -27,9 +26,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
+
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
 import { Answer, Status, Mentor, MentorType } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withLocation from "wrap-with-location";
@@ -100,11 +99,9 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [answers, setAnswers] = useState<Answer[]>([]);
-
   const [idx, setIdx] = useState(0);
   const [curAnswer, setCurAnswer] = useState<Answer>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -124,15 +121,6 @@ function RecordPage(props: {
   }, []);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     fetchMentor(cookies.accessToken).then((m) => {
       setMentor(m);
       const { videoId, subject, category, status } = props.search;
@@ -161,10 +149,10 @@ function RecordPage(props: {
         ]);
       }
     });
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
-    if (!mentor || !answers || answers.length === 0) {
+    if (idx >= answers.length) {
       return;
     }
     setVideoInput(null);
@@ -265,11 +253,10 @@ function RecordPage(props: {
     );
   }
 
-  if (!mentor || !answers || answers.length === 0 || !curAnswer) {
+  if (!mentor || answers.length === 0 || !curAnswer) {
     return (
       <div>
         <NavBar title="Record Mentor" />
-        <CircularProgress />
       </div>
     );
   }
@@ -414,15 +401,15 @@ function RecordPage(props: {
               Done
             </Button>
           ) : (
-            <IconButton
-              id="next-btn"
-              className={classes.nextBtn}
-              disabled={idx === answers.length - 1}
-              onClick={() => setIdx(idx + 1)}
-            >
-              <ArrowForwardIcon fontSize="large" />
-            </IconButton>
-          )}
+              <IconButton
+                id="next-btn"
+                className={classes.nextBtn}
+                disabled={idx === answers.length - 1}
+                onClick={() => setIdx(idx + 1)}
+              >
+                <ArrowForwardIcon fontSize="large" />
+              </IconButton>
+            )}
         </Toolbar>
       </AppBar>
       <ToastContainer />

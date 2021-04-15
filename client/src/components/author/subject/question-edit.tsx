@@ -16,8 +16,8 @@ import {
 } from "@material-ui/core";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 import { QuestionType, Topic, SubjectQuestion } from "types";
-import ParaphraseList from "components/author/question-paraphrase-list";
-import TopicsList from "components/author/question-topics-list";
+import ParaphraseList from "components/author/subject/question-paraphrase-list";
+import TopicsList from "components/author/subject/question-topics-list";
 
 export function QuestionEditCard(props: {
   classes: Record<string, string>;

@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuid } from "uuid";
@@ -13,7 +12,6 @@ import {
   Button,
   Card,
   CardContent,
-  CircularProgress,
   Collapse,
   IconButton,
   TextField,
@@ -22,12 +20,11 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
-import Context from "context";
 import { fetchMentorId, fetchSubject, updateSubject } from "api";
 import { Subject, Category, Topic, SubjectQuestion, QuestionType } from "types";
 import NavBar from "components/nav-bar";
-import QuestionsList from "components/author/questions-list";
-import TopicsList from "components/author/topics-list";
+import QuestionsList from "components/author/subject/questions-list";
+import TopicsList from "components/author/subject/topics-list";
 import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
@@ -68,9 +65,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SubjectPage(props: { search: { id?: string } }): JSX.Element {
+function AuthorSubjectPage(props: { search: { id?: string } }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [subjectEdit, setSubjectEdit] = useState<Subject>({
     _id: "",
@@ -102,22 +98,14 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   }, []);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
     setSubject(JSON.parse(JSON.stringify(subjectEdit)));
-    if (context.user) {
-      fetchMentorId(cookies.accessToken).then((m) => {
-        setMentorId(m._id);
-        if (props.search.id) {
-          loadSubject(props.search.id);
-        }
-      });
-    }
-  }, [context.user]);
+    fetchMentorId(cookies.accessToken).then((m) => {
+      setMentorId(m._id);
+      if (props.search.id) {
+        loadSubject(props.search.id);
+      }
+    });
+  }, []);
 
   function toggleExpand(s: boolean, t: boolean, q: boolean) {
     setIsSubjectInfoExpanded(s);
@@ -284,11 +272,10 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
     }
   }
 
-  if (!context.user) {
+  if (!mentorId) {
     return (
       <div>
         <NavBar title="Edit Subject" />
-        <CircularProgress />
       </div>
     );
   }
@@ -395,4 +382,4 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   );
 }
 
-export default withLocation(SubjectPage);
+export default withLocation(AuthorSubjectPage);

@@ -13,17 +13,10 @@ const mentor = {
 };
 
 describe("Edit subjects", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
-    cy.visit("/author/subjects");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("shows list of subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor, subjects: [allSubjects] });
-    cy.visit("/author/subjects");
+    cy.visit("/app/author/subjects");
     cy.get("#subjects").children().should("have.length", 3);
     cy.get("#subject-0 #name").contains("Background");
     cy.get("#subject-0 #description").contains(
@@ -46,9 +39,9 @@ describe("Edit subjects", () => {
       subjects: [allSubjects],
       subject: background,
     });
-    cy.visit("/author/subjects");
+    cy.visit("/app/author/subjects");
     cy.get("#subject-0 #name a").trigger("mouseover").click();
-    cy.location("pathname").should("contain", "/author/subject");
+    cy.location("pathname").should("contain", "/app/author/subject");
     cy.location("search").should("contain", "?id=background");
   });
 

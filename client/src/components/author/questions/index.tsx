@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -31,9 +30,8 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
-import { Connection, Subject } from "types";
-import { fetchSubjects } from "api";
+import { Connection, Question } from "types";
+import { fetchQuestions } from "api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,19 +62,14 @@ const useStyles = makeStyles((theme) => ({
 
 const columns: ColumnDef[] = [
   {
-    id: "name",
-    label: "Name",
+    id: "question",
+    label: "Question",
     minWidth: 200,
     align: "left",
     sortable: true,
   },
-  {
-    id: "description",
-    label: "Description",
-    minWidth: 200,
-    align: "left",
-    sortable: true,
-  },
+  { id: "type", label: "Type", minWidth: 200, align: "left", sortable: true },
+  { id: "name", label: "Tag", minWidth: 200, align: "left", sortable: true },
   {
     id: "delete",
     label: "Delete",
@@ -86,16 +79,27 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectItem(props: {
-  id: string;
-  subject: Subject;
-  onDelete: (id: string) => void;
-}): JSX.Element {
-  const { subject, onDelete } = props;
+function AuthorQuestionsPage(): JSX.Element {
+  const classes = useStyles();
+  const [questions, setQuestions] = useState<Connection<Question>>();
+  const [cursor, setCursor] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("question");
+  const [sortAscending, setSortAscending] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<
     EventTarget & HTMLButtonElement
   >();
   const deleteMenuOpen = Boolean(anchorEl);
+  const limit = 10;
+
+  React.useEffect(() => {
+    loadQuestions();
+  }, [cursor, sortBy, sortAscending]);
+
+  async function loadQuestions() {
+    setQuestions(
+      await fetchQuestions({ cursor, limit, sortBy, sortAscending })
+    );
+  }
 
   function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);
@@ -105,83 +109,9 @@ function SubjectItem(props: {
     setAnchorEl(undefined);
   }
 
-  async function deleteSubject(id: string) {
+  async function deleteQuestion() {
     toast("Deleting...");
     setAnchorEl(undefined);
-    onDelete(id);
-  }
-
-  return (
-    <TableRow id={props.id} hover role="checkbox" tabIndex={-1}>
-      <TableCell id="name" align="left">
-        <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
-      </TableCell>
-      <TableCell id="description" align="left">
-        {subject.description}
-      </TableCell>
-      <TableCell id="delete" align="center">
-        <IconButton onClick={onClickDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-      <Menu
-        id="delete-menu"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={deleteMenuOpen}
-        onClose={onCloseDelete}
-      >
-        <MenuItem
-          id="confirm-delete"
-          onClick={() => deleteSubject(subject._id)}
-        >
-          Confirm
-        </MenuItem>
-        <MenuItem id="cancel-delete" onClick={onCloseDelete}>
-          Cancel
-        </MenuItem>
-      </Menu>
-    </TableRow>
-  );
-}
-
-function SubjectsPage(): JSX.Element {
-  const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
-  const [subjects, setSubjects] = useState<Connection<Subject>>();
-  const [cursor, setCursor] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("name");
-  const [sortAscending, setSortAscending] = React.useState(false);
-  const limit = 10;
-
-  React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
-    loadSubjects();
-  }, [context.user, cursor, sortBy, sortAscending]);
-
-  async function loadSubjects() {
-    setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
-  }
-
-  async function deleteSubject() {
-    // TODO
   }
 
   function setSort(id: string) {
@@ -193,10 +123,10 @@ function SubjectsPage(): JSX.Element {
     setCursor("");
   }
 
-  if (!context.user || !subjects) {
+  if (!questions) {
     return (
       <div>
-        <NavBar title="Subjects" />
+        <NavBar title="Questions" />
         <CircularProgress />
       </div>
     );
@@ -204,7 +134,7 @@ function SubjectsPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" />
+      <NavBar title="Questions" />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -215,14 +145,54 @@ function SubjectsPage(): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
-              <TableBody id="subjects">
-                {subjects.edges.map((row, i) => (
-                  <SubjectItem
-                    key={`subject-${i}`}
-                    id={`subject-${i}`}
-                    subject={row.node}
-                    onDelete={deleteSubject}
-                  />
+              <TableBody id="questions">
+                {questions.edges.map((row, i) => (
+                  <TableRow
+                    key={`question-${i}`}
+                    id={`question-${i}`}
+                    hover
+                    role="checkbox"
+                    tabIndex={-1}
+                  >
+                    <TableCell id="question" align="left">
+                      <Link to={`/author/question?id=${row.node._id}`}>
+                        {row.node.question}
+                      </Link>
+                    </TableCell>
+                    <TableCell id="type" align="left">
+                      {row.node.type}
+                    </TableCell>
+                    <TableCell id="name" align="left">
+                      {row.node.name}
+                    </TableCell>
+                    <TableCell id="delete" align="center">
+                      <IconButton onClick={onClickDelete}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                    <Menu
+                      id="delete-menu"
+                      anchorEl={anchorEl}
+                      anchorOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      keepMounted
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      open={deleteMenuOpen}
+                      onClose={onCloseDelete}
+                    >
+                      <MenuItem id="confirm-delete" onClick={deleteQuestion}>
+                        Confirm
+                      </MenuItem>
+                      <MenuItem id="cancel-delete" onClick={onCloseDelete}>
+                        Cancel
+                      </MenuItem>
+                    </Menu>
+                  </TableRow>
                 ))}
               </TableBody>
             </Table>
@@ -232,17 +202,17 @@ function SubjectsPage(): JSX.Element {
           <Toolbar>
             <IconButton
               id="prev-page"
-              disabled={!subjects.pageInfo.hasPreviousPage}
+              disabled={!questions.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + subjects.pageInfo.startCursor)
+                setCursor("prev__" + questions.pageInfo.startCursor)
               }
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               id="next-page"
-              disabled={!subjects.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
+              disabled={!questions.pageInfo.hasNextPage}
+              onClick={() => setCursor("next__" + questions.pageInfo.endCursor)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -251,10 +221,10 @@ function SubjectsPage(): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={() => navigate(`/author/subject`)}
+              onClick={() => navigate(`/app/author/question`)}
             >
               <AddIcon />
-              Create Subject
+              Create Question
             </Fab>
           </Toolbar>
         </AppBar>
@@ -264,4 +234,4 @@ function SubjectsPage(): JSX.Element {
   );
 }
 
-export default SubjectsPage;
+export default AuthorQuestionsPage;

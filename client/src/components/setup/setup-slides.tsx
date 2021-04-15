@@ -249,7 +249,7 @@ export function SelectSubjectsSlide(props: {
   const { classes, i } = props;
 
   function onClick() {
-    navigate(`/subjects?back=${encodeURI(`/setup?i=${i}`)}`);
+    navigate(`/app/subjects?back=${encodeURI(`/app/setup?i=${i}`)}`);
   }
 
   return (
@@ -288,7 +288,7 @@ export function RecordIdleSlide(props: {
 
   function onRecord() {
     navigate(
-      `/record?videoId=${idle.question._id}&back=${encodeURI(`/setup?i=${i}`)}`
+      `/app/record?videoId=${idle.question._id}&back=${encodeURI(`/app/setup?i=${i}`)}`
     );
   }
 
@@ -334,7 +334,7 @@ export function RecordSubjectSlide(props: {
 
   function onRecord() {
     navigate(
-      `/record?subject=${subject._id}&back=${encodeURI(`/setup?i=${i}`)}`
+      `/app/record?subject=${subject._id}&back=${encodeURI(`/app/setup?i=${i}`)}`
     );
   }
 

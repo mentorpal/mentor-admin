@@ -4,13 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useCookies } from "react-cookie";
 import { ToastContainer, toast } from "react-toastify";
-import { navigate } from "gatsby";
 import {
   Button,
-  CircularProgress,
   Paper,
   TextField,
   Typography,
@@ -18,7 +16,6 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { updateMentor, fetchMentor } from "api";
 import { Mentor } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -45,26 +42,16 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function IndexPage(): JSX.Element {
+function ProfilePage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
     loadMentor();
-  }, [context.user]);
+  }, []);
 
   async function loadMentor() {
-    if (!context.user) {
-      return;
-    }
     setMentor(await fetchMentor(cookies.accessToken));
   }
 
@@ -82,7 +69,6 @@ function IndexPage(): JSX.Element {
     return (
       <div>
         <NavBar title="Mentor Studio" />
-        <CircularProgress />
       </div>
     );
   }
@@ -138,4 +124,4 @@ function IndexPage(): JSX.Element {
   );
 }
 
-export default IndexPage;
+export default ProfilePage;
