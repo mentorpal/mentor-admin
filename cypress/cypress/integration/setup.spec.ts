@@ -124,13 +124,6 @@ describe("Setup", () => {
     });
   });
 
-  it.skip("shows setup page after logging in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, baseMock);
-    cy.visit("/app");
-    cy.location("pathname").should("contain", "/setup");
-  });
-
   it("adds required subjects if missing from mentor initially", () => {
     cySetup(cy);
     cyMockDefault(cy, {
