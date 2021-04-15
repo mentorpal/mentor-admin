@@ -48,6 +48,9 @@ function LoginPage(): JSX.Element {
     getClientID().then((id: string) => {
       setClientId(id);
     });
+  }, []);
+
+  React.useEffect(() => {
     // USED FOR TEST PURPOSES ONLY
     if (process.env.ACCESS_TOKEN) {
       setCookie("accessToken", process.env.ACCESS_TOKEN, { path: "/" });
@@ -77,7 +80,7 @@ function LoginPage(): JSX.Element {
     });
   };
 
-  if (cookies.accessToken) {
+  if (cookies.accessToken || !googleClientId) {
     return (
       <div className={classes.root}>
         <NavBar title="Mentor Studio" />

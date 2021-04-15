@@ -25,7 +25,9 @@ function Provider(props: { children: any }): JSX.Element {
   React.useEffect(() => {
     if (!cookies.accessToken) {
       setUser(undefined);
-    } else if (!user) {
+      return;
+    } 
+    if (!user) {
       login(cookies.accessToken)
         .then((token: UserAccessToken) => {
           setUser(token.user);
@@ -36,7 +38,7 @@ function Provider(props: { children: any }): JSX.Element {
           removeCookie("accessToken", { path: "/" });
         });
     }
-  }, [cookies]);
+  }, [cookies, user]);
 
   return <Context.Provider value={{ user }}>{props.children}</Context.Provider>;
 }

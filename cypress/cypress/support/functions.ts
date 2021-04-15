@@ -75,10 +75,10 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
   for (const mock of mocks) {
     queryCalls[mock.query] = 0;
   }
-  cy.intercept("**/graphql", (req) => {
+  cy.intercept("/graphql", (req) => {
     const { body } = req;
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
-    console.log(queryBody)
+    let handled = false;
     for (const mock of mocks) {
       if (
         queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
@@ -95,7 +95,6 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
           body[mock.query] = val;
         }
         req.alias = mock.query;
-        console.log(body)
         req.reply(
           staticResponse({
             body: {
@@ -104,8 +103,13 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
             },
           })
         );
-        queryCalls[mock.query] = queryCalls[mock.query] + 1;
+        queryCalls[mock.query] += 1;
+        handled = true;
         break;
+      }
+      if(!handled) {
+        console.error(`failed to handle query for...`)
+        console.error(req)
       }
     }
   });
@@ -165,7 +169,7 @@ export function cyMockTrain(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("**/classifier/train", (req) => {
+  cy.intercept("/classifier/train", (req) => {
     req.alias = "train";
     req.reply(
       staticResponse({
@@ -193,7 +197,7 @@ export function cyMockTrainStatus(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept(`**/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
+  cy.intercept(`/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
     req.reply(
       staticResponse({
         statusCode: params.statusCode || 200,

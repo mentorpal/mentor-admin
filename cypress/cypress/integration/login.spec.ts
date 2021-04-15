@@ -76,6 +76,7 @@ describe("Login", () => {
 
     it("does not show username if the user is not logged in", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/");
       cy.get("#nav-bar #login-option").should("not.exist");
     });
@@ -93,6 +94,7 @@ describe("Login", () => {
 
   it("shows login page", () => {
     cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
     cy.visit("/login");
     cy.get("#nav-bar #title").contains("Mentor Studio");
     cy.contains("Please sign in to access the Mentor Studio portal");
@@ -108,7 +110,7 @@ describe("Login", () => {
 
   it("redirects to setup page after logging in for the first time", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor });
+    cyMockDefault(cy, { mentor, noLogin: true });
     cy.visit("/login");
     cy.location("pathname").should("contain", "/setup");
     cy.location("pathname").should("not.contain", "/login");
