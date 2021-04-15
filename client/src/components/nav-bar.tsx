@@ -56,16 +56,21 @@ const useStyles = makeStyles((theme) => ({
 function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  // const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  const context = useContext(Context);
 
   async function openChat() {
-    const mentor = await fetchMentorId(cookies.accessToken);
+    if (!context.user?.accessToken) {
+      return;
+    }
+    const mentor = await fetchMentorId(context.user.accessToken);
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
     window.location.href = path;
   }
 
   function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
+    context.logout();
+    // removeCookie("accessToken", { path: "/" });
   }
 
   return (

@@ -34,6 +34,10 @@ export interface UserAccessToken {
   expirationDate: string;
 }
 
+export interface ContextUser extends User {
+  accessToken: string;
+}
+
 export interface Mentor {
   _id: string;
   name: string;

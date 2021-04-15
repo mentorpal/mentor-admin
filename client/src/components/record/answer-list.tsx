@@ -26,7 +26,7 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
 import { fetchMentor } from "api";
 import Context from "context";
-import { useCookies } from "react-cookie";
+// import { useCookies } from "react-cookie";
 
 function AnswerList(props: {
   classes: Record<string, string>;
@@ -47,7 +47,7 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
+  // const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = React.useState<string>();
   const [isExpanded, setExpanded] = React.useState(false);
 
@@ -55,7 +55,7 @@ function AnswerList(props: {
     if (!context.user) {
       return;
     }
-    fetchMentor(cookies.accessToken).then((m) => {
+    fetchMentor(context.user.accessToken).then((m) => {
       setMentor(m._id);
     });
   }, [context.user]);

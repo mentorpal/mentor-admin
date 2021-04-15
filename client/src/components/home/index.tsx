@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { v4 as uuid } from "uuid";
 import {
@@ -47,6 +47,7 @@ import RecordingBlockItem, {
 } from "components/record/recording-block";
 import withLocation from "wrap-with-location";
 import { toast, ToastContainer } from "react-toastify";
+import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -94,7 +95,7 @@ interface Progress {
 
 function HomePage(props: { search: { subject?: string } }): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   const [mentor, setMentor] = useState<Mentor>();
   const [selectedSubject, setSelectedSubject] = useState<string>();
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
@@ -105,9 +106,12 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
   const [isBuilding, setIsBuilding] = useState(false);
 
   React.useEffect(() => {
+    if (!context.user?.accessToken) {
+      return;
+    }
     setSelectedSubject(props.search.subject);
     setLoadingMessage("Loading mentor...");
-    fetchMentor(cookies.accessToken).then((m) => {
+    fetchMentor(context.user.accessToken).then((m) => {
       setMentor(m);
       setLoadingMessage(undefined);
     });
@@ -269,7 +273,7 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
   }
 
   async function onSave() {
-    if (!mentor) {
+    if (!(mentor && context.user?.accessToken)) {
       return;
     }
     setLoadingMessage("Saving changes...");
@@ -282,10 +286,10 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
             subject.questions.splice(i, 1);
           }
         }
-        await updateSubject(subject, cookies.accessToken);
+        await updateSubject(subject, context.user.accessToken);
       }
     }
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(context.user.accessToken));
     setLoadingMessage(undefined);
   }
 

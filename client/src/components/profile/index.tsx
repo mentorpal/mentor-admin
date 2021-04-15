@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button, Paper, TextField, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -13,6 +12,7 @@ import { updateMentor, fetchMentor } from "api";
 import { Mentor } from "types";
 import NavBar from "components/nav-bar";
 import "react-toastify/dist/ReactToastify.css";
+import Context from "context";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -39,7 +39,7 @@ const useStyles = makeStyles(() => ({
 
 function ProfilePage(): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   const [mentor, setMentor] = useState<Mentor>();
 
   React.useEffect(() => {
@@ -47,11 +47,17 @@ function ProfilePage(): JSX.Element {
   }, []);
 
   async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    if (!context.user?.accessToken) {
+      return;
+    }
+    setMentor(await fetchMentor(context.user.accessToken));
   }
 
   async function updateProfile() {
-    const updated = await updateMentor(mentor!, cookies.accessToken);
+    if (!context.user?.accessToken) {
+      return;
+    }
+    const updated = await updateMentor(mentor!, context.user.accessToken);
     if (!updated) {
       toast("Failed to save changes");
     } else {

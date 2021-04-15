@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext, useState } from "react";
 import {
   AppBar,
   Fab,
@@ -51,6 +50,7 @@ import {
   TrainStatus,
   UserQuestion,
 } from "types";
+import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -219,7 +219,8 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
+  // const [cookies] = useCookies(["accessToken"]);
   const [feedback, setFeedback] = useState<Connection<UserQuestion>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
@@ -241,7 +242,7 @@ function FeedbackPage(): JSX.Element {
   const [isTraining, setIsTraining] = useState(false);
 
   React.useEffect(() => {
-    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+    fetchMentor(context.user.accessToken).then((m) => setMentor(m));
   }, []);
 
   React.useEffect(() => {

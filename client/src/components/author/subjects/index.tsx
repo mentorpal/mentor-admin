@@ -5,7 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+// import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -152,6 +153,7 @@ function SubjectItem(props: {
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
+  // const [cookies] = useCookies(["accessToken"]);
   const [subjects, setSubjects] = useState<Connection<Subject>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");

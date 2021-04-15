@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext, useState } from "react";
 import {
   AppBar,
   Checkbox,
@@ -27,6 +26,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { Connection, Mentor, Subject } from "types";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -86,7 +86,7 @@ const columns: ColumnDef[] = [
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   const [mentor, setMentor] = useState<Mentor>();
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
   const [subjects, setSubjects] = useState<Subject[]>();
@@ -98,7 +98,10 @@ function SubjectsPage(): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+    if (!context.user?.accessToken) {
+      return;
+    }
+    fetchMentor(context.user.accessToken).then((m) => setMentor(m));
   }, []);
 
   React.useEffect(() => {
@@ -147,7 +150,7 @@ function SubjectsPage(): JSX.Element {
   }
 
   async function saveMentor() {
-    if (!subjects || !mentor) {
+    if (!(subjects && mentor && context.user?.accessToken)) {
       return;
     }
     setIsSaving(true);
@@ -157,9 +160,9 @@ function SubjectsPage(): JSX.Element {
         defaultSubject,
         subjects: subjects,
       },
-      cookies.accessToken
+      context.user.accessToken
     );
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(context.user.accessToken));
     setIsSaving(false);
   }
 

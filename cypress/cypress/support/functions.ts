@@ -1,5 +1,6 @@
 import { Connection, Mentor, Subject } from "./types";
 import { login as loginDefault } from "../fixtures/login";
+import allSubjects from "../fixtures/subjects/all-subjects";
 
 interface StaticResponse {
   /**
@@ -107,10 +108,12 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         handled = true;
         break;
       }
-      if (!handled) {
-        console.error(`failed to handle query for...`);
-        console.error(req);
-      }
+    }
+    if (!handled) {
+      console.error(`failed to handle query for...`);
+      console.error(req);
+      console.error(queryBody);
+      console.error(mocks);
     }
   });
 }
@@ -128,7 +131,7 @@ export function mockGQL(
 }
 
 export function cyMockLogin(cy): void {
-  cy.setCookie("accessToken", "accessToken");
+  cy.setCookie("accessToken", "fake-access-token");
 }
 
 export function cyMockDefault(
@@ -141,6 +144,7 @@ export function cyMockDefault(
     mentor?: any;
     subject?: any;
     subjects?: any[];
+    updateMentor?: boolean;
   } = {}
 ) {
   const config = args?.config || {};
@@ -150,16 +154,21 @@ export function cyMockDefault(
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
+    mockGQL("subjects", args.subjects || allSubjects),
     ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
-    ...(args.subject ? [mockGQL("subject", args.subject)] : []),
-    ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...(args.noLogin ? [] : [mockGQL("login", args.login || loginDefault)]),
+    ...(args.subject ? [mockGQL("subject", args.subject)] : []),
+    ...(args.subjects
+      ? [mockGQL("subjects", args.subjects || allSubjects)]
+      : []),
+    ...(args.updateMentor
+      ? [mockGQL("updateMentor", args.updateMentor, true)]
+      : []),
     ...gqlQueries,
   ]);
 }
 
 import { TrainStatus, UserAccessToken } from "./types";
-import { mock } from "cypress/types/sinon";
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(

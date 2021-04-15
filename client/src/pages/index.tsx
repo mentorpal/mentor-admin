@@ -1,9 +1,9 @@
-import React from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext } from "react";
 import { Router } from "@reach/router";
 
 import Login from "components/login";
 import Home from "components/home";
+import Context from "context";
 
 /**
  * Redirect to login page if user is not authorized
@@ -11,11 +11,11 @@ import Home from "components/home";
  * TODO: Redirect to setup page if user's first time logging in
  */
 function Index() {
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   return (
     <Router basepath="/app">
-      <Home default={cookies.accessToken} path="/" />
-      <Login default={!cookies.accessToken} path="/login" />
+      <Home default={context.user} path="/" />
+      <Login default={!context.user} path="/login" />
     </Router>
   );
 }

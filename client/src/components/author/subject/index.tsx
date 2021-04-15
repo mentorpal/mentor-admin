@@ -4,8 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext, useState } from "react";
+// import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import { v4 as uuid } from "uuid";
 import {
@@ -26,6 +26,7 @@ import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/subject/questions-list";
 import TopicsList from "components/author/subject/topics-list";
 import withLocation from "wrap-with-location";
+import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,7 +68,8 @@ const useStyles = makeStyles((theme) => ({
 
 function AuthorSubjectPage(props: { search: { id?: string } }): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
+  // const [cookies] = useCookies(["accessToken"]);
   const [subjectEdit, setSubjectEdit] = useState<Subject>({
     _id: "",
     name: "",
@@ -98,8 +100,11 @@ function AuthorSubjectPage(props: { search: { id?: string } }): JSX.Element {
   }, []);
 
   React.useEffect(() => {
+    if(!context.user?.accessToken) {
+      return;
+    }
     setSubject(JSON.parse(JSON.stringify(subjectEdit)));
-    fetchMentorId(cookies.accessToken).then((m) => {
+    fetchMentorId(context.user.accessToken).then((m) => {
       setMentorId(m._id);
       if (props.search.id) {
         loadSubject(props.search.id);
@@ -261,8 +266,14 @@ function AuthorSubjectPage(props: { search: { id?: string } }): JSX.Element {
 
   async function saveSubject() {
     try {
+      if (!context.user?.accessToken) {
+        return;
+      }
       setIsSaving(true);
-      const updated = await updateSubject(subjectEdit, cookies.accessToken);
+      const updated = await updateSubject(
+        subjectEdit,
+        context.user.accessToken
+      );
       await loadSubject(updated._id);
       setIsSaving(false);
     } catch (err) {

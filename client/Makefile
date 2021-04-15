@@ -2,12 +2,8 @@ CYPRESS_IMAGE?=cypress/base:12
 CYPRESS_DOCKER_ENTRYPOINT?=/bin/bash
 CYPRESS_DOCKER_CACHE=$(PWD)/.cypress-docker
 
-.PHONY: clean-cypress-snapshot-cache
-clean-cypress-snapshot-cache:
-	rm -rf $(CYPRESS_DOCKER_CACHE)
-
 .PHONY: clean
-clean: clean-cypress-snapshot-cache
+clean:
 	rm -rf .cache public
 
 .PHONY: cypress-docker

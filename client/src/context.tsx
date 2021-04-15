@@ -7,30 +7,37 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { useCookies } from "react-cookie";
 import { login } from "api";
-import { User, UserAccessToken } from "types";
+import { ContextUser, UserAccessToken } from "types";
 
 type ContextType = {
-  user: User | undefined;
+  user: ContextUser | undefined;
+  logout: () => void;
 };
 
 const Context = React.createContext<ContextType>({
   user: undefined,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  logout: () => {},
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Provider(props: { children: any }): JSX.Element {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
-  const [user, setUser] = React.useState<User>();
+  const [user, setUser] = React.useState<ContextUser>();
+
+  function logout(): void {
+    removeCookie("accessToken");
+    setUser(undefined);
+  }
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      setUser(undefined);
-      return;
-    }
-    if (!user) {
+    if (!user && cookies.accessToken) {
       login(cookies.accessToken)
         .then((token: UserAccessToken) => {
-          setUser(token.user);
+          setUser({
+            ...token.user,
+            accessToken: token.accessToken,
+          });
           setCookie("accessToken", token.accessToken, { path: "/" });
         })
         .catch((err) => {
@@ -38,9 +45,13 @@ function Provider(props: { children: any }): JSX.Element {
           removeCookie("accessToken", { path: "/" });
         });
     }
-  }, [cookies, user]);
+  }, [user]);
 
-  return <Context.Provider value={{ user }}>{props.children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ user, logout }}>
+      {props.children}
+    </Context.Provider>
+  );
 }
 
 export default Context;

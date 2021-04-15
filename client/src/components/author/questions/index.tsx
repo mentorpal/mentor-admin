@@ -5,7 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+// import { useCookies } from "react-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -81,6 +82,8 @@ const columns: ColumnDef[] = [
 
 function AuthorQuestionsPage(): JSX.Element {
   const classes = useStyles();
+  const context = useContext(Context);
+  // const [cookies] = useCookies(["accessToken"]);
   const [questions, setQuestions] = useState<Connection<Question>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("question");
@@ -92,6 +95,15 @@ function AuthorQuestionsPage(): JSX.Element {
   const limit = 10;
 
   React.useEffect(() => {
+    if (!context.user?.accessToken) {
+      navigate("/login");
+    }
+  }, [context.user?.accessToken]);
+
+  React.useEffect(() => {
+    if (!context.user) {
+      return;
+    }
     loadQuestions();
   }, [cursor, sortBy, sortAscending]);
 

@@ -41,9 +41,11 @@ function LoginPage(): JSX.Element {
   const [googleClientId, setClientId] = React.useState<string>("");
 
   React.useEffect(() => {
-    getClientID().then((id: string) => {
-      setClientId(id);
-    });
+    getClientID()
+      .then((id: string) => {
+        setClientId(id);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   const onGoogleLogin = (

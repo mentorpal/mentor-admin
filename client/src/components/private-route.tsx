@@ -24,10 +24,9 @@ const useStyles = makeStyles((theme) => ({
 
 const PrivateRoute = ({ component: Component, location, ...rest }) => {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
   const context = useContext(Context);
 
-  if (!cookies.accessToken) {
+  if (!context.user) {
     navigate("/");
     return null;
   }

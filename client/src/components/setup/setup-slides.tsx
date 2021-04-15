@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+// import { useCookies } from "react-cookie";
 import {
   Paper,
   Typography,
@@ -74,15 +74,19 @@ export function MentorInfoSlide(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
+  // const [cookies] = useCookies(["accessToken"]);
+  const ctx = useContext(Context);
   const [name, setName] = useState(mentor.name);
   const [firstName, setFirstName] = useState(mentor.firstName);
   const [title, setTitle] = useState(mentor.title);
 
   async function onSave() {
+    if (!ctx?.user?.accessToken) {
+      return;
+    }
     const update = await updateMentor(
       { ...mentor, name, firstName, title },
-      cookies.accessToken
+      ctx.user.accessToken
     );
     if (!update) {
       console.error("failed to update");
@@ -151,7 +155,7 @@ export function MentorTypeSlide(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
+  // const [cookies] = useCookies(["accessToken"]);
   const [type, setType] = useState<MentorType>(
     mentor.mentorType || MentorType.CHAT
   );
@@ -162,8 +166,11 @@ export function MentorTypeSlide(props: {
   }
 
   async function onSave() {
+    if(!context.user?.accessToken) {
+      return
+    }
     setIsSaving(true);
-    await updateMentor({ ...mentor, mentorType: type }, cookies.accessToken);
+    await updateMentor({ ...mentor, mentorType: type }, context.user.accessToken);
     onUpdated();
     setIsSaving(false);
   }

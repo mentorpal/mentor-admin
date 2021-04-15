@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import { Button, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -32,6 +32,7 @@ import {
   SelectSubjectsSlide,
   MentorTypeSlide,
 } from "./setup-slides";
+import Context from "context";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -83,14 +84,18 @@ const useStyles = makeStyles(() => ({
 
 function SetupPage(props: { search: { i?: string } }): JSX.Element {
   const classes = useStyles();
-  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
 
   React.useEffect(() => {
+    if (!context.user?.accessToken) {
+      return;
+    }
+    const accessToken = context.user.accessToken;
     const load = async () => {
-      const mentor = await fetchMentor(cookies.accessToken);
+      const mentor = await fetchMentor(accessToken);
       // check for any required subjects the mentor does not have
       // TODO: should this step be moved somewhere else?
       fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
@@ -103,13 +108,11 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
           const subjects = [
             ...new Set([...requiredSubjects, ...mentor.subjects]),
           ];
-          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
-            (updated) => {
-              if (updated) {
-                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-              }
+          updateMentor({ ...mentor, subjects }, accessToken).then((updated) => {
+            if (updated) {
+              fetchMentor(accessToken).then((m) => setMentor(m));
             }
-          );
+          });
         }
       });
       setMentor(mentor);
@@ -121,6 +124,8 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     if (!mentor) {
       return;
     }
+    console.log(`here in setup what is mentor?`);
+    console.log(mentor);
     const _slides = [
       Slide(true, <WelcomeSlide key="welcome" classes={classes} />),
       Slide(
@@ -194,7 +199,10 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [mentor]);
 
   async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    if (!context.user?.accessToken) {
+      return;
+    }
+    setMentor(await fetchMentor(context.user.accessToken));
   }
 
   if (!mentor) {
