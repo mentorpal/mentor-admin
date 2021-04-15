@@ -141,7 +141,7 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
-      <ListItem button onClick={onLogout}>
+      <ListItem id="logout" button onClick={onLogout}>
         <ListItemText primary="Log Out" />
       </ListItem>
       <Divider />

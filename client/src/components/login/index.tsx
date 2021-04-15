@@ -18,6 +18,7 @@ import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
 
 const useStyles = makeStyles((theme) => ({
+  toolbar: theme.mixins.toolbar,
   root: {
     display: "flex",
     flexFlow: "column",
@@ -70,6 +71,7 @@ function LoginPage(): JSX.Element {
           </Typography>
         </Toolbar>
       </AppBar>
+      <div className={classes.toolbar} /> {/* create space below app bar */}
       <Typography variant="h5" className={classes.title}>
         Please sign in to access the Mentor Studio portal
       </Typography>

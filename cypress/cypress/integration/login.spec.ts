@@ -15,6 +15,7 @@ describe("Login", () => {
       cy.visit("/app/author/questions");
       cy.location("pathname").should("not.contain", "/app/author/questions");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from author subjects page", () => {
@@ -23,6 +24,7 @@ describe("Login", () => {
       cy.visit("/app/author/subjects");
       cy.location("pathname").should("not.contain", "/app/author/subjects");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from author subject page", () => {
@@ -31,6 +33,7 @@ describe("Login", () => {
       cy.visit("/app/author/subject");
       cy.location("pathname").should("not.contain", "/app/author/subject");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from feedback page", () => {
@@ -39,6 +42,7 @@ describe("Login", () => {
       cy.visit("/app/feedback");
       cy.location("pathname").should("not.contain", "/app/feedback");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from profile page", () => {
@@ -47,6 +51,7 @@ describe("Login", () => {
       cy.visit("/app/profile");
       cy.location("pathname").should("not.contain", "/app/profile");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from record page", () => {
@@ -55,6 +60,7 @@ describe("Login", () => {
       cy.visit("/app/record");
       cy.location("pathname").should("not.contain", "/app/record");
       cy.get("#login-button");
+      cy.contains("Please sign in");
     });
 
     it("from profile page", () => {
@@ -63,32 +69,7 @@ describe("Login", () => {
       cy.visit("/app/setup");
       cy.location("pathname").should("not.contain", "/app/setup");
       cy.get("#login-button");
-    });
-  });
-
-  describe("navbar", () => {
-    it("shows username if the user is logged in", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { mentor });
-      cy.visit("/");
-      cy.get("#nav-bar #login-option").contains("Clinton Anderson");
-    });
-
-    it("does not show username if the user is not logged in", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
-      cy.visit("/");
-      cy.get("#nav-bar #login-option").should("not.exist");
-    });
-
-    it("can logout and redirect to login page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { mentor });
-      cy.visit("/");
-      cy.get("#login-option").trigger("mouseover").click();
-      cy.get("#logout-button").trigger("mouseover").click();
-      cy.location("pathname").should("contain", "/login");
-      cy.get("#login-option").should("not.exist");
+      cy.contains("Please sign in");
     });
   });
 
@@ -97,6 +78,7 @@ describe("Login", () => {
     cyMockDefault(cy, { noLogin: true });
     cy.visit("/");
     cy.get("#login-button");
+    cy.contains("Please sign in");
   });
 
   it("shows home page if user is logged in", () => {
@@ -104,5 +86,29 @@ describe("Login", () => {
     cyMockDefault(cy);
     cy.visit("/");
     cy.get("#login-button").should("not.exist");
+  });
+
+  it("shows username if the user is logged in", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor });
+    cy.visit("/");
+    cy.get("#nav-bar #login-option").contains("Clinton Anderson");
+  });
+
+  it("does not show username if the user is not logged in", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { noLogin: true });
+    cy.visit("/");
+    cy.get("#nav-bar #login-option").should("not.exist");
+  });
+
+  it("can logout and redirect to login page", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor });
+    cy.visit("/");
+    cy.get("#menu-button").trigger("mouseover").click();
+    cy.get("#drawer #logout").trigger("mouseover").click();
+    cy.get("#login-option").should("not.exist");
+    cy.get("#login-button");
   });
 });
