@@ -132,7 +132,7 @@ describe("Record", () => {
     it("shows all questions if no filters", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record");
+      cy.visit("/app/record");
       cy.get("#progress").contains("Questions 1 / 5");
       cy.get("#question-input").should(
         "have.value",
@@ -191,7 +191,7 @@ describe("Record", () => {
     it("shows all incomplete questions if ?status=INCOMPLETE", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?status=INCOMPLETE");
+      cy.visit("/app/record?status=INCOMPLETE");
       cy.get("#progress").contains("Questions 1 / 3");
       cy.get("#question-input").should("have.value", "How old are you now?");
       cy.get("#transcript-input").should("have.value", "");
@@ -224,7 +224,7 @@ describe("Record", () => {
     it("shows all complete questions if ?status=COMPLETE", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?status=COMPLETE");
+      cy.visit("/app/record?status=COMPLETE");
       cy.get("#progress").contains("Questions 1 / 2");
       cy.get("#question-input").should(
         "have.value",
@@ -256,7 +256,7 @@ describe("Record", () => {
     it("shows a single question if ?videoId={questionId}", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?videoId=A1_1_1");
+      cy.visit("/app/record?videoId=A1_1_1");
       cy.get("#progress").contains("Questions 1 / 1");
       cy.get("#question-input").should(
         "have.value",
@@ -275,7 +275,7 @@ describe("Record", () => {
     it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?videoId=A1_1_1&videoId=A3_1_1");
+      cy.visit("/app/record?videoId=A1_1_1&videoId=A3_1_1");
       cy.get("#progress").contains("Questions 1 / 2");
       cy.get("#question-input").should(
         "have.value",
@@ -304,7 +304,7 @@ describe("Record", () => {
     it("shows all questions for a subject if ?subject={subjectId}", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?subject=background");
+      cy.visit("/app/record?subject=background");
       cy.get("#progress").contains("Questions 1 / 2");
       cy.get("#question-input").should(
         "have.value",
@@ -330,7 +330,7 @@ describe("Record", () => {
     it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?subject=background&status=INCOMPLETE");
+      cy.visit("/app/record?subject=background&status=INCOMPLETE");
       cy.get("#progress").contains("Questions 1 / 1");
       cy.get("#question-input").should("have.value", "How old are you now?");
       cy.get("#transcript-input").should("have.value", "");
@@ -343,7 +343,7 @@ describe("Record", () => {
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?subject=background&status=COMPLETE");
+      cy.visit("/app/record?subject=background&status=COMPLETE");
       cy.get("#progress").contains("Questions 1 / 1");
       cy.get("#question-input").should(
         "have.value",
@@ -362,7 +362,7 @@ describe("Record", () => {
     it("shows all questions for a category in a subject if ?category={categoryId}", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor });
-      cy.visit("/record?subject=background&category=cat");
+      cy.visit("/app/record?subject=background&category=cat");
       cy.get("#progress").contains("Questions 1 / 1");
       cy.get("#question-input").should(
         "have.value",
@@ -382,7 +382,7 @@ describe("Record", () => {
   it("hides video if mentor type is CHAT", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
-    cy.visit("/record");
+    cy.visit("/app/record");
     cy.get("#video-player").should("not.exist");
     cy.get("#video-recorder").should("not.exist");
   });
@@ -390,7 +390,7 @@ describe("Record", () => {
   it("shows video recorder if mentor type is VIDEO and no video recorded", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: { ...mentor, mentorType: MentorType.VIDEO } });
-    cy.visit("/record");
+    cy.visit("/app/record");
     cy.get("#video-player").should("not.exist");
     cy.get("#video-recorder").should("exist");
   });
@@ -416,7 +416,7 @@ describe("Record", () => {
         ],
       },
     });
-    cy.visit("/record");
+    cy.visit("/app/record");
     cy.get("#video-player").should("exist");
     cy.get("#video-recorder").should("not.exist");
   });
@@ -432,7 +432,7 @@ describe("Record", () => {
       ],
       gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
-    cy.visit("/record?subject=background&status=INCOMPLETE");
+    cy.visit("/app/record?subject=background&status=INCOMPLETE");
     cy.get("#progress").contains("Questions 1 / 1");
     cy.get("#question-input").should("have.value", "How old are you now?");
     cy.get("#transcript-input").should("have.value", "");
@@ -459,7 +459,7 @@ describe("Record", () => {
       ],
       gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
-    cy.visit("/record?subject=background&status=INCOMPLETE");
+    cy.visit("/app/record?subject=background&status=INCOMPLETE");
     cy.get("#progress").contains("Questions 1 / 1");
     cy.get("#question-input").should("have.value", "How old are you now?");
     cy.get("#transcript-input").should("have.value", "");
@@ -487,7 +487,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor,
     });
-    cy.visit("/record?videoId=A1_1_1");
+    cy.visit("/app/record?videoId=A1_1_1");
     cy.get("#question-input").should("be.disabled");
     cy.get("#undo-question-btn").should("be.disabled");
   });
@@ -507,7 +507,7 @@ describe("Record", () => {
       ],
       gqlQueries: [mockGQL("updateQuestion", true, true)],
     });
-    cy.visit("/record?videoId=A2_1_1");
+    cy.visit("/app/record?videoId=A2_1_1");
     cy.get("#progress").contains("Questions 1 / 1");
     cy.get("#question-input").should("have.value", "How old are you now?");
     cy.get("#question-input").should("not.be.disabled");

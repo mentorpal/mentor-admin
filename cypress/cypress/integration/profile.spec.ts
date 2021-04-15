@@ -10,13 +10,6 @@ const mentor = {
 };
 
 describe("Profile", () => {
-  it("redirects to login page if the user is not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
-    cy.visit("/profile");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("views, saves, and updates profile data", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -33,7 +26,7 @@ describe("Profile", () => {
       ],
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
-    cy.visit("/profile");
+    cy.visit("/app/profile");
     cy.contains("My Profile");
     cy.get("#name").should("have.value", "");
     cy.get("#first-name").should("have.value", "");

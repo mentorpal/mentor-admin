@@ -21,13 +21,6 @@ const mentor = {
 };
 
 describe("Select Subjects", () => {
-  it("redirects to login page if the user is not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
-    cy.visit("/subjects");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("can select subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -54,7 +47,7 @@ describe("Select Subjects", () => {
       subjects: [allSubjects],
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
-    cy.visit("/subjects");
+    cy.visit("/app/subjects");
     cy.location("pathname").should("contain", "/subjects");
     cy.get("#subjects").children().should("have.length", 3);
     // required subject background cannot be deselected
