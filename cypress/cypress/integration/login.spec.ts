@@ -9,28 +9,28 @@ import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
   describe("redirects to login page if the user is not logged in", () => {
-    it.only("from home page", () => {
+    it("from home page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it.only("from profile page", () => {
+    it("from profile page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/profile");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it.only("from setup page", () => {
+    it("from setup page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/setup");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it.only("from record page", () => {
+    it("from record page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/record");
