@@ -10,5 +10,10 @@ export async function getClientID(): Promise<string> {
   if (process.env.GOOGLE_CLIENT_ID) {
     return process.env.GOOGLE_CLIENT_ID;
   }
-  return (await fetchConfig()).googleClientId;
+  try {
+    return (await fetchConfig()).googleClientId;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 }

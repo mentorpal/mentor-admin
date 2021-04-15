@@ -9,50 +9,58 @@ import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
   describe("redirects to login page if the user is not logged in", () => {
-    it("from home page", () => {
+    it.only("from home page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it("from profile page", () => {
+    it.only("from profile page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/profile");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it("from setup page", () => {
+    it.only("from setup page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/setup");
       cy.location("pathname").should("contain", "/login");
     });
 
-    it("from record page", () => {
+    it.only("from record page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/record");
       cy.location("pathname").should("contain", "/login");
     });
 
     it("from subjects page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/subjects");
       cy.location("pathname").should("contain", "/login");
     });
 
     it("from subject page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/subject");
       cy.location("pathname").should("contain", "/login");
     });
 
     it("from questions page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/questions");
       cy.location("pathname").should("contain", "/login");
     });
 
     it("from feedback page", () => {
       cySetup(cy);
+      cyMockDefault(cy, { noLogin: true });
       cy.visit("/feedback");
       cy.location("pathname").should("contain", "/login");
     });

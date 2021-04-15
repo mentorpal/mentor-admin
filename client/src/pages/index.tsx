@@ -125,7 +125,7 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
   }, [context.user]);
 
   React.useEffect(() => {
-    if (!context.user) {
+    if (context.user) {
       loadAnswers();
     }
   }, [context.user, mentor, selectedSubject, editedSubjects]);

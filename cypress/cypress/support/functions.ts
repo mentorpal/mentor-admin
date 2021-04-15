@@ -78,6 +78,7 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
   cy.intercept("**/graphql", (req) => {
     const { body } = req;
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
+    console.log(queryBody)
     for (const mock of mocks) {
       if (
         queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
@@ -94,6 +95,7 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
           body[mock.query] = val;
         }
         req.alias = mock.query;
+        console.log(body)
         req.reply(
           staticResponse({
             body: {
@@ -130,6 +132,7 @@ export function cyMockDefault(
   args: {
     config?: Partial<Config>;
     gqlQueries?: MockGraphQLQuery[];
+    noLogin?: boolean;
     login?: UserAccessToken;
     mentor?: any;
     subject?: any;
@@ -138,16 +141,16 @@ export function cyMockDefault(
 ) {
   const config = args?.config || {};
   const gqlQueries = args?.gqlQueries || [];
-  cyMockLogin(cy);
-  console.log(`will mock subjects with`);
-  console.log(args);
+  if (!args.noLogin) {
+    cyMockLogin(cy);
+  }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    mockGQL("login", args?.login || loginDefault),
     mockGQL("mentor", args?.mentor || {}, Boolean(args?.mentor)),
     mockGQL("subject", args.subject || {}),
     mockGQL("subjects", args?.subjects || []),
     ...gqlQueries,
+    ...args.noLogin ? [] : [mockGQL("login", args?.login || loginDefault)]
   ]);
 }
 
