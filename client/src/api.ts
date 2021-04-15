@@ -39,9 +39,14 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
+}
+
+function isValidObjectID(id: string) {
+  return id.match(/^[0-9a-fA-F]{24}$/);
 }
 
 export async function fetchSubjects(
@@ -129,14 +134,17 @@ export async function updateSubject(
   subject: Partial<Subject>,
   accessToken: string
 ): Promise<Subject> {
-  const convertedSubject = {
-    _id: subject._id,
+  const convertedSubject: Partial<Subject> = {
     name: subject.name,
     description: subject.description,
     categories: subject.categories,
     topics: subject.topics,
     questions: subject.questions,
   };
+  if (isValidObjectID(subject._id || "")) {
+    convertedSubject._id = subject._id
+  }
+
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,

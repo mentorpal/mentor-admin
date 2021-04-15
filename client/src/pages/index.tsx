@@ -101,7 +101,6 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
   const [selectedSubject, setSelectedSubject] = useState<string>();
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
-
   const [editedSubjects, setEditedSubjects] = useState<string[]>([]);
   const [loadingMessage, setLoadingMessage] = useState<string>();
   const [statusUrl, setStatusUrl] = React.useState("");
@@ -126,8 +125,10 @@ function IndexPage(props: { search: { subject?: string } }): JSX.Element {
   }, [context.user]);
 
   React.useEffect(() => {
-    loadAnswers();
-  }, [mentor, selectedSubject, editedSubjects]);
+    if (!context.user) {
+      loadAnswers();
+    }
+  }, [context.user, mentor, selectedSubject, editedSubjects]);
 
   async function loadAnswers() {
     if (!mentor) {
