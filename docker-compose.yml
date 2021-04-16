@@ -1,18 +1,16 @@
 version: '3.8'
 services:
-  mentor-admin:
-    container_name: mentor-admin
+  admin:
+    container_name: admin
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    ports:
-      - "3000:3000"
   cypress:
     container_name: cypress
     depends_on:
-      - mentor-admin
+      - admin
     build:
       context: cypress
     environment:
-      - "CYPRESS_BASE_URL=http://mentor-admin:3000"
+      - "CYPRESS_BASE_URL=http://admin/admin"
       - "CYPRESS_SNAPSHOT_DIFF_DIR=/app/cypress/snapshots/snapshot_failed_diffs"

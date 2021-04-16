@@ -11,10 +11,14 @@ import { User, UserAccessToken } from "types";
 
 type ContextType = {
   user: User | undefined;
+  logout: () => void;
 };
 
 const Context = React.createContext<ContextType>({
   user: undefined,
+  logout: () => {
+    throw new Error("Not implemented");
+  },
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,10 +26,16 @@ function Provider(props: { children: any }): JSX.Element {
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
   const [user, setUser] = React.useState<User>();
 
+  function logout(): void {
+    removeCookie("accessToken");
+    setUser(undefined);
+  }
+
   React.useEffect(() => {
     if (!cookies.accessToken) {
-      setUser(undefined);
-    } else if (!user) {
+      return;
+    }
+    if (!user) {
       login(cookies.accessToken)
         .then((token: UserAccessToken) => {
           setUser(token.user);
@@ -36,9 +46,13 @@ function Provider(props: { children: any }): JSX.Element {
           removeCookie("accessToken", { path: "/" });
         });
     }
-  }, [cookies]);
+  }, [cookies, user]);
 
-  return <Context.Provider value={{ user }}>{props.children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ user, logout }}>
+      {props.children}
+    </Context.Provider>
+  );
 }
 
 export default Context;

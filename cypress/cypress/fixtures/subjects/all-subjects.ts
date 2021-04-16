@@ -1,13 +1,19 @@
-import { Connection, QuestionType, Subject, UtteranceName } from "../../support/types";
+import {
+  Connection,
+  QuestionType,
+  Subject,
+  UtteranceName,
+} from "../../support/types";
 
-export const subjects: Connection<Subject> = {
+export const subjects: Connection<Partial<Subject>> = {
   edges: [
     {
       cursor: "",
       node: {
         _id: "background",
         name: "Background",
-        description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+        description:
+          "These questions will ask general questions about your background that might be relevant to how people understand your career.",
         isRequired: true,
         categories: [],
         topics: [],
@@ -31,8 +37,8 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
-          }
-        ]
+          },
+        ],
       },
     },
     {
@@ -40,7 +46,8 @@ export const subjects: Connection<Subject> = {
       node: {
         _id: "repeat_after_me",
         name: "Repeat After Me",
-        description: "These are miscellaneous phrases you'll be asked to repeat.",
+        description:
+          "These are miscellaneous phrases you'll be asked to repeat.",
         isRequired: true,
         categories: [],
         topics: [],
@@ -65,7 +72,7 @@ export const subjects: Connection<Subject> = {
               name: UtteranceName.INTRO,
               paraphrases: [],
             },
-            topics: []
+            topics: [],
           },
           {
             question: {
@@ -77,16 +84,17 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
-          }
-        ]
-      }
+          },
+        ],
+      },
     },
     {
       cursor: "",
       node: {
         _id: "leadership",
         name: "Leadership",
-        description: "These questions will ask about being in a leadership role.",
+        description:
+          "These questions will ask about being in a leadership role.",
         isRequired: false,
         categories: [],
         topics: [],
@@ -94,22 +102,23 @@ export const subjects: Connection<Subject> = {
           {
             question: {
               _id: "A7_1_1",
-              question: "What's the hardest decision you've had to make as a leader?",
+              question:
+                "What's the hardest decision you've had to make as a leader?",
               type: null,
               name: null,
               paraphrases: [],
             },
             topics: [],
-          }
-        ]
-      }
-    }
+          },
+        ],
+      },
+    },
   ],
   pageInfo: {
     startCursor: null,
     endCursor: null,
     hasNextPage: false,
     hasPreviousPage: false,
-  }
-}
+  },
+};
 export default subjects;

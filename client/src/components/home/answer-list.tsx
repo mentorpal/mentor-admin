@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import clsx from "clsx";
-import React, { useContext } from "react";
+import React from "react";
 import {
   Button,
   Card,
@@ -24,12 +24,10 @@ import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
-import { fetchMentor } from "api";
-import Context from "context";
-import { useCookies } from "react-cookie";
 
 function AnswerList(props: {
   classes: Record<string, string>;
+  mentorId: string;
   header: string;
   answers: Answer[];
   onRecordAll: () => void;
@@ -46,19 +44,7 @@ function AnswerList(props: {
     onEditQuestion,
     onAddQuestion,
   } = props;
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
-  const [mentor, setMentor] = React.useState<string>();
   const [isExpanded, setExpanded] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
-    fetchMentor(cookies.accessToken).then((m) => {
-      setMentor(m._id);
-    });
-  }, [context.user]);
 
   return (
     <Card id={`answers-${header}`} elevation={0} style={{ textAlign: "left" }}>
@@ -116,7 +102,7 @@ function AnswerList(props: {
                 id={`item-${i}`}
                 style={{ backgroundColor: "#eee" }}
               >
-                {answer.question.mentor === mentor ? (
+                {answer.question.mentor === props.mentorId ? (
                   <TextField
                     id="edit-question"
                     placeholder="New question"

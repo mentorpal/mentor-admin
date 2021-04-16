@@ -1,3 +1,6 @@
+import { Connection, Mentor, Subject } from "./types";
+import { login as loginDefault } from "../fixtures/login";
+
 interface StaticResponse {
   /**
    * Serve a fixture as the response body.
@@ -34,9 +37,9 @@ interface StaticResponse {
 }
 
 interface MockGraphQLQuery {
-  query: string,
-  data: any | any[],
-  me: boolean
+  query: string;
+  data: any | any[];
+  me: boolean;
 }
 
 function staticResponse(s: StaticResponse): StaticResponse {
@@ -52,20 +55,35 @@ function staticResponse(s: StaticResponse): StaticResponse {
 }
 
 export function cySetup(cy) {
-  cy.server();
   cy.viewport(1280, 720);
 }
 
+export interface Config {
+  googleClientId: string;
+}
+
+export const CONFIG_DEFAULT: Config = {
+  googleClientId: "fake-google-client-id",
+};
+
+export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
+  return mockGQL("config", { ...CONFIG_DEFAULT, ...(config || {}) }, false);
+}
+
 export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
-  const queryCalls: any = {}
+  const queryCalls: any = {};
   for (const mock of mocks) {
     queryCalls[mock.query] = 0;
   }
-  cy.intercept('**/graphql', (req) => {
+  cy.intercept("/graphql", (req) => {
     const { body } = req;
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
+    let handled = false;
     for (const mock of mocks) {
-      if (queryBody.indexOf(`{ ${mock.query}(`) !== -1 || queryBody.indexOf(`{ ${mock.query} {`) !== -1) {
+      if (
+        queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
+        queryBody.indexOf(`{ ${mock.query} {`) !== -1
+      ) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
         const body = {};
@@ -77,33 +95,70 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
           body[mock.query] = val;
         }
         req.alias = mock.query;
-        req.reply(staticResponse({
-          body: {
-            data: body,
-            errors: null,
-          }
-        }));
-        queryCalls[mock.query] = queryCalls[mock.query] + 1;
+        req.reply(
+          staticResponse({
+            body: {
+              data: body,
+              errors: null,
+            },
+          })
+        );
+        queryCalls[mock.query] += 1;
+        handled = true;
         break;
+      }
+      if (!handled) {
+        console.error(`failed to handle query for...`);
+        console.error(req);
       }
     }
   });
 }
 
-export function cyMockGQL(query: string, data: any | any[], me = false): MockGraphQLQuery {
+export function mockGQL(
+  query: string,
+  data: any | any[],
+  me = false
+): MockGraphQLQuery {
   return {
     query,
     data,
     me,
-  }
+  };
 }
 
 export function cyMockLogin(cy): void {
-  cy.intercept("**/config", { GOOGLE_CLIENT_ID: "test" });
   cy.setCookie("accessToken", "accessToken");
-}  
+}
 
-import { TrainStatus } from "./types";
+export function cyMockDefault(
+  cy,
+  args: {
+    config?: Partial<Config>;
+    gqlQueries?: MockGraphQLQuery[];
+    noAccessTokenCookie?: boolean;
+    login?: UserAccessToken;
+    mentor?: any;
+    subject?: any;
+    subjects?: any[];
+  } = {}
+) {
+  const config = args?.config || {};
+  const gqlQueries = args?.gqlQueries || [];
+  if (!args.noAccessTokenCookie) {
+    cyMockLogin(cy);
+  }
+  cyInterceptGraphQL(cy, [
+    mockGQLConfig(config),
+    mockGQL("login", args.login || loginDefault),
+    ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
+    ...(args.subject ? [mockGQL("subject", args.subject)] : []),
+    ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
+    ...gqlQueries,
+  ]);
+}
+
+import { TrainStatus, UserAccessToken } from "./types";
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(
@@ -114,20 +169,22 @@ export function cyMockTrain(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("**/classifier/train", (req) => {
+  cy.intercept("/classifier/train", (req) => {
     req.alias = "train";
-    req.reply(staticResponse({
-      statusCode: params.statusCode || 200,
-      body: {
-        data: {
-          statusUrl: params.statusUrl || TRAIN_STATUS_URL,
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {
+            statusUrl: params.statusUrl || TRAIN_STATUS_URL,
+          },
+          errors: null,
         },
-        errors: null,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }))
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
   });
 }
 
@@ -140,16 +197,18 @@ export function cyMockTrainStatus(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept(`**/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
-    req.reply(staticResponse({
-      statusCode: params.statusCode || 200,
-      body: {
-        data: params.status,
-        errors: null,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }))
+  cy.intercept(`/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: params.status,
+          errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
   });
 }

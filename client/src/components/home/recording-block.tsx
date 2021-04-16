@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { Paper, Typography } from "@material-ui/core";
 import { Answer, Question, Status } from "types";
-import AnswerList from "components/record/answer-list";
+import AnswerList from "components/home/answer-list";
 import ProgressBar from "components/progress-bar";
 
 export interface RecordingBlock {
@@ -23,6 +23,7 @@ export interface RecordingBlock {
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
+  mentorId: string;
 }): JSX.Element {
   const { classes, block } = props;
   const answers = block.answers;
@@ -53,6 +54,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             answers={complete}
             header="Complete"
+            mentorId={props.mentorId}
             onRecordAll={() => block.recordAll(Status.COMPLETE)}
             onRecordOne={block.recordOne}
             onEditQuestion={block.editQuestion}
@@ -61,6 +63,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             answers={incomplete}
             header="Incomplete"
+            mentorId={props.mentorId}
             onRecordAll={() => block.recordAll(Status.INCOMPLETE)}
             onRecordOne={block.recordOne}
             onAddQuestion={block.addQuestion}

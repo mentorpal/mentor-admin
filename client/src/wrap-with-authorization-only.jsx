@@ -4,16 +4,29 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchConfig } from "api";
+import React, { useContext } from "react";
+import { useCookies } from "react-cookie";
+import Context from "context";
+import { Redirect } from "@reach/router";
 
-export async function getClientID(): Promise<string> {
-  if (process.env.GOOGLE_CLIENT_ID) {
-    return process.env.GOOGLE_CLIENT_ID;
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const withAuthorizationOnly = (Component) => (props) => {
+  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
+
+  if (!cookies.accessToken) {
+    return <Redirect to="/" />;
   }
-  try {
-    return (await fetchConfig()).googleClientId;
-  } catch (err) {
-    console.error(err);
-    throw err;
+  if (!context.user) {
+    return <div />;
   }
-}
+  return (
+    <Component
+      {...props}
+      accessToken={cookies.accessToken}
+      user={context.user}
+    />
+  );
+};
+
+export default withAuthorizationOnly;

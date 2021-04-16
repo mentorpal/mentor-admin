@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -29,11 +28,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+import { fetchQuestions } from "api";
+import { Connection, Question } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
-import { Connection, Question } from "types";
-import { fetchQuestions } from "api";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -83,8 +82,6 @@ const columns: ColumnDef[] = [
 
 function QuestionsPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [questions, setQuestions] = useState<Connection<Question>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("question");
@@ -96,23 +93,19 @@ function QuestionsPage(): JSX.Element {
   const limit = 10;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
-    loadQuestions();
-  }, [context.user, cursor, sortBy, sortAscending]);
-
-  async function loadQuestions() {
-    setQuestions(
-      await fetchQuestions({ cursor, limit, sortBy, sortAscending })
-    );
-  }
+    let mounted = true;
+    fetchQuestions({ cursor, limit, sortBy, sortAscending })
+      .then((q) => {
+        if (!mounted) {
+          return;
+        }
+        setQuestions(q);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
+  }, [cursor, sortBy, sortAscending]);
 
   function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);
@@ -136,7 +129,7 @@ function QuestionsPage(): JSX.Element {
     setCursor("");
   }
 
-  if (!context.user || !questions) {
+  if (!questions) {
     return (
       <div>
         <NavBar title="Questions" />
@@ -247,4 +240,4 @@ function QuestionsPage(): JSX.Element {
   );
 }
 
-export default QuestionsPage;
+export default withAuthorizationOnly(QuestionsPage);
