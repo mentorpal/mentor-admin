@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
@@ -18,7 +17,6 @@ import {
   UtteranceName,
   MentorType,
 } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import withLocation from "wrap-with-location";
 import {
@@ -33,6 +31,7 @@ import {
   SelectSubjectsSlide,
   MentorTypeSlide,
 } from "components/setup-slides";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -82,28 +81,17 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: { search: { i?: string } }): JSX.Element {
+function SetupPage(props: { accessToken: string; search: { i?: string } }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
     let mounted = true;
     // TODO: move all mutations out of client and into server (login?)
     async function load(): Promise<void> {
-      if (!(context.user && cookies.accessToken)) {
-        return;
-      }
-      const mentor = await fetchMentor(cookies.accessToken);
+      const mentor = await fetchMentor(props.accessToken);
       if (!mounted) {
         return;
       }
@@ -120,13 +108,13 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         ];
         const updated = await updateMentor(
           { ...mentor, subjects },
-          cookies.accessToken
+          props.accessToken
         );
         if (!mounted) {
           return;
         }
         if (updated) {
-          const mUpdated = await fetchMentor(cookies.accessToken);
+          const mUpdated = await fetchMentor(props.accessToken);
           if (!mounted) {
             return;
           }
@@ -138,7 +126,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
     return () => {
       mounted = false;
     };
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
@@ -217,7 +205,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [mentor]);
 
   async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(props.accessToken));
   }
 
   if (!mentor) {
@@ -289,4 +277,4 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   );
 }
 
-export default withLocation(SetupPage);
+export default withAuthorizationOnly(withLocation(SetupPage));
