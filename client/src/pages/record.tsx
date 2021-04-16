@@ -130,37 +130,48 @@ function RecordPage(props: {
   }, [cookies]);
 
   React.useEffect(() => {
-    if (!context.user) {
+    if (!(context.user && cookies.accessToken)) {
       return;
     }
-    fetchMentor(cookies.accessToken).then((m) => {
-      setMentor(m);
-      const { videoId, subject, category, status } = props.search;
-      if (videoId) {
-        const ids = Array.isArray(videoId) ? videoId : [videoId];
-        setAnswers([...m.answers.filter((a) => ids.includes(a.question._id))]);
-      } else if (subject) {
-        const s = m.subjects.find((a) => a._id === subject);
-        if (s) {
-          const sQuestions = s.questions.filter(
-            (q) => !category || `${q.category?.id}` === category
-          );
+    let mounted = true;
+    fetchMentor(cookies.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+        const { videoId, subject, category, status } = props.search;
+        if (videoId) {
+          const ids = Array.isArray(videoId) ? videoId : [videoId];
           setAnswers([
-            ...m.answers.filter(
-              (a) =>
-                sQuestions
-                  .map((q) => q.question._id)
-                  .includes(a.question._id) &&
-                (!status || a.status === status)
-            ),
+            ...m.answers.filter((a) => ids.includes(a.question._id)),
+          ]);
+        } else if (subject) {
+          const s = m.subjects.find((a) => a._id === subject);
+          if (s) {
+            const sQuestions = s.questions.filter(
+              (q) => !category || `${q.category?.id}` === category
+            );
+            setAnswers([
+              ...m.answers.filter(
+                (a) =>
+                  sQuestions
+                    .map((q) => q.question._id)
+                    .includes(a.question._id) &&
+                  (!status || a.status === status)
+              ),
+            ]);
+          }
+        } else {
+          setAnswers([
+            ...m.answers.filter((a) => !status || a.status === status),
           ]);
         }
-      } else {
-        setAnswers([
-          ...m.answers.filter((a) => !status || a.status === status),
-        ]);
-      }
-    });
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   React.useEffect(() => {
