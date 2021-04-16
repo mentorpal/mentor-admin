@@ -59,7 +59,7 @@ function LoginPage(): JSX.Element {
   };
 
   if (!googleClientId) {
-    return <div>Error</div>;
+    return <div />;
   }
 
   return (

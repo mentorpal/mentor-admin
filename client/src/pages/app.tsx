@@ -1,3 +1,4 @@
+import { withPrefix } from "gatsby";
 import React from "react";
 import { Router } from "@reach/router";
 
@@ -14,9 +15,9 @@ import PrivateRoute from "components/private-route";
 /**
  * Client-only routes that require an authorized user to access
  */
-function App() {
+function App(): JSX.Element {
   return (
-    <Router basepath="/app">
+    <Router basepath={withPrefix("/app")}>
       <PrivateRoute path="/author/questions" component={AuthorQuestions} />
       <PrivateRoute path="/author/subject" component={AuthorSubject} />
       <PrivateRoute path="/author/subjects" component={AuthorSubjects} />

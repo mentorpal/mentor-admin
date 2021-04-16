@@ -14,7 +14,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import Context from "context";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   loadingDialog: {
     display: "flex",
     alignItems: "center",
@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const PrivateRoute = ({ component: Component, location, ...rest }) => {
+const PrivateRoute = ({ component: Component, ...rest }) => {
   const classes = useStyles();
   const [cookies] = useCookies(["accessToken"]);
   const context = useContext(Context);
