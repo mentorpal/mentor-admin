@@ -4,6 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { navigate } from "gatsby";
+import React, { useState } from "react";
 import {
   Paper,
   Typography,
@@ -14,16 +16,12 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import { navigate } from "gatsby";
 import {
   updateMentor,
   trainMentor,
-  addQuestionSet,
   fetchTrainingStatus,
+  CLIENT_ENDPOINT,
 } from "api";
-import Context from "context";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
 import {
   Mentor,
   Status,
@@ -31,7 +29,7 @@ import {
   TrainStatus,
   TrainState,
   Answer,
-  Question,
+  MentorType,
 } from "types";
 
 export interface SlideType {
@@ -39,16 +37,18 @@ export interface SlideType {
   element: JSX.Element;
 }
 
-export function Slide(status: boolean, element: JSX.Element) {
+export function Slide(status: boolean, element: JSX.Element): SlideType {
   return {
     status,
     element,
   };
 }
 
-export function WelcomeSlide(props: { classes: any }): JSX.Element {
+export function WelcomeSlide(props: {
+  classes: Record<string, string>;
+  userName: string;
+}): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -56,7 +56,7 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          It&apos;s nice to meet you, {context.user!.name}!
+          It&apos;s nice to meet you, {props.userName}!
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Let&apos;s get started setting up your new mentor.
@@ -66,13 +66,13 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
   );
 }
 
-export function MentorSlide(props: {
-  classes: any;
+export function MentorInfoSlide(props: {
+  classes: Record<string, string>;
   mentor: Mentor;
+  accessToken: string;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [name, setName] = useState(mentor.name);
   const [firstName, setFirstName] = useState(mentor.firstName);
   const [title, setTitle] = useState(mentor.title);
@@ -80,7 +80,7 @@ export function MentorSlide(props: {
   async function onSave() {
     const update = await updateMentor(
       { ...mentor, name, firstName, title },
-      cookies.accessToken
+      props.accessToken
     );
     if (!update) {
       console.error("failed to update");
@@ -143,21 +143,93 @@ export function MentorSlide(props: {
   );
 }
 
-export function IntroductionSlide(props: { classes: any }): JSX.Element {
+export function MentorTypeSlide(props: {
+  classes: Record<string, string>;
+  mentor: Mentor;
+  accessToken: string;
+  onUpdated: () => void;
+}): JSX.Element {
+  const { classes, mentor, onUpdated } = props;
+  const [type, setType] = useState<MentorType>(
+    mentor.mentorType || MentorType.CHAT
+  );
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  function onSelect(mentorType: MentorType) {
+    setType(mentorType);
+  }
+
+  async function onSave() {
+    setIsSaving(true);
+    await updateMentor({ ...mentor, mentorType: type }, props.accessToken);
+    onUpdated();
+    setIsSaving(false);
+  }
+
+  return (
+    <Paper id="slide" className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        Pick a mentor type.
+      </Typography>
+      <div className={classes.column}>
+        <div className={classes.row}>
+          <Select
+            id="select-chat-type"
+            value={type}
+            style={{ width: 100, marginRight: 20 }}
+            onChange={(
+              event: React.ChangeEvent<{
+                name?: string | undefined;
+                value: unknown;
+              }>
+            ) => {
+              onSelect(event.target.value as MentorType);
+            }}
+          >
+            <MenuItem id="chat" value={MentorType.CHAT}>
+              Chat
+            </MenuItem>
+            <MenuItem id="video" value={MentorType.VIDEO}>
+              Video
+            </MenuItem>
+          </Select>
+          <Button
+            id="save-btn"
+            onClick={onSave}
+            disabled={isSaving || mentor.mentorType === type}
+            variant="contained"
+            color="primary"
+          >
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+        </div>
+        <Typography>
+          {type === MentorType.CHAT
+            ? "Make a text-only mentor that responds with chat bubbles"
+            : type === MentorType.VIDEO
+            ? "Make a video mentor that responds with pre-recorded video answers"
+            : ""}
+        </Typography>
+      </div>
+    </Paper>
+  );
+}
+
+export function IntroductionSlide(props: {
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        Let&apos;s start recording.
+        Let&apos;s start recording!
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          You&apos;ll be asked to answer some background questions and repeat
-          after mes.
+          You&apos;ll be asked to pick some subjects and answer some questions.
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Once you&apos;re done recording, you can build and preview your
-          mentor.
+          Once you&apos;re done, you can build and preview your mentor.
         </Typography>
         <Typography variant="h6" className={classes.text}>
           If you&apos;d like to stop, press done at any point. You can always
@@ -168,28 +240,64 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
   );
 }
 
-export function RecordQuestionSlide(props: {
-  classes: any;
-  isRecorded: boolean;
-  name: string;
-  id: string;
-  description: string;
+export function SelectSubjectsSlide(props: {
+  classes: Record<string, string>;
   i: number;
 }): JSX.Element {
-  const { classes, name, id, description, isRecorded, i } = props;
+  const { classes, i } = props;
 
-  function onRecord() {
-    navigate(`/record?videoId=${id}&back=${encodeURI(`/setup?i=${i}`)}`);
+  function onClick() {
+    navigate(`/subjects?back=${encodeURI(`/setup?i=${i}`)}`);
   }
 
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        {name}
+        Select subjects?
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          {description}
+          Subjects will ask questions related to a particular field or topic.
+          Pick the ones you feel qualified to mentor in!
+        </Typography>
+        <Typography variant="h6" className={classes.text}>
+          After completing a subject, you&apos;ll be placed in a panel with
+          other mentors in your field.
+        </Typography>
+        <Button
+          id="button"
+          variant="contained"
+          color="primary"
+          onClick={onClick}
+        >
+          View Subjects
+        </Button>
+      </div>
+    </Paper>
+  );
+}
+
+export function RecordIdleSlide(props: {
+  classes: Record<string, string>;
+  idle: Answer;
+  i: number;
+}): JSX.Element {
+  const { classes, idle, i } = props;
+
+  function onRecord() {
+    navigate(
+      `/record?videoId=${idle.question._id}&back=${encodeURI(`/setup?i=${i}`)}`
+    );
+  }
+
+  return (
+    <Paper id="slide" className={classes.card}>
+      <Typography variant="h3" className={classes.title}>
+        Idle
+      </Typography>
+      <div className={classes.column}>
+        <Typography variant="h6" className={classes.text}>
+          Let&apos;s record a short idle calibration video.
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Click the record button and you&apos;ll be taken to a recording
@@ -205,7 +313,7 @@ export function RecordQuestionSlide(props: {
       >
         Record
       </Button>
-      {isRecorded ? (
+      {idle.status === Status.COMPLETE ? (
         <CheckCircleIcon id="check" style={{ color: "green" }} />
       ) : undefined}
     </Paper>
@@ -213,14 +321,14 @@ export function RecordQuestionSlide(props: {
 }
 
 export function RecordSubjectSlide(props: {
-  classes: any;
-  isRecorded: boolean;
+  classes: Record<string, string>;
   subject: Subject;
   questions: Answer[];
   i: number;
 }): JSX.Element {
-  const { classes, subject, questions, isRecorded, i } = props;
+  const { classes, subject, questions, i } = props;
   const recorded = questions.filter((q) => q.status === Status.COMPLETE);
+  const isRecorded = questions.length === recorded.length;
 
   function onRecord() {
     navigate(
@@ -236,10 +344,6 @@ export function RecordSubjectSlide(props: {
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
           {subject.description}
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Click the record button and you&apos;ll be taken to a recording
-          screen.
         </Typography>
       </div>
       <Button
@@ -262,40 +366,18 @@ export function RecordSubjectSlide(props: {
   );
 }
 
-export function BuildErrorSlide(props: { classes: any }): JSX.Element {
-  const { classes } = props;
-  return (
-    <Paper id="slide" className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Oops! We aren&apos;t done just yet!
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          You&apos;re still missing some steps before you can build a mentor.
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Please check the previous steps and make sure you&apos;ve recorded all
-          videos and filled out all fields.
-        </Typography>
-      </div>
-    </Paper>
-  );
-}
-
 const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [statusUrl, setStatusUrl] = React.useState("");
   const [trainData, setTrainData] = React.useState<TrainStatus>({
     state: TrainState.NONE,
   });
   const [isBuilding, setIsBuilding] = useState(false);
-  const isBuilt = mentor.isBuilt;
 
   async function trainAndBuild() {
     trainMentor(mentor._id)
@@ -303,8 +385,7 @@ export function BuildMentorSlide(props: {
         setStatusUrl(trainJob.statusUrl);
         setIsBuilding(true);
       })
-      .catch((err: any) => {
-        console.error(err);
+      .catch((err) => {
         setTrainData({
           state: TrainState.FAILURE,
           status: err.message || `${err}`,
@@ -313,14 +394,16 @@ export function BuildMentorSlide(props: {
       });
   }
 
-  function useInterval(callback: any, delay: number | null) {
-    const savedCallback = React.useRef() as any;
+  function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = React.useRef<() => void>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay) {
         const id = setInterval(tick, delay);
@@ -328,6 +411,28 @@ export function BuildMentorSlide(props: {
       }
     }, [delay]);
   }
+
+  useInterval(
+    () => {
+      fetchTrainingStatus(statusUrl)
+        .then((trainStatus) => {
+          setTrainData(trainStatus);
+          if (
+            trainStatus.state === TrainState.SUCCESS ||
+            trainStatus.state === TrainState.FAILURE
+          ) {
+            onUpdated();
+            setIsBuilding(false);
+          }
+        })
+        .catch((err: Error) => {
+          setTrainData({ state: TrainState.FAILURE, status: err.message });
+          setIsBuilding(false);
+          console.error(err);
+        });
+    },
+    isBuilding ? TRAIN_STATUS_POLL_INTERVAL_DEFAULT : null
+  );
 
   function renderMessage(): JSX.Element {
     if (isBuilding) {
@@ -349,7 +454,10 @@ export function BuildMentorSlide(props: {
         </div>
       );
     }
-    if (mentor.isBuilt || trainData.state === TrainState.SUCCESS) {
+    if (
+      Boolean(mentor.lastTrainedAt) ||
+      trainData.state === TrainState.SUCCESS
+    ) {
       return (
         <div>
           <Typography variant="h6" className={classes.text}>
@@ -376,35 +484,6 @@ export function BuildMentorSlide(props: {
     );
   }
 
-  useInterval(
-    () => {
-      fetchTrainingStatus(statusUrl)
-        .then((trainStatus) => {
-          setTrainData(trainStatus);
-          if (
-            trainStatus.state === TrainState.SUCCESS ||
-            trainStatus.state === TrainState.FAILURE
-          ) {
-            if (trainStatus.state === TrainState.SUCCESS) {
-              updateMentor(
-                { ...mentor, isBuilt: true },
-                cookies.accessToken
-              ).then((tf) => {
-                onUpdated();
-              });
-            }
-            setIsBuilding(false);
-          }
-        })
-        .catch((err: Error) => {
-          setTrainData({ state: TrainState.FAILURE, status: err.message });
-          setIsBuilding(false);
-          console.error(err);
-        });
-    },
-    isBuilding ? TRAIN_STATUS_POLL_INTERVAL_DEFAULT : null
-  );
-
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -422,131 +501,22 @@ export function BuildMentorSlide(props: {
         >
           Build
         </Button>
-        {isBuilt ? (
+        {mentor.lastTrainedAt ? (
           <Button
             id="preview-btn"
             className={classes.button}
             variant="contained"
             color="secondary"
             disabled={isBuilding}
-            onClick={() =>
-              navigate(`http://mentorpal.org/mentorpanel/?mentor=${mentor._id}`)
-            }
+            onClick={() => {
+              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
+              window.location.href = path;
+            }}
           >
             Preview
           </Button>
         ) : undefined}
       </div>
-    </Paper>
-  );
-}
-
-export function AddQuestionSetSlide(props: {
-  classes: any;
-  subjects: Subject[];
-  mentor: Mentor;
-  onUpdated: () => void;
-}): JSX.Element {
-  const { classes, mentor, onUpdated, subjects } = props;
-  const [cookies] = useCookies(["accessToken"]);
-  const [subject, setSubject] = React.useState<Subject>();
-  const [isAdding, setIsAdding] = React.useState(false);
-  const isSubjectAdded =
-    subject !== undefined &&
-    mentor.subjects.findIndex((s) => s._id === subject._id) !== -1;
-  const answers =
-    subject !== undefined
-      ? mentor.answers.filter((a) =>
-          subject.questions.map((q) => q._id).includes(a.question._id)
-        )
-      : [];
-  const recorded = answers.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = recorded.length === answers.length;
-
-  async function addSubject() {
-    if (!subject) {
-      return;
-    }
-    setIsAdding(true);
-    await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
-    onUpdated();
-    setIsAdding(false);
-  }
-
-  async function record() {
-    if (!subject) {
-      return;
-    }
-    navigate(`/record?subject=${subject._id}&back=${encodeURI(`/setup?i=7`)}`);
-  }
-
-  return (
-    <Paper id="slide" className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Pick a Field?
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          Your basic mentor is done, but you can make it better by picking a
-          question set.
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          These question sets are specific to your field of expertise. Pick the
-          one you are most qualified to mentor in.
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Each set will ask you some related questions. After answering,
-          you&apos;ll be placed in a panel with other mentors in your field.
-        </Typography>
-      </div>
-      <div className={classes.row}>
-        <Select
-          id="select-set"
-          value={subject ? subject._id : ""}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => {
-            setSubject(
-              subjects.find((s) => s._id === (event.target.value as string))
-            );
-          }}
-          style={{ marginLeft: 10, marginRight: 10, minWidth: 100 }}
-        >
-          {subjects.map((s) => (
-            <MenuItem key={s._id} id={s._id} value={s._id}>
-              {s.name}
-            </MenuItem>
-          ))}
-        </Select>
-        {isAdding ? (
-          <CircularProgress />
-        ) : (
-          <Button
-            id="set-btn"
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            disabled={subject === undefined}
-            onClick={isSubjectAdded ? record : addSubject}
-          >
-            {isSubjectAdded ? "Record" : "Add"}
-          </Button>
-        )}
-      </div>
-      {subject ? (
-        <Typography variant="h6" className={classes.text}>
-          {subject.description}
-        </Typography>
-      ) : undefined}
-      {isSubjectAdded ? (
-        isRecorded ? (
-          <CheckCircleIcon id="check" style={{ color: "green" }} />
-        ) : (
-          <Typography variant="h6" className={classes.text}>
-            {recorded.length} / {answers.length}
-          </Typography>
-        )
-      ) : undefined}
     </Paper>
   );
 }

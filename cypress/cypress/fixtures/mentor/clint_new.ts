@@ -1,29 +1,45 @@
-import { Mentor, Status } from "../../support/types";
+import { Mentor, MentorType, QuestionType, Status, UtteranceName } from "../../support/types";
 
-export const mentor: Mentor = {
+export const mentor: Partial<Mentor> = {
   _id: "clintanderson",
   name: "",
   firstName: "",
   title: "",
-  isBuilt: false,
-  lastTrainedAt: "",
+  mentorType: MentorType.VIDEO,
+  lastTrainedAt: null,
   subjects: [
     {
       _id: "background",
       name: "Background",
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+      description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      categories: [{
+        id: "category",
+        name: "Category",
+        description: "A category"
+      }],
+      topics: [],
       questions: [
         {
-          _id: "A1_1_1",
-          question: "Who are you and what do you do?",
-          name: null,
+          question: {
+            _id: "A1_1_1",
+            question: "Who are you and what do you do?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],
+          },
+          topics: [],
+          category: { id: "category" }
         },
         {
-          _id: "A2_1_1",
-          question: "How old are you now?",
-          name: null
+          question: {
+            _id: "A2_1_1",
+            question: "How old are you now?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],
+          },
+          topics: []
         }
       ]
     },
@@ -32,83 +48,116 @@ export const mentor: Mentor = {
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
+      categories: [{
+        id: "category2",
+        name: "Category2",
+        description: "Another category"
+      }],
+      topics: [],
       questions: [
         {
-          _id: "A3_1_1",
-          question:
-            "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-          name: "Idle"
+          question: {
+            _id: "A3_1_1",
+            question:
+              "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.IDLE,
+            paraphrases: [],
+          },
+          topics: []
         },
         {
-          _id: "A4_1_1",
-          question:
-            "Please give a short introduction of yourself, which includes your name, current job, and title.",
-          name: null
+          question: {
+            _id: "A4_1_1",
+            question:
+              "Please give a short introduction of yourself, which includes your name, current job, and title.",
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.INTRO,
+            paraphrases: [],
+          },
+          topics: []
         },
         {
-          _id: "A5_1_1",
-          question:
-            "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-          name: null
+          question: {
+            _id: "A5_1_1",
+            question:
+              "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+            type: QuestionType.UTTERANCE,
+            name: UtteranceName.OFF_TOPIC,
+            paraphrases: [],
+          },
+          topics: [],
+          category: { id: "category2" }
         }
       ]
     },
   ],
+  topics: [],
   answers: [
     {
+      _id: "A1_1_1",
       question: {
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
-        name: null
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
         question: "How old are you now?",
-        name: null
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-        name: "Idle"
+        type: QuestionType.UTTERANCE,
+        name: UtteranceName.IDLE,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
         question:
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
-        name: null
+        type: QuestionType.UTTERANCE,
+        name: UtteranceName.INTRO,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
         question:
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-        name: null
+        type: QuestionType.UTTERANCE,
+        name: UtteranceName.OFF_TOPIC,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,

@@ -4,41 +4,29 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useContext } from "react";
 import { useCookies } from "react-cookie";
-import { login } from "api";
-import { User, UserAccessToken } from "types";
+import Context from "context";
+import { Redirect } from "@reach/router";
 
-type ContextType = {
-  user: User | undefined;
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const withAuthorizationOnly = (Component) => (props) => {
+  const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
+
+  if (!cookies.accessToken) {
+    return <Redirect to="/" />;
+  }
+  if (!context.user) {
+    return <div />;
+  }
+  return (
+    <Component
+      {...props}
+      accessToken={cookies.accessToken}
+      user={context.user}
+    />
+  );
 };
 
-const Context = React.createContext<ContextType>({
-  user: undefined,
-});
-
-function Provider(props: { children: any }) {
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
-  const [user, setUser] = React.useState<User>();
-
-  React.useEffect(() => {
-    if (!cookies.accessToken) {
-      setUser(undefined);
-    } else if (!user) {
-      login(cookies.accessToken)
-        .then((token: UserAccessToken) => {
-          setUser(token.user);
-          setCookie("accessToken", token.accessToken, { path: "/" });
-        })
-        .catch((err) => {
-          console.error(err);
-          removeCookie("accessToken", { path: "/" });
-        });
-    }
-  }, [cookies]);
-
-  return <Context.Provider value={{ user }}>{props.children}</Context.Provider>;
-}
-
-export default Context;
-export { Provider };
+export default withAuthorizationOnly;

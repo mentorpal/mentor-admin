@@ -5,29 +5,37 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { addQuestionSet, fetchMentor, fetchSubjects } from "api";
-import { Mentor, Subject, Status, Edge } from "types";
-import Context from "context";
+
+import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import {
+  Mentor,
+  Subject,
+  Status,
+  Edge,
+  UtteranceName,
+  MentorType,
+  User,
+} from "types";
 import NavBar from "components/nav-bar";
-import withLocation from "wrap-with-location";
 import {
   Slide,
   SlideType,
   WelcomeSlide,
-  MentorSlide,
+  MentorInfoSlide,
   IntroductionSlide,
-  RecordQuestionSlide,
+  RecordIdleSlide,
   RecordSubjectSlide,
   BuildMentorSlide,
-  BuildErrorSlide,
-  AddQuestionSetSlide,
+  SelectSubjectsSlide,
+  MentorTypeSlide,
 } from "components/setup-slides";
+import withAuthorizationOnly from "wrap-with-authorization-only";
+import withLocation from "wrap-with-location";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -75,154 +83,144 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function SetupPage(props: { search: { i?: string } }): JSX.Element {
+function SetupPage(props: {
+  accessToken: string;
+  user: User;
+  search: { i?: string };
+}): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    const load = async () => {
-      if (!context.user) {
+    let mounted = true;
+    // TODO: move all mutations out of client and into server (login?)
+    async function load(): Promise<void> {
+      const mentor = await fetchMentor(props.accessToken);
+      if (!mounted) {
         return;
       }
-      const s = await fetchSubjects({
-        sortBy: "name",
-        sortAscending: true,
-      });
-      const subjects = s.edges.map((e: Edge<Subject>) => e.node);
-      let mentor = await fetchMentor(cookies.accessToken);
-      for (const subject of subjects) {
-        if (
-          subject.isRequired &&
-          !mentor.subjects.find((s) => s._id === subject._id)
-        ) {
-          await addQuestionSet(mentor._id, subject._id, cookies.accessToken);
-          mentor = await fetchMentor(cookies.accessToken);
+      setMentor(mentor);
+      const subjects = await fetchSubjects({ filter: { isRequired: true } });
+      if (!mounted) {
+        return;
+      }
+      const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
+      const subjectIds = mentor.subjects.map((s) => s._id);
+      if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+        const subjects = [
+          ...new Set([...requiredSubjects, ...mentor.subjects]),
+        ];
+        const updated = await updateMentor(
+          { ...mentor, subjects },
+          props.accessToken
+        );
+        if (!mounted) {
+          return;
+        }
+        if (updated) {
+          const mUpdated = await fetchMentor(props.accessToken);
+          if (!mounted) {
+            return;
+          }
+          setMentor(mUpdated);
         }
       }
-      setSubjects(subjects);
-      setMentor(mentor);
+    }
+    load().catch((err) => console.error(err));
+    return () => {
+      mounted = false;
     };
-    load();
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
       return;
     }
-    const _slides = [];
-    _slides.push(Slide(true, <WelcomeSlide key="welcome" classes={classes} />));
-
-    const mentorFilled = Boolean(
-      mentor.name && mentor.firstName && mentor.title
-    );
+    const _slides = [
+      Slide(
+        true,
+        <WelcomeSlide
+          key="welcome"
+          classes={classes}
+          userName={props.user.name}
+        />
+      ),
+      Slide(
+        Boolean(mentor.name && mentor.firstName && mentor.title),
+        <MentorInfoSlide
+          key="mentor-info"
+          classes={classes}
+          mentor={mentor}
+          accessToken={props.accessToken}
+          onUpdated={loadMentor}
+        />
+      ),
+      Slide(
+        Boolean(mentor.mentorType),
+        <MentorTypeSlide
+          key="chat-type"
+          accessToken={props.accessToken}
+          classes={classes}
+          mentor={mentor}
+          onUpdated={loadMentor}
+        />
+      ),
+      Slide(true, <IntroductionSlide key="introduction" classes={classes} />),
+      Slide(true, <SelectSubjectsSlide classes={classes} i={4} />),
+    ];
+    if (mentor.mentorType === MentorType.VIDEO) {
+      const idle = mentor.answers.find(
+        (a) => a.question.name === UtteranceName.IDLE
+      );
+      if (idle) {
+        _slides.push(
+          Slide(
+            idle.status === Status.COMPLETE,
+            <RecordIdleSlide
+              key="idle"
+              classes={classes}
+              idle={idle}
+              i={_slides.length}
+            />
+          )
+        );
+      }
+    }
+    mentor.subjects.forEach((s) => {
+      const answers = mentor.answers.filter((a) =>
+        s.questions.map((q) => q.question._id).includes(a.question._id)
+      );
+      _slides.push(
+        Slide(
+          answers.every((a) => a.status === Status.COMPLETE),
+          <RecordSubjectSlide
+            key={`${s.name}`}
+            classes={classes}
+            subject={s}
+            questions={answers}
+            i={_slides.length}
+          />
+        )
+      );
+    });
     _slides.push(
       Slide(
-        mentorFilled,
-        <MentorSlide
-          key="mentor-info"
+        Boolean(mentor.lastTrainedAt),
+        <BuildMentorSlide
+          key="build"
           classes={classes}
           mentor={mentor}
           onUpdated={loadMentor}
         />
       )
     );
-    _slides.push(
-      Slide(true, <IntroductionSlide key="introduction" classes={classes} />)
-    );
-
-    // TODO: we removed topics, so need another way of finding idle video
-    const idle = mentor.answers.find((a) => a.question.name === "Idle");
-    const idleRecorded = idle === undefined || idle.status === Status.COMPLETE;
-    if (idle) {
-      _slides.push(
-        Slide(
-          idleRecorded,
-          <RecordQuestionSlide
-            key="idle"
-            classes={classes}
-            isRecorded={idleRecorded}
-            id={idle.question._id}
-            name={"Idle"}
-            description={"Let's record a short idle calibration video."}
-            i={_slides.length}
-          />
-        )
-      );
-    }
-
-    let requiredSubjectsRecorded = true;
-    mentor.subjects.forEach((s) => {
-      if (s.isRequired) {
-        const questions = mentor.answers.filter((a) =>
-          s.questions.map((q) => q._id).includes(a.question._id)
-        );
-        const isRecorded = questions.every((a) => a.status === Status.COMPLETE);
-        if (!isRecorded) {
-          requiredSubjectsRecorded = false;
-        }
-        _slides.push(
-          Slide(
-            isRecorded,
-            <RecordSubjectSlide
-              key={`${s.name}`}
-              classes={classes}
-              subject={s}
-              questions={questions}
-              isRecorded={isRecorded}
-              i={_slides.length}
-            />
-          )
-        );
-      }
-    });
-
-    const isBuildReady =
-      mentorFilled && idleRecorded && requiredSubjectsRecorded;
-    _slides.push(
-      Slide(
-        mentor.isBuilt,
-        isBuildReady ? (
-          <BuildMentorSlide
-            key="build"
-            classes={classes}
-            mentor={mentor}
-            onUpdated={loadMentor}
-          />
-        ) : (
-          <BuildErrorSlide key="build-error" classes={classes} />
-        )
-      )
-    );
-
-    if (mentor.isBuilt) {
-      _slides.push(
-        Slide(
-          true,
-          <AddQuestionSetSlide
-            classes={classes}
-            mentor={mentor}
-            subjects={subjects}
-            onUpdated={loadMentor}
-          />
-        )
-      );
-    }
     setSlides(_slides);
   }, [mentor]);
 
   async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(props.accessToken));
   }
 
   if (!mentor) {
@@ -251,7 +249,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
             Back
           </Button>
         ) : undefined}
-        {idx > 1 ? (
+        {idx > 2 ? (
           <Button
             id="done-btn"
             className={classes.button}
@@ -294,4 +292,4 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   );
 }
 
-export default withLocation(SetupPage);
+export default withAuthorizationOnly(withLocation(SetupPage));

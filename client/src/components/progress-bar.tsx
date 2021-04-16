@@ -12,7 +12,7 @@ import { createStyles, withStyles } from "@material-ui/core/styles";
 const LinearProgressBar = withStyles((theme) =>
   createStyles({
     root: {
-      height: 20,
+      height: 10,
       borderRadius: 5,
     },
     colorPrimary: {
@@ -26,16 +26,21 @@ const LinearProgressBar = withStyles((theme) =>
   })
 )(LinearProgress);
 
-function ProgressBar(props: { value: number }) {
+function ProgressBar(props: { value: number; total: number }): JSX.Element {
+  const percent = Math.round((props.value / props.total) * 100);
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
-        <LinearProgressBar id="progress-bar" variant="determinate" {...props} />
+        <LinearProgressBar
+          id="progress-bar"
+          variant="determinate"
+          {...{ value: percent }}
+        />
       </Box>
-      <Box minWidth={35}>
-        <Typography variant="body2" color="textSecondary">{`${Math.round(
-          props.value
-        )}%`}</Typography>
+      <Box minWidth={100}>
+        <Typography variant="body2" color="textSecondary">
+          {props.value} / {props.total} ({percent}%)
+        </Typography>
       </Box>
     </Box>
   );

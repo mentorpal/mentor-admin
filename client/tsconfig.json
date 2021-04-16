@@ -14,7 +14,7 @@
     "lib": ["dom", "es2017"],
     "baseUrl": ".",
     "paths": {
-      "*": ["./src/*", "node_modules/*"]
+      "*": ["./src/*"]
     },
     "skipLibCheck": true,
     "strict": true,

@@ -1,6 +1,13 @@
 module.exports = {
   pathPrefix: `/admin`,
+  siteMetadata: {
+    title: `Chat`,
+    description: ``,
+    author: `@gatsbyjs`,
+    siteUrl: `https://uscquestions.mentorpal.org/admin`,
+  },
   plugins: [
+    `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
     {
       resolve: "gatsby-plugin-material-ui",
@@ -22,9 +29,6 @@ module.exports = {
       options: {
         allowList: ["GRAPHQL_ENDPOINT", "CLASSIFIER_ENTRYPOINT"],
       },
-    },
-    {
-      resolve: "gatsby-plugin-material-ui",
     },
     {
       resolve: "gatsby-plugin-eslint",

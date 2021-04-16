@@ -1,7 +1,7 @@
-import { Mentor, Status } from "../../support/types";
+import { Mentor, QuestionType, Status } from "../../support/types";
 import clint_prev from "./clint_setupa";
 
-export const mentor: Mentor = {
+export const mentor: Partial<Mentor> = {
   ...clint_prev,
   subjects: [
     ...clint_prev.subjects,
@@ -11,16 +11,28 @@ export const mentor: Mentor = {
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      categories: [],
+      topics: [],
       questions: [
         {
-          _id: "A1_1_1",
-          question: "Who are you and what do you do?",  
-          name: null
+          question: {
+            _id: "A1_1_1",
+            question: "Who are you and what do you do?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],  
+          },
+          topics: []
         },
         {
-          _id: "A2_1_1",
-          question: "How old are you now?",  
-          name: null
+          question: {
+            _id: "A2_1_1",
+            question: "How old are you now?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],  
+          },
+          topics: []
         }
       ]
     }
@@ -28,23 +40,27 @@ export const mentor: Mentor = {
   answers: [
     ...clint_prev.answers,
     {
+      _id: "A1_1_1",
       question: {
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
-        name: null
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
+      _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
         question: "How old are you now?",
-        name: null
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
       },
-      video: "",
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
