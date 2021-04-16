@@ -348,10 +348,12 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
           if (trainStatus.state === TrainState.FAILURE) {
             toast(`Training failed`);
           }
+          setIsBuilding(false);
           setLoadingMessage(undefined);
         })
         .catch((err: Error) => {
           toast(`Training failed: ${err.message || err}`);
+          setIsBuilding(false);
           setLoadingMessage(undefined);
         });
     },
