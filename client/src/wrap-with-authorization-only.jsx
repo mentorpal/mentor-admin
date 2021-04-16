@@ -20,7 +20,13 @@ const withAuthorizationOnly = (Component) => (props) => {
   if (!context.user) {
     return <div />;
   }
-  return <Component {...props} accessToken={cookies.accessToken} />;
+  return (
+    <Component
+      {...props}
+      accessToken={cookies.accessToken}
+      user={context.user}
+    />
+  );
 };
 
 export default withAuthorizationOnly;

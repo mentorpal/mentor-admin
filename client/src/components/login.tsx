@@ -61,12 +61,7 @@ function LoginPage(): JSX.Element {
   };
 
   if (!googleClientId) {
-    return (
-      <div className={classes.root}>
-        <NavBar title="Mentor Studio" />
-        ERROR: Failed to load config
-      </div>
-    );
+    return <div className={classes.root}>ERROR: Failed to load config</div>;
   }
 
   return (

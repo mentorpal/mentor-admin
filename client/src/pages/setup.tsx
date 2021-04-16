@@ -17,6 +17,7 @@ import {
   Edge,
   UtteranceName,
   MentorType,
+  User,
 } from "types";
 import NavBar from "components/nav-bar";
 import {
@@ -84,6 +85,7 @@ const useStyles = makeStyles(() => ({
 
 function SetupPage(props: {
   accessToken: string;
+  user: User;
   search: { i?: string };
 }): JSX.Element {
   const classes = useStyles();
@@ -137,13 +139,21 @@ function SetupPage(props: {
       return;
     }
     const _slides = [
-      Slide(true, <WelcomeSlide key="welcome" classes={classes} />),
+      Slide(
+        true,
+        <WelcomeSlide
+          key="welcome"
+          classes={classes}
+          userName={props.user.name}
+        />
+      ),
       Slide(
         Boolean(mentor.name && mentor.firstName && mentor.title),
         <MentorInfoSlide
           key="mentor-info"
           classes={classes}
           mentor={mentor}
+          accessToken={props.accessToken}
           onUpdated={loadMentor}
         />
       ),
@@ -151,6 +161,7 @@ function SetupPage(props: {
         Boolean(mentor.mentorType),
         <MentorTypeSlide
           key="chat-type"
+          accessToken={props.accessToken}
           classes={classes}
           mentor={mentor}
           onUpdated={loadMentor}

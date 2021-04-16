@@ -80,7 +80,7 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function QuestionsPage(props: { accessToken: string }): JSX.Element {
+function QuestionsPage(): JSX.Element {
   const classes = useStyles();
   const [questions, setQuestions] = useState<Connection<Question>>();
   const [cursor, setCursor] = React.useState("");

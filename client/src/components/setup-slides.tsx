@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   Paper,
   Typography,
@@ -23,7 +22,6 @@ import {
   fetchTrainingStatus,
   CLIENT_ENDPOINT,
 } from "api";
-import Context from "context";
 import {
   Mentor,
   Status,
@@ -48,9 +46,9 @@ export function Slide(status: boolean, element: JSX.Element): SlideType {
 
 export function WelcomeSlide(props: {
   classes: Record<string, string>;
+  userName: string;
 }): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -58,7 +56,7 @@ export function WelcomeSlide(props: {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          It&apos;s nice to meet you, {context.user!.name}!
+          It&apos;s nice to meet you, {props.userName}!
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Let&apos;s get started setting up your new mentor.
@@ -71,10 +69,10 @@ export function WelcomeSlide(props: {
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
+  accessToken: string;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [name, setName] = useState(mentor.name);
   const [firstName, setFirstName] = useState(mentor.firstName);
   const [title, setTitle] = useState(mentor.title);
@@ -82,7 +80,7 @@ export function MentorInfoSlide(props: {
   async function onSave() {
     const update = await updateMentor(
       { ...mentor, name, firstName, title },
-      cookies.accessToken
+      props.accessToken
     );
     if (!update) {
       console.error("failed to update");
@@ -148,10 +146,10 @@ export function MentorInfoSlide(props: {
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
+  accessToken: string;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [type, setType] = useState<MentorType>(
     mentor.mentorType || MentorType.CHAT
   );
@@ -163,7 +161,7 @@ export function MentorTypeSlide(props: {
 
   async function onSave() {
     setIsSaving(true);
-    await updateMentor({ ...mentor, mentorType: type }, cookies.accessToken);
+    await updateMentor({ ...mentor, mentorType: type }, props.accessToken);
     onUpdated();
     setIsSaving(false);
   }

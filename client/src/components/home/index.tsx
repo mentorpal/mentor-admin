@@ -43,7 +43,7 @@ import {
 import NavBar from "components/nav-bar";
 import RecordingBlockItem, {
   RecordingBlock,
-} from "components/record/recording-block";
+} from "components/home/recording-block";
 import withLocation from "wrap-with-location";
 import { toast, ToastContainer } from "react-toastify";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -395,7 +395,11 @@ function HomePage(props: {
       >
         {blocks.map((b, i) => (
           <ListItem key={b.name} id={`block-${i}`}>
-            <RecordingBlockItem classes={classes} block={b} />
+            <RecordingBlockItem
+              classes={classes}
+              block={b}
+              mentorId={mentor?._id || ""}
+            />
           </ListItem>
         ))}
       </List>
