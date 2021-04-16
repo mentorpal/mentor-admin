@@ -135,6 +135,9 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
       }
     }
     load().catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   React.useEffect(() => {
