@@ -173,12 +173,17 @@ function SubjectsPage(): JSX.Element {
     if (!context.user) {
       return;
     }
-    loadSubjects();
+    let mounted = true;
+    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((s) => {
+      if (!mounted) {
+        return;
+      }
+      setSubjects(s);
+    });
+    return () => {
+      mounted = false;
+    };
   }, [context.user, cursor, sortBy, sortAscending]);
-
-  async function loadSubjects() {
-    setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
-  }
 
   async function deleteSubject() {
     // TODO
