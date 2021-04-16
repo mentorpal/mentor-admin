@@ -96,23 +96,28 @@ function QuestionsPage(): JSX.Element {
   const limit = 10;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
+    if (!(context.user && cookies.accessToken)) {
       navigate("/");
     }
   }, [cookies]);
 
   React.useEffect(() => {
-    if (!context.user) {
+    if (!(context.user && cookies.accessToken)) {
       return;
     }
-    loadQuestions();
+    let mounted = true;
+    fetchQuestions({ cursor, limit, sortBy, sortAscending })
+      .then((q) => {
+        if (!mounted) {
+          return;
+        }
+        setQuestions(q);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user, cursor, sortBy, sortAscending]);
-
-  async function loadQuestions() {
-    setQuestions(
-      await fetchQuestions({ cursor, limit, sortBy, sortAscending })
-    );
-  }
 
   function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);

@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { v4 as uuid } from "uuid";
 import {
   AppBar,
@@ -41,13 +40,13 @@ import {
   SubjectQuestion,
   TrainState,
 } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import RecordingBlockItem, {
   RecordingBlock,
 } from "components/record/recording-block";
 import withLocation from "wrap-with-location";
 import { toast, ToastContainer } from "react-toastify";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -93,10 +92,8 @@ interface Progress {
   total: number;
 }
 
-function HomePage(props: { search: { subject?: string } }): JSX.Element {
+function HomePage(props: { accessToken: string; search: { subject?: string } }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [selectedSubject, setSelectedSubject] = useState<string>();
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
@@ -107,13 +104,10 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
   const [isBuilding, setIsBuilding] = useState(false);
 
   React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     let mounted = true;
     setSelectedSubject(props.search.subject);
     setLoadingMessage("Loading mentor...");
-    fetchMentor(cookies.accessToken).then((m) => {
+    fetchMentor(props.accessToken).then((m) => {
       if (!mounted) {
         return;
       }
@@ -123,13 +117,11 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
     return () => {
       mounted = false;
     };
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
-    if (context.user) {
-      loadAnswers();
-    }
-  }, [context.user, mentor, selectedSubject, editedSubjects]);
+    loadAnswers();
+  }, [mentor, selectedSubject, editedSubjects]);
 
   function loadAnswers() {
     if (!mentor) {
@@ -215,8 +207,7 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
 
   function onRecordOne(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
-        answer.question._id
+      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${answer.question._id
       }`
     );
   }
@@ -296,10 +287,10 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
             subject.questions.splice(i, 1);
           }
         }
-        await updateSubject(subject, cookies.accessToken);
+        await updateSubject(subject, props.accessToken);
       }
     }
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(props.accessToken));
     setLoadingMessage(undefined);
   }
 
@@ -446,4 +437,4 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
   );
 }
 
-export default withLocation(HomePage);
+export default withAuthorizationOnly(withLocation(HomePage));

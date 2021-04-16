@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React, { useContext, useState } from "react";
 import { useCookies } from "react-cookie";
 import {
@@ -30,6 +29,7 @@ import NavBar from "components/nav-bar";
 import Context from "context";
 import { Connection, Mentor, Subject } from "types";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,7 +87,7 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectsPage(): JSX.Element {
+function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const context = useContext(Context);
   const [cookies] = useCookies(["accessToken"]);
@@ -102,17 +102,8 @@ function SubjectsPage(): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
-    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-  }, [context.user]);
+    fetchMentor(props.accessToken).then((m) => setMentor(m));
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
@@ -123,13 +114,10 @@ function SubjectsPage(): JSX.Element {
   }, [mentor]);
 
   React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
       setAllSubjects(subjects);
     });
-  }, [context.user, cursor, sortBy, sortAscending, limit]);
+  }, [cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
     if (sortBy === id) {
@@ -287,4 +275,4 @@ function SubjectsPage(): JSX.Element {
   );
 }
 
-export default SubjectsPage;
+export default withAuthorizationOnly(SubjectsPage);
