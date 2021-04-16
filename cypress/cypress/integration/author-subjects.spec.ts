@@ -13,12 +13,6 @@ const mentor = {
 };
 
 describe("Edit subjects", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
-    cy.visit("/author/subjects");
-    cy.location("pathname").should("contain", "/login");
-  });
 
   it("shows list of subjects", () => {
     cySetup(cy);

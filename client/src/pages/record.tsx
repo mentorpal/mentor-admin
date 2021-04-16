@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import ReactPlayer from "react-player";
 import { toast, ToastContainer } from "react-toastify";
 import VideoRecorder from "react-video-recorder";
@@ -27,11 +26,12 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
+
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
 import { Answer, Status, Mentor, MentorType } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -91,6 +91,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function RecordPage(props: {
+  accessToken: string;
   search: {
     videoId?: string[] | string;
     subject?: string;
@@ -100,8 +101,6 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [answers, setAnswers] = useState<Answer[]>([]);
 
@@ -124,44 +123,46 @@ function RecordPage(props: {
   }, []);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
-    fetchMentor(cookies.accessToken).then((m) => {
-      setMentor(m);
-      const { videoId, subject, category, status } = props.search;
-      if (videoId) {
-        const ids = Array.isArray(videoId) ? videoId : [videoId];
-        setAnswers([...m.answers.filter((a) => ids.includes(a.question._id))]);
-      } else if (subject) {
-        const s = m.subjects.find((a) => a._id === subject);
-        if (s) {
-          const sQuestions = s.questions.filter(
-            (q) => !category || `${q.category?.id}` === category
-          );
+    let mounted = true;
+    fetchMentor(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+        const { videoId, subject, category, status } = props.search;
+        if (videoId) {
+          const ids = Array.isArray(videoId) ? videoId : [videoId];
           setAnswers([
-            ...m.answers.filter(
-              (a) =>
-                sQuestions
-                  .map((q) => q.question._id)
-                  .includes(a.question._id) &&
-                (!status || a.status === status)
-            ),
+            ...m.answers.filter((a) => ids.includes(a.question._id)),
+          ]);
+        } else if (subject) {
+          const s = m.subjects.find((a) => a._id === subject);
+          if (s) {
+            const sQuestions = s.questions.filter(
+              (q) => !category || `${q.category?.id}` === category
+            );
+            setAnswers([
+              ...m.answers.filter(
+                (a) =>
+                  sQuestions
+                    .map((q) => q.question._id)
+                    .includes(a.question._id) &&
+                  (!status || a.status === status)
+              ),
+            ]);
+          }
+        } else {
+          setAnswers([
+            ...m.answers.filter((a) => !status || a.status === status),
           ]);
         }
-      } else {
-        setAnswers([
-          ...m.answers.filter((a) => !status || a.status === status),
-        ]);
-      }
-    });
-  }, [context.user]);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!mentor || !answers || answers.length === 0) {
@@ -188,7 +189,7 @@ function RecordPage(props: {
       JSON.stringify(curAnswer.question) !==
       JSON.stringify(answers[idx].question)
     ) {
-      if (await updateQuestion(curAnswer.question, cookies.accessToken)) {
+      if (await updateQuestion(curAnswer.question, props.accessToken)) {
         answers[idx] = { ...answers[idx], question: curAnswer.question };
         updated = true;
       } else {
@@ -196,7 +197,7 @@ function RecordPage(props: {
       }
     }
     if (JSON.stringify(curAnswer) !== JSON.stringify(answers[idx])) {
-      if (await updateAnswer(mentor!._id, curAnswer, cookies.accessToken)) {
+      if (await updateAnswer(mentor!._id, curAnswer, props.accessToken)) {
         answers[idx] = curAnswer;
         updated = true;
       } else {
@@ -430,4 +431,4 @@ function RecordPage(props: {
   );
 }
 
-export default withLocation(RecordPage);
+export default withAuthorizationOnly(withLocation(RecordPage));

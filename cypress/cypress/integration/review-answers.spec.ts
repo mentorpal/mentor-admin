@@ -15,13 +15,6 @@ import { setup7 } from "../fixtures/mentor";
 import { TrainState } from "../support/types";
 
 describe("Review answers page", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
-    cy.visit("/");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("shows all questions for all subjects by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: setup7 });

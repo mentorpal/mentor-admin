@@ -72,15 +72,6 @@ const subject = {
 };
 
 describe("Edit subject", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      noLogin: true,
-    });
-    cy.visit("/profile");
-    cy.location("pathname").should("contain", "/login");
-  });
-
   it("can open and collapse different sections", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -331,10 +322,6 @@ describe("Edit subject", () => {
       cy.get("#topic-0 #name").should("have.value", "Topic1 Edited");
       cy.get("#topic-0 #description").should("have.value", "1 Edited");
     });
-
-    it("can reorder topics by dragging them", () => {
-      // hard to simulate in cypress due to drag and drop
-    });
   });
 
   describe("can add, delete, and edit categories", () => {
@@ -543,18 +530,6 @@ describe("Edit subject", () => {
       cy.get("#edit-question #delete-topic").trigger("mouseover").click();
       cy.get("#edit-question #topics li").should("have.length", 1);
       cy.get("#save-button").should("not.be.disabled");
-    });
-
-    it("can add a question to a category by dragging it from questions list", () => {
-      // hard to simulate in cypress due to drag and drop
-    });
-
-    it("can add a question to a category by dragging it from another category, removing it from original category", () => {
-      // hard to simulate in cypress due to drag and drop
-    });
-
-    it("can remove a question from a category by dragging it to questions list", () => {
-      // hard to simulate in cypress due to drag and drop
     });
   });
 

@@ -4,19 +4,29 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useContext } from "react";
 import { useCookies } from "react-cookie";
-import LoginPage from "components/login";
-import HomePage from "components/home";
+import Context from "context";
+import { Redirect } from "@reach/router";
 
-function IndexPage(): JSX.Element {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const withAuthorizationOnly = (Component) => (props) => {
   const [cookies] = useCookies(["accessToken"]);
+  const context = useContext(Context);
 
   if (!cookies.accessToken) {
-    return <LoginPage />;
-  } else {
-    return <HomePage />;
+    return <Redirect to="/" />;
   }
-}
+  if (!context.user) {
+    return <div />;
+  }
+  return (
+    <Component
+      {...props}
+      accessToken={cookies.accessToken}
+      user={context.user}
+    />
+  );
+};
 
-export default IndexPage;
+export default withAuthorizationOnly;

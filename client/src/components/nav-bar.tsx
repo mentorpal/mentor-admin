@@ -74,7 +74,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
+    context.logout();
     navigate("/");
   }
 

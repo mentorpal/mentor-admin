@@ -5,10 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 import {
   Mentor,
@@ -17,10 +17,9 @@ import {
   Edge,
   UtteranceName,
   MentorType,
+  User,
 } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
-import withLocation from "wrap-with-location";
 import {
   Slide,
   SlideType,
@@ -33,6 +32,8 @@ import {
   SelectSubjectsSlide,
   MentorTypeSlide,
 } from "components/setup-slides";
+import withAuthorizationOnly from "wrap-with-authorization-only";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -82,61 +83,77 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: { search: { i?: string } }): JSX.Element {
+function SetupPage(props: {
+  accessToken: string;
+  user: User;
+  search: { i?: string };
+}): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    const load = async () => {
-      if (!context.user) {
+    let mounted = true;
+    // TODO: move all mutations out of client and into server (login?)
+    async function load(): Promise<void> {
+      const mentor = await fetchMentor(props.accessToken);
+      if (!mounted) {
         return;
       }
-      const mentor = await fetchMentor(cookies.accessToken);
-      fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
-        const requiredSubjects = subjects.edges.map(
-          (e: Edge<Subject>) => e.node
-        );
-        const subjectIds = mentor.subjects.map((s) => s._id);
-        if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-          const subjects = [
-            ...new Set([...requiredSubjects, ...mentor.subjects]),
-          ];
-          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
-            (updated) => {
-              if (updated) {
-                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-              }
-            }
-          );
-        }
-      });
       setMentor(mentor);
+      const subjects = await fetchSubjects({ filter: { isRequired: true } });
+      if (!mounted) {
+        return;
+      }
+      const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
+      const subjectIds = mentor.subjects.map((s) => s._id);
+      if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+        const subjects = [
+          ...new Set([...requiredSubjects, ...mentor.subjects]),
+        ];
+        const updated = await updateMentor(
+          { ...mentor, subjects },
+          props.accessToken
+        );
+        if (!mounted) {
+          return;
+        }
+        if (updated) {
+          const mUpdated = await fetchMentor(props.accessToken);
+          if (!mounted) {
+            return;
+          }
+          setMentor(mUpdated);
+        }
+      }
+    }
+    load().catch((err) => console.error(err));
+    return () => {
+      mounted = false;
     };
-    load();
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
       return;
     }
     const _slides = [
-      Slide(true, <WelcomeSlide key="welcome" classes={classes} />),
+      Slide(
+        true,
+        <WelcomeSlide
+          key="welcome"
+          classes={classes}
+          userName={props.user.name}
+        />
+      ),
       Slide(
         Boolean(mentor.name && mentor.firstName && mentor.title),
         <MentorInfoSlide
           key="mentor-info"
           classes={classes}
           mentor={mentor}
+          accessToken={props.accessToken}
           onUpdated={loadMentor}
         />
       ),
@@ -144,6 +161,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
         Boolean(mentor.mentorType),
         <MentorTypeSlide
           key="chat-type"
+          accessToken={props.accessToken}
           classes={classes}
           mentor={mentor}
           onUpdated={loadMentor}
@@ -202,7 +220,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [mentor]);
 
   async function loadMentor() {
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(props.accessToken));
   }
 
   if (!mentor) {
@@ -274,4 +292,4 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   );
 }
 
-export default withLocation(SetupPage);
+export default withAuthorizationOnly(withLocation(SetupPage));

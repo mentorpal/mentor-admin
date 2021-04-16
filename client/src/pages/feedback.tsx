@@ -4,9 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   AppBar,
   CircularProgress,
@@ -34,9 +32,6 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
-import { ColumnDef, ColumnHeader } from "components/column-header";
-import NavBar from "components/nav-bar";
-import Context from "context";
 import {
   fetchMentor,
   fetchTrainingStatus,
@@ -54,6 +49,9 @@ import {
   TrainStatus,
   UserQuestion,
 } from "types";
+import { ColumnDef, ColumnHeader } from "components/column-header";
+import NavBar from "components/nav-bar";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -220,10 +218,8 @@ function FeedbackItem(props: {
   );
 }
 
-function FeedbackPage(): JSX.Element {
+function FeedbackPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [feedback, setFeedback] = useState<Connection<UserQuestion>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
@@ -245,22 +241,32 @@ function FeedbackPage(): JSX.Element {
   const [isTraining, setIsTraining] = useState(false);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (context.user) {
-      fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-    }
-  }, [context.user]);
+    let mounted = true;
+    fetchMentor(props.accessToken).then((m) => {
+      if (!mounted) {
+        return;
+      }
+      setMentor(m);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
       return;
     }
-    loadFeedback();
+    let mounted = true;
+    fetchFeedback().then((f) => {
+      if (!mounted) {
+        return;
+      }
+      setFeedback(f);
+    });
+    return () => {
+      mounted = false;
+    };
   }, [
     mentor,
     cursor,
@@ -272,7 +278,7 @@ function FeedbackPage(): JSX.Element {
     graderFilter,
   ]);
 
-  async function loadFeedback() {
+  async function fetchFeedback(): Promise<Connection<UserQuestion>> {
     const filter: {
       mentor?: string;
       classifierAnswer?: string;
@@ -292,9 +298,11 @@ function FeedbackPage(): JSX.Element {
     if (confidenceFilter !== undefined) {
       filter["classifierAnswerType"] = confidenceFilter;
     }
-    setFeedback(
-      await fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending })
-    );
+    return fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending });
+  }
+
+  async function loadFeedback(): Promise<void> {
+    setFeedback(await fetchFeedback());
   }
 
   function train() {
@@ -561,4 +569,4 @@ function FeedbackPage(): JSX.Element {
   );
 }
 
-export default FeedbackPage;
+export default withAuthorizationOnly(FeedbackPage);
