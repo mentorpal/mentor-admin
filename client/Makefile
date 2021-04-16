@@ -1,34 +1,6 @@
-CYPRESS_IMAGE?=cypress/base:12
-CYPRESS_DOCKER_ENTRYPOINT?=/bin/bash
-CYPRESS_DOCKER_CACHE=$(PWD)/.cypress-docker
-
 .PHONY: clean
 clean:
 	rm -rf .cache public
-
-.PHONY: cypress-docker
-cypress-docker:
-	mkdir -p $(CYPRESS_DOCKER_CACHE)/.npm
-	mkdir -p $(CYPRESS_DOCKER_CACHE)/.gatsby.cache
-	mkdir -p $(CYPRESS_DOCKER_CACHE)/.root.cache
-	docker run \
-		--rm \
-		-it \
-		--entrypoint $(CYPRESS_DOCKER_ENTRYPOINT) \
-		-v $(PWD):/client \
-		-v /client/node_modules \
-		-v /client/public \
-		--mount type=bind,source="$(CYPRESS_DOCKER_CACHE)"/.gatsby.cache,destination=/client/.cache,consistency=delegated \
-		--workdir /client \
-	$(CYPRESS_IMAGE)
-
-.PHONY: cypress-update-snapshots
-cypress-update-snapshots:
-	CYPRESS_DOCKER_ENTRYPOINT=bin/cypress_update_snapshots.sh $(MAKE) cypress-docker
-
-.PHONY: dependencies-update
-dependencies-update:
-	npm run dependencies-update
 
 .PHONY: develop
 develop: node_modules/gatsby
@@ -37,9 +9,6 @@ develop: node_modules/gatsby
 .PHONY: format
 format: node_modules/prettier
 	npm run format
-
-node_modules/cypress:
-	$(MAKE) install
 
 node_modules/eslint:
 	$(MAKE) install
