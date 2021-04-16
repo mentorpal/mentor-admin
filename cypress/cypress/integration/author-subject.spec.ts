@@ -72,15 +72,6 @@ const subject = {
 };
 
 describe("Edit subject", () => {
-  it("redirects to login page if not logged in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      noLogin: true,
-    });
-    cy.visit("/profile");
-    cy.location("pathname").should("equal", "/");
-  });
-
   it("can open and collapse different sections", () => {
     cySetup(cy);
     cyMockDefault(cy, {
