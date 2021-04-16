@@ -58,9 +58,9 @@ interface Config {
   googleClientId: string;
 }
 
-export async function fetchConfig(graphqlUrl = "/graphql"): Promise<Config> {
+export async function fetchConfig(): Promise<Config> {
   const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
-    graphqlUrl,
+    GRAPHQL_ENDPOINT,
     {
       query: `
       query {
