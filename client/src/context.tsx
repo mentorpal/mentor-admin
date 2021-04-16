@@ -33,7 +33,6 @@ function Provider(props: { children: any }): JSX.Element {
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
-      // setUser(undefined);
       return;
     }
     if (!user) {
