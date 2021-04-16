@@ -15,7 +15,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/profile");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -23,7 +25,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/setup");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -31,7 +35,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/record");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -39,7 +45,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/subjects");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -55,7 +63,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/subject");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -63,7 +73,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/questions");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -71,7 +83,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/feedback");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
   });
