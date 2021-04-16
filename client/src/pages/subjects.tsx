@@ -4,9 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   AppBar,
   Checkbox,
@@ -25,11 +23,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import { Connection, Mentor, Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
-import { Connection, Subject } from "types";
-import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,10 +85,9 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectsPage(): JSX.Element {
+function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
+  const [mentor, setMentor] = useState<Mentor>();
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
   const [subjects, setSubjects] = useState<Subject[]>();
   const [defaultSubject, setDefaultSubject] = useState<Subject>();
@@ -101,32 +98,22 @@ function SubjectsPage(): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
+    fetchMentor(props.accessToken).then((m) => setMentor(m));
+  }, []);
 
   React.useEffect(() => {
-    if (context.user) {
-      loadCurrentSubjects();
+    if (!mentor) {
+      return;
     }
-  }, [context.user]);
-
-  React.useEffect(() => {
-    loadAllSubjects();
-  }, [cursor, sortBy, sortAscending, limit]);
-
-  async function loadAllSubjects() {
-    setAllSubjects(
-      await fetchSubjects({ cursor, limit, sortBy, sortAscending })
-    );
-  }
-
-  async function loadCurrentSubjects() {
-    const mentor = await fetchMentor(cookies.accessToken);
     setSubjects(mentor.subjects);
     setDefaultSubject(mentor.defaultSubject);
-  }
+  }, [mentor]);
+
+  React.useEffect(() => {
+    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
+      setAllSubjects(subjects);
+    });
+  }, [cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
     if (sortBy === id) {
@@ -163,25 +150,23 @@ function SubjectsPage(): JSX.Element {
   }
 
   async function saveMentor() {
-    if (!subjects) {
+    if (!subjects || !mentor) {
       return;
     }
     setIsSaving(true);
-    let mentor = await fetchMentor(cookies.accessToken);
     await updateMentor(
       {
         ...mentor,
         defaultSubject,
         subjects: subjects,
       },
-      cookies.accessToken
+      props.accessToken
     );
-    mentor = await fetchMentor(cookies.accessToken);
-    setSubjects(mentor.subjects);
+    setMentor(await fetchMentor(props.accessToken));
     setIsSaving(false);
   }
 
-  if (!context.user || !allSubjects || !subjects) {
+  if (!allSubjects || !subjects) {
     return (
       <div>
         <NavBar title="Subjects" />
@@ -208,6 +193,7 @@ function SubjectsPage(): JSX.Element {
                   const subject = edge.node;
                   return (
                     <TableRow
+                      id={`subject-${subject._id}`}
                       key={`${subject._id}`}
                       hover
                       role="checkbox"
@@ -285,4 +271,4 @@ function SubjectsPage(): JSX.Element {
   );
 }
 
-export default SubjectsPage;
+export default withAuthorizationOnly(SubjectsPage);

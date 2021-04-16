@@ -8,7 +8,6 @@ import axios from "axios";
 import {
   UserAccessToken,
   Mentor,
-  Topic,
   Subject,
   Connection,
   TrainJob,
@@ -27,6 +26,7 @@ export const CLASSIFIER_ENTRYPOINT =
 
 interface SearchParams {
   limit?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter?: any;
   cursor?: string;
   sortBy?: string;
@@ -39,8 +39,52 @@ const defaultSearchParams = {
   sortBy: "",
   sortAscending: true,
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
+}
+
+function isValidObjectID(id: string) {
+  return id.match(/^[0-9a-fA-F]{24}$/);
+}
+
+interface GraphQLResponse<T> {
+  errors?: { message: string }[];
+  data?: T;
+}
+
+interface Config {
+  googleClientId: string;
+}
+
+export async function fetchConfig(): Promise<Config> {
+  const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        config {
+          googleClientId
+        }
+      }
+    `,
+    }
+  );
+  if (gqlRes.status !== 200) {
+    throw new Error(`config load failed: ${gqlRes.statusText}}`);
+  }
+  if (gqlRes.data.errors) {
+    throw new Error(
+      `errors reponse to config query: ${JSON.stringify(gqlRes.data.errors)}`
+    );
+  }
+  if (!gqlRes.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(gqlRes.data)}`
+    );
+  }
+  return gqlRes.data.data.config;
 }
 
 export async function fetchSubjects(
@@ -79,10 +123,7 @@ export async function fetchSubjects(
   return result.data.data!.subjects;
 }
 
-export async function fetchSubject(
-  id: string,
-  topic?: string
-): Promise<Subject> {
+export async function fetchSubject(id: string): Promise<Subject> {
   const result = await axios.post(GRAPHQL_ENDPOINT, {
     query: `
       query {
@@ -90,27 +131,35 @@ export async function fetchSubject(
           _id
           name
           description
-          topicsOrder {
-            _id
+          categories {
+            id
             name
             description
           }
           topics {
-            _id
+            id
             name
             description
           }
-          questions(topic: "${topic || ""}") {
-            _id
-            question
-            topics {
+          questions {
+            question {
               _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+            }
+            category {
+              id
               name
               description
             }
-            paraphrases
-            type
-            name
+            topics {
+              id
+              name
+              description
+            }
           }
         }
       }
@@ -123,15 +172,17 @@ export async function updateSubject(
   subject: Partial<Subject>,
   accessToken: string
 ): Promise<Subject> {
-  const convertedSubject = {
-    _id: subject._id,
+  const convertedSubject: Partial<Subject> = {
     name: subject.name,
     description: subject.description,
-    isRequired: subject.isRequired,
-    topicsOrder: subject.topicsOrder?.map((t) => t._id) || [],
+    categories: subject.categories,
+    topics: subject.topics,
     questions: subject.questions,
   };
-  console.log(stringifyObject(convertedSubject));
+  if (isValidObjectID(subject._id || "")) {
+    convertedSubject._id = subject._id;
+  }
+
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -149,79 +200,6 @@ export async function updateSubject(
     { headers: headers }
   );
   return result.data.data!.me.updateSubject;
-}
-
-export async function fetchTopics(
-  searchParams?: SearchParams
-): Promise<Connection<Topic>> {
-  const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        topics(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              name
-              description
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
-        }
-      }
-    `,
-  });
-  return result.data.data!.topics;
-}
-
-export async function fetchTopic(id: string): Promise<Topic> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        topic(id: "${id}") {
-          _id
-          name
-          description
-        }
-      }
-    `,
-  });
-  return result.data.data!.topic;
-}
-
-export async function updateTopic(
-  topic: Partial<Topic>,
-  accessToken: string
-): Promise<Topic> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
-      mutation {
-        me {
-          updateTopic(topic: ${stringifyObject(topic)}) {
-            _id
-          }
-        }
-      }
-    `,
-    },
-    { headers: headers }
-  );
-  return result.data.data!.me.updateTopic;
 }
 
 export async function fetchQuestions(
@@ -246,11 +224,7 @@ export async function fetchQuestions(
               type
               name
               paraphrases
-              topics {
-                _id
-                name
-                description
-              }
+              mentor
             }
           }
           pageInfo {
@@ -276,39 +250,12 @@ export async function fetchQuestion(id: string): Promise<Question> {
           type
           name
           paraphrases
-          topics {
-            _id
-            name
-            description
-          }
+          mentor
         }
       }
     `,
   });
   return result.data.data!.question;
-}
-
-export async function updateQuestion(
-  question: Partial<Question>,
-  accessToken: string
-): Promise<Question> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
-    {
-      query: `
-      mutation {
-        me {
-          updateQuestion(question: ${stringifyObject(question)}) {
-            _id
-          }
-        }
-      }
-    `,
-    },
-    { headers: headers }
-  );
-  return result.data.data!.me.updateQuestion;
 }
 
 export async function fetchUserQuestions(
@@ -425,6 +372,26 @@ export async function updateUserQuestion(
   return result.data.data!.userQuestionSetAnswer;
 }
 
+export async function fetchMentorId(accessToken: string): Promise<Mentor> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      query {
+        me {
+          mentor {
+            _id
+          }
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.mentor;
+}
+
 export async function fetchMentor(
   accessToken: string,
   subject?: string,
@@ -452,22 +419,39 @@ export async function fetchMentor(
               _id
               name
               description
-              isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
               questions {
-                _id
-                question
-                topics {
+                question {
                   _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                }
+                category {
+                  id
                   name
                   description
-                }    
-                paraphrases
-                type
-                name
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
               }
             }
             topics(subject: "${subject || ""}") {
-              _id
+              id
               name
               description
             }
@@ -478,14 +462,10 @@ export async function fetchMentor(
               question {
                 _id
                 question
-                topics {
-                  _id
-                  name
-                  description
-                }    
                 paraphrases
                 type
                 name
+                mentor
               }
               transcript
               status
@@ -531,6 +511,29 @@ export async function updateMentor(
   return result.data.data!.me.updateMentor;
 }
 
+export async function updateQuestion(
+  updateQuestion: Question,
+  accessToken: string
+): Promise<boolean> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+        mutation {
+          me {
+            updateQuestion(question: ${stringifyObject(updateQuestion)}) {
+              _id
+            }
+          }
+        }
+      `,
+    },
+    { headers: headers }
+  );
+  return result.data.data!.me.updateQuestion;
+}
+
 export async function updateAnswer(
   mentorId: string,
   answer: Answer,
@@ -540,9 +543,7 @@ export async function updateAnswer(
   const convertedAnswer = {
     transcript: answer.transcript,
     status: answer.status,
-    recordedAt: answer.recordedAt,
   };
-  const encodedAnswer = encodeURI(JSON.stringify(convertedAnswer));
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -550,7 +551,9 @@ export async function updateAnswer(
       query: `
       mutation {
         me {
-          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: "${encodedAnswer}")
+          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: ${stringifyObject(
+        convertedAnswer
+      )})
         }
       }
     `,

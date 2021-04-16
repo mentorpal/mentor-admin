@@ -27,7 +27,7 @@ export const ColumnHeader = (props: {
   sortBy: string;
   sortAsc: boolean;
   onSort: (id: string) => void;
-}) => {
+}): JSX.Element => {
   const { columns, sortBy, sortAsc, onSort } = props;
 
   return (

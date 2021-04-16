@@ -4,10 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import { navigate } from "gatsby";
 import {
   Button,
   CircularProgress,
@@ -16,13 +14,14 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+
 import { updateMentor, fetchMentor } from "api";
 import { Mentor } from "types";
-import Context from "context";
 import NavBar from "components/nav-bar";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 import "react-toastify/dist/ReactToastify.css";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -45,31 +44,32 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function IndexPage(): JSX.Element {
+function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    loadMentor();
-  }, [context.user]);
+    let mounted = true;
+    fetchMentor(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function loadMentor() {
-    if (!context.user) {
-      return;
-    }
-    setMentor(await fetchMentor(cookies.accessToken));
+    const m = await fetchMentor(props.accessToken);
+    setMentor(m);
   }
 
   async function updateProfile() {
-    const updated = await updateMentor(mentor!, cookies.accessToken);
+    const updated = await updateMentor(mentor!, props.accessToken);
     if (!updated) {
       toast("Failed to save changes");
     } else {
@@ -115,7 +115,7 @@ function IndexPage(): JSX.Element {
           className={classes.inputField}
         />
         <TextField
-          id="title"
+          id="job-title"
           label="Job Title"
           variant="outlined"
           value={mentor.title}
@@ -138,4 +138,4 @@ function IndexPage(): JSX.Element {
   );
 }
 
-export default IndexPage;
+export default withAuthorizationOnly(ProfilePage);

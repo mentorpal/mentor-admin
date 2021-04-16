@@ -1,7 +1,7 @@
 import { Mentor, QuestionType, Status } from "../../support/types";
 import clint_prev from "./clint_setup9";
 
-export const mentor: Mentor = {
+export const mentor: Partial<Mentor> = {
   ...clint_prev,
   subjects: [
     ...clint_prev.subjects,
@@ -10,14 +10,17 @@ export const mentor: Mentor = {
       name: "Leadership",
       description: "These questions will ask about being in a leadership role.",
       isRequired: false,
-      topicsOrder: [],
+      categories: [],
+      topics: [],
       questions: [
         {
-          _id: "A7_1_1",
-          question: "What's the hardest decision you've had to make as a leader?",
-          type: QuestionType.QUESTION,
-          name: null,
-          paraphrases: [],
+          question: {
+            _id: "A7_1_1",
+            question: "What's the hardest decision you've had to make as a leader?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],  
+          },
           topics: []
         }
       ]
@@ -33,7 +36,6 @@ export const mentor: Mentor = {
         type: QuestionType.QUESTION,
         name: null,
         paraphrases: [],
-        topics: []
       },
       transcript: "",
       recordedAt: "",

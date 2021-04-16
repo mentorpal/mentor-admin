@@ -2,12 +2,8 @@ CYPRESS_IMAGE?=cypress/base:12
 CYPRESS_DOCKER_ENTRYPOINT?=/bin/bash
 CYPRESS_DOCKER_CACHE=$(PWD)/.cypress-docker
 
-.PHONY: clean-cypress-snapshot-cache
-clean-cypress-snapshot-cache:
-	rm -rf $(CYPRESS_DOCKER_CACHE)
-
 .PHONY: clean
-clean: clean-cypress-snapshot-cache
+clean:
 	rm -rf .cache public
 
 .PHONY: cypress-docker
@@ -36,7 +32,7 @@ dependencies-update:
 
 .PHONY: develop
 develop: node_modules/gatsby
-	GATSBY_USE_FAKE_APIS=1 npx gatsby develop
+	npx gatsby develop
 
 .PHONY: format
 format: node_modules/prettier
@@ -48,7 +44,7 @@ node_modules/cypress:
 node_modules/eslint:
 	$(MAKE) install
 
-node_modules/gatsby-cli:
+node_modules/gatsby:
 	$(MAKE) install
 
 node_modules/prettier:

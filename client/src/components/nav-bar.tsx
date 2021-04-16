@@ -26,8 +26,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CloseIcon from "@material-ui/icons/Close";
 import MenuIcon from "@material-ui/icons/Menu";
-
-import { CLIENT_ENDPOINT, fetchMentor } from "api";
+import { CLIENT_ENDPOINT, fetchMentorId } from "api";
 import Context from "context";
 import withLocation from "wrap-with-location";
 
@@ -56,23 +55,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Login(props: { classes: any }): JSX.Element {
+function Login(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<
+    EventTarget & HTMLButtonElement
+  >();
   const open = Boolean(anchorEl);
   const context = useContext(Context);
 
-  function handleMenu(e: any): void {
+  function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
   }
 
   function handleClose(): void {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   }
 
   function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
+    context.logout();
     navigate("/");
   }
 
@@ -113,12 +115,13 @@ function Login(props: { classes: any }): JSX.Element {
   );
 }
 
-function NavMenu(props: { classes: any }): JSX.Element {
+function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
 
   async function openChat() {
-    const mentor = await fetchMentor(cookies.accessToken);
+    const mentor = await fetchMentorId(cookies.accessToken);
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
     window.location.href = path;
   }
@@ -203,15 +206,6 @@ function NavMenu(props: { classes: any }): JSX.Element {
       >
         <ListItemText primary="Subjects Areas" />
       </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/topics"}
-        selected={location.pathname.includes("/author/topic")}
-      >
-        <ListItemText primary="Topics" />
-      </ListItem>
-
       <ListItem
         button
         component={Link}

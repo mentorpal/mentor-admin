@@ -7,7 +7,6 @@ TEST_E2E_HOST_IMAGE_SNAPSHOTS_PATH?=$(PWD)/cypress/$(TEST_E2E_IMAGE_SNAPSHOTS_PA
 PHONY: clean
 clean:
 	cd client && $(MAKE) clean
-	cd docker && $(MAKE) clean
 
 PHONY: develop
 develop:
@@ -51,17 +50,14 @@ test-all:
 PHONY: test-audit
 test-audit:
 	cd client && $(MAKE) test-audit
-	cd docker && $(MAKE) test-audit
 
 PHONY: test-format
 test-format:
 	cd client && $(MAKE) test-format
-	cd docker && $(MAKE) test-format
 
 PHONY: test-lint
 test-lint:
 	cd client && $(MAKE) test-lint
-	cd docker && $(MAKE) test-lint
 
 PHONY: test-types
 test-types:

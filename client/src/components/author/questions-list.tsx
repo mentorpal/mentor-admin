@@ -6,306 +6,250 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useState } from "react";
 import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd";
+import {
   Typography,
   List,
   ListItem,
   Button,
   Card,
   CardContent,
-  TextField,
-  Select,
-  MenuItem,
   Grid,
-  CardActions,
   IconButton,
-  CardHeader,
-  FormControl,
-  InputLabel,
+  Collapse,
 } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
 import AddIcon from "@material-ui/icons/Add";
-import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import DeleteIcon from "@material-ui/icons/Delete";
-
-import { Question, QuestionType, Topic } from "types";
-import ParaphraseList from "components/author/paraphrase-list";
-import TopicsList from "components/author/topics-list";
-import { fetchQuestions } from "api";
-
-export function QuestionListItem(props: {
-  question: Question;
-  isSelected: boolean;
-  editQuestion: (val: Question) => void;
-  removeQuestion: () => void;
-  selectQuestion: () => void;
-  deselectQuestion: () => void;
-}) {
-  const {
-    question,
-    isSelected,
-    editQuestion,
-    removeQuestion,
-    selectQuestion,
-    deselectQuestion,
-  } = props;
-  return (
-    <Card
-      style={{
-        width: "100%",
-        backgroundColor: isSelected ? "#FFF8CD" : undefined,
-      }}
-    >
-      <CardContent style={{ display: "flex", flexDirection: "row" }}>
-        <TextField
-          id="edit-question"
-          label="Question"
-          variant="outlined"
-          fullWidth
-          multiline
-          value={question.question || ""}
-          onChange={(e) =>
-            editQuestion({ ...question, question: e.target.value })
-          }
-          onFocus={selectQuestion}
-        />
-        <CardActions>
-          <IconButton id="delete" size="small" onClick={removeQuestion}>
-            <DeleteIcon />
-          </IconButton>
-          {isSelected ? (
-            <IconButton id="close" size="small" onClick={deselectQuestion}>
-              <ClearOutlinedIcon />
-            </IconButton>
-          ) : undefined}
-        </CardActions>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function QuestionEditCard(props: {
-  classes: any;
-  question: Question | null;
-  editQuestion: (val: Question) => void;
-  onDeselect: () => void;
-}) {
-  const { classes, question, editQuestion, onDeselect } = props;
-
-  if (!question) {
-    return <div></div>;
-  }
-  return (
-    <div style={{ padding: 20 }}>
-      <CardHeader
-        action={
-          <Button onClick={onDeselect} startIcon={<ClearOutlinedIcon />}>
-            Close Details
-          </Button>
-        }
-      />
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <FormControl style={{ width: 250, marginRight: 20 }}>
-          <InputLabel>Question Type</InputLabel>
-          <Select
-            id="select-type"
-            value={question?.type}
-            style={{ flexGrow: 1, marginLeft: 10 }}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => {
-              editQuestion({
-                ...question,
-                type: event.target.value as QuestionType,
-              });
-            }}
-          >
-            <MenuItem id="question" value={QuestionType.QUESTION}>
-              {QuestionType.QUESTION}
-            </MenuItem>
-            <MenuItem id="utterance" value={QuestionType.UTTERANCE}>
-              {QuestionType.UTTERANCE}
-            </MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          id="edit-name"
-          label="Tag"
-          placeholder="Additional tag for question, e.g. _IDLE_"
-          variant="outlined"
-          fullWidth
-          value={question?.name || ""}
-          onChange={(e) => editQuestion({ ...question, name: e.target.value })}
-          style={{ flexGrow: 1 }}
-        />
-      </div>
-      <TopicsList
-        classes={classes}
-        topics={question?.topics}
-        updateTopics={(t: Topic[]) => editQuestion({ ...question, topics: t })}
-      />
-      <ParaphraseList
-        classes={classes}
-        paraphrases={question?.paraphrases}
-        updateParaphrases={(p: string[]) =>
-          editQuestion({ ...question, paraphrases: p })
-        }
-      />
-    </div>
-  );
-}
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { Category, SubjectQuestion, Topic } from "types";
+import CategoryListItem from "./category-list-item";
+import QuestionListItem from "./question-list-item";
+import QuestionEditCard from "./question-edit";
 
 export function QuestionsList(props: {
-  classes: any;
-  questions: Question[];
-  updateQuestions: (val: Question[]) => void;
+  classes: Record<string, string>;
+  maxHeight: number;
+  expanded: boolean;
+  categories: Category[];
+  topics: Topic[];
+  questions: SubjectQuestion[];
+  toggleExpanded: () => void;
+  addCategory: () => void;
+  editCategory: (val: Category) => void;
+  removeCategory: (val: Category) => void;
+  addQuestion: () => void;
+  editQuestion: (val: SubjectQuestion) => void;
+  removeQuestion: (val: SubjectQuestion) => void;
+  moveQuestion: (
+    toMove: string,
+    moveTo: string | undefined,
+    category: string | undefined
+  ) => void;
 }): JSX.Element {
-  const { classes, questions, updateQuestions } = props;
-  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
-  const [questionSearch, setQuestionSearch] = useState<Question>();
-  const [selectedQuestion, setSelectedQuestion] = useState<number>(-1);
+  const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
+  const [selectedQuestion, setSelectedQuestion] = useState<string>();
+  const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
 
-  React.useEffect(() => {
-    fetchQuestions().then((q) => setAllQuestions(q.edges.map((e) => e.node)));
-  }, []);
-
-  function replaceItem<T>(a: Array<T>, index: number, item: T): Array<T> {
-    const newArr = [...a];
-    newArr[index] = item;
-    return newArr;
+  function selectQuestion(val?: SubjectQuestion) {
+    setSelectedQuestion(val?.question._id || undefined);
   }
 
-  function updateQuestion(val: Question, idx: number) {
-    updateQuestions(
-      replaceItem(questions, idx, {
-        ...questions[idx],
-        ...val,
-      })
-    );
-  }
+  function onDragEnd(result: DropResult) {
+    if (!result.destination) {
+      return;
+    }
+    const questionId = result.draggableId
+      .replace("category-", "")
+      .replace("question-", "");
+    const categoryId = result.destination.droppableId.startsWith("category")
+      ? result.destination!.droppableId.replace("category-", "")
+      : undefined;
 
-  function addQuestion(val?: Question) {
-    updateQuestions([
-      ...questions,
-      {
-        _id: val?._id || "",
-        question: val?.question || "",
-        topics: val?.topics || [],
-        paraphrases: val?.paraphrases || [],
-        type: val?.type || QuestionType.QUESTION,
-        name: val?.name || "",
-      },
-    ]);
+    // re-ordering questions in question list
+    if (
+      result.draggableId.startsWith("question") &&
+      result.destination.droppableId === "questions"
+    ) {
+      props.moveQuestion(
+        questionId,
+        uncategorizedQuestions[result.destination!.index].question._id,
+        categoryId
+      );
+    }
+    // removed question from category list to question list
+    if (
+      result.draggableId.startsWith("category-question") &&
+      result.destination.droppableId === "questions"
+    ) {
+      props.moveQuestion(questionId, undefined, categoryId);
+    }
+    // added question in questions list to a category
+    if (
+      result.draggableId.startsWith("question") &&
+      result.destination.droppableId.startsWith("category")
+    ) {
+      props.moveQuestion(questionId, undefined, categoryId);
+    }
+    // moved question in category list to another category
+    if (
+      result.draggableId.startsWith("category-question") &&
+      result.destination.droppableId.startsWith("category")
+    ) {
+      props.moveQuestion(questionId, undefined, categoryId);
+    }
   }
-
-  function removeQuestion(idx: number) {
-    questions.splice(idx, 1);
-    updateQuestions([...questions]);
-  }
-
-  function selectQuestion(idx: number) {
-    setSelectedQuestion(idx);
-  }
-
-  const question = selectedQuestion !== -1 ? questions[selectedQuestion] : null;
 
   return (
     <Card
       elevation={0}
-      className={classes.flexExpandChild}
+      className={classes.flexChild}
       style={{ textAlign: "left" }}
     >
-      <Typography variant="body2" style={{ flexShrink: 0, padding: 15 }}>
-        Questions
-      </Typography>
-      <Grid
-        container
-        style={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "0",
-        }}
-      >
-        <Grid
-          item
-          xs={question ? 5 : 12}
-          style={{ flexGrow: 1, overflow: "auto", minHeight: "100%" }}
+      <div className={classes.row}>
+        <IconButton
+          id="toggle-questions"
+          size="small"
+          aria-expanded={expanded}
+          onClick={toggleExpanded}
         >
-          <List id="questions" className={classes.list}>
-            {questions.map((q, i) => (
-              <ListItem key={`question-${i}`} id={`question-${i}`}>
-                <QuestionListItem
-                  question={q}
-                  isSelected={selectedQuestion === i}
-                  editQuestion={(val: Question) => {
-                    updateQuestion(val, i);
-                  }}
-                  removeQuestion={() => {
-                    removeQuestion(i);
-                  }}
-                  selectQuestion={() => {
-                    selectQuestion(i);
-                  }}
-                  deselectQuestion={() => {
-                    selectQuestion(-1);
-                  }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Grid>
-        {question ? (
-          <Grid
-            item
-            xs={7}
-            style={{ flexGrow: 1, overflow: "auto", minHeight: "0" }}
-          >
-            <QuestionEditCard
-              classes={classes}
-              question={question}
-              editQuestion={(val: Question) => {
-                updateQuestion(val, selectedQuestion!);
-              }}
-              onDeselect={() => {
-                selectQuestion(-1);
-              }}
-            />
-          </Grid>
-        ) : undefined}
-      </Grid>
-      <div
-        style={{
-          flexShrink: 0,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <Autocomplete
-          id="question-input"
-          options={allQuestions}
-          getOptionLabel={(option: Question) => option.question}
-          onChange={(e, v) => {
-            setQuestionSearch(v || undefined);
-          }}
-          style={{ width: "100%" }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              variant="outlined"
-              placeholder="Choose an existing question to add?"
-            />
-          )}
-        />
-        <Button
-          id="add-question"
-          startIcon={<AddIcon />}
-          className={classes.button}
-          onClick={() => addQuestion(questionSearch)}
-        >
-          {questionSearch ? "Add Question" : "New Question"}
-        </Button>
+          <ExpandMoreIcon
+            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          />
+        </IconButton>
+        <Typography variant="body2">Questions</Typography>
       </div>
+      <CardContent style={{ padding: 0 }}>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <Grid
+            container
+            style={{
+              display: "flex",
+              flexDirection: "row",
+            }}
+          >
+            <Grid
+              item
+              xs={selectedQuestion ? 6 : 12}
+              style={{
+                maxHeight: maxHeight - 70,
+                overflow: "auto",
+              }}
+            >
+              <DragDropContext onDragEnd={onDragEnd}>
+                <List id="categories" className={classes.list}>
+                  {props.categories.map((category, i) => (
+                    <ListItem id={`category-${i}`} key={category.id}>
+                      <CategoryListItem
+                        category={category}
+                        questions={questions.filter(
+                          (q) => q.category?.id === category.id
+                        )}
+                        selectedQuestion={selectedQuestion}
+                        removeCategory={props.removeCategory}
+                        updateCategory={props.editCategory}
+                        updateQuestion={props.editQuestion}
+                        removeQuestion={props.removeQuestion}
+                        selectQuestion={selectQuestion}
+                        deselectQuestion={() => selectQuestion(undefined)}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+                <Droppable droppableId="questions">
+                  {(provided) => (
+                    <List
+                      id="questions"
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={classes.list}
+                    >
+                      {uncategorizedQuestions.map((q, i) => (
+                        <Draggable
+                          key={`question-${q.question._id}`}
+                          draggableId={`question-${q.question._id}`}
+                          index={i}
+                        >
+                          {(provided) => (
+                            <ListItem
+                              id={`question-${i}`}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <QuestionListItem
+                                question={q}
+                                isSelected={selectedQuestion === q.question._id}
+                                updateQuestion={props.editQuestion}
+                                removeQuestion={props.removeQuestion}
+                                selectQuestion={selectQuestion}
+                                deselectQuestion={() =>
+                                  selectQuestion(undefined)
+                                }
+                              />
+                            </ListItem>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </List>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            </Grid>
+            {selectedQuestion ? (
+              <Grid
+                item
+                xs={6}
+                style={{
+                  overflow: "auto",
+                  maxHeight: maxHeight - 70,
+                }}
+              >
+                <QuestionEditCard
+                  classes={classes}
+                  topics={props.topics}
+                  question={questions.find(
+                    (q) => q.question._id === selectedQuestion
+                  )}
+                  updateQuestion={props.editQuestion}
+                  onDeselect={() => selectQuestion(undefined)}
+                />
+              </Grid>
+            ) : undefined}
+          </Grid>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              id="add-question"
+              color="primary"
+              variant="outlined"
+              startIcon={<AddIcon />}
+              className={classes.button}
+              onClick={props.addQuestion}
+            >
+              Add Question
+            </Button>
+            <Button
+              id="add-category"
+              variant="outlined"
+              startIcon={<AddIcon />}
+              className={classes.button}
+              onClick={props.addCategory}
+            >
+              Add Category
+            </Button>
+          </div>
+        </Collapse>
+      </CardContent>
     </Card>
   );
 }

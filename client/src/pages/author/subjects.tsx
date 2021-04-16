@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -29,11 +28,11 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+import { fetchSubjects } from "api";
+import { Connection, Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
-import { Connection, Subject } from "types";
-import { fetchSubjects } from "api";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,25 +91,27 @@ function SubjectItem(props: {
   onDelete: (id: string) => void;
 }): JSX.Element {
   const { subject, onDelete } = props;
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState<
+    EventTarget & HTMLButtonElement
+  >();
   const deleteMenuOpen = Boolean(anchorEl);
 
-  function onClickDelete(e: any) {
+  function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
     setAnchorEl(e.currentTarget);
   }
 
   function onCloseDelete() {
-    setAnchorEl(null);
+    setAnchorEl(undefined);
   }
 
   async function deleteSubject(id: string) {
     toast("Deleting...");
-    setAnchorEl(null);
+    setAnchorEl(undefined);
     onDelete(id);
   }
 
   return (
-    <TableRow hover role="checkbox" tabIndex={-1}>
+    <TableRow id={props.id} hover role="checkbox" tabIndex={-1}>
       <TableCell id="name" align="left">
         <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
       </TableCell>
@@ -153,8 +154,6 @@ function SubjectItem(props: {
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [subjects, setSubjects] = useState<Connection<Subject>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
@@ -162,22 +161,20 @@ function SubjectsPage(): JSX.Element {
   const limit = 10;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/login");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    loadSubjects();
+    let mounted = true;
+    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((s) => {
+      if (!mounted) {
+        return;
+      }
+      setSubjects(s);
+    });
+    return () => {
+      mounted = false;
+    };
   }, [cursor, sortBy, sortAscending]);
 
-  async function loadSubjects() {
-    setSubjects(await fetchSubjects({ cursor, limit, sortBy, sortAscending }));
-  }
-
-  async function deleteSubject(id: string) {
-    // todo
-    loadSubjects();
+  async function deleteSubject() {
+    // TODO
   }
 
   function setSort(id: string) {
@@ -189,7 +186,7 @@ function SubjectsPage(): JSX.Element {
     setCursor("");
   }
 
-  if (!context.user || !subjects) {
+  if (!subjects) {
     return (
       <div>
         <NavBar title="Subjects" />
@@ -260,4 +257,4 @@ function SubjectsPage(): JSX.Element {
   );
 }
 
-export default SubjectsPage;
+export default withAuthorizationOnly(SubjectsPage);

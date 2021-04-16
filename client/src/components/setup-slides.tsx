@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   Paper,
   Typography,
@@ -17,14 +16,12 @@ import {
   MenuItem,
 } from "@material-ui/core";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-
 import {
   updateMentor,
   trainMentor,
   fetchTrainingStatus,
   CLIENT_ENDPOINT,
 } from "api";
-import Context from "context";
 import {
   Mentor,
   Status,
@@ -40,16 +37,18 @@ export interface SlideType {
   element: JSX.Element;
 }
 
-export function Slide(status: boolean, element: JSX.Element) {
+export function Slide(status: boolean, element: JSX.Element): SlideType {
   return {
     status,
     element,
   };
 }
 
-export function WelcomeSlide(props: { classes: any }): JSX.Element {
+export function WelcomeSlide(props: {
+  classes: Record<string, string>;
+  userName: string;
+}): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
   return (
     <Paper id="slide" className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -57,7 +56,7 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          It&apos;s nice to meet you, {context.user!.name}!
+          It&apos;s nice to meet you, {props.userName}!
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Let&apos;s get started setting up your new mentor.
@@ -68,12 +67,12 @@ export function WelcomeSlide(props: { classes: any }): JSX.Element {
 }
 
 export function MentorInfoSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
+  accessToken: string;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [name, setName] = useState(mentor.name);
   const [firstName, setFirstName] = useState(mentor.firstName);
   const [title, setTitle] = useState(mentor.title);
@@ -81,7 +80,7 @@ export function MentorInfoSlide(props: {
   async function onSave() {
     const update = await updateMentor(
       { ...mentor, name, firstName, title },
-      cookies.accessToken
+      props.accessToken
     );
     if (!update) {
       console.error("failed to update");
@@ -145,12 +144,12 @@ export function MentorInfoSlide(props: {
 }
 
 export function MentorTypeSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
+  accessToken: string;
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [cookies] = useCookies(["accessToken"]);
   const [type, setType] = useState<MentorType>(
     mentor.mentorType || MentorType.CHAT
   );
@@ -162,7 +161,7 @@ export function MentorTypeSlide(props: {
 
   async function onSave() {
     setIsSaving(true);
-    await updateMentor({ ...mentor, mentorType: type }, cookies.accessToken);
+    await updateMentor({ ...mentor, mentorType: type }, props.accessToken);
     onUpdated();
     setIsSaving(false);
   }
@@ -178,7 +177,12 @@ export function MentorTypeSlide(props: {
             id="select-chat-type"
             value={type}
             style={{ width: 100, marginRight: 20 }}
-            onChange={(event: any) => {
+            onChange={(
+              event: React.ChangeEvent<{
+                name?: string | undefined;
+                value: unknown;
+              }>
+            ) => {
               onSelect(event.target.value as MentorType);
             }}
           >
@@ -190,6 +194,7 @@ export function MentorTypeSlide(props: {
             </MenuItem>
           </Select>
           <Button
+            id="save-btn"
             onClick={onSave}
             disabled={isSaving || mentor.mentorType === type}
             variant="contained"
@@ -210,7 +215,9 @@ export function MentorTypeSlide(props: {
   );
 }
 
-export function IntroductionSlide(props: { classes: any }): JSX.Element {
+export function IntroductionSlide(props: {
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
   return (
     <Paper id="slide" className={classes.card}>
@@ -234,7 +241,7 @@ export function IntroductionSlide(props: { classes: any }): JSX.Element {
 }
 
 export function SelectSubjectsSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   i: number;
 }): JSX.Element {
   const { classes, i } = props;
@@ -257,7 +264,12 @@ export function SelectSubjectsSlide(props: {
           After completing a subject, you&apos;ll be placed in a panel with
           other mentors in your field.
         </Typography>
-        <Button variant="contained" color="primary" onClick={onClick}>
+        <Button
+          id="button"
+          variant="contained"
+          color="primary"
+          onClick={onClick}
+        >
           View Subjects
         </Button>
       </div>
@@ -266,7 +278,7 @@ export function SelectSubjectsSlide(props: {
 }
 
 export function RecordIdleSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   idle: Answer;
   i: number;
 }): JSX.Element {
@@ -309,7 +321,7 @@ export function RecordIdleSlide(props: {
 }
 
 export function RecordSubjectSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   subject: Subject;
   questions: Answer[];
   i: number;
@@ -356,7 +368,7 @@ export function RecordSubjectSlide(props: {
 
 const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
-  classes: any;
+  classes: Record<string, string>;
   mentor: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
@@ -373,7 +385,7 @@ export function BuildMentorSlide(props: {
         setStatusUrl(trainJob.statusUrl);
         setIsBuilding(true);
       })
-      .catch((err: any) => {
+      .catch((err) => {
         setTrainData({
           state: TrainState.FAILURE,
           status: err.message || `${err}`,
@@ -382,14 +394,16 @@ export function BuildMentorSlide(props: {
       });
   }
 
-  function useInterval(callback: any, delay: number | null) {
-    const savedCallback = React.useRef() as any;
+  function useInterval(callback: () => void, delay: number | null) {
+    const savedCallback = React.useRef<() => void>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
       function tick() {
-        savedCallback.current();
+        if (savedCallback.current) {
+          savedCallback.current();
+        }
       }
       if (delay) {
         const id = setInterval(tick, delay);
