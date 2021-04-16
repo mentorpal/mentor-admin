@@ -150,7 +150,7 @@ export function cyMockDefault(
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
+    ...(args.mentor ? [mockGQL("mentor", args.mentor, true)] : []),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...(args.noLogin ? [] : [mockGQL("login", args.login || loginDefault)]),
@@ -159,7 +159,6 @@ export function cyMockDefault(
 }
 
 import { TrainStatus, UserAccessToken } from "./types";
-import { mock } from "cypress/types/sinon";
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(
