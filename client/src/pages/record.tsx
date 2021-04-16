@@ -26,13 +26,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
+
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
 import { Answer, Status, Mentor, MentorType } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
-import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,

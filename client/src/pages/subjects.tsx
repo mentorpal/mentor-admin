@@ -23,10 +23,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+import { fetchMentor, fetchSubjects, updateMentor } from "api";
+import { Connection, Mentor, Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import { Connection, Mentor, Subject } from "types";
-import { fetchMentor, fetchSubjects, updateMentor } from "api";
 import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({

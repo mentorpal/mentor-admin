@@ -8,6 +8,7 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 import {
   Mentor,
@@ -18,7 +19,6 @@ import {
   MentorType,
 } from "types";
 import NavBar from "components/nav-bar";
-import withLocation from "wrap-with-location";
 import {
   Slide,
   SlideType,
@@ -32,6 +32,7 @@ import {
   MentorTypeSlide,
 } from "components/setup-slides";
 import withAuthorizationOnly from "wrap-with-authorization-only";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles(() => ({
   root: {

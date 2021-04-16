@@ -32,8 +32,6 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
-import { ColumnDef, ColumnHeader } from "components/column-header";
-import NavBar from "components/nav-bar";
 import {
   fetchMentor,
   fetchTrainingStatus,
@@ -51,6 +49,8 @@ import {
   TrainStatus,
   UserQuestion,
 } from "types";
+import { ColumnDef, ColumnHeader } from "components/column-header";
+import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
