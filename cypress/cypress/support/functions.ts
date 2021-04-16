@@ -136,7 +136,7 @@ export function cyMockDefault(
   args: {
     config?: Partial<Config>;
     gqlQueries?: MockGraphQLQuery[];
-    noLogin?: boolean;
+    noAccessTokenCookie?: boolean;
     login?: UserAccessToken;
     mentor?: any;
     subject?: any;
@@ -145,15 +145,15 @@ export function cyMockDefault(
 ) {
   const config = args?.config || {};
   const gqlQueries = args?.gqlQueries || [];
-  if (!args.noLogin) {
+  if (!args.noAccessTokenCookie) {
     cyMockLogin(cy);
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
+    mockGQL("login", args.login || loginDefault),
     ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
-    ...(args.noLogin ? [] : [mockGQL("login", args.login || loginDefault)]),
     ...gqlQueries,
   ]);
 }

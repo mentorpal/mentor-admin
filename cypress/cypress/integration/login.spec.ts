@@ -8,93 +8,91 @@ import { cySetup, cyMockDefault, cyMockLogin } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
-
   describe("redirects to login page if the user is not logged in", () => {
-
     it("from profile page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/profile");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from setup page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/setup");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from record page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/record");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from subjects page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/subjects");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from author subjects page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/author/subjects");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from author subject page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/author/subject");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from author questions page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/author/questions");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
     it("from feedback page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noLogin: true });
+      cyMockDefault(cy, { noAccessTokenCookie: true });
       cy.visit("/feedback");
       cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/")
-      })
+        assert($el.replace("/admin", ""), "/");
+      });
       cy.get("#nav-bar #login-option").should("not.exist");
     });
   });
 
   it("shows login on home page if user is not logged in", () => {
     cySetup(cy);
-    cyMockDefault(cy, { noLogin: true });
+    cyMockDefault(cy, { noAccessTokenCookie: true });
     cy.visit("/");
     cy.get("#nav-bar #title").contains("Mentor Studio");
     cy.contains("Please sign in to access the Mentor Studio portal");
@@ -114,20 +112,20 @@ describe("Login", () => {
     cyMockDefault(cy, { mentor });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup")
-    })
-    cy.get("#login-button").should('not.exist');
+      assert($el.replace("/admin", ""), "/setup");
+    });
+    cy.get("#login-button").should("not.exist");
   });
 
   it("can logout and redirect to login page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
-    cy.visit("/profile");
+    cy.visit("/");
     cy.get("#login-option").trigger("mouseover").click();
     cy.get("#logout-button").trigger("mouseover").click();
     cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/")
-    })
+      assert($el.replace("/admin", ""), "/");
+    });
     cy.get("#login-option").should("not.exist");
   });
 });

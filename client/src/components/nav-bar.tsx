@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
 function Login(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  // const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
   const [anchorEl, setAnchorEl] = React.useState<
     EventTarget & HTMLButtonElement
   >();
@@ -74,7 +74,8 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
+    // removeCookie("accessToken", { path: "/" });
+    context.logout();
     navigate("/");
   }
 
@@ -115,7 +116,9 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   );
 }
 
-function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
+function NavMenu(props: {
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
@@ -126,10 +129,10 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
     window.location.href = path;
   }
 
-  function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
-    navigate("/");
-  }
+  // function onLogout(): void {
+  //   removeCookie("accessToken", { path: "/" });
+  //   navigate("/");
+  // }
 
   return (
     <List dense className={classes.menu}>
