@@ -55,9 +55,16 @@ function AnswerList(props: {
     if (!context.user) {
       return;
     }
+    let mounted = true;
     fetchMentor(cookies.accessToken).then((m) => {
+      if (!mounted) {
+        return;
+      }
       setMentor(m._id);
     });
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   return (
