@@ -55,7 +55,9 @@ describe("Login", () => {
       cySetup(cy);
       cyMockDefault(cy, { noLogin: true });
       cy.visit("/author/subjects");
-      cy.location("pathname").should("equal", "/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/")
+      })
       cy.get("#nav-bar #login-option").should("not.exist");
     });
 
@@ -111,17 +113,21 @@ describe("Login", () => {
     cyMockLogin(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/");
-    cy.location("pathname").should("contain", "/setup");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/setup")
+    })
     cy.get("#login-button").should('not.exist');
   });
 
   it("can logout and redirect to login page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
-    cy.visit("/");
+    cy.visit("/profile");
     cy.get("#login-option").trigger("mouseover").click();
     cy.get("#logout-button").trigger("mouseover").click();
-    cy.location("pathname").should("equal", "/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/")
+    })
     cy.get("#login-option").should("not.exist");
   });
 });
