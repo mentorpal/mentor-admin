@@ -97,32 +97,47 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    const load = async () => {
-      if (!context.user) {
+    let mounted = true;
+    // TODO: move all mutations out of client and into server (login?)
+    async function load(): Promise<void> {
+      if (!(context.user && cookies.accessToken)) {
         return;
       }
       const mentor = await fetchMentor(cookies.accessToken);
-      fetchSubjects({ filter: { isRequired: true } }).then((subjects) => {
-        const requiredSubjects = subjects.edges.map(
-          (e: Edge<Subject>) => e.node
-        );
-        const subjectIds = mentor.subjects.map((s) => s._id);
-        if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-          const subjects = [
-            ...new Set([...requiredSubjects, ...mentor.subjects]),
-          ];
-          updateMentor({ ...mentor, subjects }, cookies.accessToken).then(
-            (updated) => {
-              if (updated) {
-                fetchMentor(cookies.accessToken).then((m) => setMentor(m));
-              }
-            }
-          );
-        }
-      });
+      if (!mounted) {
+        return;
+      }
       setMentor(mentor);
+      const subjects = await fetchSubjects({ filter: { isRequired: true } });
+      if (!mounted) {
+        return;
+      }
+      const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
+      const subjectIds = mentor.subjects.map((s) => s._id);
+      if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+        const subjects = [
+          ...new Set([...requiredSubjects, ...mentor.subjects]),
+        ];
+        const updated = await updateMentor(
+          { ...mentor, subjects },
+          cookies.accessToken
+        );
+        if (!mounted) {
+          return;
+        }
+        if (updated) {
+          const mUpdated = await fetchMentor(cookies.accessToken);
+          if (!mounted) {
+            return;
+          }
+          setMentor(mUpdated);
+        }
+      }
+    }
+    load().catch((err) => console.error(err));
+    return () => {
+      mounted = false;
     };
-    load();
   }, [context.user]);
 
   React.useEffect(() => {

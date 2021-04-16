@@ -38,6 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [cookies, setCookie] = useCookies(["accessToken"]);
   const [googleClientId, setClientId] = React.useState<string>("");
 
