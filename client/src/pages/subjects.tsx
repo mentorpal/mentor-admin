@@ -102,16 +102,27 @@ function SubjectsPage(): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
+    if (!(context.user && cookies.accessToken)) {
       navigate("/");
     }
   }, [cookies]);
 
   React.useEffect(() => {
-    if (!context.user) {
+    if (!(context.user && cookies.accessToken)) {
       return;
     }
-    fetchMentor(cookies.accessToken).then((m) => setMentor(m));
+    let mounted = true;
+    fetchMentor(cookies.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   React.useEffect(() => {
@@ -123,12 +134,21 @@ function SubjectsPage(): JSX.Element {
   }, [mentor]);
 
   React.useEffect(() => {
-    if (!context.user) {
+    if (!(context.user && cookies.accessToken)) {
       return;
     }
-    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
-      setAllSubjects(subjects);
-    });
+    let mounted = true;
+    fetchSubjects({ cursor, limit, sortBy, sortAscending })
+      .then((subjects) => {
+        if (!mounted) {
+          return;
+        }
+        setAllSubjects(subjects);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user, cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {
