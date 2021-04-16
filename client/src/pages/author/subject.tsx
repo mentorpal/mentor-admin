@@ -103,7 +103,7 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
-      navigate("/login");
+      navigate("/");
     }
   }, [cookies]);
 

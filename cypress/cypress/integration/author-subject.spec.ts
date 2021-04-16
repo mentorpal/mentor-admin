@@ -78,7 +78,7 @@ describe("Edit subject", () => {
       noLogin: true,
     });
     cy.visit("/profile");
-    cy.location("pathname").should("contain", "/login");
+    cy.location("pathname").should("equal", "/");
   });
 
   it("can open and collapse different sections", () => {

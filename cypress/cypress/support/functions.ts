@@ -159,7 +159,6 @@ export function cyMockDefault(
 }
 
 import { TrainStatus, UserAccessToken } from "./types";
-import { mock } from "cypress/types/sinon";
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 
 export function cyMockTrain(

@@ -25,7 +25,7 @@ describe("Select Subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, { noLogin: true });
     cy.visit("/subjects");
-    cy.location("pathname").should("contain", "/login");
+    cy.location("pathname").should("equal", "/");
   });
 
   it("can select subjects", () => {

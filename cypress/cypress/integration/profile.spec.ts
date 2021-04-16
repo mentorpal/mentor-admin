@@ -14,7 +14,7 @@ describe("Profile", () => {
     cySetup(cy);
     cyMockDefault(cy, { noLogin: true });
     cy.visit("/profile");
-    cy.location("pathname").should("contain", "/login");
+    cy.location("pathname").should("equal", "/");
   });
 
   it("views, saves, and updates profile data", () => {

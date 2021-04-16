@@ -53,7 +53,7 @@ function IndexPage(): JSX.Element {
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
-      navigate("/login");
+      navigate("/");
     }
   }, [cookies]);
 

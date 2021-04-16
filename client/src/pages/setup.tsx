@@ -92,7 +92,7 @@ function SetupPage(props: { search: { i?: string } }): JSX.Element {
 
   React.useEffect(() => {
     if (!cookies.accessToken) {
-      navigate("/login");
+      navigate("/");
     }
   }, [cookies]);
 

@@ -19,7 +19,7 @@ describe("Review answers page", () => {
     cySetup(cy);
     cyMockDefault(cy, { noLogin: true });
     cy.visit("/");
-    cy.location("pathname").should("contain", "/login");
+    cy.location("pathname").should("equal", "/");
   });
 
   it("shows all questions for all subjects by default", () => {
