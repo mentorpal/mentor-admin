@@ -92,7 +92,10 @@ interface Progress {
   total: number;
 }
 
-function HomePage(props: { accessToken: string; search: { subject?: string } }): JSX.Element {
+function HomePage(props: {
+  accessToken: string;
+  search: { subject?: string };
+}): JSX.Element {
   const classes = useStyles();
   const [mentor, setMentor] = useState<Mentor>();
   const [selectedSubject, setSelectedSubject] = useState<string>();
@@ -207,7 +210,8 @@ function HomePage(props: { accessToken: string; search: { subject?: string } }):
 
   function onRecordOne(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${answer.question._id
+      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
+        answer.question._id
       }`
     );
   }

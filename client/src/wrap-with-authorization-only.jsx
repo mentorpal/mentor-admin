@@ -13,14 +13,14 @@ import { Redirect } from "@reach/router";
 const withAuthorizationOnly = (Component) => (props) => {
   const [cookies] = useCookies(["accessToken"]);
   const context = useContext(Context);
-  
+
   if (!cookies.accessToken) {
-    return <Redirect to="/" />
+    return <Redirect to="/" />;
   }
   if (!context.user) {
-    return <div />
+    return <div />;
   }
-  return <Component {...props} accessToken={cookies.accessToken} />
-}
+  return <Component {...props} accessToken={cookies.accessToken} />;
+};
 
 export default withAuthorizationOnly;

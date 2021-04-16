@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   AppBar,
   Checkbox,
@@ -26,7 +25,6 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
 import { Connection, Mentor, Subject } from "types";
 import { fetchMentor, fetchSubjects, updateMentor } from "api";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -89,8 +87,6 @@ const columns: ColumnDef[] = [
 
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [mentor, setMentor] = useState<Mentor>();
   const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
   const [subjects, setSubjects] = useState<Subject[]>();
@@ -164,13 +160,13 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
         defaultSubject,
         subjects: subjects,
       },
-      cookies.accessToken
+      props.accessToken
     );
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(await fetchMentor(props.accessToken));
     setIsSaving(false);
   }
 
-  if (!context.user || !allSubjects || !subjects) {
+  if (!allSubjects || !subjects) {
     return (
       <div>
         <NavBar title="Subjects" />
