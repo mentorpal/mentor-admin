@@ -110,12 +110,19 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
     if (!context.user) {
       return;
     }
+    let mounted = true;
     setSelectedSubject(props.search.subject);
     setLoadingMessage("Loading mentor...");
     fetchMentor(cookies.accessToken).then((m) => {
+      if (!mounted) {
+        return;
+      }
       setMentor(m);
       setLoadingMessage(undefined);
     });
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   React.useEffect(() => {
@@ -124,7 +131,7 @@ function HomePage(props: { search: { subject?: string } }): JSX.Element {
     }
   }, [context.user, mentor, selectedSubject, editedSubjects]);
 
-  async function loadAnswers() {
+  function loadAnswers() {
     if (!mentor) {
       return;
     }
