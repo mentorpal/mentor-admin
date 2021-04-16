@@ -4,9 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React, { useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import React, { useState } from "react";
 import {
   AppBar,
   CircularProgress,
@@ -36,7 +34,6 @@ import { Autocomplete } from "@material-ui/lab";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import Context from "context";
 import {
   fetchMentor,
   fetchTrainingStatus,
@@ -54,6 +51,7 @@ import {
   TrainStatus,
   UserQuestion,
 } from "types";
+import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -220,10 +218,8 @@ function FeedbackItem(props: {
   );
 }
 
-function FeedbackPage(): JSX.Element {
+function FeedbackPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [cookies] = useCookies(["accessToken"]);
   const [feedback, setFeedback] = useState<Connection<UserQuestion>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
@@ -245,17 +241,8 @@ function FeedbackPage(): JSX.Element {
   const [isTraining, setIsTraining] = useState(false);
 
   React.useEffect(() => {
-    if (!cookies.accessToken) {
-      navigate("/");
-    }
-  }, [cookies]);
-
-  React.useEffect(() => {
-    if (!context.user) {
-      return;
-    }
     let mounted = true;
-    fetchMentor(cookies.accessToken).then((m) => {
+    fetchMentor(props.accessToken).then((m) => {
       if (!mounted) {
         return;
       }
@@ -264,7 +251,7 @@ function FeedbackPage(): JSX.Element {
     return () => {
       mounted = false;
     };
-  }, [context.user]);
+  }, []);
 
   React.useEffect(() => {
     if (!mentor) {
@@ -582,4 +569,4 @@ function FeedbackPage(): JSX.Element {
   );
 }
 
-export default FeedbackPage;
+export default withAuthorizationOnly(FeedbackPage);

@@ -81,7 +81,10 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: { accessToken: string; search: { i?: string } }): JSX.Element {
+function SetupPage(props: {
+  accessToken: string;
+  search: { i?: string };
+}): JSX.Element {
   const classes = useStyles();
   const [mentor, setMentor] = useState<Mentor>();
   const [slides, setSlides] = useState<SlideType[]>([]);
