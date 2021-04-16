@@ -11,7 +11,7 @@ const theme = createMuiTheme({
   },
 });
 
-// eslint-disble-next-line @typescript-eslint/explicit-module-boundary-types
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const wrapRootElement = ({ element }) => (
   <MuiThemeProvider theme={theme}>
     <CookiesProvider>
