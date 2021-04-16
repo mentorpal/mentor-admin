@@ -108,15 +108,27 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
+    let mounted = true;
     setSubject(JSON.parse(JSON.stringify(subjectEdit)));
     if (context.user) {
       fetchMentorId(cookies.accessToken).then((m) => {
+        if (!mounted) {
+          return;
+        }
         setMentorId(m._id);
         if (props.search.id) {
-          loadSubject(props.search.id);
+          fetchSubject(props.search.id).then((s) => {
+            if (!mounted) {
+              return;
+            }
+            applySubject(s);
+          });
         }
       });
     }
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   function toggleExpand(s: boolean, t: boolean, q: boolean) {
@@ -125,10 +137,15 @@ function SubjectPage(props: { search: { id?: string } }): JSX.Element {
     setIsQuestionsExpanded(q);
   }
 
-  async function loadSubject(id: string) {
-    const s = await fetchSubject(id);
+  function applySubject(s: Subject): void {
+    // TODO: combine state into one thing
     setSubject(JSON.parse(JSON.stringify(s)));
     setSubjectEdit(s);
+  }
+
+  async function loadSubject(id: string) {
+    const s = await fetchSubject(id);
+    applySubject(s);
   }
 
   function addCategory() {
