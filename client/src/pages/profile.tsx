@@ -58,14 +58,32 @@ function IndexPage(): JSX.Element {
   }, [cookies]);
 
   React.useEffect(() => {
-    loadMentor();
+    let mounted = true;
+    if (!(context.user && cookies.accessToken)) {
+      return;
+    }
+    fetchMentor(cookies.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [context.user]);
 
   async function loadMentor() {
+    if (!(context.user && cookies.accessToken)) {
+      return;
+    }
+    const m = await fetchMentor(cookies.accessToken);
     if (!context.user) {
       return;
     }
-    setMentor(await fetchMentor(cookies.accessToken));
+    setMentor(m);
   }
 
   async function updateProfile() {
