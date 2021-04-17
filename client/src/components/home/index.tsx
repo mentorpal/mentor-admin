@@ -358,7 +358,7 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div style={{ flexShrink: 0 }}>
-        <NavBar title="Mentor Studio" />
+        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <Select
           id="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}

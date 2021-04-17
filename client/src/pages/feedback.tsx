@@ -376,7 +376,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
   if (!mentor || !feedback) {
     return (
       <div>
-        <NavBar title="Feedback" />
+        <NavBar title="Feedback" mentorId={mentor?._id} />
         <CircularProgress />
       </div>
     );
@@ -384,7 +384,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Feedback" />
+      <NavBar title="Feedback" mentorId={mentor._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

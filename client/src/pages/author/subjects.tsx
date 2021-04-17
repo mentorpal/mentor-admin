@@ -28,8 +28,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { fetchSubjects } from "api";
-import { Connection, Subject } from "types";
+import { fetchMentorId, fetchSubjects } from "api";
+import { Connection, Mentor, Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -152,13 +152,27 @@ function SubjectItem(props: {
   );
 }
 
-function SubjectsPage(): JSX.Element {
+function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
+  const [mentor, setMentor] = React.useState<Mentor>();
   const [subjects, setSubjects] = useState<Connection<Subject>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("name");
   const [sortAscending, setSortAscending] = React.useState(false);
   const limit = 10;
+
+  React.useState(() => {
+    let mounted = true;
+    fetchMentorId(props.accessToken).then((m) => {
+      if (!mounted) {
+        return;
+      }
+      setMentor(m);
+    });
+    return () => {
+      mounted = false;
+    };
+  });
 
   React.useEffect(() => {
     let mounted = true;
@@ -197,7 +211,7 @@ function SubjectsPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" />
+      <NavBar title="Subjects" mentorId={mentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

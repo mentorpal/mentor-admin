@@ -169,7 +169,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
   if (!allSubjects || !subjects) {
     return (
       <div>
-        <NavBar title="Subjects" />
+        <NavBar title="Subjects" mentor={mentor?._id} />
         <CircularProgress />
       </div>
     );
@@ -177,7 +177,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" />
+      <NavBar title="Subjects" mentor={mentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

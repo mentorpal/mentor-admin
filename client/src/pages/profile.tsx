@@ -89,7 +89,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" />
+      <NavBar title="Mentor Studio" mentorId={mentor._id} />
       <Paper id="mentor" className={classes.paper}>
         <Typography variant="h6" className={classes.title}>
           My Profile

@@ -94,7 +94,6 @@ describe("Login", () => {
     cySetup(cy);
     cyMockDefault(cy, { noAccessTokenCookie: true });
     cy.visit("/");
-    cy.get("#nav-bar #title").contains("Mentor Studio");
     cy.contains("Please sign in to access the Mentor Studio portal");
   });
 

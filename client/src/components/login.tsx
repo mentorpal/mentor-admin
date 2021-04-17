@@ -11,15 +11,15 @@ import {
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { Button, Typography } from "@material-ui/core";
+import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import NavBar from "components/nav-bar";
 import { getClientID } from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
 import "styles/layout.css";
 
 const useStyles = makeStyles((theme) => ({
+  toolbar: theme.mixins.toolbar,
   root: {
     display: "flex",
     flexFlow: "column",
@@ -66,7 +66,14 @@ function LoginPage(): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" />
+      <AppBar position="fixed">
+        <Toolbar>
+          <Typography id="title" variant="h6">
+            Mentor Studio
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <div className={classes.toolbar} /> {/* create space below app bar */}
       <Typography variant="h5" className={classes.title}>
         Please sign in to access the Mentor Studio portal
       </Typography>
