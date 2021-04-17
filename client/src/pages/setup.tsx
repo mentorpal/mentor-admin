@@ -234,7 +234,7 @@ function SetupPage(props: {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Setup" />
+      <NavBar title="Mentor Setup" mentorId={mentor._id} />
       {idx >= slides.length ? "Invalid slide" : slides[idx].element}
       <div className={classes.row} style={{ height: 150 }}>
         {idx > 0 ? (

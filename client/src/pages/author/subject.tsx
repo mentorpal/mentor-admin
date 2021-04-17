@@ -294,7 +294,7 @@ function SubjectPage(props: {
   const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
   return (
     <div className={classes.root}>
-      <NavBar title="Edit Subject" />
+      <NavBar title="Edit Subject" mentorId={mentorId} />
       <Card
         elevation={0}
         className={classes.flexChild}

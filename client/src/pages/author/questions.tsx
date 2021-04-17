@@ -28,8 +28,8 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { fetchQuestions } from "api";
-import { Connection, Question } from "types";
+import { fetchMentorId, fetchQuestions } from "api";
+import { Connection, Mentor, Question } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -80,8 +80,9 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function QuestionsPage(): JSX.Element {
+function QuestionsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
+  const [mentor, setMentor] = React.useState<Mentor>();
   const [questions, setQuestions] = useState<Connection<Question>>();
   const [cursor, setCursor] = React.useState("");
   const [sortBy, setSortBy] = React.useState("question");
@@ -91,6 +92,19 @@ function QuestionsPage(): JSX.Element {
   >();
   const deleteMenuOpen = Boolean(anchorEl);
   const limit = 10;
+
+  React.useState(() => {
+    let mounted = true;
+    fetchMentorId(props.accessToken).then((m) => {
+      if (!mounted) {
+        return;
+      }
+      setMentor(m);
+    });
+    return () => {
+      mounted = false;
+    };
+  });
 
   React.useEffect(() => {
     let mounted = true;
@@ -132,7 +146,7 @@ function QuestionsPage(): JSX.Element {
   if (!questions) {
     return (
       <div>
-        <NavBar title="Questions" />
+        <NavBar title="Questions" mentorId={mentor?._id} />
         <CircularProgress />
       </div>
     );
@@ -140,7 +154,7 @@ function QuestionsPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Questions" />
+      <NavBar title="Questions" mentorId={mentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

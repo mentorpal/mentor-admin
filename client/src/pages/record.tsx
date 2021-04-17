@@ -269,7 +269,7 @@ function RecordPage(props: {
   if (!mentor || !answers || answers.length === 0 || !curAnswer) {
     return (
       <div>
-        <NavBar title="Record Mentor" />
+        <NavBar title="Record Mentor" mentorId={mentor?._id} />
         <CircularProgress />
       </div>
     );
@@ -277,7 +277,7 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" />
+      <NavBar title="Record Mentor" mentorId={mentor._id} />
       <div id="progress" className={classes.block}>
         <Typography
           variant="h6"

@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate, Link } from "gatsby";
 import React, { useContext } from "react";
-import { useCookies } from "react-cookie";
 import {
   AppBar,
   Button,
@@ -26,7 +25,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CloseIcon from "@material-ui/icons/Close";
 import MenuIcon from "@material-ui/icons/Menu";
-import { CLIENT_ENDPOINT, fetchMentorId } from "api";
+
+import { CLIENT_ENDPOINT } from "api";
 import Context from "context";
 import withLocation from "wrap-with-location";
 
@@ -57,8 +57,6 @@ const useStyles = makeStyles((theme) => ({
 
 function Login(props: { classes: Record<string, string> }): JSX.Element {
   const { classes } = props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
   const [anchorEl, setAnchorEl] = React.useState<
     EventTarget & HTMLButtonElement
   >();
@@ -78,10 +76,6 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
     navigate("/");
   }
 
-  if (!context.user) {
-    return <div></div>;
-  }
-
   return (
     <div className={classes.login}>
       <Button
@@ -90,7 +84,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
       >
-        {context.user.name}
+        {context.user?.name || ""}
       </Button>
       <Menu
         id="login-menu"
@@ -115,19 +109,20 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   );
 }
 
-function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
+function NavMenu(props: {
+  mentorId: string | undefined;
+  classes: Record<string, string>;
+}): JSX.Element {
   const { classes } = props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie, removeCookie] = useCookies(["accessToken"]);
+  const context = useContext(Context);
 
   async function openChat() {
-    const mentor = await fetchMentorId(cookies.accessToken);
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
+    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
     window.location.href = path;
   }
 
   function onLogout(): void {
-    removeCookie("accessToken", { path: "/" });
+    context.logout();
     navigate("/");
   }
 
@@ -158,10 +153,9 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       >
         <ListItemText primary="Setup" />
       </ListItem>
-
       <Divider style={{ marginTop: 15 }} />
-      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
 
+      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
@@ -170,7 +164,6 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       >
         <ListItemText primary="Record Questions" />
       </ListItem>
-
       <ListItem
         button
         component={Link}
@@ -179,7 +172,6 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       >
         <ListItemText primary="Review Answers" />
       </ListItem>
-
       <ListItem
         button
         component={Link}
@@ -188,11 +180,9 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
       >
         <ListItemText primary="Corrections and User Feedback" />
       </ListItem>
-
-      <ListItem button onClick={openChat}>
+      <ListItem button disabled={!props.mentorId} onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>
@@ -226,6 +216,7 @@ function NavMenu(props: { classes: Record<string, string> }): JSX.Element {
 }
 
 export function NavBar(props: {
+  mentorId: string | undefined;
   title: string;
   search: {
     back?: string;
@@ -234,7 +225,6 @@ export function NavBar(props: {
   const classes = useStyles();
   const { back } = props.search;
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
-  const context = useContext(Context);
 
   function toggleDrawer(tf: boolean): void {
     setIsDrawerOpen(tf);
@@ -244,24 +234,22 @@ export function NavBar(props: {
     <div id="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          {context.user ? (
-            <IconButton
-              id={back ? "back-button" : "menu-button"}
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              className={classes.menuButton}
-              onClick={() => {
-                if (back) {
-                  navigate(decodeURI(back));
-                } else {
-                  toggleDrawer(true);
-                }
-              }}
-            >
-              {back ? <CloseIcon /> : <MenuIcon />}
-            </IconButton>
-          ) : undefined}
+          <IconButton
+            id={back ? "back-button" : "menu-button"}
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            className={classes.menuButton}
+            onClick={() => {
+              if (back) {
+                navigate(decodeURI(back));
+              } else {
+                toggleDrawer(true);
+              }
+            }}
+          >
+            {back ? <CloseIcon /> : <MenuIcon />}
+          </IconButton>
           <Typography id="title" variant="h6" className={classes.title}>
             {props.title}
           </Typography>
@@ -276,7 +264,7 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu classes={classes} />
+        <NavMenu classes={classes} mentorId={props.mentorId} />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>
