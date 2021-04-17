@@ -11,7 +11,7 @@ describe("Login", () => {
   describe("redirects to login page if the user is not logged in", () => {
     it("from profile page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/profile");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -21,7 +21,7 @@ describe("Login", () => {
 
     it("from setup page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/setup");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -31,7 +31,7 @@ describe("Login", () => {
 
     it("from record page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/record");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -41,7 +41,7 @@ describe("Login", () => {
 
     it("from subjects page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/subjects");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -51,7 +51,7 @@ describe("Login", () => {
 
     it("from author subjects page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/author/subjects");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -61,7 +61,7 @@ describe("Login", () => {
 
     it("from author subject page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/author/subject");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -71,7 +71,7 @@ describe("Login", () => {
 
     it("from author questions page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/author/questions");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -81,7 +81,7 @@ describe("Login", () => {
 
     it("from feedback page", () => {
       cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenCookie: true });
+      cyMockDefault(cy, { noAccessTokenStored: true });
       cy.visit("/feedback");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -92,14 +92,14 @@ describe("Login", () => {
 
   it("shows login on home page if user is not logged in", () => {
     cySetup(cy);
-    cyMockDefault(cy, { noAccessTokenCookie: true });
+    cyMockDefault(cy, { noAccessTokenStored: true });
     cy.visit("/");
     cy.contains("Please sign in to access the Mentor Studio portal");
   });
 
   it("shows user name on home page if user is logged in", () => {
     cySetup(cy);
-    cyMockDefault(cy);
+    cyMockDefault(cy, { mentor });
     cy.visit("/");
     cy.get("#nav-bar #login-option").contains("Clinton Anderson");
   });

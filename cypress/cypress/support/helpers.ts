@@ -1,23 +1,22 @@
 import { Mentor, Subject } from "./types";
 
 export function updateMentorAnswer(
-  mentor: Partial<Mentor>,
+  mentor: Mentor,
   answerId: string,
   update: any
-): Partial<Mentor> {
+): Mentor {
   return {
     ...mentor,
     answers: mentor.answers.map((answer) => {
-      if(answer._id === answerId) {
+      if (answer._id === answerId) {
         return {
           ...answer,
-          ...update
-        }
+          ...update,
+        };
+      } else {
+        return answer;
       }
-      else {
-        return answer
-      }
-    })
+    }),
   };
 }
 
@@ -29,15 +28,14 @@ export function updateSubjectQuestion(
   return {
     ...subject,
     questions: subject.questions.map((subjectQuestion) => {
-      if(subjectQuestion.question._id === questionId) {
+      if (subjectQuestion.question._id === questionId) {
         return {
           ...subjectQuestion,
-          ...update
-        }
+          ...update,
+        };
+      } else {
+        return subjectQuestion;
       }
-      else {
-        return subjectQuestion
-      }
-    })
+    }),
   };
 }

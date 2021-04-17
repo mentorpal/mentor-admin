@@ -48,6 +48,10 @@ export interface Mentor {
   questions: SubjectQuestion[];
 }
 
+export interface Ref {
+  id: string;
+}
+
 export interface Subject {
   _id: string;
   name: string;
@@ -60,7 +64,7 @@ export interface Subject {
 
 export interface SubjectQuestion {
   question: Question;
-  category?: Category;
+  category?: Category | Ref;
   topics: Topic[];
 }
 

@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
-import { useCookies } from "react-cookie";
+import React, { useContext } from "react";
 import {
   GoogleLogin,
   GoogleLoginResponse,
@@ -17,6 +16,7 @@ import { getClientID } from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
 import "styles/layout.css";
+import Context from "context";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -38,14 +38,22 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [cookies, setCookie] = useCookies(["accessToken"]);
+  const context = useContext(Context);
   const [googleClientId, setClientId] = React.useState<string>("");
 
   React.useEffect(() => {
-    getClientID().then((id: string) => {
-      setClientId(id);
-    });
+    let mounted = true;
+    getClientID()
+      .then((id: string) => {
+        if (!mounted) {
+          return;
+        }
+        setClientId(id);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const onGoogleLogin = (
@@ -56,7 +64,7 @@ function LoginPage(): JSX.Element {
     }
     const loginResponse = response as GoogleLoginResponse;
     loginGoogle(loginResponse.accessToken).then((token: UserAccessToken) => {
-      setCookie("accessToken", token.accessToken, { path: "/" });
+      context.login(token.accessToken);
     });
   };
 
@@ -83,9 +91,7 @@ function LoginPage(): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.button}
-          onClick={() =>
-            setCookie("accessToken", process.env.ACCESS_TOKEN, { path: "/" })
-          }
+          onClick={() => context.login(process.env.ACCESS_TOKEN || "")}
         >
           Test Login
         </Button>
@@ -93,7 +99,7 @@ function LoginPage(): JSX.Element {
         <GoogleLogin
           clientId={googleClientId}
           onSuccess={onGoogleLogin}
-          cookiePolicy={"single_host_origin"}
+          // cookiePolicy={"single_host_origin"}
           render={(renderProps) => (
             <Button
               id="login-button"

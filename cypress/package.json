@@ -14,5 +14,8 @@
     "cy:run": "npx cypress run --env failOnSnapshotDiff=false",
     "cy:run:withSnapshots": "npx cypress run",
     "cy:verify": "npx cypress verify"
+  },
+  "devDependencies": {
+    "cypress-localstorage-commands": "^1.4.3"
   }
 }

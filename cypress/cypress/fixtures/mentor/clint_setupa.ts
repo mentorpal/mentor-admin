@@ -1,6 +1,6 @@
 import { Mentor, MentorType } from "../../support/types";
 
-export const mentor: Partial<Mentor> = {
+export const mentor: Mentor = {
   _id: "clintanderson",
   name: "",
   firstName: "",

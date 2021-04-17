@@ -177,3 +177,10 @@ export interface TrainingInfo {
   mentor: string;
   questions?: TrainExpectionResult[];
 }
+
+export enum LoginStatus {
+  NONE = 0,
+  IN_PROGRESS = 1,
+  AUTHENTICATED = 2,
+  FAILED = 3,
+}

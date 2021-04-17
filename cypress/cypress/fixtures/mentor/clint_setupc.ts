@@ -1,7 +1,7 @@
 import { Mentor, QuestionType, Status, UtteranceName } from "../../support/types";
 import clint_prev from "./clint_setupb";
 
-export const mentor: Partial<Mentor> = {
+export const mentor: Mentor = {
   ...clint_prev,
   subjects: [
     ...clint_prev.subjects,

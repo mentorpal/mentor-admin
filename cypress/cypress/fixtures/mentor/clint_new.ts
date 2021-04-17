@@ -1,23 +1,33 @@
-import { Mentor, MentorType, QuestionType, Status, UtteranceName } from "../../support/types";
+import {
+  Mentor,
+  MentorType,
+  QuestionType,
+  Status,
+  UtteranceName,
+} from "../../support/types";
 
-export const mentor: Partial<Mentor> = {
+export const mentor: Mentor = {
   _id: "clintanderson",
   name: "",
   firstName: "",
   title: "",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
+  questions: [],
   subjects: [
     {
       _id: "background",
       name: "Background",
-      description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+      description:
+        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
-      categories: [{
-        id: "category",
-        name: "Category",
-        description: "A category"
-      }],
+      categories: [
+        {
+          id: "category",
+          name: "Category",
+          description: "A category",
+        },
+      ],
       topics: [],
       questions: [
         {
@@ -29,7 +39,7 @@ export const mentor: Partial<Mentor> = {
             paraphrases: [],
           },
           topics: [],
-          category: { id: "category" }
+          category: { id: "category" },
         },
         {
           question: {
@@ -39,20 +49,22 @@ export const mentor: Partial<Mentor> = {
             name: null,
             paraphrases: [],
           },
-          topics: []
-        }
-      ]
+          topics: [],
+        },
+      ],
     },
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
-      categories: [{
-        id: "category2",
-        name: "Category2",
-        description: "Another category"
-      }],
+      categories: [
+        {
+          id: "category2",
+          name: "Category2",
+          description: "Another category",
+        },
+      ],
       topics: [],
       questions: [
         {
@@ -64,7 +76,7 @@ export const mentor: Partial<Mentor> = {
             name: UtteranceName.IDLE,
             paraphrases: [],
           },
-          topics: []
+          topics: [],
         },
         {
           question: {
@@ -75,7 +87,7 @@ export const mentor: Partial<Mentor> = {
             name: UtteranceName.INTRO,
             paraphrases: [],
           },
-          topics: []
+          topics: [],
         },
         {
           question: {
@@ -87,9 +99,9 @@ export const mentor: Partial<Mentor> = {
             paraphrases: [],
           },
           topics: [],
-          category: { id: "category2" }
-        }
-      ]
+          category: { id: "category2" },
+        },
+      ],
     },
   ],
   topics: [],

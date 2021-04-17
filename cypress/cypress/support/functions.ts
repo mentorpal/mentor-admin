@@ -1,5 +1,6 @@
 import { Connection, Mentor, Subject } from "./types";
 import { login as loginDefault } from "../fixtures/login";
+import { mentorDefault } from "../fixtures/mentor";
 
 interface StaticResponse {
   /**
@@ -107,10 +108,10 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         handled = true;
         break;
       }
-      if (!handled) {
-        console.error(`failed to handle query for...`);
-        console.error(req);
-      }
+    }
+    if (!handled) {
+      console.error(`failed to handle query for...`);
+      console.error(req);
     }
   });
 }
@@ -128,7 +129,7 @@ export function mockGQL(
 }
 
 export function cyMockLogin(cy): void {
-  cy.setCookie("accessToken", "accessToken");
+  cy.setLocalStorage("accessToken", "fake-access-token");
 }
 
 export function cyMockDefault(
@@ -136,22 +137,23 @@ export function cyMockDefault(
   args: {
     config?: Partial<Config>;
     gqlQueries?: MockGraphQLQuery[];
-    noAccessTokenCookie?: boolean;
+    noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: any;
+    mentor?: Partial<Mentor>;
     subject?: any;
     subjects?: any[];
   } = {}
 ) {
   const config = args?.config || {};
   const gqlQueries = args?.gqlQueries || [];
-  if (!args.noAccessTokenCookie) {
+  if (!args.noAccessTokenStored) {
     cyMockLogin(cy);
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
+    mockGQL("mentor", args.mentor || mentorDefault, true),
     mockGQL("login", args.login || loginDefault),
-    ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
+    // ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,

@@ -1,21 +1,22 @@
-import setup0 from "./clint_new"
-import setup1 from "./clint_setup1"
-import setup2 from "./clint_setup2"
-import setup3 from "./clint_setup3"
-import setup4 from "./clint_setup4"
-import setup5 from "./clint_setup5"
-import setup6 from "./clint_setup6"
-import setup7 from "./clint_setup7"
-import setup8 from "./clint_setup8"
-import setup9 from "./clint_setup9"
-import setup10 from "./clint_setup10"
-import setup11 from "./clint_setup11"
+import setup0 from "./clint_new";
+import setup1 from "./clint_setup1";
+import setup2 from "./clint_setup2";
+import setup3 from "./clint_setup3";
+import setup4 from "./clint_setup4";
+import setup5 from "./clint_setup5";
+import setup6 from "./clint_setup6";
+import setup7 from "./clint_setup7";
+import setup8 from "./clint_setup8";
+import setup9 from "./clint_setup9";
+import setup10 from "./clint_setup10";
+import setup11 from "./clint_setup11";
 
-import setupa from "./clint_setupa"
-import setupb from "./clint_setupb"
-import setupc from "./clint_setupc"
+import setupa from "./clint_setupa";
+import setupb from "./clint_setupb";
+import setupc from "./clint_setupc";
 
 export {
+  setup0 as mentorDefault,
   setup0,
   setup1,
   setup2,
@@ -31,4 +32,4 @@ export {
   setupa,
   setupb,
   setupc,
-}
+};

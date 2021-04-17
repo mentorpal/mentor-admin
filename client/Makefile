@@ -52,7 +52,3 @@ test-lint: node_modules/eslint
 .PHONY: test-types
 test-types: node_modules/typescript
 	npm run test:types
-
-.PHONY: test-cypress
-test-cypress: node_modules/cypress
-	npm run test:cypress
