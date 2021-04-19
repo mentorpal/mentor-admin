@@ -9,16 +9,8 @@ import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { fetchMentor, fetchSubjects, updateMentor } from "api";
-import {
-  Mentor,
-  Subject,
-  Status,
-  Edge,
-  UtteranceName,
-  MentorType,
-  User,
-} from "types";
+import { fetchMentor } from "api";
+import { Mentor, Status, UtteranceName, MentorType, User } from "types";
 import NavBar from "components/nav-bar";
 import {
   Slide,
@@ -95,38 +87,12 @@ function SetupPage(props: {
 
   React.useEffect(() => {
     let mounted = true;
-    // TODO: move all mutations out of client and into server (login?)
     async function load(): Promise<void> {
       const mentor = await fetchMentor(props.accessToken);
       if (!mounted) {
         return;
       }
       setMentor(mentor);
-      const subjects = await fetchSubjects({ filter: { isRequired: true } });
-      if (!mounted) {
-        return;
-      }
-      const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
-      const subjectIds = mentor.subjects.map((s) => s._id);
-      if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-        const subjects = [
-          ...new Set([...requiredSubjects, ...mentor.subjects]),
-        ];
-        const updated = await updateMentor(
-          { ...mentor, subjects },
-          props.accessToken
-        );
-        if (!mounted) {
-          return;
-        }
-        if (updated) {
-          const mUpdated = await fetchMentor(props.accessToken);
-          if (!mounted) {
-            return;
-          }
-          setMentor(mUpdated);
-        }
-      }
     }
     load().catch((err) => console.error(err));
     return () => {
