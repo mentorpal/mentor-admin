@@ -44,12 +44,13 @@ type ContextType = ContextState & {
 
 const CONTEXT_STATE_DEFAULT = {
   user: undefined,
-  accessToken: accessTokenGet(),
+  accessToken: "",
   loginStatus: LoginStatus.NONE,
 };
 
 const Context = React.createContext<ContextType>({
   ...CONTEXT_STATE_DEFAULT,
+  accessToken: accessTokenGet(),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   login: (accessToken: string): Promise<void> => {
     throw new Error("Not implemented");
