@@ -56,7 +56,7 @@ export interface Subject {
   _id: string;
   name: string;
   description: string;
-  isRequired: boolean;
+  isRequired?: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestion[];

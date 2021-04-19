@@ -5,75 +5,85 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
-import { Mentor, MentorType, Status } from "../support/types";
-import { updateMentorAnswer } from "../support/helpers";
+import { Mentor, MentorType, QuestionType, Status } from "../support/types";
+import {
+  completeMentor,
+  completeQuestion,
+  completeSubject,
+  completeSubjectQuestion,
+  updateMentorAnswer,
+} from "../support/helpers";
 
-const mentor = {
+const mentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.CHAT,
   lastTrainedAt: null,
   subjects: [
-    {
+    completeSubject({
       _id: "background",
-      categories: [{ id: "cat" }],
+      categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
-        {
-          question: {
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A1_1_1",
             question: "Who are you and what do you do?",
-          },
+            name: "A1_1_1",
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          }),
           category: { id: "cat" },
-        },
-        {
-          question: {
+          topics: [],
+        }),
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A2_1_1",
             question: "How old are you now?",
-          },
-          mentor: "clintanderson",
-        },
+          }),
+          // mentor: "clintanderson",
+        }),
       ],
-    },
-    {
+    }),
+    completeSubject({
       _id: "repeat_after_me",
       questions: [
-        {
-          question: {
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A3_1_1",
             question:
               "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-          },
-        },
-        {
-          question: {
+          }),
+        }),
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A4_1_1",
             question:
               "Please give a short introduction of yourself, which includes your name, current job, and title.",
-          },
-        },
-        {
-          question: {
+          }),
+        }),
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A5_1_1",
             question:
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-          },
-        },
-        {
-          question: {
+          }),
+        }),
+        completeSubjectQuestion({
+          question: completeQuestion({
             _id: "A6_1_1",
             question: "",
-          },
-          mentor: "notclint",
-        },
+          }),
+          // mentor: "notclint",
+        }),
       ],
-    },
+    }),
   ],
   answers: [
     {
       _id: "A1_1_1",
-      question: {
+      question: completeQuestion({
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
-      },
+      }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       recordedAt: "",
@@ -81,33 +91,33 @@ const mentor = {
     },
     {
       _id: "A2_1_1",
-      question: {
+      question: completeQuestion({
         _id: "A2_1_1",
         question: "How old are you now?",
         mentor: "clintanderson",
-      },
+      }),
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: {
+      question: completeQuestion({
         _id: "A3_1_1",
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-      },
+      }),
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: {
+      question: completeQuestion({
         _id: "A4_1_1",
         question:
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
-      },
+      }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       recordedAt: "",
@@ -115,17 +125,17 @@ const mentor = {
     },
     {
       _id: "A5_1_1",
-      question: {
+      question: completeQuestion({
         _id: "A5_1_1",
         question:
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-      },
+      }),
       transcript: "",
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
   ],
-};
+});
 
 describe("Record", () => {
   describe("search params", () => {
@@ -404,10 +414,10 @@ describe("Record", () => {
         answers: [
           {
             _id: "A1_1_1",
-            question: {
+            question: completeQuestion({
               _id: "A1_1_1",
               question: "Who are you and what do you do?",
-            },
+            }),
             transcript:
               "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
             recordedAt: "Today",
@@ -497,7 +507,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [
         mentor,
-        updateMentorAnswer((mentor as unknown) as Mentor, "A2_1_1", {
+        updateMentorAnswer(mentor as Mentor, "A2_1_1", {
           question: {
             _id: "A2_1_1",
             question: "test",

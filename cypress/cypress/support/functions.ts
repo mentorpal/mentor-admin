@@ -1,4 +1,4 @@
-import { Connection, Mentor, Subject } from "./types";
+import { Mentor, Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 
@@ -140,7 +140,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Partial<Mentor>;
+    mentor?: Mentor | Ref | Mentor[];
     subject?: any;
     subjects?: any[];
   } = {}
