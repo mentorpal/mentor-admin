@@ -62,9 +62,10 @@ const Context = React.createContext<ContextType>({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Provider(props: { children: any }): JSX.Element {
-  const [contextState, setContextState] = React.useState<ContextState>(
-    CONTEXT_STATE_DEFAULT
-  );
+  const [contextState, setContextState] = React.useState<ContextState>({
+    ...CONTEXT_STATE_DEFAULT,
+    accessToken: accessTokenGet(),
+  });
 
   function logout(): void {
     accessTokenClear();
