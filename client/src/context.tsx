@@ -10,21 +10,21 @@ import { LoginStatus, User } from "types";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 
-export function accessTokenGet(): string {
+function accessTokenGet(): string {
   if (typeof window === "undefined") {
     return "";
   }
   return localStorage.getItem(ACCESS_TOKEN_KEY) || "";
 }
 
-export function accessTokenStore(accessToken: string): void {
+function accessTokenStore(accessToken: string): void {
   if (typeof window === "undefined") {
     return;
   }
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
 }
 
-export function accessTokenClear(): void {
+function accessTokenClear(): void {
   if (typeof window === "undefined") {
     return;
   }
@@ -44,7 +44,7 @@ type ContextType = ContextState & {
 
 const CONTEXT_STATE_DEFAULT = {
   user: undefined,
-  accessToken: "",
+  accessToken: accessTokenGet(),
   loginStatus: LoginStatus.NONE,
 };
 
@@ -96,6 +96,7 @@ function Provider(props: { children: any }): JSX.Element {
       setContextState({
         ...contextState,
         loginStatus: LoginStatus.FAILED,
+        accessToken: "",
       });
     }
   }

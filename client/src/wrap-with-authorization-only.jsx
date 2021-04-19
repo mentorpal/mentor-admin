@@ -5,14 +5,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useContext } from "react";
-import Context, { accessTokenGet } from "context";
+import Context from "context";
 import { LoginStatus } from "types";
 import { navigate } from "gatsby";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
   const context = useContext(Context);
-  if (context.loginStatus === LoginStatus.NONE && !accessTokenGet()) {
+  if (context.loginStatus === LoginStatus.NONE && !context.accessToken) {
     if (typeof window !== "undefined") {
       navigate("/");
     }
