@@ -57,7 +57,7 @@ function staticResponse(s: StaticResponse): StaticResponse {
 
 export function cySetup(cy) {
   cy.viewport(1280, 720);
-  cy.removeLocalStorage("accessToken");
+  cy.clearLocalStorage();
 }
 
 export interface Config {
