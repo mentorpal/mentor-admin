@@ -102,20 +102,24 @@ function SubjectPage(props: {
   React.useEffect(() => {
     let mounted = true;
     setSubject(JSON.parse(JSON.stringify(subjectEdit)));
-    fetchMentorId(props.accessToken).then((m) => {
-      if (!mounted) {
-        return;
-      }
-      setMentorId(m._id);
-      if (props.search.id) {
-        fetchSubject(props.search.id).then((s) => {
-          if (!mounted) {
-            return;
-          }
-          applySubject(s);
-        });
-      }
-    });
+    fetchMentorId(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentorId(m._id);
+        if (props.search.id) {
+          fetchSubject(props.search.id)
+            .then((s) => {
+              if (!mounted) {
+                return;
+              }
+              applySubject(s);
+            })
+            .catch((err) => console.error(err));
+        }
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };

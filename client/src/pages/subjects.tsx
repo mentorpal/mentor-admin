@@ -98,7 +98,18 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const limit = 20;
 
   React.useEffect(() => {
-    fetchMentor(props.accessToken).then((m) => setMentor(m));
+    let mounted = true;
+    fetchMentor(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   React.useEffect(() => {
@@ -110,9 +121,18 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
   }, [mentor]);
 
   React.useEffect(() => {
-    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((subjects) => {
-      setAllSubjects(subjects);
-    });
+    let mounted = true;
+    fetchSubjects({ cursor, limit, sortBy, sortAscending })
+      .then((subjects) => {
+        if (!mounted) {
+          return;
+        }
+        setAllSubjects(subjects);
+      })
+      .catch((err) => console.error(err));
+    return () => {
+      mounted = false;
+    };
   }, [cursor, sortBy, sortAscending, limit]);
 
   function setSort(id: string) {

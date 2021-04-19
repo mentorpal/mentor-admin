@@ -163,12 +163,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
 
   React.useState(() => {
     let mounted = true;
-    fetchMentorId(props.accessToken).then((m) => {
-      if (!mounted) {
-        return;
-      }
-      setMentor(m);
-    });
+    fetchMentorId(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };
@@ -176,12 +178,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
 
   React.useEffect(() => {
     let mounted = true;
-    fetchSubjects({ cursor, limit, sortBy, sortAscending }).then((s) => {
-      if (!mounted) {
-        return;
-      }
-      setSubjects(s);
-    });
+    fetchSubjects({ cursor, limit, sortBy, sortAscending })
+      .then((s) => {
+        if (!mounted) {
+          return;
+        }
+        setSubjects(s);
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };

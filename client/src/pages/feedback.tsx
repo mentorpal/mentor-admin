@@ -258,12 +258,14 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
       return;
     }
     let mounted = true;
-    fetchFeedback().then((f) => {
-      if (!mounted) {
-        return;
-      }
-      setFeedback(f);
-    });
+    fetchFeedback()
+      .then((f) => {
+        if (!mounted) {
+          return;
+        }
+        setFeedback(f);
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };

@@ -95,12 +95,14 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
 
   React.useState(() => {
     let mounted = true;
-    fetchMentorId(props.accessToken).then((m) => {
-      if (!mounted) {
-        return;
-      }
-      setMentor(m);
-    });
+    fetchMentorId(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };

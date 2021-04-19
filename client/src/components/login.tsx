@@ -63,9 +63,11 @@ function LoginPage(): JSX.Element {
       return;
     }
     const loginResponse = response as GoogleLoginResponse;
-    loginGoogle(loginResponse.accessToken).then((token: UserAccessToken) => {
-      context.login(token.accessToken);
-    });
+    loginGoogle(loginResponse.accessToken)
+      .then((token: UserAccessToken) => {
+        context.login(token.accessToken);
+      })
+      .catch((err) => console.error(err));
   };
 
   if (!googleClientId) {

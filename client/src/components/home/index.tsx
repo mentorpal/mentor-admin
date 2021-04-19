@@ -110,13 +110,15 @@ function HomePage(props: {
     let mounted = true;
     setSelectedSubject(props.search.subject);
     setLoadingMessage("Loading mentor...");
-    fetchMentor(props.accessToken).then((m) => {
-      if (!mounted) {
-        return;
-      }
-      setMentor(m);
-      setLoadingMessage(undefined);
-    });
+    fetchMentor(props.accessToken)
+      .then((m) => {
+        if (!mounted) {
+          return;
+        }
+        setMentor(m);
+        setLoadingMessage(undefined);
+      })
+      .catch((err) => console.error(err));
     return () => {
       mounted = false;
     };
