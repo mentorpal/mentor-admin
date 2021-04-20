@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+<<<<<<< HEAD
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import { Mentor, MentorType, QuestionType, Status } from "../support/types";
 import {
@@ -15,6 +16,13 @@ import {
 } from "../support/helpers";
 
 const mentor: Mentor = completeMentor({
+=======
+import { cySetup, cyMockDefault, mockGQL, cyMockUpload, cyMockUploadStatus } from "../support/functions";
+import { Mentor, MentorType, Status, VideoState } from "../support/types";
+import { updateMentorAnswer } from "../support/helpers";
+
+const mentor = {
+>>>>>>> c9bdde0... - fix: home screen wasn't actually waiting for training to complete
   _id: "clintanderson",
   mentorType: MentorType.CHAT,
   lastTrainedAt: null,
@@ -567,7 +575,7 @@ describe("Record", () => {
     cy.get("[data-cy=video-recorder]").should("exist");
   });
 
-  it("shows video player if mentor type is VIDEO and was video recorded", () => {
+  it("shows video player if mentor type is VIDEO and video was recorded", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: {
@@ -590,6 +598,23 @@ describe("Record", () => {
     cy.visit("/record");
     cy.get("[data-cy=video-player]").should("exist");
     cy.get("[data-cy=video-recorder]").should("not.exist");
+  });
+
+  it("can record and upload a video", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: { ...mentor, mentorType: MentorType.VIDEO } });
+    cyMockUpload(cy);
+    cyMockUploadStatus(cy, {
+      status: [
+        { state: VideoState.UPLOAD_STARTED },
+        { state: VideoState.UPLOAD_PENDING },
+        { state: VideoState.UPLOAD_SUCCESS },
+        { state: VideoState.TRANSCRIBE_STARTED },
+        { state: VideoState.TRANSCRIBE_PENDING },
+        { state: VideoState.TRANSCRIBE_SUCCESS },
+      ]
+    });
+    cy.visit("/record");
   });
 
   it("can update status", () => {

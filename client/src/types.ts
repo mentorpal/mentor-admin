@@ -145,10 +145,15 @@ export enum UtteranceName {
   PROFANIY = "_PROFANITY_",
 }
 
-export interface TrainJob {
+export interface AsyncJob {
   id: string;
-  mentor: boolean;
   statusUrl: string;
+}
+
+export interface TrainStatus {
+  state: TrainState;
+  status?: string;
+  info?: TrainingInfo;
 }
 
 export enum TrainState {
@@ -159,23 +164,38 @@ export enum TrainState {
   STARTED = "STARTED",
 }
 
-export interface TrainStatus {
-  state: TrainState;
-  status?: string;
-  info?: TrainingInfo;
+export interface TrainingInfo {
+  mentor: string;
+  questions?: TrainExpectionResult[];
 }
 
 export interface TrainExpectionResult {
   accuracy: number;
 }
 
-export interface TrainResult {
-  questions: TrainExpectionResult[];
+export interface VideoStatus {
+  state: VideoState;
+  status?: string;
+  info?: VideoInfo;
 }
 
-export interface TrainingInfo {
+export enum VideoState {
+  NONE = "NONE",
+  UPLOAD_STARTED = "UPLOAD_STARTED",
+  UPLOAD_PENDING = "UPLOAD_PENDING",
+  UPLOAD_FAILURE = "UPLOAD_FAILURE",
+  UPLOAD_SUCCESS = "UPLOAD_SUCCESS",
+  TRANSCRIBE_STARTED = "TRANSCRIBE_STARTED",
+  TRANSCRIBE_PENDING = "TRANSCRIBE_PENDING",
+  TRANSCRIBE_FAILURE = "TRANSCRIBE_FAILURE",
+  TRANSCRIBE_SUCCESS = "TRANSCRIBE_SUCCESS",
+}
+
+export interface VideoInfo {
   mentor: string;
-  questions?: TrainExpectionResult[];
+  videoId: string;
+  video: any;
+  transcript: string;
 }
 
 export enum LoginStatus {

@@ -10,11 +10,12 @@ import {
   Mentor,
   Subject,
   Connection,
-  TrainJob,
+  AsyncJob,
   TrainStatus,
   Answer,
   Question,
   UserQuestion,
+  VideoStatus,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
@@ -23,6 +24,7 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
+export const VIDEO_ENTRYPOINT = process.env.VIDEO_ENTRYPOINT || "/videos";
 
 interface SearchParams {
   limit?: number;
@@ -182,7 +184,6 @@ export async function updateSubject(
   if (isValidObjectID(subject._id || "")) {
     convertedSubject._id = subject._id;
   }
-
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -563,7 +564,7 @@ export async function updateAnswer(
   return result.data.data!.me.updateAnswer;
 }
 
-export async function trainMentor(mentorId: string): Promise<TrainJob> {
+export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   const res = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     mentor: mentorId,
   });
@@ -573,6 +574,26 @@ export async function trainMentor(mentorId: string): Promise<TrainJob> {
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TrainStatus> {
+  const result = await axios.get(statusUrl);
+  return result.data.data!;
+}
+
+export async function uploadVideo(
+  mentorId: string,
+  videoId: string,
+  video: any
+): Promise<AsyncJob> {
+  const res = await axios.post(urljoin(VIDEO_ENTRYPOINT, "upload"), {
+    mentor: mentorId,
+    videoId,
+    video,
+  });
+  return res.data.data!;
+}
+
+export async function fetchUploadVideoStatus(
+  statusUrl: string
+): Promise<VideoStatus> {
   const result = await axios.get(statusUrl);
   return result.data.data!;
 }
