@@ -28,12 +28,10 @@ import {
 import background from "../fixtures/subjects/background";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import requiredSubjects from "../fixtures/subjects/required-subjects";
 import { MentorType, TrainState } from "../support/types";
 
 const baseMock = {
   mentor: setup0,
-  subjects: [requiredSubjects],
   gqlQueries: [mockGQL("updateMentor", true, true)],
 };
 
@@ -129,31 +127,6 @@ describe("Setup", () => {
     cyMockDefault(cy, baseMock);
     cy.visit("/");
     cy.location("pathname").should("contain", "/setup");
-  });
-
-  it.skip("adds required subjects if missing from mentor initially", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setupa, setupc],
-    });
-    cy.visit("/setup");
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#slide").contains("Background questions");
-    cy.get("#slide").contains(
-      "These questions will ask general questions about your background that might be relevant to how people understand your career."
-    );
-    cy.get("#slide").contains("0 / 2");
-    cy.get("#next-btn").trigger("mouseover").click();
-    cy.get("#slide").contains("Repeat After Me questions");
-    cy.get("#slide").contains(
-      "These are miscellaneous phrases you'll be asked to repeat."
-    );
-    cy.get("#slide").contains("0 / 3");
   });
 
   it("shows welcome slide", () => {
@@ -345,7 +318,7 @@ describe("Setup", () => {
           ],
         },
       ],
-      subjects: [requiredSubjects, allSubjects],
+      subjects: [allSubjects],
     });
     cy.visit("/setup?i=4");
     cy.get("#slide").contains("Select subjects");
@@ -727,7 +700,7 @@ describe("Setup", () => {
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup8, setup9],
-        gqlQueries: [mockGQL("updateMentor", setup9, true)],
+        gqlQueries: [mockGQL("updateMentor", true, true)],
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS } });

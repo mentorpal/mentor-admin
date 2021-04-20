@@ -212,7 +212,8 @@ function HomePage(props: {
 
   function onRecordOne(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${answer.question._id
+      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
+        answer.question._id
       }`
     );
   }
