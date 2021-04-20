@@ -212,8 +212,7 @@ function HomePage(props: {
 
   function onRecordOne(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
-        answer.question._id
+      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${answer.question._id
       }`
     );
   }
@@ -341,12 +340,14 @@ function HomePage(props: {
         .then((trainStatus) => {
           if (trainStatus.state === TrainState.SUCCESS) {
             toast(`Training succeeded!`);
+            setIsBuilding(false);
+            setLoadingMessage(undefined);
           }
           if (trainStatus.state === TrainState.FAILURE) {
             toast(`Training failed`);
+            setIsBuilding(false);
+            setLoadingMessage(undefined);
           }
-          setIsBuilding(false);
-          setLoadingMessage(undefined);
         })
         .catch((err: Error) => {
           toast(`Training failed: ${err.message || err}`);
