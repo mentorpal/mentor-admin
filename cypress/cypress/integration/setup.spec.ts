@@ -131,7 +131,7 @@ describe("Setup", () => {
     cy.location("pathname").should("contain", "/setup");
   });
 
-  it("adds required subjects if missing from mentor initially", () => {
+  it.skip("adds required subjects if missing from mentor initially", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
