@@ -83,56 +83,69 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+interface MentorState {
+  mentor?: Mentor;
+  reload?: boolean;
+}
+
 function SetupPage(props: {
   accessToken: string;
   user: User;
   search: { i?: string };
 }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = useState<Mentor>();
+  const [mentorState, setMentorState] = useState<MentorState>({ reload: true });
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
-
+  const { mentor, reload } = mentorState;
   React.useEffect(() => {
+    if (!reload) {
+      return;
+    }
     let mounted = true;
-    // TODO: move all mutations out of client and into server (login?)
-    async function load(): Promise<void> {
-      const mentor = await fetchMentor(props.accessToken);
-      if (!mounted) {
-        return;
-      }
-      setMentor(mentor);
-      const subjects = await fetchSubjects({ filter: { isRequired: true } });
-      if (!mounted) {
-        return;
-      }
-      const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
-      const subjectIds = mentor.subjects.map((s) => s._id);
-      if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-        const subjects = [
-          ...new Set([...requiredSubjects, ...mentor.subjects]),
-        ];
-        const updated = await updateMentor(
-          { ...mentor, subjects },
-          props.accessToken
-        );
+    fetchMentor(props.accessToken)
+      .then((m) => {
         if (!mounted) {
           return;
         }
-        if (updated) {
-          const mUpdated = await fetchMentor(props.accessToken);
-          if (!mounted) {
-            return;
-          }
-          setMentor(mUpdated);
-        }
-      }
-    }
-    load().catch((err) => console.error(err));
+        setMentorState({
+          mentor: m,
+          reload: false,
+        });
+      })
+      .catch((err) => console.error(err));
+
+    // const subjects = await fetchSubjects({ filter: { isRequired: true } });
+    // if (!mounted) {
+    //   return;
+    // }
+    // const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
+    // const subjectIds = mentor.subjects.map((s) => s._id);
+    // if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
+    //   const subjects = [
+    //     ...new Set([...requiredSubjects, ...mentor.subjects]),
+    //   ];
+    //   const updated = await updateMentor(
+    //     { ...mentor, subjects },
+    //     props.accessToken
+    //   );
+    //   if (!mounted) {
+    //     return;
+    //   }
+    //   if (updated) {
+    //     const mUpdated = await fetchMentor(props.accessToken);
+    //     if (!mounted) {
+    //       return;
+    //     }
+    //     setMentor(mUpdated);
+    //   }
+    // }
+    // }
+    // load().catch((err) => console.error(err));
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [reload]);
 
   React.useEffect(() => {
     if (!mentor) {
@@ -219,8 +232,8 @@ function SetupPage(props: {
     setSlides(_slides);
   }, [mentor]);
 
-  async function loadMentor() {
-    setMentor(await fetchMentor(props.accessToken));
+  function loadMentor() {
+    setMentorState({ ...mentorState, reload: true });
   }
 
   if (!mentor) {

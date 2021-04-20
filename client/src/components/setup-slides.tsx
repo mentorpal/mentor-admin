@@ -366,6 +366,12 @@ export function RecordSubjectSlide(props: {
   );
 }
 
+interface TrainingState {
+  statusUrl: string;
+  trainData: TrainStatus;
+  isBuilding: boolean;
+}
+
 const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
 export function BuildMentorSlide(props: {
   classes: Record<string, string>;
@@ -373,62 +379,93 @@ export function BuildMentorSlide(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { classes, mentor, onUpdated } = props;
-  const [statusUrl, setStatusUrl] = React.useState("");
-  const [trainData, setTrainData] = React.useState<TrainStatus>({
-    state: TrainState.NONE,
+  const [trainingState, setTrainingState] = useState<TrainingState>({
+    isBuilding: false,
+    statusUrl: "",
+    trainData: {
+      state: TrainState.NONE,
+    },
   });
-  const [isBuilding, setIsBuilding] = useState(false);
+  const { trainData, statusUrl, isBuilding } = trainingState;
 
   async function trainAndBuild() {
     trainMentor(mentor._id)
       .then((trainJob) => {
-        setStatusUrl(trainJob.statusUrl);
-        setIsBuilding(true);
+        setTrainingState({
+          ...trainingState,
+          isBuilding: true,
+          statusUrl: trainJob.statusUrl,
+        });
       })
       .catch((err) => {
-        setTrainData({
-          state: TrainState.FAILURE,
-          status: err.message || `${err}`,
+        setTrainingState({
+          ...trainingState,
+          trainData: {
+            state: TrainState.FAILURE,
+            status: err.message || `${err}`,
+          },
+          isBuilding: false,
         });
-        setIsBuilding(false);
       });
   }
 
-  function useInterval(callback: () => void, delay: number | null) {
-    const savedCallback = React.useRef<() => void>();
+  interface CancellableFunc {
+    (isCancelled: () => boolean): void;
+  }
+
+  function useInterval(callback: CancellableFunc, delay: number | null) {
+    const savedCallback = React.useRef<CancellableFunc>();
     React.useEffect(() => {
       savedCallback.current = callback;
     });
     React.useEffect(() => {
+      let mounted = true;
       function tick() {
+        if (!mounted) {
+          return;
+        }
         if (savedCallback.current) {
-          savedCallback.current();
+          savedCallback.current(() => {
+            return !mounted;
+          });
         }
       }
       if (delay) {
         const id = setInterval(tick, delay);
         return () => clearInterval(id);
       }
+      return () => {
+        mounted = false;
+      };
     }, [delay]);
   }
 
   useInterval(
-    () => {
+    (isCancelled) => {
       fetchTrainingStatus(statusUrl)
         .then((trainStatus) => {
-          setTrainData(trainStatus);
-          if (
-            trainStatus.state === TrainState.SUCCESS ||
-            trainStatus.state === TrainState.FAILURE
-          ) {
+          if (isCancelled()) {
+            return;
+          }
+          const nextState = {
+            ...trainingState,
+            trainData: trainStatus,
+            isBuilding:
+              trainStatus.state === TrainState.STARTED ||
+              trainStatus.state === TrainState.PENDING,
+          };
+          setTrainingState(nextState);
+          if (nextState.isBuilding) {
             onUpdated();
-            setIsBuilding(false);
           }
         })
         .catch((err: Error) => {
-          setTrainData({ state: TrainState.FAILURE, status: err.message });
-          setIsBuilding(false);
           console.error(err);
+          setTrainingState({
+            ...trainingState,
+            trainData: { state: TrainState.FAILURE, status: err.message },
+            isBuilding: false,
+          });
         });
     },
     isBuilding ? TRAIN_STATUS_POLL_INTERVAL_DEFAULT : null
