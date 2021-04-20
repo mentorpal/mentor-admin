@@ -137,7 +137,7 @@ const mentor: Mentor = completeMentor({
   ],
 });
 
-describe("Record", () => {
+describe.only("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cySetup(cy);
@@ -515,7 +515,10 @@ describe("Record", () => {
           },
         }),
       ],
-      gqlQueries: [mockGQL("updateQuestion", true, true)],
+      gqlQueries: [
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+      ],
     });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("#progress").contains("Questions 1 / 1");

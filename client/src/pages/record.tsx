@@ -28,7 +28,7 @@ import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
 import { fetchMentor, updateAnswer, updateQuestion } from "api";
-import { Answer, Status, Mentor, MentorType } from "types";
+import { Answer, Status, MentorType } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -90,6 +90,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface RecordState {
+  mentor?: {
+    _id: string;
+    mentorType: MentorType;
+  };
+  answers: Answer[];
+}
+
 function RecordPage(props: {
   accessToken: string;
   search: {
@@ -101,14 +109,17 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = useState<Mentor>();
-  const [answers, setAnswers] = useState<Answer[]>([]);
-
+  // const [mentor, setMentor] = useState<Mentor>();
+  // const [answers, setAnswers] = useState<Answer[]>([]);
+  const [recordState, setRecordState] = useState<RecordState>({
+    answers: [],
+  });
   const [idx, setIdx] = useState(0);
   const [curAnswer, setCurAnswer] = useState<Answer>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [videoInput, setVideoInput] = useState<any>();
   const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
+  const { mentor, answers } = recordState;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -129,20 +140,24 @@ function RecordPage(props: {
         if (!mounted) {
           return;
         }
-        setMentor(m);
+        const nextState: RecordState = {
+          ...recordState,
+          mentor: { _id: m._id, mentorType: m.mentorType },
+        };
+        // setMentor(m);
         const { videoId, subject, category, status } = props.search;
         if (videoId) {
           const ids = Array.isArray(videoId) ? videoId : [videoId];
-          setAnswers([
+          nextState.answers = [
             ...m.answers.filter((a) => ids.includes(a.question._id)),
-          ]);
+          ];
         } else if (subject) {
           const s = m.subjects.find((a) => a._id === subject);
           if (s) {
             const sQuestions = s.questions.filter(
               (q) => !category || `${q.category?.id}` === category
             );
-            setAnswers([
+            nextState.answers = [
               ...m.answers.filter(
                 (a) =>
                   sQuestions
@@ -150,13 +165,14 @@ function RecordPage(props: {
                     .includes(a.question._id) &&
                   (!status || a.status === status)
               ),
-            ]);
+            ];
           }
         } else {
-          setAnswers([
+          nextState.answers = [
             ...m.answers.filter((a) => !status || a.status === status),
-          ]);
+          ];
         }
+        setRecordState(nextState);
       })
       .catch((err) => console.error(err));
     return () => {
@@ -165,7 +181,7 @@ function RecordPage(props: {
   }, []);
 
   React.useEffect(() => {
-    if (!mentor || !answers || answers.length === 0) {
+    if (!answers || answers.length === 0) {
       return;
     }
     setVideoInput(null);
@@ -181,31 +197,36 @@ function RecordPage(props: {
   }
 
   async function onSave() {
-    if (!curAnswer) {
+    if (!(curAnswer && mentor)) {
       return;
     }
-    let updated = false;
+    let answerUpdated: Answer | null = null;
     if (
       JSON.stringify(curAnswer.question) !==
       JSON.stringify(answers[idx].question)
     ) {
       if (await updateQuestion(curAnswer.question, props.accessToken)) {
-        answers[idx] = { ...answers[idx], question: curAnswer.question };
-        updated = true;
+        answerUpdated = { ...answers[idx], question: curAnswer.question };
       } else {
         toast("Failed to save question");
       }
     }
     if (JSON.stringify(curAnswer) !== JSON.stringify(answers[idx])) {
-      if (await updateAnswer(mentor!._id, curAnswer, props.accessToken)) {
-        answers[idx] = curAnswer;
-        updated = true;
+      if (await updateAnswer(mentor._id, curAnswer, props.accessToken)) {
+        answerUpdated = curAnswer;
       } else {
         toast("Failed to save answer");
       }
     }
-    if (updated) {
-      setAnswers([...answers]);
+    if (answerUpdated) {
+      setRecordState({
+        ...recordState,
+        answers: [
+          ...answers.slice(0, idx),
+          answerUpdated,
+          ...answers.slice(idx + 1),
+        ],
+      });
     }
   }
 
