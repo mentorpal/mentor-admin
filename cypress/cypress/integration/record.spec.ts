@@ -393,16 +393,16 @@ describe("Record", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/record");
-    cy.get("#video-player").should("not.exist");
-    cy.get("#video-recorder").should("not.exist");
+    cy.get("[data-cy=video-player]").should("not.exist");
+    cy.get("[data-cy=video-recorder]").should("not.exist");
   });
 
   it("shows video recorder if mentor type is VIDEO and no video recorded", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: { ...mentor, mentorType: MentorType.VIDEO } });
     cy.visit("/record");
-    cy.get("#video-player").should("not.exist");
-    cy.get("#video-recorder").should("exist");
+    cy.get("[data-cy=video-player]").should("not.exist");
+    cy.get("[data-cy=video-recorder]").should("exist");
   });
 
   it("shows video player if mentor type is VIDEO and was video recorded", () => {
@@ -427,8 +427,8 @@ describe("Record", () => {
       },
     });
     cy.visit("/record");
-    cy.get("#video-player").should("exist");
-    cy.get("#video-recorder").should("not.exist");
+    cy.get("[data-cy=video-player]").should("exist");
+    cy.get("[data-cy=video-recorder]").should("not.exist");
   });
 
   it("can update status", () => {

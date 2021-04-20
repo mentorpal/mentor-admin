@@ -106,34 +106,6 @@ function SetupPage(props: {
         });
       })
       .catch((err) => console.error(err));
-
-    // const subjects = await fetchSubjects({ filter: { isRequired: true } });
-    // if (!mounted) {
-    //   return;
-    // }
-    // const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
-    // const subjectIds = mentor.subjects.map((s) => s._id);
-    // if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-    //   const subjects = [
-    //     ...new Set([...requiredSubjects, ...mentor.subjects]),
-    //   ];
-    //   const updated = await updateMentor(
-    //     { ...mentor, subjects },
-    //     props.accessToken
-    //   );
-    //   if (!mounted) {
-    //     return;
-    //   }
-    //   if (updated) {
-    //     const mUpdated = await fetchMentor(props.accessToken);
-    //     if (!mounted) {
-    //       return;
-    //     }
-    //     setMentor(mUpdated);
-    //   }
-    // }
-    // }
-    // load().catch((err) => console.error(err));
     return () => {
       mounted = false;
     };

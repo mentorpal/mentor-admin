@@ -1,4 +1,4 @@
-import { Mentor, Ref } from "./types";
+import { Mentor, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 
@@ -140,7 +140,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Mentor | Ref | Mentor[];
+    mentor?: Mentor | _Ref | Mentor[];
     subject?: any;
     subjects?: any[];
   } = {}

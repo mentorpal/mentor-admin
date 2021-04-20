@@ -81,28 +81,28 @@ describe("Edit subject", () => {
     // info opened by default
     cy.get("#name").should("exist");
     cy.get("#description").should("exist");
-    cy.get("#topics").should("not.exist");
+    cy.get("[data-cy=topics-list]").should("not.exist");
     cy.get("#categories").should("not.exist");
     cy.get("#questions").should("not.exist");
     // close info
     cy.get("#toggle-info").trigger("mouseover").click();
     cy.get("#name").should("not.exist");
     cy.get("#description").should("not.exist");
-    cy.get("#topics").should("not.exist");
+    cy.get("[data-cy=topics-list]").should("not.exist");
     cy.get("#categories").should("not.exist");
     cy.get("#questions").should("not.exist");
     // open topics
-    cy.get("#toggle-topics").trigger("mouseover").click();
+    cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
     cy.get("#name").should("not.exist");
     cy.get("#description").should("not.exist");
-    cy.get("#topics").should("exist");
+    cy.get("[data-cy=topics-list]").should("exist");
     cy.get("#categories").should("not.exist");
     cy.get("#questions").should("not.exist");
     // open questions (closes topics)
     cy.get("#toggle-questions").trigger("mouseover").click();
     cy.get("#name").should("not.exist");
     cy.get("#description").should("not.exist");
-    cy.get("#topics").should("not.exist");
+    cy.get("[data-cy=topics-list]").should("not.exist");
     cy.get("#categories").should("exist");
     cy.get("#questions").should("exist");
   });
@@ -115,8 +115,8 @@ describe("Edit subject", () => {
     cy.visit("/author/subject");
     cy.get("#name").should("have.value", "");
     cy.get("#description").should("have.value", "");
-    cy.get("#toggle-topics").trigger("mouseover").click();
-    cy.get("#topics").children().should("have.length", 0);
+    cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+    cy.get("[data-cy=topics-list]").children().should("have.length", 0);
     cy.get("#toggle-questions").trigger("mouseover").click();
     cy.get("#categories").children().should("have.length", 0);
     cy.get("#questions").children().should("have.length", 0);
@@ -134,11 +134,17 @@ describe("Edit subject", () => {
       "have.value",
       "These questions will ask general questions about your background that might be relevant to how people understand your career."
     );
-    cy.get("#toggle-topics").trigger("mouseover").click();
-    cy.get("#topics").children().should("have.length", 1);
-    cy.get("#topic-0 #name").should("have.value", "Topic1");
-    cy.get("#topic-0 #toggle").trigger("mouseover").click();
-    cy.get("#topic-0 #description").should("have.value", "1");
+    cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+    cy.get("[data-cy=topics-list]").children().should("have.length", 1);
+    cy.get("[data-cy=topics-list]").within(($topicsList) => {
+      cy.get("[data-cy=topic-name]").should("have.attr", "data-test", "Topic1");
+      cy.get("[data-cy=toggle]").trigger("mouseover").click();
+      cy.get("[data-cy=topic-description]").should(
+        "have.attr",
+        "data-test",
+        "1"
+      );
+    });
     cy.get("#toggle-questions").trigger("mouseover").click();
     cy.get("#categories").children().should("have.length", 1);
     cy.get("#category-0 #name").should("have.value", "Category1");
@@ -153,8 +159,16 @@ describe("Edit subject", () => {
       .trigger("mouseover")
       .click();
     cy.get("#edit-question #name").should("have.value", "");
-    cy.get("#edit-question #topics li").should("have.length", 2);
-    cy.get("#edit-question #topics #topic-0 #name").contains("Topic1");
+    cy.get("[data-cy=question-topics-list]").within(($topicList) => {
+      cy.get("li").should("have.length", 2);
+      cy.get("[data-cy=topic-0]").within(($topic) => {
+        cy.get("[data-cy=topic-name]").should(
+          "have.attr",
+          "data-test",
+          "Topic1"
+        );
+      });
+    });
     cy.get("#edit-question #paraphrases li").should("have.length", 2);
     cy.get("#edit-question #paraphrases #paraphrase-0 #edit-paraphrase").should(
       "have.value",
@@ -167,7 +181,7 @@ describe("Edit subject", () => {
       "clintquestion"
     );
     cy.get("#questions #question-0 #question").trigger("mouseover").click();
-    cy.get("#edit-question #topics li").should("have.length", 1);
+    cy.get("[data-cy=question-topics-list] li").should("have.length", 1);
     cy.get("#edit-question #paraphrases li").should("have.length", 1);
   });
 
@@ -215,22 +229,50 @@ describe("Edit subject", () => {
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
       cy.visit("/author/subject?id=background");
-      cy.get("#toggle-topics").trigger("mouseover").click();
-      cy.get("#add-topic").trigger("mouseover").click();
-      cy.get("#topics").children().should("have.length", 2);
-      cy.get("#topic-1 #toggle").trigger("mouseover").click();
-      cy.get("#topic-1 #name").should("have.value", "");
-      cy.get("#topic-1 #description").should("have.value", "");
-      cy.get("#topic-1 #name").clear().type("Topic2");
-      cy.get("#topic-1 #description").clear().type("2");
-      cy.get("#topic-1 #name").should("have.value", "Topic2");
-      cy.get("#topic-1 #description").should("have.value", "2");
+      cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list-add-topic]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").children().should("have.length", 2);
 
+      cy.get("[data-cy=topics-list]").within(($topicsList) => {
+        cy.get("[data-cy=topic-1]").within(($topic1) => {
+          cy.get("[data-cy=toggle]").trigger("mouseover").click();
+          cy.get("[data-cy=topic-name]").should("have.attr", "data-test", "");
+          cy.get("[data-cy=topic-description]").should(
+            "have.attr",
+            "data-test",
+            ""
+          );
+          cy.get("[data-cy=topic-name]").clear().type("Topic2");
+          cy.get("[data-cy=topic-description]").clear().type("2");
+          cy.get("[data-cy=topic-name]").should(
+            "have.attr",
+            "data-test",
+            "Topic2"
+          );
+          cy.get("[data-cy=topic-description]").should(
+            "have.attr",
+            "data-test",
+            "2"
+          );
+        });
+      });
       cy.get("#save-button").should("not.be.disabled");
       cy.get("#save-button").trigger("mouseover").click();
       cy.get("#save-button").should("be.disabled");
-      cy.get("#topic-1 #name").should("have.value", "Topic2");
-      cy.get("#topic-1 #description").should("have.value", "2");
+      cy.get("[data-cy=topics-list]").within(($topicsList) => {
+        cy.get("[data-cy=topic-1]").within(($topic1) => {
+          cy.get("[data-cy=topic-name]").should(
+            "have.attr",
+            "data-test",
+            "Topic2"
+          );
+          cy.get("[data-cy=topic-description]").should(
+            "have.attr",
+            "data-test",
+            "2"
+          );
+        });
+      });
     });
 
     it("can delete a topic", () => {
@@ -254,10 +296,10 @@ describe("Edit subject", () => {
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
       cy.visit("/author/subject?id=background");
-      cy.get("#toggle-topics").trigger("mouseover").click();
-      cy.get("#topics").children().should("have.length", 1);
-      cy.get("#topic-0 #delete").trigger("mouseover").click();
-      cy.get("#topics").children().should("not.exist");
+      cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").children().should("have.length", 1);
+      cy.get("[data-cy=topic-0] #delete").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").children().should("not.exist");
       // deleting topic also removes topic from question
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 1);
@@ -268,13 +310,13 @@ describe("Edit subject", () => {
         .trigger("mouseover")
         .click();
       cy.get("#edit-question #name").should("have.value", "");
-      cy.get("#edit-question #topics li").should("have.length", 1);
+      cy.get("[data-cy=question-topics-list] li").should("have.length", 1);
       // after saving reload subject
       cy.get("#save-button").should("not.be.disabled");
       cy.get("#save-button").trigger("mouseover").click();
       cy.get("#save-button").should("be.disabled");
       cy.get("#toggle-questions").trigger("mouseover").click();
-      cy.get("#topics").children().should("not.exist");
+      cy.get("[data-cy=question-topics-list]").children().should("not.exist");
     });
 
     it("can edit a topic", () => {
@@ -297,11 +339,14 @@ describe("Edit subject", () => {
         gqlQueries: [mockGQL("updateSubject", {}, true)],
       });
       cy.visit("/author/subject?id=background");
-      cy.get("#toggle-topics").trigger("mouseover").click();
-      cy.get("#topic-0 #toggle").trigger("mouseover").click();
-      cy.get("#topic-0 #name").clear().type("Topic1 Edited");
-      cy.get("#topic-0 #description").clear().type("1 Edited");
-      // editing topic also edits topic from question
+      cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").within(($tl) => {
+        cy.get("[data-cy=topic-0]").within(($t) => {
+          cy.get("[data-cy=toggle]").trigger("mouseover").click();
+          cy.get("[data-cy=topic-name]").clear().type("Topic1 Edited");
+          cy.get("[data-cy=topic-description]").clear().type("1 Edited");
+        });
+      });
       cy.get("#toggle-questions").trigger("mouseover").click();
       cy.get("#categories").children().should("have.length", 1);
       cy.get("#category-0 #category-questions li")
@@ -311,16 +356,37 @@ describe("Edit subject", () => {
         .trigger("mouseover")
         .click();
       cy.get("#edit-question #name").should("have.value", "");
-      cy.get("#edit-question #topics li").should("have.length", 2);
-      cy.get("#edit-question #topics #topic-0 #name").contains("Topic1 Edited");
+      cy.get("[data-cy=question-topics-list]").within(($qtl) => {
+        cy.get("li").should("have.length", 2);
+        cy.get("[data-cy=topic-0]").within(($t) => {
+          cy.get("[data-cy=topic-name]").should(
+            "have.attr",
+            "data-test",
+            "Topic1 Edited"
+          );
+        });
+      });
       // after saving reload subject
       cy.get("#save-button").should("not.be.disabled");
       cy.get("#save-button").trigger("mouseover").click();
       cy.get("#save-button").should("be.disabled");
-      cy.get("#toggle-topics").trigger("mouseover").click();
-      cy.get("#topic-0 #toggle").trigger("mouseover").click();
-      cy.get("#topic-0 #name").should("have.value", "Topic1 Edited");
-      cy.get("#topic-0 #description").should("have.value", "1 Edited");
+
+      cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").within(($tl) => {
+        cy.get("[data-cy=topic-0]").within(($t) => {
+          cy.get("[data-cy=toggle]").trigger("mouseover").click();
+          cy.get("[data-cy=topic-name]").should(
+            "have.attr",
+            "data-test",
+            "Topic1 Edited"
+          );
+          cy.get("[data-cy=topic-description]").should(
+            "have.attr",
+            "data-test",
+            "1 Edited"
+          );
+        });
+      });
     });
   });
 
@@ -526,9 +592,9 @@ describe("Edit subject", () => {
         .trigger("mouseover")
         .click();
       cy.get("#edit-question #paraphrases li").should("have.length", 1);
-      cy.get("#edit-question #topics li").should("have.length", 2);
+      cy.get("[data-cy=question-topics-list] li").should("have.length", 2);
       cy.get("#edit-question #delete-topic").trigger("mouseover").click();
-      cy.get("#edit-question #topics li").should("have.length", 1);
+      cy.get("[data-cy=question-topics-list] li").should("have.length", 1);
       cy.get("#save-button").should("not.be.disabled");
     });
   });
@@ -568,7 +634,7 @@ describe("Edit subject", () => {
       cy.get("#questions #question-1 #question").should("have.value", "");
       cy.get("#questions #question-1 #question").trigger("mouseover").click();
       cy.get("#edit-question #select-type").contains("QUESTION");
-      cy.get("#edit-question #topics li").should("have.length", 1);
+      cy.get("[data-cy=question-topics-list] li").should("have.length", 1);
       cy.get("#edit-question #paraphrases li").should("have.length", 1);
       cy.get("#save-button").should("not.be.disabled");
       cy.get("#save-button").trigger("mouseover").click();

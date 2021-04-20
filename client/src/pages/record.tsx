@@ -168,7 +168,6 @@ function RecordPage(props: {
           ...recordState,
           mentor: { _id: m._id, mentorType: m.mentorType },
         };
-        // setMentor(m);
         const { videoId, subject, category, status } = props.search;
         if (videoId) {
           const ids = Array.isArray(videoId) ? videoId : [videoId];
@@ -241,9 +240,12 @@ function RecordPage(props: {
         toast("Failed to save question");
       }
     }
-    if (JSON.stringify(curAnswer) !== JSON.stringify(answers[curAnswerIx])) {
-      if (await updateAnswer(mentor._id, curAnswer, props.accessToken)) {
-        answerUpdated = curAnswer;
+    const answerWorking = answerUpdated || curAnswer;
+    if (
+      JSON.stringify(answerWorking) !== JSON.stringify(answers[curAnswerIx])
+    ) {
+      if (await updateAnswer(mentor._id, answerWorking, props.accessToken)) {
+        answerUpdated = answerWorking;
       } else {
         toast("Failed to save answer");
       }
@@ -252,6 +254,7 @@ function RecordPage(props: {
       setRecordState({
         ...recordState,
         answers: copyAndSet(answers, curAnswerIx, answerUpdated),
+        curAnswer: answerWorking,
       });
     }
   }
@@ -260,6 +263,7 @@ function RecordPage(props: {
     if (!mentor || mentor.mentorType === MentorType.CHAT || !curAnswer) {
       return <div />;
     }
+    // TODO: hard-coded video host MUST be removed!
     const video = curAnswer.recordedAt
       ? `https://video.mentorpal.org/videos/mentors/${mentor._id}/web/${curAnswer._id}.mp4`
       : undefined;
@@ -268,7 +272,7 @@ function RecordPage(props: {
       return (
         <div className={classes.block}>
           <ReactPlayer
-            id="video-player"
+            data-cy="video-player"
             className={classes.video}
             url={video}
             controls={true}
@@ -289,7 +293,7 @@ function RecordPage(props: {
     }
     return (
       <div
-        id="video-recorder"
+        data-cy="video-recorder"
         className={classes.recorder}
         style={{ height: recorderHeight, width: (recorderHeight / 9) * 16 }}
       >

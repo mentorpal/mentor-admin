@@ -66,7 +66,7 @@ export function CategoryListItem(props: {
           />
           <CardActions>
             <IconButton
-              id="toggle"
+              data-cy="toggle"
               size="small"
               color="secondary"
               onClick={() => setExpanded(!expanded)}
