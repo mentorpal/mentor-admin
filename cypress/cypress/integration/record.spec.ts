@@ -137,7 +137,7 @@ const mentor: Mentor = completeMentor({
   ],
 });
 
-describe("Record", () => {
+describe.only("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cySetup(cy);

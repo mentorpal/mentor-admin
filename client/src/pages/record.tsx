@@ -91,11 +91,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface RecordState {
+  answers: Answer[];
+  curAnswer?: Answer;
   mentor?: {
     _id: string;
     mentorType: MentorType;
   };
-  answers: Answer[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  videoInput?: any;
 }
 
 function RecordPage(props: {
@@ -109,17 +112,12 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  // const [mentor, setMentor] = useState<Mentor>();
-  // const [answers, setAnswers] = useState<Answer[]>([]);
   const [recordState, setRecordState] = useState<RecordState>({
     answers: [],
   });
   const [idx, setIdx] = useState(0);
-  const [curAnswer, setCurAnswer] = useState<Answer>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [videoInput, setVideoInput] = useState<any>();
   const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
-  const { mentor, answers } = recordState;
+  const { answers, curAnswer, mentor, videoInput } = recordState;
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -180,12 +178,30 @@ function RecordPage(props: {
     };
   }, []);
 
+  function setCurAnswer(curAnswer: Answer): void {
+    setRecordState({
+      ...recordState,
+      curAnswer,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function setVideoInput(videoInput: any): void {
+    setRecordState({
+      ...recordState,
+      videoInput,
+    });
+  }
+
   React.useEffect(() => {
     if (!answers || answers.length === 0) {
       return;
     }
-    setVideoInput(null);
-    setCurAnswer(answers[idx]);
+    setRecordState({
+      ...recordState,
+      curAnswer: answers[idx],
+      videoInput: null,
+    });
   }, [idx, answers]);
 
   function onBack() {
