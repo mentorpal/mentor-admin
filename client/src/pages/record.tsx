@@ -92,6 +92,7 @@ const useStyles = makeStyles((theme) => ({
 
 interface RecordState {
   answers: Answer[];
+  curAnswerIx: number;
   curAnswer?: Answer;
   mentor?: {
     _id: string;
@@ -99,6 +100,10 @@ interface RecordState {
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   videoInput?: any;
+}
+
+function copyAndSet<T>(a: T[], i: number, item: T): T[] {
+  return [...a.slice(0, i), item, ...a.slice(i + 1)];
 }
 
 function RecordPage(props: {
@@ -114,11 +119,32 @@ function RecordPage(props: {
   const classes = useStyles();
   const [recordState, setRecordState] = useState<RecordState>({
     answers: [],
+    curAnswerIx: 0,
   });
-  const [idx, setIdx] = useState(0);
   const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
-  const { answers, curAnswer, mentor, videoInput } = recordState;
+  const { answers, curAnswer, curAnswerIx, mentor, videoInput } = recordState;
 
+  function setCurAnswer(curAnswer: Answer): void {
+    setRecordState({
+      ...recordState,
+      curAnswer,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function setVideoInput(videoInput: any): void {
+    setRecordState({
+      ...recordState,
+      videoInput,
+    });
+  }
+
+  function setCurAnswerIx(curAnswerIx: number) {
+    setRecordState({
+      ...recordState,
+      curAnswerIx,
+    });
+  }
   React.useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -178,31 +204,16 @@ function RecordPage(props: {
     };
   }, []);
 
-  function setCurAnswer(curAnswer: Answer): void {
-    setRecordState({
-      ...recordState,
-      curAnswer,
-    });
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function setVideoInput(videoInput: any): void {
-    setRecordState({
-      ...recordState,
-      videoInput,
-    });
-  }
-
   React.useEffect(() => {
     if (!answers || answers.length === 0) {
       return;
     }
     setRecordState({
       ...recordState,
-      curAnswer: answers[idx],
+      curAnswer: answers[curAnswerIx],
       videoInput: null,
     });
-  }, [idx, answers]);
+  }, [curAnswerIx, answers]);
 
   function onBack() {
     if (props.search.back) {
@@ -219,15 +230,18 @@ function RecordPage(props: {
     let answerUpdated: Answer | null = null;
     if (
       JSON.stringify(curAnswer.question) !==
-      JSON.stringify(answers[idx].question)
+      JSON.stringify(answers[curAnswerIx].question)
     ) {
       if (await updateQuestion(curAnswer.question, props.accessToken)) {
-        answerUpdated = { ...answers[idx], question: curAnswer.question };
+        answerUpdated = {
+          ...answers[curAnswerIx],
+          question: curAnswer.question,
+        };
       } else {
         toast("Failed to save question");
       }
     }
-    if (JSON.stringify(curAnswer) !== JSON.stringify(answers[idx])) {
+    if (JSON.stringify(curAnswer) !== JSON.stringify(answers[curAnswerIx])) {
       if (await updateAnswer(mentor._id, curAnswer, props.accessToken)) {
         answerUpdated = curAnswer;
       } else {
@@ -237,11 +251,7 @@ function RecordPage(props: {
     if (answerUpdated) {
       setRecordState({
         ...recordState,
-        answers: [
-          ...answers.slice(0, idx),
-          answerUpdated,
-          ...answers.slice(idx + 1),
-        ],
+        answers: copyAndSet(answers, curAnswerIx, answerUpdated),
       });
     }
   }
@@ -321,9 +331,9 @@ function RecordPage(props: {
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {idx + 1} / {answers.length}
+          Questions {curAnswerIx + 1} / {answers.length}
         </Typography>
-        <ProgressBar value={idx + 1} total={answers.length} />
+        <ProgressBar value={curAnswerIx + 1} total={answers.length} />
       </div>
       {renderVideo()}
       <div id="question" className={classes.block}>
@@ -346,12 +356,12 @@ function RecordPage(props: {
                   id="undo-question-btn"
                   disabled={
                     curAnswer.question.question ===
-                    answers[idx].question.question
+                    answers[curAnswerIx].question.question
                   }
                   onClick={() =>
                     setCurAnswer({
                       ...curAnswer,
-                      question: answers[idx].question,
+                      question: answers[curAnswerIx].question,
                     })
                   }
                 >
@@ -376,11 +386,13 @@ function RecordPage(props: {
               <InputAdornment position="end">
                 <IconButton
                   id="undo-transcript-btn"
-                  disabled={curAnswer.transcript === answers[idx].transcript}
+                  disabled={
+                    curAnswer.transcript === answers[curAnswerIx].transcript
+                  }
                   onClick={() =>
                     setCurAnswer({
                       ...curAnswer,
-                      transcript: answers[idx].transcript,
+                      transcript: answers[curAnswerIx].transcript,
                     })
                   }
                 >
@@ -423,8 +435,8 @@ function RecordPage(props: {
           <IconButton
             id="back-btn"
             className={classes.backBtn}
-            disabled={idx === 0}
-            onClick={() => setIdx(idx - 1)}
+            disabled={curAnswerIx === 0}
+            onClick={() => setCurAnswerIx(curAnswerIx - 1)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -434,13 +446,13 @@ function RecordPage(props: {
             color="primary"
             disableElevation
             disabled={
-              JSON.stringify(curAnswer) === JSON.stringify(answers[idx])
+              JSON.stringify(curAnswer) === JSON.stringify(answers[curAnswerIx])
             }
             onClick={onSave}
           >
             Save
           </Button>
-          {idx === answers.length - 1 ? (
+          {curAnswerIx === answers.length - 1 ? (
             <Button
               id="done-btn"
               className={classes.nextBtn}
@@ -455,8 +467,8 @@ function RecordPage(props: {
             <IconButton
               id="next-btn"
               className={classes.nextBtn}
-              disabled={idx === answers.length - 1}
-              onClick={() => setIdx(idx + 1)}
+              disabled={curAnswerIx === answers.length - 1}
+              onClick={() => setCurAnswerIx(curAnswerIx + 1)}
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
