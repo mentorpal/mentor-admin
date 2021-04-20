@@ -15,8 +15,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { getClientID } from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
-import "styles/layout.css";
 import Context from "context";
+import "styles/layout.css";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -56,9 +56,9 @@ function LoginPage(): JSX.Element {
     };
   }, []);
 
-  const onGoogleLogin = (
+  function onGoogleLogin(
     response: GoogleLoginResponse | GoogleLoginResponseOffline
-  ): void => {
+  ): void {
     if ((response as GoogleLoginResponseOffline).code !== undefined) {
       return;
     }
@@ -68,7 +68,7 @@ function LoginPage(): JSX.Element {
         context.login(token.accessToken);
       })
       .catch((err) => console.error(err));
-  };
+  }
 
   if (!googleClientId) {
     return <div className={classes.root}>ERROR: Failed to load config</div>;

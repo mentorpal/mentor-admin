@@ -341,12 +341,14 @@ function HomePage(props: {
         .then((trainStatus) => {
           if (trainStatus.state === TrainState.SUCCESS) {
             toast(`Training succeeded!`);
+            setIsBuilding(false);
+            setLoadingMessage(undefined);
           }
           if (trainStatus.state === TrainState.FAILURE) {
             toast(`Training failed`);
+            setIsBuilding(false);
+            setLoadingMessage(undefined);
           }
-          setIsBuilding(false);
-          setLoadingMessage(undefined);
         })
         .catch((err: Error) => {
           toast(`Training failed: ${err.message || err}`);

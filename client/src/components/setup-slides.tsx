@@ -455,7 +455,7 @@ export function BuildMentorSlide(props: {
               trainStatus.state === TrainState.PENDING,
           };
           setTrainingState(nextState);
-          if (nextState.isBuilding) {
+          if (!nextState.isBuilding) {
             onUpdated();
           }
         })
