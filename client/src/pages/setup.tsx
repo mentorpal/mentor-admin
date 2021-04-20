@@ -9,16 +9,8 @@ import React, { useState } from "react";
 import { Button, CircularProgress, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { fetchMentor, fetchSubjects, updateMentor } from "api";
-import {
-  Mentor,
-  Subject,
-  Status,
-  Edge,
-  UtteranceName,
-  MentorType,
-  User,
-} from "types";
+import { fetchMentor } from "api";
+import { Mentor, Status, UtteranceName, MentorType, User } from "types";
 import NavBar from "components/nav-bar";
 import {
   Slide,
