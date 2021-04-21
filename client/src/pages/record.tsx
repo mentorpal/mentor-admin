@@ -458,7 +458,7 @@ function RecordPage(props: {
           </Button>
           {curAnswerIx === answers.length - 1 ? (
             <Button
-              id="done-btn"
+              data-cy="done-btn"
               className={classes.nextBtn}
               variant="contained"
               color="primary"
@@ -469,7 +469,7 @@ function RecordPage(props: {
             </Button>
           ) : (
             <IconButton
-              id="next-btn"
+              data-cy="next-btn"
               className={classes.nextBtn}
               disabled={curAnswerIx === answers.length - 1}
               onClick={() => setCurAnswerIx(curAnswerIx + 1)}

@@ -154,14 +154,14 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 2 / 5");
       cy.get("#question-input").should("have.value", "How old are you now?");
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 3 / 5");
       cy.get("#question-input").should(
@@ -171,7 +171,7 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 4 / 5");
       cy.get("#question-input").should(
@@ -184,7 +184,7 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 5 / 5");
       cy.get("#question-input").should(
@@ -194,8 +194,8 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all incomplete questions if ?status=INCOMPLETE", () => {
@@ -207,7 +207,7 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 2 / 3");
       cy.get("#question-input").should(
@@ -217,7 +217,7 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 3 / 3");
       cy.get("#question-input").should(
@@ -227,8 +227,8 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all complete questions if ?status=COMPLETE", () => {
@@ -246,7 +246,7 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 2 / 2");
       cy.get("#question-input").should(
@@ -259,8 +259,8 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows a single question if ?videoId={questionId}", () => {
@@ -278,8 +278,8 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
@@ -297,7 +297,7 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 2 / 2");
       cy.get("#question-input").should(
@@ -307,8 +307,8 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all questions for a subject if ?subject={subjectId}", () => {
@@ -326,15 +326,15 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").trigger("mouseover").click();
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
       cy.get("#progress").contains("Questions 2 / 2");
       cy.get("#question-input").should("have.value", "How old are you now?");
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("not.be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
@@ -346,8 +346,8 @@ describe("Record", () => {
       cy.get("#transcript-input").should("have.value", "");
       cy.get("#status").contains("INCOMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
@@ -365,8 +365,8 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
 
     it("shows all questions for a category in a subject if ?category={categoryId}", () => {
@@ -384,8 +384,8 @@ describe("Record", () => {
       );
       cy.get("#status").contains("COMPLETE");
       cy.get("#back-btn").should("be.disabled");
-      cy.get("#next-btn").should("not.exist");
-      cy.get("#done-btn").should("exist");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
   });
 
