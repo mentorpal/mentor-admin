@@ -279,25 +279,36 @@ function HomePage(props: {
     setMentor({ ...mentor });
   }
 
-  async function onSave() {
+  function onSave() {
     if (!mentor) {
       return;
     }
+    console.warn(
+      "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
+    );
     setLoadingMessage("Saving changes...");
-    for (const sId of editedSubjects) {
-      const subject = mentor.subjects.find((s) => s._id === sId);
-      if (subject) {
-        // don't save empty questions
-        for (const [i, sQuestion] of subject.questions.entries()) {
-          if (!sQuestion.question.question) {
-            subject.questions.splice(i, 1);
+    Promise.all(
+      editedSubjects.map((sId) => {
+        const subject = mentor.subjects.find((s) => s._id === sId);
+        if (subject) {
+          // don't save empty questions
+          for (const [i, sQuestion] of subject.questions.entries()) {
+            if (!sQuestion.question.question) {
+              subject.questions.splice(i, 1);
+            }
           }
+          return updateSubject(subject, props.accessToken);
         }
-        await updateSubject(subject, props.accessToken);
-      }
-    }
-    setMentor(await fetchMentor(props.accessToken));
-    setLoadingMessage(undefined);
+      })
+    )
+      .then(() => {
+        return fetchMentor(props.accessToken);
+      })
+      .then((m) => {
+        setMentor(m);
+        setLoadingMessage(undefined);
+      })
+      .catch((err) => console.error(err));
   }
 
   function trainAndBuild() {
