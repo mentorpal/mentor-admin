@@ -167,33 +167,33 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
-              <TableBody id="questions">
+              <TableBody data-cy="questions">
                 {questions.edges.map((row, i) => (
                   <TableRow
                     key={`question-${i}`}
-                    id={`question-${i}`}
+                    data-cy={`question-${i}`}
                     hover
                     role="checkbox"
                     tabIndex={-1}
                   >
-                    <TableCell id="question" align="left">
-                      <Link to={`/author/question?id=${row.node._id}`}>
+                    <TableCell data-cy="question" align="left">
+                      <Link to={`/author/question?data-cy=${row.node._id}`}>
                         {row.node.question}
                       </Link>
                     </TableCell>
-                    <TableCell id="type" align="left">
+                    <TableCell data-cy="type" align="left">
                       {row.node.type}
                     </TableCell>
-                    <TableCell id="name" align="left">
+                    <TableCell data-cy="name" align="left">
                       {row.node.name}
                     </TableCell>
-                    <TableCell id="delete" align="center">
+                    <TableCell data-cy="delete" align="center">
                       <IconButton onClick={onClickDelete}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
                     <Menu
-                      id="delete-menu"
+                      data-cy="delete-menu"
                       anchorEl={anchorEl}
                       anchorOrigin={{
                         vertical: "top",
@@ -207,10 +207,13 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
                       open={deleteMenuOpen}
                       onClose={onCloseDelete}
                     >
-                      <MenuItem id="confirm-delete" onClick={deleteQuestion}>
+                      <MenuItem
+                        data-cy="confirm-delete"
+                        onClick={deleteQuestion}
+                      >
                         Confirm
                       </MenuItem>
-                      <MenuItem id="cancel-delete" onClick={onCloseDelete}>
+                      <MenuItem data-cy="cancel-delete" onClick={onCloseDelete}>
                         Cancel
                       </MenuItem>
                     </Menu>
@@ -223,7 +226,7 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
         <AppBar position="sticky" color="default" className={classes.appBar}>
           <Toolbar>
             <IconButton
-              id="prev-page"
+              data-cy="prev-page"
               disabled={!questions.pageInfo.hasPreviousPage}
               onClick={() =>
                 setCursor("prev__" + questions.pageInfo.startCursor)
@@ -232,14 +235,14 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
-              id="next-page"
+              data-cy="next-page"
               disabled={!questions.pageInfo.hasNextPage}
               onClick={() => setCursor("next__" + questions.pageInfo.endCursor)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
             <Fab
-              id="create-button"
+              data-cy="create-button"
               variant="extended"
               color="primary"
               className={classes.fab}
