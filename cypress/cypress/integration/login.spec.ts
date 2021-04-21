@@ -16,7 +16,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from setup page", () => {
@@ -26,7 +27,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from record page", () => {
@@ -36,7 +38,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from subjects page", () => {
@@ -46,7 +49,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from author subjects page", () => {
@@ -56,7 +60,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from author subject page", () => {
@@ -66,7 +71,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from author questions page", () => {
@@ -76,7 +82,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
     it("from feedback page", () => {
@@ -86,7 +93,8 @@ describe("Login", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
       });
-      cy.get("#nav-bar #login-option").should("not.exist");
+      cy.contains("Please sign in to access the Mentor Studio portal");
+      cy.get("[data-cy=nav-bar]").should("not.exist");
     });
   });
 
@@ -95,13 +103,16 @@ describe("Login", () => {
     cyMockDefault(cy, { noAccessTokenStored: true });
     cy.visit("/");
     cy.contains("Please sign in to access the Mentor Studio portal");
-  });
+    cy.get("[data-cy=nav-bar]").should("not.exist");
+});
 
   it("shows user name on home page if user is logged in", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/");
-    cy.get("#nav-bar #login-option").contains("Clinton Anderson");
+    cy.get("[data-cy=nav-bar]").within($navbar => {
+      cy.get("[data-cy=login-option]").should("have.text", "Clinton Anderson");
+    })
   });
 
   // TODO
@@ -113,18 +124,19 @@ describe("Login", () => {
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/setup");
     });
-    cy.get("#login-button").should("not.exist");
+    cy.get("[data-cy=login-button]").should("not.exist");
   });
 
   it("can logout and redirect to login page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/");
-    cy.get("#login-option").trigger("mouseover").click();
-    cy.get("#logout-button").trigger("mouseover").click();
+    cy.get("[data-cy=login-option]").trigger("mouseover").click();
+    cy.get("[data-cy=logout-button]").trigger("mouseover").click();
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/");
     });
-    cy.get("#login-option").should("not.exist");
+    cy.contains("Please sign in to access the Mentor Studio portal");
+    cy.get("[data-cy=nav-bar]").should("not.exist");
   });
 });

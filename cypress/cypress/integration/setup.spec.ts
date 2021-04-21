@@ -388,7 +388,9 @@ describe("Setup", () => {
     })
     cy.get("[data-cy=save-button]").trigger("mouseover").click();
     cy.get("[data-cy=save-button]").should("not.be.disabled");
-    cy.get("#nav-bar #back-button").trigger("mouseover").click();
+    cy.get("[data-cy=nav-bar]").within($navbar => {
+      cy.get("[data-cy=back-button]").trigger("mouseover").click();
+    })
     // check if added subjects
     cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/setup"));
     cy.location("search").should("contain", "?i=4");
@@ -499,7 +501,9 @@ describe("Setup", () => {
     cy.get("[data-cy=complete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("COMPLETE");
     cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("#nav-bar #back-button").trigger("mouseover").click();
+    cy.get("[data-cy=nav-bar]").within($navbar => {
+      cy.get("[data-cy=back-button]").trigger("mouseover").click();
+    })
     // back to setup
     cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/setup"));
     cy.location("search").should("contain", "?i=6");
@@ -602,7 +606,9 @@ describe("Setup", () => {
     cy.get("[data-cy=complete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("COMPLETE");
     // back to setup
-    cy.get("#nav-bar #back-button").trigger("mouseover").click();
+    cy.get("[data-cy=nav-bar]").within($navbar => {
+      cy.get("[data-cy=back-button]").trigger("mouseover").click();
+    })
     cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/setup"));
     cy.location("search").should("contain", "?i=7");
     cy.get("[data-cy=slide]").contains("2 / 3");

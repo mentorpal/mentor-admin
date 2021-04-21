@@ -79,7 +79,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   return (
     <div className={classes.login}>
       <Button
-        id="login-option"
+        data-cy="login-option"
         onClick={handleMenu}
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
@@ -87,7 +87,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         {context.user?.name || ""}
       </Button>
       <Menu
-        id="login-menu"
+        data-cy="login-menu"
         anchorEl={anchorEl}
         anchorOrigin={{
           vertical: "top",
@@ -101,7 +101,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         open={open}
         onClose={handleClose}
       >
-        <MenuItem id="logout-button" onClick={onLogout}>
+        <MenuItem data-cy="logout-button" onClick={onLogout}>
           Logout
         </MenuItem>
       </Menu>
@@ -231,11 +231,11 @@ export function NavBar(props: {
   }
 
   return (
-    <div id="nav-bar" className={classes.root}>
+    <div data-cy="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
           <IconButton
-            id={back ? "back-button" : "menu-button"}
+            data-cy={back ? "back-button" : "menu-button"}
             edge="start"
             color="inherit"
             aria-label="menu"
@@ -250,14 +250,14 @@ export function NavBar(props: {
           >
             {back ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography id="title" variant="h6" className={classes.title}>
+          <Typography data-cy="title" variant="h6" className={classes.title}>
             {props.title}
           </Typography>
           <Login classes={classes} />
         </Toolbar>
       </AppBar>
       <SwipeableDrawer
-        id="drawer"
+        data-cy="drawer"
         anchor="left"
         open={isDrawerOpen}
         onClose={() => toggleDrawer(false)}
