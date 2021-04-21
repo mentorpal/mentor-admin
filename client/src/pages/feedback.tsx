@@ -126,7 +126,6 @@ const columnHeaders: ColumnDef[] = [
 ];
 
 function FeedbackItem(props: {
-  id: string;
   feedback: UserQuestion;
   mentor: Mentor;
   onUpdated: () => void;
@@ -140,14 +139,14 @@ function FeedbackItem(props: {
 
   return (
     <TableRow hover role="checkbox" tabIndex={-1}>
-      <TableCell id="grade" align="center">
+      <TableCell data-cy="grade" align="center">
         {feedback.feedback === Feedback.BAD ? (
           <ThumbDownIcon style={{ color: "red" }} />
         ) : feedback.feedback === Feedback.GOOD ? (
           <ThumbUpIcon style={{ color: "green" }} />
         ) : undefined}
       </TableCell>
-      <TableCell id="confidence" align="center">
+      <TableCell data-cy="confidence" align="center">
         <Typography
           variant="body2"
           style={{
@@ -164,22 +163,22 @@ function FeedbackItem(props: {
             : Math.round(feedback.confidence * 100) / 100}
         </Typography>
       </TableCell>
-      <TableCell id="question" align="left">
+      <TableCell data-cy="question" align="left">
         {feedback.question}
       </TableCell>
-      <TableCell id="classifierAnswer" align="left">
+      <TableCell data-cy="classifierAnswer" align="left">
         <Tooltip title={feedback.classifierAnswer?.transcript || ""}>
           <Typography variant="body2">
             {feedback.classifierAnswer?.question.question || ""}
           </Typography>
         </Tooltip>
       </TableCell>
-      <TableCell id="graderAnswer" align="left">
+      <TableCell data-cy="graderAnswer" align="left">
         {feedback.classifierAnswerType ===
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
-              id="select-answer"
+              data-cy="select-answer"
               options={mentor.answers}
               getOptionLabel={(option: Answer) => option.question.question}
               onChange={(e, v) => {
@@ -211,7 +210,7 @@ function FeedbackItem(props: {
           </Typography>
         </Tooltip>
       </TableCell>
-      <TableCell id="date" align="center">
+      <TableCell data-cy="date" align="center">
         {feedback.updatedAt || ""}
       </TableCell>
     </TableRow>
@@ -397,11 +396,11 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
-              <TableHead id="column-filter">
+              <TableHead data-cy="column-filter">
                 <TableRow>
                   <TableCell align="center">
                     <Select
-                      id="filter-feedback"
+                      data-cy="filter-feedback"
                       value={feedbackFilter}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
@@ -413,23 +412,23 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                         setFeedbackFilter(event.target.value as Feedback);
                       }}
                     >
-                      <MenuItem id="none" value={undefined}>
+                      <MenuItem data-cy="none" value={undefined}>
                         No Filter
                       </MenuItem>
-                      <MenuItem id="good" value={Feedback.GOOD}>
+                      <MenuItem data-cy="good" value={Feedback.GOOD}>
                         {Feedback.GOOD}
                       </MenuItem>
-                      <MenuItem id="bad" value={Feedback.BAD}>
+                      <MenuItem data-cy="bad" value={Feedback.BAD}>
                         {Feedback.BAD}
                       </MenuItem>
-                      <MenuItem id="neutral" value={Feedback.NEUTRAL}>
+                      <MenuItem data-cy="neutral" value={Feedback.NEUTRAL}>
                         {Feedback.NEUTRAL}
                       </MenuItem>
                     </Select>
                   </TableCell>
                   <TableCell align="center">
                     <Select
-                      id="filter-confidence"
+                      data-cy="filter-confidence"
                       value={feedbackFilter}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
@@ -443,29 +442,29 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                         );
                       }}
                     >
-                      <MenuItem id="none" value={undefined}>
+                      <MenuItem data-cy="none" value={undefined}>
                         No Filter
                       </MenuItem>
                       <MenuItem
-                        id="exact"
+                        data-cy="exact"
                         value={ClassifierAnswerType.EXACT_MATCH}
                       >
                         Exact Match
                       </MenuItem>
                       <MenuItem
-                        id="paraphrase"
+                        data-cy="paraphrase"
                         value={ClassifierAnswerType.PARAPHRASE}
                       >
                         Paraphrase
                       </MenuItem>
                       <MenuItem
-                        id="classifier"
+                        data-cy="classifier"
                         value={ClassifierAnswerType.CLASSIFIER}
                       >
                         Classifier
                       </MenuItem>
                       <MenuItem
-                        id="offtopic"
+                        data-cy="offtopic"
                         value={ClassifierAnswerType.OFF_TOPIC}
                       >
                         Off-Topic
@@ -475,7 +474,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell />
                   <TableCell>
                     <Autocomplete
-                      id="filter-classifier"
+                      data-cy="filter-classifier"
                       options={mentor.answers}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
@@ -496,7 +495,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   </TableCell>
                   <TableCell>
                     <Autocomplete
-                      id="filter-grader"
+                      data-cy="filter-grader"
                       options={mentor.answers}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
@@ -518,11 +517,11 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell />
                 </TableRow>
               </TableHead>
-              <TableBody id="feedbacks">
+              <TableBody data-cy="feedbacks">
                 {feedback.edges.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
-                    id={`feedback-${i}`}
+                    data-cy={`feedback-${i}`}
                     feedback={row.node}
                     mentor={mentor!}
                     onUpdated={loadFeedback}
@@ -535,7 +534,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
         <AppBar position="sticky" color="default" className={classes.appBar}>
           <Toolbar>
             <IconButton
-              id="prev-page"
+              data-cy="prev-page"
               disabled={!feedback.pageInfo.hasPreviousPage}
               onClick={() =>
                 setCursor("prev__" + feedback.pageInfo.startCursor)
@@ -544,14 +543,14 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
-              id="next-page"
+              data-cy="next-page"
               disabled={!feedback.pageInfo.hasNextPage}
               onClick={() => setCursor("next__" + feedback.pageInfo.endCursor)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
             <Fab
-              id="train-button"
+              data-cy="train-button"
               variant="extended"
               color="primary"
               className={classes.fab}
