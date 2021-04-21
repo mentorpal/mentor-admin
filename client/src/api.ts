@@ -585,8 +585,8 @@ export async function uploadVideo(
 ): Promise<AsyncJob> {
   const res = await axios.post(urljoin(VIDEO_ENTRYPOINT, "upload"), {
     mentor: mentorId,
-    videoId,
-    video,
+    videoId: videoId,
+    video: video,
   });
   return res.data.data!;
 }

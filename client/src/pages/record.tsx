@@ -4,15 +4,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import ReactPlayer from "react-player";
-import { toast, ToastContainer } from "react-toastify";
-import VideoRecorder from "react-video-recorder";
 import { navigate } from "gatsby";
+import React, { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
   Button,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputAdornment,
@@ -37,6 +38,7 @@ import {
 import { Answer, Status, MentorType, VideoState, Mentor } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
+import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
@@ -54,21 +56,10 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 75,
     textAlign: "left",
   },
-  recorder: {
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 75,
-    paddingRight: 75,
-    alignSelf: "center",
-  },
   row: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-  },
-  video: {
-    position: "relative",
-    margin: "0 auto",
   },
   title: {
     fontWeight: "bold",
@@ -178,9 +169,7 @@ function RecordPage(props: {
         nextState.answers = [
           ...mentor.answers.filter(
             (a) =>
-              sQuestions
-                .map((q) => q.question._id)
-                .includes(a.question._id) &&
+              sQuestions.map((q) => q.question._id).includes(a.question._id) &&
               (!status || a.status === status)
           ),
         ];
@@ -211,12 +200,12 @@ function RecordPage(props: {
     }
   }
 
-  function onUploadVideo(videoInput: any) {
+  function onUploadVideo(video: any) {
     if (!mentor || !curAnswer) {
       return;
     }
     setLoadingMessage("Uploading video...");
-    uploadVideo(mentor._id, curAnswer._id, videoInput)
+    uploadVideo(mentor._id, curAnswer._id, video)
       .then((job) => {
         setStatusUrl(job.statusUrl);
         setIsUploading(true);
@@ -279,8 +268,9 @@ function RecordPage(props: {
               .catch((err) => console.error(err));
           }
         })
-        .catch((err: Error) => {
+        .catch((err) => {
           toast(`Upload failed`);
+          console.error(err);
           setIsUploading(false);
           setLoadingMessage(undefined);
         });
@@ -346,6 +336,13 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={curAnswerIx + 1} total={answers.length} />
       </div>
+      <VideoPlayer
+        classes={classes}
+        mentorId={mentor?._id}
+        mentorType={mentor?.mentorType}
+        curAnswer={curAnswer}
+        onUpload={onUploadVideo}
+      />
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
@@ -477,6 +474,12 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
+      <Dialog open={loadingMessage !== undefined}>
+        <DialogTitle>{loadingMessage}</DialogTitle>
+        <DialogContent>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
       <ToastContainer />
     </div>
   );
