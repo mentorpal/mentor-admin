@@ -28,32 +28,56 @@ describe("Profile", () => {
     });
     cy.visit("/profile");
     cy.contains("My Profile");
-    cy.get("#name").should("have.value", "");
-    cy.get("#first-name").should("have.value", "");
-    cy.get("#job-title").should("have.value", "");
+    cy.get("[data-cy=mentor-name]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
+    cy.get("[data-cy=mentor-first-name]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
+    cy.get("[data-cy=mentor-job-title]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
 
     // fill out full name and save
-    cy.get("#name").clear().type("Clinton Anderson");
-    cy.get("#update-btn").trigger("mouseover").click();
+    cy.get("[data-cy=mentor-name]").type("Clinton Anderson");
+    cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.contains("Profile updated!");
-    cy.get("#name").should("have.value", "Clinton Anderson");
-    cy.get("#first-name").should("have.value", "");
-    cy.get("#job-title").should("have.value", "");
+    cy.get("[data-cy=mentor-name]").within($input => {
+      cy.get("input").should('have.value', "Clinton Anderson")
+    });
+    cy.get("[data-cy=mentor-first-name]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
+    cy.get("[data-cy=mentor-job-title]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
 
     // fill out first name and save
-    cy.get("#first-name").clear().type("Clint");
-    cy.get("#update-btn").trigger("mouseover").click();
+    cy.get("[data-cy=mentor-first-name]").type("Clint");
+    cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.contains("Profile updated!");
-    cy.get("#name").should("have.value", "Clinton Anderson");
-    cy.get("#first-name").should("have.value", "Clint");
-    cy.get("#job-title").should("have.value", "");
+    cy.get("[data-cy=mentor-name]").within($input => {
+      cy.get("input").should('have.value', "Clinton Anderson")
+    });
+    cy.get("[data-cy=mentor-first-name]").within($input => {
+      cy.get("input").should('have.value', "Clint")
+    });
+    cy.get("[data-cy=mentor-job-title]").within($input => {
+      cy.get("input").should('have.value', "")
+    });
 
     // fill out title and save
-    cy.get("#job-title").clear().type("Nuclear Electrician's Mate");
-    cy.get("#update-btn").trigger("mouseover").click();
+    cy.get("[data-cy=mentor-job-title]").type("Nuclear Electrician's Mate");
+    cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.contains("Profile updated!");
-    cy.get("#name").should("have.value", "Clinton Anderson");
-    cy.get("#first-name").should("have.value", "Clint");
-    cy.get("#job-title").should("have.value", "Nuclear Electrician's Mate");
+    cy.get("[data-cy=mentor-name]").within($input => {
+      cy.get("input").should('have.value', "Clinton Anderson")
+    });
+    cy.get("[data-cy=mentor-first-name]").within($input => {
+      cy.get("input").should('have.value', "Clint")
+    });
+    cy.get("[data-cy=mentor-job-title]").within($input => {
+      cy.get("input").should('have.value', "Nuclear Electrician's Mate")
+    });
   });
 });
