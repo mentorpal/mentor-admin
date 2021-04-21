@@ -208,24 +208,24 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
-              <TableBody id="subjects">
-                {allSubjects.edges.map((edge) => {
+              <TableBody data-cy="subjects">
+                {allSubjects.edges.map((edge, i) => {
                   const subject = edge.node;
                   return (
                     <TableRow
-                      id={`subject-${subject._id}`}
+                      data-cy={`subject-${i}`}
                       key={`${subject._id}`}
                       hover
                       role="checkbox"
                       tabIndex={-1}
                     >
-                      <TableCell id="name" align="left">
+                      <TableCell data-cy="name" align="left">
                         {subject.name}
                       </TableCell>
-                      <TableCell id="description" align="left">
+                      <TableCell data-cy="description" align="left">
                         {subject.description}
                       </TableCell>
-                      <TableCell id="select" align="center">
+                      <TableCell data-cy="select" align="center">
                         <Checkbox
                           checked={
                             subjects.find((s) => s._id === subject._id) !==
@@ -236,7 +236,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                           onClick={() => toggleSubject(subject)}
                         />
                       </TableCell>
-                      <TableCell id="default" align="center">
+                      <TableCell data-cy="default" align="center">
                         <Checkbox
                           checked={subject._id === defaultSubject?._id}
                           disabled={
@@ -257,7 +257,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
         <AppBar position="sticky" color="default" className={classes.appBar}>
           <Toolbar>
             <IconButton
-              id="prev-page"
+              data-cy="prev-page"
               disabled={!allSubjects.pageInfo.hasPreviousPage}
               onClick={() =>
                 setCursor("prev__" + allSubjects.pageInfo.startCursor)
@@ -266,7 +266,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
-              id="next-page"
+              data-cy="next-page"
               disabled={!allSubjects.pageInfo.hasNextPage}
               onClick={() =>
                 setCursor("next__" + allSubjects.pageInfo.endCursor)
@@ -275,7 +275,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               <KeyboardArrowRightIcon />
             </IconButton>
             <Fab
-              id="save-button"
+              data-cy="save-button"
               variant="extended"
               color="primary"
               className={classes.fab}
