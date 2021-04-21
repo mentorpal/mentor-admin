@@ -281,7 +281,7 @@ function RecordPage(props: {
             webkit-playsinline="true"
           />
           <Button
-            id="rerecord-btn"
+            data-cy="rerecord-btn"
             variant="contained"
             disableElevation
             onClick={() => setCurAnswer({ ...curAnswer, recordedAt: "" })}
@@ -308,7 +308,7 @@ function RecordPage(props: {
 
         {videoInput ? (
           <div>
-            <Button id="upload-btn" variant="contained" disableElevation>
+            <Button data-cy="upload-btn" variant="contained" disableElevation>
               Upload
             </Button>
           </div>
@@ -329,7 +329,7 @@ function RecordPage(props: {
   return (
     <div className={classes.root}>
       <NavBar title="Record Mentor" mentorId={mentor._id} />
-      <div id="progress" className={classes.block}>
+      <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
           className={classes.title}
@@ -340,11 +340,11 @@ function RecordPage(props: {
         <ProgressBar value={curAnswerIx + 1} total={answers.length} />
       </div>
       {renderVideo()}
-      <div id="question" className={classes.block}>
+      <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
-            id="question-input"
+            data-cy="question-input"
             multiline
             value={curAnswer.question.question}
             disabled={curAnswer.question.mentor !== mentor._id}
@@ -357,7 +357,7 @@ function RecordPage(props: {
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
-                  id="undo-question-btn"
+                  data-cy="undo-question-btn"
                   disabled={
                     curAnswer.question.question ===
                     answers[curAnswerIx].question.question
@@ -376,11 +376,11 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      <div id="transcript" className={classes.block}>
+      <div data-cy="transcript" className={classes.block}>
         <Typography className={classes.title}>Answer Transcript:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
-            id="transcript-input"
+            data-cy="transcript-input"
             multiline
             value={curAnswer.transcript}
             onChange={(e) =>
@@ -389,7 +389,7 @@ function RecordPage(props: {
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
-                  id="undo-transcript-btn"
+                  data-cy="undo-transcript-btn"
                   disabled={
                     curAnswer.transcript === answers[curAnswerIx].transcript
                   }
@@ -407,10 +407,10 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      <div id="status" className={classes.block}>
+      <div data-cy="status" className={classes.block}>
         <Typography className={classes.title}>Status:</Typography>
         <Select
-          id="select-status"
+          data-cy="select-status"
           value={curAnswer.status.toString()}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -419,10 +419,10 @@ function RecordPage(props: {
           }
           style={{ marginLeft: 10 }}
         >
-          <MenuItem id="incomplete" value={Status.INCOMPLETE}>
+          <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
             {Status.INCOMPLETE}
           </MenuItem>
-          <MenuItem id="complete" value={Status.COMPLETE}>
+          <MenuItem data-cy="complete" value={Status.COMPLETE}>
             {Status.COMPLETE}
           </MenuItem>
         </Select>
@@ -437,7 +437,7 @@ function RecordPage(props: {
           }}
         >
           <IconButton
-            id="back-btn"
+            data-cy="back-btn"
             className={classes.backBtn}
             disabled={curAnswerIx === 0}
             onClick={() => setCurAnswerIx(curAnswerIx - 1)}
@@ -445,7 +445,7 @@ function RecordPage(props: {
             <ArrowBackIcon fontSize="large" />
           </IconButton>
           <Button
-            id="save-btn"
+            data-cy="save-btn"
             variant="contained"
             color="primary"
             disableElevation

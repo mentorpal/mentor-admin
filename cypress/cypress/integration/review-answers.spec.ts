@@ -370,10 +370,10 @@ describe("Review answers page", () => {
       "contain",
       "?back=/?subject=undefined&videoId=A1_1_1"
     );
-    cy.get("#question-input").should(
-      "have.value",
-      "Who are you and what do you do?"
-    );
+    cy.get("[data-cy=question-input]").within($input => {
+      cy.get("textarea").should('have.text', "Who are you and what do you do?")
+      cy.get("textarea").should("have.attr", "disabled");
+    });
   });
 
   it("can add a mentor question to a subject", () => {
@@ -468,10 +468,10 @@ describe("Review answers page", () => {
       "contain",
       "?back=/?subject=background&videoId=A1_1_1"
     );
-    cy.get("#question-input").should(
-      "have.value",
-      "Who are you and what do you do?"
-    );
+    cy.get("[data-cy=question-input]").within($input => {
+      cy.get("textarea").should('have.text', "Who are you and what do you do?")
+      cy.get("textarea").should("have.attr", "disabled");
+    });
   });
 
   it("can add a mentor question to a category", () => {
