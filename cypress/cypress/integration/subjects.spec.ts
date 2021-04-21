@@ -30,14 +30,16 @@ describe("Select Subjects", () => {
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
     cy.visit("/subjects");
-    cy.location("pathname").should("contain", "/subjects");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/subjects");
+    });
     cy.get("[data-cy=subjects]").children().should("have.length", 3);
     // required subject background is selected and cannot be deselected
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get("[data-cy=name]").contains("Background");
-        cy.get("[data-cy=description]").contains(
-          "These questions will ask general questions about your background that might "
+        cy.get("[data-cy=name]").should("have.text", "Background");
+        cy.get("[data-cy=description]").should("have.text",
+          "These questions will ask general questions about your background that might be relevant to how people understand your career."
         );
         cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
         cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
@@ -48,9 +50,9 @@ describe("Select Subjects", () => {
     // required subject repeat_after_me is selected and cannot be deselected
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get("[data-cy=name]").contains("Repeat After Me");
-        cy.get("[data-cy=description]").contains(
-          "These are miscellaneous phrases you'll be asked to repeat"
+        cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=description]").should("have.text",
+          "These are miscellaneous phrases you'll be asked to repeat."
         );
         cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
         cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
@@ -61,9 +63,9 @@ describe("Select Subjects", () => {
     // non-required subject leadership is not selected and can be selected
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get("[data-cy=name]").contains("Leadership");
-        cy.get("[data-cy=description]").contains(
-          "These questions will ask about being in a leadership role"
+        cy.get("[data-cy=name]").should("have.text", "Leadership");
+        cy.get("[data-cy=description]").should("have.text",
+          "These questions will ask about being in a leadership role."
         );
         cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
         cy.get('[data-cy=select] [type="checkbox"]').should("not.be.checked");
@@ -107,7 +109,6 @@ describe("Select Subjects", () => {
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
     cy.visit("/subjects");
-    cy.location("pathname").should("contain", "/subjects");
     // can only have one primary subject
     cy.get("[data-cy=subjects]").within(($subjects) => {
       // select background as primary subject
