@@ -78,9 +78,7 @@ function LoginPage(): JSX.Element {
     <div className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          <Typography id="title" variant="h6">
-            Mentor Studio
-          </Typography>
+          <Typography variant="h6">Mentor Studio</Typography>
         </Toolbar>
       </AppBar>
       <div className={classes.toolbar} /> {/* create space below app bar */}
@@ -89,7 +87,6 @@ function LoginPage(): JSX.Element {
       </Typography>
       {process.env.ACCESS_TOKEN ? (
         <Button
-          id="login-button"
           variant="contained"
           color="primary"
           className={classes.button}
@@ -101,10 +98,8 @@ function LoginPage(): JSX.Element {
         <GoogleLogin
           clientId={googleClientId}
           onSuccess={onGoogleLogin}
-          // cookiePolicy={"single_host_origin"}
           render={(renderProps) => (
             <Button
-              id="login-button"
               variant="contained"
               color="primary"
               onClick={renderProps.onClick}
