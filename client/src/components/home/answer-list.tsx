@@ -47,7 +47,11 @@ function AnswerList(props: {
   const [isExpanded, setExpanded] = React.useState(false);
 
   return (
-    <Card data-cy={`answers-${header}`} elevation={0} style={{ textAlign: "left" }}>
+    <Card
+      data-cy={`answers-${header}`}
+      elevation={0}
+      style={{ textAlign: "left" }}
+    >
       <CardContent style={{ padding: 0 }}>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <CardActions>
@@ -102,39 +106,42 @@ function AnswerList(props: {
                 key={`item-${i}`}
                 style={{ backgroundColor: "#eee" }}
               >
-                {answer.question.mentor === props.mentorId ? (
-                  <TextField
-                    data-cy="edit-question"
-                    placeholder="New question"
-                    fullWidth
-                    multiline
-                    value={answer.question.question}
-                    style={{ marginRight: 100 }}
-                    onChange={(e) =>
-                      onEditQuestion({
-                        ...answer.question,
-                        question: e.target.value,
-                      })
-                    }
-                  />
-                ) : (
+                <div>
+                  {answer.question.mentor === props.mentorId ? (
+                    <TextField
+                      data-cy="edit-question"
+                      placeholder="New question"
+                      fullWidth
+                      multiline
+                      value={answer.question.question}
+                      style={{ marginRight: 100 }}
+                      onChange={(e) =>
+                        onEditQuestion({
+                          ...answer.question,
+                          question: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
                     <ListItemText
                       primary={answer.question.question}
-                      secondary={`${answer.transcript.substring(0, 100)}${answer.transcript.length > 100 ? "..." : ""
-                        }`}
+                      secondary={`${answer.transcript.substring(0, 100)}${
+                        answer.transcript.length > 100 ? "..." : ""
+                      }`}
                       style={{ marginRight: 100 }}
                     />
                   )}
-                <ListItemSecondaryAction>
-                  <Button
-                    data-cy="record-one"
-                    variant="outlined"
-                    endIcon={<PlayArrowIcon />}
-                    onClick={() => onRecordOne(answer)}
-                  >
-                    Record
-                  </Button>
-                </ListItemSecondaryAction>
+                  <ListItemSecondaryAction>
+                    <Button
+                      data-cy="record-one"
+                      variant="outlined"
+                      endIcon={<PlayArrowIcon />}
+                      onClick={() => onRecordOne(answer)}
+                    >
+                      Record
+                    </Button>
+                  </ListItemSecondaryAction>
+                </div>
               </ListItem>
             ))}
           </List>

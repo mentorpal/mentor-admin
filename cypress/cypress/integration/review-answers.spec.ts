@@ -268,37 +268,29 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=block-name]").contains(
-      "Repeat After Me"
-    );
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete]").contains(
-      "Incomplete (1)"
-    );
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=expand-btn]")
-      .trigger("mouseover")
-      .click();
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=add-question]"
-    ).should("exist");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 1);
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=answer-0]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
     cy.get("[data-cy=save-button]").should("be.disabled");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=add-question]")
-      .trigger("mouseover")
-      .click();
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 2);
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=answer-0] [data-cy=edit-question]"
-    ).should("have.value", "");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-1] [data-cy=answers-Incomplete] [data-cy=answer-1]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-1]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=answers-Incomplete]").within($incompleteAnswers => {
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=add-question]").should("exist")
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+          cy.get("[data-cy=add-question]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").within($answer => {
+              cy.get("textarea").should("have.value", "");
+              cy.get("textarea").should("not.have.attr", "disabled");
+            })
+            cy.get("[data-cy=answer-1]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+        })
+      })
+    })
     cy.get("[data-cy=save-button]").should("not.be.disabled");
   });
 
@@ -307,13 +299,17 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=block-name]").contains("Category");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Complete] [data-cy=record-all]")
-      .trigger("mouseover")
-      .click();
-    cy.location("pathname").should("contain", "/record");
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-0]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category");
+        cy.get("[data-cy=answers-Complete]").within($completeAnswers => {
+          cy.get("[data-cy=record-all]").trigger("mouseover").click();
+        })
+      })
+    })
+    cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/record"));
     cy.location("search").should(
-      "contain",
+      "equal",
       "?back=/?subject=background&status=COMPLETE&subject=background&category=category"
     );
   });
@@ -323,13 +319,17 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=block-name]").contains("Category2");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=record-all]")
-      .trigger("mouseover")
-      .click();
-    cy.location("pathname").should("contain", "/record");
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-0]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category2");
+        cy.get("[data-cy=answers-Incomplete]").within($incompleteAnswers => {
+          cy.get("[data-cy=record-all]").trigger("mouseover").click();
+        })
+      })
+    })
+    cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/record"));
     cy.location("search").should(
-      "contain",
+      "equal",
       "?back=/?subject=repeat_after_me&status=INCOMPLETE&subject=repeat_after_me&category=category2"
     );
   });
@@ -339,20 +339,24 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=block-name]").contains("Category");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Complete] [data-cy=expand-btn]")
-      .trigger("mouseover")
-      .click();
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Complete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 1);
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Complete] [data-cy=answer-0]").contains(
-      "Who are you and what do you do?"
-    );
-    cy.get("[data-cy=record-one]").trigger("mouseover").click();
-    cy.location("pathname").should("contain", "/record");
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-0]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category");
+        cy.get("[data-cy=answers-Complete]").within($completeAnswers => {
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").contains("Who are you and what do you do?");
+            cy.get("[data-cy=answer-0]").within($answer => {
+              cy.get("[data-cy=record-one]").trigger("mouseover").click();
+            })
+          })
+        })
+      })
+    })
+    cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/record"));
     cy.location("search").should(
-      "contain",
+      "equal",
       "?back=/?subject=background&videoId=A1_1_1"
     );
     cy.get("[data-cy=question-input]").within($input => {
@@ -366,35 +370,29 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=block-name]").contains("Category2");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete]").contains(
-      "Incomplete (1)"
-    );
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=expand-btn]")
-      .trigger("mouseover")
-      .click();
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=add-question]"
-    ).should("exist");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 1);
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-0]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
     cy.get("[data-cy=save-button]").should("be.disabled");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=add-question]")
-      .trigger("mouseover")
-      .click();
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 2);
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-0] [data-cy=edit-question]"
-    ).should("have.value", "");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-1]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-0]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category2");
+        cy.get("[data-cy=answers-Incomplete]").within($incompleteAnswers => {
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=add-question]").should("exist")
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+          cy.get("[data-cy=add-question]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").within($answer => {
+              cy.get("textarea").should("have.value", "");
+              cy.get("textarea").should("not.have.attr", "disabled");
+            })
+            cy.get("[data-cy=answer-1]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+        })
+      })
+    })
     cy.get("[data-cy=save-button]").should("not.be.disabled");
   });
 
@@ -403,41 +401,31 @@ describe("Review answers page", () => {
     cyMockDefault(cy, { mentor: setup7 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=block-name]").contains("Category2");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete]").contains(
-      "Incomplete (1)"
-    );
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=expand-btn]")
-      .trigger("mouseover")
-      .click();
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=add-question]"
-    ).should("exist");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 1);
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-0]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
     cy.get("[data-cy=save-button]").should("be.disabled");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=add-question]")
-      .trigger("mouseover")
-      .click();
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-list]")
-      .children()
-      .should("have.length", 2);
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-0] [data-cy=edit-question]"
-    ).should("have.value", "");
-    cy.get(
-      "[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-0] [data-cy=edit-question]"
-    )
-      .clear()
-      .type("test")
-      .should("have.value", "test");
-    cy.get("[data-cy=recording-blocks] [data-cy=block-0] [data-cy=answers-Incomplete] [data-cy=answer-1]").contains(
-      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-    );
+    cy.get("[data-cy=recording-blocks]").within($blocks => {
+      cy.get("[data-cy=block-0]").within($block => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category2");
+        cy.get("[data-cy=answers-Incomplete]").within($incompleteAnswers => {
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=add-question]").should("exist")
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+          cy.get("[data-cy=add-question]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").within($answers => {
+            cy.get("[data-cy=answer-0]").within($answer => {
+              cy.get("textarea").should("have.value", "");
+              cy.get("textarea").should("not.have.attr", "disabled");
+              cy.get("[data-cy=edit-question]").type("test")
+              cy.get("textarea").should("have.value", "test");
+            })
+            cy.get("[data-cy=answer-1]").contains("Please repeat the following: 'I couldn't understand the question. Try asking me something else.");
+          })
+        })
+      })
+    })
     cy.get("[data-cy=save-button]").should("not.be.disabled");
   });
 
