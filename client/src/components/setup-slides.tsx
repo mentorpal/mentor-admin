@@ -388,7 +388,7 @@ export function BuildMentorSlide(props: {
   });
   const { trainData, statusUrl, isBuilding } = trainingState;
 
-  async function trainAndBuild() {
+  function trainAndBuild() {
     trainMentor(mentor._id)
       .then((trainJob) => {
         setTrainingState({
