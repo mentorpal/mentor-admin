@@ -306,7 +306,7 @@ function SubjectPage(props: {
       >
         <div className={classes.row}>
           <IconButton
-            id="toggle-info"
+            data-cy="toggle-info"
             size="small"
             aria-expanded={isSubjectInfoExpanded}
             onClick={() => toggleExpand(!isSubjectInfoExpanded, false, false)}
@@ -324,7 +324,7 @@ function SubjectPage(props: {
         <CardContent style={{ padding: 0 }}>
           <Collapse in={isSubjectInfoExpanded} timeout="auto" unmountOnExit>
             <TextField
-              id="name"
+              data-cy="subject-name"
               variant="outlined"
               label="Subject Name"
               placeholder="Display name for the subject"
@@ -337,7 +337,7 @@ function SubjectPage(props: {
               multiline
             />
             <TextField
-              id="description"
+              data-cy="subject-description"
               variant="outlined"
               label="Subject Description"
               placeholder="Description about the types of questions in the subject"
@@ -382,7 +382,7 @@ function SubjectPage(props: {
       />
       <div style={{ height: 65 }}>
         <Button
-          id="save-button"
+          data-cy="save-button"
           variant="contained"
           color="primary"
           className={classes.button}

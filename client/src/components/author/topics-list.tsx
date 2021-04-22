@@ -56,7 +56,7 @@ export function TopicCard(props: {
           />
           <CardActions>
             <IconButton
-              data-cy="toggle"
+              data-cy="toggle-topic"
               size="small"
               className={clsx(classes.expand, {
                 [classes.expandOpen]: expanded,
@@ -66,7 +66,7 @@ export function TopicCard(props: {
               <ExpandMoreIcon />
             </IconButton>
             <IconButton
-              id="delete"
+              data-cy="delete-topic"
               size="small"
               onClick={() => props.removeTopic(topic)}
             >

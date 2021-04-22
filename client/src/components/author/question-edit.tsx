@@ -31,7 +31,7 @@ export function QuestionEditCard(props: {
     return <div />;
   }
   return (
-    <div id="edit-question" style={{ padding: 20 }}>
+    <div data-cy="edit-question" style={{ padding: 20 }}>
       <CardHeader
         action={
           <Button onClick={props.onDeselect} startIcon={<ClearOutlinedIcon />}>
@@ -42,7 +42,7 @@ export function QuestionEditCard(props: {
       <FormControl style={{ width: "100%" }}>
         <InputLabel>Question Type</InputLabel>
         <Select
-          id="select-type"
+          data-cy="select-type"
           value={question.question.type}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -56,16 +56,16 @@ export function QuestionEditCard(props: {
             });
           }}
         >
-          <MenuItem id="question-type" value={QuestionType.QUESTION}>
+          <MenuItem data-cy="question-type" value={QuestionType.QUESTION}>
             {QuestionType.QUESTION}
           </MenuItem>
-          <MenuItem id="utterance" value={QuestionType.UTTERANCE}>
+          <MenuItem data-cy="utterance" value={QuestionType.UTTERANCE}>
             {QuestionType.UTTERANCE}
           </MenuItem>
         </Select>
       </FormControl>
       <TextField
-        id="name"
+        data-cy="question-name"
         label="Tag"
         placeholder="Additional tag for question, e.g. _IDLE_"
         variant="outlined"

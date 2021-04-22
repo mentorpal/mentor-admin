@@ -52,7 +52,7 @@ export function CategoryListItem(props: {
         <div style={{ display: "flex", flexDirection: "row" }}>
           <TextField
             fullWidth
-            id="name"
+            data-cy="category-name"
             variant="outlined"
             label="Category"
             placeholder="New category"
@@ -66,7 +66,7 @@ export function CategoryListItem(props: {
           />
           <CardActions>
             <IconButton
-              data-cy="toggle"
+              data-cy="toggle-category"
               size="small"
               color="secondary"
               onClick={() => setExpanded(!expanded)}
@@ -80,7 +80,7 @@ export function CategoryListItem(props: {
             </IconButton>
             <IconButton
               size="small"
-              id="delete-category"
+              data-cy="delete-category"
               onClick={() => removeCategory(category)}
               style={{ padding: 0, marginLeft: 10 }}
             >
@@ -97,7 +97,7 @@ export function CategoryListItem(props: {
           <TextField
             fullWidth
             variant="outlined"
-            id="description"
+            data-cy="category-description"
             label="Description"
             value={category.description}
             onChange={(e) =>
@@ -110,7 +110,7 @@ export function CategoryListItem(props: {
           <Droppable droppableId={`category-${category.id}`}>
             {(provided) => (
               <List
-                id="category-questions"
+                data-cy="category-questions"
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
@@ -123,7 +123,7 @@ export function CategoryListItem(props: {
                   >
                     {(provided) => (
                       <ListItem
-                        id={`category-question-${j}`}
+                        data-cy={`category-question-${j}`}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}

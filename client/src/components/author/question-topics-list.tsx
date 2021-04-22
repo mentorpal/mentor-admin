@@ -66,7 +66,7 @@ export function TopicsList(props: {
               />
               <ListItemSecondaryAction>
                 <IconButton
-                  id="delete-topic"
+                  data-cy="delete-topic"
                   edge="end"
                   size="small"
                   onClick={() => removeTopic(t)}
@@ -80,7 +80,7 @@ export function TopicsList(props: {
       </List>
       <div className={classes.row} style={{ marginLeft: 5 }}>
         <Autocomplete
-          id="topic-input"
+          data-cy="topic-input"
           options={allTopics}
           getOptionLabel={(option: Topic) => option.name}
           onChange={(e, v) => {
