@@ -9,12 +9,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useState } from "react";
 import { Button } from "@material-ui/core";
-import "video.js/dist/video-js.css";
 import videojs from "video.js";
-import "webrtc-adapter";
-import RecordRTC from "recordrtc";
-import "videojs-record/dist/css/videojs.record.css";
-import Record from "videojs-record/dist/videojs.record.js";
 
 import { MentorType } from "types";
 
