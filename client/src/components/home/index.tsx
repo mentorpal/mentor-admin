@@ -375,11 +375,11 @@ function HomePage(props: {
       <div style={{ flexShrink: 0 }}>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <Select
-          id="select-subject"
+          data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
           displayEmpty
           renderValue={() => (
-            <Typography id="progress" variant="h6" className={classes.title}>
+            <Typography variant="h6" className={classes.title}>
               {mentor?.subjects.find((s) => s._id === selectedSubject)?.name ||
                 "All Answers"}{" "}
               ({progress.complete} / {progress.total})
@@ -391,25 +391,25 @@ function HomePage(props: {
             setSelectedSubject(event.target.value as string);
           }}
         >
-          <MenuItem id="all-subjects" value={undefined}>
+          <MenuItem data-cy="all-subjects" value={undefined}>
             Show All Subjects
           </MenuItem>
           {mentor?.subjects.map((s) => (
-            <MenuItem key={s._id} id={`select-${s._id}`} value={s._id}>
+            <MenuItem key={s._id} data-cy={`select-${s._id}`} value={s._id}>
               {s.name}
             </MenuItem>
           ))}
         </Select>
       </div>
       <List
-        id="recording-blocks"
+        data-cy="recording-blocks"
         style={{
           flex: "auto",
           backgroundColor: "#eee",
         }}
       >
         {blocks.map((b, i) => (
-          <ListItem key={b.name} id={`block-${i}`}>
+          <ListItem key={b.name} data-cy={`block-${i}`}>
             <RecordingBlockItem
               classes={classes}
               block={b}
@@ -428,7 +428,7 @@ function HomePage(props: {
           }}
         >
           <Fab
-            id="save-button"
+            data-cy="save-button"
             variant="extended"
             color="secondary"
             disabled={editedSubjects.length === 0}
@@ -438,7 +438,7 @@ function HomePage(props: {
             Save Changes
           </Fab>
           <Fab
-            id="train-button"
+            data-cy="train-button"
             variant="extended"
             color="primary"
             disabled={isBuilding}
