@@ -2,12 +2,6 @@
   "name": "mentor-admin-cypress",
   "description": "cypress testing",
   "version": "1.0.0",
-  "dependencies": {
-    "cypress": "^7.1.0",
-    "cypress-fill-command": "^1.0.2",
-    "cypress-image-snapshot": "^4.0.1",
-    "typescript": "^4.2.4"
-  },
   "scripts": {
     "cy:open": "npx cypress open --env failOnSnapshotDiff=false",
     "cy:open:withSnapshots": "npx cypress open",
@@ -16,6 +10,10 @@
     "cy:verify": "npx cypress verify"
   },
   "devDependencies": {
-    "cypress-localstorage-commands": "^1.4.3"
+    "cypress": "^7.1.0",
+    "cypress-fill-command": "^1.0.2",
+    "cypress-image-snapshot": "^4.0.1",
+    "cypress-localstorage-commands": "^1.4.3",
+    "typescript": "^4.2.4"
   }
 }
