@@ -554,41 +554,14 @@ describe("Record", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/record");
-    cy.get("[data-cy=video-player]").should("not.exist");
     cy.get("[data-cy=video-recorder]").should("not.exist");
   });
 
-  it("shows video recorder if mentor type is VIDEO and no video recorded", () => {
+  it("shows video recorder if mentor type is VIDEO", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor2 });
     cy.visit("/record");
-    cy.get("[data-cy=video-player]").should("not.exist");
     cy.get("[data-cy=video-recorder]").should("exist");
-  });
-
-  it("shows video player if mentor type is VIDEO and was video recorded", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: {
-        ...mentor2,
-        answers: [
-          {
-            _id: "A1_1_1",
-            question: completeQuestion({
-              _id: "A1_1_1",
-              question: "Who are you and what do you do?",
-            }),
-            transcript:
-              "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-            recordedAt: "Today",
-            status: Status.COMPLETE,
-          },
-        ],
-      },
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=video-player]").should("exist");
-    cy.get("[data-cy=video-recorder]").should("not.exist");
   });
 
   it("can update status", () => {

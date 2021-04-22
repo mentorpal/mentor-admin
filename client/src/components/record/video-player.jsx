@@ -121,7 +121,7 @@ function VideoPlayer({
       style={{ alignSelf: "center", height: videoHeight, width: videoWidth }}
     >
       <video
-        id="video-recorder"
+        data-cy="video-recorder"
         ref={(e) => setVideoNode(e || undefined)}
         playsInline
         className="video-js vjs-default-skin"
@@ -130,7 +130,7 @@ function VideoPlayer({
       </video>
       {recordedVideo ? (
         <Button
-          id="upload-video"
+          data-cy="upload-video"
           variant="contained"
           color="primary"
           disableElevation
