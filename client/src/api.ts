@@ -581,6 +581,7 @@ export async function fetchTrainingStatus(
 export async function uploadVideo(
   mentorId: string,
   videoId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   video: any
 ): Promise<AsyncJob> {
   const res = await axios.post(urljoin(VIDEO_ENTRYPOINT, "upload"), {

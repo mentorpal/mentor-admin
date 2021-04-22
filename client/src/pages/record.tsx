@@ -200,6 +200,7 @@ function RecordPage(props: {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onUploadVideo(video: any) {
     if (!mentor || !curAnswer) {
       return;
@@ -278,6 +279,7 @@ function RecordPage(props: {
     isUploading ? 1000 : null
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function equals(val1: any, val2: any): boolean {
     return JSON.stringify(val1) === JSON.stringify(val2);
   }

@@ -194,6 +194,7 @@ export enum VideoState {
 export interface VideoInfo {
   mentor: string;
   videoId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   video: any;
   transcript: string;
 }

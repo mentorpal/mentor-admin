@@ -5,3 +5,5 @@ public
 .cache
 .gitignore
 .cypress-*
+
+src/components/record/video-player.jsx
