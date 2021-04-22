@@ -110,7 +110,7 @@ export function QuestionsList(props: {
     >
       <div className={classes.row}>
         <IconButton
-          id="toggle-questions"
+          data-cy="toggle-questions"
           size="small"
           aria-expanded={expanded}
           onClick={toggleExpanded}
@@ -139,9 +139,9 @@ export function QuestionsList(props: {
               }}
             >
               <DragDropContext onDragEnd={onDragEnd}>
-                <List id="categories" className={classes.list}>
+                <List data-cy="categories" className={classes.list}>
                   {props.categories.map((category, i) => (
-                    <ListItem id={`category-${i}`} key={category.id}>
+                    <ListItem data-cy={`category-${i}`} key={category.id}>
                       <CategoryListItem
                         category={category}
                         questions={questions.filter(
@@ -161,7 +161,7 @@ export function QuestionsList(props: {
                 <Droppable droppableId="questions">
                   {(provided) => (
                     <List
-                      id="questions"
+                      data-cy="questions"
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                       className={classes.list}
@@ -174,7 +174,7 @@ export function QuestionsList(props: {
                         >
                           {(provided) => (
                             <ListItem
-                              id={`question-${i}`}
+                              data-cy={`question-${i}`}
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
@@ -229,7 +229,7 @@ export function QuestionsList(props: {
             }}
           >
             <Button
-              id="add-question"
+              data-cy="add-question"
               color="primary"
               variant="outlined"
               startIcon={<AddIcon />}
@@ -239,7 +239,7 @@ export function QuestionsList(props: {
               Add Question
             </Button>
             <Button
-              id="add-category"
+              data-cy="add-category"
               variant="outlined"
               startIcon={<AddIcon />}
               className={classes.button}

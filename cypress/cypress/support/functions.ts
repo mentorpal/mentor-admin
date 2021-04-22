@@ -1,4 +1,4 @@
-import { Mentor, Ref } from "./types";
+import { Mentor, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 
@@ -140,7 +140,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Mentor | Ref | Mentor[];
+    mentor?: Mentor | _Ref | Mentor[];
     subject?: any;
     subjects?: any[];
   } = {}
@@ -152,9 +152,8 @@ export function cyMockDefault(
   }
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    mockGQL("mentor", args.mentor || mentorDefault, true),
     mockGQL("login", args.login || loginDefault),
-    // ...(args.mentor ? [mockGQL("mentor", args.mentor || {}, true)] : []),
+    ...(args.mentor ? [mockGQL("mentor", args.mentor, true)] : [mockGQL("mentor", mentorDefault, true)]),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,

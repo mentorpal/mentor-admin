@@ -90,12 +90,12 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Studio" mentorId={mentor._id} />
-      <Paper id="mentor" className={classes.paper}>
+      <Paper className={classes.paper}>
         <Typography variant="h6" className={classes.title}>
           My Profile
         </Typography>
         <TextField
-          id="name"
+          data-cy="mentor-name"
           label="Name"
           variant="outlined"
           value={mentor.name}
@@ -105,7 +105,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           className={classes.inputField}
         />
         <TextField
-          id="first-name"
+          data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
           value={mentor.firstName}
@@ -115,7 +115,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           className={classes.inputField}
         />
         <TextField
-          id="job-title"
+          data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
           value={mentor.title}
@@ -125,7 +125,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           className={classes.inputField}
         />
         <Button
-          id="update-btn"
+          data-cy="update-btn"
           variant="contained"
           color="primary"
           onClick={updateProfile}

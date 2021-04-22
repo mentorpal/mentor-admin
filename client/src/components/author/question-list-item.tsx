@@ -43,7 +43,7 @@ export function QuestionListItem(props: {
     >
       <CardContent style={{ display: "flex", flexDirection: "row" }}>
         <TextField
-          id="question"
+          data-cy="question"
           label="Question"
           variant="outlined"
           fullWidth
@@ -59,14 +59,14 @@ export function QuestionListItem(props: {
         />
         <CardActions>
           <IconButton
-            id="delete-question"
+            data-cy="delete-question"
             size="small"
             onClick={() => removeQuestion(question)}
           >
             <DeleteIcon />
           </IconButton>
           {isSelected ? (
-            <IconButton id="close" size="small" onClick={deselectQuestion}>
+            <IconButton data-cy="close" size="small" onClick={deselectQuestion}>
               <ClearOutlinedIcon />
             </IconButton>
           ) : undefined}

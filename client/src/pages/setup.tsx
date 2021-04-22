@@ -90,6 +90,7 @@ function SetupPage(props: {
   const [slides, setSlides] = useState<SlideType[]>([]);
   const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
   const { mentor, reload } = mentorState;
+
   React.useEffect(() => {
     if (!reload) {
       return;
@@ -106,34 +107,6 @@ function SetupPage(props: {
         });
       })
       .catch((err) => console.error(err));
-
-    // const subjects = await fetchSubjects({ filter: { isRequired: true } });
-    // if (!mounted) {
-    //   return;
-    // }
-    // const requiredSubjects = subjects.edges.map((e: Edge<Subject>) => e.node);
-    // const subjectIds = mentor.subjects.map((s) => s._id);
-    // if (requiredSubjects.find((s) => !subjectIds.includes(s._id))) {
-    //   const subjects = [
-    //     ...new Set([...requiredSubjects, ...mentor.subjects]),
-    //   ];
-    //   const updated = await updateMentor(
-    //     { ...mentor, subjects },
-    //     props.accessToken
-    //   );
-    //   if (!mounted) {
-    //     return;
-    //   }
-    //   if (updated) {
-    //     const mUpdated = await fetchMentor(props.accessToken);
-    //     if (!mounted) {
-    //       return;
-    //     }
-    //     setMentor(mUpdated);
-    //   }
-    // }
-    // }
-    // load().catch((err) => console.error(err));
     return () => {
       mounted = false;
     };
@@ -240,42 +213,38 @@ function SetupPage(props: {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Setup" mentorId={mentor._id} />
-      {idx >= slides.length ? "Invalid slide" : slides[idx].element}
+      <div data-cy="slide">
+        {idx >= slides.length ? "Invalid slide" : slides[idx].element}
+      </div>
       <div className={classes.row} style={{ height: 150 }}>
         {idx > 0 ? (
           <Button
-            id="back-btn"
+            data-cy="back-btn"
             className={classes.button}
             variant="contained"
-            onClick={() => {
-              setIdx(idx - 1);
-            }}
+            onClick={() => setIdx(idx - 1)}
           >
             Back
           </Button>
         ) : undefined}
         {idx > 2 ? (
           <Button
-            id="done-btn"
+            data-cy="done-btn"
             className={classes.button}
             variant="contained"
             color="secondary"
-            onClick={() => {
-              navigate("/");
-            }}
+            onClick={() => navigate("/")}
           >
             Done
           </Button>
         ) : undefined}
         {idx !== slides.length - 1 ? (
           <Button
-            id="next-btn"
+            data-cy="next-btn"
             className={classes.button}
             variant="contained"
             color="primary"
-            onClick={() => {
-              setIdx(idx + 1);
-            }}
+            onClick={() => setIdx(idx + 1)}
           >
             Next
           </Button>
@@ -284,7 +253,7 @@ function SetupPage(props: {
       <div className={classes.row}>
         {slides.map((s, i) => (
           <Radio
-            id={`radio-${i}`}
+            data-cy={`radio-${i}`}
             key={i}
             checked={i === idx}
             onClick={() => setIdx(i)}

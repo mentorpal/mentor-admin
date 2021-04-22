@@ -32,7 +32,7 @@ function ProgressBar(props: { value: number; total: number }): JSX.Element {
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
         <LinearProgressBar
-          id="progress-bar"
+          data-cy="progress-bar"
           variant="determinate"
           {...{ value: percent }}
         />

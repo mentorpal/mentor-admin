@@ -51,11 +51,11 @@ export function ParaphraseList(props: {
         marginTop: 25,
       }}
     >
-      <List id="paraphrases" dense disablePadding>
+      <List data-cy="paraphrases" dense disablePadding>
         <ListSubheader>Paraphrases</ListSubheader>
         {paraphrases.map((paraphrase, i) => (
           <ListItem
-            id={`paraphrase-${i}`}
+            data-cy={`paraphrase-${i}`}
             key={`paraphrase-${i}`}
             dense
             disableGutters
@@ -64,7 +64,7 @@ export function ParaphraseList(props: {
               <CardContent>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <TextField
-                    id="edit-paraphrase"
+                    data-cy="edit-paraphrase"
                     label="Paraphrase"
                     variant="outlined"
                     fullWidth
@@ -73,7 +73,7 @@ export function ParaphraseList(props: {
                   />
                   <CardActions>
                     <IconButton
-                      id="delete"
+                      data-cy="delete-paraphrase"
                       size="small"
                       onClick={() => removeParaphrase(i)}
                     >
@@ -87,7 +87,7 @@ export function ParaphraseList(props: {
         ))}
       </List>
       <Button
-        id="add-paraphrase"
+        data-cy="add-paraphrase"
         startIcon={<AddIcon />}
         className={classes.button}
         onClick={addParaphrase}

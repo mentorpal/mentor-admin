@@ -52,30 +52,35 @@ export function TopicsList(props: {
         marginTop: 25,
       }}
     >
-      <List id="topics">
+      <List data-cy="question-topics-list">
         <ListSubheader>Topics</ListSubheader>
-        {questionTopics.map((t, i) => (
-          <ListItem key={`topic-${i}`} id={`topic-${i}`}>
-            <ListItemText
-              id="name"
-              primary={allTopics.find((topic) => topic.id === t.id)?.name || ""}
-            />
-            <ListItemSecondaryAction>
-              <IconButton
-                id="delete-topic"
-                edge="end"
-                size="small"
-                onClick={() => removeTopic(t)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
+        {questionTopics.map((t, i) => {
+          const topicName =
+            allTopics.find((topic) => topic.id === t.id)?.name || "";
+          return (
+            <ListItem key={`topic-${i}`} data-cy={`topic-${i}`}>
+              <ListItemText
+                data-cy="topic-name"
+                data-test={topicName}
+                primary={topicName}
+              />
+              <ListItemSecondaryAction>
+                <IconButton
+                  data-cy="delete-topic"
+                  edge="end"
+                  size="small"
+                  onClick={() => removeTopic(t)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          );
+        })}
       </List>
       <div className={classes.row} style={{ marginLeft: 5 }}>
         <Autocomplete
-          id="topic-input"
+          data-cy="topic-input"
           options={allTopics}
           getOptionLabel={(option: Topic) => option.name}
           onChange={(e, v) => {
@@ -91,7 +96,7 @@ export function TopicsList(props: {
           )}
         />
         <Button
-          id="add-topic"
+          data-cy="question-topics-list-add-topic"
           startIcon={<AddIcon />}
           className={classes.button}
           disabled={!topicSearch}

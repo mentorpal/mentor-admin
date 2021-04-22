@@ -50,7 +50,7 @@ export function WelcomeSlide(props: {
 }): JSX.Element {
   const { classes } = props;
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Welcome to MentorPal!
       </Typography>
@@ -90,13 +90,13 @@ export function MentorInfoSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Tell us a little about yourself.
       </Typography>
       <div className={classes.column}>
         <TextField
-          id="first-name"
+          data-cy="first-name"
           label="First Name"
           variant="outlined"
           value={firstName}
@@ -106,7 +106,7 @@ export function MentorInfoSlide(props: {
           className={classes.inputField}
         />
         <TextField
-          id="name"
+          data-cy="name"
           label="Full Name"
           variant="outlined"
           value={name}
@@ -116,7 +116,7 @@ export function MentorInfoSlide(props: {
           className={classes.inputField}
         />
         <TextField
-          id="title"
+          data-cy="title"
           label="Job Title"
           variant="outlined"
           value={title}
@@ -126,7 +126,7 @@ export function MentorInfoSlide(props: {
           className={classes.inputField}
         />
         <Button
-          id="save-btn"
+          data-cy="save-btn"
           variant="contained"
           color="primary"
           disabled={
@@ -167,14 +167,14 @@ export function MentorTypeSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Pick a mentor type.
       </Typography>
       <div className={classes.column}>
         <div className={classes.row}>
           <Select
-            id="select-chat-type"
+            data-cy="select-chat-type"
             value={type}
             style={{ width: 100, marginRight: 20 }}
             onChange={(
@@ -186,15 +186,15 @@ export function MentorTypeSlide(props: {
               onSelect(event.target.value as MentorType);
             }}
           >
-            <MenuItem id="chat" value={MentorType.CHAT}>
+            <MenuItem data-cy="chat" value={MentorType.CHAT}>
               Chat
             </MenuItem>
-            <MenuItem id="video" value={MentorType.VIDEO}>
+            <MenuItem data-cy="video" value={MentorType.VIDEO}>
               Video
             </MenuItem>
           </Select>
           <Button
-            id="save-btn"
+            data-cy="save-btn"
             onClick={onSave}
             disabled={isSaving || mentor.mentorType === type}
             variant="contained"
@@ -220,7 +220,7 @@ export function IntroductionSlide(props: {
 }): JSX.Element {
   const { classes } = props;
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Let&apos;s start recording!
       </Typography>
@@ -251,7 +251,7 @@ export function SelectSubjectsSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Select subjects?
       </Typography>
@@ -265,7 +265,7 @@ export function SelectSubjectsSlide(props: {
           other mentors in your field.
         </Typography>
         <Button
-          id="button"
+          data-cy="button"
           variant="contained"
           color="primary"
           onClick={onClick}
@@ -291,7 +291,7 @@ export function RecordIdleSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Idle
       </Typography>
@@ -305,7 +305,7 @@ export function RecordIdleSlide(props: {
         </Typography>
       </div>
       <Button
-        id="record-btn"
+        data-cy="record-btn"
         className={classes.button}
         variant="contained"
         color="primary"
@@ -314,7 +314,7 @@ export function RecordIdleSlide(props: {
         Record
       </Button>
       {idle.status === Status.COMPLETE ? (
-        <CheckCircleIcon id="check" style={{ color: "green" }} />
+        <CheckCircleIcon data-cy="check" style={{ color: "green" }} />
       ) : undefined}
     </Paper>
   );
@@ -337,7 +337,7 @@ export function RecordSubjectSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         {subject.name} questions
       </Typography>
@@ -347,7 +347,7 @@ export function RecordSubjectSlide(props: {
         </Typography>
       </div>
       <Button
-        id="record-btn"
+        data-cy="record-btn"
         className={classes.button}
         variant="contained"
         color="primary"
@@ -356,7 +356,7 @@ export function RecordSubjectSlide(props: {
         Record
       </Button>
       {isRecorded ? (
-        <CheckCircleIcon id="check" style={{ color: "green" }} />
+        <CheckCircleIcon data-cy="check" style={{ color: "green" }} />
       ) : (
         <Typography variant="h6" className={classes.text}>
           {recorded.length} / {questions.length}
@@ -388,7 +388,7 @@ export function BuildMentorSlide(props: {
   });
   const { trainData, statusUrl, isBuilding } = trainingState;
 
-  async function trainAndBuild() {
+  function trainAndBuild() {
     trainMentor(mentor._id)
       .then((trainJob) => {
         setTrainingState({
@@ -522,14 +522,14 @@ export function BuildMentorSlide(props: {
   }
 
   return (
-    <Paper id="slide" className={classes.card}>
+    <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
         Great job! You&apos;re ready to build your mentor!
       </Typography>
       <div className={classes.column}>{renderMessage()}</div>
       <div className={classes.row}>
         <Button
-          id="train-btn"
+          data-cy="train-btn"
           className={classes.button}
           variant="contained"
           color="primary"
@@ -540,7 +540,7 @@ export function BuildMentorSlide(props: {
         </Button>
         {mentor.lastTrainedAt ? (
           <Button
-            id="preview-btn"
+            data-cy="preview-btn"
             className={classes.button}
             variant="contained"
             color="secondary"

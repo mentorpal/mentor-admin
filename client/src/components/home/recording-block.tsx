@@ -35,17 +35,17 @@ export default function RecordingBlockItem(props: {
       <div
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
-        <Typography id="block-name" variant="h6" className={classes.title}>
+        <Typography data-cy="block-name" variant="h6" className={classes.title}>
           {block.name}
         </Typography>
         <div
-          id="block-progress"
+          data-cy="block-progress"
           style={{ flexGrow: 1, marginLeft: 25, marginRight: 25 }}
         >
           <ProgressBar value={complete.length} total={answers.length} />
         </div>
       </div>
-      <Typography id="block-description" className={classes.subtitle}>
+      <Typography data-cy="block-description" className={classes.subtitle}>
         {block.description}
       </Typography>
       <div style={{ marginTop: 10 }}>

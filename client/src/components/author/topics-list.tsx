@@ -43,7 +43,8 @@ export function TopicCard(props: {
       <CardContent>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <TextField
-            id="name"
+            data-cy="topic-name"
+            data-test={topic.name}
             label="Topic"
             variant="outlined"
             value={topic.name}
@@ -55,7 +56,7 @@ export function TopicCard(props: {
           />
           <CardActions>
             <IconButton
-              id="toggle"
+              data-cy="toggle-topic"
               size="small"
               className={clsx(classes.expand, {
                 [classes.expandOpen]: expanded,
@@ -65,7 +66,7 @@ export function TopicCard(props: {
               <ExpandMoreIcon />
             </IconButton>
             <IconButton
-              id="delete"
+              data-cy="delete-topic"
               size="small"
               onClick={() => props.removeTopic(topic)}
             >
@@ -80,7 +81,8 @@ export function TopicCard(props: {
           style={{ padding: 25, paddingRight: 25 }}
         >
           <TextField
-            id="description"
+            data-cy="topic-description"
+            data-test={topic.description}
             label="Description"
             variant="outlined"
             value={topic.description}
@@ -124,7 +126,7 @@ export function TopicsList(props: {
     >
       <div className={classes.row}>
         <IconButton
-          id="toggle-topics"
+          data-cy="toggle-topics"
           size="small"
           onClick={props.toggleExpanded}
         >
@@ -148,7 +150,7 @@ export function TopicsList(props: {
               <Droppable droppableId="droppable">
                 {(provided) => (
                   <List
-                    id="topics"
+                    data-cy="topics-list"
                     ref={provided.innerRef}
                     className={classes.list}
                     {...provided.droppableProps}
@@ -161,7 +163,7 @@ export function TopicsList(props: {
                       >
                         {(provided) => (
                           <ListItem
-                            id={`topic-${i}`}
+                            data-cy={`topic-${i}`}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
@@ -190,7 +192,7 @@ export function TopicsList(props: {
             }}
           >
             <Button
-              id="add-topic"
+              data-cy="topics-list-add-topic"
               startIcon={<AddIcon />}
               className={classes.button}
               variant="outlined"

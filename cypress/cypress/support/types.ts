@@ -52,6 +52,10 @@ export interface Ref {
   id: string;
 }
 
+export interface _Ref {
+  _id: string;
+}
+
 export interface Subject {
   _id: string;
   name: string;
