@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate, Link } from "gatsby";
-import React, { useContext } from "react";
+import React, { FunctionComponent, useContext } from "react";
 import {
   AppBar,
   Button,
@@ -113,11 +113,13 @@ function NavMenu(props: {
   mentorId: string | undefined;
   classes: Record<string, string>;
 }): JSX.Element {
+  const { mentorId } = props;
   const { classes } = props;
   const context = useContext(Context);
 
   async function openChat() {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
+    // eslint-disable-next-line no-restricted-globals
+    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
     window.location.href = path;
   }
 
@@ -132,7 +134,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/profile"}
+        to="/profile"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname === "/profile"}
       >
         <ListItemText primary="Profile" />
@@ -140,7 +143,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/subjects"}
+        to="/subjects"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname === "/subjects"}
       >
         <ListItemText primary="Select Subjects" />
@@ -148,7 +152,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/setup"}
+        to="/setup"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname === "/setup"}
       >
         <ListItemText primary="Setup" />
@@ -159,7 +164,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/record"}
+        to="/record"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname.includes("/record")}
       >
         <ListItemText primary="Record Questions" />
@@ -167,7 +173,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/"}
+        to="/"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname === "/"}
       >
         <ListItemText primary="Review Answers" />
@@ -175,12 +182,13 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/feedback"}
+        to="/feedback"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname.includes("/feedback")}
       >
         <ListItemText primary="Corrections and User Feedback" />
       </ListItem>
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+      <ListItem button disabled={!mentorId} onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
@@ -191,7 +199,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/author/subjects"}
+        to="/author/subjects"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname.includes("/author/subject")}
       >
         <ListItemText primary="Subjects Areas" />
@@ -199,7 +208,8 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/author/questions"}
+        to="/author/questions"
+        // eslint-disable-next-line no-restricted-globals
         selected={location.pathname.includes("/author/question")}
       >
         <ListItemText primary="Questions" />
@@ -223,7 +233,8 @@ export function NavBar(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const { back } = props.search;
+  const { search, title, mentorId } = props;
+  const { back } = search;
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   function toggleDrawer(tf: boolean): void {
@@ -251,7 +262,7 @@ export function NavBar(props: {
             {back ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Typography data-cy="title" variant="h6" className={classes.title}>
-            {props.title}
+            {title}
           </Typography>
           <Login classes={classes} />
         </Toolbar>
@@ -264,11 +275,11 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu classes={classes} mentorId={props.mentorId} />
+        <NavMenu classes={classes} mentorId={mentorId} />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>
   );
 }
 
-export default withLocation(NavBar);
+export default withLocation(NavBar as FunctionComponent);

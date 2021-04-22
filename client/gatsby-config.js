@@ -30,17 +30,5 @@ module.exports = {
         allowList: ["GRAPHQL_ENDPOINT", "CLASSIFIER_ENTRYPOINT"],
       },
     },
-    {
-      resolve: "gatsby-plugin-eslint",
-      options: {
-        test: /\.js$|\.jsx$|\.ts$|\.tsx$/,
-        exclude: /(node_modules|.cache|public|static)/,
-        stages: ["develop"],
-        options: {
-          emitWarning: true,
-          failOnError: false,
-        },
-      },
-    },
   ],
 };

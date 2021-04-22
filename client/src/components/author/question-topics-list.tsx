@@ -89,6 +89,7 @@ export function TopicsList(props: {
           style={{ width: "100%" }}
           renderInput={(params) => (
             <TextField
+              // eslint-disable-next-line react/jsx-props-no-spreading
               {...params}
               variant="outlined"
               placeholder="Choose a topic to add"
@@ -100,7 +101,11 @@ export function TopicsList(props: {
           startIcon={<AddIcon />}
           className={classes.button}
           disabled={!topicSearch}
-          onClick={() => addTopic(topicSearch!)}
+          onClick={() => {
+            if (topicSearch) {
+              addTopic(topicSearch);
+            }
+          }}
         >
           Add Topic
         </Button>

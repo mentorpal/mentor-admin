@@ -12,7 +12,7 @@ import {
 } from "react-google-login";
 import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { getClientID } from "config";
+import getClientID from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
 import Context from "context";

@@ -33,6 +33,7 @@ function AnswerList(props: {
   onRecordAll: () => void;
   onRecordOne: (answer: Answer) => void;
   onEditQuestion: (question: Question) => void;
+  // eslint-disable-next-line react/require-default-props
   onAddQuestion?: () => void;
 }): JSX.Element {
   const {

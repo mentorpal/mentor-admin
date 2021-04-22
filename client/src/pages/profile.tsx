@@ -47,10 +47,11 @@ const useStyles = makeStyles(() => ({
 function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const [mentor, setMentor] = useState<Mentor>();
+  const { accessToken } = props;
 
   React.useEffect(() => {
     let mounted = true;
-    fetchMentor(props.accessToken)
+    fetchMentor(accessToken)
       .then((m) => {
         if (!mounted) {
           return;
@@ -64,16 +65,19 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
   }, []);
 
   async function loadMentor() {
-    const m = await fetchMentor(props.accessToken);
+    const m = await fetchMentor(accessToken);
     setMentor(m);
   }
 
   async function updateProfile() {
-    const updated = await updateMentor(mentor!, props.accessToken);
+    if (!mentor) {
+      return;
+    }
+    const updated = await updateMentor(mentor, accessToken);
     if (!updated) {
       toast("Failed to save changes");
     } else {
-      loadMentor();
+      await loadMentor();
       toast("Profile updated!");
     }
   }

@@ -14,9 +14,8 @@ function IndexPage(): JSX.Element {
   const context = useContext(Context);
   if (context.loginStatus === LoginStatus.AUTHENTICATED) {
     return <HomePage />;
-  } else {
-    return <LoginPage />;
   }
+  return <LoginPage />;
 }
 
 export default IndexPage;

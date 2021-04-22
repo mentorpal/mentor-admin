@@ -49,7 +49,22 @@ export function QuestionsList(props: {
     category: string | undefined
   ) => void;
 }): JSX.Element {
-  const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
+  const {
+    classes,
+    categories,
+    maxHeight,
+    expanded,
+    questions,
+    addCategory,
+    addQuestion,
+    editCategory,
+    editQuestion,
+    moveQuestion,
+    removeCategory,
+    removeQuestion,
+    toggleExpanded,
+    topics,
+  } = props;
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
 
@@ -65,7 +80,7 @@ export function QuestionsList(props: {
       .replace("category-", "")
       .replace("question-", "");
     const categoryId = result.destination.droppableId.startsWith("category")
-      ? result.destination!.droppableId.replace("category-", "")
+      ? result.destination.droppableId.replace("category-", "")
       : undefined;
 
     // re-ordering questions in question list
@@ -73,9 +88,9 @@ export function QuestionsList(props: {
       result.draggableId.startsWith("question") &&
       result.destination.droppableId === "questions"
     ) {
-      props.moveQuestion(
+      moveQuestion(
         questionId,
-        uncategorizedQuestions[result.destination!.index].question._id,
+        uncategorizedQuestions[result.destination.index].question._id,
         categoryId
       );
     }
@@ -84,21 +99,21 @@ export function QuestionsList(props: {
       result.draggableId.startsWith("category-question") &&
       result.destination.droppableId === "questions"
     ) {
-      props.moveQuestion(questionId, undefined, categoryId);
+      moveQuestion(questionId, undefined, categoryId);
     }
     // added question in questions list to a category
     if (
       result.draggableId.startsWith("question") &&
       result.destination.droppableId.startsWith("category")
     ) {
-      props.moveQuestion(questionId, undefined, categoryId);
+      moveQuestion(questionId, undefined, categoryId);
     }
     // moved question in category list to another category
     if (
       result.draggableId.startsWith("category-question") &&
       result.destination.droppableId.startsWith("category")
     ) {
-      props.moveQuestion(questionId, undefined, categoryId);
+      moveQuestion(questionId, undefined, categoryId);
     }
   }
 
@@ -148,10 +163,10 @@ export function QuestionsList(props: {
                           (q) => q.category?.id === category.id
                         )}
                         selectedQuestion={selectedQuestion}
-                        removeCategory={props.removeCategory}
-                        updateCategory={props.editCategory}
-                        updateQuestion={props.editQuestion}
-                        removeQuestion={props.removeQuestion}
+                        removeCategory={removeCategory}
+                        updateCategory={editCategory}
+                        updateQuestion={editQuestion}
+                        removeQuestion={removeQuestion}
                         selectQuestion={selectQuestion}
                         deselectQuestion={() => selectQuestion(undefined)}
                       />
@@ -162,6 +177,7 @@ export function QuestionsList(props: {
                   {(provided) => (
                     <List
                       data-cy="questions"
+                      // eslint-disable-next-line react/jsx-props-no-spreading
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                       className={classes.list}
@@ -172,18 +188,20 @@ export function QuestionsList(props: {
                           draggableId={`question-${q.question._id}`}
                           index={i}
                         >
-                          {(provided) => (
+                          {(p2) => (
                             <ListItem
                               data-cy={`question-${i}`}
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
+                              ref={p2.innerRef}
+                              // eslint-disable-next-line react/jsx-props-no-spreading
+                              {...p2.draggableProps}
+                              // eslint-disable-next-line react/jsx-props-no-spreading
+                              {...p2.dragHandleProps}
                             >
                               <QuestionListItem
                                 question={q}
                                 isSelected={selectedQuestion === q.question._id}
-                                updateQuestion={props.editQuestion}
-                                removeQuestion={props.removeQuestion}
+                                updateQuestion={editQuestion}
+                                removeQuestion={removeQuestion}
                                 selectQuestion={selectQuestion}
                                 deselectQuestion={() =>
                                   selectQuestion(undefined)
@@ -210,11 +228,11 @@ export function QuestionsList(props: {
               >
                 <QuestionEditCard
                   classes={classes}
-                  topics={props.topics}
+                  topics={topics}
                   question={questions.find(
                     (q) => q.question._id === selectedQuestion
                   )}
-                  updateQuestion={props.editQuestion}
+                  updateQuestion={editQuestion}
                   onDeselect={() => selectQuestion(undefined)}
                 />
               </Grid>
@@ -234,7 +252,7 @@ export function QuestionsList(props: {
               variant="outlined"
               startIcon={<AddIcon />}
               className={classes.button}
-              onClick={props.addQuestion}
+              onClick={addQuestion}
             >
               Add Question
             </Button>
@@ -243,7 +261,7 @@ export function QuestionsList(props: {
               variant="outlined"
               startIcon={<AddIcon />}
               className={classes.button}
-              onClick={props.addCategory}
+              onClick={addCategory}
             >
               Add Category
             </Button>

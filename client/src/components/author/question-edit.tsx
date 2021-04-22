@@ -19,22 +19,23 @@ import { QuestionType, Topic, SubjectQuestion } from "types";
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 
-export function QuestionEditCard(props: {
+export default function QuestionEditCard(props: {
   classes: Record<string, string>;
   question: SubjectQuestion | undefined;
   topics: Topic[];
   updateQuestion: (val: SubjectQuestion) => void;
   onDeselect: () => void;
 }): JSX.Element {
-  const { classes, question } = props;
+  const { classes, question, topics, onDeselect, updateQuestion } = props;
   if (!question) {
     return <div />;
   }
+  const topicIds = topics.map((t) => t.id);
   return (
     <div data-cy="edit-question" style={{ padding: 20 }}>
       <CardHeader
         action={
-          <Button onClick={props.onDeselect} startIcon={<ClearOutlinedIcon />}>
+          <Button onClick={onDeselect} startIcon={<ClearOutlinedIcon />}>
             Close Details
           </Button>
         }
@@ -47,7 +48,7 @@ export function QuestionEditCard(props: {
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => {
-            props.updateQuestion({
+            updateQuestion({
               ...question,
               question: {
                 ...question.question,
@@ -71,7 +72,7 @@ export function QuestionEditCard(props: {
         variant="outlined"
         value={question.question.name}
         onChange={(e) =>
-          props.updateQuestion({
+          updateQuestion({
             ...question,
             question: { ...question.question, name: e.target.value },
           })
@@ -84,19 +85,17 @@ export function QuestionEditCard(props: {
       />
       <TopicsList
         classes={classes}
-        allTopics={props.topics}
-        questionTopics={question.topics.filter((t) =>
-          props.topics.map((t) => t.id).includes(t.id)
-        )}
+        allTopics={topics}
+        questionTopics={question.topics.filter((t) => topicIds.includes(t.id))}
         updateTopics={(t: Topic[]) =>
-          props.updateQuestion({ ...question, topics: t })
+          updateQuestion({ ...question, topics: t })
         }
       />
       <ParaphraseList
         classes={classes}
         paraphrases={question.question.paraphrases}
         updateParaphrases={(p: string[]) =>
-          props.updateQuestion({
+          updateQuestion({
             ...question,
             question: { ...question.question, paraphrases: p },
           })
@@ -105,5 +104,3 @@ export function QuestionEditCard(props: {
     </div>
   );
 }
-
-export default QuestionEditCard;

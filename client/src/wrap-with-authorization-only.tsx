@@ -10,7 +10,10 @@ import { LoginStatus } from "types";
 import { navigate } from "gatsby";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const withAuthorizationOnly = (Component) => (props) => {
+const withAuthorizationOnly = (Component: React.FunctionComponent) => (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+  props: any
+) => {
   const context = useContext(Context);
   if (context.loginStatus === LoginStatus.NONE && !context.accessToken) {
     if (typeof window !== "undefined") {
@@ -20,6 +23,7 @@ const withAuthorizationOnly = (Component) => (props) => {
   }
   return context.loginStatus === LoginStatus.AUTHENTICATED ? (
     <Component
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
       accessToken={context.accessToken}
       user={context.user}

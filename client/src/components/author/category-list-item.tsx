@@ -22,7 +22,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Category, SubjectQuestion } from "types";
 import QuestionListItem from "./question-list-item";
 
-export function CategoryListItem(props: {
+export default function CategoryListItem(props: {
   category: Category;
   questions: SubjectQuestion[];
   selectedQuestion: string | undefined;
@@ -121,12 +121,14 @@ export function CategoryListItem(props: {
                     draggableId={`category-question-${question.question._id}`}
                     index={j}
                   >
-                    {(provided) => (
+                    {(p2) => (
                       <ListItem
                         data-cy={`category-question-${j}`}
                         ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...p2.draggableProps}
+                        // eslint-disable-next-line react/jsx-props-no-spreading
+                        {...p2.dragHandleProps}
                       >
                         <QuestionListItem
                           question={question}
@@ -151,5 +153,3 @@ export function CategoryListItem(props: {
     </Card>
   );
 }
-
-export default CategoryListItem;

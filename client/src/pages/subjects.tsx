@@ -123,11 +123,11 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
   React.useEffect(() => {
     let mounted = true;
     fetchSubjects({ cursor, limit, sortBy, sortAscending })
-      .then((subjects) => {
+      .then((s) => {
         if (!mounted) {
           return;
         }
-        setAllSubjects(subjects);
+        setAllSubjects(s);
       })
       .catch((err) => console.error(err));
     return () => {
@@ -149,16 +149,16 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
       return;
     }
     const i = subjects.findIndex((s) => s._id === subject._id);
-    const _subjects = [...subjects];
+    const sUpdated = [...subjects];
     if (i === -1) {
-      _subjects.push(subject);
+      sUpdated.push(subject);
     } else {
-      _subjects.splice(i, 1);
+      sUpdated.splice(i, 1);
       if (defaultSubject?._id === subject._id) {
         setDefaultSubject(undefined);
       }
     }
-    setSubjects(_subjects);
+    setSubjects(sUpdated);
   }
 
   function toggleDefaultSubject(subject: Subject) {
@@ -178,7 +178,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
       {
         ...mentor,
         defaultSubject,
-        subjects: subjects,
+        subjects,
       },
       props.accessToken
     );
@@ -260,7 +260,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               data-cy="prev-page"
               disabled={!allSubjects.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + allSubjects.pageInfo.startCursor)
+                setCursor(`prev__${allSubjects.pageInfo.startCursor}`)
               }
             >
               <KeyboardArrowLeftIcon />
@@ -269,7 +269,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               data-cy="next-page"
               disabled={!allSubjects.pageInfo.hasNextPage}
               onClick={() =>
-                setCursor("next__" + allSubjects.pageInfo.endCursor)
+                setCursor(`next__${allSubjects.pageInfo.endCursor}`)
               }
             >
               <KeyboardArrowRightIcon />

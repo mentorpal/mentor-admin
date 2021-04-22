@@ -48,7 +48,7 @@ export function WelcomeSlide(props: {
   classes: Record<string, string>;
   userName: string;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, userName } = props;
   return (
     <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
@@ -56,7 +56,7 @@ export function WelcomeSlide(props: {
       </Typography>
       <div className={classes.column}>
         <Typography variant="h6" className={classes.text}>
-          It&apos;s nice to meet you, {props.userName}!
+          It&apos;s nice to meet you, {userName}!
         </Typography>
         <Typography variant="h6" className={classes.text}>
           Let&apos;s get started setting up your new mentor.
@@ -425,9 +425,7 @@ export function BuildMentorSlide(props: {
           return;
         }
         if (savedCallback.current) {
-          savedCallback.current(() => {
-            return !mounted;
-          });
+          savedCallback.current(() => !mounted);
         }
       }
       if (delay) {
@@ -546,7 +544,7 @@ export function BuildMentorSlide(props: {
             color="secondary"
             disabled={isBuilding}
             onClick={() => {
-              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
+              const path = `${window.location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
               window.location.href = path;
             }}
           >

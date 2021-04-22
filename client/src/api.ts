@@ -120,7 +120,7 @@ export async function fetchSubjects(
       }
     `,
   });
-  return result.data.data!.subjects;
+  return result.data.data.subjects;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
@@ -165,7 +165,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
       }
     `,
   });
-  return result.data.data!.subject;
+  return result.data.data.subject;
 }
 
 export async function updateSubject(
@@ -197,9 +197,9 @@ export async function updateSubject(
       }
     `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.updateSubject;
+  return result.data.data.me.updateSubject;
 }
 
 export async function fetchQuestions(
@@ -237,7 +237,7 @@ export async function fetchQuestions(
       }
     `,
   });
-  return result.data.data!.questions;
+  return result.data.data.questions;
 }
 
 export async function fetchQuestion(id: string): Promise<Question> {
@@ -255,7 +255,7 @@ export async function fetchQuestion(id: string): Promise<Question> {
       }
     `,
   });
-  return result.data.data!.question;
+  return result.data.data.question;
 }
 
 export async function fetchUserQuestions(
@@ -314,7 +314,7 @@ export async function fetchUserQuestions(
       }
     `,
   });
-  return result.data.data!.userQuestions;
+  return result.data.data.userQuestions;
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
@@ -353,7 +353,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
       }
     `,
   });
-  return result.data.data!.userQuestion;
+  return result.data.data.userQuestion;
 }
 
 export async function updateUserQuestion(
@@ -369,7 +369,7 @@ export async function updateUserQuestion(
       }
     `,
   });
-  return result.data.data!.userQuestionSetAnswer;
+  return result.data.data.userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
@@ -387,9 +387,9 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
       }
     `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function fetchMentor(
@@ -476,25 +476,25 @@ export async function fetchMentor(
       }
     `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function updateMentor(
-  updateMentor: Mentor,
-  accessToken: string
+  m: Mentor,
+  t: string
 ): Promise<boolean> {
   const convertedMentor = {
-    _id: updateMentor._id,
-    name: updateMentor.name,
-    firstName: updateMentor.firstName,
-    title: updateMentor.title,
-    mentorType: updateMentor.mentorType,
-    defaultSubject: updateMentor.defaultSubject?._id,
-    subjects: updateMentor.subjects.map((s) => s._id),
+    _id: m._id,
+    name: m.name,
+    firstName: m.firstName,
+    title: m.title,
+    mentorType: m.mentorType,
+    defaultSubject: m.defaultSubject?._id,
+    subjects: m.subjects.map((s) => s._id),
   };
-  const headers = { Authorization: `bearer ${accessToken}` };
+  const headers = { Authorization: `bearer ${t}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
     {
@@ -506,9 +506,9 @@ export async function updateMentor(
       }
     `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.updateMentor;
+  return result.data.data.me.updateMentor;
 }
 
 export async function updateQuestion(
@@ -529,9 +529,9 @@ export async function updateQuestion(
         }
       `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.updateQuestion;
+  return result.data.data.me.updateQuestion;
 }
 
 export async function updateAnswer(
@@ -558,23 +558,23 @@ export async function updateAnswer(
       }
     `,
     },
-    { headers: headers }
+    { headers }
   );
-  return result.data.data!.me.updateAnswer;
+  return result.data.data.me.updateAnswer;
 }
 
 export async function trainMentor(mentorId: string): Promise<TrainJob> {
   const res = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     mentor: mentorId,
   });
-  return res.data.data!;
+  return res.data.data;
 }
 
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TrainStatus> {
   const result = await axios.get(statusUrl);
-  return result.data.data!;
+  return result.data.data;
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
@@ -591,7 +591,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
       }
     `,
   });
-  return result.data.data!.login;
+  return result.data.data.login;
 }
 
 export async function loginGoogle(
@@ -610,5 +610,5 @@ export async function loginGoogle(
       }
     `,
   });
-  return result.data.data!.loginGoogle;
+  return result.data.data.loginGoogle;
 }

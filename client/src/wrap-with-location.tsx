@@ -9,10 +9,14 @@ import { Location } from "@reach/router";
 import queryString from "query-string";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const withLocation = (ComponentToWrap) => (props) => (
+const withLocation = (ComponentToWrap: React.FunctionComponent) => (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any
+  props: any
+): JSX.Element => (
   <Location>
     {({ location, navigate }) => (
       <ComponentToWrap
+        // eslint-disable-next-line react/jsx-props-no-spreading
         {...props}
         location={location}
         navigate={navigate}

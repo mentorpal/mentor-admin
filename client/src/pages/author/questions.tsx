@@ -229,7 +229,7 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
               data-cy="prev-page"
               disabled={!questions.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + questions.pageInfo.startCursor)
+                setCursor(`prev__${questions.pageInfo.startCursor}`)
               }
             >
               <KeyboardArrowLeftIcon />
@@ -237,7 +237,7 @@ function QuestionsPage(props: { accessToken: string }): JSX.Element {
             <IconButton
               data-cy="next-page"
               disabled={!questions.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + questions.pageInfo.endCursor)}
+              onClick={() => setCursor(`next__${questions.pageInfo.endCursor}`)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>

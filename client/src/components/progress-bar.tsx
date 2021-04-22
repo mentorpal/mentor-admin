@@ -27,7 +27,8 @@ const LinearProgressBar = withStyles((theme) =>
 )(LinearProgress);
 
 function ProgressBar(props: { value: number; total: number }): JSX.Element {
-  const percent = Math.round((props.value / props.total) * 100);
+  const { value, total } = props;
+  const percent = Math.round((value / total) * 100);
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
@@ -39,7 +40,7 @@ function ProgressBar(props: { value: number; total: number }): JSX.Element {
       </Box>
       <Box minWidth={100}>
         <Typography variant="body2" color="textSecondary">
-          {props.value} / {props.total} ({percent}%)
+          {value} / {total} ({percent}%)
         </Typography>
       </Box>
     </Box>

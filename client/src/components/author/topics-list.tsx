@@ -35,7 +35,7 @@ export function TopicCard(props: {
   editTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
 }): JSX.Element {
-  const { classes, topic } = props;
+  const { classes, topic, editTopic, removeTopic } = props;
   const [expanded, setExpanded] = React.useState(false);
 
   return (
@@ -48,9 +48,7 @@ export function TopicCard(props: {
             label="Topic"
             variant="outlined"
             value={topic.name}
-            onChange={(e) =>
-              props.editTopic({ ...topic, name: e.target.value })
-            }
+            onChange={(e) => editTopic({ ...topic, name: e.target.value })}
             fullWidth
             multiline
           />
@@ -68,7 +66,7 @@ export function TopicCard(props: {
             <IconButton
               data-cy="delete-topic"
               size="small"
-              onClick={() => props.removeTopic(topic)}
+              onClick={() => removeTopic(topic)}
             >
               <DeleteIcon />
             </IconButton>
@@ -87,7 +85,7 @@ export function TopicCard(props: {
             variant="outlined"
             value={topic.description}
             onChange={(e) =>
-              props.editTopic({ ...topic, description: e.target.value })
+              editTopic({ ...topic, description: e.target.value })
             }
             fullWidth
             multiline
@@ -109,13 +107,23 @@ export function TopicsList(props: {
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
 }): JSX.Element {
-  const { classes } = props;
+  const {
+    classes,
+    expanded,
+    maxHeight,
+    topics,
+    toggleExpanded,
+    addTopic,
+    editTopic,
+    removeTopic,
+    moveTopic,
+  } = props;
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
       return;
     }
-    props.moveTopic(result.source.index, result.destination.index);
+    moveTopic(result.source.index, result.destination.index);
   }
 
   return (
@@ -132,17 +140,17 @@ export function TopicsList(props: {
         >
           <ExpandMoreIcon
             style={{
-              transform: props.expanded ? "rotate(180deg)" : "rotate(0deg)",
+              transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
             }}
           />
         </IconButton>
         <Typography variant="body2">Topics</Typography>
       </div>
       <CardContent style={{ padding: 0 }}>
-        <Collapse in={props.expanded} timeout="auto" unmountOnExit>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
           <div
             style={{
-              maxHeight: props.maxHeight - 70,
+              maxHeight: maxHeight - 70,
               overflow: "auto",
             }}
           >
@@ -153,26 +161,29 @@ export function TopicsList(props: {
                     data-cy="topics-list"
                     ref={provided.innerRef}
                     className={classes.list}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...provided.droppableProps}
                   >
-                    {props.topics.map((t, i) => (
+                    {topics.map((t, i) => (
                       <Draggable
                         index={i}
                         key={`topic-${i}`}
                         draggableId={`topic-${i}`}
                       >
-                        {(provided) => (
+                        {(p) => (
                           <ListItem
                             data-cy={`topic-${i}`}
                             ref={provided.innerRef}
+                            // eslint-disable-next-line react/jsx-props-no-spreading
                             {...provided.draggableProps}
+                            // eslint-disable-next-line react/jsx-props-no-spreading
                             {...provided.dragHandleProps}
                           >
                             <TopicCard
                               classes={classes}
                               topic={t}
-                              editTopic={props.editTopic}
-                              removeTopic={props.removeTopic}
+                              editTopic={editTopic}
+                              removeTopic={removeTopic}
                             />
                           </ListItem>
                         )}
@@ -197,7 +208,7 @@ export function TopicsList(props: {
               className={classes.button}
               variant="outlined"
               color="primary"
-              onClick={props.addTopic}
+              onClick={addTopic}
             >
               Add Topic
             </Button>

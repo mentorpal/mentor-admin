@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchConfig } from "api";
 
-export async function getClientID(): Promise<string> {
+export default async function getClientID(): Promise<string> {
   if (process.env.GOOGLE_CLIENT_ID) {
     return process.env.GOOGLE_CLIENT_ID;
   }

@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
@@ -103,10 +103,10 @@ function SubjectItem(props: {
     setAnchorEl(undefined);
   }
 
-  async function deleteSubject(id: string) {
+  async function deleteSubject(sid: string) {
     toast("Deleting...");
     setAnchorEl(undefined);
-    onDelete(id);
+    onDelete(sid);
   }
 
   return (
@@ -248,7 +248,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               data-cy="prev-page"
               disabled={!subjects.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + subjects.pageInfo.startCursor)
+                setCursor(`prev__${subjects.pageInfo.startCursor}`)
               }
             >
               <KeyboardArrowLeftIcon />
@@ -256,7 +256,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             <IconButton
               data-cy="next-page"
               disabled={!subjects.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
+              onClick={() => setCursor(`next__${subjects.pageInfo.endCursor}`)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -278,4 +278,4 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
   );
 }
 
-export default withAuthorizationOnly(SubjectsPage);
+export default withAuthorizationOnly(SubjectsPage as FunctionComponent);

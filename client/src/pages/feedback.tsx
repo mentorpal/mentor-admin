@@ -193,6 +193,7 @@ function FeedbackItem(props: {
                 <Typography align="left">{option.question.question}</Typography>
               )}
               renderInput={(params) => (
+                // eslint-disable-next-line react/jsx-props-no-spreading
                 <TextField {...params} variant="outlined" />
               )}
             />
@@ -239,6 +240,33 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
   });
   const [isTraining, setIsTraining] = useState(false);
 
+  async function fetchFeedback(): Promise<Connection<UserQuestion>> {
+    const filter: {
+      mentor?: string;
+      classifierAnswer?: string;
+      graderAnswer?: string;
+      feedback?: Feedback;
+      classifierAnswerType?: ClassifierAnswerType;
+    } = { mentor: mentor?._id };
+    if (feedbackFilter !== undefined) {
+      filter.feedback = feedbackFilter;
+    }
+    if (classifierFilter !== undefined) {
+      filter.classifierAnswer = classifierFilter._id;
+    }
+    if (graderFilter !== undefined) {
+      filter.graderAnswer = graderFilter._id;
+    }
+    if (confidenceFilter !== undefined) {
+      filter.classifierAnswerType = confidenceFilter;
+    }
+    return fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending });
+  }
+
+  async function loadFeedback(): Promise<void> {
+    setFeedback(await fetchFeedback());
+  }
+
   React.useEffect(() => {
     let mounted = true;
     fetchMentor(props.accessToken).then((m) => {
@@ -254,7 +282,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
 
   React.useEffect(() => {
     if (!mentor) {
-      return;
+      return () => {};
     }
     let mounted = true;
     fetchFeedback()
@@ -278,33 +306,6 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     classifierFilter,
     graderFilter,
   ]);
-
-  async function fetchFeedback(): Promise<Connection<UserQuestion>> {
-    const filter: {
-      mentor?: string;
-      classifierAnswer?: string;
-      graderAnswer?: string;
-      feedback?: Feedback;
-      classifierAnswerType?: ClassifierAnswerType;
-    } = { mentor: mentor?._id };
-    if (feedbackFilter !== undefined) {
-      filter["feedback"] = feedbackFilter;
-    }
-    if (classifierFilter !== undefined) {
-      filter["classifierAnswer"] = classifierFilter._id;
-    }
-    if (graderFilter !== undefined) {
-      filter["graderAnswer"] = graderFilter._id;
-    }
-    if (confidenceFilter !== undefined) {
-      filter["classifierAnswerType"] = confidenceFilter;
-    }
-    return fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending });
-  }
-
-  async function loadFeedback(): Promise<void> {
-    setFeedback(await fetchFeedback());
-  }
 
   function train() {
     if (!mentor) {
@@ -349,6 +350,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
         const id = setInterval(tick, delay);
         return () => clearInterval(id);
       }
+      return () => {};
     }, [delay]);
   }
 
@@ -489,6 +491,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                         </Typography>
                       )}
                       renderInput={(params) => (
+                        // eslint-disable-next-line react/jsx-props-no-spreading
                         <TextField {...params} variant="outlined" />
                       )}
                     />
@@ -510,6 +513,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                         </Typography>
                       )}
                       renderInput={(params) => (
+                        // eslint-disable-next-line react/jsx-props-no-spreading
                         <TextField {...params} variant="outlined" />
                       )}
                     />
@@ -523,7 +527,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                     key={`feedback-${i}`}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
-                    mentor={mentor!}
+                    mentor={mentor}
                     onUpdated={loadFeedback}
                   />
                 ))}
@@ -537,7 +541,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               data-cy="prev-page"
               disabled={!feedback.pageInfo.hasPreviousPage}
               onClick={() =>
-                setCursor("prev__" + feedback.pageInfo.startCursor)
+                setCursor(`prev__${feedback.pageInfo.startCursor}`)
               }
             >
               <KeyboardArrowLeftIcon />
@@ -545,7 +549,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
             <IconButton
               data-cy="next-page"
               disabled={!feedback.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + feedback.pageInfo.endCursor)}
+              onClick={() => setCursor(`next__${feedback.pageInfo.endCursor}`)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>

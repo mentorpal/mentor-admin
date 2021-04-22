@@ -62,6 +62,7 @@ const Context = React.createContext<ContextType>({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Provider(props: { children: any }): JSX.Element {
+  const { children } = props;
   const [contextState, setContextState] = React.useState<ContextState>({
     ...CONTEXT_STATE_DEFAULT,
     accessToken: accessTokenGet(),
@@ -108,7 +109,7 @@ function Provider(props: { children: any }): JSX.Element {
     if (!accessToken) {
       return;
     }
-    if (contextState.loginStatus == LoginStatus.NONE) {
+    if (contextState.loginStatus === LoginStatus.NONE) {
       login(accessToken).catch((err) => console.error(err));
     }
   }, [contextState]);
@@ -121,7 +122,7 @@ function Provider(props: { children: any }): JSX.Element {
         logout,
       }}
     >
-      {props.children}
+      {children}
     </Context.Provider>
   );
 }

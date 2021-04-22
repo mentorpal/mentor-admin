@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import ReactPlayer from "react-player";
 import { toast, ToastContainer } from "react-toastify";
 import VideoRecorder from "react-video-recorder";
@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "left",
   },
   recorder: {
-    //1280 * 720 standard hd resolution 16*9
+    // 1280 * 720 standard hd resolution 16*9
     paddingTop: 15,
     paddingBottom: 15,
     paddingLeft: 75,
@@ -124,30 +124,30 @@ function RecordPage(props: {
   const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
   const { answers, curAnswer, curAnswerIx, mentor, videoInput } = recordState;
 
-  function setCurAnswer(curAnswer: Answer): void {
+  function setCurAnswer(a: Answer): void {
     setRecordState({
       ...recordState,
-      curAnswer,
+      curAnswer: a,
     });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function setVideoInput(videoInput: any): void {
+  function setVideoInput(v: any): void {
     setRecordState({
       ...recordState,
-      videoInput,
+      videoInput: v,
     });
   }
 
-  function setCurAnswerIx(curAnswerIx: number) {
+  function setCurAnswerIx(i: number) {
     setRecordState({
       ...recordState,
-      curAnswerIx,
+      curAnswerIx: i,
     });
   }
   React.useEffect(() => {
     if (typeof window === "undefined") {
-      return;
+      return () => {};
     }
     const handleResize = () => setRecorderHeight(window.innerHeight * 0.75);
     window.addEventListener("resize", handleResize);
@@ -275,8 +275,8 @@ function RecordPage(props: {
             data-cy="video-player"
             className={classes.video}
             url={video}
-            controls={true}
-            playing={true}
+            controls
+            playing
             playsinline
             webkit-playsinline="true"
           />
@@ -484,4 +484,6 @@ function RecordPage(props: {
   );
 }
 
-export default withAuthorizationOnly(withLocation(RecordPage));
+export default withAuthorizationOnly(
+  withLocation(RecordPage as FunctionComponent)
+);

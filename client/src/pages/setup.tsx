@@ -2,7 +2,7 @@
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+The full terms of this copyright and license should always be found in the root directory of this software deliverable  "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
 import React, { useState } from "react";
@@ -85,15 +85,20 @@ function SetupPage(props: {
   user: User;
   search: { i?: string };
 }): JSX.Element {
+  const { search } = props;
   const classes = useStyles();
   const [mentorState, setMentorState] = useState<MentorState>({ reload: true });
   const [slides, setSlides] = useState<SlideType[]>([]);
-  const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
+  const [idx, setIdx] = useState(search.i ? parseInt(search.i, 10) : 0);
   const { mentor, reload } = mentorState;
+
+  function loadMentor() {
+    setMentorState({ ...mentorState, reload: true });
+  }
 
   React.useEffect(() => {
     if (!reload) {
-      return;
+      return () => {};
     }
     let mounted = true;
     fetchMentor(props.accessToken)
@@ -116,7 +121,7 @@ function SetupPage(props: {
     if (!mentor) {
       return;
     }
-    const _slides = [
+    const slidesUpdated = [
       Slide(
         true,
         <WelcomeSlide
@@ -153,14 +158,14 @@ function SetupPage(props: {
         (a) => a.question.name === UtteranceName.IDLE
       );
       if (idle) {
-        _slides.push(
+        slidesUpdated.push(
           Slide(
             idle.status === Status.COMPLETE,
             <RecordIdleSlide
               key="idle"
               classes={classes}
               idle={idle}
-              i={_slides.length}
+              i={slidesUpdated.length}
             />
           )
         );
@@ -170,7 +175,7 @@ function SetupPage(props: {
       const answers = mentor.answers.filter((a) =>
         s.questions.map((q) => q.question._id).includes(a.question._id)
       );
-      _slides.push(
+      slidesUpdated.push(
         Slide(
           answers.every((a) => a.status === Status.COMPLETE),
           <RecordSubjectSlide
@@ -178,12 +183,12 @@ function SetupPage(props: {
             classes={classes}
             subject={s}
             questions={answers}
-            i={_slides.length}
+            i={slidesUpdated.length}
           />
         )
       );
     });
-    _slides.push(
+    slidesUpdated.push(
       Slide(
         Boolean(mentor.lastTrainedAt),
         <BuildMentorSlide
@@ -194,12 +199,8 @@ function SetupPage(props: {
         />
       )
     );
-    setSlides(_slides);
+    setSlides(slidesUpdated);
   }, [mentor]);
-
-  function loadMentor() {
-    setMentorState({ ...mentorState, reload: true });
-  }
 
   if (!mentor) {
     return (
@@ -266,4 +267,6 @@ function SetupPage(props: {
   );
 }
 
-export default withAuthorizationOnly(withLocation(SetupPage));
+export default withAuthorizationOnly(
+  withLocation(SetupPage as React.FunctionComponent)
+);

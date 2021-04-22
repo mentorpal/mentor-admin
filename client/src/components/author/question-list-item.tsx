@@ -17,7 +17,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 import { SubjectQuestion } from "types";
 
-export function QuestionListItem(props: {
+export default function QuestionListItem(props: {
   isSelected: boolean;
   question: SubjectQuestion;
   updateQuestion: (newVal: SubjectQuestion) => void;
@@ -75,5 +75,3 @@ export function QuestionListItem(props: {
     </Card>
   );
 }
-
-export default QuestionListItem;

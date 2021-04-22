@@ -25,8 +25,8 @@ export default function RecordingBlockItem(props: {
   block: RecordingBlock;
   mentorId: string;
 }): JSX.Element {
-  const { classes, block } = props;
-  const answers = block.answers;
+  const { classes, block, mentorId } = props;
+  const { answers } = block;
   const complete = answers.filter((a) => a.status === Status.COMPLETE);
   const incomplete = answers.filter((a) => a.status === Status.INCOMPLETE);
 
@@ -54,7 +54,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             answers={complete}
             header="Complete"
-            mentorId={props.mentorId}
+            mentorId={mentorId}
             onRecordAll={() => block.recordAll(Status.COMPLETE)}
             onRecordOne={block.recordOne}
             onEditQuestion={block.editQuestion}
@@ -63,7 +63,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             answers={incomplete}
             header="Incomplete"
-            mentorId={props.mentorId}
+            mentorId={mentorId}
             onRecordAll={() => block.recordAll(Status.INCOMPLETE)}
             onRecordOne={block.recordOne}
             onAddQuestion={block.addQuestion}

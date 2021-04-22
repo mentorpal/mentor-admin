@@ -132,9 +132,9 @@ function HomePage(props: {
     if (!mentor) {
       return;
     }
-    const _blocks: RecordingBlock[] = [];
+    const blocksUpdated: RecordingBlock[] = [];
     const subject = mentor.subjects.find((s) => s._id === selectedSubject);
-    let answers = mentor.answers;
+    let { answers } = mentor;
     if (subject) {
       answers = answers.filter((a) =>
         subject.questions.map((q) => q.question._id).includes(a.question._id)
@@ -147,7 +147,7 @@ function HomePage(props: {
             .includes(a.question._id)
         );
         if (categoryAnswers.length > 0) {
-          _blocks.push({
+          blocksUpdated.push({
             name: c.name,
             description: c.description,
             answers: categoryAnswers,
@@ -165,7 +165,7 @@ function HomePage(props: {
           .includes(a.question._id)
       );
       if (uncategorizedAnswers.length > 0) {
-        _blocks.push({
+        blocksUpdated.push({
           name: subject.name,
           description: subject.description,
           answers: uncategorizedAnswers,
@@ -180,7 +180,7 @@ function HomePage(props: {
         const subjectAnswers = answers.filter((a) =>
           s.questions.map((q) => q.question._id).includes(a.question._id)
         );
-        _blocks.push({
+        blocksUpdated.push({
           name: s.name,
           description: s.description,
           answers: subjectAnswers,
@@ -195,7 +195,7 @@ function HomePage(props: {
       complete: answers.filter((a) => a.status === Status.COMPLETE).length,
       total: answers.length,
     });
-    setBlocks(_blocks);
+    setBlocks(blocksUpdated);
   }
 
   function onRecordAll(
@@ -233,7 +233,7 @@ function HomePage(props: {
         name: "",
         mentor: mentor?._id,
       },
-      category: category,
+      category,
       topics: [],
     };
     mentor.subjects[subjectIdx].questions = [newQuestion, ...subject.questions];
@@ -343,6 +343,7 @@ function HomePage(props: {
         const id = setInterval(tick, delay);
         return () => clearInterval(id);
       }
+      return () => {};
     }, [delay]);
   }
 

@@ -69,6 +69,7 @@ function SubjectPage(props: {
   accessToken: string;
   search: { id?: string };
 }): JSX.Element {
+  const { accessToken, search } = props;
   const classes = useStyles();
   const [subjectEdit, setSubjectEdit] = useState<Subject>({
     _id: "",
@@ -89,7 +90,7 @@ function SubjectPage(props: {
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
-      return;
+      return () => {};
     }
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("resize", handleResize);
@@ -99,17 +100,23 @@ function SubjectPage(props: {
     };
   }, []);
 
+  function applySubject(s: Subject): void {
+    // TODO: combine state into one thing
+    setSubject(JSON.parse(JSON.stringify(s)));
+    setSubjectEdit(s);
+  }
+
   React.useEffect(() => {
     let mounted = true;
     setSubject(JSON.parse(JSON.stringify(subjectEdit)));
-    fetchMentorId(props.accessToken)
+    fetchMentorId(accessToken)
       .then((m) => {
         if (!mounted) {
           return;
         }
         setMentorId(m._id);
-        if (props.search.id) {
-          fetchSubject(props.search.id)
+        if (search.id) {
+          fetchSubject(search.id)
             .then((s) => {
               if (!mounted) {
                 return;
@@ -129,12 +136,6 @@ function SubjectPage(props: {
     setIsSubjectInfoExpanded(s);
     setIsTopicsExpanded(t);
     setIsQuestionsExpanded(q);
-  }
-
-  function applySubject(s: Subject): void {
-    // TODO: combine state into one thing
-    setSubject(JSON.parse(JSON.stringify(s)));
-    setSubjectEdit(s);
   }
 
   async function loadSubject(id: string) {
@@ -285,7 +286,7 @@ function SubjectPage(props: {
   async function saveSubject() {
     try {
       setIsSaving(true);
-      const updated = await updateSubject(subjectEdit, props.accessToken);
+      const updated = await updateSubject(subjectEdit, accessToken);
       await loadSubject(updated._id);
       setIsSaving(false);
     } catch (err) {
