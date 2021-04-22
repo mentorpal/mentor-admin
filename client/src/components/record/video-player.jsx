@@ -32,14 +32,14 @@ function VideoPlayer({
   mentorId, // string | undefined
   mentorType, // MentorType | undefined
   curAnswer, // Answer | undefined
-  onUpload, // (video) => void
+  onUpload, // (video: Blob) => void
 }) {
   const [answerId, setAnswerId] = useState(); // string
   const [videoWidth, setVideoWidth] = useState(0); // number
   const [videoHeight, setVideoHeight] = useState(0); // number
   const [videoNode, setVideoNode] = useState(); // HTMLVideoElement
   const [player, setPlayer] = useState(); // VideoJsPlayer
-  const [recordedVideo, setRecordedVideo] = useState(); // any
+  const [recordedVideo, setRecordedVideo] = useState(); // Blob
 
   React.useEffect(() => {
     if (typeof window === "undefined") {

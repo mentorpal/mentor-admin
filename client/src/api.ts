@@ -581,13 +581,21 @@ export async function fetchTrainingStatus(
 export async function uploadVideo(
   mentorId: string,
   videoId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-  video: any
+  video: Blob
 ): Promise<AsyncJob> {
-  const res = await axios.post(urljoin(VIDEO_ENTRYPOINT, "upload"), {
-    mentor: mentorId,
-    videoId: videoId,
-    video: video,
+  const data = new FormData();
+  data.append("mentorId", mentorId);
+  data.append("videoId", videoId);
+  data.append("file", video);
+  const request = axios.create({
+    baseURL: VIDEO_ENTRYPOINT,
+    timeout: 10000,
+  });
+  const res = await request.post("/upload", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    timeout: 30000,
   });
   return res.data.data!;
 }

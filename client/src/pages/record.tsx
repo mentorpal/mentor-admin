@@ -200,8 +200,7 @@ function RecordPage(props: {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function onUploadVideo(video: any) {
+  function onUploadVideo(video: Blob) {
     if (!mentor || !curAnswer) {
       return;
     }
