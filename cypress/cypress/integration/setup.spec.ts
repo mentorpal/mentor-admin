@@ -120,13 +120,6 @@ describe("Setup", () => {
     });
   });
 
-  it.skip("shows setup page after logging in", () => {
-    cySetup(cy);
-    cyMockDefault(cy, baseMock);
-    cy.visit("/");
-    cy.location("pathname").should("contain", "/setup");
-  });
-
   it("shows welcome slide", () => {
     cySetup(cy);
     cyMockDefault(cy, baseMock);

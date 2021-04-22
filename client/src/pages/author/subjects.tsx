@@ -86,7 +86,6 @@ const columns: ColumnDef[] = [
 ];
 
 function SubjectItem(props: {
-  id: string;
   subject: Subject;
   onDelete: (id: string) => void;
 }): JSX.Element {
@@ -111,20 +110,25 @@ function SubjectItem(props: {
   }
 
   return (
-    <TableRow id={props.id} hover role="checkbox" tabIndex={-1}>
-      <TableCell id="name" align="left">
+    <TableRow
+      data-cy={`subject-${subject._id}`}
+      hover
+      role="checkbox"
+      tabIndex={-1}
+    >
+      <TableCell data-cy="name" align="left">
         <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
       </TableCell>
-      <TableCell id="description" align="left">
+      <TableCell data-cy="description" align="left">
         {subject.description}
       </TableCell>
-      <TableCell id="delete" align="center">
+      <TableCell data-cy="delete" align="center">
         <IconButton onClick={onClickDelete}>
           <DeleteIcon />
         </IconButton>
       </TableCell>
       <Menu
-        id="delete-menu"
+        data-cy="delete-menu"
         anchorEl={anchorEl}
         anchorOrigin={{
           vertical: "top",
@@ -139,12 +143,12 @@ function SubjectItem(props: {
         onClose={onCloseDelete}
       >
         <MenuItem
-          id="confirm-delete"
+          data-cy="confirm-delete"
           onClick={() => deleteSubject(subject._id)}
         >
           Confirm
         </MenuItem>
-        <MenuItem id="cancel-delete" onClick={onCloseDelete}>
+        <MenuItem data-cy="cancel-delete" onClick={onCloseDelete}>
           Cancel
         </MenuItem>
       </Menu>
@@ -226,11 +230,10 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                 sortAsc={sortAscending}
                 onSort={setSort}
               />
-              <TableBody id="subjects">
+              <TableBody data-cy="subjects">
                 {subjects.edges.map((row, i) => (
                   <SubjectItem
                     key={`subject-${i}`}
-                    id={`subject-${i}`}
                     subject={row.node}
                     onDelete={deleteSubject}
                   />
@@ -242,7 +245,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
         <AppBar position="sticky" color="default" className={classes.appBar}>
           <Toolbar>
             <IconButton
-              id="prev-page"
+              data-cy="prev-page"
               disabled={!subjects.pageInfo.hasPreviousPage}
               onClick={() =>
                 setCursor("prev__" + subjects.pageInfo.startCursor)
@@ -251,14 +254,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
-              id="next-page"
+              data-cy="next-page"
               disabled={!subjects.pageInfo.hasNextPage}
               onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
             <Fab
-              id="create-button"
+              data-cy="create-button"
               variant="extended"
               color="primary"
               className={classes.fab}
