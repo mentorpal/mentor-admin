@@ -456,9 +456,8 @@ export async function fetchMentor(
               name
               description
             }
-            answers(subject: "${subject || ""}", topic: "${
-        topic || ""
-      }", status: "${status || ""}") {
+            answers(subject: "${subject || ""}", topic: "${topic || ""
+        }", status: "${status || ""}") {
               _id
               question {
                 _id
@@ -612,8 +611,7 @@ export async function uploadVideo(
   video: Blob
 ): Promise<AsyncJob> {
   const data = new FormData();
-  data.append("mentorId", mentorId);
-  data.append("videoId", videoId);
+  data.append("body", JSON.stringify({ mentorId, videoId }))
   data.append("file", video);
   const request = axios.create({
     baseURL: VIDEO_ENTRYPOINT,
