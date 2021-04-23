@@ -252,7 +252,12 @@ function RecordPage(props: {
             setIsUploading(false);
             setLoadingMessage(undefined);
             fetchMentor(props.accessToken)
-              .then((m) => updateRecordState(m))
+              .then((m) => {
+                if (isCancelled()) {
+                  return;
+                }
+                updateRecordState(m);
+              })
               .catch((err) => console.error(err));
           }
         })
