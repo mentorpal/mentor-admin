@@ -475,7 +475,7 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
-      <Dialog open={loadingMessage !== undefined}>
+      <Dialog open={Boolean(loadingMessage)}>
         <DialogTitle>{loadingMessage}</DialogTitle>
         <DialogContent>
           <CircularProgress />
