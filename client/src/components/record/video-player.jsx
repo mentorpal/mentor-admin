@@ -35,8 +35,7 @@ function VideoPlayer({
   onUpload, // (video: Blob) => void
 }) {
   const [answerId, setAnswerId] = useState(); // string
-  const [videoWidth, setVideoWidth] = useState(0); // number
-  const [videoHeight, setVideoHeight] = useState(0); // number
+  const [videoDims, setVideoDims] = useState({ height: 0, width: 0 });
   const [videoNode, setVideoNode] = useState(); // HTMLVideoElement
   const [player, setPlayer] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // Blob
@@ -52,8 +51,7 @@ function VideoPlayer({
         recorderWidth = window.innerWidth;
         recorderHeight = (recorderWidth / 16) * 9;
       }
-      setVideoHeight(recorderHeight);
-      setVideoWidth(recorderWidth);
+      setVideoDims({ height: recorderHeight, width: recorderWidth });
     };
     window.addEventListener("resize", handleResize);
     handleResize();
@@ -105,7 +103,11 @@ function VideoPlayer({
     <div
       data-vjs-player
       className={classes.block}
-      style={{ alignSelf: "center", height: videoHeight, width: videoWidth }}
+      style={{
+        alignSelf: "center",
+        height: videoDims.height,
+        width: videoDims.width,
+      }}
     >
       <video
         data-cy="video-recorder"
