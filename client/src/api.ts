@@ -122,7 +122,7 @@ export async function fetchSubjects(
       }
     `,
   });
-  return result.data.data!.subjects;
+  return result.data.data.subjects;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
@@ -167,7 +167,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
       }
     `,
   });
-  return result.data.data!.subject;
+  return result.data.data.subject;
 }
 
 export async function updateSubject(
@@ -200,7 +200,7 @@ export async function updateSubject(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateSubject;
+  return result.data.data.me.updateSubject;
 }
 
 export async function fetchQuestions(
@@ -238,7 +238,7 @@ export async function fetchQuestions(
       }
     `,
   });
-  return result.data.data!.questions;
+  return result.data.data.questions;
 }
 
 export async function fetchQuestion(id: string): Promise<Question> {
@@ -256,7 +256,7 @@ export async function fetchQuestion(id: string): Promise<Question> {
       }
     `,
   });
-  return result.data.data!.question;
+  return result.data.data.question;
 }
 
 export async function fetchUserQuestions(
@@ -315,7 +315,7 @@ export async function fetchUserQuestions(
       }
     `,
   });
-  return result.data.data!.userQuestions;
+  return result.data.data.userQuestions;
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
@@ -354,7 +354,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
       }
     `,
   });
-  return result.data.data!.userQuestion;
+  return result.data.data.userQuestion;
 }
 
 export async function updateUserQuestion(
@@ -370,7 +370,7 @@ export async function updateUserQuestion(
       }
     `,
   });
-  return result.data.data!.userQuestionSetAnswer;
+  return result.data.data.userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
@@ -390,7 +390,7 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
     },
     { headers: headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function fetchMentor(
@@ -479,7 +479,7 @@ export async function fetchMentor(
     },
     { headers: headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function updateMentor(
@@ -509,7 +509,7 @@ export async function updateMentor(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateMentor;
+  return result.data.data.me.updateMentor;
 }
 
 export async function updateQuestion(
@@ -532,7 +532,7 @@ export async function updateQuestion(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateQuestion;
+  return result.data.data.me.updateQuestion;
 }
 
 export async function updateAnswer(
@@ -561,27 +561,27 @@ export async function updateAnswer(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateAnswer;
+  return result.data.data.me.updateAnswer;
 }
 
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
-  const res = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
+  const result = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     mentor: mentorId,
   });
-  if (res.status !== 200) {
-    throw new Error(`training failed: ${res.statusText}}`);
+  if (result.status !== 200) {
+    throw new Error(`training failed: ${result.statusText}}`);
   }
-  if (res.data.errors) {
+  if (result.data.errors) {
     throw new Error(
-      `errors response to training: ${JSON.stringify(res.data.errors)}`
+      `errors response to training: ${JSON.stringify(result.data.errors)}`
     );
   }
-  if (!res.data.data) {
+  if (!result.data.data) {
     throw new Error(
-      `no data in non-error reponse: ${JSON.stringify(res.data)}`
+      `no data in non-error reponse: ${JSON.stringify(result.data)}`
     );
   }
-  return res.data.data!;
+  return result.data.data;
 }
 
 export async function fetchTrainingStatus(
@@ -603,7 +603,7 @@ export async function fetchTrainingStatus(
       `no data in non-error response: ${JSON.stringify(result.data)}`
     );
   }
-  return result.data.data!;
+  return result.data.data;
 }
 
 export async function uploadVideo(
@@ -619,20 +619,20 @@ export async function uploadVideo(
     baseURL: VIDEO_ENTRYPOINT,
     timeout: 10000,
   });
-  const res = await request.post("/upload", data, {
+  const result = await request.post("/upload", data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
     timeout: 30000,
   });
-  return res.data.data!;
+  return result.data.data;
 }
 
 export async function fetchUploadVideoStatus(
   statusUrl: string
 ): Promise<VideoStatus> {
   const result = await axios.get(statusUrl);
-  return result.data.data!;
+  return result.data.data;
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
@@ -649,7 +649,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
       }
     `,
   });
-  return result.data.data!.login;
+  return result.data.data.login;
 }
 
 export async function loginGoogle(
@@ -668,5 +668,5 @@ export async function loginGoogle(
       }
     `,
   });
-  return result.data.data!.loginGoogle;
+  return result.data.data.loginGoogle;
 }
