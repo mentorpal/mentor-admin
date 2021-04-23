@@ -115,7 +115,7 @@ function VideoPlayer({
         playsInline
         className="video-js vjs-default-skin"
       >
-        {video ? <source src={video} type="video/mp4" /> : undefined}
+        {video ? <source src={video} /> : undefined}
       </video>
       {recordedVideo ? (
         <Button
