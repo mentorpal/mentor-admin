@@ -78,23 +78,15 @@ function VideoPlayer({
     }
     const player = videojs(videoNode, videoJsOptions, function onPlayerReady() {
       setPlayer(player);
-      console.log("onPlayerReady", player);
-    });
-    player.on("deviceReady", () => {
-      console.log("device is ready!");
-    });
-    player.on("startRecord", function () {
-      console.log("started recording!");
     });
     player.on("finishRecord", function () {
-      console.log("finished recording: ", player.recordedData);
       setRecordedVideo(player.recordedData);
     });
     player.on("error", (element, error) => {
       console.warn(error);
     });
     player.on("deviceError", () => {
-      console.error("device error:", player.deviceErrorCode);
+      console.error("device error: ", player.deviceErrorCode);
     });
     return () => {
       player?.dispose();
