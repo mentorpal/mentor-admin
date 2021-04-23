@@ -34,6 +34,7 @@ const baseMock = {
 };
 
 Cypress.on('uncaught:exception', (err, runnable) => {
+  console.error(err);
   return false;
 });
 
