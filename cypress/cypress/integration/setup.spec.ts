@@ -33,6 +33,10 @@ const baseMock = {
   gqlQueries: [mockGQL("updateMentor", true, true)],
 };
 
+Cypress.on('uncaught:exception', (err, runnable) => {
+  return false;
+});
+
 describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
