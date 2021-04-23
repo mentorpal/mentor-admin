@@ -96,7 +96,7 @@ function VideoPlayer({
   }
 
   const video = curAnswer.recordedAt
-    ? `https://video.mentorpal.org/videos/mentors/${mentorId}/web/${curAnswer._id}.mp4`
+    ? `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
     : undefined;
 
   return (
