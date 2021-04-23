@@ -568,6 +568,19 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   const res = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     mentor: mentorId,
   });
+  if (res.status !== 200) {
+    throw new Error(`training failed: ${res.statusText}}`);
+  }
+  if (res.data.errors) {
+    throw new Error(
+      `errors response to training: ${JSON.stringify(res.data.errors)}`
+    );
+  }
+  if (!res.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(res.data)}`
+    );
+  }
   return res.data.data!;
 }
 
@@ -575,6 +588,21 @@ export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TrainStatus> {
   const result = await axios.get(statusUrl);
+  if (result.status !== 200) {
+    throw new Error(`fetch training status failed: ${result.statusText}}`);
+  }
+  if (result.data.errors) {
+    throw new Error(
+      `errors response to fetch training status: ${JSON.stringify(
+        result.data.errors
+      )}`
+    );
+  }
+  if (!result.data.data) {
+    throw new Error(
+      `no data in non-error response: ${JSON.stringify(result.data)}`
+    );
+  }
   return result.data.data!;
 }
 
