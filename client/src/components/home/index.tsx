@@ -44,6 +44,7 @@ import NavBar from "components/nav-bar";
 import RecordingBlockItem, {
   RecordingBlock,
 } from "components/home/recording-block";
+import useInterval from "use-interval";
 import withLocation from "wrap-with-location";
 import { toast, ToastContainer } from "react-toastify";
 import withAuthorizationOnly from "wrap-with-authorization-only";
@@ -328,28 +329,15 @@ function HomePage(props: {
       });
   }
 
-  function useInterval(callback: () => void, delay: number | null) {
-    const savedCallback = React.useRef<() => void>();
-    React.useEffect(() => {
-      savedCallback.current = callback;
-    });
-    React.useEffect(() => {
-      function tick() {
-        if (savedCallback.current) {
-          savedCallback.current();
-        }
-      }
-      if (delay) {
-        const id = setInterval(tick, delay);
-        return () => clearInterval(id);
-      }
-    }, [delay]);
-  }
-
   useInterval(
-    () => {
+    (isCancelled) => {
       fetchTrainingStatus(statusUrl)
         .then((trainStatus) => {
+          if (isCancelled()) {
+            setIsBuilding(false);
+            setLoadingMessage(undefined);
+            return;
+          }
           if (trainStatus.state === TrainState.SUCCESS) {
             toast(`Training succeeded!`);
             setIsBuilding(false);

@@ -31,6 +31,7 @@ import {
   Answer,
   MentorType,
 } from "types";
+import useInterval from "use-interval";
 
 export interface SlideType {
   status: boolean;
@@ -409,42 +410,15 @@ export function BuildMentorSlide(props: {
       });
   }
 
-  interface CancellableFunc {
-    (isCancelled: () => boolean): void;
-  }
-
-  function useInterval(callback: CancellableFunc, delay: number | null) {
-    const savedCallback = React.useRef<CancellableFunc>();
-    React.useEffect(() => {
-      savedCallback.current = callback;
-    });
-    React.useEffect(() => {
-      let mounted = true;
-      function tick() {
-        if (!mounted) {
-          return;
-        }
-        if (savedCallback.current) {
-          savedCallback.current(() => {
-            return !mounted;
-          });
-        }
-      }
-      if (delay) {
-        const id = setInterval(tick, delay);
-        return () => clearInterval(id);
-      }
-      return () => {
-        mounted = false;
-      };
-    }, [delay]);
-  }
-
   useInterval(
     (isCancelled) => {
       fetchTrainingStatus(statusUrl)
         .then((trainStatus) => {
           if (isCancelled()) {
+            setTrainingState({
+              ...trainingState,
+              isBuilding: false,
+            });
             return;
           }
           const nextState = {

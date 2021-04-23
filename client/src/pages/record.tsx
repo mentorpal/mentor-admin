@@ -36,6 +36,7 @@ import {
   uploadVideo,
 } from "api";
 import { Answer, Status, MentorType, VideoState, Mentor } from "types";
+import useInterval from "use-interval";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -218,28 +219,15 @@ function RecordPage(props: {
       });
   }
 
-  function useInterval(callback: () => void, delay: number | null) {
-    const savedCallback = React.useRef<() => void>();
-    React.useEffect(() => {
-      savedCallback.current = callback;
-    });
-    React.useEffect(() => {
-      function tick() {
-        if (savedCallback.current) {
-          savedCallback.current();
-        }
-      }
-      if (delay) {
-        const id = setInterval(tick, delay);
-        return () => clearInterval(id);
-      }
-    }, [delay]);
-  }
-
   useInterval(
-    () => {
+    (isCancelled) => {
       fetchUploadVideoStatus(statusUrl)
         .then((videoStatus) => {
+          if (isCancelled()) {
+            setIsUploading(false);
+            setLoadingMessage(undefined);
+            return;
+          }
           if (videoStatus.state === VideoState.UPLOAD_FAILURE) {
             toast(`Upload failed`);
             setIsUploading(false);
