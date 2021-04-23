@@ -315,7 +315,7 @@ function RecordPage(props: {
     }
   }
 
-  if (answers.length === 0 || !curAnswer) {
+  if (!mentor || answers.length === 0 || !curAnswer) {
     return (
       <div>
         <NavBar title="Record Mentor" mentorId={mentor?._id} />
@@ -326,7 +326,7 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" mentorId={mentor?._id} />
+      <NavBar title="Record Mentor" mentorId={mentor._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
@@ -339,8 +339,8 @@ function RecordPage(props: {
       </div>
       <VideoPlayer
         classes={classes}
-        mentorId={mentor?._id}
-        mentorType={mentor?.mentorType}
+        mentorId={mentor._id}
+        mentorType={mentor.mentorType}
         curAnswer={curAnswer}
         onUpload={onUploadVideo}
       />
@@ -351,7 +351,7 @@ function RecordPage(props: {
             data-cy="question-input"
             multiline
             value={curAnswer.question.question}
-            disabled={curAnswer.question.mentor !== mentor?._id}
+            disabled={curAnswer.question.mentor !== mentor._id}
             onChange={(e) =>
               setCurAnswer({
                 ...curAnswer,
