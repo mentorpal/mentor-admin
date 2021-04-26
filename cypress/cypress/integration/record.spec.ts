@@ -259,6 +259,60 @@ const mentor2: Mentor = completeMentor({
   ],
 });
 
+const mentor3: Mentor = completeMentor({
+  _id: "clintanderson",
+  mentorType: MentorType.VIDEO,
+  lastTrainedAt: null,
+  answers: [
+    {
+      _id: "A1_1_1",
+      question: completeQuestion({
+        _id: "A1_1_1",
+        question: "Who are you and what do you do?",
+      }),
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      recordedAt: "Today",
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A2_1_1",
+      question: completeQuestion({
+        _id: "A2_1_1",
+        question: "How old are you now?",
+        mentor: "clintanderson",
+      }),
+      transcript: "",
+      recordedAt: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A3_1_1",
+      question: completeQuestion({
+        _id: "A3_1_1",
+        question:
+          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+      }),
+      transcript: "",
+      recordedAt: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A4_1_1",
+      question: completeQuestion({
+        _id: "A4_1_1",
+        question:
+          "Please give a short introduction of yourself, which includes your name, current job, and title.",
+      }),
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      recordedAt: "",
+      status: Status.COMPLETE,
+    },
+  ],
+});
+
+
 describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
@@ -562,6 +616,22 @@ describe("Record", () => {
     cyMockDefault(cy, { mentor: mentor2 });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
+  });
+
+  it.only("shows a video player if mentor has recorded a video response in the past and can rerecord it", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: mentor3 });
+    cy.visit("/record?videoId=A1_1_1");
+    cy.get("[data-cy=video-recorder").should("not.exist");
+    cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
+    cy.get("[data-cy=video-recorder").should("exist");
+  });
+
+  it.only("can seek and slice a recorded video", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: mentor3 });
+    cy.visit("/record?videoId=A1_1_1");
+    // TODO
   });
 
   it("can update status", () => {

@@ -12,6 +12,7 @@ import { Button } from "@material-ui/core";
 import videojs from "video.js";
 
 import { MentorType } from "types";
+import { VIDEO_ENTRYPOINT } from "api";
 
 const videoJsOptions = {
   controls: true,
