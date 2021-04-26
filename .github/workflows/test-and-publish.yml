@@ -10,8 +10,8 @@ jobs:
           node-version: "14.15"
       - name: Install
         run: cd client && npm ci
-      # - name: Run audit
-      #   run: cd client && npm run test:audit
+      - name: Run audit
+        run: cd client && npm run test:audit
       - name: Run format test
         run: cd client && npm run test:format
       - name: Run lint test
@@ -51,7 +51,7 @@ jobs:
     steps:
       - id: is_release
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+-[a-z0-9.]*$ ]]; then
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]*)?$ ]]; then
               echo ::set-output name=is_release::true
           fi
   build-and-publish:
