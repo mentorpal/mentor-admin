@@ -99,6 +99,13 @@ function VideoPlayer({
     ? `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
     : undefined;
 
+  if (recordedVideo) { // if video url has been created
+    return (
+      // returns video player with slider
+      <div />
+    )
+  }
+
   return (
     <div
       data-vjs-player
