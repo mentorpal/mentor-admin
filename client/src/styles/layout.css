@@ -1,0 +1,30 @@
+body {
+  height: 100%;
+  margin: 0;
+  text-align: center;
+  -webkit-overflow-scrolling: touch;
+}
+#header {
+  padding: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.flex {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.content {
+  flex: 0 1;
+}
+.expand {
+  flex: 1 1;
+}
+.scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+div.jsoneditor {
+    min-height: 400px !important;
+}

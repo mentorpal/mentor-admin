@@ -1,0 +1,9 @@
+cypress
+node_modules
+static
+public
+.cache
+.gitignore
+.cypress-*
+
+src/components/record/video-player.jsx

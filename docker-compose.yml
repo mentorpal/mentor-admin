@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  admin:
+    container_name: admin
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+  cypress:
+    container_name: cypress
+    depends_on:
+      - admin
+    build:
+      context: cypress
+    environment:
+      - "CYPRESS_BASE_URL=http://admin/admin"
+      - "CYPRESS_SNAPSHOT_DIFF_DIR=/app/cypress/snapshots/snapshot_failed_diffs"

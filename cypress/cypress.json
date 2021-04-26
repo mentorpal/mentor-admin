@@ -1,0 +1,7 @@
+{
+  "baseUrl": "http://localhost:8000",
+  "video": false,
+  "$schema": "https://on.cypress.io/cypress.schema.json",
+  "chromeWebSecurity": false,
+  "requestTimeout": 10000
+}

@@ -1,0 +1,5 @@
+{
+  "ignoreFile": "license-ignore.txt",
+  "license": "../LICENSE_HEADER",
+  "trailingWhitespace": "TRIM"
+}

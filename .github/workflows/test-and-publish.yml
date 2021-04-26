@@ -1,0 +1,83 @@
+name: test and publish
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14.15"
+      - name: Install
+        run: cd client && npm ci
+      # - name: Run audit
+      #   run: cd client && npm run test:audit
+      - name: Run format test
+        run: cd client && npm run test:format
+      - name: Run lint test
+        run: cd client && npm run test:lint
+      - name: Run types test
+        run: cd client && npm run test:types
+      - name: Run license test
+        run: cd client && npm run test:license
+  test-e2e:
+    name: test e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the docker-compose stack
+        run: docker-compose up -d
+      - name: Check running containers
+        run: docker ps
+      - name: Cypress run tests
+        run: make test-e2e-exec
+      - name: If Cypress failed, retrieve image diffs
+        run: make test-e2e-image-snapshots-copy && mkdir -p client/cypress/snapshots/snapshot_failed_diffs
+        if: ${{ failure() }}
+      - name: If Cypress failed, upload image-diff artifacts
+        uses: actions/upload-artifact@v1
+        if: ${{ failure() }}
+        with:
+          name: snapshot_failed_diffs
+          path: client/cypress/snapshots
+  publish-check:
+    name: publish check
+    needs:
+      - test
+      - test-e2e
+    runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.is_release.outputs.is_release }}
+    steps:
+      - id: is_release
+        run: |
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+-[a-z0-9.]*$ ]]; then
+              echo ::set-output name=is_release::true
+          fi
+  build-and-publish:
+    name: Build + push docker image
+    runs-on: ubuntu-latest
+    needs:
+      - publish-check
+      - test
+      - test-e2e
+    if: needs.publish-check.outputs.is_release || github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Docker tag
+        id: tag
+        run: |
+          IMAGE_TAG=${GITHUB_SHA}
+          echo ::set-output name=image_tag::${IMAGE_TAG}
+      - name: Docker login
+        run: docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker build
+        run: export DOCKER_IMAGE=uscictdocker/mentor-admin:${{ steps.tag.outputs.image_tag }} && make docker-build
+      - name: Docker tag release as version
+        if: needs.publish-check.outputs.is_release == 'true'
+        run: docker tag "uscictdocker/mentor-admin:${{ steps.tag.outputs.image_tag }}" "uscictdocker/mentor-admin:${GITHUB_REF#refs/tags/}"
+      - name: Docker tag main as latest
+        if: github.ref == 'refs/heads/main'
+        run: docker tag "uscictdocker/mentor-admin:${{ steps.tag.outputs.image_tag }}" "uscictdocker/mentor-admin:latest"
+      - name: Docker push
+        run: docker push --all-tags uscictdocker/mentor-admin
