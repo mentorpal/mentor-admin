@@ -40,24 +40,24 @@ function VideoPlayer({
   const [answerId, setAnswerId] = useState(); // string
   const [videoDims, setVideoDims] = useState({ height: 0, width: 0 });
   const [videoNode, setVideoNode] = useState(); // HTMLVideoElement
-  const [reactPlayer, setReactPlayer] = useState(); // HTMLVideoElement
-
   const [player, setPlayer] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // Blob
-
-  const [value, setValue] = React.useState([0, 100]); // slider value
-
+  const [sliderValue, setSliderValue] = React.useState([0, 100]); // slider value
+  const reactPlayer = useRef(null);
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
-    reactPlayer.current.seekTo(newValue[0]/100, "fraction");
-
+    if (reactPlayer.current) {
+      setSliderValue(newValue);
+      console.log("seek to " + newValue[0]/100);
+      reactPlayer.current.seekTo(newValue[0]/100, "fraction");
+    }
   };
 
   const handleOnProgress = ({played}) => {
-    if (played >= value[1]/100)
+    if (played >= sliderValue[1]/100 && reactPlayer.current)
     {
-      reactPlayer.current.seekTo(value[0]/100, "fraction");
+      console.log(sliderValue[0]/100);
+      reactPlayer.current.seekTo(sliderValue[0]/100, "fraction");
     }
   }
 
@@ -130,20 +130,18 @@ function VideoPlayer({
   }
 
   if (video) {
-    // if video url has been created
     return (
-      // returns video player with slider
       <div
         className={classes.block}
         style={{
           alignSelf: "center",
-          height: videoDims.height,
-          width: videoDims.width,
+          height: videoDims.height - 50,
+          width: videoDims.width - 50,
         }}
         >
         <ReactPlayer
+          ref={reactPlayer}
           data-cy="video-player"
-          ref={(e) => setReactPlayer(e || undefined)}
           className={classes.video}
           url={video}
           controls={true}
@@ -153,7 +151,7 @@ function VideoPlayer({
           onProgress={handleOnProgress}
         />
         <Slider
-          value={value}
+          value={sliderValue}
           onChange={handleChange}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
