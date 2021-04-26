@@ -630,8 +630,10 @@ describe("Record", () => {
   it.only("can seek and slice a recorded video", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
+    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixtures: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
     // TODO
+
   });
 
   it("can update status", () => {
