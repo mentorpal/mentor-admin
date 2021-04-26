@@ -33,6 +33,7 @@ function VideoPlayer({
   mentorType, // MentorType | undefined
   curAnswer, // Answer | undefined
   onUpload, // (video: Blob) => void
+  onRerecord, // () => void
 }) {
   const [answerId, setAnswerId] = useState(); // string
   const [videoDims, setVideoDims] = useState({ height: 0, width: 0 });
@@ -91,19 +92,41 @@ function VideoPlayer({
     };
   }, [videoNode]);
 
+  function rerecordVideo() {
+    setRecordedVideo(undefined);
+    onRerecord();
+  }
+
   if (!mentorId || mentorType !== MentorType.VIDEO || !curAnswer) {
     return <div />;
   }
 
-  const video = curAnswer.recordedAt
-    ? `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
-    : undefined;
+  let video = undefined;
+  if (curAnswer.recordedAt) {
+    video = `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`;
+  }
+  if (recordedVideo) {
+    // create url from blob
+  }
 
-  if (recordedVideo) { // if video url has been created
+  if (video) {
+    // if video url has been created
     return (
       // returns video player with slider
-      <div />
-    )
+
+      // button re-record that clears recordedVideo and recordedAt
+      <div>
+        <Button
+          data-cy="rerecord-video"
+          variant="contained"
+          color="primary"
+          disableElevation
+          onClick={rerecordVideo}
+        >
+          Re-Record
+        </Button>
+      </div>
+    );
   }
 
   return (

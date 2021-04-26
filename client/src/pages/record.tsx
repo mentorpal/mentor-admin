@@ -219,6 +219,13 @@ function RecordPage(props: {
       });
   }
 
+  function onRerecordVideo() {
+    if (!curAnswer) {
+      return;
+    }
+    setCurAnswer({ ...curAnswer, recordedAt: "" });
+  }
+
   useInterval(
     (isCancelled) => {
       fetchUploadVideoStatus(statusUrl)
@@ -336,6 +343,7 @@ function RecordPage(props: {
         mentorType={mentor.mentorType}
         curAnswer={curAnswer}
         onUpload={onUploadVideo}
+        onRerecord={onRerecordVideo}
       />
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
