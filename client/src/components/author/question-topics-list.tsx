@@ -59,21 +59,23 @@ export function TopicsList(props: {
             allTopics.find((topic) => topic.id === t.id)?.name || "";
           return (
             <ListItem key={`topic-${i}`} data-cy={`topic-${i}`}>
-              <ListItemText
-                data-cy="topic-name"
-                data-test={topicName}
-                primary={topicName}
-              />
-              <ListItemSecondaryAction>
-                <IconButton
-                  data-cy="delete-topic"
-                  edge="end"
-                  size="small"
-                  onClick={() => removeTopic(t)}
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </ListItemSecondaryAction>
+              <div>
+                <ListItemText
+                  data-cy="topic-name"
+                  data-test={topicName}
+                  primary={topicName}
+                />
+                <ListItemSecondaryAction>
+                  <IconButton
+                    data-cy="delete-topic"
+                    edge="end"
+                    size="small"
+                    onClick={() => removeTopic(t)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </div>
             </ListItem>
           );
         })}

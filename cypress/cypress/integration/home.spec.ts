@@ -435,6 +435,8 @@ describe("Review answers page", () => {
       mentor: setup7,
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
+    cyMockTrain(cy);
+    cyMockTrainStatus(cy, { status: { state: TrainState.FAILURE } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Training failed");

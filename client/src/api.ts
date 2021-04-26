@@ -10,11 +10,12 @@ import {
   Mentor,
   Subject,
   Connection,
-  TrainJob,
+  AsyncJob,
   TrainStatus,
   Answer,
   Question,
   UserQuestion,
+  VideoStatus,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
@@ -23,6 +24,7 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
+export const VIDEO_ENTRYPOINT = process.env.VIDEO_ENTRYPOINT || "/videos";
 
 interface SearchParams {
   limit?: number;
@@ -120,7 +122,7 @@ export async function fetchSubjects(
       }
     `,
   });
-  return result.data.data!.subjects;
+  return result.data.data.subjects;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
@@ -165,7 +167,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
       }
     `,
   });
-  return result.data.data!.subject;
+  return result.data.data.subject;
 }
 
 export async function updateSubject(
@@ -182,7 +184,6 @@ export async function updateSubject(
   if (isValidObjectID(subject._id || "")) {
     convertedSubject._id = subject._id;
   }
-
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
@@ -199,7 +200,7 @@ export async function updateSubject(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateSubject;
+  return result.data.data.me.updateSubject;
 }
 
 export async function fetchQuestions(
@@ -237,7 +238,7 @@ export async function fetchQuestions(
       }
     `,
   });
-  return result.data.data!.questions;
+  return result.data.data.questions;
 }
 
 export async function fetchQuestion(id: string): Promise<Question> {
@@ -255,7 +256,7 @@ export async function fetchQuestion(id: string): Promise<Question> {
       }
     `,
   });
-  return result.data.data!.question;
+  return result.data.data.question;
 }
 
 export async function fetchUserQuestions(
@@ -314,7 +315,7 @@ export async function fetchUserQuestions(
       }
     `,
   });
-  return result.data.data!.userQuestions;
+  return result.data.data.userQuestions;
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
@@ -353,7 +354,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
       }
     `,
   });
-  return result.data.data!.userQuestion;
+  return result.data.data.userQuestion;
 }
 
 export async function updateUserQuestion(
@@ -369,7 +370,7 @@ export async function updateUserQuestion(
       }
     `,
   });
-  return result.data.data!.userQuestionSetAnswer;
+  return result.data.data.userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
@@ -389,7 +390,7 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
     },
     { headers: headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function fetchMentor(
@@ -478,7 +479,7 @@ export async function fetchMentor(
     },
     { headers: headers }
   );
-  return result.data.data!.me.mentor;
+  return result.data.data.me.mentor;
 }
 
 export async function updateMentor(
@@ -508,7 +509,7 @@ export async function updateMentor(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateMentor;
+  return result.data.data.me.updateMentor;
 }
 
 export async function updateQuestion(
@@ -531,7 +532,7 @@ export async function updateQuestion(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateQuestion;
+  return result.data.data.me.updateQuestion;
 }
 
 export async function updateAnswer(
@@ -560,21 +561,77 @@ export async function updateAnswer(
     },
     { headers: headers }
   );
-  return result.data.data!.me.updateAnswer;
+  return result.data.data.me.updateAnswer;
 }
 
-export async function trainMentor(mentorId: string): Promise<TrainJob> {
-  const res = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
+export async function trainMentor(mentorId: string): Promise<AsyncJob> {
+  const result = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     mentor: mentorId,
   });
-  return res.data.data!;
+  if (result.status !== 200) {
+    throw new Error(`training failed: ${result.statusText}}`);
+  }
+  if (result.data.errors) {
+    throw new Error(
+      `errors response to training: ${JSON.stringify(result.data.errors)}`
+    );
+  }
+  if (!result.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(result.data)}`
+    );
+  }
+  return result.data.data;
 }
 
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TrainStatus> {
   const result = await axios.get(statusUrl);
-  return result.data.data!;
+  if (result.status !== 200) {
+    throw new Error(`fetch training status failed: ${result.statusText}}`);
+  }
+  if (result.data.errors) {
+    throw new Error(
+      `errors response to fetch training status: ${JSON.stringify(
+        result.data.errors
+      )}`
+    );
+  }
+  if (!result.data.data) {
+    throw new Error(
+      `no data in non-error response: ${JSON.stringify(result.data)}`
+    );
+  }
+  return result.data.data;
+}
+
+export async function uploadVideo(
+  mentorId: string,
+  videoId: string,
+  video: Blob
+): Promise<AsyncJob> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentorId, videoId }));
+  data.append("file", video);
+  const request = axios.create({
+    baseURL: VIDEO_ENTRYPOINT,
+    timeout: 10000,
+  });
+  const result = await request.post("/upload", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    timeout: 30000,
+  });
+  return result.data.data;
+}
+
+export async function fetchUploadVideoStatus(
+  statusUrl: string
+): Promise<VideoStatus> {
+  const result = await axios.get(statusUrl);
+  return result.data.data;
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
@@ -591,7 +648,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
       }
     `,
   });
-  return result.data.data!.login;
+  return result.data.data.login;
 }
 
 export async function loginGoogle(
@@ -610,5 +667,5 @@ export async function loginGoogle(
       }
     `,
   });
-  return result.data.data!.loginGoogle;
+  return result.data.data.loginGoogle;
 }

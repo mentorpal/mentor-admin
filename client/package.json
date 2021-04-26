@@ -33,12 +33,11 @@
     "react-beautiful-dnd": "^13.1.0",
     "react-dom": "^17.0.2",
     "react-google-login": "^5.2.2",
-    "react-player": "^2.9.0",
     "react-toastify": "^7.0.3",
-    "react-video-recorder": "^3.17.2",
     "styled-components": "^5.2.3",
     "url-join": "^4.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "videojs-record": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^14.14.41",

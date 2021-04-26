@@ -4,6 +4,40 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-export = index;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const index: any;
+import React from "react";
+
+interface CancellableFunc {
+  (isCancelled: () => boolean): void;
+}
+
+export function useInterval(
+  callback: CancellableFunc,
+  delay: number | null
+): void {
+  const savedCallback = React.useRef<CancellableFunc>();
+  React.useEffect(() => {
+    savedCallback.current = callback;
+  });
+  React.useEffect(() => {
+    let mounted = true;
+    function tick() {
+      if (!mounted) {
+        return;
+      }
+      if (savedCallback.current) {
+        savedCallback.current(() => {
+          return !mounted;
+        });
+      }
+    }
+    if (delay) {
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [delay]);
+}
+
+export default useInterval;

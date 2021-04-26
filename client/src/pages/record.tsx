@@ -4,15 +4,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import ReactPlayer from "react-player";
-import { toast, ToastContainer } from "react-toastify";
-import VideoRecorder from "react-video-recorder";
 import { navigate } from "gatsby";
+import React, { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
   Button,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputAdornment,
@@ -27,10 +28,18 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { fetchMentor, updateAnswer, updateQuestion } from "api";
-import { Answer, Status, MentorType } from "types";
+import {
+  fetchMentor,
+  fetchUploadVideoStatus,
+  updateAnswer,
+  updateQuestion,
+  uploadVideo,
+} from "api";
+import { Answer, Status, MentorType, VideoState, Mentor } from "types";
+import useInterval from "use-interval";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
+import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import "react-toastify/dist/ReactToastify.css";
@@ -48,22 +57,10 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 75,
     textAlign: "left",
   },
-  recorder: {
-    //1280 * 720 standard hd resolution 16*9
-    paddingTop: 15,
-    paddingBottom: 15,
-    paddingLeft: 75,
-    paddingRight: 75,
-    alignSelf: "center",
-  },
   row: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-  },
-  video: {
-    position: "relative",
-    margin: "0 auto",
   },
   title: {
     fontWeight: "bold",
@@ -98,8 +95,6 @@ interface RecordState {
     _id: string;
     mentorType: MentorType;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  videoInput?: any;
 }
 
 function copyAndSet<T>(a: T[], i: number, item: T): T[] {
@@ -121,21 +116,15 @@ function RecordPage(props: {
     answers: [],
     curAnswerIx: 0,
   });
-  const [recorderHeight, setRecorderHeight] = React.useState<number>(0);
-  const { answers, curAnswer, curAnswerIx, mentor, videoInput } = recordState;
+  const { answers, curAnswer, curAnswerIx, mentor } = recordState;
+  const [statusUrl, setStatusUrl] = React.useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>();
 
   function setCurAnswer(curAnswer: Answer): void {
     setRecordState({
       ...recordState,
       curAnswer,
-    });
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function setVideoInput(videoInput: any): void {
-    setRecordState({
-      ...recordState,
-      videoInput,
     });
   }
 
@@ -145,17 +134,6 @@ function RecordPage(props: {
       curAnswerIx,
     });
   }
-  React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const handleResize = () => setRecorderHeight(window.innerHeight * 0.75);
-    window.addEventListener("resize", handleResize);
-    setRecorderHeight(window.innerHeight * 0.75);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   React.useEffect(() => {
     let mounted = true;
@@ -164,38 +142,7 @@ function RecordPage(props: {
         if (!mounted) {
           return;
         }
-        const nextState: RecordState = {
-          ...recordState,
-          mentor: { _id: m._id, mentorType: m.mentorType },
-        };
-        const { videoId, subject, category, status } = props.search;
-        if (videoId) {
-          const ids = Array.isArray(videoId) ? videoId : [videoId];
-          nextState.answers = [
-            ...m.answers.filter((a) => ids.includes(a.question._id)),
-          ];
-        } else if (subject) {
-          const s = m.subjects.find((a) => a._id === subject);
-          if (s) {
-            const sQuestions = s.questions.filter(
-              (q) => !category || `${q.category?.id}` === category
-            );
-            nextState.answers = [
-              ...m.answers.filter(
-                (a) =>
-                  sQuestions
-                    .map((q) => q.question._id)
-                    .includes(a.question._id) &&
-                  (!status || a.status === status)
-              ),
-            ];
-          }
-        } else {
-          nextState.answers = [
-            ...m.answers.filter((a) => !status || a.status === status),
-          ];
-        }
-        setRecordState(nextState);
+        updateRecordState(m);
       })
       .catch((err) => console.error(err));
     return () => {
@@ -203,14 +150,46 @@ function RecordPage(props: {
     };
   }, []);
 
+  function updateRecordState(mentor: Mentor) {
+    const nextState: RecordState = {
+      ...recordState,
+      mentor: { _id: mentor._id, mentorType: mentor.mentorType },
+    };
+    const { videoId, subject, category, status } = props.search;
+    if (videoId) {
+      const ids = Array.isArray(videoId) ? videoId : [videoId];
+      nextState.answers = [
+        ...mentor.answers.filter((a) => ids.includes(a.question._id)),
+      ];
+    } else if (subject) {
+      const s = mentor.subjects.find((a) => a._id === subject);
+      if (s) {
+        const sQuestions = s.questions.filter(
+          (q) => !category || `${q.category?.id}` === category
+        );
+        nextState.answers = [
+          ...mentor.answers.filter(
+            (a) =>
+              sQuestions.map((q) => q.question._id).includes(a.question._id) &&
+              (!status || a.status === status)
+          ),
+        ];
+      }
+    } else {
+      nextState.answers = [
+        ...mentor.answers.filter((a) => !status || a.status === status),
+      ];
+    }
+    setRecordState(nextState);
+  }
+
   React.useEffect(() => {
-    if (!answers || answers.length === 0) {
+    if (answers.length === 0 || curAnswerIx >= answers.length) {
       return;
     }
     setRecordState({
       ...recordState,
       curAnswer: answers[curAnswerIx],
-      videoInput: null,
     });
   }, [curAnswerIx, answers]);
 
@@ -222,15 +201,87 @@ function RecordPage(props: {
     }
   }
 
+  function onUploadVideo(video: Blob) {
+    if (!mentor || !curAnswer) {
+      return;
+    }
+    setLoadingMessage("Uploading video...");
+    uploadVideo(mentor._id, curAnswer._id, video)
+      .then((job) => {
+        setStatusUrl(job.statusUrl);
+        setIsUploading(true);
+      })
+      .catch((err) => {
+        toast(`Upload failed`);
+        console.error(err);
+        setLoadingMessage(undefined);
+        setIsUploading(false);
+      });
+  }
+
+  useInterval(
+    (isCancelled) => {
+      fetchUploadVideoStatus(statusUrl)
+        .then((videoStatus) => {
+          if (isCancelled()) {
+            setIsUploading(false);
+            setLoadingMessage(undefined);
+            return;
+          }
+          if (videoStatus.state === VideoState.UPLOAD_FAILURE) {
+            toast(`Upload failed`);
+            setIsUploading(false);
+            setLoadingMessage(undefined);
+          }
+          if (videoStatus.state === VideoState.UPLOAD_SUCCESS) {
+            toast(`Uploaded video!`);
+          }
+          if (
+            videoStatus.state === VideoState.TRANSCRIBE_STARTED ||
+            videoStatus.state === VideoState.TRANSCRIBE_PENDING
+          ) {
+            setLoadingMessage("Transcribing video...");
+          }
+          if (videoStatus.state === VideoState.TRANSCRIBE_FAILURE) {
+            toast(`Transcribe failed`);
+            setIsUploading(false);
+            setLoadingMessage(undefined);
+          }
+          if (videoStatus.state === VideoState.TRANSCRIBE_SUCCESS) {
+            toast(`Transcribed video!`);
+            setIsUploading(false);
+            setLoadingMessage(undefined);
+            fetchMentor(props.accessToken)
+              .then((m) => {
+                if (isCancelled()) {
+                  return;
+                }
+                updateRecordState(m);
+              })
+              .catch((err) => console.error(err));
+          }
+        })
+        .catch((err) => {
+          toast(`Upload failed`);
+          console.error(err);
+          setIsUploading(false);
+          setLoadingMessage(undefined);
+        });
+    },
+    isUploading ? 1000 : null
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function equals(val1: any, val2: any): boolean {
+    return JSON.stringify(val1) === JSON.stringify(val2);
+  }
+
   async function onSave() {
     if (!(curAnswer && mentor)) {
       return;
     }
     let answerUpdated: Answer | null = null;
-    if (
-      JSON.stringify(curAnswer.question) !==
-      JSON.stringify(answers[curAnswerIx].question)
-    ) {
+    if (!equals(curAnswer.question, answers[curAnswerIx].question)) {
       if (await updateQuestion(curAnswer.question, props.accessToken)) {
         answerUpdated = {
           ...answers[curAnswerIx],
@@ -241,9 +292,7 @@ function RecordPage(props: {
       }
     }
     const answerWorking = answerUpdated || curAnswer;
-    if (
-      JSON.stringify(answerWorking) !== JSON.stringify(answers[curAnswerIx])
-    ) {
+    if (!equals(answerWorking, answers[curAnswerIx])) {
       if (await updateAnswer(mentor._id, answerWorking, props.accessToken)) {
         answerUpdated = answerWorking;
       } else {
@@ -259,65 +308,7 @@ function RecordPage(props: {
     }
   }
 
-  function renderVideo(): JSX.Element {
-    if (!mentor || mentor.mentorType === MentorType.CHAT || !curAnswer) {
-      return <div />;
-    }
-    // TODO: hard-coded video host MUST be removed!
-    const video = curAnswer.recordedAt
-      ? `https://video.mentorpal.org/videos/mentors/${mentor._id}/web/${curAnswer._id}.mp4`
-      : undefined;
-
-    if (video) {
-      return (
-        <div className={classes.block}>
-          <ReactPlayer
-            data-cy="video-player"
-            className={classes.video}
-            url={video}
-            controls={true}
-            playing={true}
-            playsinline
-            webkit-playsinline="true"
-          />
-          <Button
-            data-cy="rerecord-btn"
-            variant="contained"
-            disableElevation
-            onClick={() => setCurAnswer({ ...curAnswer, recordedAt: "" })}
-          >
-            Re-Record
-          </Button>
-        </div>
-      );
-    }
-    return (
-      <div
-        data-cy="video-recorder"
-        className={classes.recorder}
-        style={{ height: recorderHeight, width: (recorderHeight / 9) * 16 }}
-      >
-        <VideoRecorder
-          isFlipped={false}
-          showReplayControls
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          onRecordingComplete={(v: any) => {
-            setVideoInput(v);
-          }}
-        />
-
-        {videoInput ? (
-          <div>
-            <Button data-cy="upload-btn" variant="contained" disableElevation>
-              Upload
-            </Button>
-          </div>
-        ) : undefined}
-      </div>
-    );
-  }
-
-  if (!mentor || !answers || answers.length === 0 || !curAnswer) {
+  if (!mentor || answers.length === 0 || !curAnswer) {
     return (
       <div>
         <NavBar title="Record Mentor" mentorId={mentor?._id} />
@@ -339,7 +330,13 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={curAnswerIx + 1} total={answers.length} />
       </div>
-      {renderVideo()}
+      <VideoPlayer
+        classes={classes}
+        mentorId={mentor._id}
+        mentorType={mentor.mentorType}
+        curAnswer={curAnswer}
+        onUpload={onUploadVideo}
+      />
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
@@ -429,13 +426,7 @@ function RecordPage(props: {
       </div>
       <div className={classes.toolbar} />
       <AppBar position="fixed" className={classes.footer}>
-        <Toolbar
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-        >
+        <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}
@@ -449,9 +440,7 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={
-              JSON.stringify(curAnswer) === JSON.stringify(answers[curAnswerIx])
-            }
+            disabled={equals(curAnswer, answers[curAnswerIx])}
             onClick={onSave}
           >
             Save
@@ -479,6 +468,12 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
+      <Dialog open={Boolean(loadingMessage)}>
+        <DialogTitle>{loadingMessage}</DialogTitle>
+        <DialogContent>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
       <ToastContainer />
     </div>
   );

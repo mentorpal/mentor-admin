@@ -51,6 +51,7 @@ import {
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
+import useInterval from "use-interval";
 import withAuthorizationOnly from "wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
@@ -334,29 +335,14 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     setCursor("");
   }
 
-  function useInterval(callback: () => void, delay: number | null): void {
-    const savedCallback = React.useRef<() => void>();
-    React.useEffect(() => {
-      savedCallback.current = callback;
-    });
-    React.useEffect(() => {
-      function tick() {
-        if (savedCallback.current) {
-          savedCallback.current();
-        }
-      }
-      if (delay) {
-        const id = setInterval(tick, delay);
-        return () => clearInterval(id);
-      }
-    }, [delay]);
-  }
-
   const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
   useInterval(
-    () => {
+    (isCancelled) => {
       fetchTrainingStatus(statusUrl)
         .then((trainStatus) => {
+          if (isCancelled()) {
+            setIsTraining(false);
+          }
           setTrainData(trainStatus);
           if (
             trainStatus.state === TrainState.SUCCESS ||
