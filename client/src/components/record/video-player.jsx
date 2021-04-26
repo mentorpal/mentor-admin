@@ -7,9 +7,10 @@ The full terms of this copyright and license should always be found in the root 
 
 /** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
-import React, { useState } from "react";
-import { Button } from "@material-ui/core";
+import React, { useState, useRef } from "react";
+import { Button, Slider } from "@material-ui/core";
 import videojs from "video.js";
+import ReactPlayer from "react-player";
 
 import { MentorType } from "types";
 import { VIDEO_ENTRYPOINT } from "api";
@@ -39,8 +40,26 @@ function VideoPlayer({
   const [answerId, setAnswerId] = useState(); // string
   const [videoDims, setVideoDims] = useState({ height: 0, width: 0 });
   const [videoNode, setVideoNode] = useState(); // HTMLVideoElement
+  const [reactPlayer, setReactPlayer] = useState(); // HTMLVideoElement
+
   const [player, setPlayer] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // Blob
+
+  const [value, setValue] = React.useState([0, 100]); // slider value
+
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    reactPlayer.current.seekTo(newValue[0]/100, "fraction");
+
+  };
+
+  const handleOnProgress = ({played}) => {
+    if (played >= value[1]/100)
+    {
+      reactPlayer.current.seekTo(value[0]/100, "fraction");
+    }
+  }
 
   React.useEffect(() => {
     if (typeof window === "undefined") {
@@ -114,9 +133,33 @@ function VideoPlayer({
     // if video url has been created
     return (
       // returns video player with slider
+      <div
+        className={classes.block}
+        style={{
+          alignSelf: "center",
+          height: videoDims.height,
+          width: videoDims.width,
+        }}
+        >
+        <ReactPlayer
+          //ref={reactPlayer}
+          ref={(e) => setReactPlayer(e || undefined)}
 
-      // button re-record that clears recordedVideo and recordedAt
-      <div>
+          id="video-player"
+          className={classes.video}
+          url={video}
+          controls={true}
+          playing={true}
+          playsinline
+          webkit-playsinline="true"
+          onProgress={handleOnProgress}
+        />
+        <Slider
+          value={value}
+          onChange={handleChange}
+          valueLabelDisplay="auto"
+          aria-labelledby="range-slider"
+        />
         <Button
           data-cy="rerecord-video"
           variant="contained"
