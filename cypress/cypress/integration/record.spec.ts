@@ -621,6 +621,7 @@ describe("Record", () => {
   it.only("shows a video player if mentor has recorded a video response in the past and can rerecord it", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
+    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=video-recorder").should("not.exist");
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
@@ -630,10 +631,9 @@ describe("Record", () => {
   it.only("can seek and slice a recorded video", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
-    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixtures: "video.mp4" });
+    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
     // TODO
-
   });
 
   it("can update status", () => {

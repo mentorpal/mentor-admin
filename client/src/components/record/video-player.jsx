@@ -142,10 +142,8 @@ function VideoPlayer({
         }}
         >
         <ReactPlayer
-          //ref={reactPlayer}
+          data-cy="video-player"
           ref={(e) => setReactPlayer(e || undefined)}
-
-          id="video-player"
           className={classes.video}
           url={video}
           controls={true}
