@@ -1,48 +1,70 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby minimal starter
-</h1>
+mentor-admin
+==================
 
-## 🚀 Quick start
+Usage
+-----
 
-1.  **Create a Gatsby site.**
+A docker image that serves a web client for users to record and build mentors that will be viewed in [mentor-client](https://github.com/mentorpal/mentor-client), and for admin users to author and edit subjects.
 
-    Use the Gatsby CLI to create a new site, specifying the minimal starter.
+Development
+-----------
 
-    ```shell
-    # create a new Gatsby site using the minimal starter
-    npm init gatsby
-    ```
+Any changes made to this repo should be covered by tests.
 
-2.  **Start developing.**
+All pushed commits must pass format, lint, type, audit, and license checks. To check all required tests before a commit:
 
-    Navigate into your new site’s directory and start it up.
+```
+make test-all
+```
 
-    ```shell
-    cd my-gatsby-site/
-    npm run develop
-    ```
+To fix formatting issues:
 
-3.  **Open the code and start customizing!**
+```
+make format
+```
 
-    Your site is now running at http://localhost:8000!
+To add license headers:
 
-    Edit `src/pages/index.js` to see your site update in real-time!
+```
+make license
+```
 
-4.  **Learn more**
+#### Cypress Testing
 
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+To run cypress tests locally with UI you need two shells, first make sure the client is running locally:
 
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+```
+cd client && make develop
+```
 
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+...then you can run the full cypress test suite with
 
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+```
+cd cypress && npm run cy:open
+```
 
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+...then in the cypress browser window, click a spec to run it.
 
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter)
+To run cypress tests headlessly in docker, you do **not** need the client running locally. Just run:
+
+```
+make test-e2e
+```
+
+Releases
+--------
+
+Currently, this image is semantically versioned. When making changes that you want to test in another project, create a branch and PR and then you can release a test tag one of two ways:
+
+To build/push a pre-release semver tag of `mentor-admin` for the current commit in your branch
+
+- ensure all github actions tests are passing
+- create a [github release](https://github.com/ICTLearningSciences/mentor-admin/releases/new) with tag format `[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]*)?$` (e.g. `1.0.0-alpha.1`)
+- ensure all github actions tests pass again and the docker `test and publish` action completes
+- this will create a tag like `uscictdocker/mentor-admin:1.0.0-alpha.1`
+
+Once your changes are approved and merged to `main`, you should create a release tag in semver format as follows:
+
+- create a [github release](https://github.com/ICTLearningSciences/mentor-admin/releases/new) **from main** with tag format `[0-9]+\.[0-9]+\.[0-9]$` (e.g. `1.0.0`)
+- ensure all github actions tests pass and the docker `test and publish` action completes
+- this will create a tag like `uscictdocker/mentor-admin:1.0.0`
