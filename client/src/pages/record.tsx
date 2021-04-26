@@ -74,6 +74,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#eee",
     opacity: 0.8,
   },
+  button: {
+    width: 150,
+  },
   backBtn: {
     position: "absolute",
     left: 0,
@@ -206,7 +209,7 @@ function RecordPage(props: {
       return;
     }
     setLoadingMessage("Uploading video...");
-    uploadVideo(mentor._id, curAnswer._id, video)
+    uploadVideo(mentor._id, curAnswer.question._id, video)
       .then((job) => {
         setStatusUrl(job.statusUrl);
         setIsUploading(true);

@@ -608,11 +608,14 @@ export async function fetchTrainingStatus(
 
 export async function uploadVideo(
   mentorId: string,
-  videoId: string,
+  questionId: string,
   video: Blob
 ): Promise<AsyncJob> {
   const data = new FormData();
-  data.append("body", JSON.stringify({ mentorId, videoId }));
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: questionId })
+  );
   data.append("file", video);
   const request = axios.create({
     baseURL: VIDEO_ENTRYPOINT,

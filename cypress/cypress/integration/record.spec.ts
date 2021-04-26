@@ -618,22 +618,32 @@ describe("Record", () => {
     cy.get("[data-cy=video-recorder]").should("exist");
   });
 
-  it.only("shows a video player if mentor has recorded a video response in the past and can rerecord it", () => {
+  it("shows a video player if mentor has recorded a video response in the past", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
-    cy.get("[data-cy=video-recorder").should("not.exist");
+    cy.get("[data-cy=video-recorder]").should("not.exist");
+    cy.get("[data-cy=upload-video]").should("not.exist");
+    cy.get("[data-cy=rerecord-video]").should("exist");
+    cy.get("[data-cy=slider]").should("exist");
+    cy.get("[data-cy=trim-video]").should("exist");
+    // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
     cy.get("[data-cy=video-recorder").should("exist");
+    cy.get("[data-cy=upload-video]").should("exist");
+    cy.get("[data-cy=rerecord-video]").should("not.exist");
+    cy.get("[data-cy=slider]").should("not.exist");
+    cy.get("[data-cy=trim-video]").should("not.exist");
+
   });
 
-  it.only("can seek and slice a recorded video", () => {
+  it.skip("can seek and slice a recorded video", () => {
+    // TODO: currently video does not load in cypress but loads outside of it...
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
-    // TODO
   });
 
   it("can update status", () => {

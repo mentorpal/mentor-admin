@@ -17,8 +17,6 @@ import { VIDEO_ENTRYPOINT } from "api";
 
 const videoJsOptions = {
   controls: true,
-  bigPlayButton: false,
-  fluid: false,
   plugins: {
     record: {
       audio: true,
@@ -45,28 +43,12 @@ function VideoPlayer({
   const [sliderValue, setSliderValue] = React.useState([0, 100]); // slider value
   const reactPlayer = useRef(null);
 
-  const handleChange = (event, newValue) => {
-    if (reactPlayer.current) {
-      setSliderValue(newValue);
-      console.log("seek to " + newValue[0]/100);
-      reactPlayer.current.seekTo(newValue[0]/100, "fraction");
-    }
-  };
-
-  const handleOnProgress = ({played}) => {
-    if (played >= sliderValue[1]/100 && reactPlayer.current)
-    {
-      console.log(sliderValue[0]/100);
-      reactPlayer.current.seekTo(sliderValue[0]/100, "fraction");
-    }
-  }
-
   React.useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
     const handleResize = () => {
-      let recorderHeight = Math.max(window.innerHeight - 550, 300);
+      let recorderHeight = Math.max(window.innerHeight - 600, 300);
       let recorderWidth = (recorderHeight / 9) * 16;
       if (window.innerHeight > window.innerWidth) {
         recorderWidth = window.innerWidth;
@@ -112,6 +94,19 @@ function VideoPlayer({
     };
   }, [videoNode]);
 
+  function onSliderChanged(event, newValue) {
+    if (reactPlayer.current) {
+      setSliderValue(newValue);
+      reactPlayer.current.seekTo(newValue[0] / 100, "fraction");
+    }
+  }
+
+  function onVideoProgress({ played }) {
+    if (reactPlayer.current && played >= sliderValue[1] / 100) {
+      reactPlayer.current.seekTo(sliderValue[0] / 100, "fraction");
+    }
+  }
+
   function rerecordVideo() {
     setRecordedVideo(undefined);
     onRerecord();
@@ -121,13 +116,9 @@ function VideoPlayer({
     return <div />;
   }
 
-  let video = undefined;
-  if (curAnswer.recordedAt) {
-    video = `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`;
-  }
-  if (recordedVideo) {
-    // create url from blob
-  }
+  const video = curAnswer.recordedAt
+    ? `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
+    : undefined;
 
   if (video) {
     return (
@@ -135,69 +126,93 @@ function VideoPlayer({
         className={classes.block}
         style={{
           alignSelf: "center",
-          height: videoDims.height - 50,
-          width: videoDims.width - 50,
+          height: videoDims.height,
+          width: videoDims.width,
         }}
-        >
+      >
         <ReactPlayer
-          ref={reactPlayer}
           data-cy="video-player"
+          ref={reactPlayer}
           className={classes.video}
           url={video}
           controls={true}
           playing={true}
+          height={videoDims.height - 40}
+          width={videoDims.width}
           playsinline
           webkit-playsinline="true"
-          onProgress={handleOnProgress}
+          onProgress={onVideoProgress}
         />
         <Slider
+          data-cy="slider"
           value={sliderValue}
-          onChange={handleChange}
+          onChange={onSliderChanged}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
         />
-        <Button
-          data-cy="rerecord-video"
-          variant="contained"
-          color="primary"
-          disableElevation
-          onClick={rerecordVideo}
-        >
-          Re-Record
-        </Button>
+        <div className={classes.row} style={{ justifyContent: "center" }}>
+          <Button
+            data-cy="rerecord-video"
+            variant="contained"
+            color="primary"
+            disableElevation
+            onClick={rerecordVideo}
+            style={{ marginRight: 15 }}
+          >
+            Re-Record
+          </Button>
+          <Button
+            data-cy="trim-video"
+            variant="outlined"
+            color="primary"
+            className={classes.button}
+            disableElevation
+          >
+            Trim Video
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <div
-      data-vjs-player
       className={classes.block}
       style={{
         alignSelf: "center",
-        height: videoDims.height,
-        width: videoDims.width,
+        height: videoDims.height + 40,
       }}
     >
-      <video
-        data-cy="video-recorder"
-        ref={(e) => setVideoNode(e || undefined)}
-        playsInline
-        className="video-js vjs-default-skin"
+      <div
+        data-vjs-player
+        style={{
+          height: videoDims.height,
+          width: videoDims.width,
+        }}
       >
-        {video ? <source src={video} /> : undefined}
-      </video>
-      {recordedVideo ? (
+        <video
+          data-cy="video-recorder"
+          className="video-js vjs-default-skin"
+          playsInline
+          ref={(e) => setVideoNode(e || undefined)}
+        />
+      </div>
+      <div
+        className={classes.row}
+        style={{ justifyContent: "center", marginTop: 20 }}
+      >
         <Button
           data-cy="upload-video"
           variant="contained"
           color="primary"
+          className={classes.button}
+          disabled={!recordedVideo}
           disableElevation
           onClick={() => onUpload(recordedVideo)}
         >
-          Upload
+          Upload Video
         </Button>
-      ) : undefined}
+      </div>
     </div>
   );
 }
