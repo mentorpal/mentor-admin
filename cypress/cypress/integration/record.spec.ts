@@ -616,6 +616,8 @@ describe("Record", () => {
     cyMockDefault(cy, { mentor: mentor2 });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
+    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
   });
 
   it("shows a video player if mentor has recorded a video response in the past", () => {
@@ -623,19 +625,13 @@ describe("Record", () => {
     cyMockDefault(cy, { mentor: mentor3 });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
-    cy.get("[data-cy=video-recorder]").should("not.exist");
-    cy.get("[data-cy=upload-video]").should("not.exist");
-    cy.get("[data-cy=rerecord-video]").should("exist");
-    cy.get("[data-cy=slider]").should("exist");
-    cy.get("[data-cy=trim-video]").should("exist");
+    cy.get("[data-cy=video-recorder]").should("exist");
+    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=video-player]").should("have.css", "visibility", "visible");
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
-    cy.get("[data-cy=video-recorder").should("exist");
-    cy.get("[data-cy=upload-video]").should("exist");
-    cy.get("[data-cy=rerecord-video]").should("not.exist");
-    cy.get("[data-cy=slider]").should("not.exist");
-    cy.get("[data-cy=trim-video]").should("not.exist");
-
+    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
   });
 
   it.skip("can seek and slice a recorded video", () => {
