@@ -286,32 +286,8 @@ const mentor3: Mentor = completeMentor({
       recordedAt: "",
       status: Status.INCOMPLETE,
     },
-    {
-      _id: "A3_1_1",
-      question: completeQuestion({
-        _id: "A3_1_1",
-        question:
-          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-      }),
-      transcript: "",
-      recordedAt: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      _id: "A4_1_1",
-      question: completeQuestion({
-        _id: "A4_1_1",
-        question:
-          "Please give a short introduction of yourself, which includes your name, current job, and title.",
-      }),
-      transcript:
-        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-      recordedAt: "",
-      status: Status.COMPLETE,
-    },
   ],
 });
-
 
 describe("Record", () => {
   describe("search params", () => {
@@ -611,28 +587,78 @@ describe("Record", () => {
     cy.get("[data-cy=video-recorder]").should("not.exist");
   });
 
-  it("shows video recorder if mentor type is VIDEO", () => {
+  it("shows video recorder if mentor type is VIDEO and no video", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor2 });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
+    // video recorder showing
     cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+    // video player hidden
     cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=trim-video]").should("not.exist");
   });
 
-  it("shows a video player if mentor has recorded a video response in the past", () => {
+  it("shows video player if mentor type is VIDEO and has video", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=video-recorder]").should("exist");
+    // video recorder hidden
     cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "hidden");
+    // video player showing
     cy.get("[data-cy=video-player]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "visible");
+    // editing hidden
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=trim-video]").should("not.exist");
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
     cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
     cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=trim-video]").should("not.exist");
   });
+
+  it("can upload a video file", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: mentor2 });
+    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
+    cy.visit("/record");
+    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+    // upload file
+    cy.fixture('video.mp4').then(fileContent => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: fileContent.toString(),
+        fileName: 'video.mp4',
+        mimeType: 'video/mp4'
+      });
+    });
+    // show file
+    cy.get("[data-cy=video-player]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=trim-video]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=slider]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=trim-video]").should("be.disabled");
+    // 
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+  })
 
   it.skip("can seek and slice a recorded video", () => {
     // TODO: currently video does not load in cypress but loads outside of it...
