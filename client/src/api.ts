@@ -616,7 +616,7 @@ export async function uploadVideo(
     "body",
     JSON.stringify({ mentor: mentorId, question: questionId })
   );
-  data.append("file", video);
+  data.append("video", video);
   const request = axios.create({
     baseURL: VIDEO_ENTRYPOINT,
     timeout: 10000,

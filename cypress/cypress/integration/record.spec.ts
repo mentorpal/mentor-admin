@@ -660,7 +660,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
   })
 
-  it.skip("can seek and slice a recorded video", () => {
+  it.skip("can seek and trim a recorded video", () => {
     // TODO: currently video does not load in cypress but loads outside of it...
     cySetup(cy);
     cyMockDefault(cy, { mentor: mentor3 });
