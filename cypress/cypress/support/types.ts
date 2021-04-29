@@ -202,6 +202,6 @@ export enum VideoState {
 export interface VideoInfo {
   mentor: string;
   videoId: string;
-  video: Blob;
+  video: File;
   transcript: string;
 }

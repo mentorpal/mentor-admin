@@ -8,7 +8,6 @@ The full terms of this copyright and license should always be found in the root 
 /** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
 import React, { useState, useRef } from "react";
-import FFMPEG from "react-ffmpeg";
 import ReactPlayer from "react-player";
 import videojs from "video.js";
 import { Button, Slider } from "@material-ui/core";
@@ -35,8 +34,9 @@ function VideoPlayer({
   mentorId, // string | undefined
   mentorType, // MentorType | undefined
   curAnswer, // Answer | undefined
-  onUpload, // (video: Blob) => void
+  onUpload, // (video: File) => void
   onRerecord, // () => void
+  onTrim, // (startTime: number, endTime: number, callback: (boolean) => void) => void
 }) {
   const [answerId, setAnswerId] = useState(); // string
   const [videoDimension, setVideoDimension] = useState({ height: 0, width: 0 });
@@ -44,6 +44,8 @@ function VideoPlayer({
   const [videoRecorder, setVideoRecorder] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // File
   const [videoDuration, setVideoDuration] = useState(0);
+
+  const [isTrimming, setIsTrimming] = useState(false);
   const [sliderValue, setSliderValue] = useState([0, 100]);
   const reactPlayer = useRef(null);
 
@@ -143,22 +145,21 @@ function VideoPlayer({
     setRecordedVideo(file);
   }
 
-  async function trimVideo() {
+  function onVideoTrimmed(succeeded) {
+    setIsTrimming(false);
+    if (succeeded) {
+      setSliderValue([0, 100]);
+    }
+  }
+
+  function trimVideo() {
     if (!isFinite(videoDuration) || !recordedVideo) {
       return;
     }
-    await FFMPEG.process(
-      recordedVideo,
-      `-ss ${(sliderValue[0] / 100) * videoDuration} -t ${
-        (sliderValue[1] / 100) * videoDuration
-      } -c:v copy -c:a copy`,
-      function (e) {
-        const video = e.result;
-        console.log(video);
-        setRecordedVideo(video);
-        setSliderValue([0, 100]);
-      }.bind(this)
-    );
+    setIsTrimming(true);
+    const startTime = (sliderValue[0] / 100) * videoDuration;
+    const endTime = (sliderValue[1] / 100) * videoDuration;
+    onTrim(startTime, endTime, onVideoTrimmed);
   }
 
   if (!mentorId || mentorType !== MentorType.VIDEO || !curAnswer) {
@@ -237,6 +238,7 @@ function VideoPlayer({
           onChange={onSliderChanged}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
+          disabled={isTrimming}
           style={{
             visibility: recordedVideo ? "visible" : "hidden",
           }}
@@ -273,7 +275,8 @@ function VideoPlayer({
               disableElevation
               disabled={
                 (sliderValue[0] == 0 && sliderValue[1] == 100) ||
-                !isFinite(videoDuration)
+                !isFinite(videoDuration) ||
+                isTrimming
               }
               className={classes.button}
               onClick={trimVideo}

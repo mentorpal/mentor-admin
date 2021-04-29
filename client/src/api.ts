@@ -609,7 +609,7 @@ export async function fetchTrainingStatus(
 export async function uploadVideo(
   mentorId: string,
   questionId: string,
-  video: Blob
+  video: File
 ): Promise<AsyncJob> {
   const data = new FormData();
   data.append(
@@ -631,6 +631,41 @@ export async function uploadVideo(
 }
 
 export async function fetchUploadVideoStatus(
+  statusUrl: string
+): Promise<VideoStatus> {
+  const result = await axios.get(statusUrl);
+  return result.data.data;
+}
+
+export async function trimVideo(
+  mentorId: string,
+  questionId: string,
+  startTime: number,
+  endTime: number
+): Promise<AsyncJob> {
+  const result = await axios.post(urljoin(VIDEO_ENTRYPOINT, "trim"), {
+    mentor: mentorId,
+    question: questionId,
+    startTime,
+    endTime,
+  });
+  if (result.status !== 200) {
+    throw new Error(`video trim failed: ${result.statusText}}`);
+  }
+  if (result.data.errors) {
+    throw new Error(
+      `errors response to video trimming: ${JSON.stringify(result.data.errors)}`
+    );
+  }
+  if (!result.data.data) {
+    throw new Error(
+      `no data in non-error reponse: ${JSON.stringify(result.data)}`
+    );
+  }
+  return result.data.data;
+}
+
+export async function fetchTrimVideoStatus(
   statusUrl: string
 ): Promise<VideoStatus> {
   const result = await axios.get(statusUrl);
