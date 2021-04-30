@@ -12,7 +12,7 @@ import ReactPlayer from "react-player";
 import videojs from "video.js";
 import { Button, Slider } from "@material-ui/core";
 
-import { VIDEO_ENTRYPOINT } from "api";
+import { UPLOAD_ENTRYPOINT } from "api";
 import { MentorType } from "types";
 
 const videoJsOptions = {
@@ -169,7 +169,7 @@ function VideoPlayer({
   if (recordedVideo) {
     videoSrc = URL.createObjectURL(recordedVideo);
   } else if (curAnswer.recordedAt) {
-    videoSrc = `${VIDEO_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`;
+    videoSrc = `${UPLOAD_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`;
   }
 
   return (

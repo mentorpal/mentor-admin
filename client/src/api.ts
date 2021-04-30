@@ -24,7 +24,7 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
-export const VIDEO_ENTRYPOINT = process.env.VIDEO_ENTRYPOINT || "/videos";
+export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
 interface SearchParams {
   limit?: number;
@@ -618,10 +618,10 @@ export async function uploadVideo(
   );
   data.append("video", video);
   const request = axios.create({
-    baseURL: VIDEO_ENTRYPOINT,
+    baseURL: UPLOAD_ENTRYPOINT,
     timeout: 10000,
   });
-  const result = await request.post("/upload", data, {
+  const result = await request.post("/answer", data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -643,7 +643,7 @@ export async function trimVideo(
   startTime: number,
   endTime: number
 ): Promise<AsyncJob> {
-  const result = await axios.post(urljoin(VIDEO_ENTRYPOINT, "trim"), {
+  const result = await axios.post(urljoin(UPLOAD_ENTRYPOINT, "trim"), {
     mentor: mentorId,
     question: questionId,
     startTime,
