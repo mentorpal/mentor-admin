@@ -36,16 +36,17 @@ function VideoPlayer({
   curAnswer, // Answer | undefined
   onUpload, // (video: File) => void
   onRerecord, // () => void
-  onTrim, // (startTime: number, endTime: number, callback: (boolean) => void) => void
+  onTrim, // (startTime: number, endTime: number) => void
+  isUploading, // boolean
 }) {
   const [answerId, setAnswerId] = useState(); // string
   const [videoDimension, setVideoDimension] = useState({ height: 0, width: 0 });
   const [videoRecorderNode, setVideoRecorderNode] = useState(); // HTMLVideoElement
   const [videoRecorder, setVideoRecorder] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // File
-  const [videoDuration, setVideoDuration] = useState(0);
 
-  const [isTrimming, setIsTrimming] = useState(false);
+  const [videoSrc, setVideoSrc] = useState(undefined);
+  const [videoDuration, setVideoDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState([0, 100]);
   const reactPlayer = useRef(null);
 
@@ -106,30 +107,50 @@ function VideoPlayer({
     setSliderValue([0, 100]);
   }, [curAnswer]);
 
-  function onSliderChanged(event, newValue) {
-    if (!reactPlayer.current) {
-      return;
+  React.useEffect(() => {
+    if (recordedVideo) {
+      setVideoSrc(URL.createObjectURL(recordedVideo));
+    } else if (curAnswer.recordedAt) {
+      setVideoSrc(
+        `${UPLOAD_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
+      );
+    } else {
+      setVideoSrc(undefined);
     }
-    // getDuration and onDuration keep returning infinity sometimes...
+  }, [curAnswer.recordedAt, recordedVideo]);
+
+  React.useEffect(() => {
+    if (isUploading) {
+      setSliderValue([0, 100]);
+    }
+  }, [isUploading]);
+
+  function sliderToVideoDuration() {
+    if (!reactPlayer.current) {
+      return undefined;
+    }
+    // getDuration keeps returning infinity sometimes...
     if (!isFinite(videoDuration)) {
       setVideoDuration(reactPlayer.current.getDuration());
-      return;
+      return undefined;
     }
-    reactPlayer.current.seekTo((newValue[0] / 100) * videoDuration);
-    setSliderValue(newValue);
+    const startTime = (sliderValue[0] / 100) * videoDuration;
+    const endTime = (sliderValue[1] / 100) * videoDuration;
+    return [startTime, endTime];
+  }
+
+  function onSliderChanged(event, newValue) {
+    const duration = sliderToVideoDuration(newValue);
+    if (duration) {
+      reactPlayer.current.seekTo(duration[0]);
+      setSliderValue(newValue);
+    }
   }
 
   function onVideoProgress({ played }) {
-    if (!reactPlayer.current) {
-      return;
-    }
-    // getDuration and onDuration keep returning infinity sometimes...
-    if (!isFinite(videoDuration)) {
-      setVideoDuration(reactPlayer.current.getDuration());
-      return;
-    }
-    if (played >= sliderValue[1] / 100) {
-      reactPlayer.current.seekTo((sliderValue[0] / 100) * videoDuration);
+    const duration = sliderToVideoDuration(sliderValue);
+    if (duration && played >= sliderValue[1] / 100) {
+      reactPlayer.current.seekTo(duration[0]);
     }
   }
 
@@ -145,31 +166,17 @@ function VideoPlayer({
     setRecordedVideo(file);
   }
 
-  function onVideoTrimmed(succeeded) {
-    setIsTrimming(false);
-    if (succeeded) {
-      setSliderValue([0, 100]);
-    }
-  }
-
   function trimVideo() {
     if (!isFinite(videoDuration) || !recordedVideo) {
       return;
     }
-    setIsTrimming(true);
-    const startTime = (sliderValue[0] / 100) * videoDuration;
-    const endTime = (sliderValue[1] / 100) * videoDuration;
-    onTrim(startTime, endTime, onVideoTrimmed);
+    const startTime = sliderValue[0] * videoDuration;
+    const endTime = sliderValue[1] * videoDuration;
+    onTrim(startTime, endTime);
   }
 
   if (!mentorId || mentorType !== MentorType.VIDEO || !curAnswer) {
     return <div />;
-  }
-  let videoSrc = undefined;
-  if (recordedVideo) {
-    videoSrc = URL.createObjectURL(recordedVideo);
-  } else if (curAnswer.recordedAt) {
-    videoSrc = `${UPLOAD_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`;
   }
 
   return (
@@ -219,26 +226,35 @@ function VideoPlayer({
           visibility: videoSrc ? "visible" : "hidden",
         }}
       >
-        <ReactPlayer
-          data-cy="video-player"
-          ref={reactPlayer}
-          url={videoSrc}
-          controls={true}
-          playing={true}
-          height={videoDimension.height}
-          width={videoDimension.width}
-          playsinline
-          webkit-playsinline="true"
-          onProgress={onVideoProgress}
-          onDuration={(d) => setVideoDuration(d)}
-        />
+        <div
+          style={{
+            backgroundColor: "#000",
+            height: videoDimension.height,
+            width: videoDimension.width,
+          }}
+        >
+          <ReactPlayer
+            data-cy="video-player"
+            ref={reactPlayer}
+            url={videoSrc}
+            controls={true}
+            playing={!isUploading}
+            height={videoDimension.height}
+            width={videoDimension.width}
+            playsinline
+            webkit-playsinline="true"
+            progressInterval={100}
+            onProgress={onVideoProgress}
+            onDuration={(d) => setVideoDuration(d)}
+          />
+        </div>
         <Slider
           data-cy="slider"
           value={sliderValue}
           onChange={onSliderChanged}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
-          disabled={isTrimming}
+          disabled={isUploading}
           style={{
             visibility: recordedVideo ? "visible" : "hidden",
           }}
@@ -249,6 +265,7 @@ function VideoPlayer({
             variant="outlined"
             color="primary"
             disableElevation
+            disabled={isUploading}
             className={classes.button}
             onClick={rerecordVideo}
             style={{ marginRight: 15 }}
@@ -260,7 +277,7 @@ function VideoPlayer({
             variant="contained"
             color="primary"
             disableElevation
-            disabled={!recordedVideo}
+            disabled={!recordedVideo || isUploading}
             className={classes.button}
             onClick={() => onUpload(recordedVideo)}
             style={{ marginRight: 15 }}
@@ -276,7 +293,7 @@ function VideoPlayer({
               disabled={
                 (sliderValue[0] == 0 && sliderValue[1] == 100) ||
                 !isFinite(videoDuration) ||
-                isTrimming
+                isUploading
               }
               className={classes.button}
               onClick={trimVideo}

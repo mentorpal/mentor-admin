@@ -126,9 +126,6 @@ function RecordPage(props: {
   const [isUploading, setIsUploading] = useState(false);
   const [trimStatusUrl, setTrimStatusUrl] = React.useState("");
   const [isTrimming, setIsTrimming] = useState(false);
-  const [trimCallback, setTrimCallback] = useState<
-    (succeeded: boolean) => void
-  >();
   const [loadingMessage, setLoadingMessage] = useState<string>();
 
   function setCurAnswer(curAnswer: Answer): void {
@@ -143,13 +140,6 @@ function RecordPage(props: {
       ...recordState,
       curAnswerIx,
     });
-  }
-
-  function setIsTrimmingAndCallback(tf: boolean, succeeded: boolean) {
-    setIsTrimming(tf);
-    if (trimCallback) {
-      trimCallback(succeeded);
-    }
   }
 
   React.useEffect(() => {
@@ -236,12 +226,11 @@ function RecordPage(props: {
       });
   }
 
-  function onTrimVideo(startTime: number, endTime: number, cb: () => void) {
+  function onTrimVideo(startTime: number, endTime: number) {
     if (!mentor || !curAnswer) {
       return;
     }
     setLoadingMessage("Trimming video...");
-    setTrimCallback(cb);
     trimVideo(mentor._id, curAnswer.question._id, startTime, endTime)
       .then((job) => {
         setTrimStatusUrl(job.statusUrl);
@@ -251,8 +240,7 @@ function RecordPage(props: {
         toast(`Trim failed`);
         console.error(err);
         setLoadingMessage(undefined);
-        setIsTrimmingAndCallback(false, false);
-        cb();
+        setIsTrimming(false);
       });
   }
 
@@ -306,18 +294,18 @@ function RecordPage(props: {
       fetchTrimVideoStatus(trimStatusUrl)
         .then((videoStatus) => {
           if (isCancelled()) {
-            setIsTrimmingAndCallback(false, false);
+            setIsTrimming(false);
             setLoadingMessage(undefined);
             return;
           }
           if (videoStatus.state === VideoState.FAILURE) {
             toast(`Trim failed`);
-            setIsTrimmingAndCallback(false, false);
+            setIsTrimming(false);
             setLoadingMessage(undefined);
           }
           if (videoStatus.state === VideoState.SUCCESS) {
             toast(`Trimmed video!`);
-            setIsTrimmingAndCallback(false, true);
+            setIsTrimming(false);
             setLoadingMessage(undefined);
             fetchMentor(props.accessToken)
               .then((m) => {
@@ -332,7 +320,7 @@ function RecordPage(props: {
         .catch((err) => {
           toast(`Trim failed`);
           console.error(err);
-          setIsTrimmingAndCallback(false, false);
+          setIsTrimming(false);
           setLoadingMessage(undefined);
         });
     },
@@ -406,6 +394,7 @@ function RecordPage(props: {
         onUpload={onUploadVideo}
         onRerecord={onRerecordVideo}
         onTrim={onTrimVideo}
+        isUploading={isUploading || isTrimming}
       />
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
