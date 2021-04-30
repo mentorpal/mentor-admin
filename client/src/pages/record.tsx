@@ -272,35 +272,13 @@ function RecordPage(props: {
             setLoadingMessage(undefined);
             return;
           }
-          if (videoStatus.state === VideoState.UPLOAD_FAILURE) {
+          if (videoStatus.state === VideoState.FAILURE) {
             toast(`Upload failed`);
             setIsUploading(false);
             setLoadingMessage(undefined);
           }
-          if (videoStatus.state === VideoState.UPLOAD_SUCCESS) {
+          if (videoStatus.state === VideoState.SUCCESS) {
             toast(`Uploaded video!`);
-            fetchMentor(props.accessToken)
-              .then((m) => {
-                if (isCancelled()) {
-                  return;
-                }
-                updateRecordState(m);
-              })
-              .catch((err) => console.error(err));
-          }
-          if (
-            videoStatus.state === VideoState.TRANSCRIBE_STARTED ||
-            videoStatus.state === VideoState.TRANSCRIBE_PENDING
-          ) {
-            setLoadingMessage("Transcribing video...");
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_FAILURE) {
-            toast(`Transcribe failed`);
-            setIsUploading(false);
-            setLoadingMessage(undefined);
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_SUCCESS) {
-            toast(`Transcribed video!`);
             setIsUploading(false);
             setLoadingMessage(undefined);
             fetchMentor(props.accessToken)
@@ -332,35 +310,13 @@ function RecordPage(props: {
             setLoadingMessage(undefined);
             return;
           }
-          if (videoStatus.state === VideoState.UPLOAD_FAILURE) {
+          if (videoStatus.state === VideoState.FAILURE) {
             toast(`Trim failed`);
             setIsTrimmingAndCallback(false, false);
             setLoadingMessage(undefined);
           }
-          if (videoStatus.state === VideoState.UPLOAD_SUCCESS) {
+          if (videoStatus.state === VideoState.SUCCESS) {
             toast(`Trimmed video!`);
-            fetchMentor(props.accessToken)
-              .then((m) => {
-                if (isCancelled()) {
-                  return;
-                }
-                updateRecordState(m);
-              })
-              .catch((err) => console.error(err));
-          }
-          if (
-            videoStatus.state === VideoState.TRANSCRIBE_STARTED ||
-            videoStatus.state === VideoState.TRANSCRIBE_PENDING
-          ) {
-            setLoadingMessage("Transcribing video...");
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_FAILURE) {
-            toast(`Transcribe failed`);
-            setIsTrimmingAndCallback(false, false);
-            setLoadingMessage(undefined);
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_SUCCESS) {
-            toast(`Transcribed video!`);
             setIsTrimmingAndCallback(false, true);
             setLoadingMessage(undefined);
             fetchMentor(props.accessToken)
