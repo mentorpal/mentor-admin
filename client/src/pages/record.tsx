@@ -30,9 +30,7 @@ import UndoIcon from "@material-ui/icons/Undo";
 
 import {
   fetchMentor,
-  fetchTrimVideoStatus,
   fetchUploadVideoStatus,
-  trimVideo,
   updateAnswer,
   updateQuestion,
   uploadVideo,
@@ -122,10 +120,8 @@ function RecordPage(props: {
     curAnswerIx: 0,
   });
   const { answers, curAnswer, curAnswerIx, mentor } = recordState;
-  const [uploadStatusUrl, setUploadStatusUrl] = React.useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [trimStatusUrl, setTrimStatusUrl] = React.useState("");
-  const [isTrimming, setIsTrimming] = useState(false);
+  const [uploadStatusUrl, setUploadStatusUrl] = React.useState("");
   const [loadingMessage, setLoadingMessage] = useState<string>();
 
   function setCurAnswer(curAnswer: Answer): void {
@@ -226,21 +222,22 @@ function RecordPage(props: {
       });
   }
 
-  function onTrimVideo(startTime: number, endTime: number) {
+  function onTrimVideo(video: File, startTime: number, endTime: number) {
     if (!mentor || !curAnswer) {
       return;
     }
     setLoadingMessage("Trimming video...");
-    trimVideo(mentor._id, curAnswer.question._id, startTime, endTime)
+    const trim = { start: startTime, end: endTime };
+    uploadVideo(mentor._id, curAnswer.question._id, video, trim)
       .then((job) => {
-        setTrimStatusUrl(job.statusUrl);
-        setIsTrimming(true);
+        setUploadStatusUrl(job.statusUrl);
+        setIsUploading(true);
       })
       .catch((err) => {
         toast(`Trim failed`);
         console.error(err);
         setLoadingMessage(undefined);
-        setIsTrimming(false);
+        setIsUploading(false);
       });
   }
 
@@ -256,8 +253,6 @@ function RecordPage(props: {
       fetchUploadVideoStatus(uploadStatusUrl)
         .then((videoStatus) => {
           if (isCancelled()) {
-            setIsUploading(false);
-            setLoadingMessage(undefined);
             return;
           }
           if (videoStatus.state === VideoState.FAILURE) {
@@ -287,44 +282,6 @@ function RecordPage(props: {
         });
     },
     isUploading ? 1000 : null
-  );
-
-  useInterval(
-    (isCancelled) => {
-      fetchTrimVideoStatus(trimStatusUrl)
-        .then((videoStatus) => {
-          if (isCancelled()) {
-            setIsTrimming(false);
-            setLoadingMessage(undefined);
-            return;
-          }
-          if (videoStatus.state === VideoState.FAILURE) {
-            toast(`Trim failed`);
-            setIsTrimming(false);
-            setLoadingMessage(undefined);
-          }
-          if (videoStatus.state === VideoState.SUCCESS) {
-            toast(`Trimmed video!`);
-            setIsTrimming(false);
-            setLoadingMessage(undefined);
-            fetchMentor(props.accessToken)
-              .then((m) => {
-                if (isCancelled()) {
-                  return;
-                }
-                updateRecordState(m);
-              })
-              .catch((err) => console.error(err));
-          }
-        })
-        .catch((err) => {
-          toast(`Trim failed`);
-          console.error(err);
-          setIsTrimming(false);
-          setLoadingMessage(undefined);
-        });
-    },
-    isTrimming ? 1000 : null
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -394,7 +351,7 @@ function RecordPage(props: {
         onUpload={onUploadVideo}
         onRerecord={onRerecordVideo}
         onTrim={onTrimVideo}
-        isUploading={isUploading || isTrimming}
+        isUploading={isUploading}
       />
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>

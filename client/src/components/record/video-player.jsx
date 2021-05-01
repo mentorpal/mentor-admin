@@ -36,7 +36,7 @@ function VideoPlayer({
   curAnswer, // Answer | undefined
   onUpload, // (video: File) => void
   onRerecord, // () => void
-  onTrim, // (startTime: number, endTime: number) => void
+  onTrim, // (video: File, startTime: number, endTime: number) => void
   isUploading, // boolean
 }) {
   const [answerId, setAnswerId] = useState(); // string
@@ -44,8 +44,7 @@ function VideoPlayer({
   const [videoRecorderNode, setVideoRecorderNode] = useState(); // HTMLVideoElement
   const [videoRecorder, setVideoRecorder] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // File
-
-  const [videoSrc, setVideoSrc] = useState(undefined);
+  const [videoSrc, setVideoSrc] = useState(undefined); // string
   const [videoDuration, setVideoDuration] = useState(0);
   const [sliderValue, setSliderValue] = useState([0, 100]);
   const reactPlayer = useRef(null);
@@ -172,7 +171,7 @@ function VideoPlayer({
     }
     const startTime = sliderValue[0] * videoDuration;
     const endTime = sliderValue[1] * videoDuration;
-    onTrim(startTime, endTime);
+    onTrim(recordedVideo, startTime, endTime);
   }
 
   if (!mentorId || mentorType !== MentorType.VIDEO || !curAnswer) {
