@@ -593,13 +593,13 @@ describe("Record", () => {
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder showing
-    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
     // video player hidden
-    cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=video-player]").should("be.hidden");
+    cy.get("[data-cy=slider]").should("be.hidden");
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
     cy.get("[data-cy=trim-video]").should("not.exist");
   });
 
@@ -610,24 +610,24 @@ describe("Record", () => {
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder hidden
-    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=video-recorder]").should("be.hidden");
+    cy.get("[data-cy=upload-file]").should("be.hidden");
     // video player showing
-    cy.get("[data-cy=video-player]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=rerecord-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.visible");
     // editing hidden
     cy.get("[data-cy=upload-video]").should("be.disabled");
-    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=trim-video]").should("not.exist");
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
-    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=video-player]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=slider]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "hidden");
-    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "hidden");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+    cy.get("[data-cy=video-player]").should("be.hidden");
+    cy.get("[data-cy=slider]").should("be.hidden");
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
     cy.get("[data-cy=trim-video]").should("not.exist");
   });
 
@@ -636,8 +636,8 @@ describe("Record", () => {
     cyMockDefault(cy, { mentor: mentor2 });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
-    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
     // upload file
     cy.fixture('video.mp4').then(fileContent => {
       cy.get('input[type="file"]').attachFile({
@@ -647,17 +647,17 @@ describe("Record", () => {
       });
     });
     // show file
-    cy.get("[data-cy=video-player]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=rerecord-video]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-video]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=trim-video]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=slider]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=rerecord-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=trim-video]").should("be.visible");
+    cy.get("[data-cy=slider]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("not.be.disabled");
     cy.get("[data-cy=trim-video]").should("be.disabled");
     // 
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=video-recorder]").should("have.css", "visibility", "visible");
-    cy.get("[data-cy=upload-file]").should("have.css", "visibility", "visible");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
   })
 
   it.skip("can seek and trim a recorded video", () => {
