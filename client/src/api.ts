@@ -620,7 +620,7 @@ export async function uploadVideo(
   data.append("video", video);
   const request = axios.create({
     baseURL: UPLOAD_ENTRYPOINT,
-    timeout: 10000,
+    timeout: 30000,
   });
   const result = await request.post("/answer", data, {
     headers: {
