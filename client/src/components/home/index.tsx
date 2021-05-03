@@ -220,9 +220,11 @@ function HomePage(props: {
   }
 
   function onAddQuestion(subject: Subject, category: Category | undefined) {
-    const subjectIdx =
-      mentor?.subjects.findIndex((s) => s._id === subject._id) || -1;
-    if (!mentor || subjectIdx === -1) {
+    if (!mentor) {
+      return;
+    }
+    const subjectIdx = mentor.subjects.findIndex((s) => s._id === subject._id);
+    if (subjectIdx === -1) {
       return;
     }
     const newQuestion: SubjectQuestion = {
