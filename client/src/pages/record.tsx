@@ -104,6 +104,11 @@ function copyAndSet<T>(a: T[], i: number, item: T): T[] {
   return [...a.slice(0, i), item, ...a.slice(i + 1)];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function equals(val1: any, val2: any): boolean {
+  return JSON.stringify(val1) === JSON.stringify(val2);
+}
+
 function RecordPage(props: {
   accessToken: string;
   search: {
@@ -154,6 +159,9 @@ function RecordPage(props: {
   }, []);
 
   function updateRecordState(mentor: Mentor) {
+    if (!mentor) {
+      return;
+    }
     const nextState: RecordState = {
       ...recordState,
       mentor: { _id: mentor._id, mentorType: mentor.mentorType },
@@ -284,40 +292,66 @@ function RecordPage(props: {
     isUploading ? 1000 : null
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function equals(val1: any, val2: any): boolean {
-    return JSON.stringify(val1) === JSON.stringify(val2);
+  function saveAnswer(mentorId: string, answer: Answer, aIdx: number) {
+    updateAnswer(mentorId, answer, props.accessToken)
+      .then((didUpdate) => {
+        // don't update if state has changed since calling update?
+        if (!didUpdate || curAnswerIx !== aIdx || !equals(curAnswer, answer)) {
+          return;
+        }
+        setRecordState({
+          ...recordState,
+          answers: copyAndSet(answers, aIdx, answer),
+          curAnswer: answer,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        toast("Failed to save answer");
+      });
   }
 
-  async function onSave() {
+  function onSave() {
     if (!(curAnswer && mentor)) {
       return;
     }
-    let answerUpdated: Answer | null = null;
-    if (!equals(curAnswer.question, answers[curAnswerIx].question)) {
-      if (await updateQuestion(curAnswer.question, props.accessToken)) {
-        answerUpdated = {
-          ...answers[curAnswerIx],
-          question: curAnswer.question,
-        };
-      } else {
-        toast("Failed to save question");
-      }
+    let answer = curAnswer;
+    const question = curAnswer.question;
+    const aIdx = curAnswerIx;
+    // update the question
+    if (!equals(question, answers[aIdx].question)) {
+      updateQuestion(question, props.accessToken)
+        .then((didUpdate) => {
+          // don't update if state has changed since calling update?
+          if (
+            !didUpdate ||
+            curAnswerIx !== aIdx ||
+            !equals(curAnswer, answer)
+          ) {
+            return;
+          }
+          answer = {
+            ...answers[aIdx],
+            question: question,
+          };
+          if (!equals(answer, answers[aIdx])) {
+            saveAnswer(mentor._id, answer, aIdx);
+          } else {
+            setRecordState({
+              ...recordState,
+              answers: copyAndSet(answers, aIdx, answer),
+              curAnswer: answer,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          toast("Failed to save question");
+        });
     }
-    const answerWorking = answerUpdated || curAnswer;
-    if (!equals(answerWorking, answers[curAnswerIx])) {
-      if (await updateAnswer(mentor._id, answerWorking, props.accessToken)) {
-        answerUpdated = answerWorking;
-      } else {
-        toast("Failed to save answer");
-      }
-    }
-    if (answerUpdated) {
-      setRecordState({
-        ...recordState,
-        answers: copyAndSet(answers, curAnswerIx, answerUpdated),
-        curAnswer: answerWorking,
-      });
+    // update the answer
+    else if (!equals(answer, answers[curAnswerIx])) {
+      saveAnswer(mentor._id, answer, aIdx);
     }
   }
 
@@ -359,8 +393,8 @@ function RecordPage(props: {
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer.question.question}
-            disabled={curAnswer.question.mentor !== mentor._id}
+            value={curAnswer.question?.question}
+            disabled={curAnswer.question?.mentor !== mentor._id}
             onChange={(e) =>
               setCurAnswer({
                 ...curAnswer,
@@ -372,8 +406,8 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer.question.question ===
-                    answers[curAnswerIx].question.question
+                    curAnswer.question?.question ===
+                    answers[curAnswerIx].question?.question
                   }
                   onClick={() =>
                     setCurAnswer({
