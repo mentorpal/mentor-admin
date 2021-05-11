@@ -4,8 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+
+import React from "react";
 import {
   Button,
   CircularProgress,
@@ -15,11 +15,9 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { updateMentor, fetchMentor } from "api";
-import { Mentor } from "types";
 import NavBar from "components/nav-bar";
-import withAuthorizationOnly from "wrap-with-authorization-only";
-import "react-toastify/dist/ReactToastify.css";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,39 +44,16 @@ const useStyles = makeStyles(() => ({
 
 function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = useState<Mentor>();
+  const {
+    editedMentor,
+    isMentorLoading,
+    isMentorSaving,
+    isMentorEdited,
+    saveMentor,
+    editMentor,
+  } = useWithMentor(props.accessToken);
 
-  React.useEffect(() => {
-    let mounted = true;
-    fetchMentor(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentor(m);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  async function loadMentor() {
-    const m = await fetchMentor(props.accessToken);
-    setMentor(m);
-  }
-
-  async function updateProfile() {
-    const updated = await updateMentor(mentor!, props.accessToken);
-    if (!updated) {
-      toast("Failed to save changes");
-    } else {
-      loadMentor();
-      toast("Profile updated!");
-    }
-  }
-
-  if (!mentor) {
+  if (isMentorLoading || isMentorSaving || !editedMentor) {
     return (
       <div>
         <NavBar title="Mentor Studio" />
@@ -89,7 +64,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" mentorId={mentor._id} />
+      <NavBar title="Mentor Studio" mentorId={editedMentor._id} />
       <Paper className={classes.paper}>
         <Typography variant="h6" className={classes.title}>
           My Profile
@@ -98,42 +73,36 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-name"
           label="Name"
           variant="outlined"
-          value={mentor.name}
-          onChange={(e) => {
-            setMentor({ ...mentor, name: e.target.value });
-          }}
+          value={editedMentor.name || ""}
+          onChange={(e) => editMentor({ name: e.target.value })}
           className={classes.inputField}
         />
         <TextField
           data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
-          value={mentor.firstName}
-          onChange={(e) => {
-            setMentor({ ...mentor, firstName: e.target.value });
-          }}
+          value={editedMentor.firstName || ""}
+          onChange={(e) => editMentor({ firstName: e.target.value })}
           className={classes.inputField}
         />
         <TextField
           data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
-          value={mentor.title}
-          onChange={(e) => {
-            setMentor({ ...mentor, title: e.target.value });
-          }}
+          value={editedMentor.title || ""}
+          onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
         <Button
           data-cy="update-btn"
           variant="contained"
           color="primary"
-          onClick={updateProfile}
+          disabled={!isMentorEdited}
+          onClick={saveMentor}
         >
           Save Changes
         </Button>
       </Paper>
-      <ToastContainer />
     </div>
   );
 }

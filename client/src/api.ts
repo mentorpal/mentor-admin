@@ -11,11 +11,12 @@ import {
   Subject,
   Connection,
   AsyncJob,
-  TrainStatus,
   Answer,
   Question,
   UserQuestion,
-  VideoStatus,
+  TaskStatus,
+  TrainingInfo,
+  VideoInfo,
 } from "types";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
@@ -26,7 +27,7 @@ export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
-interface SearchParams {
+export interface SearchParams {
   limit?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter?: any;
@@ -411,6 +412,7 @@ export async function fetchMentor(
             name
             firstName
             title
+            email
             mentorType
             lastTrainedAt
             defaultSubject {
@@ -420,6 +422,7 @@ export async function fetchMentor(
               _id
               name
               description
+              isRequired
               categories {
                 id
                 name
@@ -492,7 +495,7 @@ export async function updateMentor(
     firstName: updateMentor.firstName,
     title: updateMentor.title,
     mentorType: updateMentor.mentorType,
-    defaultSubject: updateMentor.defaultSubject?._id,
+    defaultSubject: updateMentor.defaultSubject?._id || null,
     subjects: updateMentor.subjects.map((s) => s._id),
   };
   const headers = { Authorization: `bearer ${accessToken}` };
@@ -586,7 +589,7 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
 
 export async function fetchTrainingStatus(
   statusUrl: string
-): Promise<TrainStatus> {
+): Promise<TaskStatus<TrainingInfo>> {
   const result = await axios.get(statusUrl);
   if (result.status !== 200) {
     throw new Error(`fetch training status failed: ${result.statusText}}`);
@@ -633,7 +636,7 @@ export async function uploadVideo(
 
 export async function fetchUploadVideoStatus(
   statusUrl: string
-): Promise<VideoStatus> {
+): Promise<TaskStatus<VideoInfo>> {
   const result = await axios.get(statusUrl);
   return result.data.data;
 }

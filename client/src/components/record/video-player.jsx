@@ -10,10 +10,12 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import videojs from "video.js";
-import { Button, Slider } from "@material-ui/core";
+import { Button, Slider, Typography } from "@material-ui/core";
 
 import { UPLOAD_ENTRYPOINT } from "api";
 import { MentorType } from "types";
+import { useWithWindowSize } from "hooks/use-with-window-size";
+import useInterval from "hooks/task/use-interval";
 
 const videoJsOptions = {
   controls: true,
@@ -31,43 +33,30 @@ const videoJsOptions = {
 
 function VideoPlayer({
   classes, // Record<string, string>
-  mentorId, // string | undefined
-  mentorType, // MentorType | undefined
-  curAnswer, // Answer | undefined
-  onUpload, // (video: File) => void
+  mentor, // {id: string, type: MentorType}
+  answer, // {id: string, recordedAt: string}
+  onUpload, // (params: VideoParams) => void
   onRerecord, // () => void
-  onTrim, // (video: File, startTime: number, endTime: number) => void
   isUploading, // boolean
+  minLength, // number
 }) {
-  const [answerId, setAnswerId] = useState(); // string
-  const [videoDimension, setVideoDimension] = useState({ height: 0, width: 0 });
   const [videoRecorderNode, setVideoRecorderNode] = useState(); // HTMLVideoElement
   const [videoRecorder, setVideoRecorder] = useState(); // VideoJsPlayer
   const [recordedVideo, setRecordedVideo] = useState(); // File
   const [videoSrc, setVideoSrc] = useState(undefined); // string
   const [videoDuration, setVideoDuration] = useState(0);
+  const [videoCountdown, setVideoCountdown] = useState(minLength);
+  const [isRecording, setIsRecording] = useState(false);
   const [sliderValue, setSliderValue] = useState([0, 100]);
   const reactPlayer = useRef(null);
 
-  React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const handleResize = () => {
-      let recorderHeight = Math.max(window.innerHeight - 600, 300);
-      let recorderWidth = (recorderHeight / 9) * 16;
-      if (window.innerHeight > window.innerWidth) {
-        recorderWidth = window.innerWidth;
-        recorderHeight = (recorderWidth / 16) * 9;
-      }
-      setVideoDimension({ height: recorderHeight, width: recorderWidth });
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const { windowWidth, windowHeight } = useWithWindowSize();
+  let recorderHeight = Math.max(windowHeight - 600, 300);
+  let recorderWidth = (recorderHeight / 9) * 16;
+  if (windowHeight > windowWidth) {
+    recorderWidth = windowWidth;
+    recorderHeight = (recorderWidth / 16) * 9;
+  }
 
   React.useEffect(() => {
     if (!videoRecorderNode || videoRecorder) {
@@ -80,16 +69,14 @@ function VideoPlayer({
         setVideoRecorder(player);
       }
     );
+    player.on("startRecord", function () {
+      setIsRecording(true);
+    });
     player.on("finishRecord", function () {
       const file = new File([player.recordedData], "video.mp4");
       setRecordedVideo(file);
+      setIsRecording(false);
       player.record().reset();
-    });
-    player.on("error", (element, error) => {
-      console.warn(error);
-    });
-    player.on("deviceError", () => {
-      console.error("device error: ", player.deviceErrorCode);
     });
     return () => {
       player?.dispose();
@@ -97,32 +84,38 @@ function VideoPlayer({
   }, [videoRecorderNode]);
 
   React.useEffect(() => {
-    if (curAnswer._id === answerId) {
-      return;
-    }
     videoRecorder?.record().reset();
     setRecordedVideo(undefined);
-    setAnswerId(curAnswer._id);
     setSliderValue([0, 100]);
-  }, [curAnswer]);
+    setVideoCountdown(minLength);
+    setIsRecording(false);
+  }, [answer.id]);
 
   React.useEffect(() => {
     if (recordedVideo) {
       setVideoSrc(URL.createObjectURL(recordedVideo));
-    } else if (curAnswer.recordedAt) {
-      setVideoSrc(
-        `${UPLOAD_ENTRYPOINT}/mentors/${mentorId}/${curAnswer._id}.mp4`
-      );
+    } else if (answer.recordedAt) {
+      setVideoSrc(`${UPLOAD_ENTRYPOINT}/mentors/${mentor.id}/${answer.id}.mp4`);
     } else {
       setVideoSrc(undefined);
     }
-  }, [curAnswer.recordedAt, recordedVideo]);
+  }, [answer.recordedAt, recordedVideo]);
 
   React.useEffect(() => {
     if (isUploading) {
       setSliderValue([0, 100]);
     }
   }, [isUploading]);
+
+  useInterval(
+    (isCancelled) => {
+      if (isCancelled()) {
+        return;
+      }
+      setVideoCountdown(videoCountdown - 1);
+    },
+    isRecording ? 1000 : null
+  );
 
   function sliderToVideoDuration() {
     if (!reactPlayer.current) {
@@ -157,6 +150,8 @@ function VideoPlayer({
     videoRecorder?.record().reset();
     setRecordedVideo(undefined);
     setSliderValue([0, 100]);
+    setVideoCountdown(minLength);
+    setIsRecording(false);
     onRerecord();
   }
 
@@ -171,10 +166,10 @@ function VideoPlayer({
     }
     const startTime = sliderValue[0] * videoDuration;
     const endTime = sliderValue[1] * videoDuration;
-    onTrim(recordedVideo, startTime, endTime);
+    onUpload(recordedVideo, { start: startTime, end: endTime });
   }
 
-  if (!mentorId || mentorType !== MentorType.VIDEO || !curAnswer) {
+  if (mentor.type !== MentorType.VIDEO) {
     return <div />;
   }
 
@@ -183,8 +178,8 @@ function VideoPlayer({
       className={classes.block}
       style={{
         alignSelf: "center",
-        height: videoDimension.height + 50,
-        width: videoDimension.width,
+        height: recorderHeight + 50,
+        width: recorderWidth,
       }}
     >
       <div
@@ -196,8 +191,8 @@ function VideoPlayer({
         <div
           data-vjs-player
           style={{
-            height: videoDimension.height,
-            width: videoDimension.width,
+            height: recorderHeight,
+            width: recorderWidth,
           }}
         >
           <video
@@ -207,6 +202,21 @@ function VideoPlayer({
             ref={(e) => setVideoRecorderNode(e || undefined)}
           />
         </div>
+        {isRecording && videoCountdown > 0 ? (
+          <Typography
+            variant="h2"
+            style={{
+              color: "red",
+              position: "absolute",
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+          >
+            {videoCountdown}
+          </Typography>
+        ) : undefined}
         <div
           className={classes.row}
           style={{ justifyContent: "center", marginTop: 20 }}
@@ -228,8 +238,8 @@ function VideoPlayer({
         <div
           style={{
             backgroundColor: "#000",
-            height: videoDimension.height,
-            width: videoDimension.width,
+            height: recorderHeight,
+            width: recorderWidth,
           }}
         >
           <ReactPlayer
@@ -238,8 +248,8 @@ function VideoPlayer({
             url={videoSrc}
             controls={true}
             playing={!isUploading}
-            height={videoDimension.height}
-            width={videoDimension.width}
+            height={recorderHeight}
+            width={recorderWidth}
             playsinline
             webkit-playsinline="true"
             progressInterval={100}
@@ -276,7 +286,11 @@ function VideoPlayer({
             variant="contained"
             color="primary"
             disableElevation
-            disabled={!recordedVideo || isUploading}
+            disabled={
+              !recordedVideo ||
+              isUploading ||
+              (isFinite(videoDuration) && videoDuration < minLength)
+            }
             className={classes.button}
             onClick={() => onUpload(recordedVideo)}
             style={{ marginRight: 15 }}
@@ -301,6 +315,12 @@ function VideoPlayer({
             </Button>
           ) : undefined}
         </div>
+        {isFinite(videoDuration) && videoDuration < minLength ? (
+          <div style={{ textAlign: "center", color: "red", marginTop: 5 }}>
+            Video must be {minLength} seconds long but is only {videoDuration}{" "}
+            seconds long
+          </div>
+        ) : undefined}
       </div>
     </div>
   );

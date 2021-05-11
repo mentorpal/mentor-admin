@@ -4,29 +4,40 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext } from "react";
-import Context from "context";
-import { LoginStatus } from "types";
-import { navigate } from "gatsby";
+import { fetchMentor, updateMentor } from "api";
+import { Mentor } from "types";
+import { useWithData } from "./use-with-data";
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const withAuthorizationOnly = (Component) => (props) => {
-  const context = useContext(Context);
-  if (context.loginStatus === LoginStatus.NONE && !context.accessToken) {
-    if (typeof window !== "undefined") {
-      navigate("/");
-    }
-    return <div />;
+export function useWithMentor(accessToken: string) {
+  const {
+    data,
+    editedData,
+    isEdited,
+    isLoading,
+    isSaving,
+    error,
+    editData,
+    saveData,
+    reloadData,
+  } = useWithData<Mentor>(fetch, update);
+
+  function fetch() {
+    return fetchMentor(accessToken);
   }
-  return context.loginStatus === LoginStatus.AUTHENTICATED ? (
-    <Component
-      {...props}
-      accessToken={context.accessToken}
-      user={context.user}
-    />
-  ) : (
-    <div /> // TODO: change this to a loading skeleton
-  );
-};
 
-export default withAuthorizationOnly;
+  function update(editedData: Mentor) {
+    return updateMentor(editedData, accessToken);
+  }
+
+  return {
+    mentor: data,
+    editedMentor: editedData,
+    isMentorEdited: isEdited,
+    isMentorLoading: isLoading,
+    isMentorSaving: isSaving,
+    mentorError: error,
+    reloadMentor: reloadData,
+    editMentor: editData,
+    saveMentor: saveData,
+  };
+}

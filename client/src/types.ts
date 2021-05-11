@@ -39,6 +39,7 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
+  email: string;
   mentorType: MentorType;
   lastTrainedAt: string;
   defaultSubject?: Subject;
@@ -150,18 +151,18 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
-export interface TrainStatus {
-  state: TrainState;
-  status?: string;
-  info?: TrainingInfo;
-}
-
-export enum TrainState {
+export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
+}
+
+export interface TaskStatus<T> {
+  state: JobState;
+  status?: string;
+  info?: T;
 }
 
 export interface TrainingInfo {
@@ -171,20 +172,6 @@ export interface TrainingInfo {
 
 export interface TrainExpectionResult {
   accuracy: number;
-}
-
-export interface VideoStatus {
-  state: VideoState;
-  status?: string;
-  info?: VideoInfo;
-}
-
-export enum VideoState {
-  NONE = "NONE",
-  FAILURE = "FAILURE",
-  SUCCESS = "SUCCESS",
-  PENDING = "PENDING",
-  STARTED = "STARTED",
 }
 
 export interface VideoInfo {

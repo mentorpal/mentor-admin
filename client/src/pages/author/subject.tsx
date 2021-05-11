@@ -24,8 +24,9 @@ import { Subject, Category, Topic, SubjectQuestion, QuestionType } from "types";
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
 import TopicsList from "components/author/topics-list";
-import withLocation from "wrap-with-location";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withLocation from "hooks/wrap-with-location";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,20 +85,9 @@ function SubjectPage(props: {
   const [isSubjectInfoExpanded, setIsSubjectInfoExpanded] = useState(true);
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
-  const [windowHeight, setWindowHeight] = React.useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  React.useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const handleResize = () => setWindowHeight(window.innerHeight);
-    window.addEventListener("resize", handleResize);
-    setWindowHeight(window.innerHeight);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const { windowHeight } = useWithWindowSize();
 
   React.useEffect(() => {
     let mounted = true;

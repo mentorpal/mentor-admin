@@ -23,31 +23,25 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import {
-  fetchMentor,
-  fetchTrainingStatus,
-  trainMentor,
-  updateSubject,
-} from "api";
+import { fetchMentor, updateSubject } from "api";
 import {
   Answer,
   Category,
-  Mentor,
   Question,
   QuestionType,
   Status,
   Subject,
   SubjectQuestion,
-  TrainState,
 } from "types";
 import NavBar from "components/nav-bar";
 import RecordingBlockItem, {
   RecordingBlock,
 } from "components/home/recording-block";
-import useInterval from "use-interval";
-import withLocation from "wrap-with-location";
-import { toast, ToastContainer } from "react-toastify";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withLocation from "hooks/wrap-with-location";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithTraining } from "hooks/task/use-with-train";
+import { SetupStatus, useWithSetup } from "hooks/graphql/use-with-setup-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -98,31 +92,24 @@ function HomePage(props: {
   search: { subject?: string };
 }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = useState<Mentor>();
   const [selectedSubject, setSelectedSubject] = useState<string>();
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [editedSubjects, setEditedSubjects] = useState<string[]>([]);
   const [loadingMessage, setLoadingMessage] = useState<string>();
-  const [statusUrl, setStatusUrl] = React.useState("");
-  const [isBuilding, setIsBuilding] = useState(false);
+
+  const { setupStatus } = useWithSetup(props.accessToken);
+  const { mentor, isMentorLoading } = useWithMentor(props.accessToken);
+  const { isTraining, startTraining } = useWithTraining();
 
   React.useEffect(() => {
-    let mounted = true;
+    if (setupStatus === SetupStatus.INCOMPLETE) {
+      navigate(`/setup`);
+    }
+  }, [setupStatus]);
+
+  React.useEffect(() => {
     setSelectedSubject(props.search.subject);
-    setLoadingMessage("Loading mentor...");
-    fetchMentor(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentor(m);
-        setLoadingMessage(undefined);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   React.useEffect(() => {
@@ -314,51 +301,9 @@ function HomePage(props: {
       .catch((err) => console.error(err));
   }
 
-  function trainAndBuild() {
-    if (!mentor) {
-      return;
-    }
-    setLoadingMessage("Training mentor...");
-    trainMentor(mentor._id)
-      .then((trainJob) => {
-        setStatusUrl(trainJob.statusUrl);
-        setIsBuilding(true);
-      })
-      .catch((err) => {
-        toast(`Training failed: ${err.message || err}`);
-        setLoadingMessage(undefined);
-        setIsBuilding(false);
-      });
+  if (!mentor || isMentorLoading || setupStatus === SetupStatus.LOADING) {
+    return <div />;
   }
-
-  useInterval(
-    (isCancelled) => {
-      fetchTrainingStatus(statusUrl)
-        .then((trainStatus) => {
-          if (isCancelled()) {
-            setIsBuilding(false);
-            setLoadingMessage(undefined);
-            return;
-          }
-          if (trainStatus.state === TrainState.SUCCESS) {
-            toast(`Training succeeded!`);
-            setIsBuilding(false);
-            setLoadingMessage(undefined);
-          }
-          if (trainStatus.state === TrainState.FAILURE) {
-            toast(`Training failed`);
-            setIsBuilding(false);
-            setLoadingMessage(undefined);
-          }
-        })
-        .catch((err: Error) => {
-          toast(`Training failed: ${err.message || err}`);
-          setIsBuilding(false);
-          setLoadingMessage(undefined);
-        });
-    },
-    isBuilding ? 1000 : null
-  );
 
   return (
     <div className={classes.root}>
@@ -431,8 +376,8 @@ function HomePage(props: {
             data-cy="train-button"
             variant="extended"
             color="primary"
-            disabled={isBuilding}
-            onClick={trainAndBuild}
+            disabled={isTraining}
+            onClick={() => startTraining(mentor._id)}
             className={classes.fab}
           >
             Build Mentor
@@ -445,7 +390,6 @@ function HomePage(props: {
           <CircularProgress />
         </DialogContent>
       </Dialog>
-      <ToastContainer />
     </div>
   );
 }

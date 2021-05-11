@@ -32,7 +32,7 @@ import { fetchMentorId, fetchQuestions } from "api";
 import { Connection, Mentor, Question } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 
 const useStyles = makeStyles((theme) => ({
   root: {
