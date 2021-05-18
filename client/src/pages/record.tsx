@@ -1,4 +1,10 @@
 /*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
+/*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved.
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 
@@ -10,6 +16,11 @@ import {
   AppBar,
   Button,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControl,
   IconButton,
   InputAdornment,
@@ -24,13 +35,12 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { Status, UtteranceName } from "types";
+import { MentorType, Status } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "hooks/wrap-with-location";
-import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
 
@@ -75,10 +85,18 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
-  faceOutline: {
-    opacity: 0.5,
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 30,
+    left: 0,
+    right: 0,
   },
 }));
+
+interface LeaveConfirmation {
+  callback: () => void;
+}
 
 function RecordPage(props: {
   accessToken: string;
@@ -93,17 +111,22 @@ function RecordPage(props: {
   const classes = useStyles();
   const {
     answers,
+    answerIdx,
     curAnswer,
-    curAnswerIdx,
-    hasUnsavedChanges,
+    recordState,
     prevAnswer,
     nextAnswer,
     editAnswer,
     saveAnswer,
+    rerecord,
+    startRecording,
+    stopRecording,
+    uploadVideo,
+    setMinVideoLength: setVideoLength,
+    setVideoTrim,
   } = useWithRecordState(props.accessToken, props.search);
   const { mentor } = useWithMentor(props.accessToken);
-  const { isUploading, startUploading } = useWithUploading();
-  const [idleLength, setIdleLength] = useState<number>(10);
+  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   function onBack() {
     if (props.search.back) {
@@ -113,7 +136,23 @@ function RecordPage(props: {
     }
   }
 
-  if (!mentor || answers.length === 0 || !curAnswer) {
+  function switchAnswer(onNav: () => void) {
+    if (curAnswer?.isEdited) {
+      setConfirmLeave({ callback: onNav });
+    } else {
+      onNav();
+    }
+  }
+
+  function confirm() {
+    if (!confirmLeave) {
+      return;
+    }
+    confirmLeave.callback();
+    setConfirmLeave(undefined);
+  }
+
+  if (!mentor || !curAnswer) {
     return (
       <div>
         <NavBar title="Record Mentor" mentorId={mentor?._id} />
@@ -131,32 +170,36 @@ function RecordPage(props: {
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {curAnswerIdx + 1} / {answers.length}
+          Questions {answerIdx + 1} / {answers.length}
         </Typography>
-        <ProgressBar value={curAnswerIdx + 1} total={answers.length} />
+        <ProgressBar value={answerIdx + 1} total={answers.length} />
       </div>
-      <VideoPlayer
-        classes={classes}
-        mentor={{ id: mentor._id, type: mentor.mentorType }}
-        answer={{ id: curAnswer._id, recordedAt: curAnswer.recordedAt }}
-        isUploading={isUploading}
-        onUpload={startUploading}
-        onRerecord={() => editAnswer({ recordedAt: "" })}
-        minLength={
-          curAnswer.question?.name === UtteranceName.IDLE ? idleLength : 0
-        }
-      />
+      {mentor.mentorType === MentorType.VIDEO ? (
+        <VideoPlayer
+          classes={classes}
+          curAnswer={curAnswer}
+          recordState={recordState}
+          onUpload={uploadVideo}
+          onRerecord={rerecord}
+          onRecordStart={startRecording}
+          onRecordStop={stopRecording}
+          onTrim={setVideoTrim}
+        />
+      ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer.question?.question}
-            disabled={curAnswer.question?.mentor !== mentor._id}
+            value={curAnswer.answer.question?.question}
+            disabled={curAnswer.answer.question?.mentor !== mentor._id}
             onChange={(e) =>
               editAnswer({
-                question: { ...curAnswer.question, question: e.target.value },
+                question: {
+                  ...curAnswer.answer.question,
+                  question: e.target.value,
+                },
               })
             }
             endAdornment={
@@ -164,12 +207,12 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer.question?.question ===
-                    answers[curAnswerIdx].question?.question
+                    curAnswer.answer.question?.question ===
+                    answers[answerIdx].question?.question
                   }
                   onClick={() =>
                     editAnswer({
-                      question: answers[curAnswerIdx].question,
+                      question: answers[answerIdx].question,
                     })
                   }
                 >
@@ -180,15 +223,15 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      {curAnswer.question?.name === UtteranceName.IDLE ? (
+      {curAnswer.minVideoLength ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={idleLength}
+            value={curAnswer.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => setIdleLength(event.target.value as number)}
+            ) => setVideoLength(event.target.value as number)}
             style={{ marginLeft: 10 }}
           >
             <MenuItem data-cy="10" value={10}>
@@ -209,18 +252,19 @@ function RecordPage(props: {
             <OutlinedInput
               data-cy="transcript-input"
               multiline
-              value={curAnswer.transcript}
+              value={curAnswer.answer.transcript}
               onChange={(e) => editAnswer({ transcript: e.target.value })}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     data-cy="undo-transcript-btn"
                     disabled={
-                      curAnswer.transcript === answers[curAnswerIdx].transcript
+                      curAnswer.answer.transcript ===
+                      answers[answerIdx].transcript
                     }
                     onClick={() =>
                       editAnswer({
-                        transcript: answers[curAnswerIdx].transcript,
+                        transcript: answers[answerIdx].transcript,
                       })
                     }
                   >
@@ -240,17 +284,21 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer.status.toString()}
+          value={curAnswer.answer.status.toString()}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => editAnswer({ status: event.target.value as Status })}
           style={{ marginLeft: 10 }}
         >
           <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
-            {Status.INCOMPLETE}
+            Skip
           </MenuItem>
-          <MenuItem data-cy="complete" value={Status.COMPLETE}>
-            {Status.COMPLETE}
+          <MenuItem
+            data-cy="complete"
+            value={Status.COMPLETE}
+            disabled={!curAnswer.isValid}
+          >
+            Active
           </MenuItem>
         </Select>
       </div>
@@ -260,8 +308,10 @@ function RecordPage(props: {
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}
-            disabled={curAnswerIdx === 0}
-            onClick={prevAnswer}
+            disabled={
+              answerIdx === 0 || recordState.isSaving || recordState.isUploading
+            }
+            onClick={() => switchAnswer(prevAnswer)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -270,18 +320,23 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={hasUnsavedChanges}
+            disabled={
+              !curAnswer.isEdited ||
+              recordState.isSaving ||
+              recordState.isUploading
+            }
             onClick={saveAnswer}
           >
             Save
           </Button>
-          {curAnswerIdx === answers.length - 1 ? (
+          {answerIdx === answers.length - 1 ? (
             <Button
               data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
-              onClick={onBack}
+              disabled={recordState.isSaving || recordState.isUploading}
+              onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
               Done
@@ -290,14 +345,43 @@ function RecordPage(props: {
             <IconButton
               data-cy="next-btn"
               className={classes.nextBtn}
-              disabled={curAnswerIdx === answers.length - 1}
-              onClick={nextAnswer}
+              disabled={
+                answerIdx === answers.length - 1 ||
+                recordState.isSaving ||
+                recordState.isUploading
+              }
+              onClick={() => switchAnswer(nextAnswer)}
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
           )}
         </Toolbar>
       </AppBar>
+      <Dialog open={recordState.isSaving || recordState.isUploading}>
+        <DialogTitle>
+          {recordState.isSaving
+            ? "Saving..."
+            : recordState.isUploading
+            ? "Uploading..."
+            : ""}
+        </DialogTitle>
+        <DialogContent>
+          <CircularProgress />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={confirmLeave !== undefined}>
+        <DialogContent>
+          <DialogContentText>
+            You have unsaved changes. Are you sure you&apos;d like to move on?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={confirm}>Yes</Button>
+          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

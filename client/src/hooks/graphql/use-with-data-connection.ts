@@ -24,9 +24,9 @@ export function useWithDataConnection<T>(fetch: () => Promise<Connection<T>>) {
     sortAscending: false,
     filter: {},
   });
-  const { data, isLoading, error, reloadData } = useWithData<Connection<T>>(
-    fetch
-  );
+  const { data, isLoading, error, clearError, reloadData } = useWithData<
+    Connection<T>
+  >(fetch);
 
   useEffect(() => {
     reloadData();
@@ -70,6 +70,7 @@ export function useWithDataConnection<T>(fetch: () => Promise<Connection<T>>) {
     error,
     isLoading,
     searchParams,
+    clearError,
     reloadData,
     sortBy,
     filter,

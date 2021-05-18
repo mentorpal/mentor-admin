@@ -41,7 +41,7 @@ import withLocation from "hooks/wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { SetupStatus, useWithSetup } from "hooks/graphql/use-with-setup-status";
+import { SetupStatus, useWithSetup } from "hooks/graphql/use-with-setup";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,

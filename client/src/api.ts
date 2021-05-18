@@ -152,6 +152,8 @@ export async function fetchSubject(id: string): Promise<Subject> {
               name
               paraphrases
               mentor
+              mentorType
+              minVideoLength
             }
             category {
               id
@@ -225,8 +227,6 @@ export async function fetchQuestions(
               question
               type
               name
-              paraphrases
-              mentor
             }
           }
           pageInfo {
@@ -240,24 +240,6 @@ export async function fetchQuestions(
     `,
   });
   return result.data.data.questions;
-}
-
-export async function fetchQuestion(id: string): Promise<Question> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        question(id: "${id}") {
-          _id
-          question
-          type
-          name
-          paraphrases
-          mentor
-        }
-      }
-    `,
-  });
-  return result.data.data.question;
 }
 
 export async function fetchUserQuestions(

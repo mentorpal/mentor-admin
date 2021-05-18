@@ -84,6 +84,8 @@ export interface Question {
   name: string;
   paraphrases: string[];
   mentor?: string;
+  mentorType?: string;
+  minVideoLength?: number;
 }
 
 export interface Answer {
@@ -91,7 +93,7 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
-  recordedAt: string;
+  recordedAt?: string;
 }
 
 export interface UserQuestion {

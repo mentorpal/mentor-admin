@@ -104,7 +104,7 @@ describe("Login", () => {
     cy.visit("/");
     cy.contains("Please sign in to access the Mentor Studio portal");
     cy.get("[data-cy=nav-bar]").should("not.exist");
-});
+  });
 
   it("shows user name on home page if user is logged in", () => {
     cySetup(cy);
@@ -115,22 +115,11 @@ describe("Login", () => {
     })
   });
 
-  // TODO
-  it.skip("redirects to setup page after logging in for the first time", () => {
-    cySetup(cy);
-    cyMockLogin(cy);
-    cyMockDefault(cy, { mentor });
-    cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup");
-    });
-    cy.get("[data-cy=login-button]").should("not.exist");
-  });
-
   it("can logout and redirect to login page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
-    cy.visit("/");
+    cy.visit("/setup");
+    cy.contains("Welcome to MentorPal!")
     cy.get("[data-cy=login-option]").trigger("mouseover").click();
     cy.get("[data-cy=logout-button]").trigger("mouseover").click();
     cy.location("pathname").then(($el) => {

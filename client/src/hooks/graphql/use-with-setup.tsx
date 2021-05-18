@@ -168,8 +168,11 @@ export function useWithSetup(
   }, [editedMentor, mentor]);
 
   return {
+    mentor: editedMentor,
     slides,
     setupStatus,
     isSetupComplete: setupStatus === SetupStatus.COMPLETE,
+    isSetupLoading: isMentorLoading,
+    isSetupSaving: isMentorSaving,
   };
 }

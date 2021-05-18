@@ -18,6 +18,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,14 +47,16 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const {
     editedMentor,
+    mentorError,
     isMentorLoading,
     isMentorSaving,
     isMentorEdited,
+    clearMentorError,
     saveMentor,
     editMentor,
   } = useWithMentor(props.accessToken);
 
-  if (isMentorLoading || isMentorSaving || !editedMentor) {
+  if (!editedMentor) {
     return (
       <div>
         <NavBar title="Mentor Studio" />
@@ -93,6 +96,16 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
+        <TextField
+          data-cy="mentor-email"
+          label="Email"
+          type="email"
+          variant="outlined"
+          helperText="Leave blank if you don't want anyone to contact you"
+          value={editedMentor.email || ""}
+          onChange={(e) => editMentor({ email: e.target.value })}
+          className={classes.inputField}
+        />
         <Button
           data-cy="update-btn"
           variant="contained"
@@ -103,6 +116,10 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           Save Changes
         </Button>
       </Paper>
+      <LoadingDialog
+        title={isMentorLoading ? "Loading" : isMentorSaving ? "Saving" : ""}
+      />
+      <ErrorDialog error={mentorError} clearError={clearMentorError} />
     </div>
   );
 }

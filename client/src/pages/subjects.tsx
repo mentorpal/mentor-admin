@@ -24,6 +24,7 @@ import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
@@ -91,6 +92,8 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     editedMentor,
     isMentorLoading,
     isMentorSaving,
+    mentorError,
+    clearMentorError,
     editMentor,
     saveMentor,
   } = useWithMentor(props.accessToken);
@@ -103,13 +106,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     subjectsPrevPage,
   } = useWithSubjects();
 
-  if (
-    !editedMentor ||
-    isMentorLoading ||
-    isMentorSaving ||
-    !subjects ||
-    isSubjectsLoading
-  ) {
+  if (!editedMentor || !subjects) {
     return (
       <div>
         <NavBar title="Subjects" mentor={editedMentor?._id} />
@@ -232,6 +229,16 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
           </Toolbar>
         </AppBar>
       </div>
+      <LoadingDialog
+        title={
+          isMentorLoading || isSubjectsLoading
+            ? "Loading"
+            : isMentorSaving
+            ? "Saving"
+            : ""
+        }
+      />
+      <ErrorDialog error={mentorError} clearError={clearMentorError} />
     </div>
   );
 }

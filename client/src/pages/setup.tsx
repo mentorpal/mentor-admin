@@ -13,8 +13,8 @@ import { User } from "types";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "hooks/wrap-with-location";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
-import { useWithSetup } from "hooks/graphql/use-with-setup-status";
+import { useWithSetup } from "hooks/graphql/use-with-setup";
+import { LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -73,8 +73,13 @@ function SetupPage(props: {
   const [slideIdx, setSlideIdx] = useState(
     props.search.i ? parseInt(props.search.i) : 0
   );
-  const { mentor } = useWithMentor(props.accessToken);
-  const { slides, isSetupComplete } = useWithSetup(props.accessToken, {
+  const {
+    slides,
+    mentor,
+    isSetupComplete,
+    isSetupLoading,
+    isSetupSaving,
+  } = useWithSetup(props.accessToken, {
     classes,
     user: props.user,
   });
@@ -137,6 +142,9 @@ function SetupPage(props: {
           />
         ))}
       </div>
+      <LoadingDialog
+        title={isSetupLoading ? "Loading" : isSetupSaving ? "Saving" : ""}
+      />
     </div>
   );
 }

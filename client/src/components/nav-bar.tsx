@@ -194,7 +194,7 @@ function NavMenu(props: {
         to={"/author/subjects"}
         selected={location.pathname.includes("/author/subject")}
       >
-        <ListItemText primary="Subjects Areas" />
+        <ListItemText primary="Subjects" />
       </ListItem>
       <ListItem
         button

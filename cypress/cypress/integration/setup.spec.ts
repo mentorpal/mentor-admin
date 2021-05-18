@@ -134,9 +134,9 @@ describe("Setup", () => {
       cy.contains("It's nice to meet you, Clinton Anderson!");
       cy.contains("Let's get started setting up your new mentor.");
     });
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("not.exist");
-    cy.get("[data-cy=done-btn]").should("not.exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-0]").should(
       "have.css",
       "color",
@@ -151,9 +151,9 @@ describe("Setup", () => {
       mentor: [setup0, setup1, setup2, setup3],
     });
     cy.visit("/setup?i=1");
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("not.exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     // empty mentor slide
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Tell us a little about yourself.");
@@ -164,6 +164,9 @@ describe("Setup", () => {
         cy.get("input").should("have.value", "");
       });
       cy.get("[data-cy=title]").within(($input) => {
+        cy.get("input").should("have.value", "");
+      });
+      cy.get("[data-cy=email]").within(($input) => {
         cy.get("input").should("have.value", "");
       });
       cy.get("[data-cy=save-btn]").should("be.disabled");
@@ -185,6 +188,7 @@ describe("Setup", () => {
       });
       cy.get("[data-cy=save-btn]").should("be.disabled");
     });
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-1]").should("have.css", "color", "rgb(255, 0, 0)");
     // fill out full name and save
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -203,6 +207,7 @@ describe("Setup", () => {
       });
       cy.get("[data-cy=save-btn]").should("be.disabled");
     });
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-1]").should("have.css", "color", "rgb(255, 0, 0)");
     // fill out title and save
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -221,6 +226,7 @@ describe("Setup", () => {
       });
       cy.get("[data-cy=save-btn]").should("be.disabled");
     });
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-1]").should(
       "have.css",
       "color",
@@ -228,58 +234,63 @@ describe("Setup", () => {
     );
   });
 
-  describe("shows mentor type slide", () => {
-    it("type is CHAT by default if no mentorType", () => {
-      cySetup(cy);
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: { ...setup0, mentorType: null },
-      });
-      cy.visit("/setup?i=2");
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Pick a mentor type");
-        cy.contains("Make a text-only mentor that responds with chat bubbles");
-        cy.get("[data-cy=select-chat-type]").contains("Chat");
-      });
+  it("shows mentor chat type", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...setup0, mentorType: null },
     });
-
-    it("load and updates mentor chat type", () => {
-      cySetup(cy);
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: [setup0, { ...setup0, mentorType: MentorType.CHAT }],
-      });
-      cy.visit("/setup?i=2");
-      cy.get("[data-cy=next-btn]").should("exist");
-      cy.get("[data-cy=back-btn]").should("exist");
-      cy.get("[data-cy=done-btn]").should("not.exist");
-      cy.get("[data-cy=radio-2]").should(
-        "have.css",
-        "color",
-        "rgb(27, 106, 156)"
-      );
-      cy.get("[data-cy=slide]").within(($slide) => {
-        // loads mentor chat type
-        cy.contains("Pick a mentor type");
-        cy.contains(
-          "Make a video mentor that responds with pre-recorded video answers"
-        );
-        cy.get("[data-cy=select-chat-type]").contains("Video");
-        cy.get("[data-cy=save-btn]").should("be.disabled");
-        // updates mentor chat type
-        cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
-      });
-      cy.get("[data-cy=video]").should("exist");
-      cy.get("[data-cy=chat]").trigger("mouseover").click();
-      // saves changes
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Make a text-only mentor that responds with chat bubbles");
-        cy.get("[data-cy=save-btn]").should("not.be.disabled");
-        cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-        cy.get("[data-cy=save-btn]").should("be.disabled");
-        cy.contains("Make a text-only mentor that responds with chat bubbles");
-      });
+    cy.visit("/setup?i=2");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
+    cy.get("[data-cy=radio-1]").should("have.css", "color", "rgb(255, 0, 0)");
+    // select chat type
+    cy.get("[data-cy=slide]").within(($slide) => {
+      cy.contains("Pick a mentor type");
+      cy.get("[data-cy=save-btn]").should("be.disabled");
+      cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
     });
+    cy.get("[data-cy=video]").should("exist");
+    cy.get("[data-cy=chat]").trigger("mouseover").click();
+    // save changes
+    cy.get("[data-cy=slide]").within(($slide) => {
+      cy.contains("Make a text-only mentor that responds with chat bubbles");
+      cy.get("[data-cy=save-btn]").should("not.be.disabled");
+      cy.get("[data-cy=save-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=save-btn]").should("be.disabled");
+      cy.contains("Make a text-only mentor that responds with chat bubbles");
+    });
+    cy.get("[data-cy=radio-8]").should("not.exist");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
+    cy.get("[data-cy=radio-2]").should(
+      "have.css",
+      "color",
+      "rgb(27, 106, 156)"
+    );
+    // select chat
+    cy.get("[data-cy=slide]").within(($slide) => {
+      cy.contains("Pick a mentor type");
+      cy.get("[data-cy=save-btn]").should("be.disabled");
+      cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=chat]").should("exist");
+    cy.get("[data-cy=video]").trigger("mouseover").click();
+    // save changes
+    cy.get("[data-cy=slide]").within(($slide) => {
+      cy.contains("Make a video mentor that responds with pre-recorded video answers");
+      cy.get("[data-cy=save-btn]").should("not.be.disabled");
+      cy.get("[data-cy=save-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=save-btn]").should("be.disabled");
+      cy.contains("Make a video mentor that responds with pre-recorded video answers");
+    });
+    cy.get("[data-cy=radio-8]").should("exist");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
+    cy.get("[data-cy=radio-2]").should(
+      "have.css",
+      "color",
+      "rgb(27, 106, 156)"
+    );
   });
 
   it("shows introduction slide", () => {
@@ -295,13 +306,10 @@ describe("Setup", () => {
         "You'll be asked to pick some subjects and answer some questions."
       );
       cy.contains("Once you're done, you can build and preview your mentor.");
-      cy.contains(
-        "If you'd like to stop, press done at any point. You can always finish later."
-      );
     });
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("not.be.disabled");
     cy.get("[data-cy=radio-3]").should(
       "have.css",
       "color",
@@ -346,23 +354,14 @@ describe("Setup", () => {
         "After completing a subject, you'll be placed in a panel with other mentors in your field."
       );
     });
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-4]").should(
       "have.css",
       "color",
       "rgb(27, 106, 156)"
     );
-    cy.get("[data-cy=radio-6]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains("Background questions");
-    cy.get("[data-cy=radio-7]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains("Repeat After Me questions");
-    cy.get("[data-cy=radio-8]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains(
-      "Great job! You're ready to build your mentor!"
-    );
-    cy.get("[data-cy=radio-4]").trigger("mouseover").click();
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=button]").trigger("mouseover").click();
@@ -430,29 +429,23 @@ describe("Setup", () => {
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();
     });
-    // check if added subjects
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
     cy.location("search").should("contain", "?i=4");
-    cy.get("[data-cy=radio-6]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains("Background questions");
-    cy.get("[data-cy=radio-7]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains("Repeat After Me questions");
-    cy.get("[data-cy=radio-8]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").contains("Leadership questions");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
   });
 
-  it("shows idle slide", () => {
+  it.only("video mentor shows idle slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
     });
     cy.visit("/setup?i=5");
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Idle");
       cy.contains("Let's record a short idle calibration video.");
@@ -500,7 +493,7 @@ describe("Setup", () => {
     );
   });
 
-  it("chat mentor does not have idle slide", () => {
+  it("chat mentor does not show idle slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
@@ -524,9 +517,9 @@ describe("Setup", () => {
       ],
     });
     cy.visit("/setup?i=6");
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("not.be.disabled");
     cy.get("[data-cy=radio-6]").should("have.css", "color", "rgb(255, 0, 0)");
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Background questions");
@@ -634,9 +627,9 @@ describe("Setup", () => {
       ],
     });
     cy.visit("/setup?i=7");
-    cy.get("[data-cy=next-btn]").should("exist");
-    cy.get("[data-cy=back-btn]").should("exist");
-    cy.get("[data-cy=done-btn]").should("exist");
+    cy.get("[data-cy=next-btn]").should("not.be.disabled");
+    cy.get("[data-cy=back-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("not.be.disabled");
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Repeat After Me questions");
       cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
@@ -763,8 +756,8 @@ describe("Setup", () => {
       cyMockTrainStatus(cy, { status: { state: TrainState.FAILURE } });
       cy.visit("/setup?i=8");
       cy.get("[data-cy=next-btn]").should("not.exist");
-      cy.get("[data-cy=back-btn]").should("exist");
-      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=done-btn]").should("not.be.disabled");
       cy.get("[data-cy=radio-8]").should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
@@ -788,8 +781,8 @@ describe("Setup", () => {
       cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS } });
       cy.visit("/setup?i=8");
       cy.get("[data-cy=next-btn]").should("not.exist");
-      cy.get("[data-cy=back-btn]").should("exist");
-      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=done-btn]").should("not.be.disabled");
       cy.get("[data-cy=radio-8]").should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");

@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import React from "react";
 import {
   AppBar,
   CircularProgress,
@@ -28,11 +27,13 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { fetchMentorId, fetchSubjects } from "api";
-import { Connection, Mentor, Subject } from "types";
+import { Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -104,7 +105,6 @@ function SubjectItem(props: {
   }
 
   async function deleteSubject(id: string) {
-    toast("Deleting...");
     setAnchorEl(undefined);
     onDelete(id);
   }
@@ -158,54 +158,25 @@ function SubjectItem(props: {
 
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = React.useState<Mentor>();
-  const [subjects, setSubjects] = useState<Connection<Subject>>();
-  const [cursor, setCursor] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("name");
-  const [sortAscending, setSortAscending] = React.useState(false);
-  const limit = 10;
+  const {
+    mentor,
+    isMentorLoading,
+    mentorError,
+    clearMentorError,
+  } = useWithMentor(props.accessToken);
+  const {
+    subjects,
+    subjectsError,
+    isSubjectsLoading,
+    subjectSearchParams,
+    sortSubjects: subjectsSortBy,
+    clearSubjectsError,
+    subjectsNextPage,
+    subjectsPrevPage,
+  } = useWithSubjects();
 
-  React.useState(() => {
-    let mounted = true;
-    fetchMentorId(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentor(m);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  });
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchSubjects({ cursor, limit, sortBy, sortAscending })
-      .then((s) => {
-        if (!mounted) {
-          return;
-        }
-        setSubjects(s);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, [cursor, sortBy, sortAscending]);
-
-  async function deleteSubject() {
+  function deleteSubject(id: string) {
     // TODO
-  }
-
-  function setSort(id: string) {
-    if (sortBy === id) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortBy(id);
-    }
-    setCursor("");
   }
 
   if (!subjects) {
@@ -226,9 +197,9 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
                 columns={columns}
-                sortBy={sortBy}
-                sortAsc={sortAscending}
-                onSort={setSort}
+                sortBy={subjectSearchParams.sortBy}
+                sortAsc={subjectSearchParams.sortAscending}
+                onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
                 {subjects.edges.map((row, i) => (
@@ -247,16 +218,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             <IconButton
               data-cy="prev-page"
               disabled={!subjects.pageInfo.hasPreviousPage}
-              onClick={() =>
-                setCursor("prev__" + subjects.pageInfo.startCursor)
-              }
+              onClick={subjectsPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
               disabled={!subjects.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
+              onClick={subjectsNextPage}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -272,7 +241,13 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             </Fab>
           </Toolbar>
         </AppBar>
-        <ToastContainer />
+        <LoadingDialog
+          title={isMentorLoading || isSubjectsLoading ? "Loading" : ""}
+        />
+        <ErrorDialog
+          error={mentorError || subjectsError}
+          clearError={mentorError ? clearMentorError : clearSubjectsError}
+        />
       </div>
     </div>
   );
