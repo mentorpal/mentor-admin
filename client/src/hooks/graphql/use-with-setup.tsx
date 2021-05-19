@@ -17,6 +17,7 @@ import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
 import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { BuildMentorSlide } from "components/setup/build-mentor-slide";
+import { useWithTraining } from "hooks/task/use-with-train";
 
 export enum SetupStatus {
   LOADING = "LOADING",
@@ -44,6 +45,7 @@ export function useWithSetup(
     editMentor,
     saveMentor,
   } = useWithMentor(accessToken);
+  const { isTraining, trainStatus, startTraining } = useWithTraining();
 
   useEffect(() => {
     if (!mentor || !editedMentor || isMentorSaving || isMentorLoading) {
@@ -157,6 +159,9 @@ export function useWithSetup(
             mentor={editedMentor}
             isMentorLoading={isMentorLoading || isMentorSaving}
             isSetupComplete={isBuildable}
+            isTraining={isTraining}
+            trainStatus={trainStatus}
+            startTraining={() => startTraining(mentor._id)}
           />
         )
       );

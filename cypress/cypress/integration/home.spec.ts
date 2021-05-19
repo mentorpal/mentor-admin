@@ -11,13 +11,13 @@ import {
   cyMockTrain,
   cyMockTrainStatus,
 } from "../support/functions";
-import { setup7 } from "../fixtures/mentor";
-import { TrainState } from "../support/types";
+import { setup9 } from "../fixtures/mentor";
+import { JobState } from "../support/types";
 
 describe("Review answers page", () => {
   it("shows all questions for all subjects by default", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
@@ -79,7 +79,7 @@ describe("Review answers page", () => {
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();
@@ -138,7 +138,7 @@ describe("Review answers page", () => {
 
   it("can pick a subject from query params and view questions and categories", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
@@ -194,7 +194,7 @@ describe("Review answers page", () => {
 
   it("can record all complete for a subject", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -214,7 +214,7 @@ describe("Review answers page", () => {
 
   it("can record all incomplete for a subject", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -234,7 +234,7 @@ describe("Review answers page", () => {
 
   it("can record a single question in a subject", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -265,7 +265,7 @@ describe("Review answers page", () => {
 
   it("can add a mentor question to a subject", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=save-button]").should("be.disabled");
@@ -296,7 +296,7 @@ describe("Review answers page", () => {
 
   it("can record all complete for a category", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -316,7 +316,7 @@ describe("Review answers page", () => {
 
   it("can record all incomplete for a category", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -336,7 +336,7 @@ describe("Review answers page", () => {
 
   it("can record a single question in a category", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within($blocks => {
@@ -367,7 +367,7 @@ describe("Review answers page", () => {
 
   it("can add a mentor question to a category", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
@@ -398,7 +398,7 @@ describe("Review answers page", () => {
 
   it("can edit a mentor question", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: setup7 });
+    cyMockDefault(cy, { mentor: setup9 });
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
@@ -432,11 +432,11 @@ describe("Review answers page", () => {
   it("fails to train mentor", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: setup7,
+      mentor: setup9,
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
     cyMockTrain(cy);
-    cyMockTrainStatus(cy, { status: { state: TrainState.FAILURE } });
+    cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Training failed");
@@ -445,11 +445,11 @@ describe("Review answers page", () => {
   it("can train mentor", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: setup7,
+      mentor: setup9,
       gqlQueries: [mockGQL("updateMentor", true, true)],
     });
     cyMockTrain(cy);
-    cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS } });
+    cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Training mentor...");

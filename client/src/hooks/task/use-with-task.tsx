@@ -53,6 +53,7 @@ export function useWithTask<T, U>(
     if (state.isPolling) {
       return;
     }
+    console.log(`start task with params ${JSON.stringify(params)}`);
     start(params)
       .then((job) => {
         setStatusUrl(job.statusUrl);

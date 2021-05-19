@@ -4,12 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/*
-This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved.
-Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
-*/
 import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
@@ -123,7 +117,6 @@ function RecordPage(props: {
     stopRecording,
     uploadVideo,
     setMinVideoLength: setVideoLength,
-    setVideoTrim,
   } = useWithRecordState(props.accessToken, props.search);
   const { mentor } = useWithMentor(props.accessToken);
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
@@ -183,7 +176,6 @@ function RecordPage(props: {
           onRerecord={rerecord}
           onRecordStart={startRecording}
           onRecordStop={stopRecording}
-          onTrim={setVideoTrim}
         />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
@@ -284,7 +276,7 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer.answer.status.toString()}
+          value={curAnswer.answer.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => editAnswer({ status: event.target.value as Status })}

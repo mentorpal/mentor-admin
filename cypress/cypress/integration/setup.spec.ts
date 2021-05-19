@@ -17,16 +17,14 @@ import {
   setup2,
   setup3,
   setup4,
-  setup5,
   setup6,
   setup7,
   setup8,
   setup9,
 } from "../fixtures/mentor";
-import background from "../fixtures/subjects/background";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, TrainState } from "../support/types";
+import { MentorType, JobState } from "../support/types";
 
 const baseMock = {
   mentor: setup0,
@@ -56,18 +54,18 @@ describe("Setup", () => {
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide]").contains("Idle");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide]").contains("Background questions");
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide]").contains("Oops! Your mentor is not ready yet.");
     });
 
     it("with back button", () => {
       cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup?i=7");
-      cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.get("[data-cy=slide]").contains("Oops! Your mentor is not ready yet.");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide]").contains("Background questions");
+      cy.get("[data-cy=slide]").contains("Repeat After Me questions");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide]").contains("Idle");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
@@ -98,9 +96,9 @@ describe("Setup", () => {
       cy.get("[data-cy=radio-5]").trigger("mouseover").click();
       cy.get("[data-cy=slide]").contains("Idle");
       cy.get("[data-cy=radio-6]").trigger("mouseover").click();
-      cy.get("[data-cy=slide]").contains("Background questions");
-      cy.get("[data-cy=radio-7]").trigger("mouseover").click();
       cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.get("[data-cy=radio-7]").trigger("mouseover").click();
+      cy.get("[data-cy=slide]").contains("Oops! Your mentor is not ready yet.");
     });
 
     it("with query param i", () => {
@@ -119,9 +117,9 @@ describe("Setup", () => {
       cy.visit("/setup?i=5");
       cy.get("[data-cy=slide]").contains("Idle");
       cy.visit("/setup?i=6");
-      cy.get("[data-cy=slide]").contains("Background questions");
-      cy.visit("/setup?i=7");
       cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.visit("/setup?i=7");
+      cy.get("[data-cy=slide]").contains("Oops! Your mentor is not ready yet.");
     });
   });
 
@@ -284,7 +282,7 @@ describe("Setup", () => {
       cy.get("[data-cy=save-btn]").should("be.disabled");
       cy.contains("Make a video mentor that responds with pre-recorded video answers");
     });
-    cy.get("[data-cy=radio-8]").should("exist");
+    cy.get("[data-cy=radio-7]").should("exist");
     cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-2]").should(
       "have.css",
@@ -309,7 +307,7 @@ describe("Setup", () => {
     });
     cy.get("[data-cy=next-btn]").should("not.be.disabled");
     cy.get("[data-cy=back-btn]").should("not.be.disabled");
-    cy.get("[data-cy=done-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=radio-3]").should(
       "have.css",
       "color",
@@ -436,11 +434,12 @@ describe("Setup", () => {
     cy.get("[data-cy=done-btn]").should("be.disabled");
   });
 
-  it.only("video mentor shows idle slide", () => {
+  it("video mentor shows idle slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
+      gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
     cy.visit("/setup?i=5");
     cy.get("[data-cy=next-btn]").should("not.be.disabled");
@@ -475,10 +474,11 @@ describe("Setup", () => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
+    cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
     cy.get("[data-cy=done-btn]").trigger("mouseover").click();
     // back to setup
     cy.location("pathname").then(($el) =>
@@ -501,16 +501,16 @@ describe("Setup", () => {
     });
     cy.visit("/setup?i=5");
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Background questions");
+      cy.contains("Repeat After Me questions");
     });
   });
 
-  it("shows background questions slide", () => {
+  it("shows required subject, repeat after me, questions slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup4, setup4, setup5, setup5, setup6, setup6],
-      subject: background,
+      mentor: [setup6, setup6, setup7, setup7, setup7, setup8, setup8],
+      subject: repeatAfterMe,
       gqlQueries: [
         mockGQL("updateMentor", true, true),
         mockGQL("updateAnswer", true, true),
@@ -519,124 +519,14 @@ describe("Setup", () => {
     cy.visit("/setup?i=6");
     cy.get("[data-cy=next-btn]").should("not.be.disabled");
     cy.get("[data-cy=back-btn]").should("not.be.disabled");
-    cy.get("[data-cy=done-btn]").should("not.be.disabled");
-    cy.get("[data-cy=radio-6]").should("have.css", "color", "rgb(255, 0, 0)");
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Background questions");
-      cy.contains(
-        "These questions will ask general questions about your background that might be relevant to how people understand your career."
-      );
-      cy.contains("0 / 2");
-      cy.get("[data-cy=check]").should("not.exist");
-    });
-    cy.get("[data-cy=record-btn]").trigger("mouseover").click();
-    // record first question
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?subject=background&back=/setup?i=6"
-    );
-    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
-    cy.get("[data-cy=select-status]").trigger("mouseover").click();
-    cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=nav-bar]").within(($navbar) => {
-      cy.get("[data-cy=back-button]").trigger("mouseover").click();
-    });
-    // back to setup
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
-    cy.get("[data-cy=slide]").contains("1 / 2");
-    cy.get("[data-cy=radio-6]").should("have.css", "color", "rgb(255, 0, 0)");
-    cy.get("[data-cy=record-btn]").trigger("mouseover").click();
-    // back to record
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?subject=background&back=/setup?i=6"
-    );
-    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
-      );
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=status]").contains("COMPLETE");
-    // record second question
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=progress]").contains("Questions 2 / 2");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?");
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
-    cy.get("[data-cy=rerecord-btn]").should("not.exist");
-    cy.get("[data-cy=select-status]").trigger("mouseover").click();
-    cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    // back to setup
-    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
-    cy.get("[data-cy=check]").should("exist");
-    cy.get("[data-cy=radio-6]").should(
-      "have.css",
-      "color",
-      "rgb(27, 106, 156)"
-    );
-  });
-
-  it("shows repeat after me questions slide", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setup6, setup6, setup7, setup7, setup8, setup8],
-      subject: repeatAfterMe,
-      gqlQueries: [
-        mockGQL("updateMentor", true, true),
-        mockGQL("updateAnswer", true, true),
-      ],
-    });
-    cy.visit("/setup?i=7");
-    cy.get("[data-cy=next-btn]").should("not.be.disabled");
-    cy.get("[data-cy=back-btn]").should("not.be.disabled");
-    cy.get("[data-cy=done-btn]").should("not.be.disabled");
+    cy.get("[data-cy=done-btn]").should("be.disabled");
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Repeat After Me questions");
       cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
       cy.contains("1 / 3");
       cy.get("[data-cy=check]").should("not.exist");
     });
-    cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("[data-cy=radio-6]").should("have.css", "color", "rgb(255, 0, 0)");
     cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     // go to record
     cy.location("pathname").then(($el) =>
@@ -644,7 +534,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=repeat_after_me&back=/setup?i=7"
+      "?subject=repeat_after_me&back=/setup?i=6"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -658,7 +548,7 @@ describe("Setup", () => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
     // record second question
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
@@ -673,10 +563,12 @@ describe("Setup", () => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
+    cy.get("[data-cy=status]").contains("Skip");
+    cy.get("[data-cy=transcript-input]").type("My name is Clint Anderson I'm a Nuclear Electrician's Mate");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
     // back to setup
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();
@@ -684,9 +576,9 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=7");
+    cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("2 / 3");
-    cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
+    cy.get("[data-cy=radio-6]").should("have.css", "color", "rgb(255, 0, 0)");
     // back to record
     cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     cy.location("pathname").then(($el) =>
@@ -694,7 +586,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=repeat_after_me&back=/setup?i=7"
+      "?subject=repeat_after_me&back=/setup?i=6"
     );
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
@@ -712,7 +604,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
     // record third question
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 3 / 3");
@@ -727,18 +619,20 @@ describe("Setup", () => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
+    cy.get("[data-cy=transcript-input]").type("I couldn't understand the question. Try asking me something else.");
+    cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
     // back to setup
     cy.get("[data-cy=done-btn]").trigger("mouseover").click();
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=7");
+    cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=check]").should("exist");
-    cy.get("[data-cy=radio-7]").should(
+    cy.get("[data-cy=radio-6]").should(
       "have.css",
       "color",
       "rgb(27, 106, 156)"
@@ -746,31 +640,23 @@ describe("Setup", () => {
   });
 
   describe("shows build mentor slide after completing setup", () => {
-    it("fails to train mentor", () => {
+    it("cannot build if previous steps are not complete", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
-        mentor: [setup8, setup9],
+        mentor: [setup7],
       });
-      cyMockTrain(cy);
-      cyMockTrainStatus(cy, { status: { state: TrainState.FAILURE } });
-      cy.visit("/setup?i=8");
-      cy.get("[data-cy=next-btn]").should("not.exist");
-      cy.get("[data-cy=back-btn]").should("not.be.disabled");
-      cy.get("[data-cy=done-btn]").should("not.be.disabled");
-      cy.get("[data-cy=radio-8]").should("have.css", "color", "rgb(255, 0, 0)");
+      cy.visit("/setup?i=7");
       cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Great job! You're ready to build your mentor!");
-        cy.contains("Click the build button to start building your mentor.");
-        cy.contains("Once its complete, click preview to see your mentor.");
+        cy.contains("Oops! Your mentor is not ready yet.");
+        cy.contains("You're still missing some steps before you can build your mentor.");
+        cy.contains("Make sure you complete the previous slides first.");
         cy.get("[data-cy=train-btn]").contains("Build");
-        cy.get("[data-cy=train-btn]").trigger("mouseover").click();
-        cy.contains("Oops, training failed. Please try again.");
+        cy.get("[data-cy=train-btn]").should("be.disabled");
       });
-      cy.get("[data-cy=radio-8]").should("have.css", "color", "rgb(255, 0, 0)");
     });
 
-    it("builds mentor", () => {
+    it("builds mentor once setup is done", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
@@ -778,12 +664,12 @@ describe("Setup", () => {
         gqlQueries: [mockGQL("updateMentor", true, true)],
       });
       cyMockTrain(cy);
-      cyMockTrainStatus(cy, { status: { state: TrainState.SUCCESS } });
-      cy.visit("/setup?i=8");
+      cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
+      cy.visit("/setup?i=7");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
-      cy.get("[data-cy=done-btn]").should("not.be.disabled");
-      cy.get("[data-cy=radio-8]").should("have.css", "color", "rgb(255, 0, 0)");
+      cy.get("[data-cy=done-btn]").should("be.disabled");
+      cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
         cy.contains("Click the build button to start building your mentor.");
@@ -795,7 +681,7 @@ describe("Setup", () => {
         cy.contains("Click the preview button to see your mentor.");
         cy.get("[data-cy=preview-btn]").contains("Preview");
       });
-      cy.get("[data-cy=radio-8]").should(
+      cy.get("[data-cy=radio-7]").should(
         "have.css",
         "color",
         "rgb(27, 106, 156)"
@@ -806,6 +692,30 @@ describe("Setup", () => {
         assert($el.replace("/admin", ""), "/chat")
       );
       cy.location("search").should("contain", "?mentor=clintanderson");
+    });
+
+    it("fails to build mentor", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        ...baseMock,
+        mentor: [setup8, setup9],
+      });
+      cyMockTrain(cy);
+      cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
+      cy.visit("/setup?i=7");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=done-btn]").should("not.be.disabled");
+      cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
+      cy.get("[data-cy=slide]").within(($slide) => {
+        cy.contains("Great job! You're ready to build your mentor!");
+        cy.contains("Click the build button to start building your mentor.");
+        cy.contains("Once its complete, click preview to see your mentor.");
+        cy.get("[data-cy=train-btn]").contains("Build");
+        cy.get("[data-cy=train-btn]").trigger("mouseover").click();
+        cy.contains("Oops, training failed. Please try again.");
+      });
+      cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
     });
   });
 });

@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { cySetup, cyMockDefault, mockGQL, cyMockUpload, cyMockUploadStatus } from "../support/functions";
-import { Mentor, MentorType, QuestionType, Status, VideoState } from "../support/types";
+import { Mentor, MentorType, QuestionType, Status, JobState } from "../support/types";
 import {
   completeMentor,
   completeQuestion,
@@ -180,7 +180,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -193,7 +193,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -206,7 +206,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -219,7 +219,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -232,7 +232,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -251,7 +251,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -264,7 +264,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -277,7 +277,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -296,7 +296,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -309,7 +309,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -328,7 +328,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -347,7 +347,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -360,7 +360,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -379,7 +379,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -392,7 +392,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -411,7 +411,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("INCOMPLETE");
+      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -430,7 +430,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -449,7 +449,7 @@ describe("Record", () => {
         cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("COMPLETE");
+      cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -461,6 +461,7 @@ describe("Record", () => {
     cyMockDefault(cy, { mentor: chatMentor });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("not.exist");
+    cy.get("[data-cy=video-player]").should("not.exist");
   });
 
   it("shows video recorder if mentor type is VIDEO and no video", () => {
@@ -476,7 +477,7 @@ describe("Record", () => {
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
-    cy.get("[data-cy=trim-video]").should("not.exist");
+    cy.get("[data-cy=trim-video]").should("be.hidden");
   });
 
   it("shows video player if mentor type is VIDEO and has video", () => {
@@ -494,8 +495,8 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.visible");
     // editing hidden
     cy.get("[data-cy=upload-video]").should("be.disabled");
-    cy.get("[data-cy=slider]").should("be.hidden");
-    cy.get("[data-cy=trim-video]").should("not.exist");
+    cy.get("[data-cy=slider]").should("not.be.hidden");
+    cy.get("[data-cy=trim-video]").should("be.disabled");
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
     cy.get("[data-cy=video-recorder]").should("be.visible");
@@ -504,7 +505,7 @@ describe("Record", () => {
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
-    cy.get("[data-cy=trim-video]").should("not.exist");
+    cy.get("[data-cy=trim-video]").should("be.disabled");
   });
 
   it("can upload a video file and receive a transcript", () => {
@@ -518,8 +519,8 @@ describe("Record", () => {
       ]
     });
     cyMockUpload(cy);
-    cyMockUploadStatus(cy, { status: { state: VideoState.SUCCESS } });
-    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
+    cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
+    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("be.visible");
     cy.get("[data-cy=upload-file]").should("be.visible");
@@ -541,8 +542,7 @@ describe("Record", () => {
     cy.get("[data-cy=trim-video]").should("be.disabled");
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Uploading video...");
-    cy.contains("Uploaded video!");
+    cy.contains("Uploading...");
     cy.get("[data-cy=transcript-input]").within($input => {
       cy.get("textarea").should('have.text', "My name is Clint Anderson")
     });
@@ -557,7 +557,7 @@ describe("Record", () => {
       ]
     });
     cyMockUpload(cy);
-    cyMockUploadStatus(cy, { status: { state: VideoState.FAILURE } });
+    cyMockUploadStatus(cy, { status: { state: JobState.FAILURE } });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     // upload file
@@ -588,7 +588,7 @@ describe("Record", () => {
       ]
     });
     cyMockUpload(cy);
-    cyMockUploadStatus(cy, { status: { state: VideoState.SUCCESS } });
+    cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     // upload file
@@ -623,7 +623,7 @@ describe("Record", () => {
       ]
     });
     cyMockUpload(cy);
-    cyMockUploadStatus(cy, { status: { state: VideoState.SUCCESS } });
+    cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     // upload file
@@ -671,15 +671,15 @@ describe("Record", () => {
       cy.get("textarea").should('have.text', "")
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("INCOMPLETE");
+    cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=save-btn]").should("be.disabled");
 
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=save-btn]").should("not.be.disabled");
     cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("COMPLETE");
+    cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=save-btn]").should("be.disabled");
   });
 

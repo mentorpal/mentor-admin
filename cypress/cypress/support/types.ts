@@ -5,6 +5,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface Ref {
+  id: string;
+}
+
+export interface _Ref {
+  _id: string;
+}
+
 export interface Connection<T> {
   edges: Edge<T>[];
   pageInfo: PageInfo;
@@ -39,6 +47,7 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
+  email: string;
   mentorType: MentorType;
   lastTrainedAt: string;
   defaultSubject?: Subject;
@@ -48,19 +57,11 @@ export interface Mentor {
   questions: SubjectQuestion[];
 }
 
-export interface Ref {
-  id: string;
-}
-
-export interface _Ref {
-  _id: string;
-}
-
 export interface Subject {
   _id: string;
   name: string;
   description: string;
-  isRequired?: boolean;
+  isRequired: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestion[];
@@ -68,7 +69,7 @@ export interface Subject {
 
 export interface SubjectQuestion {
   question: Question;
-  category?: Category | Ref;
+  category?: Category;
   topics: Topic[];
 }
 
@@ -91,6 +92,8 @@ export interface Question {
   name: string;
   paraphrases: string[];
   mentor?: string;
+  mentorType?: string;
+  minVideoLength?: number;
 }
 
 export interface Answer {
@@ -98,7 +101,7 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
-  recordedAt: string;
+  recordedAt?: string;
 }
 
 export interface UserQuestion {
@@ -158,18 +161,18 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
-export interface TrainStatus {
-  state: TrainState;
-  status?: string;
-  info?: TrainingInfo;
-}
-
-export enum TrainState {
+export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
+}
+
+export interface TaskStatus<T> {
+  state: JobState;
+  status?: string;
+  info?: T;
 }
 
 export interface TrainingInfo {
@@ -181,23 +184,16 @@ export interface TrainExpectionResult {
   accuracy: number;
 }
 
-export interface VideoStatus {
-  state: VideoState;
-  status?: string;
-  info?: VideoInfo;
-}
-
-export enum VideoState {
-  NONE = "NONE",
-  FAILURE = "FAILURE",
-  SUCCESS = "SUCCESS",
-  PENDING = "PENDING",
-  STARTED = "STARTED",
-}
-
 export interface VideoInfo {
   mentor: string;
   videoId: string;
   video: File;
   transcript: string;
+}
+
+export enum LoginStatus {
+  NONE = 0,
+  IN_PROGRESS = 1,
+  AUTHENTICATED = 2,
+  FAILED = 3,
 }

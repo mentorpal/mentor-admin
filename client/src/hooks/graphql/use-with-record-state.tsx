@@ -86,9 +86,10 @@ export function useWithRecordState(
     if (status) {
       answers = answers.filter((a) => a.status === status);
     }
-    if (mentor.mentorType === MentorType.CHAT) {
-      answers = answers.filter((a) => a.question.name !== UtteranceName.IDLE);
-    }
+    answers = answers.filter(
+      (a) =>
+        !a.question.mentorType || a.question.mentorType === mentor.mentorType
+    );
     setAnswers(answers);
   }, [mentor]);
 
@@ -96,11 +97,11 @@ export function useWithRecordState(
     if (answers.length === 0 || answerIdx >= answers.length) {
       return;
     }
-    const answerState: AnswerState = { answer: answers[answerIdx] };
-    if (answers[answerIdx].question?.name === UtteranceName.IDLE) {
-      answerState.minVideoLength = 10;
-    }
-    setCurAnswerState(answerState);
+    const answer = answers[answerIdx];
+    setCurAnswerState({
+      answer,
+      minVideoLength: answer.question.minVideoLength,
+    });
     dispatch({ type: RecordingActionType.RECORDING, payload: false });
   }, [answers, answerIdx]);
 
@@ -171,16 +172,6 @@ export function useWithRecordState(
     setCurAnswerState({
       ...curAnswerState,
       minVideoLength: length,
-    });
-  }
-
-  function setVideoTrim(start: number, end: number) {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
-      return;
-    }
-    setCurAnswerState({
-      ...curAnswerState,
-      trim: [start, end],
     });
   }
 
@@ -255,7 +246,7 @@ export function useWithRecordState(
     }
   }
 
-  function uploadVideo() {
+  function uploadVideo(trim?: { start: number; end: number }) {
     if (
       !mentor ||
       !curAnswerState ||
@@ -270,7 +261,7 @@ export function useWithRecordState(
       mentorId: mentor._id,
       questionId: curAnswerState.answer.question._id,
       video: curAnswerState.recordedVideo,
-      trim: { start: curAnswerState.trim[0], end: curAnswerState.trim[1] },
+      trim,
     });
   }
 
@@ -296,9 +287,9 @@ export function useWithRecordState(
     }
     if (mentor.mentorType === MentorType.VIDEO) {
       return Boolean(
-        curAnswerState.answer.recordedAt &&
-          (curAnswerState.answer.question?.name === UtteranceName.IDLE ||
-            curAnswerState.answer.transcript)
+        // curAnswerState.answer.recordedAt &&
+        curAnswerState.answer.question?.name === UtteranceName.IDLE ||
+          curAnswerState.answer.transcript
       );
     }
     return false;
@@ -317,7 +308,6 @@ export function useWithRecordState(
             videoSrc: getVideoSrc(),
             recordedVideo: curAnswerState.recordedVideo,
             minVideoLength: curAnswerState.minVideoLength,
-            trim: curAnswerState.trim,
           }
         : undefined,
 
@@ -325,12 +315,10 @@ export function useWithRecordState(
     nextAnswer,
     editAnswer,
     saveAnswer,
-
     rerecord,
     startRecording,
     stopRecording,
     uploadVideo,
     setMinVideoLength,
-    setVideoTrim,
   };
 }

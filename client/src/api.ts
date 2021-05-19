@@ -423,6 +423,8 @@ export async function fetchMentor(
                   name
                   paraphrases
                   mentor
+                  mentorType
+                  minVideoLength
                 }
                 category {
                   id
@@ -452,6 +454,8 @@ export async function fetchMentor(
                 type
                 name
                 mentor
+                mentorType
+                minVideoLength
               }
               transcript
               status
@@ -476,6 +480,7 @@ export async function updateMentor(
     name: updateMentor.name,
     firstName: updateMentor.firstName,
     title: updateMentor.title,
+    email: updateMentor.email,
     mentorType: updateMentor.mentorType,
     defaultSubject: updateMentor.defaultSubject?._id || null,
     subjects: updateMentor.subjects.map((s) => s._id),

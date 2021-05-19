@@ -10,24 +10,21 @@ import ReactPlayer from "react-player";
 import { Button, Slider, Typography } from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import VideoRecorder from "./video-recorder";
 import { RecordingState } from "hooks/graphql/recording-reducer";
 import { CurAnswerState } from "hooks/graphql/use-with-record-state";
+import VideoRecorder from "./video-recorder";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   curAnswer: CurAnswerState;
   recordState: RecordingState;
-  onUpload: () => void;
+  onUpload: (trim?: { start: number; end: number }) => void;
   onRerecord: () => void;
   onRecordStart: () => void;
   onRecordStop: (video: File) => void;
-  onTrim: (start: number, end: number) => void;
 }): JSX.Element {
-  const [videoLength, setVideoLength] = useState<number>(0);
-  const { windowWidth, windowHeight } = useWithWindowSize();
   const reactPlayerRef = useRef<ReactPlayer>(null);
-
+  const { windowWidth, windowHeight } = useWithWindowSize();
   const {
     classes,
     curAnswer,
@@ -36,22 +33,11 @@ function VideoPlayer(props: {
     onRerecord,
     onRecordStart,
     onRecordStop,
-    onTrim,
   } = props;
-
-  React.useEffect(() => {
-    setVideoLength(0);
-  }, [curAnswer.videoSrc, curAnswer.answer._id]);
-
-  React.useEffect(() => {
-    if (!reactPlayerRef?.current || !isFinite(videoLength)) {
-      return;
-    }
-    const startTime = (curAnswer.trim[0] / 100) * videoLength;
-    if (reactPlayerRef.current.getCurrentTime() < startTime) {
-      reactPlayerRef.current.seekTo(startTime);
-    }
-  }, [curAnswer.trim]);
+  // can't store trim and videoLength in RecordingState because updating recordState will force
+  // ReactPlayer to re-render and video will constantly be trying to update and not catch up
+  const [trim, setTrim] = useState([0, 100]);
+  const [videoLength, setVideoLength] = useState<number>(0);
 
   const height =
     windowHeight > windowWidth
@@ -62,13 +48,50 @@ function VideoPlayer(props: {
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
 
-  function onVideoProgress(state: { played: number }) {
-    if (!reactPlayerRef?.current || !isFinite(videoLength)) {
+  React.useEffect(() => {
+    setVideoLength(0);
+    setTrim([0, 100]);
+  }, [curAnswer.videoSrc, curAnswer.answer._id]);
+
+  function sliderToVideoDuration(): number[] | undefined {
+    if (!reactPlayerRef?.current) {
+      return undefined;
+    }
+    if (!isFinite(videoLength)) {
+      setVideoLength(reactPlayerRef.current.getDuration());
+      return undefined;
+    }
+    const startTime = (trim[0] / 100) * videoLength;
+    const endTime = (trim[1] / 100) * videoLength;
+    return [startTime, endTime];
+  }
+
+  function sliderText(value: number, index: number): string {
+    const duration = sliderToVideoDuration();
+    if (!duration) {
+      return "";
+    }
+    return new Date(duration[index] * 1000).toISOString().substr(14, 5);
+  }
+
+  function onVideoProgress(state: { played: number }): void {
+    if (!reactPlayerRef?.current) {
       return;
     }
-    const startTime = (curAnswer.trim[0] / 100) * videoLength;
-    if (state.played >= curAnswer.trim[1] / 100) {
-      reactPlayerRef.current.seekTo(startTime);
+    const duration = sliderToVideoDuration();
+    if (duration && state.played >= trim[1] / 100) {
+      reactPlayerRef.current.seekTo(duration[0]);
+    }
+  }
+
+  function onUpdateTrim(value: number | number[]): void {
+    if (!Array.isArray(value) || !reactPlayerRef?.current) {
+      return;
+    }
+    const duration = sliderToVideoDuration();
+    if (duration) {
+      reactPlayerRef.current.seekTo(duration[0]);
+      setTrim(value);
     }
   }
 
@@ -134,14 +157,11 @@ function VideoPlayer(props: {
         </div>
         <Slider
           data-cy="slider"
-          value={curAnswer.trim}
-          onChange={(e, v) => {
-            if (Array.isArray(v)) {
-              onTrim(v[0], v[1]);
-            }
-          }}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
+          getAriaValueText={sliderText}
+          value={trim}
+          onChange={(e, v) => onUpdateTrim(v)}
           disabled={recordState.isSaving || recordState.isUploading}
           style={{
             visibility: curAnswer.videoSrc ? "visible" : "hidden",
@@ -167,7 +187,7 @@ function VideoPlayer(props: {
             disableElevation
             disabled={!curAnswer.recordedVideo || recordState.isUploading}
             className={classes.button}
-            onClick={onUpload}
+            onClick={() => onUpload()}
             style={{ marginRight: 15 }}
           >
             Upload Video
@@ -179,13 +199,13 @@ function VideoPlayer(props: {
             disableElevation
             disabled={
               !curAnswer.videoSrc ||
-              (curAnswer.trim[0] === 0 && curAnswer.trim[1] === 100) ||
+              (trim[0] === 0 && trim[1] === 100) ||
               !isFinite(videoLength) ||
               recordState.isSaving ||
               recordState.isUploading
             }
             className={classes.button}
-            onClick={onUpload}
+            onClick={() => onUpload({ start: trim[0], end: trim[1] })}
           >
             Trim Video
           </Button>

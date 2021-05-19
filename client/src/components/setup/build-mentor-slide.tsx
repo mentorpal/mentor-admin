@@ -7,17 +7,26 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { Paper, Typography, Button, CircularProgress } from "@material-ui/core";
 import { CLIENT_ENDPOINT } from "api";
-import { JobState, Mentor } from "types";
-import { useWithTraining } from "hooks/task/use-with-train";
+import { JobState, Mentor, TaskStatus, TrainingInfo } from "types";
 
 export function BuildMentorSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
   isMentorLoading: boolean;
   isSetupComplete: boolean;
+  isTraining: boolean;
+  trainStatus: TaskStatus<TrainingInfo> | undefined;
+  startTraining: (params: string) => void;
 }): JSX.Element {
-  const { classes, mentor, isMentorLoading, isSetupComplete } = props;
-  const { isTraining, trainStatus, startTraining } = useWithTraining();
+  const {
+    classes,
+    mentor,
+    isMentorLoading,
+    isSetupComplete,
+    isTraining,
+    trainStatus,
+    startTraining,
+  } = props;
 
   function renderMessage(): JSX.Element {
     if (!isSetupComplete) {
@@ -108,9 +117,9 @@ export function BuildMentorSlide(props: {
         {mentor.lastTrainedAt ? (
           <Button
             data-cy="preview-btn"
-            className={classes.button}
             variant="contained"
             color="secondary"
+            className={classes.button}
             disabled={isTraining || !isSetupComplete}
             onClick={() => {
               const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;

@@ -44,13 +44,16 @@ function VideoRecorder({
   onRecordStart,
   onRecordStop,
 }) {
+  const [videoRef, setVideoRef] = useState();
+  const [videoRecorderRef, setVideoRecorderRef] = useState();
+  // can't store these in RecordingState because player.on callbacks
+  // snapshot recordState from when player first initializes and doesn't
+  // update when changing answers
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
-
+  const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [videoRef, setVideoRef] = useState();
-  const [videoRecorderRef, setVideoRecorderRef] = useState();
 
   useEffect(() => {
     if (!videoRef || videoRecorderRef) {
@@ -71,7 +74,7 @@ function VideoRecorder({
       setRecordDurationCounter(player.record().getDuration());
     });
     player.on("finishRecord", function () {
-      onRecordStop(new File([player.recordedData], "video.mp4"));
+      setRecordedVideo(new File([player.recordedData], "video.mp4"));
       setRecordStartCountdown(0);
       setRecordStopCountdown(0);
       setRecordDurationCounter(0);
@@ -82,6 +85,15 @@ function VideoRecorder({
       player?.dispose();
     };
   }, [videoRef]);
+
+  useEffect(() => {
+    if (recordedVideo) {
+      // if you put onRecordStop directly into player.on("finishRecord")
+      // it overwrite with the state from whatever the first question was
+      onRecordStop(recordedVideo);
+      setRecordedVideo(undefined);
+    }
+  }, [recordedVideo]);
 
   useEffect(() => {
     videoRecorderRef?.record().reset();
@@ -108,7 +120,7 @@ function VideoRecorder({
       const counter = recordStartCountdown - 1;
       setRecordStartCountdown(counter);
       if (counter <= 0) {
-        videoRecorderRef?.record().start();
+        stopRecording();
       }
     },
     recordStartCountdown > 0 ? 1000 : null
