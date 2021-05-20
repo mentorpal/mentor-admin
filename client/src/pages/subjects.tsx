@@ -95,7 +95,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     mentorError,
     clearMentorError,
     editMentor,
-    saveMentor,
+    saveMentorSubjects,
   } = useWithMentor(props.accessToken);
   const {
     subjects,
@@ -222,7 +222,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={saveMentor}
+              onClick={saveMentorSubjects}
             >
               Save
             </Fab>

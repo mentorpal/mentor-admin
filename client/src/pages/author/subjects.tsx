@@ -86,28 +86,8 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectItem(props: {
-  subject: Subject;
-  onDelete: (id: string) => void;
-}): JSX.Element {
-  const { subject, onDelete } = props;
-  const [anchorEl, setAnchorEl] = React.useState<
-    EventTarget & HTMLButtonElement
-  >();
-  const deleteMenuOpen = Boolean(anchorEl);
-
-  function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(e.currentTarget);
-  }
-
-  function onCloseDelete() {
-    setAnchorEl(undefined);
-  }
-
-  async function deleteSubject(id: string) {
-    setAnchorEl(undefined);
-    onDelete(id);
-  }
+function SubjectItem(props: { subject: Subject }): JSX.Element {
+  const { subject } = props;
 
   return (
     <TableRow
@@ -122,36 +102,6 @@ function SubjectItem(props: {
       <TableCell data-cy="description" align="left">
         {subject.description}
       </TableCell>
-      <TableCell data-cy="delete" align="center">
-        <IconButton onClick={onClickDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-      <Menu
-        data-cy="delete-menu"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={deleteMenuOpen}
-        onClose={onCloseDelete}
-      >
-        <MenuItem
-          data-cy="confirm-delete"
-          onClick={() => deleteSubject(subject._id)}
-        >
-          Confirm
-        </MenuItem>
-        <MenuItem data-cy="cancel-delete" onClick={onCloseDelete}>
-          Cancel
-        </MenuItem>
-      </Menu>
     </TableRow>
   );
 }
@@ -174,10 +124,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     subjectsNextPage,
     subjectsPrevPage,
   } = useWithSubjects();
-
-  function deleteSubject(id: string) {
-    // TODO
-  }
 
   if (!subjects) {
     return (
@@ -203,11 +149,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               />
               <TableBody data-cy="subjects">
                 {subjects.edges.map((row, i) => (
-                  <SubjectItem
-                    key={`subject-${i}`}
-                    subject={row.node}
-                    onDelete={deleteSubject}
-                  />
+                  <SubjectItem key={`subject-${i}`} subject={row.node} />
                 ))}
               </TableBody>
             </Table>

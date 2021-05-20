@@ -96,12 +96,22 @@ export interface Question {
   minVideoLength?: number;
 }
 
+export interface Media {
+  type: string;
+  tag: string;
+  url: string;
+}
+
+export enum MediaType {
+  VIDEO = "video",
+}
+
 export interface Answer {
   _id: string;
   question: Question;
   transcript: string;
   status: Status;
-  recordedAt?: string;
+  media?: Media[];
 }
 
 export interface UserQuestion {

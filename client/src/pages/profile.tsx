@@ -52,7 +52,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
     isMentorSaving,
     isMentorEdited,
     clearMentorError,
-    saveMentor,
+    saveMentorDetails,
     editMentor,
   } = useWithMentor(props.accessToken);
 
@@ -111,7 +111,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           variant="contained"
           color="primary"
           disabled={!isMentorEdited}
-          onClick={saveMentor}
+          onClick={saveMentorDetails}
         >
           Save Changes
         </Button>

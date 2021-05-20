@@ -21,6 +21,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 
 export enum SetupStatus {
   LOADING = "LOADING",
+  NEVER_STARTED = "NEVER_STARTED",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }
@@ -43,7 +44,7 @@ export function useWithSetup(
     isMentorLoading,
     isMentorSaving,
     editMentor,
-    saveMentor,
+    saveMentorDetails,
   } = useWithMentor(accessToken);
   const { isTraining, trainStatus, startTraining } = useWithTraining();
 
@@ -74,7 +75,7 @@ export function useWithSetup(
               isMentorEdited={isMentorEdited}
               isMentorLoading={isMentorLoading || isMentorSaving}
               editMentor={editMentor}
-              saveMentor={saveMentor}
+              saveMentor={saveMentorDetails}
             />
           ),
           Slide(
@@ -86,7 +87,7 @@ export function useWithSetup(
               isMentorEdited={isMentorEdited}
               isMentorLoading={isMentorLoading || isMentorSaving}
               editMentor={editMentor}
-              saveMentor={saveMentor}
+              saveMentor={saveMentorDetails}
             />
           ),
           Slide(

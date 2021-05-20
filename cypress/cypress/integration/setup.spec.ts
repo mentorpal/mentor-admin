@@ -28,7 +28,6 @@ import { MentorType, JobState } from "../support/types";
 
 const baseMock = {
   mentor: setup0,
-  gqlQueries: [mockGQL("updateMentor", true, true)],
 };
 
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -147,6 +146,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup0, setup1, setup2, setup3],
+      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
     });
     cy.visit("/setup?i=1");
     cy.get("[data-cy=next-btn]").should("not.be.disabled");
@@ -237,6 +237,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null },
+      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
     });
     cy.visit("/setup?i=2");
     cy.get("[data-cy=next-btn]").should("not.be.disabled");
@@ -341,6 +342,7 @@ describe("Setup", () => {
         },
       ],
       subjects: [allSubjects],
+      gqlQueries: [mockGQL("updateMentorSubjects", true, true)],
     });
     cy.visit("/setup?i=4");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -512,7 +514,6 @@ describe("Setup", () => {
       mentor: [setup6, setup6, setup7, setup7, setup7, setup8, setup8],
       subject: repeatAfterMe,
       gqlQueries: [
-        mockGQL("updateMentor", true, true),
         mockGQL("updateAnswer", true, true),
       ],
     });
@@ -661,7 +662,6 @@ describe("Setup", () => {
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup8, setup9],
-        gqlQueries: [mockGQL("updateMentor", true, true)],
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });

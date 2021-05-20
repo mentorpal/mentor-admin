@@ -38,7 +38,6 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript: "",
-      recordedAt: "",
       status: Status.INCOMPLETE,
     }
   ]

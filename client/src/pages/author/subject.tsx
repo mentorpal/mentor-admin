@@ -202,7 +202,7 @@ function SubjectPage(props: {
           color="primary"
           className={classes.button}
           disabled={!isSubjectEdited}
-          onClick={saveSubject}
+          onClick={() => saveSubject()}
         >
           Save
         </Button>

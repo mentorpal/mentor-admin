@@ -177,29 +177,29 @@ export async function updateSubject(
   subject: Partial<Subject>,
   accessToken: string
 ): Promise<Subject> {
-  const convertedSubject: Partial<Subject> = {
-    name: subject.name,
-    description: subject.description,
-    categories: subject.categories,
-    topics: subject.topics,
-    questions: subject.questions,
-  };
-  if (isValidObjectID(subject._id || "")) {
-    convertedSubject._id = subject._id;
-  }
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
     {
       query: `
-      mutation {
+      mutation UpdateSubject($subject: SubjectUpdateInputType!) {
         me {
-          updateSubject(subject: ${stringifyObject(convertedSubject)}) {
+          updateSubject(subject: $subject) {
             _id
           }
         }
       }
     `,
+      variables: {
+        subject: {
+          _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
+          name: subject?.name,
+          description: subject?.description,
+          categories: subject?.categories,
+          topics: subject?.topics,
+          questions: subject?.questions,
+        },
+      },
     },
     { headers: headers }
   );
@@ -459,7 +459,11 @@ export async function fetchMentor(
               }
               transcript
               status
-              recordedAt
+              media {
+                type
+                tag
+                url
+              }
             }
           }  
         }
@@ -471,35 +475,61 @@ export async function fetchMentor(
   return result.data.data.me.mentor;
 }
 
-export async function updateMentor(
-  updateMentor: Mentor,
+export async function updateMentorDetails(
+  mentor: Mentor,
   accessToken: string
 ): Promise<boolean> {
-  const convertedMentor = {
-    _id: updateMentor._id,
-    name: updateMentor.name,
-    firstName: updateMentor.firstName,
-    title: updateMentor.title,
-    email: updateMentor.email,
-    mentorType: updateMentor.mentorType,
-    defaultSubject: updateMentor.defaultSubject?._id || null,
-    subjects: updateMentor.subjects.map((s) => s._id),
-  };
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
     {
       query: `
-      mutation {
+      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
         me {
-          updateMentor(mentor: ${stringifyObject(convertedMentor)})
+          updateMentorDetails(mentor: $mentor)
         }
       }
     `,
+      variables: {
+        mentor: {
+          name: mentor.name,
+          firstName: mentor.firstName,
+          title: mentor.title,
+          email: mentor.email,
+          mentorType: mentor.mentorType,
+        },
+      },
     },
     { headers: headers }
   );
-  return result.data.data.me.updateMentor;
+  return result.data.data.me.updateMentorDetails;
+}
+
+export async function updateMentorSubjects(
+  mentor: Mentor,
+  accessToken: string
+): Promise<boolean> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post(
+    GRAPHQL_ENDPOINT,
+    {
+      query: `
+      mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
+        me {
+          updateMentorSubjects(mentor: $mentor)
+        }
+      }
+    `,
+      variables: {
+        mentor: {
+          defaultSubject: mentor.defaultSubject?._id,
+          subjects: mentor.subjects.map((s) => s._id),
+        },
+      },
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.updateMentorSubjects;
 }
 
 export async function updateQuestion(
@@ -526,28 +556,27 @@ export async function updateQuestion(
 }
 
 export async function updateAnswer(
-  mentorId: string,
   answer: Answer,
   accessToken: string
 ): Promise<boolean> {
-  const questionId = answer.question._id;
-  const convertedAnswer = {
-    transcript: answer.transcript,
-    status: answer.status,
-  };
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     GRAPHQL_ENDPOINT,
     {
       query: `
-      mutation {
+      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
         me {
-          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: ${stringifyObject(
-        convertedAnswer
-      )})
+          updateAnswer(questionId: $questionId, answer: $answer)
         }
       }
     `,
+      variables: {
+        questionId: answer.question._id,
+        answer: {
+          transcript: answer.transcript,
+          status: answer.status,
+        },
+      },
     },
     { headers: headers }
   );

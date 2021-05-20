@@ -47,6 +47,7 @@ import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -214,7 +215,12 @@ function FeedbackItem(props: {
 
 function FeedbackPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const { mentor, isMentorLoading } = useWithMentor(props.accessToken);
+  const {
+    mentor,
+    mentorError,
+    isMentorLoading,
+    clearMentorError,
+  } = useWithMentor(props.accessToken);
   const {
     feedback,
     isFeedbackLoading,
@@ -227,7 +233,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
   } = useWithFeedback();
   const { isTraining, trainStatus, startTraining } = useWithTraining();
 
-  if (!mentor || isMentorLoading || !feedback || isFeedbackLoading) {
+  if (!mentor || !feedback) {
     return (
       <div>
         <NavBar title="Feedback" mentorId={mentor?._id} />
@@ -428,6 +434,10 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
           </Toolbar>
         </AppBar>
       </div>
+      <LoadingDialog
+        title={isMentorLoading || isFeedbackLoading ? "Loading..." : ""}
+      />
+      <ErrorDialog error={mentorError} clearError={clearMentorError} />
     </div>
   );
 }

@@ -8,11 +8,11 @@ import {
 
 export const mentor: Mentor = {
   _id: "clintanderson",
-  name: "",
-  firstName: "",
-  title: "",
+  name: "Clinton Anderson",
+  firstName: "Clint",
+  title: "Nuclear Electrician's Mate",
   mentorType: MentorType.VIDEO,
-  lastTrainedAt: null,
+  lastTrainedAt: "Today",
   questions: [],
   subjects: [
     {
@@ -56,7 +56,6 @@ export const mentor: Mentor = {
       _id: "repeat_after_me",
       name: "Repeat After Me",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
-      isRequired: true,
       categories: [
         {
           id: "category2",
@@ -116,8 +115,8 @@ export const mentor: Mentor = {
         name: null,
         paraphrases: [],
       },
-      transcript: "",
-      status: Status.INCOMPLETE,
+      transcript: "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
     },
     {
       _id: "A2_1_1",
@@ -128,8 +127,8 @@ export const mentor: Mentor = {
         name: null,
         paraphrases: [],
       },
-      transcript: "",
-      status: Status.INCOMPLETE,
+      transcript: "I'm 37 years old",
+      status: Status.COMPLETE,
     },
     {
       _id: "A3_1_1",
@@ -142,7 +141,7 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript: "",
-      status: Status.INCOMPLETE,
+      status: Status.COMPLETE,
     },
     {
       _id: "A4_1_1",
@@ -154,8 +153,8 @@ export const mentor: Mentor = {
         name: UtteranceName.INTRO,
         paraphrases: [],
       },
-      transcript: "",
-      status: Status.INCOMPLETE,
+      transcript: "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
     },
     {
       _id: "A5_1_1",

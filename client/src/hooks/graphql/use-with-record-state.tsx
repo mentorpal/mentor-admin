@@ -5,8 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useReducer, useState } from "react";
-import { updateAnswer, updateQuestion, UPLOAD_ENTRYPOINT } from "api";
-import { Answer, MentorType, UtteranceName } from "types";
+import { updateAnswer, updateQuestion } from "api";
+import { Answer, JobState, MediaType, MentorType, UtteranceName } from "types";
 import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithMentor } from "./use-with-mentor";
 import {
@@ -60,8 +60,8 @@ export function useWithRecordState(
   const [curAnswerState, setCurAnswerState] = useState<AnswerState>();
   const [state, dispatch] = useReducer(RecordingReducer, initialState);
 
-  const { mentor } = useWithMentor(accessToken);
-  const { isUploading, startUploading } = useWithUploading();
+  const { mentor, reloadMentor } = useWithMentor(accessToken);
+  const { isUploading, uploadStatus, startUploading } = useWithUploading();
 
   useEffect(() => {
     if (!mentor) {
@@ -109,8 +109,11 @@ export function useWithRecordState(
     if (isUploading === state.isUploading) {
       return;
     }
+    if (uploadStatus?.state === JobState.SUCCESS) {
+      reloadMentor();
+    }
     dispatch({ type: RecordingActionType.UPLOADING, payload: isUploading });
-  }, [isUploading]);
+  }, [isUploading, uploadStatus]);
 
   function prevAnswer() {
     if (
@@ -143,7 +146,7 @@ export function useWithRecordState(
     setCurAnswerState({
       ...curAnswerState,
       recordedVideo: undefined,
-      answer: { ...curAnswerState.answer, recordedAt: undefined },
+      answer: { ...curAnswerState.answer, media: undefined },
     });
   }
 
@@ -201,7 +204,7 @@ export function useWithRecordState(
             return;
           }
           if (!equals(answer, editedAnswer)) {
-            updateAnswer(mentor._id, editedAnswer, accessToken)
+            updateAnswer(editedAnswer, accessToken)
               .then((didUpdate) => {
                 if (!didUpdate) {
                   dispatch({
@@ -230,7 +233,7 @@ export function useWithRecordState(
     // update the answer if it has changed
     else if (!equals(answer, editedAnswer)) {
       dispatch({ type: RecordingActionType.SAVING, payload: true });
-      updateAnswer(mentor._id, editedAnswer, accessToken)
+      updateAnswer(editedAnswer, accessToken)
         .then((didUpdate) => {
           if (!didUpdate) {
             dispatch({ type: RecordingActionType.SAVING, payload: false });
@@ -272,10 +275,8 @@ export function useWithRecordState(
     if (curAnswerState.recordedVideo) {
       return URL.createObjectURL(curAnswerState.recordedVideo);
     }
-    if (curAnswerState.answer.recordedAt) {
-      return `${UPLOAD_ENTRYPOINT}/mentors/${mentor._id}/${curAnswerState.answer.question._id}.mp4`;
-    }
-    return undefined;
+    return curAnswerState.answer?.media?.find((m) => m.type === MediaType.VIDEO)
+      ?.url;
   }
 
   function isAnswerValid() {
@@ -287,7 +288,7 @@ export function useWithRecordState(
     }
     if (mentor.mentorType === MentorType.VIDEO) {
       return Boolean(
-        // curAnswerState.answer.recordedAt &&
+        // curAnswerState.answer?.media?.find(m => m.type === MediaType.VIDEO)?.url &&
         curAnswerState.answer.question?.name === UtteranceName.IDLE ||
           curAnswerState.answer.transcript
       );

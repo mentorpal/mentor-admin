@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchMentor, updateMentor } from "api";
+import { fetchMentor, updateMentorDetails, updateMentorSubjects } from "api";
 import { Mentor } from "types";
 import { useWithData } from "./use-with-data";
 
@@ -20,14 +20,24 @@ export function useWithMentor(accessToken: string) {
     editData,
     saveData,
     reloadData,
-  } = useWithData<Mentor>(fetch, update);
+  } = useWithData<Mentor>(fetch);
 
   function fetch() {
     return fetchMentor(accessToken);
   }
 
-  function update(editedData: Mentor) {
-    return updateMentor(editedData, accessToken);
+  function saveMentorDetails() {
+    saveData({
+      callback: (editedData: Mentor) =>
+        updateMentorDetails(editedData, accessToken),
+    });
+  }
+
+  function saveMentorSubjects() {
+    saveData({
+      callback: (editedData: Mentor) =>
+        updateMentorSubjects(editedData, accessToken),
+    });
   }
 
   return {
@@ -40,6 +50,7 @@ export function useWithMentor(accessToken: string) {
     clearMentorError: clearError,
     reloadMentor: reloadData,
     editMentor: editData,
-    saveMentor: saveData,
+    saveMentorDetails,
+    saveMentorSubjects,
   };
 }

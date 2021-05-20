@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { cySetup, cyMockDefault, mockGQL, cyMockUpload, cyMockUploadStatus } from "../support/functions";
-import { Mentor, MentorType, QuestionType, Status, JobState } from "../support/types";
+import { Mentor, MentorType, QuestionType, Status, JobState, MediaType } from "../support/types";
 import {
   completeMentor,
   completeQuestion,
@@ -85,7 +85,6 @@ const chatMentor: Mentor = completeMentor({
       }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-      recordedAt: "",
       status: Status.COMPLETE,
     },
     {
@@ -96,7 +95,6 @@ const chatMentor: Mentor = completeMentor({
         mentor: "clintanderson",
       }),
       transcript: "",
-      recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -107,7 +105,6 @@ const chatMentor: Mentor = completeMentor({
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
       }),
       transcript: "",
-      recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -119,7 +116,6 @@ const chatMentor: Mentor = completeMentor({
       }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-      recordedAt: "",
       status: Status.COMPLETE,
     },
     {
@@ -130,7 +126,6 @@ const chatMentor: Mentor = completeMentor({
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
       }),
       transcript: "",
-      recordedAt: "",
       status: Status.INCOMPLETE,
     },
   ],
@@ -148,7 +143,6 @@ const videoMentor: Mentor = completeMentor({
         question: "Who are you and what do you do?",
       }),
       transcript: "",
-      recordedAt: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -159,7 +153,11 @@ const videoMentor: Mentor = completeMentor({
         mentor: "clintanderson",
       }),
       transcript: "I'm 37 years old",
-      recordedAt: "Today",
+      media: [{
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "http://videos/videos/mentors/clintanderson/A2_1_1.mp4"
+      }],
       status: Status.COMPLETE,
     },
   ],
@@ -584,12 +582,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [
         videoMentor,
+        videoMentor,
         undefined
       ]
     });
     cyMockUpload(cy);
     cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
-    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
+    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     // upload file
     cy.fixture('video.mp4').then(fileContent => {
@@ -601,8 +600,8 @@ describe("Record", () => {
     });
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Uploading video...");
-    cy.contains("Uploaded video!");
+    cy.contains("Uploading...");
+    cy.wait(3000)
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
@@ -636,8 +635,8 @@ describe("Record", () => {
     });
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Uploading video...");
-    cy.contains("Uploaded video!");
+    cy.contains("Uploading...");
+    cy.wait(3000)
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
@@ -661,25 +660,25 @@ describe("Record", () => {
       ],
       gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
-    cy.visit("/record?subject=background&status=INCOMPLETE");
+    cy.visit("/record?subject=background&status=COMPLETE");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within($input => {
-      cy.get("textarea").should('have.text', "How old are you now?")
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("textarea").should('have.text', "Who are you and what do you do?")
+      cy.get("textarea").should("have.attr", "disabled");
     });
     cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "")
+      cy.get("textarea").should('have.text', "My name is Clint Anderson and I'm a Nuclear Electrician's Mate")
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("Skip");
+    cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=save-btn]").should("be.disabled");
 
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
-    cy.get("[data-cy=complete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=incomplete]").trigger("mouseover").click();
+    cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=save-btn]").should("not.be.disabled");
     cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=save-btn]").should("be.disabled");
   });
 
