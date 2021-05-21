@@ -5,33 +5,36 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface TaskError {
+  message: string;
+  error: string;
+}
+
 export interface TaskState {
   isPolling: boolean;
+  error: TaskError | undefined;
 }
 
 export interface TaskAction {
   type: TaskActionType;
-  payload?: any;
+  payload: any;
 }
 
 export enum TaskActionType {
-  POLLING_START = "POLLING_START",
-  POLLING_END = "POLLING_END",
+  POLLING = "POLLING",
+  ERROR = "ERROR",
 }
 
 export function TaskReducer(state: TaskState, action: TaskAction): TaskState {
   const { type, payload } = action;
   switch (type) {
-    case TaskActionType.POLLING_START:
+    case TaskActionType.POLLING:
       return {
         ...state,
-        isPolling: true,
+        isPolling: payload,
       };
-    case TaskActionType.POLLING_END:
-      return {
-        ...state,
-        isPolling: false,
-      };
+    case TaskActionType.ERROR:
+      return { ...state, error: payload };
     default:
       return state;
   }

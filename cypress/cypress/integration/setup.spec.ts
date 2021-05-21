@@ -425,7 +425,7 @@ describe("Setup", () => {
       });
     });
     cy.get("[data-cy=save-button]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button]").should("not.be.disabled");
+    cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();
     });
@@ -511,7 +511,7 @@ describe("Setup", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup6, setup7, setup7, setup7, setup8, setup8],
+      mentor: [setup6, setup6, setup7, setup7, setup8, setup8],
       subject: repeatAfterMe,
       gqlQueries: [
         mockGQL("updateAnswer", true, true),
@@ -676,7 +676,9 @@ describe("Setup", () => {
         cy.contains("Once its complete, click preview to see your mentor.");
         cy.get("[data-cy=train-btn]").contains("Build");
         cy.get("[data-cy=train-btn]").trigger("mouseover").click();
-        cy.contains("Building your mentor...");
+      });
+      cy.contains("Building your mentor...");
+      cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Congratulations! Your brand-new mentor is ready!");
         cy.contains("Click the preview button to see your mentor.");
         cy.get("[data-cy=preview-btn]").contains("Preview");
@@ -705,7 +707,7 @@ describe("Setup", () => {
       cy.visit("/setup?i=7");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
-      cy.get("[data-cy=done-btn]").should("not.be.disabled");
+      cy.get("[data-cy=done-btn]").should("be.disabled");
       cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
@@ -713,8 +715,9 @@ describe("Setup", () => {
         cy.contains("Once its complete, click preview to see your mentor.");
         cy.get("[data-cy=train-btn]").contains("Build");
         cy.get("[data-cy=train-btn]").trigger("mouseover").click();
-        cy.contains("Oops, training failed. Please try again.");
       });
+      cy.contains("Building your mentor...");
+      cy.contains("Oops, training failed. Please try again.");
       cy.get("[data-cy=radio-7]").should("have.css", "color", "rgb(255, 0, 0)");
     });
   });

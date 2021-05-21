@@ -9,10 +9,14 @@ import { TrainingInfo } from "types";
 import { useWithTask } from "./use-with-task";
 
 export function useWithTraining(pollingInterval = 1000) {
-  const { status, statusUrl, isPolling, startTask } = useWithTask<
-    TrainingInfo,
-    string
-  >(train, poll, pollingInterval);
+  const {
+    status,
+    statusUrl,
+    error,
+    isPolling,
+    startTask,
+    clearError,
+  } = useWithTask<TrainingInfo, string>(train, poll, pollingInterval);
 
   function train(mentorId: string) {
     return trainMentor(mentorId);
@@ -24,8 +28,10 @@ export function useWithTraining(pollingInterval = 1000) {
 
   return {
     isTraining: isPolling,
+    trainError: error,
     trainStatus: status,
     trainStatusUrl: statusUrl,
     startTraining: startTask,
+    clearTrainingError: clearError,
   };
 }

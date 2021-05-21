@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useReducer, useState } from "react";
+import { equals } from "helpers";
 import {
   LoadingActionType,
   LoadingReducer,
@@ -52,38 +53,6 @@ export function useWithData<T>(
     };
   }, [state.isLoading]);
 
-  // Save edited data
-  useEffect(() => {
-    if (!state.isSaving || state.isLoading || !editedData || !update) {
-      return;
-    }
-    let mounted = true;
-    update(editedData)
-      .then((updated) => {
-        if (!mounted || !state.isSaving || state.isLoading) {
-          return;
-        }
-        if (!updated) {
-          dispatch({ type: LoadingActionType.SAVING, payload: false });
-          return;
-        }
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
-        setData(editedData);
-        setEditedData(undefined);
-      })
-      .catch((err) => {
-        console.error(err);
-        dispatch({
-          type: LoadingActionType.ERROR,
-          payload: { message: "Failed to save", error: err.message },
-        });
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [state.isSaving]);
-
   function clearError() {
     dispatch({ type: LoadingActionType.ERROR, payload: undefined });
   }
@@ -102,16 +71,16 @@ export function useWithData<T>(
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
-  function saveData(cb?: { callback: (data: T) => Promise<any> }) {
+  function saveData(updateFunc?: { callback: (data: T) => Promise<any> }) {
     if (state.isLoading || state.isSaving || !editedData) {
       return;
     }
-    const updateFunc = cb ? cb.callback : update;
-    if (!updateFunc) {
+    const uf = updateFunc ? updateFunc.callback : update;
+    if (!uf) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    updateFunc(editedData)
+    uf(editedData)
       .then((updated) => {
         if (state.isLoading) {
           return;
@@ -137,9 +106,7 @@ export function useWithData<T>(
   return {
     data,
     editedData: editedData || data,
-    isEdited:
-      editedData !== undefined &&
-      JSON.stringify(data) !== JSON.stringify(editedData),
+    isEdited: editedData !== undefined && !equals(data, editedData),
     isLoading: state.isLoading,
     isSaving: state.isSaving,
     error: state.error,

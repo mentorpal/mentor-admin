@@ -17,12 +17,10 @@ import {
   QuestionType,
   Question,
 } from "types";
+import { copyAndSet, equals } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
-
-function copyAndSet<T>(a: T[], i: number, item: T): T[] {
-  return [...a.slice(0, i), item, ...a.slice(i + 1)];
-}
+import { LoadingError } from "./loading-reducer";
 
 interface Progress {
   complete: number;
@@ -49,15 +47,23 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [error, setError] = useState<LoadingError>();
   const {
     mentor,
+    mentorError,
     editedMentor,
     isMentorLoading,
     isMentorEdited,
     editMentor,
     reloadMentor,
+    clearMentorError,
   } = useWithMentor(accessToken);
-  const { isTraining, startTraining } = useWithTraining();
+  const {
+    isTraining,
+    trainError,
+    startTraining,
+    clearTrainingError,
+  } = useWithTraining();
 
   useEffect(() => {
     if (!editedMentor || isMentorLoading || isSaving) {
@@ -132,42 +138,18 @@ export function useWithReviewAnswerState(
   }, [editedMentor, selectedSubject]);
 
   useEffect(() => {
-    if (
-      !isSaving ||
-      !editedMentor ||
-      !mentor ||
-      !isMentorEdited ||
-      isMentorLoading
-    ) {
-      return;
+    if (mentorError) {
+      setError(mentorError);
+      clearMentorError();
     }
-    let mounted = true;
-    console.warn(
-      "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
-    );
-    Promise.all(
-      editedMentor.subjects
-        .filter(
-          (s, i) => JSON.stringify(s) !== JSON.stringify(mentor.subjects[i])
-        )
-        .map((subject) => {
-          return updateSubject(subject, accessToken);
-        })
-    )
-      .then(() => {
-        if (!mounted) {
-          return;
-        }
-        reloadMentor();
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsSaving(false);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [isSaving]);
+  }, [mentorError]);
+
+  useEffect(() => {
+    if (trainError) {
+      setError(trainError);
+      clearTrainingError();
+    }
+  }, [trainError]);
 
   function recordAnswers(
     status: Status,
@@ -271,25 +253,50 @@ export function useWithReviewAnswerState(
   }
 
   function saveChanges() {
-    if (!editedMentor || !isMentorEdited || isMentorLoading || isSaving) {
+    if (
+      !mentor ||
+      !editedMentor ||
+      !isMentorEdited ||
+      isMentorLoading ||
+      isSaving
+    ) {
       return;
     }
     setIsSaving(true);
+    console.warn(
+      "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
+    );
+    Promise.all(
+      editedMentor.subjects
+        .filter((s, i) => !equals(s, mentor.subjects[i]))
+        .map((subject) => {
+          return updateSubject(subject, accessToken);
+        })
+    )
+      .then(() => {
+        reloadMentor();
+        setIsSaving(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError({ message: "Failed to save", error: err.message });
+        setIsSaving(false);
+      });
   }
 
   return {
     mentor,
-    isMentorLoading,
     isMentorEdited,
-
-    selectedSubject,
-    isSaving,
     blocks,
     progress,
+    selectedSubject,
+    isLoading: isMentorLoading,
+    isSaving,
+    isTraining,
+    error,
+    clearError: () => setError(undefined),
     selectSubject,
     saveChanges,
-
-    isTraining,
     startTraining,
   };
 }

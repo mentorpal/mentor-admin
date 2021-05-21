@@ -5,14 +5,21 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-export interface SlideType {
-  status: boolean;
-  element: JSX.Element;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function equals(val1: any, val2: any): boolean {
+  return JSON.stringify(val1) === JSON.stringify(val2);
 }
 
-export function Slide(status: boolean, element: JSX.Element): SlideType {
-  return {
-    status,
-    element,
-  };
+export function copyAndSet<T>(a: T[], i: number, item: T): T[] {
+  return [...a.slice(0, i), item, ...a.slice(i + 1)];
+}
+
+export function copyAndRemove<T>(a: T[], i: number): T[] {
+  return [...a.slice(0, i), ...a.slice(i + 1)];
+}
+
+export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
+  const item = a[moveFrom];
+  const removed = copyAndRemove(a, moveFrom);
+  return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }

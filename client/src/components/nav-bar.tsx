@@ -196,14 +196,6 @@ function NavMenu(props: {
       >
         <ListItemText primary="Subjects" />
       </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/questions"}
-        selected={location.pathname.includes("/author/question")}
-      >
-        <ListItemText primary="Questions" />
-      </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>

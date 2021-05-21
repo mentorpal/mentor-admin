@@ -4,181 +4,224 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect, useState } from "react";
-import { MentorType, Status, User, UtteranceName } from "types";
-import { useWithMentor } from "./use-with-mentor";
-
-import { Slide, SlideType } from "components/setup/slide";
-import { WelcomeSlide } from "components/setup/welcome-slide";
-import { MentorInfoSlide } from "components/setup/mentor-info-slide";
-import { MentorTypeSlide } from "components/setup/mentor-type-slide";
-import { IntroductionSlide } from "components/setup/introduction-slide";
-import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
-import { RecordIdleSlide } from "components/setup/record-idle-slide";
-import { RecordSubjectSlide } from "components/setup/record-subject-slide";
-import { BuildMentorSlide } from "components/setup/build-mentor-slide";
+import { useEffect, useState } from "react";
+import {
+  Answer,
+  JobState,
+  MentorType,
+  Status,
+  Subject,
+  UtteranceName,
+} from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
+import { useWithMentor } from "./use-with-mentor";
+import { LoadingError } from "./loading-reducer";
 
-export enum SetupStatus {
-  LOADING = "LOADING",
-  NEVER_STARTED = "NEVER_STARTED",
-  INCOMPLETE = "INCOMPLETE",
-  COMPLETE = "COMPLETE",
+export enum SetupStepType {
+  WELCOME,
+  MENTOR_INFO,
+  MENTOR_TYPE,
+  INTRODUCTION,
+  SELECT_SUBJECTS,
+  IDLE,
+  REQUIRED_SUBJECT,
+  BUILD,
 }
 
-export function useWithSetup(
-  accessToken: string,
-  uiProps?: {
-    classes: Record<string, string>;
-    user: User;
-  }
-) {
-  const [slides, setSlides] = useState<SlideType[]>([]);
-  const [setupStatus, setSetupStatus] = useState<SetupStatus>(
-    SetupStatus.LOADING
-  );
+interface SetupStep {
+  type: SetupStepType;
+  complete: boolean;
+}
+
+interface SetupStatus {
+  isMentorInfoDone: boolean;
+  isMentorTypeChosen: boolean;
+  idle:
+    | {
+        idle: Answer;
+        complete: boolean;
+      }
+    | undefined;
+  requiredSubjects: {
+    subject: Subject;
+    answers: Answer[];
+    complete: boolean;
+  }[];
+  isBuildable: boolean;
+  isBuilt: boolean;
+  isSetupComplete: boolean;
+}
+
+export function useWithSetup(accessToken: string, search?: { i?: string }) {
+  const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
+  const [steps, setSteps] = useState<SetupStep[]>([]);
+  const [status, setStatus] = useState<SetupStatus>();
+  const [error, setError] = useState<LoadingError>();
   const {
     mentor,
+    mentorError,
     editedMentor,
     isMentorEdited,
     isMentorLoading,
     isMentorSaving,
     editMentor,
+    reloadMentor,
     saveMentorDetails,
+    clearMentorError,
   } = useWithMentor(accessToken);
-  const { isTraining, trainStatus, startTraining } = useWithTraining();
+  const {
+    isTraining,
+    trainError,
+    trainStatus,
+    startTraining,
+    clearTrainingError,
+  } = useWithTraining();
 
   useEffect(() => {
-    if (!mentor || !editedMentor || isMentorSaving || isMentorLoading) {
+    if (!mentor || isMentorSaving || isMentorLoading) {
       return;
     }
-    const mentorSlideDone = Boolean(
+    const isMentorInfoDone = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
-    const mentorTypeDone = Boolean(mentor.mentorType);
-    const slides = uiProps
-      ? [
-          Slide(
-            true,
-            <WelcomeSlide
-              key="welcome"
-              classes={uiProps.classes}
-              userName={uiProps.user.name}
-            />
-          ),
-          Slide(
-            mentorSlideDone,
-            <MentorInfoSlide
-              key="mentor-info"
-              classes={uiProps.classes}
-              mentor={editedMentor}
-              isMentorEdited={isMentorEdited}
-              isMentorLoading={isMentorLoading || isMentorSaving}
-              editMentor={editMentor}
-              saveMentor={saveMentorDetails}
-            />
-          ),
-          Slide(
-            mentorTypeDone,
-            <MentorTypeSlide
-              key="chat-type"
-              classes={uiProps.classes}
-              mentor={editedMentor}
-              isMentorEdited={isMentorEdited}
-              isMentorLoading={isMentorLoading || isMentorSaving}
-              editMentor={editMentor}
-              saveMentor={saveMentorDetails}
-            />
-          ),
-          Slide(
-            true,
-            <IntroductionSlide key="introduction" classes={uiProps.classes} />
-          ),
-          Slide(true, <SelectSubjectsSlide classes={uiProps.classes} i={4} />),
-        ]
-      : [];
-    let mentorIdleDone = true;
-    if (mentor.mentorType === MentorType.VIDEO) {
-      const idle = mentor.answers.find(
-        (a) => a.question.name === UtteranceName.IDLE
-      );
-      if (idle) {
-        mentorIdleDone = idle.status === Status.COMPLETE;
-        if (uiProps) {
-          slides.push(
-            Slide(
-              mentorIdleDone,
-              <RecordIdleSlide
-                key="idle"
-                classes={uiProps.classes}
-                idle={idle}
-                i={slides.length}
-              />
-            )
-          );
-        }
-      }
-    }
-    let requiredSubjectsDone = true;
-    mentor.subjects
-      .filter((s) => s.isRequired)
-      .forEach((s) => {
-        const answers = mentor.answers.filter((a) =>
-          s.questions.map((q) => q.question._id).includes(a.question._id)
-        );
-        const subjectDone = answers.every((a) => a.status === Status.COMPLETE);
-        requiredSubjectsDone = requiredSubjectsDone && subjectDone;
-        if (uiProps) {
-          slides.push(
-            Slide(
-              subjectDone,
-              <RecordSubjectSlide
-                key={`${s.name}`}
-                classes={uiProps.classes}
-                subject={s}
-                questions={answers}
-                i={slides.length}
-              />
-            )
-          );
-        }
-      });
-    const trainingDone = Boolean(mentor.lastTrainedAt);
-    const isBuildable =
-      mentorSlideDone &&
-      mentorTypeDone &&
-      mentorIdleDone &&
-      requiredSubjectsDone;
-    const isSetupComplete = isBuildable && trainingDone;
-    if (uiProps) {
-      slides.push(
-        Slide(
-          isBuildable && trainingDone,
-          <BuildMentorSlide
-            key="build"
-            classes={uiProps.classes}
-            mentor={editedMentor}
-            isMentorLoading={isMentorLoading || isMentorSaving}
-            isSetupComplete={isBuildable}
-            isTraining={isTraining}
-            trainStatus={trainStatus}
-            startTraining={() => startTraining(mentor._id)}
-          />
-        )
-      );
-    }
-    setSlides(slides);
-    setSetupStatus(
-      isSetupComplete ? SetupStatus.COMPLETE : SetupStatus.INCOMPLETE
+    const isMentorTypeChosen = Boolean(mentor.mentorType);
+    const idleAnswer = mentor.answers.find(
+      (a) => a.question.name === UtteranceName.IDLE
     );
-  }, [editedMentor, mentor]);
+    const idle =
+      mentor.mentorType === MentorType.VIDEO && idleAnswer
+        ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
+        : undefined;
+    const requiredSubjects = mentor.subjects
+      .filter((s) => s.isRequired)
+      .map((s) => {
+        const answers = mentor.answers.filter(
+          (a) =>
+            (!a.question?.mentorType ||
+              a.question?.mentorType == mentor.mentorType) &&
+            s.questions.map((q) => q.question._id).includes(a.question._id)
+        );
+        return {
+          subject: s,
+          answers: answers,
+          complete: answers.every((a) => a.status === Status.COMPLETE),
+        };
+      });
+    const isBuildable =
+      isMentorInfoDone &&
+      isMentorTypeChosen &&
+      (!idle || idle.complete) &&
+      requiredSubjects.every((s) => s.complete);
+    const isBuilt = Boolean(mentor.lastTrainedAt);
+    const isSetupComplete = isBuildable && isBuilt;
+    setStatus({
+      isMentorInfoDone,
+      isMentorTypeChosen,
+      idle,
+      requiredSubjects,
+      isBuildable,
+      isBuilt,
+      isSetupComplete,
+    });
+
+    const status: SetupStep[] = [
+      { type: SetupStepType.WELCOME, complete: true },
+      { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
+      { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
+      { type: SetupStepType.INTRODUCTION, complete: true },
+      { type: SetupStepType.SELECT_SUBJECTS, complete: true },
+    ];
+    if (idle) {
+      status.push({ type: SetupStepType.IDLE, complete: idle.complete });
+    }
+    requiredSubjects.forEach((s) => {
+      status.push({
+        type: SetupStepType.REQUIRED_SUBJECT,
+        complete: s.complete,
+      });
+    });
+    status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
+    setSteps(status);
+  }, [mentor]);
+
+  useEffect(() => {
+    if (mentorError) {
+      setError(mentorError);
+      clearMentorError();
+    }
+  }, [mentorError]);
+
+  useEffect(() => {
+    if (trainStatus?.state === JobState.SUCCESS) {
+      reloadMentor();
+    }
+  }, [trainStatus]);
+
+  useEffect(() => {
+    if (trainError) {
+      setError({
+        message: "Oops, training failed. Please try again.",
+        error: trainError.error,
+      });
+      clearTrainingError();
+    }
+  }, [trainError]);
+
+  function nextStep() {
+    if (!status || idx === steps.length - 1) {
+      return;
+    }
+    setIdx(idx + 1);
+  }
+
+  function prevStep() {
+    if (!status || idx === 0) {
+      return;
+    }
+    setIdx(idx - 1);
+  }
+
+  function toStep(i: number) {
+    if (!status || i < 0 || i >= steps.length) {
+      return;
+    }
+    setIdx(i);
+  }
+
+  function train() {
+    if (
+      !mentor ||
+      isTraining ||
+      isMentorLoading ||
+      isMentorSaving ||
+      !status ||
+      !status.isBuildable
+    ) {
+      return;
+    }
+    startTraining(mentor._id);
+  }
+
+  function clearError() {
+    setError(undefined);
+  }
 
   return {
+    setupStatus: status,
+    setupStep: idx,
+    setupSteps: steps,
     mentor: editedMentor,
-    slides,
-    setupStatus,
-    isSetupComplete: setupStatus === SetupStatus.COMPLETE,
-    isSetupLoading: isMentorLoading,
-    isSetupSaving: isMentorSaving,
+    isEdited: isMentorEdited,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    isTraining,
+    error,
+    editMentor,
+    saveMentor: saveMentorDetails,
+    startTraining: train,
+    nextStep,
+    prevStep,
+    toStep,
+    clearError,
   };
 }

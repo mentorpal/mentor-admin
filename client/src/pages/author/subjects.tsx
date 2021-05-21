@@ -11,8 +11,6 @@ import {
   CircularProgress,
   Fab,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -23,7 +21,6 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
@@ -77,13 +74,6 @@ const columns: ColumnDef[] = [
     align: "left",
     sortable: true,
   },
-  {
-    id: "delete",
-    label: "Delete",
-    minWidth: 0,
-    align: "center",
-    sortable: false,
-  },
 ];
 
 function SubjectItem(props: { subject: Subject }): JSX.Element {
@@ -125,15 +115,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     subjectsPrevPage,
   } = useWithSubjects();
 
-  if (!subjects) {
-    return (
-      <div>
-        <NavBar title="Subjects" />
-        <CircularProgress />
-      </div>
-    );
-  }
-
   return (
     <div>
       <NavBar title="Subjects" mentorId={mentor?._id} />
@@ -148,7 +129,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                 onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {subjects.edges.map((row, i) => (
+                {subjects?.edges.map((row, i) => (
                   <SubjectItem key={`subject-${i}`} subject={row.node} />
                 ))}
               </TableBody>
@@ -159,14 +140,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!subjects.pageInfo.hasPreviousPage}
+              disabled={!subjects?.pageInfo.hasPreviousPage}
               onClick={subjectsPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!subjects.pageInfo.hasNextPage}
+              disabled={!subjects?.pageInfo.hasNextPage}
               onClick={subjectsNextPage}
             >
               <KeyboardArrowRightIcon />

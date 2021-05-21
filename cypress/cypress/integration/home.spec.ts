@@ -437,7 +437,7 @@ describe("Review answers page", () => {
     cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
-    cy.contains("Training failed");
+    cy.contains("Failed job");
   });
 
   it("can train mentor", () => {
@@ -449,7 +449,7 @@ describe("Review answers page", () => {
     cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
-    cy.contains("Training mentor...");
-    cy.contains("Training succeeded");
+    cy.contains("Building...");
+    cy.get("[data-cy=select-subject]").trigger("mouseover").click();
   });
 });

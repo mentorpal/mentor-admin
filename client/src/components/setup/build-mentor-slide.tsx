@@ -5,31 +5,21 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography, Button, CircularProgress } from "@material-ui/core";
+import { Paper, Typography, Button } from "@material-ui/core";
 import { CLIENT_ENDPOINT } from "api";
-import { JobState, Mentor, TaskStatus, TrainingInfo } from "types";
+import { Mentor } from "types";
 
 export function BuildMentorSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
-  isMentorLoading: boolean;
-  isSetupComplete: boolean;
-  isTraining: boolean;
-  trainStatus: TaskStatus<TrainingInfo> | undefined;
-  startTraining: (params: string) => void;
+  isBuildable: boolean;
+  isBuilt: boolean;
+  startTraining: () => void;
 }): JSX.Element {
-  const {
-    classes,
-    mentor,
-    isMentorLoading,
-    isSetupComplete,
-    isTraining,
-    trainStatus,
-    startTraining,
-  } = props;
+  const { classes, mentor, isBuildable, isBuilt, startTraining } = props;
 
   function renderMessage(): JSX.Element {
-    if (!isSetupComplete) {
+    if (!isBuildable) {
       return (
         <div>
           <Typography variant="h6" className={classes.text}>
@@ -42,29 +32,7 @@ export function BuildMentorSlide(props: {
         </div>
       );
     }
-    if (isTraining) {
-      return (
-        <div>
-          <Typography variant="h6" className={classes.text}>
-            Building your mentor...
-          </Typography>
-          <CircularProgress />
-        </div>
-      );
-    }
-    if (trainStatus?.state === JobState.FAILURE) {
-      return (
-        <div>
-          <Typography variant="h6" className={classes.text}>
-            Oops, training failed. Please try again.
-          </Typography>
-        </div>
-      );
-    }
-    if (
-      Boolean(mentor?.lastTrainedAt) ||
-      trainStatus?.state === JobState.SUCCESS
-    ) {
+    if (isBuilt) {
       return (
         <div>
           <Typography variant="h6" className={classes.text}>
@@ -91,14 +59,14 @@ export function BuildMentorSlide(props: {
     );
   }
 
-  if (!mentor || isMentorLoading) {
+  if (!mentor) {
     return <div />;
   }
 
   return (
     <Paper className={classes.card}>
       <Typography variant="h3" className={classes.title}>
-        {isSetupComplete
+        {isBuildable
           ? "Great job! You're ready to build your mentor!"
           : "Oops! Your mentor is not ready yet."}
       </Typography>
@@ -108,19 +76,19 @@ export function BuildMentorSlide(props: {
           data-cy="train-btn"
           variant="contained"
           color="primary"
-          disabled={isTraining || !isSetupComplete}
+          disabled={!isBuildable}
           className={classes.button}
-          onClick={() => startTraining(mentor._id)}
+          onClick={startTraining}
         >
           Build
         </Button>
-        {mentor.lastTrainedAt ? (
+        {isBuilt ? (
           <Button
             data-cy="preview-btn"
             variant="contained"
             color="secondary"
             className={classes.button}
-            disabled={isTraining || !isSetupComplete}
+            disabled={!isBuildable}
             onClick={() => {
               const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
               window.location.href = path;

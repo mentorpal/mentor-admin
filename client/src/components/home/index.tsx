@@ -9,9 +9,6 @@ import { navigate } from "gatsby";
 import {
   AppBar,
   CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   Fab,
   List,
   ListItem,
@@ -26,8 +23,9 @@ import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
 import withLocation from "hooks/wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { SetupStatus, useWithSetup } from "hooks/graphql/use-with-setup";
+import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -75,13 +73,15 @@ function HomePage(props: {
   const classes = useStyles();
   const {
     mentor,
-    isMentorLoading,
+    isLoading,
     isMentorEdited,
     selectedSubject,
     blocks,
     progress,
     isSaving,
     isTraining,
+    error,
+    clearError,
     selectSubject,
     saveChanges,
     startTraining,
@@ -89,12 +89,12 @@ function HomePage(props: {
   const { setupStatus } = useWithSetup(props.accessToken);
 
   useEffect(() => {
-    if (setupStatus === SetupStatus.INCOMPLETE) {
+    if (setupStatus?.isSetupComplete === false) {
       navigate(`/setup`);
     }
   }, [setupStatus]);
 
-  if (!mentor || isMentorLoading || setupStatus === SetupStatus.LOADING) {
+  if (!setupStatus) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
@@ -109,11 +109,11 @@ function HomePage(props: {
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <Select
           data-cy="select-subject"
-          value={mentor.subjects.find((s) => s._id === selectedSubject)}
+          value={mentor?.subjects.find((s) => s._id === selectedSubject)}
           displayEmpty
           renderValue={() => (
             <Typography variant="h6" className={classes.title}>
-              {mentor.subjects.find((s) => s._id === selectedSubject)?.name ||
+              {mentor?.subjects.find((s) => s._id === selectedSubject)?.name ||
                 "All Answers"}{" "}
               ({progress.complete} / {progress.total})
             </Typography>
@@ -174,20 +174,26 @@ function HomePage(props: {
             data-cy="train-button"
             variant="extended"
             color="primary"
-            disabled={isTraining}
-            onClick={() => startTraining(mentor._id)}
+            disabled={isTraining || isLoading || isSaving}
+            onClick={() => startTraining(mentor!._id)}
             className={classes.fab}
           >
             Build Mentor
           </Fab>
         </Toolbar>
       </AppBar>
-      {/* <Dialog open={loadingMessage !== undefined}>
-        <DialogTitle>{loadingMessage}</DialogTitle>
-        <DialogContent>
-          <CircularProgress />
-        </DialogContent>
-      </Dialog> */}
+      <LoadingDialog
+        title={
+          isLoading
+            ? "Loading..."
+            : isSaving
+            ? "Saving..."
+            : isTraining
+            ? "Building..."
+            : ""
+        }
+      />
+      <ErrorDialog error={error} clearError={clearError} />
     </div>
   );
 }

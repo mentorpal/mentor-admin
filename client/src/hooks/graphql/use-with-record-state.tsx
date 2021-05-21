@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useReducer, useState } from "react";
 import { updateAnswer, updateQuestion } from "api";
 import { Answer, JobState, MediaType, MentorType, UtteranceName } from "types";
+import { copyAndSet, equals } from "helpers";
 import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithMentor } from "./use-with-mentor";
 import {
@@ -14,15 +15,6 @@ import {
   RecordingReducer,
   RecordingState,
 } from "./recording-reducer";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function equals(val1: any, val2: any): boolean {
-  return JSON.stringify(val1) === JSON.stringify(val2);
-}
-
-function copyAndSet<T>(a: T[], i: number, item: T): T[] {
-  return [...a.slice(0, i), item, ...a.slice(i + 1)];
-}
 
 const initialState: RecordingState = {
   isSaving: false,
@@ -60,8 +52,20 @@ export function useWithRecordState(
   const [curAnswerState, setCurAnswerState] = useState<AnswerState>();
   const [state, dispatch] = useReducer(RecordingReducer, initialState);
 
-  const { mentor, reloadMentor } = useWithMentor(accessToken);
-  const { isUploading, uploadStatus, startUploading } = useWithUploading();
+  const {
+    mentor,
+    isMentorLoading,
+    mentorError,
+    reloadMentor,
+    clearMentorError,
+  } = useWithMentor(accessToken);
+  const {
+    isUploading,
+    uploadError,
+    uploadStatus,
+    startUploading,
+    clearUploadError,
+  } = useWithUploading();
 
   useEffect(() => {
     if (!mentor) {
@@ -88,7 +92,7 @@ export function useWithRecordState(
     }
     answers = answers.filter(
       (a) =>
-        !a.question.mentorType || a.question.mentorType === mentor.mentorType
+        !a.question?.mentorType || a.question?.mentorType === mentor.mentorType
     );
     setAnswers(answers);
   }, [mentor]);
@@ -100,20 +104,40 @@ export function useWithRecordState(
     const answer = answers[answerIdx];
     setCurAnswerState({
       answer,
-      minVideoLength: answer.question.minVideoLength,
+      minVideoLength: answer.question?.minVideoLength,
     });
     dispatch({ type: RecordingActionType.RECORDING, payload: false });
   }, [answers, answerIdx]);
 
   useEffect(() => {
-    if (isUploading === state.isUploading) {
-      return;
-    }
+    dispatch({ type: RecordingActionType.UPLOADING, payload: isUploading });
+  }, [isUploading]);
+
+  useEffect(() => {
     if (uploadStatus?.state === JobState.SUCCESS) {
       reloadMentor();
     }
-    dispatch({ type: RecordingActionType.UPLOADING, payload: isUploading });
-  }, [isUploading, uploadStatus]);
+  }, [uploadStatus]);
+
+  useEffect(() => {
+    if (uploadError) {
+      dispatch({
+        type: RecordingActionType.ERROR,
+        payload: { message: "Failed to upload", error: uploadError.error },
+      });
+      clearUploadError();
+    }
+  }, [uploadError]);
+
+  useEffect(() => {
+    if (mentorError) {
+      dispatch({
+        type: RecordingActionType.ERROR,
+        payload: { message: mentorError.error, error: mentorError.error },
+      });
+      clearMentorError();
+    }
+  }, [mentorError]);
 
   function prevAnswer() {
     if (
@@ -219,6 +243,13 @@ export function useWithRecordState(
               .catch((err) => {
                 console.error(err);
                 dispatch({ type: RecordingActionType.SAVING, payload: false });
+                dispatch({
+                  type: RecordingActionType.ERROR,
+                  payload: {
+                    message: "Failed to save answer",
+                    error: err.message,
+                  },
+                });
               });
           } else {
             setAnswers(copyAndSet(answers, answerIdx, editedAnswer));
@@ -228,6 +259,10 @@ export function useWithRecordState(
         .catch((err) => {
           console.error(err);
           dispatch({ type: RecordingActionType.SAVING, payload: false });
+          dispatch({
+            type: RecordingActionType.ERROR,
+            payload: { message: "Failed to save question", error: err.message },
+          });
         });
     }
     // update the answer if it has changed
@@ -245,6 +280,10 @@ export function useWithRecordState(
         .catch((err) => {
           console.error(err);
           dispatch({ type: RecordingActionType.SAVING, payload: false });
+          dispatch({
+            type: RecordingActionType.ERROR,
+            payload: { message: "Failed to save answer", error: err.message },
+          });
         });
     }
   }
@@ -296,7 +335,12 @@ export function useWithRecordState(
     return false;
   }
 
+  function clearError() {
+    dispatch({ type: RecordingActionType.ERROR, payload: undefined });
+  }
+
   return {
+    mentor,
     answers,
     answerIdx,
     recordState: state,
@@ -311,7 +355,7 @@ export function useWithRecordState(
             minVideoLength: curAnswerState.minVideoLength,
           }
         : undefined,
-
+    isLoading: isMentorLoading,
     prevAnswer,
     nextAnswer,
     editAnswer,
@@ -321,5 +365,6 @@ export function useWithRecordState(
     stopRecording,
     uploadVideo,
     setMinVideoLength,
+    clearRecordingError: clearError,
   };
 }

@@ -8,21 +8,8 @@ import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
 import { Category, QuestionType, Subject, SubjectQuestion, Topic } from "types";
+import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "./use-with-data";
-
-function copyAndRemove<T>(a: T[], i: number): T[] {
-  return [...a.slice(0, i), ...a.slice(i + 1)];
-}
-
-function copyAndSet<T>(a: T[], i: number, item: T): T[] {
-  return [...a.slice(0, i), item, ...a.slice(i + 1)];
-}
-
-function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
-  const item = a[moveFrom];
-  const removed = copyAndRemove(a, moveFrom);
-  return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
-}
 
 export function useWithSubject(subjectId: string, accessToken: string) {
   const {

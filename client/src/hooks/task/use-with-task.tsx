@@ -11,6 +11,7 @@ import useInterval from "./use-interval";
 
 const initialState: TaskState = {
   isPolling: false,
+  error: undefined,
 };
 
 export function useWithTask<T, U>(
@@ -31,19 +32,30 @@ export function useWithTask<T, U>(
         .then((status) => {
           setStatus(status);
           if (isCancelled()) {
-            dispatch({ type: TaskActionType.POLLING_END });
+            dispatch({ type: TaskActionType.POLLING, payload: false });
             return;
           }
           if (status.state === JobState.SUCCESS) {
-            dispatch({ type: TaskActionType.POLLING_END });
+            dispatch({ type: TaskActionType.POLLING, payload: false });
           }
           if (status.state === JobState.FAILURE) {
-            dispatch({ type: TaskActionType.POLLING_END });
+            dispatch({ type: TaskActionType.POLLING, payload: false });
+            dispatch({
+              type: TaskActionType.ERROR,
+              payload: {
+                message: "Failed job",
+                error: "Job returned with fail",
+              },
+            });
           }
         })
         .catch((err: Error) => {
           console.error(err);
-          dispatch({ type: TaskActionType.POLLING_END });
+          dispatch({ type: TaskActionType.POLLING, payload: false });
+          dispatch({
+            type: TaskActionType.ERROR,
+            payload: { message: "Failed job", error: err.message },
+          });
         });
     },
     state.isPolling ? pollingInterval : null
@@ -53,22 +65,33 @@ export function useWithTask<T, U>(
     if (state.isPolling) {
       return;
     }
-    console.log(`start task with params ${JSON.stringify(params)}`);
+    setStatus(undefined);
+    setStatusUrl(undefined);
     start(params)
       .then((job) => {
         setStatusUrl(job.statusUrl);
-        dispatch({ type: TaskActionType.POLLING_START });
+        dispatch({ type: TaskActionType.POLLING, payload: true });
       })
       .catch((err) => {
         console.error(err);
-        dispatch({ type: TaskActionType.POLLING_END });
+        dispatch({ type: TaskActionType.POLLING, payload: false });
+        dispatch({
+          type: TaskActionType.ERROR,
+          payload: { message: "Failed to start job", error: err.message },
+        });
       });
+  }
+
+  function clearError() {
+    dispatch({ type: TaskActionType.ERROR, payload: undefined });
   }
 
   return {
     isPolling: state.isPolling,
+    error: state.error,
     status,
     statusUrl,
     startTask,
+    clearError,
   };
 }

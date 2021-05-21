@@ -123,11 +123,12 @@ const columnHeaders: ColumnDef[] = [
 
 function FeedbackItem(props: {
   feedback: UserQuestion;
-  mentor: Mentor;
+  mentor: Mentor | undefined;
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentor, onUpdated } = props;
 
+  // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId: string | undefined) {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
@@ -175,7 +176,7 @@ function FeedbackItem(props: {
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
               data-cy="select-answer"
-              options={mentor.answers}
+              options={mentor?.answers || []}
               getOptionLabel={(option: Answer) => option.question.question}
               onChange={(e, v) => {
                 onUpdateAnswer(v?._id);
@@ -231,20 +232,16 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     feedbackNextPage,
     feedbackPrevPage,
   } = useWithFeedback();
-  const { isTraining, trainStatus, startTraining } = useWithTraining();
-
-  if (!mentor || !feedback) {
-    return (
-      <div>
-        <NavBar title="Feedback" mentorId={mentor?._id} />
-        <CircularProgress />
-      </div>
-    );
-  }
+  const {
+    isTraining,
+    trainError,
+    startTraining,
+    clearTrainingError,
+  } = useWithTraining();
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentor._id} />
+      <NavBar title="Feedback" mentorId={mentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -339,7 +336,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-classifier"
-                      options={mentor.answers}
+                      options={mentor?.answers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
@@ -363,7 +360,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-grader"
-                      options={mentor.answers}
+                      options={mentor?.answers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
@@ -388,12 +385,12 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">
-                {feedback.edges.map((row, i) => (
+                {feedback?.edges.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
-                    mentor={mentor!}
+                    mentor={mentor}
                     onUpdated={reloadFeedback}
                   />
                 ))}
@@ -405,14 +402,14 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!feedback.pageInfo.hasPreviousPage}
+              disabled={!feedback?.pageInfo.hasPreviousPage}
               onClick={feedbackPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!feedback.pageInfo.hasNextPage}
+              disabled={!feedback?.pageInfo.hasNextPage}
               onClick={feedbackNextPage}
             >
               <KeyboardArrowRightIcon />
@@ -422,22 +419,27 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={() => startTraining(mentor._id)}
-              disabled={isTraining}
+              onClick={() => startTraining(mentor!._id)}
+              disabled={isTraining || isMentorLoading || isFeedbackLoading}
             >
-              {isTraining
-                ? "Training..."
-                : trainStatus?.state === JobState.FAILURE
-                ? "Training Failed. Retry?"
-                : "Train Mentor"}
+              Train Mentor
             </Fab>
           </Toolbar>
         </AppBar>
       </div>
       <LoadingDialog
-        title={isMentorLoading || isFeedbackLoading ? "Loading..." : ""}
+        title={
+          isMentorLoading || isFeedbackLoading
+            ? "Loading..."
+            : isTraining
+            ? "Building mentor..."
+            : ""
+        }
       />
-      <ErrorDialog error={mentorError} clearError={clearMentorError} />
+      <ErrorDialog
+        error={mentorError || trainError}
+        clearError={mentorError ? clearMentorError : clearTrainingError}
+      />
     </div>
   );
 }

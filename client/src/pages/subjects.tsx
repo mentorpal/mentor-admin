@@ -8,7 +8,6 @@ import React from "react";
 import {
   AppBar,
   Checkbox,
-  CircularProgress,
   Fab,
   IconButton,
   Paper,
@@ -23,12 +22,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
+import { Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { copyAndRemove } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -92,6 +93,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     editedMentor,
     isMentorLoading,
     isMentorSaving,
+    isMentorEdited,
     mentorError,
     clearMentorError,
     editMentor,
@@ -101,23 +103,43 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     subjects,
     isSubjectsLoading,
     subjectSearchParams,
+    subjectsError,
     sortSubjects: subjectsSortBy,
     subjectsNextPage,
     subjectsPrevPage,
+    clearSubjectsError,
   } = useWithSubjects();
 
-  if (!editedMentor || !subjects) {
-    return (
-      <div>
-        <NavBar title="Subjects" mentor={editedMentor?._id} />
-        <CircularProgress />
-      </div>
-    );
+  function toggleSubject(subject: Subject) {
+    if (!editedMentor) {
+      return;
+    }
+    const i = editedMentor.subjects.findIndex((s) => s._id === subject._id);
+    editMentor({
+      subjects:
+        i === -1
+          ? [...editedMentor.subjects, subject]
+          : copyAndRemove(editedMentor.subjects, i),
+      defaultSubject:
+        editedMentor.defaultSubject?._id === subject._id
+          ? undefined
+          : editedMentor.defaultSubject,
+    });
+  }
+
+  function toggleDefaultSubject(subject: Subject) {
+    if (!editedMentor) {
+      return;
+    }
+    editMentor({
+      defaultSubject:
+        editedMentor.defaultSubject?._id === subject._id ? undefined : subject,
+    });
   }
 
   return (
     <div>
-      <NavBar title="Subjects" mentor={editedMentor._id} />
+      <NavBar title="Subjects" mentor={editedMentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -129,7 +151,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                 onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {subjects.edges.map((edge, i) => {
+                {subjects?.edges.map((edge, i) => {
                   const subject = edge.node;
                   return (
                     <TableRow
@@ -148,50 +170,27 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                       <TableCell data-cy="select" align="center">
                         <Checkbox
                           checked={
-                            editedMentor.subjects.find(
+                            editedMentor?.subjects.find(
                               (s) => s._id === subject._id
                             ) !== undefined
                           }
                           disabled={subject.isRequired}
                           color="primary"
-                          onClick={() => {
-                            const i = editedMentor.subjects.findIndex(
-                              (s) => s._id === subject._id
-                            );
-                            if (i === -1) {
-                              editedMentor.subjects.push(subject);
-                            } else {
-                              editedMentor.subjects.splice(i, 1);
-                            }
-                            editMentor({
-                              subjects: editedMentor.subjects,
-                              defaultSubject:
-                                editedMentor.defaultSubject?._id === subject._id
-                                  ? undefined
-                                  : editedMentor.defaultSubject,
-                            });
-                          }}
+                          onClick={() => toggleSubject(subject)}
                         />
                       </TableCell>
                       <TableCell data-cy="default" align="center">
                         <Checkbox
                           checked={
-                            subject._id === editedMentor.defaultSubject?._id
+                            subject._id === editedMentor?.defaultSubject?._id
                           }
                           disabled={
-                            editedMentor.subjects.find(
+                            editedMentor?.subjects.find(
                               (s) => s._id === subject._id
                             ) === undefined
                           }
                           color="secondary"
-                          onClick={() =>
-                            editMentor({
-                              defaultSubject:
-                                editedMentor.defaultSubject?._id === subject._id
-                                  ? undefined
-                                  : subject,
-                            })
-                          }
+                          onClick={() => toggleDefaultSubject(subject)}
                         />
                       </TableCell>
                     </TableRow>
@@ -205,14 +204,14 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!subjects.pageInfo.hasPreviousPage}
+              disabled={!subjects?.pageInfo.hasPreviousPage}
               onClick={subjectsPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!subjects.pageInfo.hasNextPage}
+              disabled={!subjects?.pageInfo.hasNextPage}
               onClick={subjectsNextPage}
             >
               <KeyboardArrowRightIcon />
@@ -222,6 +221,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
+              disabled={!isMentorEdited}
               onClick={saveMentorSubjects}
             >
               Save
@@ -232,13 +232,16 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
       <LoadingDialog
         title={
           isMentorLoading || isSubjectsLoading
-            ? "Loading"
+            ? "Loading..."
             : isMentorSaving
-            ? "Saving"
+            ? "Saving..."
             : ""
         }
       />
-      <ErrorDialog error={mentorError} clearError={clearMentorError} />
+      <ErrorDialog
+        error={mentorError || subjectsError}
+        clearError={mentorError ? clearMentorError : clearSubjectsError}
+      />
     </div>
   );
 }

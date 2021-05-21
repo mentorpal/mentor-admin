@@ -4,12 +4,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import React from "react";
 import {
   Button,
-  CircularProgress,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -19,6 +22,7 @@ import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { MentorType } from "types";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -56,18 +60,9 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
     editMentor,
   } = useWithMentor(props.accessToken);
 
-  if (!editedMentor) {
-    return (
-      <div>
-        <NavBar title="Mentor Studio" />
-        <CircularProgress />
-      </div>
-    );
-  }
-
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" mentorId={editedMentor._id} />
+      <NavBar title="Mentor Studio" mentorId={editedMentor?._id} />
       <Paper className={classes.paper}>
         <Typography variant="h6" className={classes.title}>
           My Profile
@@ -76,7 +71,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-name"
           label="Name"
           variant="outlined"
-          value={editedMentor.name || ""}
+          value={editedMentor?.name || ""}
           onChange={(e) => editMentor({ name: e.target.value })}
           className={classes.inputField}
         />
@@ -84,7 +79,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
-          value={editedMentor.firstName || ""}
+          value={editedMentor?.firstName || ""}
           onChange={(e) => editMentor({ firstName: e.target.value })}
           className={classes.inputField}
         />
@@ -92,7 +87,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
-          value={editedMentor.title || ""}
+          value={editedMentor?.title || ""}
           onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
@@ -102,10 +97,42 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           type="email"
           variant="outlined"
           helperText="Leave blank if you don't want anyone to contact you"
-          value={editedMentor.email || ""}
+          value={editedMentor?.email || ""}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
+        <div className={classes.inputField}>
+          <FormControl>
+            <InputLabel>Mentor Type</InputLabel>
+            <Select
+              data-cy="select-chat-type"
+              label="Mentor Type"
+              value={editedMentor?.mentorType}
+              onChange={(
+                event: React.ChangeEvent<{
+                  name?: string | undefined;
+                  value: unknown;
+                }>
+              ) => {
+                editMentor({ mentorType: event.target.value as MentorType });
+              }}
+            >
+              <MenuItem data-cy="chat" value={MentorType.CHAT}>
+                Chat
+              </MenuItem>
+              <MenuItem data-cy="video" value={MentorType.VIDEO}>
+                Video
+              </MenuItem>
+            </Select>
+            <FormHelperText>
+              {editedMentor?.mentorType === MentorType.CHAT
+                ? "Respond with text-only chat bubbles"
+                : editedMentor?.mentorType === MentorType.VIDEO
+                ? "Respond with pre-recorded videos"
+                : ""}
+            </FormHelperText>
+          </FormControl>
+        </div>
         <Button
           data-cy="update-btn"
           variant="contained"

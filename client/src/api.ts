@@ -61,9 +61,18 @@ interface Config {
   googleClientId: string;
 }
 
+const graphqlRequest = axios.create({
+  baseURL: GRAPHQL_ENDPOINT,
+  timeout: 5000,
+});
+const uploadRequest = axios.create({
+  baseURL: UPLOAD_ENTRYPOINT,
+  timeout: 30000,
+});
+
 export async function fetchConfig(): Promise<Config> {
-  const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
-    GRAPHQL_ENDPOINT,
+  const gqlRes = await graphqlRequest.post<GraphQLResponse<{ config: Config }>>(
+    "",
     {
       query: `
       query {
@@ -94,15 +103,15 @@ export async function fetchSubjects(
   searchParams?: SearchParams
 ): Promise<Connection<Subject>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
+      query Subjects($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
         subjects(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
         ) {
           edges {
             cursor
@@ -122,15 +131,22 @@ export async function fetchSubjects(
         }
       }
     `,
+    variables: {
+      filter: stringifyObject(params.filter),
+      limit: params.limit,
+      cursor: params.cursor,
+      sortBy: params.sortBy,
+      sortAscending: params.sortAscending,
+    },
   });
   return result.data.data.subjects;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
-        subject(id: "${id}") {
+      query Subject($id: ID!) {
+        subject(id: $id) {
           _id
           name
           description
@@ -169,6 +185,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
         }
       }
     `,
+    variables: { id },
   });
   return result.data.data.subject;
 }
@@ -178,8 +195,8 @@ export async function updateSubject(
   accessToken: string
 ): Promise<Subject> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       mutation UpdateSubject($subject: SubjectUpdateInputType!) {
@@ -206,55 +223,19 @@ export async function updateSubject(
   return result.data.data.me.updateSubject;
 }
 
-export async function fetchQuestions(
-  searchParams?: SearchParams
-): Promise<Connection<Question>> {
-  const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        questions(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              question
-              type
-              name
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
-        }
-      }
-    `,
-  });
-  return result.data.data.questions;
-}
-
 export async function fetchUserQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<UserQuestion>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
+      query UserQuestions($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
         userQuestions(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
         ) {
           edges {
             cursor
@@ -297,15 +278,22 @@ export async function fetchUserQuestions(
         }
       }
     `,
+    variables: {
+      filter: stringifyObject(params.filter),
+      limit: params.limit,
+      cursor: params.cursor,
+      sortBy: params.sortBy,
+      sortAscending: params.sortAscending,
+    },
   });
   return result.data.data.userQuestions;
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
-        userQuestion(id: "${id}") {
+      query UserQuestion($id: ID!) {
+        userQuestion(id: $id) {
           _id
           question
           confidence
@@ -336,6 +324,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
         }
       }
     `,
+    variables: { id },
   });
   return result.data.data.userQuestion;
 }
@@ -344,22 +333,23 @@ export async function updateUserQuestion(
   feedbackId: string,
   answerId: string
 ): Promise<UserQuestion> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        userQuestionSetAnswer(id: "${feedbackId}", answer: "${answerId}") {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
+        userQuestionSetAnswer(id: $id, answer: $answer) {
           _id
         }
       }
     `,
+    variables: { id: feedbackId, answer: answerId },
   });
   return result.data.data.userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       query {
@@ -383,11 +373,11 @@ export async function fetchMentor(
   status?: string
 ): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-      query {
+      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
         me {
           mentor {
             _id
@@ -438,14 +428,12 @@ export async function fetchMentor(
                 }
               }
             }
-            topics(subject: "${subject || ""}") {
+            topics(subject: $subject) {
               id
               name
               description
             }
-            answers(subject: "${subject || ""}", topic: "${
-        topic || ""
-      }", status: "${status || ""}") {
+            answers(subject: $subject, topic: $topic, status: $status) {
               _id
               question {
                 _id
@@ -469,6 +457,11 @@ export async function fetchMentor(
         }
       }
     `,
+      variables: {
+        subject: subject || "",
+        topic: topic || "",
+        status: status || "",
+      },
     },
     { headers: headers }
   );
@@ -480,8 +473,8 @@ export async function updateMentorDetails(
   accessToken: string
 ): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
@@ -510,8 +503,8 @@ export async function updateMentorSubjects(
   accessToken: string
 ): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
@@ -522,7 +515,7 @@ export async function updateMentorSubjects(
     `,
       variables: {
         mentor: {
-          defaultSubject: mentor.defaultSubject?._id,
+          defaultSubject: mentor.defaultSubject?._id || null,
           subjects: mentor.subjects.map((s) => s._id),
         },
       },
@@ -537,18 +530,19 @@ export async function updateQuestion(
   accessToken: string
 ): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-        mutation {
+        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
           me {
-            updateQuestion(question: ${stringifyObject(updateQuestion)}) {
+            updateQuestion(question: $question) {
               _id
             }
           }
         }
       `,
+      variables: { question: updateQuestion },
     },
     { headers: headers }
   );
@@ -560,8 +554,8 @@ export async function updateAnswer(
   accessToken: string
 ): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
@@ -637,15 +631,10 @@ export async function uploadVideo(
     JSON.stringify({ mentor: mentorId, question: questionId, trim })
   );
   data.append("video", video);
-  const request = axios.create({
-    baseURL: UPLOAD_ENTRYPOINT,
-    timeout: 30000,
-  });
-  const result = await request.post("/answer", data, {
+  const result = await uploadRequest.post("/answer", data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    timeout: 30000,
   });
   return result.data.data;
 }
@@ -658,10 +647,10 @@ export async function fetchUploadVideoStatus(
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        login(accessToken: "${accessToken}") {
+      mutation Login($accessToken: String!) {
+        login(accessToken: $accessToken) {
           user {
             _id
             name
@@ -670,6 +659,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
         }
       }
     `,
+    variables: { accessToken },
   });
   return result.data.data.login;
 }
@@ -677,10 +667,10 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
 export async function loginGoogle(
   accessToken: string
 ): Promise<UserAccessToken> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        loginGoogle(accessToken: "${accessToken}") {
+      mutation LoginGoogle($accessToken: $String!) {
+        loginGoogle(accessToken: $accessToken) {
           user {
             _id
             name
@@ -689,6 +679,7 @@ export async function loginGoogle(
         }
       }
     `,
+    variables: { accessToken },
   });
   return result.data.data.loginGoogle;
 }

@@ -9,12 +9,10 @@ import React, { useState } from "react";
 import {
   AppBar,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
   FormControl,
   IconButton,
   InputAdornment,
@@ -29,14 +27,14 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status } from "types";
+import { MentorType, Status, UtteranceName } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "hooks/wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -104,6 +102,8 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
+    mentor,
+    isLoading,
     answers,
     answerIdx,
     curAnswer,
@@ -116,9 +116,9 @@ function RecordPage(props: {
     startRecording,
     stopRecording,
     uploadVideo,
-    setMinVideoLength: setVideoLength,
+    clearRecordingError,
+    setMinVideoLength,
   } = useWithRecordState(props.accessToken, props.search);
-  const { mentor } = useWithMentor(props.accessToken);
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   function onBack() {
@@ -145,18 +145,9 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  if (!mentor || !curAnswer) {
-    return (
-      <div>
-        <NavBar title="Record Mentor" mentorId={mentor?._id} />
-        <CircularProgress />
-      </div>
-    );
-  }
-
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" mentorId={mentor._id} />
+      <NavBar title="Record Mentor" mentorId={mentor?._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
@@ -167,7 +158,7 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={answerIdx + 1} total={answers.length} />
       </div>
-      {mentor.mentorType === MentorType.VIDEO ? (
+      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
         <VideoPlayer
           classes={classes}
           curAnswer={curAnswer}
@@ -184,23 +175,25 @@ function RecordPage(props: {
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer.answer.question?.question}
-            disabled={curAnswer.answer.question?.mentor !== mentor._id}
-            onChange={(e) =>
-              editAnswer({
-                question: {
-                  ...curAnswer.answer.question,
-                  question: e.target.value,
-                },
-              })
-            }
+            value={curAnswer?.answer?.question?.question}
+            disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
+            onChange={(e) => {
+              if (curAnswer?.answer?.question) {
+                editAnswer({
+                  question: {
+                    ...curAnswer?.answer.question,
+                    question: e.target.value,
+                  },
+                });
+              }
+            }}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer.answer.question?.question ===
-                    answers[answerIdx].question?.question
+                    curAnswer?.answer?.question?.question ===
+                    answers[answerIdx]?.question?.question
                   }
                   onClick={() =>
                     editAnswer({
@@ -215,15 +208,16 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      {curAnswer.minVideoLength ? (
+      {curAnswer?.minVideoLength &&
+      curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={curAnswer.minVideoLength}
+            value={curAnswer?.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => setVideoLength(event.target.value as number)}
+            ) => setMinVideoLength(event.target.value as number)}
             style={{ marginLeft: 10 }}
           >
             <MenuItem data-cy="10" value={10}>
@@ -244,19 +238,19 @@ function RecordPage(props: {
             <OutlinedInput
               data-cy="transcript-input"
               multiline
-              value={curAnswer.answer.transcript}
+              value={curAnswer?.answer?.transcript}
               onChange={(e) => editAnswer({ transcript: e.target.value })}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     data-cy="undo-transcript-btn"
                     disabled={
-                      curAnswer.answer.transcript ===
-                      answers[answerIdx].transcript
+                      curAnswer?.answer?.transcript ===
+                      answers[answerIdx]?.transcript
                     }
                     onClick={() =>
                       editAnswer({
-                        transcript: answers[answerIdx].transcript,
+                        transcript: answers[answerIdx]?.transcript,
                       })
                     }
                   >
@@ -276,7 +270,7 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer.answer.status || ""}
+          value={curAnswer?.answer?.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => editAnswer({ status: event.target.value as Status })}
@@ -288,7 +282,7 @@ function RecordPage(props: {
           <MenuItem
             data-cy="complete"
             value={Status.COMPLETE}
-            disabled={!curAnswer.isValid}
+            disabled={!curAnswer?.isValid}
           >
             Active
           </MenuItem>
@@ -313,7 +307,7 @@ function RecordPage(props: {
             color="primary"
             disableElevation
             disabled={
-              !curAnswer.isEdited ||
+              !curAnswer?.isEdited ||
               recordState.isSaving ||
               recordState.isUploading
             }
@@ -349,18 +343,18 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
-      <Dialog open={recordState.isSaving || recordState.isUploading}>
-        <DialogTitle>
-          {recordState.isSaving
+      <LoadingDialog
+        title={
+          isLoading
+            ? "Loading..."
+            : recordState.isSaving
             ? "Saving..."
             : recordState.isUploading
             ? "Uploading..."
-            : ""}
-        </DialogTitle>
-        <DialogContent>
-          <CircularProgress />
-        </DialogContent>
-      </Dialog>
+            : ""
+        }
+      />
+      <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>

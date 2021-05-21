@@ -568,7 +568,7 @@ describe("Record", () => {
     });
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Upload failed");
+    cy.contains("Failed to upload");
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
@@ -581,7 +581,6 @@ describe("Record", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [
-        videoMentor,
         videoMentor,
         undefined
       ]
@@ -641,7 +640,7 @@ describe("Record", () => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
     cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "")
+      cy.get("textarea").should('have.text', "test")
     });
   })
 
