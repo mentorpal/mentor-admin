@@ -17,7 +17,7 @@ export interface TaskState {
 
 export interface TaskAction {
   type: TaskActionType;
-  payload: any;
+  payload: boolean | TaskError | undefined;
 }
 
 export enum TaskActionType {
@@ -29,11 +29,17 @@ export function TaskReducer(state: TaskState, action: TaskAction): TaskState {
   const { type, payload } = action;
   switch (type) {
     case TaskActionType.POLLING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return {
         ...state,
         isPolling: payload,
       };
     case TaskActionType.ERROR:
+      if (typeof payload !== "object" && typeof payload !== "undefined") {
+        return state;
+      }
       return { ...state, error: payload };
     default:
       return state;

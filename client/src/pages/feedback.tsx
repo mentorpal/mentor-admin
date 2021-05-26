@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import {
   AppBar,
-  CircularProgress,
   Fab,
   IconButton,
   MenuItem,
@@ -38,7 +37,6 @@ import {
   ClassifierAnswerType,
   Feedback,
   Mentor,
-  JobState,
   UserQuestion,
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
@@ -217,26 +215,26 @@ function FeedbackItem(props: {
 function FeedbackPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const {
-    mentor,
-    mentorError,
-    isMentorLoading,
-    clearMentorError,
+    data: mentor,
+    error: mentorError,
+    isLoading: isMentorLoading,
+    clearError: clearMentorError,
   } = useWithMentor(props.accessToken);
   const {
-    feedback,
-    isFeedbackLoading,
-    feedbackSearchParams,
-    sortFeedback,
-    filterFeedback,
-    reloadFeedback,
-    feedbackNextPage,
-    feedbackPrevPage,
+    data: feedback,
+    isLoading: isFeedbackLoading,
+    searchParams: feedbackSearchParams,
+    sortBy: sortFeedback,
+    filter: filterFeedback,
+    reloadData: reloadFeedback,
+    nextPage: feedbackNextPage,
+    prevPage: feedbackPrevPage,
   } = useWithFeedback();
   const {
-    isTraining,
-    trainError,
-    startTraining,
-    clearTrainingError,
+    isPolling: isTraining,
+    error: trainError,
+    startTask: startTraining,
+    clearError: clearTrainingError,
   } = useWithTraining();
 
   return (

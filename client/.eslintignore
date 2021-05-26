@@ -6,4 +6,4 @@ public
 .gitignore
 .cypress-*
 
-src/components/record/video-player.jsx
+src/components/record/video-recorder.jsx

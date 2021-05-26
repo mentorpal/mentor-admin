@@ -8,7 +8,6 @@ import { Link, navigate } from "gatsby";
 import React from "react";
 import {
   AppBar,
-  CircularProgress,
   Fab,
   IconButton,
   Paper,
@@ -99,20 +98,20 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const {
-    mentor,
-    isMentorLoading,
-    mentorError,
-    clearMentorError,
+    data: mentor,
+    isLoading: isMentorLoading,
+    error: mentorError,
+    clearError: clearMentorError,
   } = useWithMentor(props.accessToken);
   const {
-    subjects,
-    subjectsError,
-    isSubjectsLoading,
-    subjectSearchParams,
-    sortSubjects: subjectsSortBy,
-    clearSubjectsError,
-    subjectsNextPage,
-    subjectsPrevPage,
+    data: subjects,
+    error: subjectsError,
+    isLoading: isSubjectsLoading,
+    searchParams: subjectSearchParams,
+    sortBy: subjectsSortBy,
+    clearError: clearSubjectsError,
+    nextPage: subjectsNextPage,
+    prevPage: subjectsPrevPage,
   } = useWithSubjects();
 
   return (

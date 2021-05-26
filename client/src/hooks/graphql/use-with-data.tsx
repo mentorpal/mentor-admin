@@ -8,6 +8,7 @@ import { useEffect, useReducer, useState } from "react";
 import { equals } from "helpers";
 import {
   LoadingActionType,
+  LoadingError,
   LoadingReducer,
   LoadingState,
 } from "./loading-reducer";
@@ -18,10 +19,25 @@ const initialState: LoadingState = {
   error: undefined,
 };
 
-export function useWithData<T>(
-  fetch: () => Promise<T>,
-  update?: (data: T) => Promise<any>
-) {
+interface UpdateFunc<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  callback: (data: T) => Promise<any>;
+}
+
+export interface UseData<T> {
+  data: T | undefined;
+  editedData: T | undefined;
+  isEdited: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  error: LoadingError | undefined;
+  clearError: () => void;
+  reloadData: () => void;
+  editData: (d: Partial<T>) => void;
+  saveData: (update: UpdateFunc<T>) => void;
+}
+
+export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
   const [data, setData] = useState<T>();
   const [editedData, setEditedData] = useState<T>();
   const [state, dispatch] = useReducer(LoadingReducer, initialState);
@@ -71,16 +87,13 @@ export function useWithData<T>(
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
-  function saveData(updateFunc?: { callback: (data: T) => Promise<any> }) {
-    if (state.isLoading || state.isSaving || !editedData) {
-      return;
-    }
-    const uf = updateFunc ? updateFunc.callback : update;
-    if (!uf) {
+  function saveData(update: UpdateFunc<T>) {
+    if (state.isLoading || state.isSaving || !editedData || !update) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    uf(editedData)
+    update
+      .callback(editedData)
       .then((updated) => {
         if (state.isLoading) {
           return;

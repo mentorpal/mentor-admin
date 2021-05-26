@@ -90,24 +90,24 @@ const columns: ColumnDef[] = [
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const {
-    editedMentor,
-    isMentorLoading,
-    isMentorSaving,
-    isMentorEdited,
-    mentorError,
-    clearMentorError,
-    editMentor,
+    editedData: editedMentor,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    isEdited: isMentorEdited,
+    error: mentorError,
+    clearError: clearMentorError,
+    editData: editMentor,
     saveMentorSubjects,
   } = useWithMentor(props.accessToken);
   const {
-    subjects,
-    isSubjectsLoading,
-    subjectSearchParams,
-    subjectsError,
-    sortSubjects: subjectsSortBy,
-    subjectsNextPage,
-    subjectsPrevPage,
-    clearSubjectsError,
+    data: subjects,
+    isLoading: isSubjectsLoading,
+    searchParams: subjectSearchParams,
+    error: subjectsError,
+    sortBy: subjectsSortBy,
+    nextPage: subjectsNextPage,
+    prevPage: subjectsPrevPage,
+    clearError: clearSubjectsError,
   } = useWithSubjects();
 
   function toggleSubject(subject: Subject) {

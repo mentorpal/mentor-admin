@@ -6,9 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchSubjects } from "api";
 import { Subject } from "types";
-import { useWithDataConnection } from "./use-with-data-connection";
+import {
+  UseDataConnection,
+  useWithDataConnection,
+} from "./use-with-data-connection";
 
-export function useWithSubjects() {
+export function useWithSubjects(): UseDataConnection<Subject> {
   const {
     data,
     isLoading,
@@ -17,6 +20,7 @@ export function useWithSubjects() {
     clearError,
     reloadData,
     sortBy,
+    filter,
     nextPage,
     prevPage,
   } = useWithDataConnection<Subject>(fetch);
@@ -26,14 +30,15 @@ export function useWithSubjects() {
   }
 
   return {
-    subjects: data,
-    subjectsError: error,
-    isSubjectsLoading: isLoading,
-    subjectSearchParams: searchParams,
-    clearSubjectsError: clearError,
-    reloadSubjects: reloadData,
-    sortSubjects: sortBy,
-    subjectsNextPage: nextPage,
-    subjectsPrevPage: prevPage,
+    data,
+    error,
+    isLoading,
+    searchParams,
+    clearError,
+    reloadData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
   };
 }

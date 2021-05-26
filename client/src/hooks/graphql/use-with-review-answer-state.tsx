@@ -16,6 +16,7 @@ import {
   SubjectQuestion,
   QuestionType,
   Question,
+  Mentor,
 } from "types";
 import { copyAndSet, equals } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
@@ -40,7 +41,7 @@ export interface RecordingBlock {
 export function useWithReviewAnswerState(
   accessToken: string,
   search: { subject?: string }
-) {
+): UseWithReviewAnswerState {
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(
     search.subject
   );
@@ -49,20 +50,20 @@ export function useWithReviewAnswerState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<LoadingError>();
   const {
-    mentor,
-    mentorError,
-    editedMentor,
-    isMentorLoading,
-    isMentorEdited,
-    editMentor,
-    reloadMentor,
-    clearMentorError,
+    data: mentor,
+    error: mentorError,
+    editedData: editedMentor,
+    isLoading: isMentorLoading,
+    isEdited: isMentorEdited,
+    editData: editMentor,
+    reloadData: reloadMentor,
+    clearError: clearMentorError,
   } = useWithMentor(accessToken);
   const {
-    isTraining,
-    trainError,
-    startTraining,
-    clearTrainingError,
+    isPolling: isTraining,
+    error: trainError,
+    startTask: startTraining,
+    clearError: clearTrainingError,
   } = useWithTraining();
 
   useEffect(() => {
@@ -299,4 +300,20 @@ export function useWithReviewAnswerState(
     saveChanges,
     startTraining,
   };
+}
+
+interface UseWithReviewAnswerState {
+  mentor: Mentor | undefined;
+  isMentorEdited: boolean;
+  blocks: RecordingBlock[];
+  progress: Progress;
+  selectedSubject: string | undefined;
+  isLoading: boolean;
+  isSaving: boolean;
+  isTraining: boolean;
+  error: LoadingError | undefined;
+  clearError: () => void;
+  selectSubject: (sId: string | undefined) => void;
+  saveChanges: () => void;
+  startTraining: (params: string) => void;
 }

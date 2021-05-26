@@ -18,7 +18,7 @@ export interface LoadingState {
 
 export interface LoadingAction {
   type: LoadingActionType;
-  payload: any;
+  payload: boolean | LoadingError | undefined;
 }
 
 export enum LoadingActionType {
@@ -34,10 +34,19 @@ export function LoadingReducer(
   const { type, payload } = action;
   switch (type) {
     case LoadingActionType.LOADING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return { ...state, isLoading: payload };
     case LoadingActionType.SAVING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return { ...state, isSaving: payload };
     case LoadingActionType.ERROR:
+      if (typeof payload !== "object" && typeof payload !== "undefined") {
+        return state;
+      }
       return { ...state, error: payload };
     default:
       return state;

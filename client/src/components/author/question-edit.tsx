@@ -103,13 +103,9 @@ export function QuestionEditCard(props: {
                 <MenuItem data-cy="none" value={undefined}>
                   Not specified
                 </MenuItem>
-                {Object.keys(UtteranceName).map((k) => (
-                  <MenuItem
-                    data-cy={`${k}-name`}
-                    value={UtteranceName[k]}
-                    key={k}
-                  >
-                    {k}
+                {Object.entries(UtteranceName).map((kv) => (
+                  <MenuItem data-cy={`${kv[0]}-name`} value={kv[1]} key={kv[0]}>
+                    {kv[0]}
                   </MenuItem>
                 ))}
               </Select>

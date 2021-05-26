@@ -6,9 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchMentor, updateMentorDetails, updateMentorSubjects } from "api";
 import { Mentor } from "types";
-import { useWithData } from "./use-with-data";
+import { UseData, useWithData } from "./use-with-data";
 
-export function useWithMentor(accessToken: string) {
+interface UseMentorData extends UseData<Mentor> {
+  saveMentorDetails: () => void;
+  saveMentorSubjects: () => void;
+}
+
+export function useWithMentor(accessToken: string): UseMentorData {
   const {
     data,
     editedData,
@@ -41,15 +46,16 @@ export function useWithMentor(accessToken: string) {
   }
 
   return {
-    mentor: data,
-    editedMentor: editedData,
-    mentorError: error,
-    isMentorEdited: isEdited,
-    isMentorLoading: isLoading,
-    isMentorSaving: isSaving,
-    clearMentorError: clearError,
-    reloadMentor: reloadData,
-    editMentor: editData,
+    data,
+    editedData,
+    error,
+    isEdited,
+    isLoading,
+    isSaving,
+    clearError,
+    reloadData,
+    editData,
+    saveData,
     saveMentorDetails,
     saveMentorSubjects,
   };

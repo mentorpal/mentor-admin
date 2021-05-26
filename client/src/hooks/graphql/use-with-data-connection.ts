@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import { Connection } from "types";
+import { LoadingError } from "./loading-reducer";
 import { useWithData } from "./use-with-data";
 
 interface SearchParams {
@@ -13,10 +14,27 @@ interface SearchParams {
   cursor: string;
   sortBy: string;
   sortAscending: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter: Record<string, any>;
 }
 
-export function useWithDataConnection<T>(fetch: () => Promise<Connection<T>>) {
+export interface UseDataConnection<T> {
+  data: Connection<T> | undefined;
+  error: LoadingError | undefined;
+  isLoading: boolean;
+  searchParams: SearchParams;
+  clearError: () => void;
+  reloadData: () => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  sortBy: (attribute: string) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filter: (f: Record<string, any>) => void;
+}
+
+export function useWithDataConnection<T>(
+  fetch: () => Promise<Connection<T>>
+): UseDataConnection<T> {
   const [searchParams, setSearchParams] = useState<SearchParams>({
     limit: 20,
     cursor: "",
@@ -45,6 +63,7 @@ export function useWithDataConnection<T>(fetch: () => Promise<Connection<T>>) {
     setSearchParams({ ...searchParams });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function filter(f: Record<string, any>) {
     setSearchParams({ ...searchParams, filter: f });
   }

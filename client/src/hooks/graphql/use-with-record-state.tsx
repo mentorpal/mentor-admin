@@ -6,7 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useReducer, useState } from "react";
 import { updateAnswer, updateQuestion } from "api";
-import { Answer, JobState, MediaType, MentorType, UtteranceName } from "types";
+import {
+  Answer,
+  JobState,
+  MediaType,
+  Mentor,
+  MentorType,
+  UtteranceName,
+} from "types";
 import { copyAndSet, equals } from "helpers";
 import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithMentor } from "./use-with-mentor";
@@ -46,25 +53,25 @@ export function useWithRecordState(
     status?: string;
     category?: string;
   }
-) {
+): UseWithRecordState {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [curAnswerState, setCurAnswerState] = useState<AnswerState>();
   const [state, dispatch] = useReducer(RecordingReducer, initialState);
 
   const {
-    mentor,
-    isMentorLoading,
-    mentorError,
-    reloadMentor,
-    clearMentorError,
+    data: mentor,
+    isLoading: isMentorLoading,
+    error: mentorError,
+    reloadData: reloadMentor,
+    clearError: clearMentorError,
   } = useWithMentor(accessToken);
   const {
-    isUploading,
-    uploadError,
-    uploadStatus,
-    startUploading,
-    clearUploadError,
+    isPolling: isUploading,
+    error: uploadError,
+    status: uploadStatus,
+    startTask: startUploading,
+    clearError: clearUploadError,
   } = useWithUploading();
 
   useEffect(() => {
@@ -367,4 +374,39 @@ export function useWithRecordState(
     setMinVideoLength,
     clearRecordingError: clearError,
   };
+}
+
+interface UseWithRecordState {
+  mentor: Mentor | undefined;
+  answers: Answer[];
+  answerIdx: number;
+  recordState: RecordingState;
+  curAnswer:
+    | {
+        answer: Answer;
+        isEdited: boolean;
+        isValid: boolean;
+        videoSrc: string | undefined;
+        recordedVideo: File | undefined;
+        minVideoLength: number | undefined;
+      }
+    | undefined;
+  isLoading: boolean;
+  prevAnswer: () => void;
+  nextAnswer: () => void;
+  editAnswer: (edits: Partial<Answer>) => void;
+  saveAnswer: () => void;
+  rerecord: () => void;
+  startRecording: () => void;
+  stopRecording: (video: File) => void;
+  uploadVideo: (
+    trim?:
+      | {
+          start: number;
+          end: number;
+        }
+      | undefined
+  ) => void;
+  setMinVideoLength: (length: number) => void;
+  clearRecordingError: () => void;
 }

@@ -6,7 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 
-export function useWithWindowSize() {
+interface WindowSize {
+  width: number;
+  height: number;
+}
+
+export function useWithWindowSize(): WindowSize {
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -23,7 +28,7 @@ export function useWithWindowSize() {
   }, []);
 
   return {
-    windowWidth: windowSize.width,
-    windowHeight: windowSize.height,
+    width: windowSize.width,
+    height: windowSize.height,
   };
 }

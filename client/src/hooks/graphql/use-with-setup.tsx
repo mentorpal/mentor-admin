@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import {
   Answer,
   JobState,
+  Mentor,
   MentorType,
   Status,
   Subject,
@@ -52,29 +53,51 @@ interface SetupStatus {
   isSetupComplete: boolean;
 }
 
-export function useWithSetup(accessToken: string, search?: { i?: string }) {
+interface UseWithSetup {
+  setupStatus: SetupStatus | undefined;
+  setupStep: number;
+  setupSteps: SetupStep[];
+  mentor: Mentor | undefined;
+  isEdited: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  isTraining: boolean;
+  error: LoadingError | undefined;
+  editMentor: (d: Partial<Mentor>) => void;
+  saveMentor: () => void;
+  startTraining: () => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  toStep: (i: number) => void;
+  clearError: () => void;
+}
+
+export function useWithSetup(
+  accessToken: string,
+  search?: { i?: string }
+): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
   const [error, setError] = useState<LoadingError>();
   const {
-    mentor,
-    mentorError,
-    editedMentor,
-    isMentorEdited,
-    isMentorLoading,
-    isMentorSaving,
-    editMentor,
-    reloadMentor,
+    data: mentor,
+    error: mentorError,
+    editedData: editedMentor,
+    isEdited: isMentorEdited,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    editData: editMentor,
+    reloadData: reloadMentor,
+    clearError: clearMentorError,
     saveMentorDetails,
-    clearMentorError,
   } = useWithMentor(accessToken);
   const {
-    isTraining,
-    trainError,
-    trainStatus,
-    startTraining,
-    clearTrainingError,
+    isPolling: isTraining,
+    error: trainError,
+    status: trainStatus,
+    startTask: startTraining,
+    clearError: clearTrainingError,
   } = useWithTraining();
 
   useEffect(() => {

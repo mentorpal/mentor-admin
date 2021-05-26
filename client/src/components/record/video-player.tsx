@@ -24,7 +24,7 @@ function VideoPlayer(props: {
   onRecordStop: (video: File) => void;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
-  const { windowWidth, windowHeight } = useWithWindowSize();
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const {
     classes,
     curAnswer,

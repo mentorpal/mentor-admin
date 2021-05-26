@@ -50,14 +50,14 @@ const useStyles = makeStyles(() => ({
 function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const {
-    editedMentor,
-    mentorError,
-    isMentorLoading,
-    isMentorSaving,
-    isMentorEdited,
-    clearMentorError,
+    editedData: editedMentor,
+    error: mentorError,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    isEdited: isMentorEdited,
+    clearError: clearMentorError,
+    editData: editMentor,
     saveMentorDetails,
-    editMentor,
   } = useWithMentor(props.accessToken);
 
   return (

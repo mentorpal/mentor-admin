@@ -6,9 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchTrainingStatus, trainMentor } from "api";
 import { TrainingInfo } from "types";
-import { useWithTask } from "./use-with-task";
+import { Task, useWithTask } from "./use-with-task";
 
-export function useWithTraining(pollingInterval = 1000) {
+export function useWithTraining(
+  pollingInterval = 1000
+): Task<TrainingInfo, string> {
   const {
     status,
     statusUrl,
@@ -27,11 +29,11 @@ export function useWithTraining(pollingInterval = 1000) {
   }
 
   return {
-    isTraining: isPolling,
-    trainError: error,
-    trainStatus: status,
-    trainStatusUrl: statusUrl,
-    startTraining: startTask,
-    clearTrainingError: clearError,
+    isPolling: isPolling,
+    error: error,
+    status: status,
+    statusUrl: statusUrl,
+    startTask: startTask,
+    clearError: clearError,
   };
 }

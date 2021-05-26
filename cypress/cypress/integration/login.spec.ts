@@ -75,17 +75,6 @@ describe("Login", () => {
       cy.get("[data-cy=nav-bar]").should("not.exist");
     });
 
-    it("from author questions page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenStored: true });
-      cy.visit("/author/questions");
-      cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/");
-      });
-      cy.contains("Please sign in to access the Mentor Studio portal");
-      cy.get("[data-cy=nav-bar]").should("not.exist");
-    });
-
     it("from feedback page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noAccessTokenStored: true });

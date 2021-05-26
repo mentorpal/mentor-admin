@@ -6,9 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchUserQuestions } from "api";
 import { UserQuestion } from "types";
-import { useWithDataConnection } from "./use-with-data-connection";
+import {
+  UseDataConnection,
+  useWithDataConnection,
+} from "./use-with-data-connection";
 
-export function useWithFeedback() {
+export function useWithFeedback(): UseDataConnection<UserQuestion> {
   const {
     data,
     isLoading,
@@ -19,6 +22,7 @@ export function useWithFeedback() {
     sortBy,
     nextPage,
     prevPage,
+    clearError,
   } = useWithDataConnection<UserQuestion>(fetch);
 
   function fetch() {
@@ -26,14 +30,15 @@ export function useWithFeedback() {
   }
 
   return {
-    feedback: data,
-    feedbackError: error,
-    isFeedbackLoading: isLoading,
-    feedbackSearchParams: searchParams,
-    reloadFeedback: reloadData,
-    sortFeedback: sortBy,
-    filterFeedback: filter,
-    feedbackNextPage: nextPage,
-    feedbackPrevPage: prevPage,
+    data,
+    error,
+    isLoading,
+    searchParams,
+    reloadData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
+    clearError,
   };
 }

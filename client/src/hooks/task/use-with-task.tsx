@@ -6,7 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useReducer, useState } from "react";
 import { AsyncJob, JobState, TaskStatus } from "types";
-import { TaskActionType, TaskReducer, TaskState } from "./task-reducer";
+import {
+  TaskActionType,
+  TaskError,
+  TaskReducer,
+  TaskState,
+} from "./task-reducer";
 import useInterval from "./use-interval";
 
 const initialState: TaskState = {
@@ -14,11 +19,20 @@ const initialState: TaskState = {
   error: undefined,
 };
 
+export interface Task<T, U> {
+  isPolling: boolean;
+  error: TaskError | undefined;
+  status: TaskStatus<T> | undefined;
+  statusUrl: string | undefined;
+  startTask: (params: U) => void;
+  clearError: () => void;
+}
+
 export function useWithTask<T, U>(
   start: (params: U) => Promise<AsyncJob>,
   poll: (statusUrl: string) => Promise<TaskStatus<T>>,
   pollingInterval = 1000
-) {
+): Task<T, U> {
   const [statusUrl, setStatusUrl] = useState<string>();
   const [status, setStatus] = useState<TaskStatus<T>>();
   const [state, dispatch] = useReducer(TaskReducer, initialState);

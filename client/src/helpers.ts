@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function equals(val1: any, val2: any): boolean {
+export function equals<T>(val1: T, val2: T): boolean {
   return JSON.stringify(val1) === JSON.stringify(val2);
 }
 

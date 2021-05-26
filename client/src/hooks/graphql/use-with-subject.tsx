@@ -9,9 +9,31 @@ import { v4 as uuid } from "uuid";
 import { fetchSubject, updateSubject } from "api";
 import { Category, QuestionType, Subject, SubjectQuestion, Topic } from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
-import { useWithData } from "./use-with-data";
+import { UseData, useWithData } from "./use-with-data";
 
-export function useWithSubject(subjectId: string, accessToken: string) {
+interface UseWithSubject extends UseData<Subject> {
+  saveSubject: () => void;
+  addCategory: () => void;
+  updateCategory: (val: Category) => void;
+  removeCategory: (val: Category) => void;
+  addTopic: () => void;
+  updateTopic: (val: Topic) => void;
+  removeTopic: (val: Topic) => void;
+  moveTopic: (toMove: number, moveTo: number) => void;
+  addQuestion: () => void;
+  updateQuestion: (val: SubjectQuestion) => void;
+  removeQuestion: (val: SubjectQuestion) => void;
+  moveQuestion: (
+    toMove: string,
+    moveTo: string | undefined,
+    category: string | undefined
+  ) => void;
+}
+
+export function useWithSubject(
+  subjectId: string,
+  accessToken: string
+): UseWithSubject {
   const {
     data,
     editedData,
@@ -22,11 +44,12 @@ export function useWithSubject(subjectId: string, accessToken: string) {
     clearError,
     editData,
     saveData,
-  } = useWithData<Subject>(fetch, update);
+    reloadData,
+  } = useWithData<Subject>(fetch);
 
   function fetch() {
     if (!subjectId) {
-      return new Promise<Subject>((resolve, reject) => {
+      return new Promise<Subject>((resolve) => {
         resolve({
           _id: "",
           name: "",
@@ -41,8 +64,10 @@ export function useWithSubject(subjectId: string, accessToken: string) {
     return fetchSubject(subjectId);
   }
 
-  function update(editedData: Subject) {
-    return updateSubject(editedData, accessToken);
+  function update() {
+    saveData({
+      callback: (editedData: Subject) => updateSubject(editedData, accessToken),
+    });
   }
 
   function addCategory() {
@@ -210,15 +235,18 @@ export function useWithSubject(subjectId: string, accessToken: string) {
   }
 
   return {
-    subject: data,
-    editedSubject: editedData,
-    isSubjectEdited: isEdited,
-    isSubjectLoading: isLoading,
-    isSubjectSaving: isSaving,
-    subjectError: error,
-    clearSubjectError: clearError,
-    editSubject: editData,
-    saveSubject: saveData,
+    data,
+    editedData,
+    isEdited,
+    isLoading,
+    isSaving,
+    error,
+    clearError,
+    editData,
+    saveData,
+    reloadData,
+
+    saveSubject: update,
     addCategory,
     updateCategory,
     removeCategory,

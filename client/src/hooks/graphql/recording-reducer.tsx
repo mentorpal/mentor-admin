@@ -19,7 +19,7 @@ export interface RecordingState {
 
 export interface RecordingAction {
   type: RecordingActionType;
-  payload: any;
+  payload: boolean | RecordingError | undefined;
 }
 
 export enum RecordingActionType {
@@ -36,12 +36,24 @@ export function RecordingReducer(
   const { type, payload } = action;
   switch (type) {
     case RecordingActionType.SAVING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return { ...state, isSaving: payload };
     case RecordingActionType.UPLOADING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return { ...state, isUploading: payload };
     case RecordingActionType.RECORDING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
       return { ...state, isRecording: payload };
     case RecordingActionType.ERROR:
+      if (typeof payload !== "object" && typeof payload !== "undefined") {
+        return state;
+      }
       return { ...state, error: payload };
     default:
       return state;

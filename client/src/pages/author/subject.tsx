@@ -75,16 +75,18 @@ function SubjectPage(props: {
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
 
-  const { mentor, isMentorLoading } = useWithMentor(props.accessToken);
+  const { data: mentor, isLoading: isMentorLoading } = useWithMentor(
+    props.accessToken
+  );
   const {
-    editedSubject,
-    subjectError,
-    isSubjectEdited,
-    isSubjectLoading,
-    isSubjectSaving,
-    clearSubjectError,
+    editedData: editedSubject,
+    error: subjectError,
+    isEdited: isSubjectEdited,
+    isLoading: isSubjectLoading,
+    isSaving: isSubjectSaving,
+    clearError: clearSubjectError,
+    editData: editSubject,
     saveSubject,
-    editSubject,
     addCategory,
     updateCategory,
     removeCategory,
@@ -97,7 +99,7 @@ function SubjectPage(props: {
     removeQuestion,
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
-  const { windowHeight } = useWithWindowSize();
+  const { height: windowHeight } = useWithWindowSize();
 
   function toggleExpand(s: boolean, t: boolean, q: boolean) {
     setIsSubjectInfoExpanded(s);

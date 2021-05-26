@@ -1,7 +1,7 @@
-import { Mentor, _Ref } from "./types";
+import { Mentor, TrainingInfo, VideoInfo, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
-import { TrainStatus, VideoStatus, UserAccessToken } from "./types";
+import { TaskStatus, UserAccessToken } from "./types";
 
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -194,7 +194,7 @@ export function cyMockTrain(
 export function cyMockTrainStatus(
   cy,
   params: {
-    status?: TrainStatus;
+    status?: TaskStatus<TrainingInfo>;
     statusUrl?: string;
     statusCode?: number;
   } = {}
@@ -246,7 +246,7 @@ export function cyMockUpload(
 export function cyMockUploadStatus(
   cy,
   params: {
-    status?: VideoStatus;
+    status?: TaskStatus<VideoInfo>;
     statusUrl?: string;
     statusCode?: number;
   } = {}

@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchUploadVideoStatus, uploadVideo } from "api";
 import { TrainingInfo } from "types";
-import { useWithTask } from "./use-with-task";
+import { Task, useWithTask } from "./use-with-task";
 
 export interface UploadParams {
   mentorId: string;
@@ -15,7 +15,9 @@ export interface UploadParams {
   trim?: { start: number; end: number };
 }
 
-export function useWithUploading(pollingInterval = 1000) {
+export function useWithUploading(
+  pollingInterval = 1000
+): Task<TrainingInfo, UploadParams> {
   const {
     status,
     statusUrl,
@@ -39,11 +41,11 @@ export function useWithUploading(pollingInterval = 1000) {
   }
 
   return {
-    isUploading: isPolling,
-    uploadError: error,
-    uploadStatus: status,
-    uploadStatusUrl: statusUrl,
-    startUploading: startTask,
-    clearUploadError: clearError,
+    isPolling,
+    error,
+    status,
+    statusUrl,
+    startTask,
+    clearError,
   };
 }
