@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useReducer, useState } from "react";
+import { equals } from "helpers";
 import { AsyncJob, JobState, TaskStatus } from "types";
 import {
   TaskActionType,
@@ -43,16 +44,18 @@ export function useWithTask<T, U>(
         return;
       }
       poll(statusUrl)
-        .then((status) => {
-          setStatus(status);
+        .then((s) => {
+          if (!equals(s, status)) {
+            setStatus(s);
+          }
           if (isCancelled()) {
             dispatch({ type: TaskActionType.POLLING, payload: false });
             return;
           }
-          if (status.state === JobState.SUCCESS) {
+          if (s.state === JobState.SUCCESS) {
             dispatch({ type: TaskActionType.POLLING, payload: false });
           }
-          if (status.state === JobState.FAILURE) {
+          if (s.state === JobState.FAILURE) {
             dispatch({ type: TaskActionType.POLLING, payload: false });
             dispatch({
               type: TaskActionType.ERROR,
