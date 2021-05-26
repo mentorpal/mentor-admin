@@ -669,7 +669,7 @@ export async function loginGoogle(
 ): Promise<UserAccessToken> {
   const result = await graphqlRequest.post("", {
     query: `
-      mutation LoginGoogle($accessToken: $String!) {
+      mutation LoginGoogle($accessToken: String!) {
         loginGoogle(accessToken: $accessToken) {
           user {
             _id
