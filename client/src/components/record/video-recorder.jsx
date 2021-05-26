@@ -120,7 +120,7 @@ function VideoRecorder({
       const counter = recordStartCountdown - 1;
       setRecordStartCountdown(counter);
       if (counter <= 0) {
-        stopRecording();
+        videoRecorderRef?.record().start();
       }
     },
     recordStartCountdown > 0 ? 1000 : null
@@ -202,6 +202,7 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
+            visibility: recordState.isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
