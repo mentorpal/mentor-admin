@@ -9,7 +9,7 @@ import { Connection } from "types";
 import { LoadingError } from "./loading-reducer";
 import { useWithData } from "./use-with-data";
 
-interface SearchParams {
+export interface SearchParams {
   limit: number;
   cursor: string;
   sortBy: string;
@@ -32,16 +32,20 @@ export interface UseDataConnection<T> {
   filter: (f: Record<string, any>) => void;
 }
 
+const defaultSearchParams: SearchParams = {
+  limit: 20,
+  cursor: "",
+  sortBy: "",
+  sortAscending: true,
+  filter: {},
+};
+
 export function useWithDataConnection<T>(
   fetch: () => Promise<Connection<T>>
 ): UseDataConnection<T> {
-  const [searchParams, setSearchParams] = useState<SearchParams>({
-    limit: 20,
-    cursor: "",
-    sortBy: "",
-    sortAscending: false,
-    filter: {},
-  });
+  const [searchParams, setSearchParams] = useState<SearchParams>(
+    defaultSearchParams
+  );
   const { data, isLoading, error, clearError, reloadData } = useWithData<
     Connection<T>
   >(fetch);

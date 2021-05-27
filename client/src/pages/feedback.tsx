@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Fab,
@@ -206,7 +206,9 @@ function FeedbackItem(props: {
         </Tooltip>
       </TableCell>
       <TableCell data-cy="date" align="center">
-        {feedback.updatedAt || ""}
+        {feedback.updatedAt
+          ? new Date(feedback.updatedAt).toLocaleString()
+          : ""}
       </TableCell>
     </TableRow>
   );
@@ -236,6 +238,12 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
+
+  useEffect(() => {
+    if (mentor) {
+      filterFeedback({ mentor: mentor._id });
+    }
+  }, [mentor]);
 
   return (
     <div>

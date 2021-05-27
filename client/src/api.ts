@@ -18,6 +18,7 @@ import {
   TrainingInfo,
   VideoInfo,
 } from "types";
+import { SearchParams } from "hooks/graphql/use-with-data-connection";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -27,14 +28,6 @@ export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
-export interface SearchParams {
-  limit?: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  filter?: any;
-  cursor?: string;
-  sortBy?: string;
-  sortAscending?: boolean;
-}
 const defaultSearchParams = {
   limit: 1000,
   filter: {},
@@ -229,13 +222,13 @@ export async function fetchUserQuestions(
   const params = { ...defaultSearchParams, ...searchParams };
   const result = await graphqlRequest.post("", {
     query: `
-      query UserQuestions($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+      query {
         userQuestions(
-          filter:$filter,
-          cursor:$cursor,
-          limit:$limit,
-          sortBy:$sortBy,
-          sortAscending:$sortAscending
+          filter:${stringifyObject(params.filter)},
+          limit:${params.limit},
+          cursor:"${params.cursor}",
+          sortBy:"${params.sortBy}",
+          sortAscending:${params.sortAscending}
         ) {
           edges {
             cursor
@@ -278,13 +271,6 @@ export async function fetchUserQuestions(
         }
       }
     `,
-    variables: {
-      filter: stringifyObject(params.filter),
-      limit: params.limit,
-      cursor: params.cursor,
-      sortBy: params.sortBy,
-      sortAscending: params.sortAscending,
-    },
   });
   return result.data.data.userQuestions;
 }
@@ -452,6 +438,7 @@ export async function fetchMentor(
                 tag
                 url
               }
+              videoUrl
             }
           }  
         }

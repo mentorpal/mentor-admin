@@ -156,8 +156,9 @@ const videoMentor: Mentor = completeMentor({
       media: [{
         type: MediaType.VIDEO,
         tag: "web",
-        url: "http://videos/videos/mentors/clintanderson/A2_1_1.mp4"
+        url: "A2_1_1.mp4"
       }],
+      videoUrl: "http://videos/videos/mentors/clintanderson/A2_1_1.mp4",
       status: Status.COMPLETE,
     },
   ],

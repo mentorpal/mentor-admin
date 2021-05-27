@@ -104,6 +104,7 @@ export interface Answer {
   transcript: string;
   status: Status;
   media?: Media[];
+  videoUrl?: string;
 }
 
 export interface UserQuestion {
