@@ -158,7 +158,6 @@ const videoMentor: Mentor = completeMentor({
         tag: "web",
         url: "A2_1_1.mp4"
       }],
-      videoUrl: "http://videos/videos/mentors/clintanderson/A2_1_1.mp4",
       status: Status.COMPLETE,
     },
   ],

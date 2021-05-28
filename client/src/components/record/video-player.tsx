@@ -153,6 +153,9 @@ function VideoPlayer(props: {
             progressInterval={100}
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
+            style={{
+              visibility: recordState.isUploading ? "hidden" : "inherit",
+            }}
           />
         </div>
         <Slider

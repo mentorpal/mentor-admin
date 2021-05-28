@@ -438,7 +438,6 @@ export async function fetchMentor(
                 tag
                 url
               }
-              videoUrl
             }
           }  
         }

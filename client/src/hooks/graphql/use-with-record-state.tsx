@@ -6,7 +6,15 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useReducer, useState } from "react";
 import { updateAnswer, updateQuestion } from "api";
-import { Answer, JobState, Mentor, MentorType, UtteranceName } from "types";
+import {
+  Answer,
+  JobState,
+  MediaTag,
+  MediaType,
+  Mentor,
+  MentorType,
+  UtteranceName,
+} from "types";
 import { copyAndSet, equals } from "helpers";
 import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithMentor } from "./use-with-mentor";
@@ -173,7 +181,6 @@ export function useWithRecordState(
       answer: {
         ...curAnswerState.answer,
         media: undefined,
-        videoUrl: undefined,
       },
     });
   }
@@ -318,7 +325,9 @@ export function useWithRecordState(
     if (curAnswerState.recordedVideo) {
       return URL.createObjectURL(curAnswerState.recordedVideo);
     }
-    return curAnswerState.answer?.videoUrl;
+    return curAnswerState.answer?.media?.find(
+      (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
+    )?.url;
   }
 
   function isAnswerValid() {

@@ -14,6 +14,7 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 
 import useInterval from "hooks/task/use-interval";
+import overlay from "images/face-position-white.png";
 
 const videoJsOptions = {
   controls: true,
@@ -185,16 +186,43 @@ function VideoRecorder({
             right: 0,
             opacity: recordState.isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
-            backgroundImage:
-              "url('https://diversity.wisc.edu/wp-content/uploads/2017/02/2000px-Placeholder_no_text.svg_-300x300.png')",
+            backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "contain",
           }}
         />
         <Typography
+          data-cy="countdown-message"
+          variant="h2"
+          align="center"
+          style={{
+            color: "white",
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            visibility: recordState.isRecording ? "visible" : "hidden",
+          }}
+        >
+          {recordStartCountdown
+            ? "Recording starts in"
+            : recordStopCountdown
+            ? "Recording ends in"
+            : Math.max(
+                Math.ceil(
+                  (curAnswer.minVideoLength || 0) - recordDurationCounter
+                ),
+                0
+              )
+            ? "Video ends in"
+            : ""}
+        </Typography>
+        <Typography
           data-cy="countdown"
           variant="h2"
+          align="center"
           style={{
             color: "white",
             position: "absolute",

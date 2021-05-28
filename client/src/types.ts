@@ -98,13 +98,17 @@ export enum MediaType {
   VIDEO = "video",
 }
 
+export enum MediaTag {
+  WEB = "web",
+  MOBILE = "mobile",
+}
+
 export interface Answer {
   _id: string;
   question: Question;
   transcript: string;
   status: Status;
   media?: Media[];
-  videoUrl?: string;
 }
 
 export interface UserQuestion {
