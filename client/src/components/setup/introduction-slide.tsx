@@ -5,25 +5,29 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import { Slide } from "./slide";
 
 export function IntroductionSlide(props: {
   classes: Record<string, string>;
 }): JSX.Element {
   const { classes } = props;
+
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Let&apos;s start recording!
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          You&apos;ll be asked to pick some subjects and answer some questions.
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Once you&apos;re done, you can build and preview your mentor.
-        </Typography>
-      </div>
-    </Paper>
+    <Slide
+      classes={classes}
+      title="Let's start recording!"
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            You&apos;ll be asked to pick some subjects and answer some
+            questions.
+          </Typography>
+          <Typography variant="h6" className={classes.text}>
+            Once you&apos;re done, you can build and preview your mentor.
+          </Typography>
+        </div>
+      }
+    />
   );
 }

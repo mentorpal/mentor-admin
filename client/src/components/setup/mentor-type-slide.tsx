@@ -5,37 +5,28 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography, Button, Select, MenuItem } from "@material-ui/core";
+import { Typography, Select, MenuItem } from "@material-ui/core";
 import { Mentor, MentorType } from "types";
+import { Slide } from "./slide";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor | undefined;
-  isMentorEdited: boolean;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
-  saveMentor: () => void;
 }): JSX.Element {
-  const {
-    classes,
-    mentor,
-    isMentorEdited,
-    isMentorLoading,
-    editMentor,
-    saveMentor,
-  } = props;
+  const { classes, mentor, isMentorLoading, editMentor } = props;
 
   if (!mentor || isMentorLoading) {
     return <div />;
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Pick a mentor type.
-      </Typography>
-      <div className={classes.column}>
-        <div className={classes.row}>
+    <Slide
+      classes={classes}
+      title="Pick a mentor type."
+      content={
+        <div>
           <Select
             data-cy="select-chat-type"
             value={mentor.mentorType}
@@ -56,24 +47,15 @@ export function MentorTypeSlide(props: {
               Video
             </MenuItem>
           </Select>
-          <Button
-            data-cy="save-btn"
-            onClick={saveMentor}
-            disabled={!isMentorEdited}
-            variant="contained"
-            color="primary"
-          >
-            Save
-          </Button>
+          <Typography style={{ marginTop: 15 }}>
+            {mentor.mentorType === MentorType.CHAT
+              ? "Make a text-only mentor that responds with chat bubbles"
+              : mentor.mentorType === MentorType.VIDEO
+              ? "Make a video mentor that responds with pre-recorded video answers"
+              : ""}
+          </Typography>
         </div>
-        <Typography>
-          {mentor.mentorType === MentorType.CHAT
-            ? "Make a text-only mentor that responds with chat bubbles"
-            : mentor.mentorType === MentorType.VIDEO
-            ? "Make a video mentor that responds with pre-recorded video answers"
-            : ""}
-        </Typography>
-      </div>
-    </Paper>
+      }
+    />
   );
 }

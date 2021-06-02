@@ -6,7 +6,8 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { Paper, Typography, Button } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
+import { Slide } from "./slide";
 
 export function SelectSubjectsSlide(props: {
   classes: Record<string, string>;
@@ -19,28 +20,29 @@ export function SelectSubjectsSlide(props: {
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Select subjects?
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          Subjects will ask questions related to a particular field or topic.
-          Pick the ones you feel qualified to mentor in!
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          After completing a subject, you&apos;ll be placed in a panel with
-          other mentors in your field.
-        </Typography>
-        <Button
-          data-cy="button"
-          variant="contained"
-          color="primary"
-          onClick={onClick}
-        >
-          View Subjects
-        </Button>
-      </div>
-    </Paper>
+    <Slide
+      classes={classes}
+      title="Select subjects?"
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            Subjects will ask questions related to a particular field or topic.
+            Pick the ones you feel qualified to mentor in!
+          </Typography>
+          <Typography variant="h6" className={classes.text}>
+            After completing a subject, you&apos;ll be placed in a panel with
+            other mentors in your field.
+          </Typography>
+          <Button
+            data-cy="button"
+            variant="contained"
+            color="primary"
+            onClick={onClick}
+          >
+            View Subjects
+          </Button>
+        </div>
+      }
+    />
   );
 }

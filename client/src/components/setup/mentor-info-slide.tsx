@@ -5,83 +5,67 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography, TextField, Button } from "@material-ui/core";
+import { TextField } from "@material-ui/core";
 import { Mentor } from "types";
+import { Slide } from "./slide";
 
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor | undefined;
-  isMentorEdited: boolean;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
-  saveMentor: () => void;
 }): JSX.Element {
-  const {
-    classes,
-    mentor,
-    isMentorEdited,
-    isMentorLoading,
-    editMentor,
-    saveMentor,
-  } = props;
+  const { classes, mentor, isMentorLoading, editMentor } = props;
 
   if (!mentor || isMentorLoading) {
     return <div />;
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Tell us a little about yourself.
-      </Typography>
-      <div className={classes.column}>
-        <TextField
-          required
-          data-cy="first-name"
-          label="First Name"
-          variant="outlined"
-          value={mentor.firstName || ""}
-          onChange={(e) => editMentor({ firstName: e.target.value })}
-          className={classes.inputField}
-        />
-        <TextField
-          required
-          data-cy="name"
-          label="Full Name"
-          variant="outlined"
-          value={mentor.name || ""}
-          onChange={(e) => editMentor({ name: e.target.value })}
-          className={classes.inputField}
-        />
-        <TextField
-          required
-          data-cy="title"
-          label="Job Title"
-          variant="outlined"
-          value={mentor.title || ""}
-          onChange={(e) => editMentor({ title: e.target.value })}
-          className={classes.inputField}
-        />
-        <TextField
-          data-cy="email"
-          label="Email"
-          type="email"
-          variant="outlined"
-          helperText="Leave blank if you don't want anyone to contact you"
-          value={mentor.email || ""}
-          onChange={(e) => editMentor({ email: e.target.value })}
-          className={classes.inputField}
-        />
-        <Button
-          data-cy="save-btn"
-          variant="contained"
-          color="primary"
-          disabled={!isMentorEdited}
-          onClick={saveMentor}
-        >
-          Save Changes
-        </Button>
-      </div>
-    </Paper>
+    <Slide
+      classes={props.classes}
+      title="Tell us a little about yourself."
+      content={
+        <div>
+          <TextField
+            required
+            data-cy="first-name"
+            label="First Name"
+            variant="outlined"
+            value={mentor.firstName || ""}
+            onChange={(e) => editMentor({ firstName: e.target.value })}
+            className={classes.inputField}
+          />
+          <TextField
+            required
+            data-cy="name"
+            label="Full Name"
+            variant="outlined"
+            value={mentor.name || ""}
+            onChange={(e) => editMentor({ name: e.target.value })}
+            className={classes.inputField}
+          />
+          <TextField
+            required
+            data-cy="title"
+            label="Job Title"
+            variant="outlined"
+            value={mentor.title || ""}
+            onChange={(e) => editMentor({ title: e.target.value })}
+            className={classes.inputField}
+          />
+          <TextField
+            data-cy="email"
+            label="Email"
+            type="email"
+            variant="outlined"
+            helperText="Leave blank if you don't want anyone to contact you"
+            value={mentor.email || ""}
+            onChange={(e) => editMentor({ email: e.target.value })}
+            className={classes.inputField}
+          />
+        </div>
+      }
+    />
   );
 }

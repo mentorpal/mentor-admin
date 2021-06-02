@@ -4,9 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React from "react";
-import { Button, Radio } from "@material-ui/core";
+import Carousel from "react-material-ui-carousel";
 import { makeStyles } from "@material-ui/core/styles";
 
 import { User } from "types";
@@ -38,15 +37,6 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     padding: 25,
   },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    marginLeft: 25,
-    marginRight: 25,
-    padding: 25,
-    flexGrow: 1,
-  },
   column: {
     display: "flex",
     flexDirection: "column",
@@ -54,6 +44,20 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     height: "100%",
     width: "100%",
+  },
+  carousel: {
+    display: "flex",
+    flexDirection: "column",
+    justifyItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
+    height: "100%",
+    width: "100%",
+  },
+  card: {
+    minHeight: 450,
+    padding: 25,
   },
   title: {
     fontWeight: "bold",
@@ -83,13 +87,11 @@ function SetupPage(props: {
     setupStep: idx,
     setupSteps: steps,
     mentor,
-    isEdited,
     isLoading,
     isSaving,
     isTraining,
     error,
     editMentor,
-    saveMentor,
     startTraining,
     nextStep,
     prevStep,
@@ -97,7 +99,7 @@ function SetupPage(props: {
     clearError,
   } = useWithSetup(props.accessToken, props.search);
 
-  function renderSlide(): JSX.Element {
+  function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
     }
@@ -117,10 +119,8 @@ function SetupPage(props: {
             key="mentor-info"
             classes={classes}
             mentor={mentor}
-            isMentorEdited={isEdited}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
-            saveMentor={saveMentor}
           />
         );
       case SetupStepType.MENTOR_TYPE:
@@ -129,10 +129,8 @@ function SetupPage(props: {
             key="chat-type"
             classes={classes}
             mentor={mentor}
-            isMentorEdited={isEdited}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
-            saveMentor={saveMentor}
           />
         );
       case SetupStepType.INTRODUCTION:
@@ -179,50 +177,28 @@ function SetupPage(props: {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
-      <div data-cy="slide">{renderSlide()}</div>
-      <div className={classes.row} style={{ height: 150 }}>
-        <Button
-          data-cy="back-btn"
-          variant="contained"
-          className={classes.button}
-          disabled={idx === 0}
-          onClick={prevStep}
-        >
-          Back
-        </Button>
-        <Button
-          data-cy="done-btn"
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          disabled={!status?.isSetupComplete}
-          onClick={() => navigate("/")}
-        >
-          Done
-        </Button>
-        <Button
-          data-cy="next-btn"
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          onClick={nextStep}
-          disabled={idx === steps.length - 1}
-        >
-          Next
-        </Button>
-      </div>
-      <div className={classes.row}>
+      <Carousel
+        animation="slide"
+        index={idx}
+        autoPlay={false}
+        navButtonsAlwaysVisible={true}
+        className={classes.carousel}
+        next={() => nextStep()}
+        prev={() => prevStep()}
+        onChange={(idx: number) => toStep(idx)}
+        activeIndicatorIconButtonProps={{
+          className: "",
+          style: {
+            color: steps[idx]?.complete ? "green" : "red",
+          },
+        }}
+      >
         {steps.map((s, i) => (
-          <Radio
-            data-cy={`radio-${i}`}
-            key={i}
-            checked={i === idx}
-            onClick={() => toStep(i)}
-            color={s.complete ? "primary" : "default"}
-            style={{ color: s.complete ? "" : "red" }}
-          />
+          <div data-cy="slide" key={`slide-${i}`}>
+            {renderSlide(idx)}
+          </div>
         ))}
-      </div>
+      </Carousel>
       <LoadingDialog
         title={
           isLoading
