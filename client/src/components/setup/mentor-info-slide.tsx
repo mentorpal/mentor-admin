@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { TextField } from "@material-ui/core";
+import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import { Mentor } from "types";
 import { Slide } from "./slide";
 
@@ -59,10 +59,21 @@ export function MentorInfoSlide(props: {
             label="Email"
             type="email"
             variant="outlined"
-            helperText="Leave blank if you don't want anyone to contact you"
             value={mentor.email || ""}
             onChange={(e) => editMentor({ email: e.target.value })}
             className={classes.inputField}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={mentor.allowContact}
+                onChange={() =>
+                  editMentor({ allowContact: !mentor.allowContact })
+                }
+                color="secondary"
+              />
+            }
+            label="Allow people to contact me"
           />
         </div>
       }

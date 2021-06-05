@@ -40,6 +40,7 @@ export interface Mentor {
   firstName: string;
   title: string;
   email: string;
+  allowContact: boolean;
   mentorType: MentorType;
   lastTrainedAt: string;
   defaultSubject?: Subject;

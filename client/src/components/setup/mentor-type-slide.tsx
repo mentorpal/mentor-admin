@@ -29,7 +29,7 @@ export function MentorTypeSlide(props: {
         <div>
           <Select
             data-cy="select-chat-type"
-            value={mentor.mentorType}
+            value={mentor.mentorType || MentorType.VIDEO}
             style={{ width: 100, marginRight: 20 }}
             onChange={(
               event: React.ChangeEvent<{
@@ -49,9 +49,9 @@ export function MentorTypeSlide(props: {
           </Select>
           <Typography style={{ marginTop: 15 }}>
             {mentor.mentorType === MentorType.CHAT
-              ? "Make a text-only mentor that responds with chat bubbles"
+              ? "Make a text-only mentor that responds with chat bubbles."
               : mentor.mentorType === MentorType.VIDEO
-              ? "Make a video mentor that responds with pre-recorded video answers"
+              ? "Make a video mentor that responds with pre-recorded video answers."
               : ""}
           </Typography>
         </div>

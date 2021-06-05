@@ -9,7 +9,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useState } from "react";
 import videojs from "video.js";
-import { IconButton, Typography } from "@material-ui/core";
+import { Button, IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 
@@ -17,15 +17,16 @@ import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 
 const videoJsOptions = {
+  fluid: true,
+  aspectRatio: "16:9",
   controls: true,
   bigPlayButton: false,
   controlBar: {
     fullscreenToggle: false,
     volumePanel: false,
     recordToggle: false,
+    deviceButton: false,
   },
-  fluid: true,
-  aspectRatio: "16:9",
   plugins: {
     record: {
       audio: true,
@@ -47,9 +48,6 @@ function VideoRecorder({
 }) {
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
-  // can't store these in RecordingState because player.on callbacks
-  // snapshot recordState from when player first initializes and doesn't
-  // update when changing answers
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
@@ -89,8 +87,6 @@ function VideoRecorder({
 
   useEffect(() => {
     if (recordedVideo) {
-      // if you put onRecordStop directly into player.on("finishRecord")
-      // it overwrite with the state from whatever the first question was
       onRecordStop(recordedVideo);
       setRecordedVideo(undefined);
     }
@@ -150,48 +146,33 @@ function VideoRecorder({
     setRecordStopCountdown(2);
   }
 
-  return (
-    <div
-      data-cy="recorder"
-      style={{
-        position: "absolute",
-        visibility: curAnswer.videoSrc ? "hidden" : "visible",
-      }}
-    >
-      <Typography
-        data-cy="instruction"
+  function renderOverlays() {
+    return (
+      <div
         style={{
-          textAlign: "center",
-          visibility: isCameraOn ? "visible" : "hidden",
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "black",
+          opacity: 0.25,
         }}
       >
-        Please get into position by facing forward and lining up with the
-        outline.
-      </Typography>
-      <div data-vjs-player style={{ height, width }}>
-        <video
-          data-cy="video-recorder"
-          className="video-js vjs-default-skin"
-          playsInline
-          ref={(e) => setVideoRef(e || undefined)}
-        />
+        <Button></Button>
         <div
           data-cy="outline"
-          className={classes.overlay}
           style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            opacity: recordState.isRecording ? 0.5 : 0.75,
+            width: "100%",
+            height: "100%",
+            // opacity: recordState.isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "contain",
           }}
-        />
+        ></div>
         <Typography
           data-cy="countdown-message"
           variant="h2"
@@ -244,6 +225,43 @@ function VideoRecorder({
             ""}
         </Typography>
       </div>
+    );
+  }
+
+  return (
+    <div
+      data-cy="recorder"
+      style={{
+        position: "absolute",
+        visibility: curAnswer.videoSrc ? "hidden" : "visible",
+      }}
+    >
+      <div data-vjs-player style={{ height, width }}>
+        <video
+          data-cy="video-recorder"
+          className="video-js vjs-default-skin"
+          playsInline
+          ref={(e) => setVideoRef(e || undefined)}
+        />
+        <div
+          data-cy="outline"
+          className={classes.overlay}
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            opacity: recordState.isRecording ? 0.5 : 0.75,
+            visibility: isCameraOn ? "visible" : "hidden",
+            backgroundImage: `url(${overlay})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "contain",
+          }}
+        />
+        {renderOverlays()}
+      </div>
       <div
         data-cy="controls"
         className={classes.row}
@@ -251,7 +269,7 @@ function VideoRecorder({
           position: "absolute",
           bottom: 0,
           left: 0,
-          visibility: isCameraOn ? "visible" : "hidden",
+          // visibility: isCameraOn ? "visible" : "hidden",
         }}
       >
         <IconButton
@@ -263,14 +281,23 @@ function VideoRecorder({
       </div>
       <div
         className={classes.row}
-        style={{ justifyContent: "center", marginTop: 20 }}
+        style={{ justifyContent: "center", marginTop: 10 }}
       >
-        <input
-          data-cy="upload-file"
-          type="file"
-          accept="audio/*,video/*"
-          onChange={(e) => onRecordStop(e.target.files[0])}
-        />
+        <Button
+          variant="outlined"
+          color="primary"
+          disableElevation
+          className={classes.button}
+        >
+          Upload File
+          <input
+            hidden
+            data-cy="upload-file"
+            type="file"
+            accept="audio/*,video/*"
+            onChange={(e) => onRecordStop(e.target.files[0])}
+          />
+        </Button>
       </div>
     </div>
   );

@@ -96,18 +96,18 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           label="Email"
           type="email"
           variant="outlined"
-          helperText="Leave blank if you don't want anyone to contact you"
           value={editedMentor?.email || ""}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
         <div className={classes.inputField}>
-          <FormControl>
+          <FormControl fullWidth>
             <InputLabel>Mentor Type</InputLabel>
             <Select
               data-cy="select-chat-type"
               label="Mentor Type"
-              value={editedMentor?.mentorType}
+              variant="outlined"
+              value={editedMentor?.mentorType || MentorType.VIDEO}
               onChange={(
                 event: React.ChangeEvent<{
                   name?: string | undefined;

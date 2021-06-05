@@ -371,6 +371,7 @@ export async function fetchMentor(
             firstName
             title
             email
+            allowContact
             mentorType
             lastTrainedAt
             defaultSubject {
@@ -475,6 +476,7 @@ export async function updateMentorDetails(
           firstName: mentor.firstName,
           title: mentor.title,
           email: mentor.email,
+          allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
         },
       },

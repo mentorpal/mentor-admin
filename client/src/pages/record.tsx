@@ -5,26 +5,23 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React from "react";
 import {
   AppBar,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
   FormControl,
   IconButton,
   InputAdornment,
   MenuItem,
-  OutlinedInput,
   Select,
+  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import CreateIcon from "@material-ui/icons/Create";
 import UndoIcon from "@material-ui/icons/Undo";
 
 import { MentorType, Status, UtteranceName } from "types";
@@ -59,6 +56,8 @@ const useStyles = makeStyles((theme) => ({
   },
   inputField: {
     width: "100%",
+    display: "flex",
+    flexDirection: "row",
   },
   footer: {
     top: "auto",
@@ -77,18 +76,16 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    bottom: 30,
-    left: 0,
-    right: 0,
-  },
 }));
 
-interface LeaveConfirmation {
-  callback: () => void;
-}
+const DarkerDisabledTextField = withStyles({
+  root: {
+    marginRight: 8,
+    "& .MuiInputBase-root.Mui-disabled": {
+      color: "rgba(0, 0, 0, 1)", // (default alpha is 0.38)
+    },
+  },
+})(TextField);
 
 function RecordPage(props: {
   accessToken: string;
@@ -119,7 +116,6 @@ function RecordPage(props: {
     clearRecordingError,
     setMinVideoLength,
   } = useWithRecordState(props.accessToken, props.search);
-  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   function onBack() {
     if (props.search.back) {
@@ -131,18 +127,15 @@ function RecordPage(props: {
 
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
-      setConfirmLeave({ callback: onNav });
+      saveAnswer();
+      onNav();
     } else {
       onNav();
     }
   }
 
-  function confirm() {
-    if (!confirmLeave) {
-      return;
-    }
-    confirmLeave.callback();
-    setConfirmLeave(undefined);
+  if (!mentor) {
+    return <div />;
   }
 
   return (
@@ -158,23 +151,14 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={answerIdx + 1} total={answers.length} />
       </div>
-      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer
-          classes={classes}
-          curAnswer={curAnswer}
-          recordState={recordState}
-          onUpload={uploadVideo}
-          onRerecord={rerecord}
-          onRecordStart={startRecording}
-          onRecordStop={stopRecording}
-        />
-      ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="question-input"
+          <DarkerDisabledTextField
             multiline
+            variant="outlined"
+            data-cy="question-input"
+            style={{ flexGrow: 1 }}
             value={curAnswer?.answer?.question?.question}
             disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
             onChange={(e) => {
@@ -187,27 +171,43 @@ function RecordPage(props: {
                 });
               }
             }}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-question-btn"
-                  disabled={
-                    curAnswer?.answer?.question?.question ===
-                    answers[answerIdx]?.question?.question
-                  }
-                  onClick={() =>
-                    editAnswer({
-                      question: answers[answerIdx].question,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
+            InputProps={{
+              endAdornment:
+                curAnswer?.answer?.question?.mentor !==
+                mentor?._id ? undefined : (
+                  <InputAdornment data-cy="edit-question-input" position="end">
+                    <CreateIcon />
+                  </InputAdornment>
+                ),
+            }}
           />
+          <IconButton
+            data-cy="undo-question-btn"
+            disabled={
+              curAnswer?.answer?.question?.question ===
+              answers[answerIdx]?.question?.question
+            }
+            onClick={() =>
+              editAnswer({
+                question: answers[answerIdx].question,
+              })
+            }
+          >
+            <UndoIcon />
+          </IconButton>
         </FormControl>
       </div>
+      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
+        <VideoPlayer
+          classes={classes}
+          curAnswer={curAnswer}
+          recordState={recordState}
+          onUpload={uploadVideo}
+          onRerecord={rerecord}
+          onRecordStart={startRecording}
+          onRecordStop={stopRecording}
+        />
+      ) : undefined}
       {curAnswer?.minVideoLength &&
       curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
@@ -235,30 +235,27 @@ function RecordPage(props: {
         <div data-cy="transcript" className={classes.block}>
           <Typography className={classes.title}>Answer Transcript:</Typography>
           <FormControl className={classes.inputField} variant="outlined">
-            <OutlinedInput
-              data-cy="transcript-input"
+            <DarkerDisabledTextField
               multiline
+              variant="outlined"
+              data-cy="transcript-input"
+              style={{ flexGrow: 1 }}
               value={curAnswer?.answer?.transcript}
               onChange={(e) => editAnswer({ transcript: e.target.value })}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    data-cy="undo-transcript-btn"
-                    disabled={
-                      curAnswer?.answer?.transcript ===
-                      answers[answerIdx]?.transcript
-                    }
-                    onClick={() =>
-                      editAnswer({
-                        transcript: answers[answerIdx]?.transcript,
-                      })
-                    }
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
             />
+            <IconButton
+              data-cy="undo-transcript-btn"
+              disabled={
+                curAnswer?.answer?.transcript === answers[answerIdx]?.transcript
+              }
+              onClick={() =>
+                editAnswer({
+                  transcript: answers[answerIdx]?.transcript,
+                })
+              }
+            >
+              <UndoIcon />
+            </IconButton>
           </FormControl>
         </div>
       )}
@@ -301,20 +298,6 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          <Button
-            data-cy="save-btn"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={
-              !curAnswer?.isEdited ||
-              recordState.isSaving ||
-              recordState.isUploading
-            }
-            onClick={saveAnswer}
-          >
-            Save
-          </Button>
           {answerIdx === answers.length - 1 ? (
             <Button
               data-cy="done-btn"
@@ -355,19 +338,6 @@ function RecordPage(props: {
         }
       />
       <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
-      <Dialog open={confirmLeave !== undefined}>
-        <DialogContent>
-          <DialogContentText>
-            You have unsaved changes. Are you sure you&apos;d like to move on?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={confirm}>Yes</Button>
-          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
-            No
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 }

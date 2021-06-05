@@ -119,20 +119,6 @@ function VideoPlayer(props: {
           visibility: curAnswer.videoSrc ? "visible" : "hidden",
         }}
       >
-        <Typography
-          data-cy="warning"
-          style={{
-            textAlign: "center",
-            visibility:
-              curAnswer.videoSrc &&
-              videoLength < (curAnswer.minVideoLength || 0)
-                ? "visible"
-                : "hidden",
-          }}
-        >
-          Video should be {curAnswer.minVideoLength} seconds long but is only{" "}
-          {videoLength} seconds long.
-        </Typography>
         <div
           style={{
             backgroundColor: "#000",
@@ -213,6 +199,20 @@ function VideoPlayer(props: {
             Trim Video
           </Button>
         </div>
+        <Typography
+          data-cy="warning"
+          style={{
+            textAlign: "center",
+            visibility:
+              curAnswer.videoSrc &&
+              videoLength < (curAnswer.minVideoLength || 0)
+                ? "visible"
+                : "hidden",
+          }}
+        >
+          Video should be {curAnswer.minVideoLength} seconds long but is only{" "}
+          {videoLength} seconds long.
+        </Typography>
       </div>
     </div>
   );

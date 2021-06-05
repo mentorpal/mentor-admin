@@ -26,11 +26,13 @@ export function SelectSubjectsSlide(props: {
       content={
         <div>
           <Typography variant="h6" className={classes.text}>
-            Subjects will ask questions related to a particular field or topic.
+            These are question sets related to a particular field or topic.
+          </Typography>
+          <Typography variant="h6" className={classes.text}>
             Pick the ones you feel qualified to mentor in!
           </Typography>
           <Typography variant="h6" className={classes.text}>
-            After completing a subject, you&apos;ll be placed in a panel with
+            After recording a subject, you&apos;ll be placed in a panel with
             other mentors in your field.
           </Typography>
           <Button

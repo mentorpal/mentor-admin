@@ -128,14 +128,22 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
+      <ListItem
+        button
+        component={Link}
+        to={"/"}
+        selected={location.pathname === "/"}
+      >
+        <ListItemText primary="My Answers" />
+      </ListItem>
       <ListItem
         button
         component={Link}
         to={"/profile"}
         selected={location.pathname === "/profile"}
       >
-        <ListItemText primary="Profile" />
+        <ListItemText primary="My Profile" />
       </ListItem>
       <ListItem
         button
@@ -143,8 +151,11 @@ function NavMenu(props: {
         to={"/subjects"}
         selected={location.pathname === "/subjects"}
       >
-        <ListItemText primary="Select Subjects" />
+        <ListItemText primary="My Subjects" />
       </ListItem>
+      <Divider style={{ marginTop: 15 }} />
+
+      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
@@ -153,24 +164,13 @@ function NavMenu(props: {
       >
         <ListItemText primary="Setup" />
       </ListItem>
-      <Divider style={{ marginTop: 15 }} />
-
-      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/record"}
         selected={location.pathname.includes("/record")}
       >
-        <ListItemText primary="Record Questions" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemText primary="Review Answers" />
+        <ListItemText primary="Record Answers" />
       </ListItem>
       <ListItem
         button
@@ -178,16 +178,14 @@ function NavMenu(props: {
         to={"/feedback"}
         selected={location.pathname.includes("/feedback")}
       >
-        <ListItemText primary="Corrections and User Feedback" />
+        <ListItemText primary="Review User Feedback" />
       </ListItem>
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
-      <ListSubheader className={classes.menuHeader}>
-        Subjects and Templates
-      </ListSubheader>
+      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
       <ListItem
         button
         component={Link}

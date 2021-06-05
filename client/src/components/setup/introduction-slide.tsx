@@ -20,8 +20,7 @@ export function IntroductionSlide(props: {
       content={
         <div>
           <Typography variant="h6" className={classes.text}>
-            You&apos;ll be asked to pick some subjects and answer some
-            questions.
+            You&apos;ll be asked to answer some generic questions.
           </Typography>
           <Typography variant="h6" className={classes.text}>
             Once you&apos;re done, you can build and preview your mentor.
