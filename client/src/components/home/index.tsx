@@ -21,7 +21,7 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
-import withLocation from "hooks/wrap-with-location";
+import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";

@@ -21,7 +21,7 @@ import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { BuildMentorSlide } from "components/setup/build-mentor-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import withLocation from "hooks/wrap-with-location";
+import withLocation from "wrap-with-location";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 
 const useStyles = makeStyles(() => ({

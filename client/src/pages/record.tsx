@@ -32,7 +32,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import withLocation from "hooks/wrap-with-location";
+import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 

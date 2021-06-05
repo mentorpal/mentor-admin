@@ -21,7 +21,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
 import TopicsList from "components/author/topics-list";
-import withLocation from "hooks/wrap-with-location";
+import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";

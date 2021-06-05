@@ -28,7 +28,7 @@ import MenuIcon from "@material-ui/icons/Menu";
 
 import { CLIENT_ENDPOINT } from "api";
 import Context from "context";
-import withLocation from "hooks/wrap-with-location";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
