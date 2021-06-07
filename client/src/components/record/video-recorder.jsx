@@ -9,7 +9,8 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useState } from "react";
 import videojs from "video.js";
-import { Button, IconButton, Typography } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
+import AttachFileIcon from "@material-ui/icons/AttachFile";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 
@@ -138,12 +139,15 @@ function VideoRecorder({
   );
 
   function startRecording() {
+    if (!isCameraOn) {
+      videoRecorderRef?.record().getDevice();
+    }
     onRecordStart();
-    setRecordStartCountdown(3);
+    setRecordStartCountdown(5);
   }
 
   function stopRecording() {
-    setRecordStopCountdown(2);
+    setRecordStopCountdown(3);
   }
 
   function renderOverlays() {
@@ -156,26 +160,25 @@ function VideoRecorder({
           left: 0,
           right: 0,
           backgroundColor: "black",
-          opacity: 0.25,
+          opacity: recordState.isRecording ? 0.5 : 0.75,
         }}
       >
-        <Button></Button>
         <div
           data-cy="outline"
           style={{
             width: "100%",
             height: "100%",
-            // opacity: recordState.isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
+            opacity: recordState.isRecording ? 0.25 : 1,
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "contain",
           }}
-        ></div>
+        />
         <Typography
           data-cy="countdown-message"
-          variant="h2"
+          variant="h4"
           align="center"
           style={{
             color: "white",
@@ -188,16 +191,15 @@ function VideoRecorder({
           }}
         >
           {recordStartCountdown
-            ? "Recording starts in"
-            : recordStopCountdown
-            ? "Recording ends in"
-            : Math.max(
+            ? "Please line up with the outline\nRecording starts in"
+            : recordStopCountdown ||
+              Math.max(
                 Math.ceil(
                   (curAnswer.minVideoLength || 0) - recordDurationCounter
                 ),
                 0
               )
-            ? "Video ends in"
+            ? "Shh still recording...\nRecording ends in"
             : ""}
         </Typography>
         <Typography
@@ -243,51 +245,31 @@ function VideoRecorder({
           playsInline
           ref={(e) => setVideoRef(e || undefined)}
         />
-        <div
-          data-cy="outline"
-          className={classes.overlay}
-          style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            opacity: recordState.isRecording ? 0.5 : 0.75,
-            visibility: isCameraOn ? "visible" : "hidden",
-            backgroundImage: `url(${overlay})`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
-            backgroundSize: "contain",
-          }}
-        />
         {renderOverlays()}
-      </div>
-      <div
-        data-cy="controls"
-        className={classes.row}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          // visibility: isCameraOn ? "visible" : "hidden",
-        }}
-      >
-        <IconButton
-          onClick={recordState.isRecording ? stopRecording : startRecording}
-          style={{ color: "red" }}
-        >
-          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
-        </IconButton>
       </div>
       <div
         className={classes.row}
         style={{ justifyContent: "center", marginTop: 10 }}
       >
         <Button
+          variant="contained"
+          color="primary"
+          disableElevation
+          className={classes.button}
+          style={{ marginRight: 15 }}
+          startIcon={
+            recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />
+          }
+          onClick={recordState.isRecording ? stopRecording : startRecording}
+        >
+          {recordState.isRecording ? "Stop" : "Record"}
+        </Button>
+        <Button
           variant="outlined"
           color="primary"
           disableElevation
           className={classes.button}
+          startIcon={<AttachFileIcon />}
         >
           Upload File
           <input

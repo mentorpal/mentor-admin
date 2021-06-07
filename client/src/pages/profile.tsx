@@ -7,14 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import {
   Button,
+  Checkbox,
   FormControl,
-  FormHelperText,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   TextField,
-  Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -60,16 +60,43 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
     saveMentorDetails,
   } = useWithMentor(props.accessToken);
 
+  if (!editedMentor) {
+    return <div />;
+  }
+
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Studio" mentorId={editedMentor?._id} />
+      <NavBar title="My Profile" mentorId={editedMentor?._id} />
       <Paper className={classes.paper}>
-        <Typography variant="h6" className={classes.title}>
-          My Profile
-        </Typography>
+        <div className={classes.inputField}>
+          <FormControl>
+            <InputLabel>Mentor Type</InputLabel>
+            <Select
+              data-cy="select-chat-type"
+              label="Mentor Type"
+              value={editedMentor?.mentorType}
+              style={{ width: 200 }}
+              onChange={(
+                event: React.ChangeEvent<{
+                  name?: string | undefined;
+                  value: unknown;
+                }>
+              ) => {
+                editMentor({ mentorType: event.target.value as MentorType });
+              }}
+            >
+              <MenuItem data-cy="chat" value={MentorType.CHAT}>
+                Chat
+              </MenuItem>
+              <MenuItem data-cy="video" value={MentorType.VIDEO}>
+                Video
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </div>
         <TextField
           data-cy="mentor-name"
-          label="Name"
+          label="Full Name"
           variant="outlined"
           value={editedMentor?.name || ""}
           onChange={(e) => editMentor({ name: e.target.value })}
@@ -100,39 +127,19 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
-        <div className={classes.inputField}>
-          <FormControl fullWidth>
-            <InputLabel>Mentor Type</InputLabel>
-            <Select
-              data-cy="select-chat-type"
-              label="Mentor Type"
-              variant="outlined"
-              value={editedMentor?.mentorType || MentorType.VIDEO}
-              onChange={(
-                event: React.ChangeEvent<{
-                  name?: string | undefined;
-                  value: unknown;
-                }>
-              ) => {
-                editMentor({ mentorType: event.target.value as MentorType });
-              }}
-            >
-              <MenuItem data-cy="chat" value={MentorType.CHAT}>
-                Chat
-              </MenuItem>
-              <MenuItem data-cy="video" value={MentorType.VIDEO}>
-                Video
-              </MenuItem>
-            </Select>
-            <FormHelperText>
-              {editedMentor?.mentorType === MentorType.CHAT
-                ? "Respond with text-only chat bubbles"
-                : editedMentor?.mentorType === MentorType.VIDEO
-                ? "Respond with pre-recorded videos"
-                : ""}
-            </FormHelperText>
-          </FormControl>
-        </div>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={editedMentor?.allowContact}
+              onChange={() =>
+                editMentor({ allowContact: !editedMentor?.allowContact })
+              }
+              color="secondary"
+            />
+          }
+          label="Allow people to contact me"
+          style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
+        />
         <Button
           data-cy="update-btn"
           variant="contained"

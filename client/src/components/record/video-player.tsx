@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
-import { Button, Slider, Typography } from "@material-ui/core";
+import { Button, Slider } from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { RecordingState } from "hooks/graphql/recording-reducer";
@@ -199,20 +199,6 @@ function VideoPlayer(props: {
             Trim Video
           </Button>
         </div>
-        <Typography
-          data-cy="warning"
-          style={{
-            textAlign: "center",
-            visibility:
-              curAnswer.videoSrc &&
-              videoLength < (curAnswer.minVideoLength || 0)
-                ? "visible"
-                : "hidden",
-          }}
-        >
-          Video should be {curAnswer.minVideoLength} seconds long but is only{" "}
-          {videoLength} seconds long.
-        </Typography>
       </div>
     </div>
   );

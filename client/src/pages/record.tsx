@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0.8,
   },
   button: {
-    width: 150,
+    width: 180,
   },
   backBtn: {
     position: "absolute",
