@@ -32,6 +32,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import "cypress-fill-command";
 import "cypress-localstorage-commands"
+import 'cypress-file-upload';
 import { addMatchImageSnapshotCommand } from "cypress-image-snapshot/command";
 
 addMatchImageSnapshotCommand({

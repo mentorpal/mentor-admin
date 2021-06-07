@@ -6,14 +6,13 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
 import {
   AppBar,
   Button,
-  CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
-  DialogTitle,
+  DialogContentText,
   FormControl,
   IconButton,
   InputAdornment,
@@ -28,21 +27,14 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import {
-  fetchMentor,
-  fetchUploadVideoStatus,
-  updateAnswer,
-  updateQuestion,
-  uploadVideo,
-} from "api";
-import { Answer, Status, MentorType, VideoState, Mentor } from "types";
-import useInterval from "use-interval";
+import { MentorType, Status, UtteranceName } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
-import "react-toastify/dist/ReactToastify.css";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -74,6 +66,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#eee",
     opacity: 0.8,
   },
+  button: {
+    width: 150,
+  },
   backBtn: {
     position: "absolute",
     left: 0,
@@ -82,23 +77,17 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
-  faceOutline: {
-    opacity: 0.5,
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 30,
+    left: 0,
+    right: 0,
   },
 }));
 
-interface RecordState {
-  answers: Answer[];
-  curAnswerIx: number;
-  curAnswer?: Answer;
-  mentor?: {
-    _id: string;
-    mentorType: MentorType;
-  };
-}
-
-function copyAndSet<T>(a: T[], i: number, item: T): T[] {
-  return [...a.slice(0, i), item, ...a.slice(i + 1)];
+interface LeaveConfirmation {
+  callback: () => void;
 }
 
 function RecordPage(props: {
@@ -112,86 +101,25 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const [recordState, setRecordState] = useState<RecordState>({
-    answers: [],
-    curAnswerIx: 0,
-  });
-  const { answers, curAnswer, curAnswerIx, mentor } = recordState;
-  const [statusUrl, setStatusUrl] = React.useState("");
-  const [isUploading, setIsUploading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState<string>();
-
-  function setCurAnswer(curAnswer: Answer): void {
-    setRecordState({
-      ...recordState,
-      curAnswer,
-    });
-  }
-
-  function setCurAnswerIx(curAnswerIx: number) {
-    setRecordState({
-      ...recordState,
-      curAnswerIx,
-    });
-  }
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchMentor(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        updateRecordState(m);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  function updateRecordState(mentor: Mentor) {
-    const nextState: RecordState = {
-      ...recordState,
-      mentor: { _id: mentor._id, mentorType: mentor.mentorType },
-    };
-    const { videoId, subject, category, status } = props.search;
-    if (videoId) {
-      const ids = Array.isArray(videoId) ? videoId : [videoId];
-      nextState.answers = [
-        ...mentor.answers.filter((a) => ids.includes(a.question._id)),
-      ];
-    } else if (subject) {
-      const s = mentor.subjects.find((a) => a._id === subject);
-      if (s) {
-        const sQuestions = s.questions.filter(
-          (q) => !category || `${q.category?.id}` === category
-        );
-        nextState.answers = [
-          ...mentor.answers.filter(
-            (a) =>
-              sQuestions.map((q) => q.question._id).includes(a.question._id) &&
-              (!status || a.status === status)
-          ),
-        ];
-      }
-    } else {
-      nextState.answers = [
-        ...mentor.answers.filter((a) => !status || a.status === status),
-      ];
-    }
-    setRecordState(nextState);
-  }
-
-  React.useEffect(() => {
-    if (answers.length === 0 || curAnswerIx >= answers.length) {
-      return;
-    }
-    setRecordState({
-      ...recordState,
-      curAnswer: answers[curAnswerIx],
-    });
-  }, [curAnswerIx, answers]);
+  const {
+    mentor,
+    isLoading,
+    answers,
+    answerIdx,
+    curAnswer,
+    recordState,
+    prevAnswer,
+    nextAnswer,
+    editAnswer,
+    saveAnswer,
+    rerecord,
+    startRecording,
+    stopRecording,
+    uploadVideo,
+    clearRecordingError,
+    setMinVideoLength,
+  } = useWithRecordState(props.accessToken, props.search);
+  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   function onBack() {
     if (props.search.back) {
@@ -201,168 +129,75 @@ function RecordPage(props: {
     }
   }
 
-  function onUploadVideo(video: Blob) {
-    if (!mentor || !curAnswer) {
+  function switchAnswer(onNav: () => void) {
+    if (curAnswer?.isEdited) {
+      setConfirmLeave({ callback: onNav });
+    } else {
+      onNav();
+    }
+  }
+
+  function confirm() {
+    if (!confirmLeave) {
       return;
     }
-    setLoadingMessage("Uploading video...");
-    uploadVideo(mentor._id, curAnswer._id, video)
-      .then((job) => {
-        setStatusUrl(job.statusUrl);
-        setIsUploading(true);
-      })
-      .catch((err) => {
-        toast(`Upload failed`);
-        console.error(err);
-        setLoadingMessage(undefined);
-        setIsUploading(false);
-      });
-  }
-
-  useInterval(
-    (isCancelled) => {
-      fetchUploadVideoStatus(statusUrl)
-        .then((videoStatus) => {
-          if (isCancelled()) {
-            setIsUploading(false);
-            setLoadingMessage(undefined);
-            return;
-          }
-          if (videoStatus.state === VideoState.UPLOAD_FAILURE) {
-            toast(`Upload failed`);
-            setIsUploading(false);
-            setLoadingMessage(undefined);
-          }
-          if (videoStatus.state === VideoState.UPLOAD_SUCCESS) {
-            toast(`Uploaded video!`);
-          }
-          if (
-            videoStatus.state === VideoState.TRANSCRIBE_STARTED ||
-            videoStatus.state === VideoState.TRANSCRIBE_PENDING
-          ) {
-            setLoadingMessage("Transcribing video...");
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_FAILURE) {
-            toast(`Transcribe failed`);
-            setIsUploading(false);
-            setLoadingMessage(undefined);
-          }
-          if (videoStatus.state === VideoState.TRANSCRIBE_SUCCESS) {
-            toast(`Transcribed video!`);
-            setIsUploading(false);
-            setLoadingMessage(undefined);
-            fetchMentor(props.accessToken)
-              .then((m) => {
-                if (isCancelled()) {
-                  return;
-                }
-                updateRecordState(m);
-              })
-              .catch((err) => console.error(err));
-          }
-        })
-        .catch((err) => {
-          toast(`Upload failed`);
-          console.error(err);
-          setIsUploading(false);
-          setLoadingMessage(undefined);
-        });
-    },
-    isUploading ? 1000 : null
-  );
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function equals(val1: any, val2: any): boolean {
-    return JSON.stringify(val1) === JSON.stringify(val2);
-  }
-
-  async function onSave() {
-    if (!(curAnswer && mentor)) {
-      return;
-    }
-    let answerUpdated: Answer | null = null;
-    if (!equals(curAnswer.question, answers[curAnswerIx].question)) {
-      if (await updateQuestion(curAnswer.question, props.accessToken)) {
-        answerUpdated = {
-          ...answers[curAnswerIx],
-          question: curAnswer.question,
-        };
-      } else {
-        toast("Failed to save question");
-      }
-    }
-    const answerWorking = answerUpdated || curAnswer;
-    if (!equals(answerWorking, answers[curAnswerIx])) {
-      if (await updateAnswer(mentor._id, answerWorking, props.accessToken)) {
-        answerUpdated = answerWorking;
-      } else {
-        toast("Failed to save answer");
-      }
-    }
-    if (answerUpdated) {
-      setRecordState({
-        ...recordState,
-        answers: copyAndSet(answers, curAnswerIx, answerUpdated),
-        curAnswer: answerWorking,
-      });
-    }
-  }
-
-  if (!mentor || answers.length === 0 || !curAnswer) {
-    return (
-      <div>
-        <NavBar title="Record Mentor" mentorId={mentor?._id} />
-        <CircularProgress />
-      </div>
-    );
+    confirmLeave.callback();
+    setConfirmLeave(undefined);
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" mentorId={mentor._id} />
+      <NavBar title="Record Mentor" mentorId={mentor?._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {curAnswerIx + 1} / {answers.length}
+          Questions {answerIdx + 1} / {answers.length}
         </Typography>
-        <ProgressBar value={curAnswerIx + 1} total={answers.length} />
+        <ProgressBar value={answerIdx + 1} total={answers.length} />
       </div>
-      <VideoPlayer
-        classes={classes}
-        mentorId={mentor._id}
-        mentorType={mentor.mentorType}
-        curAnswer={curAnswer}
-        onUpload={onUploadVideo}
-      />
+      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
+        <VideoPlayer
+          classes={classes}
+          curAnswer={curAnswer}
+          recordState={recordState}
+          onUpload={uploadVideo}
+          onRerecord={rerecord}
+          onRecordStart={startRecording}
+          onRecordStop={stopRecording}
+        />
+      ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
         <FormControl className={classes.inputField} variant="outlined">
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer.question.question}
-            disabled={curAnswer.question.mentor !== mentor._id}
-            onChange={(e) =>
-              setCurAnswer({
-                ...curAnswer,
-                question: { ...curAnswer.question, question: e.target.value },
-              })
-            }
+            value={curAnswer?.answer?.question?.question}
+            disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
+            onChange={(e) => {
+              if (curAnswer?.answer?.question) {
+                editAnswer({
+                  question: {
+                    ...curAnswer?.answer.question,
+                    question: e.target.value,
+                  },
+                });
+              }
+            }}
             endAdornment={
               <InputAdornment position="end">
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer.question.question ===
-                    answers[curAnswerIx].question.question
+                    curAnswer?.answer?.question?.question ===
+                    answers[answerIdx]?.question?.question
                   }
                   onClick={() =>
-                    setCurAnswer({
-                      ...curAnswer,
-                      question: answers[curAnswerIx].question,
+                    editAnswer({
+                      question: answers[answerIdx].question,
                     })
                   }
                 >
@@ -373,54 +208,83 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      <div data-cy="transcript" className={classes.block}>
-        <Typography className={classes.title}>Answer Transcript:</Typography>
-        <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="transcript-input"
-            multiline
-            value={curAnswer.transcript}
-            onChange={(e) =>
-              setCurAnswer({ ...curAnswer, transcript: e.target.value })
-            }
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-transcript-btn"
-                  disabled={
-                    curAnswer.transcript === answers[curAnswerIx].transcript
-                  }
-                  onClick={() =>
-                    setCurAnswer({
-                      ...curAnswer,
-                      transcript: answers[curAnswerIx].transcript,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
-      </div>
-      <div data-cy="status" className={classes.block}>
+      {curAnswer?.minVideoLength &&
+      curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
+        <div data-cy="idle" className={classes.block}>
+          <Typography className={classes.title}>Idle Duration:</Typography>
+          <Select
+            data-cy="idle-duration"
+            value={curAnswer?.minVideoLength}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => setMinVideoLength(event.target.value as number)}
+            style={{ marginLeft: 10 }}
+          >
+            <MenuItem data-cy="10" value={10}>
+              10 seconds
+            </MenuItem>
+            <MenuItem data-cy="30" value={30}>
+              30 seconds
+            </MenuItem>
+            <MenuItem data-cy="60" value={60}>
+              60 seconds
+            </MenuItem>
+          </Select>
+        </div>
+      ) : (
+        <div data-cy="transcript" className={classes.block}>
+          <Typography className={classes.title}>Answer Transcript:</Typography>
+          <FormControl className={classes.inputField} variant="outlined">
+            <OutlinedInput
+              data-cy="transcript-input"
+              multiline
+              value={curAnswer?.answer?.transcript}
+              onChange={(e) => editAnswer({ transcript: e.target.value })}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    data-cy="undo-transcript-btn"
+                    disabled={
+                      curAnswer?.answer?.transcript ===
+                      answers[answerIdx]?.transcript
+                    }
+                    onClick={() =>
+                      editAnswer({
+                        transcript: answers[answerIdx]?.transcript,
+                      })
+                    }
+                  >
+                    <UndoIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+        </div>
+      )}
+      <div
+        data-cy="status"
+        className={classes.block}
+        style={{ textAlign: "right" }}
+      >
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer.status.toString()}
+          value={curAnswer?.answer?.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) =>
-            setCurAnswer({ ...curAnswer, status: event.target.value as Status })
-          }
+          ) => editAnswer({ status: event.target.value as Status })}
           style={{ marginLeft: 10 }}
         >
           <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
-            {Status.INCOMPLETE}
+            Skip
           </MenuItem>
-          <MenuItem data-cy="complete" value={Status.COMPLETE}>
-            {Status.COMPLETE}
+          <MenuItem
+            data-cy="complete"
+            value={Status.COMPLETE}
+            disabled={!curAnswer?.isValid}
+          >
+            Active
           </MenuItem>
         </Select>
       </div>
@@ -430,8 +294,10 @@ function RecordPage(props: {
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}
-            disabled={curAnswerIx === 0}
-            onClick={() => setCurAnswerIx(curAnswerIx - 1)}
+            disabled={
+              answerIdx === 0 || recordState.isSaving || recordState.isUploading
+            }
+            onClick={() => switchAnswer(prevAnswer)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -440,19 +306,24 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={equals(curAnswer, answers[curAnswerIx])}
-            onClick={onSave}
+            disabled={
+              !curAnswer?.isEdited ||
+              recordState.isSaving ||
+              recordState.isUploading
+            }
+            onClick={saveAnswer}
           >
             Save
           </Button>
-          {curAnswerIx === answers.length - 1 ? (
+          {answerIdx === answers.length - 1 ? (
             <Button
               data-cy="done-btn"
-              className={classes.nextBtn}
               variant="contained"
               color="primary"
               disableElevation
-              onClick={onBack}
+              disabled={recordState.isSaving || recordState.isUploading}
+              onClick={() => switchAnswer(onBack)}
+              className={classes.nextBtn}
             >
               Done
             </Button>
@@ -460,21 +331,43 @@ function RecordPage(props: {
             <IconButton
               data-cy="next-btn"
               className={classes.nextBtn}
-              disabled={curAnswerIx === answers.length - 1}
-              onClick={() => setCurAnswerIx(curAnswerIx + 1)}
+              disabled={
+                answerIdx === answers.length - 1 ||
+                recordState.isSaving ||
+                recordState.isUploading
+              }
+              onClick={() => switchAnswer(nextAnswer)}
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
           )}
         </Toolbar>
       </AppBar>
-      <Dialog open={Boolean(loadingMessage)}>
-        <DialogTitle>{loadingMessage}</DialogTitle>
+      <LoadingDialog
+        title={
+          isLoading
+            ? "Loading..."
+            : recordState.isSaving
+            ? "Saving..."
+            : recordState.isUploading
+            ? "Uploading..."
+            : ""
+        }
+      />
+      <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
+      <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
-          <CircularProgress />
+          <DialogContentText>
+            You have unsaved changes. Are you sure you&apos;d like to move on?
+          </DialogContentText>
         </DialogContent>
+        <DialogActions>
+          <Button onClick={confirm}>Yes</Button>
+          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
+            No
+          </Button>
+        </DialogActions>
       </Dialog>
-      <ToastContainer />
     </div>
   );
 }

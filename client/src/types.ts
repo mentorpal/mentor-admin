@@ -39,6 +39,7 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
+  email: string;
   mentorType: MentorType;
   lastTrainedAt: string;
   defaultSubject?: Subject;
@@ -83,6 +84,23 @@ export interface Question {
   name: string;
   paraphrases: string[];
   mentor?: string;
+  mentorType?: string;
+  minVideoLength?: number;
+}
+
+export interface Media {
+  type: string;
+  tag: string;
+  url: string;
+}
+
+export enum MediaType {
+  VIDEO = "video",
+}
+
+export enum MediaTag {
+  WEB = "web",
+  MOBILE = "mobile",
 }
 
 export interface Answer {
@@ -90,7 +108,7 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
-  recordedAt: string;
+  media?: Media[];
 }
 
 export interface UserQuestion {
@@ -150,18 +168,18 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
-export interface TrainStatus {
-  state: TrainState;
-  status?: string;
-  info?: TrainingInfo;
-}
-
-export enum TrainState {
+export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
+}
+
+export interface TaskStatus<T> {
+  state: JobState;
+  status?: string;
+  info?: T;
 }
 
 export interface TrainingInfo {
@@ -173,28 +191,10 @@ export interface TrainExpectionResult {
   accuracy: number;
 }
 
-export interface VideoStatus {
-  state: VideoState;
-  status?: string;
-  info?: VideoInfo;
-}
-
-export enum VideoState {
-  NONE = "NONE",
-  UPLOAD_STARTED = "UPLOAD_STARTED",
-  UPLOAD_PENDING = "UPLOAD_PENDING",
-  UPLOAD_FAILURE = "UPLOAD_FAILURE",
-  UPLOAD_SUCCESS = "UPLOAD_SUCCESS",
-  TRANSCRIBE_STARTED = "TRANSCRIBE_STARTED",
-  TRANSCRIBE_PENDING = "TRANSCRIBE_PENDING",
-  TRANSCRIBE_FAILURE = "TRANSCRIBE_FAILURE",
-  TRANSCRIBE_SUCCESS = "TRANSCRIBE_SUCCESS",
-}
-
 export interface VideoInfo {
   mentor: string;
   videoId: string;
-  video: Blob;
+  video: File;
   transcript: string;
 }
 

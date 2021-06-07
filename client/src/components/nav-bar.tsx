@@ -194,15 +194,7 @@ function NavMenu(props: {
         to={"/author/subjects"}
         selected={location.pathname.includes("/author/subject")}
       >
-        <ListItemText primary="Subjects Areas" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/questions"}
-        selected={location.pathname.includes("/author/question")}
-      >
-        <ListItemText primary="Questions" />
+        <ListItemText primary="Subjects" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 

@@ -4,10 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
-  CircularProgress,
   Fab,
   IconButton,
   MenuItem,
@@ -32,27 +31,21 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
-import {
-  fetchMentor,
-  fetchTrainingStatus,
-  fetchUserQuestions,
-  trainMentor,
-  updateUserQuestion,
-} from "api";
+import { updateUserQuestion } from "api";
 import {
   Answer,
   ClassifierAnswerType,
-  Connection,
   Feedback,
   Mentor,
-  TrainState,
-  TrainStatus,
   UserQuestion,
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import useInterval from "use-interval";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithTraining } from "hooks/task/use-with-train";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithFeedback } from "hooks/graphql/use-with-feedback";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,11 +121,12 @@ const columnHeaders: ColumnDef[] = [
 
 function FeedbackItem(props: {
   feedback: UserQuestion;
-  mentor: Mentor;
+  mentor: Mentor | undefined;
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentor, onUpdated } = props;
 
+  // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId: string | undefined) {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
@@ -180,7 +174,7 @@ function FeedbackItem(props: {
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
               data-cy="select-answer"
-              options={mentor.answers}
+              options={mentor?.answers || []}
               getOptionLabel={(option: Answer) => option.question.question}
               onChange={(e, v) => {
                 onUpdateAnswer(v?._id);
@@ -212,7 +206,9 @@ function FeedbackItem(props: {
         </Tooltip>
       </TableCell>
       <TableCell data-cy="date" align="center">
-        {feedback.updatedAt || ""}
+        {feedback.updatedAt
+          ? new Date(feedback.updatedAt).toLocaleString()
+          : ""}
       </TableCell>
     </TableRow>
   );
@@ -220,183 +216,66 @@ function FeedbackItem(props: {
 
 function FeedbackPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const [feedback, setFeedback] = useState<Connection<UserQuestion>>();
-  const [cursor, setCursor] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("name");
-  const [sortAscending, setSortAscending] = React.useState(false);
-  const [feedbackFilter, setFeedbackFilter] = React.useState<Feedback>();
-  const [
-    confidenceFilter,
-    setConfidenceFilter,
-  ] = React.useState<ClassifierAnswerType>();
-  const [classifierFilter, setClassifierFilter] = React.useState<Answer>();
-  const [graderFilter, setGraderFilter] = React.useState<Answer>();
-  const limit = 20;
+  const {
+    data: mentor,
+    error: mentorError,
+    isLoading: isMentorLoading,
+    clearError: clearMentorError,
+  } = useWithMentor(props.accessToken);
+  const {
+    data: feedback,
+    isLoading: isFeedbackLoading,
+    searchParams: feedbackSearchParams,
+    sortBy: sortFeedback,
+    filter: filterFeedback,
+    reloadData: reloadFeedback,
+    nextPage: feedbackNextPage,
+    prevPage: feedbackPrevPage,
+  } = useWithFeedback();
+  const {
+    isPolling: isTraining,
+    error: trainError,
+    startTask: startTraining,
+    clearError: clearTrainingError,
+  } = useWithTraining();
 
-  const [mentor, setMentor] = React.useState<Mentor>();
-  const [statusUrl, setStatusUrl] = React.useState("");
-  const [trainData, setTrainData] = React.useState<TrainStatus>({
-    state: TrainState.NONE,
-  });
-  const [isTraining, setIsTraining] = useState(false);
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchMentor(props.accessToken).then((m) => {
-      if (!mounted) {
-        return;
-      }
-      setMentor(m);
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
+  useEffect(() => {
+    if (mentor) {
+      filterFeedback({ mentor: mentor._id });
     }
-    let mounted = true;
-    fetchFeedback()
-      .then((f) => {
-        if (!mounted) {
-          return;
-        }
-        setFeedback(f);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, [
-    mentor,
-    cursor,
-    sortBy,
-    sortAscending,
-    feedbackFilter,
-    confidenceFilter,
-    classifierFilter,
-    graderFilter,
-  ]);
-
-  async function fetchFeedback(): Promise<Connection<UserQuestion>> {
-    const filter: {
-      mentor?: string;
-      classifierAnswer?: string;
-      graderAnswer?: string;
-      feedback?: Feedback;
-      classifierAnswerType?: ClassifierAnswerType;
-    } = { mentor: mentor?._id };
-    if (feedbackFilter !== undefined) {
-      filter["feedback"] = feedbackFilter;
-    }
-    if (classifierFilter !== undefined) {
-      filter["classifierAnswer"] = classifierFilter._id;
-    }
-    if (graderFilter !== undefined) {
-      filter["graderAnswer"] = graderFilter._id;
-    }
-    if (confidenceFilter !== undefined) {
-      filter["classifierAnswerType"] = confidenceFilter;
-    }
-    return fetchUserQuestions({ filter, cursor, limit, sortBy, sortAscending });
-  }
-
-  async function loadFeedback(): Promise<void> {
-    setFeedback(await fetchFeedback());
-  }
-
-  function train() {
-    if (!mentor) {
-      return;
-    }
-    trainMentor(mentor._id)
-      .then((trainJob) => {
-        setStatusUrl(trainJob.statusUrl);
-        setIsTraining(true);
-      })
-      .catch((err) => {
-        console.error(err);
-        setTrainData({
-          state: TrainState.FAILURE,
-          status: err.message || `${err}`,
-        });
-        setIsTraining(false);
-      });
-  }
-
-  function setSort(id: string) {
-    if (sortBy === id) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortBy(id);
-    }
-    setCursor("");
-  }
-
-  const TRAIN_STATUS_POLL_INTERVAL_DEFAULT = 1000;
-  useInterval(
-    (isCancelled) => {
-      fetchTrainingStatus(statusUrl)
-        .then((trainStatus) => {
-          if (isCancelled()) {
-            setIsTraining(false);
-          }
-          setTrainData(trainStatus);
-          if (
-            trainStatus.state === TrainState.SUCCESS ||
-            trainStatus.state === TrainState.FAILURE
-          ) {
-            setIsTraining(false);
-          }
-        })
-        .catch((err: Error) => {
-          setTrainData({ state: TrainState.FAILURE, status: err.message });
-          setIsTraining(false);
-          console.error(err);
-        });
-    },
-    isTraining ? TRAIN_STATUS_POLL_INTERVAL_DEFAULT : null
-  );
-
-  if (!mentor || !feedback) {
-    return (
-      <div>
-        <NavBar title="Feedback" mentorId={mentor?._id} />
-        <CircularProgress />
-      </div>
-    );
-  }
+  }, [mentor]);
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentor._id} />
+      <NavBar title="Feedback" mentorId={mentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
                 columns={columnHeaders}
-                sortBy={sortBy}
-                sortAsc={sortAscending}
-                onSort={setSort}
+                sortBy={feedbackSearchParams.sortBy}
+                sortAsc={feedbackSearchParams.sortAscending}
+                onSort={sortFeedback}
               />
               <TableHead data-cy="column-filter">
                 <TableRow>
                   <TableCell align="center">
                     <Select
                       data-cy="filter-feedback"
-                      value={feedbackFilter}
+                      value={feedbackSearchParams.filter.feedback}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
                           value: unknown;
                           name?: unknown;
                         }>
-                      ) => {
-                        setFeedbackFilter(event.target.value as Feedback);
-                      }}
+                      ) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          feedback: event.target.value as Feedback,
+                        })
+                      }
                     >
                       <MenuItem data-cy="none" value={undefined}>
                         No Filter
@@ -415,18 +294,20 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell align="center">
                     <Select
                       data-cy="filter-confidence"
-                      value={feedbackFilter}
+                      value={feedbackSearchParams.filter.classifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
                           value: unknown;
                           name?: unknown;
                         }>
-                      ) => {
-                        setConfidenceFilter(
-                          event.target.value as ClassifierAnswerType
-                        );
-                      }}
+                      ) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          classifierAnswerType: event.target
+                            .value as ClassifierAnswerType,
+                        })
+                      }
                     >
                       <MenuItem data-cy="none" value={undefined}>
                         No Filter
@@ -461,13 +342,16 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-classifier"
-                      options={mentor.answers}
+                      options={mentor?.answers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
-                      onChange={(e, v) => {
-                        setClassifierFilter(v || undefined);
-                      }}
+                      onChange={(e, v) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          classifierAnswer: v || undefined,
+                        })
+                      }
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">
@@ -482,13 +366,16 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-grader"
-                      options={mentor.answers}
+                      options={mentor?.answers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
-                      onChange={(e, v) => {
-                        setGraderFilter(v || undefined);
-                      }}
+                      onChange={(e, v) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          graderAnswer: v || undefined,
+                        })
+                      }
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">
@@ -504,13 +391,13 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">
-                {feedback.edges.map((row, i) => (
+                {feedback?.edges.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
-                    mentor={mentor!}
-                    onUpdated={loadFeedback}
+                    mentor={mentor}
+                    onUpdated={reloadFeedback}
                   />
                 ))}
               </TableBody>
@@ -521,17 +408,15 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!feedback.pageInfo.hasPreviousPage}
-              onClick={() =>
-                setCursor("prev__" + feedback.pageInfo.startCursor)
-              }
+              disabled={!feedback?.pageInfo.hasPreviousPage}
+              onClick={feedbackPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!feedback.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + feedback.pageInfo.endCursor)}
+              disabled={!feedback?.pageInfo.hasNextPage}
+              onClick={feedbackNextPage}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -540,18 +425,27 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={train}
-              disabled={isTraining}
+              onClick={() => startTraining(mentor!._id)}
+              disabled={isTraining || isMentorLoading || isFeedbackLoading}
             >
-              {isTraining
-                ? "Training..."
-                : trainData.state === TrainState.FAILURE
-                ? "Training Failed. Retry?"
-                : "Train Mentor"}
+              Train Mentor
             </Fab>
           </Toolbar>
         </AppBar>
       </div>
+      <LoadingDialog
+        title={
+          isMentorLoading || isFeedbackLoading
+            ? "Loading..."
+            : isTraining
+            ? "Building mentor..."
+            : ""
+        }
+      />
+      <ErrorDialog
+        error={mentorError || trainError}
+        clearError={mentorError ? clearMentorError : clearTrainingError}
+      />
     </div>
   );
 }

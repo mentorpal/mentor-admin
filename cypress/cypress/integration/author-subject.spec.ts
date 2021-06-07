@@ -126,7 +126,7 @@ describe("Edit subject", () => {
     cy.get("[data-cy=questions]").children().should("have.length", 0);
   });
 
-  it("loads subject with default and mentor-specific questions if no subject id in url parameters", () => {
+  it("loads subject with default and mentor-specific questions", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
@@ -134,7 +134,7 @@ describe("Edit subject", () => {
     });
     cy.visit("/author/subject?id=background");
     cy.get("[data-cy=subject-name]").within($input => {
-      cy.get("textarea").should('have.value', "")
+      cy.get("textarea").should('have.value', "Background")
     });
     cy.get("[data-cy=subject-description]").within($input => {
       cy.get("textarea").should('have.value', "These questions will ask general questions about your background that might be relevant to how people understand your career.")
@@ -177,12 +177,7 @@ describe("Edit subject", () => {
     });
     // view question details
     cy.get("[data-cy=edit-question]").within($edit => {
-      cy.get("[data-cy=question-name]").within($input => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=question-name]").within($input => {
-        cy.get("input").should("have.value", "");
-      });
+      cy.get("[data-cy=select-name]").should("not.exist")
       cy.get("[data-cy=question-topics-list]").within(($topics) => {
         cy.get("[data-cy=topic-0]").within(($topic) => {
           cy.get("[data-cy=topic-name]").should(
@@ -209,12 +204,7 @@ describe("Edit subject", () => {
     })
     // view question details
     cy.get("[data-cy=edit-question]").within($edit => {
-      cy.get("[data-cy=question-name]").within($input => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=question-name]").within($input => {
-        cy.get("input").should("have.value", "");
-      });
+      cy.get("[data-cy=select-name]").should("exist")
     });
   });
 
@@ -244,6 +234,70 @@ describe("Edit subject", () => {
         });
       });
     })
+  });
+
+  it("only shows utterance name if question is utterance", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+    });
+    cy.visit("/author/subject");
+    cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
+    cy.get("[data-cy=add-question]").trigger("mouseover").click();
+    cy.get("[data-cy=questions]").within($questions => {
+      cy.get("[data-cy=question-0]").within($question => {
+        cy.get("[data-cy=question]").trigger("mouseover").click();
+      })
+    })
+    cy.get("[data-cy=select-type]").should("have.attr", "cy-value", "QUESTION")
+    cy.get("[data-cy=select-name]").should("not.exist")
+    cy.get("[data-cy=select-type]").trigger("mouseover").click();
+    cy.get("[data-cy=utterance-type]").trigger("mouseover").click();
+    cy.get("[data-cy=select-type]").should("have.attr", "cy-value", "UTTERANCE")
+    cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "");
+    cy.get("[data-cy=select-name]").trigger("mouseover").click();
+    cy.get("[data-cy=IDLE-name]").trigger("mouseover").click();
+    cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "_IDLE_");
+  });
+
+  it("only shows video length if question is video only", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+    });
+    cy.visit("/author/subject");
+    cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
+    cy.get("[data-cy=add-question]").trigger("mouseover").click();
+    cy.get("[data-cy=questions]").within($questions => {
+      cy.get("[data-cy=question-0]").within($question => {
+        cy.get("[data-cy=question]").trigger("mouseover").click();
+      })
+    })
+    cy.get("[data-cy=video-length]").should("not.exist")
+    cy.get("[data-cy=select-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=video-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=select-mentor-type]").should("have.attr", "cy-value", "VIDEO")
+
+    cy.get("[data-cy=video-length]").within($input => {
+      cy.get("input").should("have.value", "")
+    }) 
+    cy.get("[data-cy=video-length]").clear().type("test")
+    cy.get("[data-cy=video-length]").within($input => {
+      cy.get("input").should("have.value", "")
+    }) 
+    cy.get("[data-cy=video-length]").clear().type("10.2")
+    cy.get("[data-cy=video-length]").within($input => {
+      cy.get("input").should("have.value", "10")
+    })
+
+    cy.get("[data-cy=select-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=chat-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=select-mentor-type]").should("have.attr", "cy-value", "CHAT")
+    cy.get("[data-cy=video-length]").should("not.exist")
+
+    cy.get("[data-cy=select-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=none-mentor-type]").trigger("mouseover").click();
+    cy.get("[data-cy=video-length]").should("not.exist")
   });
 
   describe("can add, delete, and edit topics", () => {
@@ -623,12 +677,12 @@ describe("Edit subject", () => {
       });
       // change question type
       cy.get("[data-cy=edit-question]").within($editQuestion => {
-        cy.get("[data-cy=select-type]").contains("QUESTION")
+        cy.get("[data-cy=select-type]").contains("Question")
         cy.get("[data-cy=select-type]").trigger("mouseover").click();
       })
-      cy.get("[data-cy=utterance]").trigger("mouseover").click();
+      cy.get("[data-cy=utterance-type]").trigger("mouseover").click();
       cy.get("[data-cy=edit-question]").within($editQuestion => {
-        cy.get("[data-cy=select-type]").contains("UTTERANCE");
+        cy.get("[data-cy=select-type]").contains("Utterance");
       })
       cy.get("[data-cy=save-button]").should("not.be.disabled");
       cy.get("[data-cy=edit-question]").within($editQuestion => {
@@ -691,7 +745,7 @@ describe("Edit subject", () => {
         })
       })
       cy.get("[data-cy=edit-question]").within($editQuestion => {
-        cy.get("[data-cy=select-type]").contains("QUESTION");
+        cy.get("[data-cy=select-type]").contains("Question");
         cy.get("[data-cy=question-topics-list]").within($topics => {
           cy.get("[data-cy=topic-0]").should("not.exist");
         })
@@ -738,12 +792,12 @@ describe("Edit subject", () => {
       })
       // change question type
       cy.get("[data-cy=edit-question]").within($editQuestion => {
-        cy.get("[data-cy=select-type]").contains("UTTERANCE");
+        cy.get("[data-cy=select-type]").contains("Utterance");
         cy.get("[data-cy=select-type]").trigger("mouseover").click();
       });
       cy.get("[data-cy=question-type]").trigger("mouseover").click();
       cy.get("[data-cy=edit-question]").within($editQuestion => {
-        cy.get("[data-cy=select-type]").contains("QUESTION");
+        cy.get("[data-cy=select-type]").contains("Question");
       });
       cy.get("[data-cy=save-button]").should("not.be.disabled");
       // add paraphrase

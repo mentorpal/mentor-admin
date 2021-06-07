@@ -5,15 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import React from "react";
 import {
   AppBar,
-  CircularProgress,
   Fab,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -24,15 +20,16 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { fetchMentorId, fetchSubjects } from "api";
-import { Connection, Mentor, Subject } from "types";
+import { Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -76,38 +73,10 @@ const columns: ColumnDef[] = [
     align: "left",
     sortable: true,
   },
-  {
-    id: "delete",
-    label: "Delete",
-    minWidth: 0,
-    align: "center",
-    sortable: false,
-  },
 ];
 
-function SubjectItem(props: {
-  subject: Subject;
-  onDelete: (id: string) => void;
-}): JSX.Element {
-  const { subject, onDelete } = props;
-  const [anchorEl, setAnchorEl] = React.useState<
-    EventTarget & HTMLButtonElement
-  >();
-  const deleteMenuOpen = Boolean(anchorEl);
-
-  function onClickDelete(e: React.MouseEvent<HTMLButtonElement>) {
-    setAnchorEl(e.currentTarget);
-  }
-
-  function onCloseDelete() {
-    setAnchorEl(undefined);
-  }
-
-  async function deleteSubject(id: string) {
-    toast("Deleting...");
-    setAnchorEl(undefined);
-    onDelete(id);
-  }
+function SubjectItem(props: { subject: Subject }): JSX.Element {
+  const { subject } = props;
 
   return (
     <TableRow
@@ -122,100 +91,28 @@ function SubjectItem(props: {
       <TableCell data-cy="description" align="left">
         {subject.description}
       </TableCell>
-      <TableCell data-cy="delete" align="center">
-        <IconButton onClick={onClickDelete}>
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-      <Menu
-        data-cy="delete-menu"
-        anchorEl={anchorEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={deleteMenuOpen}
-        onClose={onCloseDelete}
-      >
-        <MenuItem
-          data-cy="confirm-delete"
-          onClick={() => deleteSubject(subject._id)}
-        >
-          Confirm
-        </MenuItem>
-        <MenuItem data-cy="cancel-delete" onClick={onCloseDelete}>
-          Cancel
-        </MenuItem>
-      </Menu>
     </TableRow>
   );
 }
 
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = React.useState<Mentor>();
-  const [subjects, setSubjects] = useState<Connection<Subject>>();
-  const [cursor, setCursor] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("name");
-  const [sortAscending, setSortAscending] = React.useState(false);
-  const limit = 10;
-
-  React.useState(() => {
-    let mounted = true;
-    fetchMentorId(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentor(m);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  });
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchSubjects({ cursor, limit, sortBy, sortAscending })
-      .then((s) => {
-        if (!mounted) {
-          return;
-        }
-        setSubjects(s);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, [cursor, sortBy, sortAscending]);
-
-  async function deleteSubject() {
-    // TODO
-  }
-
-  function setSort(id: string) {
-    if (sortBy === id) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortBy(id);
-    }
-    setCursor("");
-  }
-
-  if (!subjects) {
-    return (
-      <div>
-        <NavBar title="Subjects" />
-        <CircularProgress />
-      </div>
-    );
-  }
+  const {
+    data: mentor,
+    isLoading: isMentorLoading,
+    error: mentorError,
+    clearError: clearMentorError,
+  } = useWithMentor(props.accessToken);
+  const {
+    data: subjects,
+    error: subjectsError,
+    isLoading: isSubjectsLoading,
+    searchParams: subjectSearchParams,
+    sortBy: subjectsSortBy,
+    clearError: clearSubjectsError,
+    nextPage: subjectsNextPage,
+    prevPage: subjectsPrevPage,
+  } = useWithSubjects();
 
   return (
     <div>
@@ -226,17 +123,13 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
                 columns={columns}
-                sortBy={sortBy}
-                sortAsc={sortAscending}
-                onSort={setSort}
+                sortBy={subjectSearchParams.sortBy}
+                sortAsc={subjectSearchParams.sortAscending}
+                onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {subjects.edges.map((row, i) => (
-                  <SubjectItem
-                    key={`subject-${i}`}
-                    subject={row.node}
-                    onDelete={deleteSubject}
-                  />
+                {subjects?.edges.map((row, i) => (
+                  <SubjectItem key={`subject-${i}`} subject={row.node} />
                 ))}
               </TableBody>
             </Table>
@@ -246,17 +139,15 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!subjects.pageInfo.hasPreviousPage}
-              onClick={() =>
-                setCursor("prev__" + subjects.pageInfo.startCursor)
-              }
+              disabled={!subjects?.pageInfo.hasPreviousPage}
+              onClick={subjectsPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!subjects.pageInfo.hasNextPage}
-              onClick={() => setCursor("next__" + subjects.pageInfo.endCursor)}
+              disabled={!subjects?.pageInfo.hasNextPage}
+              onClick={subjectsNextPage}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -272,7 +163,13 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             </Fab>
           </Toolbar>
         </AppBar>
-        <ToastContainer />
+        <LoadingDialog
+          title={isMentorLoading || isSubjectsLoading ? "Loading" : ""}
+        />
+        <ErrorDialog
+          error={mentorError || subjectsError}
+          clearError={mentorError ? clearMentorError : clearSubjectsError}
+        />
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ describe("Select Subjects", () => {
     cyMockDefault(cy, {
       mentor: mentor,
       subjects: [allSubjects],
-      gqlQueries: [mockGQL("updateMentor", true, true)],
+      gqlQueries: [mockGQL("updateMentorSubjects", true, true)],
     });
     cy.visit("/subjects");
     cy.location("pathname").then(($el) => {
@@ -106,7 +106,7 @@ describe("Select Subjects", () => {
         },
       ],
       subjects: [allSubjects],
-      gqlQueries: [mockGQL("updateMentor", true, true)],
+      gqlQueries: [mockGQL("updateMentorSubjects", true, true)],
     });
     cy.visit("/subjects");
     // can only have one primary subject

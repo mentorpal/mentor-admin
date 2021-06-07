@@ -5,27 +5,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
-import { Button, CircularProgress, Radio } from "@material-ui/core";
+import React from "react";
+import { Button, Radio } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { fetchMentor } from "api";
-import { Mentor, Status, UtteranceName, MentorType, User } from "types";
+import { User } from "types";
 import NavBar from "components/nav-bar";
-import {
-  Slide,
-  SlideType,
-  WelcomeSlide,
-  MentorInfoSlide,
-  IntroductionSlide,
-  RecordIdleSlide,
-  RecordSubjectSlide,
-  BuildMentorSlide,
-  SelectSubjectsSlide,
-  MentorTypeSlide,
-} from "components/setup-slides";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { WelcomeSlide } from "components/setup/welcome-slide";
+import { MentorInfoSlide } from "components/setup/mentor-info-slide";
+import { MentorTypeSlide } from "components/setup/mentor-type-slide";
+import { IntroductionSlide } from "components/setup/introduction-slide";
+import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
+import { RecordIdleSlide } from "components/setup/record-idle-slide";
+import { RecordSubjectSlide } from "components/setup/record-subject-slide";
+import { BuildMentorSlide } from "components/setup/build-mentor-slide";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
+import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -75,193 +72,169 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-interface MentorState {
-  mentor?: Mentor;
-  reload?: boolean;
-}
-
 function SetupPage(props: {
-  accessToken: string;
   user: User;
+  accessToken: string;
   search: { i?: string };
 }): JSX.Element {
   const classes = useStyles();
-  const [mentorState, setMentorState] = useState<MentorState>({ reload: true });
-  const [slides, setSlides] = useState<SlideType[]>([]);
-  const [idx, setIdx] = useState(props.search.i ? parseInt(props.search.i) : 0);
-  const { mentor, reload } = mentorState;
+  const {
+    setupStatus: status,
+    setupStep: idx,
+    setupSteps: steps,
+    mentor,
+    isEdited,
+    isLoading,
+    isSaving,
+    isTraining,
+    error,
+    editMentor,
+    saveMentor,
+    startTraining,
+    nextStep,
+    prevStep,
+    toStep,
+    clearError,
+  } = useWithSetup(props.accessToken, props.search);
 
-  React.useEffect(() => {
-    if (!reload) {
-      return;
+  function renderSlide(): JSX.Element {
+    if (!mentor || !status || idx >= steps.length || idx < 0) {
+      return <div />;
     }
-    let mounted = true;
-    fetchMentor(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentorState({
-          mentor: m,
-          reload: false,
-        });
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, [reload]);
-
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
-    const _slides = [
-      Slide(
-        true,
-        <WelcomeSlide
-          key="welcome"
-          classes={classes}
-          userName={props.user.name}
-        />
-      ),
-      Slide(
-        Boolean(mentor.name && mentor.firstName && mentor.title),
-        <MentorInfoSlide
-          key="mentor-info"
-          classes={classes}
-          mentor={mentor}
-          accessToken={props.accessToken}
-          onUpdated={loadMentor}
-        />
-      ),
-      Slide(
-        Boolean(mentor.mentorType),
-        <MentorTypeSlide
-          key="chat-type"
-          accessToken={props.accessToken}
-          classes={classes}
-          mentor={mentor}
-          onUpdated={loadMentor}
-        />
-      ),
-      Slide(true, <IntroductionSlide key="introduction" classes={classes} />),
-      Slide(true, <SelectSubjectsSlide classes={classes} i={4} />),
-    ];
-    if (mentor.mentorType === MentorType.VIDEO) {
-      const idle = mentor.answers.find(
-        (a) => a.question.name === UtteranceName.IDLE
-      );
-      if (idle) {
-        _slides.push(
-          Slide(
-            idle.status === Status.COMPLETE,
-            <RecordIdleSlide
-              key="idle"
-              classes={classes}
-              idle={idle}
-              i={_slides.length}
-            />
-          )
-        );
-      }
-    }
-    mentor.subjects.forEach((s) => {
-      const answers = mentor.answers.filter((a) =>
-        s.questions.map((q) => q.question._id).includes(a.question._id)
-      );
-      _slides.push(
-        Slide(
-          answers.every((a) => a.status === Status.COMPLETE),
-          <RecordSubjectSlide
-            key={`${s.name}`}
+    const step = steps[idx];
+    switch (step.type) {
+      case SetupStepType.WELCOME:
+        return (
+          <WelcomeSlide
+            key="welcome"
             classes={classes}
-            subject={s}
-            questions={answers}
-            i={_slides.length}
+            userName={props.user.name}
           />
-        )
-      );
-    });
-    _slides.push(
-      Slide(
-        Boolean(mentor.lastTrainedAt),
-        <BuildMentorSlide
-          key="build"
-          classes={classes}
-          mentor={mentor}
-          onUpdated={loadMentor}
-        />
-      )
-    );
-    setSlides(_slides);
-  }, [mentor]);
-
-  function loadMentor() {
-    setMentorState({ ...mentorState, reload: true });
-  }
-
-  if (!mentor) {
-    return (
-      <div>
-        <NavBar title="Mentor Setup" />
-        <CircularProgress />
-      </div>
-    );
+        );
+      case SetupStepType.MENTOR_INFO:
+        return (
+          <MentorInfoSlide
+            key="mentor-info"
+            classes={classes}
+            mentor={mentor}
+            isMentorEdited={isEdited}
+            isMentorLoading={isLoading || isSaving}
+            editMentor={editMentor}
+            saveMentor={saveMentor}
+          />
+        );
+      case SetupStepType.MENTOR_TYPE:
+        return (
+          <MentorTypeSlide
+            key="chat-type"
+            classes={classes}
+            mentor={mentor}
+            isMentorEdited={isEdited}
+            isMentorLoading={isLoading || isSaving}
+            editMentor={editMentor}
+            saveMentor={saveMentor}
+          />
+        );
+      case SetupStepType.INTRODUCTION:
+        return <IntroductionSlide key="introduction" classes={classes} />;
+      case SetupStepType.SELECT_SUBJECTS:
+        return <SelectSubjectsSlide classes={classes} i={idx} />;
+      case SetupStepType.IDLE:
+        return (
+          <RecordIdleSlide
+            key="idle"
+            classes={classes}
+            idle={status.idle!.idle}
+            i={idx}
+          />
+        );
+      case SetupStepType.REQUIRED_SUBJECT:
+        return (
+          <RecordSubjectSlide
+            key={`${
+              status.requiredSubjects[steps.length - idx - 2].subject._id
+            }`}
+            classes={classes}
+            subject={status.requiredSubjects[steps.length - idx - 2].subject}
+            questions={status.requiredSubjects[steps.length - idx - 2].answers}
+            i={idx}
+          />
+        );
+      case SetupStepType.BUILD:
+        return (
+          <BuildMentorSlide
+            key="build"
+            classes={classes}
+            mentor={mentor}
+            isBuildable={status.isBuildable}
+            isBuilt={status.isSetupComplete}
+            startTraining={startTraining}
+          />
+        );
+      default:
+        return <div />;
+    }
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Setup" mentorId={mentor._id} />
-      <div data-cy="slide">
-        {idx >= slides.length ? "Invalid slide" : slides[idx].element}
-      </div>
+      <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      <div data-cy="slide">{renderSlide()}</div>
       <div className={classes.row} style={{ height: 150 }}>
-        {idx > 0 ? (
-          <Button
-            data-cy="back-btn"
-            className={classes.button}
-            variant="contained"
-            onClick={() => setIdx(idx - 1)}
-          >
-            Back
-          </Button>
-        ) : undefined}
-        {idx > 2 ? (
-          <Button
-            data-cy="done-btn"
-            className={classes.button}
-            variant="contained"
-            color="secondary"
-            onClick={() => navigate("/")}
-          >
-            Done
-          </Button>
-        ) : undefined}
-        {idx !== slides.length - 1 ? (
-          <Button
-            data-cy="next-btn"
-            className={classes.button}
-            variant="contained"
-            color="primary"
-            onClick={() => setIdx(idx + 1)}
-          >
-            Next
-          </Button>
-        ) : undefined}
+        <Button
+          data-cy="back-btn"
+          variant="contained"
+          className={classes.button}
+          disabled={idx === 0}
+          onClick={prevStep}
+        >
+          Back
+        </Button>
+        <Button
+          data-cy="done-btn"
+          variant="contained"
+          color="secondary"
+          className={classes.button}
+          disabled={!status?.isSetupComplete}
+          onClick={() => navigate("/")}
+        >
+          Done
+        </Button>
+        <Button
+          data-cy="next-btn"
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={nextStep}
+          disabled={idx === steps.length - 1}
+        >
+          Next
+        </Button>
       </div>
       <div className={classes.row}>
-        {slides.map((s, i) => (
+        {steps.map((s, i) => (
           <Radio
             data-cy={`radio-${i}`}
             key={i}
             checked={i === idx}
-            onClick={() => setIdx(i)}
-            color={s.status ? "primary" : "default"}
-            style={{ color: s.status ? "" : "red" }}
+            onClick={() => toStep(i)}
+            color={s.complete ? "primary" : "default"}
+            style={{ color: s.complete ? "" : "red" }}
           />
         ))}
       </div>
+      <LoadingDialog
+        title={
+          isLoading
+            ? "Loading..."
+            : isSaving
+            ? "Saving..."
+            : isTraining
+            ? "Building your mentor..."
+            : ""
+        }
+      />
+      <ErrorDialog error={error} clearError={clearError} />
     </div>
   );
 }

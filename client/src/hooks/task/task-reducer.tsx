@@ -4,29 +4,44 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext } from "react";
-import Context from "context";
-import { LoginStatus } from "types";
-import { navigate } from "gatsby";
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const withAuthorizationOnly = (Component) => (props) => {
-  const context = useContext(Context);
-  if (context.loginStatus === LoginStatus.NONE && !context.accessToken) {
-    if (typeof window !== "undefined") {
-      navigate("/");
-    }
-    return <div />;
+export interface TaskError {
+  message: string;
+  error: string;
+}
+
+export interface TaskState {
+  isPolling: boolean;
+  error: TaskError | undefined;
+}
+
+export interface TaskAction {
+  type: TaskActionType;
+  payload: boolean | TaskError | undefined;
+}
+
+export enum TaskActionType {
+  POLLING = "POLLING",
+  ERROR = "ERROR",
+}
+
+export function TaskReducer(state: TaskState, action: TaskAction): TaskState {
+  const { type, payload } = action;
+  switch (type) {
+    case TaskActionType.POLLING:
+      if (typeof payload !== "boolean") {
+        return state;
+      }
+      return {
+        ...state,
+        isPolling: payload,
+      };
+    case TaskActionType.ERROR:
+      if (typeof payload !== "object" && typeof payload !== "undefined") {
+        return state;
+      }
+      return { ...state, error: payload };
+    default:
+      return state;
   }
-  return context.loginStatus === LoginStatus.AUTHENTICATED ? (
-    <Component
-      {...props}
-      accessToken={context.accessToken}
-      user={context.user}
-    />
-  ) : (
-    <div /> // TODO: change this to a loading skeleton
-  );
-};
-
-export default withAuthorizationOnly;
+}

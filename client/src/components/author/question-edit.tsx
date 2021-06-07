@@ -13,9 +13,16 @@ import {
   CardHeader,
   FormControl,
   InputLabel,
+  Grid,
 } from "@material-ui/core";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import { QuestionType, Topic, SubjectQuestion } from "types";
+import {
+  QuestionType,
+  Topic,
+  SubjectQuestion,
+  MentorType,
+  UtteranceName,
+} from "types";
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 
@@ -39,49 +46,135 @@ export function QuestionEditCard(props: {
           </Button>
         }
       />
-      <FormControl style={{ width: "100%" }}>
-        <InputLabel>Question Type</InputLabel>
-        <Select
-          data-cy="select-type"
-          value={question.question.type}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => {
-            props.updateQuestion({
-              ...question,
-              question: {
-                ...question.question,
-                type: event.target.value as QuestionType,
-              },
-            });
-          }}
+      <Grid container spacing={3}>
+        <Grid
+          item
+          xs={question.question.type === QuestionType.UTTERANCE ? 6 : 12}
         >
-          <MenuItem data-cy="question-type" value={QuestionType.QUESTION}>
-            {QuestionType.QUESTION}
-          </MenuItem>
-          <MenuItem data-cy="utterance" value={QuestionType.UTTERANCE}>
-            {QuestionType.UTTERANCE}
-          </MenuItem>
-        </Select>
-      </FormControl>
-      <TextField
-        data-cy="question-name"
-        label="Tag"
-        placeholder="Additional tag for question, e.g. _IDLE_"
-        variant="outlined"
-        value={question.question.name}
-        onChange={(e) =>
-          props.updateQuestion({
-            ...question,
-            question: { ...question.question, name: e.target.value },
-          })
-        }
-        InputLabelProps={{
-          shrink: true,
-        }}
-        style={{ marginTop: 25 }}
-        fullWidth
-      />
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel>Question Type</InputLabel>
+            <Select
+              data-cy="select-type"
+              label="Question Type"
+              value={question.question.type}
+              cy-value={question.question.type}
+              onChange={(
+                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+              ) =>
+                props.updateQuestion({
+                  ...question,
+                  question: {
+                    ...question.question,
+                    type: event.target.value as QuestionType,
+                  },
+                })
+              }
+            >
+              <MenuItem data-cy="question-type" value={QuestionType.QUESTION}>
+                Question
+              </MenuItem>
+              <MenuItem data-cy="utterance-type" value={QuestionType.UTTERANCE}>
+                Utterance
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        {question.question.type === QuestionType.UTTERANCE ? (
+          <Grid item xs={6}>
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>Utterance Type</InputLabel>
+              <Select
+                data-cy="select-name"
+                label="Utterance Type"
+                value={question.question.name}
+                cy-value={question.question.name}
+                onChange={(
+                  event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+                ) =>
+                  props.updateQuestion({
+                    ...question,
+                    question: {
+                      ...question.question,
+                      name: event.target.value as UtteranceName,
+                    },
+                  })
+                }
+              >
+                <MenuItem data-cy="none" value={undefined}>
+                  Not specified
+                </MenuItem>
+                {Object.entries(UtteranceName).map((kv) => (
+                  <MenuItem data-cy={`${kv[0]}-name`} value={kv[1]} key={kv[0]}>
+                    {kv[0]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        ) : undefined}
+      </Grid>
+      <Grid container spacing={3}>
+        <Grid
+          item
+          xs={question.question.mentorType === MentorType.VIDEO ? 6 : 12}
+        >
+          <FormControl variant="outlined" fullWidth>
+            <InputLabel>Mentor Type</InputLabel>
+            <Select
+              data-cy="select-mentor-type"
+              label="Mentor Type"
+              value={question.question.mentorType}
+              cy-value={question.question.mentorType}
+              onChange={(
+                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+              ) =>
+                props.updateQuestion({
+                  ...question,
+                  question: {
+                    ...question.question,
+                    mentorType: event.target.value as MentorType,
+                  },
+                })
+              }
+            >
+              <MenuItem data-cy="none-mentor-type" value={undefined}>
+                Not specified
+              </MenuItem>
+              <MenuItem data-cy="chat-mentor-type" value={MentorType.CHAT}>
+                Chat only
+              </MenuItem>
+              <MenuItem data-cy="video-mentor-type" value={MentorType.VIDEO}>
+                Video only
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        {question.question.mentorType === MentorType.VIDEO ? (
+          <Grid item xs={6}>
+            <TextField
+              data-cy="video-length"
+              label="Min Video Length"
+              type="number"
+              variant="outlined"
+              fullWidth
+              disabled={question.question.mentorType !== MentorType.VIDEO}
+              value={question.question.minVideoLength}
+              onChange={(e) =>
+                props.updateQuestion({
+                  ...question,
+                  question: {
+                    ...question.question,
+                    minVideoLength: parseInt(e.target.value),
+                  },
+                })
+              }
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
+        ) : undefined}
+      </Grid>
       <TopicsList
         classes={classes}
         allTopics={props.topics}

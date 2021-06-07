@@ -4,11 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React from "react";
 import {
   AppBar,
   Checkbox,
-  CircularProgress,
   Fab,
   IconButton,
   Paper,
@@ -23,11 +22,14 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { fetchMentor, fetchSubjects, updateMentor } from "api";
-import { Connection, Mentor, Subject } from "types";
+import { Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
-import withAuthorizationOnly from "wrap-with-authorization-only";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { copyAndRemove } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,129 +89,69 @@ const columns: ColumnDef[] = [
 
 function SubjectsPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const [mentor, setMentor] = useState<Mentor>();
-  const [allSubjects, setAllSubjects] = useState<Connection<Subject>>();
-  const [subjects, setSubjects] = useState<Subject[]>();
-  const [defaultSubject, setDefaultSubject] = useState<Subject>();
-  const [cursor, setCursor] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("name");
-  const [sortAscending, setSortAscending] = React.useState(false);
-  const [isSaving, setIsSaving] = React.useState(false);
-  const limit = 20;
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchMentor(props.accessToken)
-      .then((m) => {
-        if (!mounted) {
-          return;
-        }
-        setMentor(m);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!mentor) {
-      return;
-    }
-    setSubjects(mentor.subjects);
-    setDefaultSubject(mentor.defaultSubject);
-  }, [mentor]);
-
-  React.useEffect(() => {
-    let mounted = true;
-    fetchSubjects({ cursor, limit, sortBy, sortAscending })
-      .then((subjects) => {
-        if (!mounted) {
-          return;
-        }
-        setAllSubjects(subjects);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, [cursor, sortBy, sortAscending, limit]);
-
-  function setSort(id: string) {
-    if (sortBy === id) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortBy(id);
-    }
-    setCursor("");
-  }
+  const {
+    editedData: editedMentor,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    isEdited: isMentorEdited,
+    error: mentorError,
+    clearError: clearMentorError,
+    editData: editMentor,
+    saveMentorSubjects,
+  } = useWithMentor(props.accessToken);
+  const {
+    data: subjects,
+    isLoading: isSubjectsLoading,
+    searchParams: subjectSearchParams,
+    error: subjectsError,
+    sortBy: subjectsSortBy,
+    nextPage: subjectsNextPage,
+    prevPage: subjectsPrevPage,
+    clearError: clearSubjectsError,
+  } = useWithSubjects();
 
   function toggleSubject(subject: Subject) {
-    if (!subjects) {
+    if (!editedMentor) {
       return;
     }
-    const i = subjects.findIndex((s) => s._id === subject._id);
-    const _subjects = [...subjects];
-    if (i === -1) {
-      _subjects.push(subject);
-    } else {
-      _subjects.splice(i, 1);
-      if (defaultSubject?._id === subject._id) {
-        setDefaultSubject(undefined);
-      }
-    }
-    setSubjects(_subjects);
+    const i = editedMentor.subjects.findIndex((s) => s._id === subject._id);
+    editMentor({
+      subjects:
+        i === -1
+          ? [...editedMentor.subjects, subject]
+          : copyAndRemove(editedMentor.subjects, i),
+      defaultSubject:
+        editedMentor.defaultSubject?._id === subject._id
+          ? undefined
+          : editedMentor.defaultSubject,
+    });
   }
 
   function toggleDefaultSubject(subject: Subject) {
-    if (defaultSubject?._id === subject._id) {
-      setDefaultSubject(undefined);
-    } else {
-      setDefaultSubject(subject);
-    }
-  }
-
-  async function saveMentor() {
-    if (!subjects || !mentor) {
+    if (!editedMentor) {
       return;
     }
-    setIsSaving(true);
-    await updateMentor(
-      {
-        ...mentor,
-        defaultSubject,
-        subjects: subjects,
-      },
-      props.accessToken
-    );
-    setMentor(await fetchMentor(props.accessToken));
-    setIsSaving(false);
-  }
-
-  if (!allSubjects || !subjects) {
-    return (
-      <div>
-        <NavBar title="Subjects" mentor={mentor?._id} />
-        <CircularProgress />
-      </div>
-    );
+    editMentor({
+      defaultSubject:
+        editedMentor.defaultSubject?._id === subject._id ? undefined : subject,
+    });
   }
 
   return (
     <div>
-      <NavBar title="Subjects" mentor={mentor?._id} />
+      <NavBar title="Subjects" mentor={editedMentor?._id} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
                 columns={columns}
-                sortBy={sortBy}
-                sortAsc={sortAscending}
-                onSort={setSort}
+                sortBy={subjectSearchParams.sortBy}
+                sortAsc={subjectSearchParams.sortAscending}
+                onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {allSubjects.edges.map((edge, i) => {
+                {subjects?.edges.map((edge, i) => {
                   const subject = edge.node;
                   return (
                     <TableRow
@@ -228,8 +170,9 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                       <TableCell data-cy="select" align="center">
                         <Checkbox
                           checked={
-                            subjects.find((s) => s._id === subject._id) !==
-                            undefined
+                            editedMentor?.subjects.find(
+                              (s) => s._id === subject._id
+                            ) !== undefined
                           }
                           disabled={subject.isRequired}
                           color="primary"
@@ -238,10 +181,13 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
                       </TableCell>
                       <TableCell data-cy="default" align="center">
                         <Checkbox
-                          checked={subject._id === defaultSubject?._id}
+                          checked={
+                            subject._id === editedMentor?.defaultSubject?._id
+                          }
                           disabled={
-                            subjects.find((s) => s._id === subject._id) ===
-                            undefined
+                            editedMentor?.subjects.find(
+                              (s) => s._id === subject._id
+                            ) === undefined
                           }
                           color="secondary"
                           onClick={() => toggleDefaultSubject(subject)}
@@ -258,19 +204,15 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
           <Toolbar>
             <IconButton
               data-cy="prev-page"
-              disabled={!allSubjects.pageInfo.hasPreviousPage}
-              onClick={() =>
-                setCursor("prev__" + allSubjects.pageInfo.startCursor)
-              }
+              disabled={!subjects?.pageInfo.hasPreviousPage}
+              onClick={subjectsPrevPage}
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
             <IconButton
               data-cy="next-page"
-              disabled={!allSubjects.pageInfo.hasNextPage}
-              onClick={() =>
-                setCursor("next__" + allSubjects.pageInfo.endCursor)
-              }
+              disabled={!subjects?.pageInfo.hasNextPage}
+              onClick={subjectsNextPage}
             >
               <KeyboardArrowRightIcon />
             </IconButton>
@@ -279,14 +221,27 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={saveMentor}
-              disabled={isSaving}
+              disabled={!isMentorEdited}
+              onClick={saveMentorSubjects}
             >
-              {isSaving ? "Saving..." : "Save"}
+              Save
             </Fab>
           </Toolbar>
         </AppBar>
       </div>
+      <LoadingDialog
+        title={
+          isMentorLoading || isSubjectsLoading
+            ? "Loading..."
+            : isMentorSaving
+            ? "Saving..."
+            : ""
+        }
+      />
+      <ErrorDialog
+        error={mentorError || subjectsError}
+        clearError={mentorError ? clearMentorError : clearSubjectsError}
+      />
     </div>
   );
 }

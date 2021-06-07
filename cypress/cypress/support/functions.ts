@@ -1,10 +1,10 @@
-import { Mentor, _Ref } from "./types";
+import { Mentor, TrainingInfo, VideoInfo, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
-import { TrainStatus, VideoStatus, UserAccessToken } from "./types";
+import { TaskStatus, UserAccessToken } from "./types";
 
 const TRAIN_STATUS_URL = `/classifier/train/status`;
-const UPLOAD_STATUS_URL = `/videos/upload/status`;
+const UPLOAD_STATUS_URL = `/upload/answer/status`;
 
 interface StaticResponse {
   /**
@@ -194,7 +194,7 @@ export function cyMockTrain(
 export function cyMockTrainStatus(
   cy,
   params: {
-    status?: TrainStatus;
+    status?: TaskStatus<TrainingInfo>;
     statusUrl?: string;
     statusCode?: number;
   } = {}
@@ -224,7 +224,7 @@ export function cyMockUpload(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("/videos/upload", (req) => {
+  cy.intercept("/upload/answer", (req) => {
     req.alias = "upload";
     req.reply(
       staticResponse({
@@ -246,20 +246,18 @@ export function cyMockUpload(
 export function cyMockUploadStatus(
   cy,
   params: {
-    status?: VideoStatus | VideoStatus[];
+    status?: TaskStatus<VideoInfo>;
     statusUrl?: string;
     statusCode?: number;
   } = {}
 ): void {
-  const status = Array.isArray(params.status) ? params.status : [params.status]
-  let calls = 0;
-
+  params = params || {};
   cy.intercept(`/${params.statusUrl || UPLOAD_STATUS_URL}`, (req) => {
     req.reply(
       staticResponse({
         statusCode: params.statusCode || 200,
         body: {
-          data: status[calls],
+          data: params.status,
           errors: null,
         },
         headers: {
@@ -267,8 +265,5 @@ export function cyMockUploadStatus(
         },
       })
     );
-    if (status.length - 1 > calls) {
-      calls++;
-    }
   });
 }

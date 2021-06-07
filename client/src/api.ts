@@ -11,12 +11,14 @@ import {
   Subject,
   Connection,
   AsyncJob,
-  TrainStatus,
   Answer,
   Question,
   UserQuestion,
-  VideoStatus,
+  TaskStatus,
+  TrainingInfo,
+  VideoInfo,
 } from "types";
+import { SearchParams } from "hooks/graphql/use-with-data-connection";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -24,16 +26,8 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
-export const VIDEO_ENTRYPOINT = process.env.VIDEO_ENTRYPOINT || "/videos";
+export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
-interface SearchParams {
-  limit?: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  filter?: any;
-  cursor?: string;
-  sortBy?: string;
-  sortAscending?: boolean;
-}
 const defaultSearchParams = {
   limit: 1000,
   filter: {},
@@ -60,9 +54,18 @@ interface Config {
   googleClientId: string;
 }
 
+const graphqlRequest = axios.create({
+  baseURL: GRAPHQL_ENDPOINT,
+  timeout: 5000,
+});
+const uploadRequest = axios.create({
+  baseURL: UPLOAD_ENTRYPOINT,
+  timeout: 30000,
+});
+
 export async function fetchConfig(): Promise<Config> {
-  const gqlRes = await axios.post<GraphQLResponse<{ config: Config }>>(
-    GRAPHQL_ENDPOINT,
+  const gqlRes = await graphqlRequest.post<GraphQLResponse<{ config: Config }>>(
+    "",
     {
       query: `
       query {
@@ -93,15 +96,15 @@ export async function fetchSubjects(
   searchParams?: SearchParams
 ): Promise<Connection<Subject>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
+      query Subjects($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
         subjects(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
         ) {
           edges {
             cursor
@@ -121,15 +124,22 @@ export async function fetchSubjects(
         }
       }
     `,
+    variables: {
+      filter: stringifyObject(params.filter),
+      limit: params.limit,
+      cursor: params.cursor,
+      sortBy: params.sortBy,
+      sortAscending: params.sortAscending,
+    },
   });
   return result.data.data.subjects;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
-        subject(id: "${id}") {
+      query Subject($id: ID!) {
+        subject(id: $id) {
           _id
           name
           description
@@ -151,6 +161,8 @@ export async function fetchSubject(id: string): Promise<Subject> {
               name
               paraphrases
               mentor
+              mentorType
+              minVideoLength
             }
             category {
               id
@@ -166,6 +178,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
         }
       }
     `,
+    variables: { id },
   });
   return result.data.data.subject;
 }
@@ -174,96 +187,40 @@ export async function updateSubject(
   subject: Partial<Subject>,
   accessToken: string
 ): Promise<Subject> {
-  const convertedSubject: Partial<Subject> = {
-    name: subject.name,
-    description: subject.description,
-    categories: subject.categories,
-    topics: subject.topics,
-    questions: subject.questions,
-  };
-  if (isValidObjectID(subject._id || "")) {
-    convertedSubject._id = subject._id;
-  }
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-      mutation {
+      mutation UpdateSubject($subject: SubjectUpdateInputType!) {
         me {
-          updateSubject(subject: ${stringifyObject(convertedSubject)}) {
+          updateSubject(subject: $subject) {
             _id
           }
         }
       }
     `,
+      variables: {
+        subject: {
+          _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
+          name: subject?.name,
+          description: subject?.description,
+          categories: subject?.categories,
+          topics: subject?.topics,
+          questions: subject?.questions,
+        },
+      },
     },
     { headers: headers }
   );
   return result.data.data.me.updateSubject;
 }
 
-export async function fetchQuestions(
-  searchParams?: SearchParams
-): Promise<Connection<Question>> {
-  const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        questions(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              question
-              type
-              name
-              paraphrases
-              mentor
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
-        }
-      }
-    `,
-  });
-  return result.data.data.questions;
-}
-
-export async function fetchQuestion(id: string): Promise<Question> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
-    query: `
-      query {
-        question(id: "${id}") {
-          _id
-          question
-          type
-          name
-          paraphrases
-          mentor
-        }
-      }
-    `,
-  });
-  return result.data.data.question;
-}
-
 export async function fetchUserQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<UserQuestion>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
       query {
         userQuestions(
@@ -319,10 +276,10 @@ export async function fetchUserQuestions(
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      query {
-        userQuestion(id: "${id}") {
+      query UserQuestion($id: ID!) {
+        userQuestion(id: $id) {
           _id
           question
           confidence
@@ -353,6 +310,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
         }
       }
     `,
+    variables: { id },
   });
   return result.data.data.userQuestion;
 }
@@ -361,22 +319,23 @@ export async function updateUserQuestion(
   feedbackId: string,
   answerId: string
 ): Promise<UserQuestion> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        userQuestionSetAnswer(id: "${feedbackId}", answer: "${answerId}") {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
+        userQuestionSetAnswer(id: $id, answer: $answer) {
           _id
         }
       }
     `,
+    variables: { id: feedbackId, answer: answerId },
   });
   return result.data.data.userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
       query {
@@ -400,17 +359,18 @@ export async function fetchMentor(
   status?: string
 ): Promise<Mentor> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-      query {
+      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
         me {
           mentor {
             _id
             name
             firstName
             title
+            email
             mentorType
             lastTrainedAt
             defaultSubject {
@@ -420,6 +380,7 @@ export async function fetchMentor(
               _id
               name
               description
+              isRequired
               categories {
                 id
                 name
@@ -438,6 +399,8 @@ export async function fetchMentor(
                   name
                   paraphrases
                   mentor
+                  mentorType
+                  minVideoLength
                 }
                 category {
                   id
@@ -451,14 +414,12 @@ export async function fetchMentor(
                 }
               }
             }
-            topics(subject: "${subject || ""}") {
+            topics(subject: $subject) {
               id
               name
               description
             }
-            answers(subject: "${subject || ""}", topic: "${
-        topic || ""
-      }", status: "${status || ""}") {
+            answers(subject: $subject, topic: $topic, status: $status) {
               _id
               question {
                 _id
@@ -467,49 +428,87 @@ export async function fetchMentor(
                 type
                 name
                 mentor
+                mentorType
+                minVideoLength
               }
               transcript
               status
-              recordedAt
+              media {
+                type
+                tag
+                url
+              }
             }
           }  
         }
       }
     `,
+      variables: {
+        subject: subject || "",
+        topic: topic || "",
+        status: status || "",
+      },
     },
     { headers: headers }
   );
   return result.data.data.me.mentor;
 }
 
-export async function updateMentor(
-  updateMentor: Mentor,
+export async function updateMentorDetails(
+  mentor: Mentor,
   accessToken: string
 ): Promise<boolean> {
-  const convertedMentor = {
-    _id: updateMentor._id,
-    name: updateMentor.name,
-    firstName: updateMentor.firstName,
-    title: updateMentor.title,
-    mentorType: updateMentor.mentorType,
-    defaultSubject: updateMentor.defaultSubject?._id,
-    subjects: updateMentor.subjects.map((s) => s._id),
-  };
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-      mutation {
+      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
         me {
-          updateMentor(mentor: ${stringifyObject(convertedMentor)})
+          updateMentorDetails(mentor: $mentor)
         }
       }
     `,
+      variables: {
+        mentor: {
+          name: mentor.name,
+          firstName: mentor.firstName,
+          title: mentor.title,
+          email: mentor.email,
+          mentorType: mentor.mentorType,
+        },
+      },
     },
     { headers: headers }
   );
-  return result.data.data.me.updateMentor;
+  return result.data.data.me.updateMentorDetails;
+}
+
+export async function updateMentorSubjects(
+  mentor: Mentor,
+  accessToken: string
+): Promise<boolean> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
+        me {
+          updateMentorSubjects(mentor: $mentor)
+        }
+      }
+    `,
+      variables: {
+        mentor: {
+          defaultSubject: mentor.defaultSubject?._id || null,
+          subjects: mentor.subjects.map((s) => s._id),
+        },
+      },
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.updateMentorSubjects;
 }
 
 export async function updateQuestion(
@@ -517,18 +516,19 @@ export async function updateQuestion(
   accessToken: string
 ): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-        mutation {
+        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
           me {
-            updateQuestion(question: ${stringifyObject(updateQuestion)}) {
+            updateQuestion(question: $question) {
               _id
             }
           }
         }
       `,
+      variables: { question: updateQuestion },
     },
     { headers: headers }
   );
@@ -536,28 +536,27 @@ export async function updateQuestion(
 }
 
 export async function updateAnswer(
-  mentorId: string,
   answer: Answer,
   accessToken: string
 ): Promise<boolean> {
-  const questionId = answer.question._id;
-  const convertedAnswer = {
-    transcript: answer.transcript,
-    status: answer.status,
-  };
   const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    GRAPHQL_ENDPOINT,
+  const result = await graphqlRequest.post(
+    "",
     {
       query: `
-      mutation {
+      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
         me {
-          updateAnswer(mentorId: "${mentorId}", questionId: "${questionId}", answer: ${stringifyObject(
-        convertedAnswer
-      )})
+          updateAnswer(questionId: $questionId, answer: $answer)
         }
       }
     `,
+      variables: {
+        questionId: answer.question._id,
+        answer: {
+          transcript: answer.transcript,
+          status: answer.status,
+        },
+      },
     },
     { headers: headers }
   );
@@ -586,7 +585,7 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
 
 export async function fetchTrainingStatus(
   statusUrl: string
-): Promise<TrainStatus> {
+): Promise<TaskStatus<TrainingInfo>> {
   const result = await axios.get(statusUrl);
   if (result.status !== 200) {
     throw new Error(`fetch training status failed: ${result.statusText}}`);
@@ -608,37 +607,36 @@ export async function fetchTrainingStatus(
 
 export async function uploadVideo(
   mentorId: string,
-  videoId: string,
-  video: Blob
+  questionId: string,
+  video: File,
+  trim?: { start: number; end: number }
 ): Promise<AsyncJob> {
   const data = new FormData();
-  data.append("body", JSON.stringify({ mentorId, videoId }));
-  data.append("file", video);
-  const request = axios.create({
-    baseURL: VIDEO_ENTRYPOINT,
-    timeout: 10000,
-  });
-  const result = await request.post("/upload", data, {
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: questionId, trim })
+  );
+  data.append("video", video);
+  const result = await uploadRequest.post("/answer", data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    timeout: 30000,
   });
   return result.data.data;
 }
 
 export async function fetchUploadVideoStatus(
   statusUrl: string
-): Promise<VideoStatus> {
+): Promise<TaskStatus<VideoInfo>> {
   const result = await axios.get(statusUrl);
   return result.data.data;
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        login(accessToken: "${accessToken}") {
+      mutation Login($accessToken: String!) {
+        login(accessToken: $accessToken) {
           user {
             _id
             name
@@ -647,6 +645,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
         }
       }
     `,
+    variables: { accessToken },
   });
   return result.data.data.login;
 }
@@ -654,10 +653,10 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
 export async function loginGoogle(
   accessToken: string
 ): Promise<UserAccessToken> {
-  const result = await axios.post(GRAPHQL_ENDPOINT, {
+  const result = await graphqlRequest.post("", {
     query: `
-      mutation {
-        loginGoogle(accessToken: "${accessToken}") {
+      mutation LoginGoogle($accessToken: String!) {
+        loginGoogle(accessToken: $accessToken) {
           user {
             _id
             name
@@ -666,6 +665,7 @@ export async function loginGoogle(
         }
       }
     `,
+    variables: { accessToken },
   });
   return result.data.data.loginGoogle;
 }
