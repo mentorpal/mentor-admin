@@ -35,6 +35,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import UploadingWidget from "components/record/uploading-widget";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -147,6 +148,14 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
+      {curAnswer? (
+      <UploadingWidget
+      classes={classes}
+      answers={answers}
+      curAnswer={curAnswer}
+      recordState={recordState}
+      disabled = {!recordState.isUploading}
+      />): undefined}
       <NavBar title="Record Mentor" mentorId={mentor?._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
@@ -343,6 +352,7 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
+      
       <LoadingDialog
         title={
           isLoading
@@ -354,6 +364,7 @@ function RecordPage(props: {
             : ""
         }
       />
+      
       <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
