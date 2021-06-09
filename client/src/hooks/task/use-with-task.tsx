@@ -20,15 +20,6 @@ const initialState: TaskState = {
   error: undefined,
 };
 
-export interface Task<T, U> {
-  isPolling: boolean;
-  error: TaskError | undefined;
-  status: TaskStatus<T> | undefined;
-  statusUrl: string | undefined;
-  startTask: (params: U) => void;
-  clearError: () => void;
-}
-
 export function useWithTask<T, U>(
   start: (params: U) => Promise<AsyncJob>,
   poll: (statusUrl: string) => Promise<TaskStatus<T>>,
@@ -90,13 +81,17 @@ export function useWithTask<T, U>(
         dispatch({ type: TaskActionType.POLLING, payload: true });
       })
       .catch((err) => {
-        console.error(err);
         dispatch({ type: TaskActionType.POLLING, payload: false });
         dispatch({
           type: TaskActionType.ERROR,
           payload: { message: "Failed to start job", error: err.message },
         });
       });
+  }
+
+  function startPolling(url: string) {
+    setStatusUrl(url);
+    dispatch({ type: TaskActionType.POLLING, payload: true });
   }
 
   function clearError() {
@@ -109,6 +104,17 @@ export function useWithTask<T, U>(
     status,
     statusUrl,
     startTask,
+    startPolling,
     clearError,
   };
+}
+
+export interface Task<T, U> {
+  isPolling: boolean;
+  error: TaskError | undefined;
+  status: TaskStatus<T> | undefined;
+  statusUrl: string | undefined;
+  startTask: (params: U) => void;
+  startPolling: (url: string) => void;
+  clearError: () => void;
 }

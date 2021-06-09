@@ -118,7 +118,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
 
   return {
     data,
-    editedData: editedData || data,
+    editedData: data ? { ...data, ...editedData } : undefined,
     isEdited: editedData !== undefined && !equals(data, editedData),
     isLoading: state.isLoading,
     isSaving: state.isSaving,

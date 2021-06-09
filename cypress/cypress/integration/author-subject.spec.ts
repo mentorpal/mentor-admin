@@ -86,8 +86,8 @@ describe("Edit subject", () => {
     cy.get("[data-cy=questions]").should("not.exist");
     // close info
     cy.get("[data-cy=toggle-info]").trigger("mouseover").click();
-    cy.get("[data-cy=subject-name]").should("not.exist");
-    cy.get("[data-cy=subject-description]").should("not.exist");
+    cy.get("[data-cy=subject-name]").should("exist");
+    cy.get("[data-cy=subject-description]").should("exist");
     cy.get("[data-cy=topics-list]").should("not.exist");
     cy.get("[data-cy=categories]").should("not.exist");
     cy.get("[data-cy=questions]").should("not.exist");
@@ -410,8 +410,6 @@ describe("Edit subject", () => {
       cy.get("[data-cy=save-button]").should("not.be.disabled");
       cy.get("[data-cy=save-button]").trigger("mouseover").click();
       cy.get("[data-cy=save-button]").should("be.disabled");
-      cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
-      cy.get("[data-cy=question-topics-list]").children().should("not.exist");
     });
 
     it("can edit a topic", () => {

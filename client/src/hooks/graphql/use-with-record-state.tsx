@@ -4,8 +4,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { useEffect, useReducer, useState } from "react";
-import { updateAnswer, updateQuestion } from "api";
+import { useEffect, useState } from "react";
+import {
+  fetchMentor,
+  fetchUploadVideoStatus,
+  updateAnswer,
+  updateQuestion,
+  uploadVideo,
+} from "api";
 import {
   Answer,
   JobState,
@@ -13,37 +19,32 @@ import {
   MediaType,
   Mentor,
   MentorType,
+  TaskStatus,
   UtteranceName,
+  VideoInfo,
 } from "types";
 import { copyAndSet, equals } from "helpers";
-import { useWithUploading } from "hooks/task/use-with-upload";
 import { useWithMentor } from "./use-with-mentor";
-import {
-  RecordingActionType,
-  RecordingReducer,
-  RecordingState,
-} from "./recording-reducer";
+import { useInterval } from "hooks/task/use-interval";
 
-const initialState: RecordingState = {
-  isSaving: false,
-  isUploading: false,
-  isRecording: false,
-  error: undefined,
-};
-
-interface AnswerState {
-  answer: Answer;
-  recordedVideo?: File;
-  minVideoLength?: number;
+export interface RecordingError {
+  message: string;
+  error: string;
 }
-
-export interface CurAnswerState {
+export interface AnswerState {
   answer: Answer;
-  isEdited: boolean;
-  isValid: boolean;
-  videoSrc: string | undefined;
+  editedAnswer: Answer;
   recordedVideo: File | undefined;
   minVideoLength: number | undefined;
+  error: RecordingError | undefined;
+  isSaving: boolean;
+  uploadStatus: TaskStatus<VideoInfo> | undefined;
+}
+export interface CurAnswerState extends AnswerState {
+  videoSrc: string | undefined;
+  isValid: boolean;
+  isUploading: boolean;
+  isEdited: boolean;
 }
 
 export function useWithRecordState(
@@ -55,319 +56,411 @@ export function useWithRecordState(
     category?: string;
   }
 ): UseWithRecordState {
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<AnswerState[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
-  const [curAnswerState, setCurAnswerState] = useState<AnswerState>();
-  const [state, dispatch] = useReducer(RecordingReducer, initialState);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
+  const { data: mentor, isLoading: isMentorLoading } = useWithMentor(
+    accessToken
+  );
 
-  const {
-    data: mentor,
-    isLoading: isMentorLoading,
-    error: mentorError,
-    reloadData: reloadMentor,
-    clearError: clearMentorError,
-  } = useWithMentor(accessToken);
-  const {
-    isPolling: isUploading,
-    error: uploadError,
-    status: uploadStatus,
-    startTask: startUploading,
-    clearError: clearUploadError,
-  } = useWithUploading();
-
+  // Get initial state for the answers that are being recorded
   useEffect(() => {
     if (!mentor) {
       return;
     }
     const { videoId, subject, category, status } = filter;
-    let answers = mentor.answers;
+    let mentorAnswers = mentor.answers;
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      answers = answers.filter((a) => ids.includes(a.question._id));
+      mentorAnswers = mentorAnswers.filter((a) => ids.includes(a.question._id));
     } else if (subject) {
       const s = mentor.subjects.find((a) => a._id === subject);
       if (s) {
         const sQuestions = s.questions.filter(
           (q) => !category || `${q.category?.id}` === category
         );
-        answers = answers.filter((a) =>
+        mentorAnswers = mentorAnswers.filter((a) =>
           sQuestions.map((q) => q.question._id).includes(a.question._id)
         );
       }
     }
     if (status) {
-      answers = answers.filter((a) => a.status === status);
+      mentorAnswers = mentorAnswers.filter((a) => a.status === status);
     }
-    answers = answers.filter(
+    mentorAnswers = mentorAnswers.filter(
       (a) =>
         !a.question?.mentorType || a.question?.mentorType === mentor.mentorType
     );
-    setAnswers(answers);
+    const answerState: AnswerState[] = mentorAnswers.map((a) => {
+      return {
+        answer: a,
+        editedAnswer: a,
+        recordedVideo: undefined,
+        minVideoLength: a.question?.minVideoLength,
+        error: undefined,
+        isSaving: false,
+        uploadStatus: undefined,
+      };
+    });
+    setAnswers(answerState);
   }, [mentor]);
 
   useEffect(() => {
-    if (answers.length === 0 || answerIdx >= answers.length) {
-      return;
-    }
-    const answer = answers[answerIdx];
-    setCurAnswerState({
-      answer,
-      minVideoLength: answer.question?.minVideoLength,
-    });
-    dispatch({ type: RecordingActionType.RECORDING, payload: false });
-  }, [answers, answerIdx]);
+    setIsRecording(false);
+  }, [answerIdx]);
 
   useEffect(() => {
-    dispatch({ type: RecordingActionType.UPLOADING, payload: isUploading });
-  }, [isUploading]);
+    setIsPolling(answers.some((a) => Boolean(a.editedAnswer.uploadStatusUrl)));
+  }, [answers]);
 
-  useEffect(() => {
-    if (uploadStatus?.state === JobState.SUCCESS) {
-      reloadMentor();
-    }
-  }, [uploadStatus]);
+  useInterval(
+    (isCancelled) => {
+      for (const [i, a] of answers.entries()) {
+        const editedAnswer = a.editedAnswer;
+        if (!editedAnswer.uploadStatusUrl || isCancelled()) {
+          break;
+        }
+        fetchUploadVideoStatus(editedAnswer.uploadStatusUrl)
+          .then((s) => {
+            if (isCancelled()) {
+              updateCurAnswerState(
+                {
+                  editedAnswer: { ...editedAnswer, uploadStatusUrl: undefined },
+                  uploadStatus: s,
+                },
+                i
+              );
+            } else if (s.state === JobState.SUCCESS) {
+              updateCurAnswerState(
+                {
+                  editedAnswer: { ...editedAnswer, uploadStatusUrl: undefined },
+                  uploadStatus: s,
+                },
+                i
+              );
+              fetchMentor(accessToken).then((m) => {
+                if (!isCancelled()) {
+                  if (!m) {
+                    updateCurAnswerState(
+                      {
+                        editedAnswer: {
+                          ...editedAnswer,
+                          uploadStatusUrl: undefined,
+                        },
+                        error: {
+                          message: "Failed update",
+                          error: "Failed to fetch changes after uploading",
+                        },
+                      },
+                      i
+                    );
+                  } else {
+                    const updatedAnswer = m.answers.find(
+                      (a) => a._id === editedAnswer._id
+                    );
+                    if (updatedAnswer) {
+                      updateCurAnswerState({
+                        recordedVideo: undefined,
+                        answer: updatedAnswer,
+                        uploadStatus: s,
+                        editedAnswer: {
+                          ...editedAnswer,
+                          uploadStatusUrl: undefined,
+                          media: updatedAnswer.media,
+                          transcript: updatedAnswer.transcript,
+                        },
+                      });
+                    }
+                  }
+                }
+              });
+            } else if (s.state === JobState.FAILURE) {
+              updateCurAnswerState(
+                {
+                  editedAnswer: { ...editedAnswer, uploadStatusUrl: undefined },
+                  uploadStatus: s,
+                  error: {
+                    message: "Failed job",
+                    error: "Job returned with fail",
+                  },
+                },
+                i
+              );
+            }
+          })
+          .catch((err: Error) => {
+            updateCurAnswerState(
+              {
+                editedAnswer: { ...editedAnswer, uploadStatusUrl: undefined },
+                error: { message: "Upload failed", error: err.message },
+              },
+              i
+            );
+          });
+      }
+    },
+    isPolling ? 1000 : null
+  );
 
-  useEffect(() => {
-    if (uploadError) {
-      dispatch({
-        type: RecordingActionType.ERROR,
-        payload: { message: "Failed to upload", error: uploadError.error },
-      });
-      clearUploadError();
-    }
-  }, [uploadError]);
+  function updateCurAnswerState(
+    edits: Partial<AnswerState>,
+    idx: number = answerIdx
+  ) {
+    setAnswers(
+      copyAndSet(answers, idx, {
+        ...answers[idx],
+        ...edits,
+      })
+    );
+  }
 
-  useEffect(() => {
-    if (mentorError) {
-      dispatch({
-        type: RecordingActionType.ERROR,
-        payload: { message: mentorError.error, error: mentorError.error },
-      });
-      clearMentorError();
+  function getVideoSrc(answer: AnswerState) {
+    if (!answer) {
+      return undefined;
     }
-  }, [mentorError]);
+    if (answer.recordedVideo) {
+      return URL.createObjectURL(answer.recordedVideo);
+    }
+    return answer.editedAnswer?.media?.find(
+      (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
+    )?.url;
+  }
+
+  function isAnswerValid(answer: AnswerState) {
+    if (!answer) {
+      return false;
+    }
+    if (mentor?.mentorType === MentorType.CHAT) {
+      return Boolean(answer.editedAnswer.transcript);
+    }
+    if (mentor?.mentorType === MentorType.VIDEO) {
+      return Boolean(
+        answer.editedAnswer.media?.find((m) => m.type === MediaType.VIDEO)
+          ?.url &&
+          (answer.editedAnswer.question?.name === UtteranceName.IDLE ||
+            answer.editedAnswer.transcript)
+      );
+    }
+    return false;
+  }
 
   function prevAnswer() {
-    if (
-      !curAnswerState ||
-      state.isUploading ||
-      state.isSaving ||
-      answerIdx === 0
-    ) {
+    if (!answers || answers.length === 0 || answerIdx === 0) {
       return;
     }
     setAnswerIdx(answerIdx - 1);
   }
 
   function nextAnswer() {
-    if (
-      !curAnswerState ||
-      state.isUploading ||
-      state.isSaving ||
-      answerIdx >= answers.length
-    ) {
+    if (!answers || answerIdx >= answers.length) {
       return;
     }
     setAnswerIdx(answerIdx + 1);
   }
 
-  function rerecord() {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
-      return;
-    }
-    setCurAnswerState({
-      ...curAnswerState,
-      recordedVideo: undefined,
-      answer: {
-        ...curAnswerState.answer,
-        media: undefined,
-      },
-    });
-  }
-
   function startRecording() {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
+    if (!answers || answers.length === 0) {
       return;
     }
-    dispatch({ type: RecordingActionType.RECORDING, payload: true });
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    setIsRecording(true);
   }
 
   function stopRecording(video: File) {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
+    if (!answers || answers.length === 0) {
       return;
     }
-    setCurAnswerState({
-      ...curAnswerState,
-      recordedVideo: video,
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    updateCurAnswerState({ recordedVideo: video });
+    setIsRecording(false);
+  }
+
+  function rerecord() {
+    if (!answers || answers.length === 0) {
+      return;
+    }
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    updateCurAnswerState({
+      recordedVideo: undefined,
+      editedAnswer: { ...curAnswerState.editedAnswer, media: undefined },
     });
-    dispatch({ type: RecordingActionType.RECORDING, payload: false });
   }
 
   function setMinVideoLength(length: number) {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
+    if (!answers || answers.length === 0) {
       return;
     }
-    setCurAnswerState({
-      ...curAnswerState,
-      minVideoLength: length,
-    });
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    updateCurAnswerState({ minVideoLength: length });
   }
 
   function editAnswer(edits: Partial<Answer>) {
-    if (!curAnswerState || state.isUploading || state.isSaving) {
+    if (!answers || answers.length === 0) {
       return;
     }
-    setCurAnswerState({
-      ...curAnswerState,
-      answer: { ...curAnswerState.answer, ...edits },
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    updateCurAnswerState({
+      editedAnswer: { ...curAnswerState.editedAnswer, ...edits },
     });
   }
 
   function saveAnswer() {
-    if (!mentor || !curAnswerState || state.isUploading || state.isSaving) {
+    if (!answers || answers.length === 0) {
       return;
     }
-    const answer = answers[answerIdx];
-    const editedAnswer = curAnswerState.answer;
+    const curAnswerState = answers[answerIdx];
+    if (
+      curAnswerState.editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving
+    ) {
+      return;
+    }
+    const answer = curAnswerState.answer;
+    const editedAnswer = curAnswerState.editedAnswer;
     // update the question if it has changed
     if (!equals(answer.question, editedAnswer.question)) {
-      dispatch({ type: RecordingActionType.SAVING, payload: true });
+      updateCurAnswerState({ isSaving: true });
       updateQuestion(editedAnswer.question, accessToken)
         .then((didUpdate) => {
           if (!didUpdate) {
-            dispatch({ type: RecordingActionType.SAVING, payload: false });
+            updateCurAnswerState({ isSaving: false });
             return;
           }
           if (!equals(answer, editedAnswer)) {
             updateAnswer(editedAnswer, accessToken)
               .then((didUpdate) => {
                 if (!didUpdate) {
-                  dispatch({
-                    type: RecordingActionType.SAVING,
-                    payload: false,
-                  });
+                  updateCurAnswerState({ isSaving: false });
                   return;
                 }
-                setAnswers(copyAndSet(answers, answerIdx, editedAnswer));
-                dispatch({ type: RecordingActionType.SAVING, payload: false });
+                updateCurAnswerState({ isSaving: false, answer: editedAnswer });
               })
               .catch((err) => {
-                console.error(err);
-                dispatch({ type: RecordingActionType.SAVING, payload: false });
-                dispatch({
-                  type: RecordingActionType.ERROR,
-                  payload: {
+                updateCurAnswerState({
+                  isSaving: false,
+                  error: {
                     message: "Failed to save answer",
                     error: err.message,
                   },
                 });
               });
           } else {
-            setAnswers(copyAndSet(answers, answerIdx, editedAnswer));
-            dispatch({ type: RecordingActionType.SAVING, payload: false });
+            updateCurAnswerState({ isSaving: false, answer: editedAnswer });
           }
         })
         .catch((err) => {
-          console.error(err);
-          dispatch({ type: RecordingActionType.SAVING, payload: false });
-          dispatch({
-            type: RecordingActionType.ERROR,
-            payload: { message: "Failed to save question", error: err.message },
+          updateCurAnswerState({
+            isSaving: false,
+            error: { message: "Failed to save question", error: err.message },
           });
         });
     }
     // update the answer if it has changed
     else if (!equals(answer, editedAnswer)) {
-      dispatch({ type: RecordingActionType.SAVING, payload: true });
+      updateCurAnswerState({ isSaving: true });
       updateAnswer(editedAnswer, accessToken)
         .then((didUpdate) => {
           if (!didUpdate) {
-            dispatch({ type: RecordingActionType.SAVING, payload: false });
+            updateCurAnswerState({ isSaving: false });
             return;
           }
-          setAnswers(copyAndSet(answers, answerIdx, editedAnswer));
-          dispatch({ type: RecordingActionType.SAVING, payload: false });
+          updateCurAnswerState({ isSaving: false, answer: editedAnswer });
         })
         .catch((err) => {
-          console.error(err);
-          dispatch({ type: RecordingActionType.SAVING, payload: false });
-          dispatch({
-            type: RecordingActionType.ERROR,
-            payload: { message: "Failed to save answer", error: err.message },
+          updateCurAnswerState({
+            isSaving: false,
+            error: { message: "Failed to save answer", error: err.message },
           });
         });
     }
   }
 
-  function uploadVideo(trim?: { start: number; end: number }) {
+  function uploadOrTrimVideo(trim?: { start: number; end: number }) {
+    if (!answers || answers.length === 0 || !mentor?._id) {
+      return;
+    }
+    const curAnswerState = answers[answerIdx];
+    const editedAnswer = curAnswerState.editedAnswer;
     if (
-      !mentor ||
-      !curAnswerState ||
-      !curAnswerState.answer.question ||
-      !curAnswerState.recordedVideo ||
-      state.isUploading ||
-      state.isSaving
+      editedAnswer.uploadStatusUrl ||
+      curAnswerState.isSaving ||
+      !editedAnswer.question ||
+      !curAnswerState.recordedVideo
     ) {
       return;
     }
-    startUploading({
-      mentorId: mentor._id,
-      questionId: curAnswerState.answer.question._id,
-      video: curAnswerState.recordedVideo,
-      trim,
+    uploadVideo(
+      mentor?._id,
+      editedAnswer.question._id,
+      curAnswerState.recordedVideo,
+      trim
+    ).then((job) => {
+      updateCurAnswerState({
+        editedAnswer: { ...editedAnswer, uploadStatusUrl: job.statusUrl },
+      });
     });
-  }
-
-  function getVideoSrc() {
-    if (!curAnswerState || !mentor) {
-      return undefined;
-    }
-    if (curAnswerState.recordedVideo) {
-      return URL.createObjectURL(curAnswerState.recordedVideo);
-    }
-    return curAnswerState.answer?.media?.find(
-      (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
-    )?.url;
-  }
-
-  function isAnswerValid() {
-    if (!curAnswerState || !mentor) {
-      return false;
-    }
-    if (mentor.mentorType === MentorType.CHAT) {
-      return Boolean(curAnswerState.answer.transcript);
-    }
-    if (mentor.mentorType === MentorType.VIDEO) {
-      return Boolean(
-        // curAnswerState.answer?.media?.find(m => m.type === MediaType.VIDEO)?.url &&
-        curAnswerState.answer.question?.name === UtteranceName.IDLE ||
-          curAnswerState.answer.transcript
-      );
-    }
-    return false;
-  }
-
-  function clearError() {
-    dispatch({ type: RecordingActionType.ERROR, payload: undefined });
   }
 
   return {
     mentor,
-    answers,
+    answers: answers.map((a) => {
+      return {
+        ...a,
+        videoSrc: getVideoSrc(a),
+        isValid: isAnswerValid(a),
+        isUploading: Boolean(a.editedAnswer.uploadStatusUrl),
+        isEdited: !equals(a.answer, a.editedAnswer),
+      };
+    }),
     answerIdx,
-    recordState: state,
     curAnswer:
-      mentor && curAnswerState
+      answers && answers.length > 0
         ? {
-            answer: curAnswerState.answer,
-            isEdited: !equals(answers[answerIdx], curAnswerState.answer),
-            isValid: isAnswerValid(),
-            videoSrc: getVideoSrc(),
-            recordedVideo: curAnswerState.recordedVideo,
-            minVideoLength: curAnswerState.minVideoLength,
+            ...answers[answerIdx],
+            videoSrc: getVideoSrc(answers[answerIdx]),
+            isValid: isAnswerValid(answers[answerIdx]),
+            isUploading: Boolean(
+              answers[answerIdx].editedAnswer.uploadStatusUrl
+            ),
+            isEdited: !equals(
+              answers[answerIdx].answer,
+              answers[answerIdx].editedAnswer
+            ),
           }
         : undefined,
     isLoading: isMentorLoading,
+    isRecording,
     prevAnswer,
     nextAnswer,
     editAnswer,
@@ -375,28 +468,18 @@ export function useWithRecordState(
     rerecord,
     startRecording,
     stopRecording,
-    uploadVideo,
+    uploadVideo: uploadOrTrimVideo,
     setMinVideoLength,
-    clearRecordingError: clearError,
   };
 }
 
 interface UseWithRecordState {
   mentor: Mentor | undefined;
-  answers: Answer[];
+  answers: CurAnswerState[];
+  curAnswer: CurAnswerState | undefined;
   answerIdx: number;
-  recordState: RecordingState;
-  curAnswer:
-    | {
-        answer: Answer;
-        isEdited: boolean;
-        isValid: boolean;
-        videoSrc: string | undefined;
-        recordedVideo: File | undefined;
-        minVideoLength: number | undefined;
-      }
-    | undefined;
   isLoading: boolean;
+  isRecording: boolean;
   prevAnswer: () => void;
   nextAnswer: () => void;
   editAnswer: (edits: Partial<Answer>) => void;
@@ -413,5 +496,4 @@ interface UseWithRecordState {
       | undefined
   ) => void;
   setMinVideoLength: (length: number) => void;
-  clearRecordingError: () => void;
 }

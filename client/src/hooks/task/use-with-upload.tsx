@@ -24,6 +24,7 @@ export function useWithUploading(
     error,
     isPolling,
     startTask,
+    startPolling,
     clearError,
   } = useWithTask<TrainingInfo, UploadParams>(upload, poll, pollingInterval);
 
@@ -46,6 +47,7 @@ export function useWithUploading(
     status,
     statusUrl,
     startTask,
+    startPolling,
     clearError,
   };
 }

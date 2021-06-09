@@ -5,9 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography, Button } from "@material-ui/core";
+import { Typography, Button } from "@material-ui/core";
 import { CLIENT_ENDPOINT } from "api";
 import { Mentor } from "types";
+import { Slide } from "./slide";
 
 export function BuildMentorSlide(props: {
   classes: Record<string, string>;
@@ -64,40 +65,45 @@ export function BuildMentorSlide(props: {
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        {isBuildable
+    <Slide
+      classes={classes}
+      title={
+        isBuildable
           ? "Great job! You're ready to build your mentor!"
-          : "Oops! Your mentor is not ready yet."}
-      </Typography>
-      <div className={classes.column}>{renderMessage()}</div>
-      <div className={classes.row}>
-        <Button
-          data-cy="train-btn"
-          variant="contained"
-          color="primary"
-          disabled={!isBuildable}
-          className={classes.button}
-          onClick={startTraining}
-        >
-          Build
-        </Button>
-        {isBuilt ? (
-          <Button
-            data-cy="preview-btn"
-            variant="contained"
-            color="secondary"
-            className={classes.button}
-            disabled={!isBuildable}
-            onClick={() => {
-              const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
-              window.location.href = path;
-            }}
-          >
-            Preview
-          </Button>
-        ) : undefined}
-      </div>
-    </Paper>
+          : "Oops! Your mentor is not ready yet."
+      }
+      content={
+        <div>
+          <div>{renderMessage()}</div>
+          <div className={classes.row}>
+            <Button
+              data-cy="train-btn"
+              variant="contained"
+              color="primary"
+              disabled={!isBuildable}
+              className={classes.button}
+              onClick={startTraining}
+            >
+              Build
+            </Button>
+            {isBuilt ? (
+              <Button
+                data-cy="preview-btn"
+                variant="contained"
+                color="secondary"
+                className={classes.button}
+                disabled={!isBuildable}
+                onClick={() => {
+                  const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
+                  window.location.href = path;
+                }}
+              >
+                Preview
+              </Button>
+            ) : undefined}
+          </div>
+        </div>
+      }
+    />
   );
 }

@@ -5,26 +5,23 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React from "react";
 import {
   AppBar,
   Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
   FormControl,
   IconButton,
   InputAdornment,
   MenuItem,
-  OutlinedInput,
   Select,
+  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import CreateIcon from "@material-ui/icons/Create";
 import UndoIcon from "@material-ui/icons/Undo";
 
 import { MentorType, Status, UtteranceName } from "types";
@@ -34,7 +31,9 @@ import VideoPlayer from "components/record/video-player";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { LoadingDialog } from "components/dialog";
+import { equals } from "helpers";
+import UploadingWidget from "components/record/uploading-widget";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -59,6 +58,8 @@ const useStyles = makeStyles((theme) => ({
   },
   inputField: {
     width: "100%",
+    display: "flex",
+    flexDirection: "row",
   },
   footer: {
     top: "auto",
@@ -67,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     opacity: 0.8,
   },
   button: {
-    width: 150,
+    width: 180,
   },
   backBtn: {
     position: "absolute",
@@ -77,18 +78,16 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     right: 0,
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    bottom: 30,
-    left: 0,
-    right: 0,
-  },
 }));
 
-interface LeaveConfirmation {
-  callback: () => void;
-}
+const DarkerDisabledTextField = withStyles({
+  root: {
+    marginRight: 8,
+    "& .MuiInputBase-root.Mui-disabled": {
+      color: "rgba(0, 0, 0, 1)", // (default alpha is 0.38)
+    },
+  },
+})(TextField);
 
 function RecordPage(props: {
   accessToken: string;
@@ -107,7 +106,7 @@ function RecordPage(props: {
     answers,
     answerIdx,
     curAnswer,
-    recordState,
+    isRecording,
     prevAnswer,
     nextAnswer,
     editAnswer,
@@ -116,10 +115,8 @@ function RecordPage(props: {
     startRecording,
     stopRecording,
     uploadVideo,
-    clearRecordingError,
     setMinVideoLength,
   } = useWithRecordState(props.accessToken, props.search);
-  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   function onBack() {
     if (props.search.back) {
@@ -131,22 +128,20 @@ function RecordPage(props: {
 
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
-      setConfirmLeave({ callback: onNav });
+      saveAnswer();
+      onNav();
     } else {
       onNav();
     }
   }
 
-  function confirm() {
-    if (!confirmLeave) {
-      return;
-    }
-    confirmLeave.callback();
-    setConfirmLeave(undefined);
+  if (!mentor) {
+    return <div />;
   }
 
   return (
     <div className={classes.root}>
+      {curAnswer ? <UploadingWidget answers={answers} /> : undefined}
       <NavBar title="Record Mentor" mentorId={mentor?._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
@@ -158,58 +153,65 @@ function RecordPage(props: {
         </Typography>
         <ProgressBar value={answerIdx + 1} total={answers.length} />
       </div>
+      <div data-cy="question" className={classes.block}>
+        <Typography className={classes.title}>Question:</Typography>
+        <FormControl className={classes.inputField} variant="outlined">
+          <DarkerDisabledTextField
+            multiline
+            variant="outlined"
+            data-cy="question-input"
+            style={{ flexGrow: 1 }}
+            value={curAnswer?.editedAnswer?.question?.question}
+            disabled={curAnswer?.editedAnswer?.question?.mentor !== mentor?._id}
+            onChange={(e) => {
+              if (curAnswer?.editedAnswer?.question) {
+                editAnswer({
+                  question: {
+                    ...curAnswer?.editedAnswer.question,
+                    question: e.target.value,
+                  },
+                });
+              }
+            }}
+            InputProps={{
+              endAdornment:
+                curAnswer?.editedAnswer?.question?.mentor !==
+                mentor?._id ? undefined : (
+                  <InputAdornment data-cy="edit-question-input" position="end">
+                    <CreateIcon />
+                  </InputAdornment>
+                ),
+            }}
+          />
+          <IconButton
+            data-cy="undo-question-btn"
+            disabled={equals(
+              curAnswer?.editedAnswer?.question,
+              curAnswer?.answer?.question
+            )}
+            onClick={() =>
+              editAnswer({
+                question: curAnswer?.answer?.question,
+              })
+            }
+          >
+            <UndoIcon />
+          </IconButton>
+        </FormControl>
+      </div>
       {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
         <VideoPlayer
           classes={classes}
           curAnswer={curAnswer}
-          recordState={recordState}
+          isRecording={isRecording}
           onUpload={uploadVideo}
           onRerecord={rerecord}
           onRecordStart={startRecording}
           onRecordStop={stopRecording}
         />
       ) : undefined}
-      <div data-cy="question" className={classes.block}>
-        <Typography className={classes.title}>Question:</Typography>
-        <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="question-input"
-            multiline
-            value={curAnswer?.answer?.question?.question}
-            disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
-            onChange={(e) => {
-              if (curAnswer?.answer?.question) {
-                editAnswer({
-                  question: {
-                    ...curAnswer?.answer.question,
-                    question: e.target.value,
-                  },
-                });
-              }
-            }}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-question-btn"
-                  disabled={
-                    curAnswer?.answer?.question?.question ===
-                    answers[answerIdx]?.question?.question
-                  }
-                  onClick={() =>
-                    editAnswer({
-                      question: answers[answerIdx].question,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
-      </div>
       {curAnswer?.minVideoLength &&
-      curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
+      curAnswer?.editedAnswer?.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
@@ -235,30 +237,28 @@ function RecordPage(props: {
         <div data-cy="transcript" className={classes.block}>
           <Typography className={classes.title}>Answer Transcript:</Typography>
           <FormControl className={classes.inputField} variant="outlined">
-            <OutlinedInput
-              data-cy="transcript-input"
+            <DarkerDisabledTextField
               multiline
-              value={curAnswer?.answer?.transcript}
+              variant="outlined"
+              data-cy="transcript-input"
+              style={{ flexGrow: 1 }}
+              value={curAnswer?.editedAnswer?.transcript}
               onChange={(e) => editAnswer({ transcript: e.target.value })}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    data-cy="undo-transcript-btn"
-                    disabled={
-                      curAnswer?.answer?.transcript ===
-                      answers[answerIdx]?.transcript
-                    }
-                    onClick={() =>
-                      editAnswer({
-                        transcript: answers[answerIdx]?.transcript,
-                      })
-                    }
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
             />
+            <IconButton
+              data-cy="undo-transcript-btn"
+              disabled={
+                curAnswer?.editedAnswer?.transcript ===
+                curAnswer?.answer?.transcript
+              }
+              onClick={() =>
+                editAnswer({
+                  transcript: curAnswer?.answer?.transcript,
+                })
+              }
+            >
+              <UndoIcon />
+            </IconButton>
           </FormControl>
         </div>
       )}
@@ -270,7 +270,7 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer?.answer?.status || ""}
+          value={curAnswer?.editedAnswer?.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => editAnswer({ status: event.target.value as Status })}
@@ -295,33 +295,19 @@ function RecordPage(props: {
             data-cy="back-btn"
             className={classes.backBtn}
             disabled={
-              answerIdx === 0 || recordState.isSaving || recordState.isUploading
+              answerIdx === 0 || curAnswer?.isSaving || curAnswer?.isUploading
             }
             onClick={() => switchAnswer(prevAnswer)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          <Button
-            data-cy="save-btn"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={
-              !curAnswer?.isEdited ||
-              recordState.isSaving ||
-              recordState.isUploading
-            }
-            onClick={saveAnswer}
-          >
-            Save
-          </Button>
           {answerIdx === answers.length - 1 ? (
             <Button
               data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
-              disabled={recordState.isSaving || recordState.isUploading}
+              disabled={curAnswer?.isSaving || curAnswer?.isUploading}
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
@@ -333,8 +319,8 @@ function RecordPage(props: {
               className={classes.nextBtn}
               disabled={
                 answerIdx === answers.length - 1 ||
-                recordState.isSaving ||
-                recordState.isUploading
+                curAnswer?.isSaving ||
+                curAnswer?.isUploading
               }
               onClick={() => switchAnswer(nextAnswer)}
             >
@@ -344,30 +330,11 @@ function RecordPage(props: {
         </Toolbar>
       </AppBar>
       <LoadingDialog
+        data-cy="loading-dialog"
         title={
-          isLoading
-            ? "Loading..."
-            : recordState.isSaving
-            ? "Saving..."
-            : recordState.isUploading
-            ? "Uploading..."
-            : ""
+          isLoading ? "Loading..." : curAnswer?.isSaving ? "Saving..." : ""
         }
       />
-      <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
-      <Dialog open={confirmLeave !== undefined}>
-        <DialogContent>
-          <DialogContentText>
-            You have unsaved changes. Are you sure you&apos;d like to move on?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={confirm}>Yes</Button>
-          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
-            No
-          </Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 }

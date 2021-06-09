@@ -40,6 +40,7 @@ export interface Mentor {
   firstName: string;
   title: string;
   email: string;
+  allowContact: boolean;
   mentorType: MentorType;
   lastTrainedAt: string;
   defaultSubject?: Subject;
@@ -109,6 +110,7 @@ export interface Answer {
   transcript: string;
   status: Status;
   media?: Media[];
+  uploadStatusUrl?: string;
 }
 
 export interface UserQuestion {

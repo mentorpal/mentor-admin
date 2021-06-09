@@ -9,7 +9,8 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useState } from "react";
 import videojs from "video.js";
-import { IconButton, Typography } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
+import AttachFileIcon from "@material-ui/icons/AttachFile";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 
@@ -17,15 +18,16 @@ import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 
 const videoJsOptions = {
+  fluid: true,
+  aspectRatio: "16:9",
   controls: true,
   bigPlayButton: false,
   controlBar: {
     fullscreenToggle: false,
     volumePanel: false,
     recordToggle: false,
+    deviceButton: false,
   },
-  fluid: true,
-  aspectRatio: "16:9",
   plugins: {
     record: {
       audio: true,
@@ -39,7 +41,7 @@ const videoJsOptions = {
 function VideoRecorder({
   classes,
   curAnswer,
-  recordState,
+  isRecording,
   height,
   width,
   onRecordStart,
@@ -47,9 +49,6 @@ function VideoRecorder({
 }) {
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
-  // can't store these in RecordingState because player.on callbacks
-  // snapshot recordState from when player first initializes and doesn't
-  // update when changing answers
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
@@ -89,8 +88,6 @@ function VideoRecorder({
 
   useEffect(() => {
     if (recordedVideo) {
-      // if you put onRecordStop directly into player.on("finishRecord")
-      // it overwrite with the state from whatever the first question was
       onRecordStop(recordedVideo);
       setRecordedVideo(undefined);
     }
@@ -105,7 +102,7 @@ function VideoRecorder({
   }, [curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!recordState.isRecording || !curAnswer.minVideoLength) {
+    if (!isRecording || !curAnswer.minVideoLength) {
       return;
     }
     if (recordDurationCounter > curAnswer.minVideoLength) {
@@ -142,50 +139,37 @@ function VideoRecorder({
   );
 
   function startRecording() {
+    if (!isCameraOn) {
+      videoRecorderRef?.record().getDevice();
+    }
     onRecordStart();
-    setRecordStartCountdown(3);
+    setRecordStartCountdown(5);
   }
 
   function stopRecording() {
-    setRecordStopCountdown(2);
+    setRecordStopCountdown(3);
   }
 
-  return (
-    <div
-      data-cy="recorder"
-      style={{
-        position: "absolute",
-        visibility: curAnswer.videoSrc ? "hidden" : "visible",
-      }}
-    >
-      <Typography
-        data-cy="instruction"
+  function renderOverlays() {
+    return (
+      <div
         style={{
-          textAlign: "center",
-          visibility: isCameraOn ? "visible" : "hidden",
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "black",
+          opacity: isRecording ? 0.5 : 0.75,
         }}
       >
-        Please get into position by facing forward and lining up with the
-        outline.
-      </Typography>
-      <div data-vjs-player style={{ height, width }}>
-        <video
-          data-cy="video-recorder"
-          className="video-js vjs-default-skin"
-          playsInline
-          ref={(e) => setVideoRef(e || undefined)}
-        />
         <div
           data-cy="outline"
-          className={classes.overlay}
           style={{
-            position: "absolute",
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            opacity: recordState.isRecording ? 0.5 : 0.75,
+            width: "100%",
+            height: "100%",
             visibility: isCameraOn ? "visible" : "hidden",
+            opacity: isRecording ? 0.25 : 1,
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
@@ -194,7 +178,7 @@ function VideoRecorder({
         />
         <Typography
           data-cy="countdown-message"
-          variant="h2"
+          variant="h4"
           align="center"
           style={{
             color: "white",
@@ -203,20 +187,19 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
-            ? "Recording starts in"
-            : recordStopCountdown
-            ? "Recording ends in"
-            : Math.max(
+            ? "Please line up with the outline\nRecording starts in"
+            : recordStopCountdown ||
+              Math.max(
                 Math.ceil(
                   (curAnswer.minVideoLength || 0) - recordDurationCounter
                 ),
                 0
               )
-            ? "Video ends in"
+            ? "Shh still recording...\nRecording ends in"
             : ""}
         </Typography>
         <Typography
@@ -230,7 +213,7 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
@@ -244,33 +227,57 @@ function VideoRecorder({
             ""}
         </Typography>
       </div>
-      <div
-        data-cy="controls"
-        className={classes.row}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          visibility: isCameraOn ? "visible" : "hidden",
-        }}
-      >
-        <IconButton
-          onClick={recordState.isRecording ? stopRecording : startRecording}
-          style={{ color: "red" }}
-        >
-          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
-        </IconButton>
+    );
+  }
+
+  return (
+    <div
+      data-cy="recorder"
+      style={{
+        position: "absolute",
+        visibility: curAnswer.videoSrc ? "hidden" : "visible",
+      }}
+    >
+      <div data-vjs-player style={{ height, width }}>
+        <video
+          data-cy="video-recorder"
+          className="video-js vjs-default-skin"
+          playsInline
+          ref={(e) => setVideoRef(e || undefined)}
+        />
+        {renderOverlays()}
       </div>
       <div
         className={classes.row}
-        style={{ justifyContent: "center", marginTop: 20 }}
+        style={{ justifyContent: "center", marginTop: 10 }}
       >
-        <input
-          data-cy="upload-file"
-          type="file"
-          accept="audio/*,video/*"
-          onChange={(e) => onRecordStop(e.target.files[0])}
-        />
+        <Button
+          variant="contained"
+          color="primary"
+          disableElevation
+          className={classes.button}
+          style={{ marginRight: 15 }}
+          startIcon={isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
+          onClick={isRecording ? stopRecording : startRecording}
+        >
+          {isRecording ? "Stop" : "Record"}
+        </Button>
+        <Button
+          variant="outlined"
+          color="primary"
+          disableElevation
+          className={classes.button}
+          startIcon={<AttachFileIcon />}
+        >
+          Upload File
+          <input
+            hidden
+            data-cy="upload-file"
+            type="file"
+            accept="audio/*,video/*"
+            onChange={(e) => onRecordStop(e.target.files[0])}
+          />
+        </Button>
       </div>
     </div>
   );

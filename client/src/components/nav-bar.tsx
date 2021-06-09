@@ -13,6 +13,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
   Menu,
@@ -23,8 +24,16 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import ChatIcon from "@material-ui/icons/Chat";
 import CloseIcon from "@material-ui/icons/Close";
+import EditIcon from "@material-ui/icons/Edit";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import MenuIcon from "@material-ui/icons/Menu";
+import MicIcon from "@material-ui/icons/Mic";
+import QuestionAnswerIcon from "@material-ui/icons/QuestionAnswer";
+import RateReviewIcon from "@material-ui/icons/RateReview";
+import SubjectIcon from "@material-ui/icons/Subject";
+import BuildIcon from "@material-ui/icons/Build";
 
 import { CLIENT_ENDPOINT } from "api";
 import Context from "context";
@@ -128,14 +137,17 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
-        to={"/profile"}
-        selected={location.pathname === "/profile"}
+        to={"/"}
+        selected={location.pathname === "/"}
       >
-        <ListItemText primary="Profile" />
+        <ListItemIcon>
+          <ChatIcon />
+        </ListItemIcon>
+        <ListItemText primary="My Answers" />
       </ListItem>
       <ListItem
         button
@@ -143,15 +155,21 @@ function NavMenu(props: {
         to={"/subjects"}
         selected={location.pathname === "/subjects"}
       >
-        <ListItemText primary="Select Subjects" />
+        <ListItemIcon>
+          <SubjectIcon />
+        </ListItemIcon>
+        <ListItemText primary="My Subjects" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
+        to={"/profile"}
+        selected={location.pathname === "/profile"}
       >
-        <ListItemText primary="Setup" />
+        <ListItemIcon>
+          <AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="My Profile" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
@@ -159,18 +177,24 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
+        to={"/setup"}
+        selected={location.pathname === "/setup"}
       >
-        <ListItemText primary="Record Questions" />
+        <ListItemIcon>
+          <BuildIcon />
+        </ListItemIcon>
+        <ListItemText primary="Setup" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
+        to={"/record"}
+        selected={location.pathname.includes("/record")}
       >
-        <ListItemText primary="Review Answers" />
+        <ListItemIcon>
+          <MicIcon />
+        </ListItemIcon>
+        <ListItemText primary="Record Answers" />
       </ListItem>
       <ListItem
         button
@@ -178,28 +202,38 @@ function NavMenu(props: {
         to={"/feedback"}
         selected={location.pathname.includes("/feedback")}
       >
-        <ListItemText primary="Corrections and User Feedback" />
+        <ListItemIcon>
+          <RateReviewIcon />
+        </ListItemIcon>
+        <ListItemText primary="Review User Feedback" />
       </ListItem>
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
+        <ListItemIcon>
+          <QuestionAnswerIcon />
+        </ListItemIcon>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
-      <ListSubheader className={classes.menuHeader}>
-        Subjects and Templates
-      </ListSubheader>
+      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/author/subjects"}
         selected={location.pathname.includes("/author/subject")}
       >
-        <ListItemText primary="Subjects" />
+        <ListItemIcon>
+          <EditIcon />
+        </ListItemIcon>
+        <ListItemText primary="Create Subject" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
+        <ListItemIcon>
+          <ExitToAppIcon />
+        </ListItemIcon>
         <ListItemText primary="Log Out" />
       </ListItem>
       <Divider />
