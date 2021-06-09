@@ -7,6 +7,7 @@ const mentor = {
   title: "",
   lastTrainedAt: null,
   subjects: [],
+  mentorType: "CHAT",
 };
 
 describe("Profile", () => {
@@ -23,11 +24,19 @@ describe("Profile", () => {
           firstName: "Clint",
           title: "Nuclear Electrician's Mate",
         },
+        {
+          ...mentor,
+          name: "Clinton Anderson",
+          firstName: "Clint",
+          title: "Nuclear Electrician's Mate",
+          email: "email@gmail.com",
+        },
       ],
       gqlQueries: [mockGQL("updateMentorDetails", true, true)],
     });
     cy.visit("/profile");
     cy.contains("My Profile");
+    cy.get("[data-cy=select-chat-type]").contains("Chat");
     cy.get("[data-cy=mentor-name]").within($input => {
       cy.get("input").should('have.value', "")
     });
@@ -82,6 +91,24 @@ describe("Profile", () => {
     });
     cy.get("[data-cy=mentor-job-title]").within($input => {
       cy.get("input").should('have.value', "Nuclear Electrician's Mate")
+    });
+
+    // fill out email and save
+    cy.get("[data-cy=mentor-email]").type("email@gmail.com");
+    cy.get("[data-cy=update-btn]").should("not.be.disabled");
+    cy.get("[data-cy=update-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=update-btn]").should("be.disabled");
+    cy.get("[data-cy=mentor-name]").within($input => {
+      cy.get("input").should('have.value', "Clinton Anderson")
+    });
+    cy.get("[data-cy=mentor-first-name]").within($input => {
+      cy.get("input").should('have.value', "Clint")
+    });
+    cy.get("[data-cy=mentor-job-title]").within($input => {
+      cy.get("input").should('have.value', "Nuclear Electrician's Mate")
+    });
+    cy.get("[data-cy=mentor-email]").within($input => {
+      cy.get("input").should('have.value', "email@gmail.com")
     });
   });
 });

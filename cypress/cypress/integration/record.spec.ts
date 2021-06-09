@@ -469,7 +469,6 @@ describe("Record", () => {
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder showing
     cy.get("[data-cy=video-recorder]").should("be.visible");
-    cy.get("[data-cy=upload-file]").should("be.visible");
     // video player hidden
     cy.get("[data-cy=video-player]").should("be.hidden");
     cy.get("[data-cy=slider]").should("be.hidden");
@@ -486,11 +485,9 @@ describe("Record", () => {
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder hidden
     cy.get("[data-cy=video-recorder]").should("be.hidden");
-    cy.get("[data-cy=upload-file]").should("be.hidden");
     // video player showing
     cy.get("[data-cy=video-player]").should("be.visible");
     cy.get("[data-cy=rerecord-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("be.visible");
     // editing hidden
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=slider]").should("not.be.hidden");
@@ -498,7 +495,6 @@ describe("Record", () => {
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
     cy.get("[data-cy=video-recorder]").should("be.visible");
-    cy.get("[data-cy=upload-file]").should("be.visible");
     cy.get("[data-cy=video-player]").should("be.hidden");
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
@@ -506,7 +502,7 @@ describe("Record", () => {
     cy.get("[data-cy=trim-video]").should("be.disabled");
   });
 
-  it("can upload a video file and receive a transcript", () => {
+  it.only("can upload a video file and receive a transcript", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [
@@ -521,7 +517,16 @@ describe("Record", () => {
     cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("be.visible");
-    cy.get("[data-cy=upload-file]").should("be.visible");
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=uploading-status]").children().should("have.length", 2);
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     // upload file
     cy.fixture('video.mp4').then(fileContent => {
       cy.get('input[type="file"]').attachFile({
@@ -540,13 +545,31 @@ describe("Record", () => {
     cy.get("[data-cy=trim-video]").should("be.disabled");
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Uploading...");
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading 1 item(s)...")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Uploading');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    // video uploaded
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Complete');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     cy.get("[data-cy=transcript-input]").within($input => {
       cy.get("textarea").should('have.text', "My name is Clint Anderson")
     });
   })
 
-  it("fails gracefully if uploadVideo fails", () => {
+  it.only("fails gracefully if uploadVideo fails", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [
@@ -558,6 +581,16 @@ describe("Record", () => {
     cyMockUploadStatus(cy, { status: { state: JobState.FAILURE } });
     cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=uploading-status]").children().should("have.length", 2);
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     // upload file
     cy.fixture('video.mp4').then(fileContent => {
       cy.get('input[type="file"]').attachFile({
@@ -568,7 +601,26 @@ describe("Record", () => {
     });
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Failed to upload");
+    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading 1 item(s)...")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Uploading');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    // get status
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Failed job');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
@@ -577,7 +629,7 @@ describe("Record", () => {
     });
   })
 
-  it("fails gracefully if fetchMentor after upload fails", () => {
+  it.only("fails gracefully if fetchMentor after upload fails", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [
@@ -589,6 +641,16 @@ describe("Record", () => {
     cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=uploading-status]").children().should("have.length", 2);
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     // upload file
     cy.fixture('video.mp4').then(fileContent => {
       cy.get('input[type="file"]').attachFile({
@@ -599,8 +661,25 @@ describe("Record", () => {
     });
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.contains("Uploading...");
-    cy.wait(3000)
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading 1 item(s)...")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Uploading');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
+    // get status
+    cy.get("[data-cy=uploading-widget-title]").invoke("text").should('eq', "Uploading Complete")
+    cy.get("[data-cy=upload-status-0]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'Who are you and what do you do?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', 'Failed update');
+    })
+    cy.get("[data-cy=upload-status-1]").within($status => {
+      cy.get("[data-cy=upload-question]").invoke("text").should('eq', 'How old are you now?');
+      cy.get("[data-cy=upload-status]").invoke("text").should('eq', '');
+    })
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
     });
@@ -659,8 +738,8 @@ describe("Record", () => {
       ],
       gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
-    cy.visit("/record?subject=background&status=COMPLETE");
-    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "Who are you and what do you do?")
       cy.get("textarea").should("have.attr", "disabled");
@@ -670,15 +749,14 @@ describe("Record", () => {
       cy.get("textarea").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Active");
-    cy.get("[data-cy=save-btn]").should("be.disabled");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]").contains("Saving...");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
 
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=incomplete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
-    cy.get("[data-cy=save-btn]").should("not.be.disabled");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
-    cy.get("[data-cy=save-btn]").should("be.disabled");
   });
 
   it("can update transcript", () => {

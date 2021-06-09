@@ -110,6 +110,7 @@ export interface Answer {
   transcript: string;
   status: Status;
   media?: Media[];
+  uploadStatusUrl?: string;
 }
 
 export interface UserQuestion {

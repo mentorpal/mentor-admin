@@ -17,6 +17,7 @@ export function useWithTraining(
     error,
     isPolling,
     startTask,
+    startPolling,
     clearError,
   } = useWithTask<TrainingInfo, string>(train, poll, pollingInterval);
 
@@ -34,6 +35,7 @@ export function useWithTraining(
     status: status,
     statusUrl: statusUrl,
     startTask: startTask,
+    startPolling,
     clearError: clearError,
   };
 }

@@ -23,6 +23,7 @@ import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { TabContext, TabList, TabPanel } from "@material-ui/lab";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,6 +37,10 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+  },
+  panel: {
+    width: "calc(100% - 50px)",
+    overflow: "auto",
   },
   button: {
     width: 200,
@@ -77,6 +82,8 @@ function SubjectPage(props: {
     removeQuestion,
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
+  const { height: windowHeight } = useWithWindowSize();
+  const maxChildHeight = windowHeight - 250;
 
   if (!mentor || !editedSubject) {
     return (
@@ -93,12 +100,20 @@ function SubjectPage(props: {
       <TabContext value={value.toString()}>
         <AppBar position="static">
           <TabList onChange={(e, v) => setValue(v)}>
-            <Tab label="Subject Info" value="info" />
-            <Tab label="Topics" value="topics" />
-            <Tab label="Questions and Categories" value="questions" />
+            <Tab data-cy="toggle-info" label="Subject Info" value="info" />
+            <Tab data-cy="toggle-topics" label="Topics" value="topics" />
+            <Tab
+              data-cy="toggle-questions"
+              label="Questions and Categories"
+              value="questions"
+            />
           </TabList>
         </AppBar>
-        <TabPanel value="info">
+        <TabPanel
+          className={classes.panel}
+          value="info"
+          style={{ height: maxChildHeight }}
+        >
           <TextField
             data-cy="subject-name"
             variant="outlined"
@@ -121,7 +136,11 @@ function SubjectPage(props: {
             multiline
           />
         </TabPanel>
-        <TabPanel value="topics">
+        <TabPanel
+          className={classes.panel}
+          value="topics"
+          style={{ height: maxChildHeight }}
+        >
           <TopicsList
             classes={classes}
             topics={editedSubject.topics}
@@ -131,7 +150,11 @@ function SubjectPage(props: {
             moveTopic={moveTopic}
           />
         </TabPanel>
-        <TabPanel value="questions">
+        <TabPanel
+          className={classes.panel}
+          value="questions"
+          style={{ height: maxChildHeight }}
+        >
           <QuestionsList
             classes={classes}
             categories={editedSubject.categories}

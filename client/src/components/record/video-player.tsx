@@ -10,14 +10,13 @@ import ReactPlayer from "react-player";
 import { Button, Slider } from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { RecordingState } from "hooks/graphql/recording-reducer";
 import { CurAnswerState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   curAnswer: CurAnswerState;
-  recordState: RecordingState;
+  isRecording: boolean;
   onUpload: (trim?: { start: number; end: number }) => void;
   onRerecord: () => void;
   onRecordStart: () => void;
@@ -28,7 +27,7 @@ function VideoPlayer(props: {
   const {
     classes,
     curAnswer,
-    recordState,
+    isRecording,
     onUpload,
     onRerecord,
     onRecordStart,
@@ -107,7 +106,7 @@ function VideoPlayer(props: {
       <VideoRecorder
         classes={classes}
         curAnswer={curAnswer}
-        recordState={recordState}
+        isRecording={isRecording}
         height={height}
         width={width}
         onRecordStart={onRecordStart}
@@ -131,7 +130,7 @@ function VideoPlayer(props: {
             ref={reactPlayerRef}
             url={curAnswer.videoSrc}
             controls={true}
-            playing={!recordState.isUploading}
+            playing={!curAnswer.isUploading}
             height={height}
             width={width}
             playsinline
@@ -140,7 +139,7 @@ function VideoPlayer(props: {
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
             style={{
-              visibility: recordState.isUploading ? "hidden" : "inherit",
+              visibility: curAnswer.isUploading ? "hidden" : "inherit",
             }}
           />
         </div>
@@ -151,7 +150,7 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
-          disabled={recordState.isSaving || recordState.isUploading}
+          disabled={curAnswer.isSaving || curAnswer.isUploading}
           style={{
             visibility: curAnswer.videoSrc ? "visible" : "hidden",
           }}
@@ -162,7 +161,7 @@ function VideoPlayer(props: {
             variant="outlined"
             color="primary"
             disableElevation
-            disabled={recordState.isUploading}
+            disabled={curAnswer.isUploading}
             className={classes.button}
             onClick={onRerecord}
             style={{ marginRight: 15 }}
@@ -174,7 +173,7 @@ function VideoPlayer(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={!curAnswer.recordedVideo || recordState.isUploading}
+            disabled={!curAnswer.recordedVideo || curAnswer.isUploading}
             className={classes.button}
             onClick={() => onUpload()}
             style={{ marginRight: 15 }}
@@ -190,8 +189,8 @@ function VideoPlayer(props: {
               !curAnswer.videoSrc ||
               (trim[0] === 0 && trim[1] === 100) ||
               !isFinite(videoLength) ||
-              recordState.isSaving ||
-              recordState.isUploading
+              curAnswer.isSaving ||
+              curAnswer.isUploading
             }
             className={classes.button}
             onClick={() => onUpload({ start: trim[0], end: trim[1] })}

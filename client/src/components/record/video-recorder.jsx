@@ -41,7 +41,7 @@ const videoJsOptions = {
 function VideoRecorder({
   classes,
   curAnswer,
-  recordState,
+  isRecording,
   height,
   width,
   onRecordStart,
@@ -102,7 +102,7 @@ function VideoRecorder({
   }, [curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!recordState.isRecording || !curAnswer.minVideoLength) {
+    if (!isRecording || !curAnswer.minVideoLength) {
       return;
     }
     if (recordDurationCounter > curAnswer.minVideoLength) {
@@ -160,7 +160,7 @@ function VideoRecorder({
           left: 0,
           right: 0,
           backgroundColor: "black",
-          opacity: recordState.isRecording ? 0.5 : 0.75,
+          opacity: isRecording ? 0.5 : 0.75,
         }}
       >
         <div
@@ -169,7 +169,7 @@ function VideoRecorder({
             width: "100%",
             height: "100%",
             visibility: isCameraOn ? "visible" : "hidden",
-            opacity: recordState.isRecording ? 0.25 : 1,
+            opacity: isRecording ? 0.25 : 1,
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
@@ -187,7 +187,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
@@ -213,7 +213,7 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
@@ -257,12 +257,10 @@ function VideoRecorder({
           disableElevation
           className={classes.button}
           style={{ marginRight: 15 }}
-          startIcon={
-            recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />
-          }
-          onClick={recordState.isRecording ? stopRecording : startRecording}
+          startIcon={isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
+          onClick={isRecording ? stopRecording : startRecording}
         >
-          {recordState.isRecording ? "Stop" : "Record"}
+          {isRecording ? "Stop" : "Record"}
         </Button>
         <Button
           variant="outlined"

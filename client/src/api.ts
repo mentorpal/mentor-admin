@@ -434,6 +434,7 @@ export async function fetchMentor(
               }
               transcript
               status
+              uploadStatusUrl
               media {
                 type
                 tag
