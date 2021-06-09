@@ -11,55 +11,75 @@ import { CurAnswerState } from "hooks/graphql/use-with-record-state";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { NoEncryption } from "@material-ui/icons";
 import { copyFile } from "node:fs";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 
 function UploadingListItem(props: {
   classes: Record<string, string>;
-  curAnswer: CurAnswerState;
-  recordState: RecordingState;
+  upload: UploadTask;
 }): JSX.Element {
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const {
-    classes,
-    curAnswer,
-    recordState
-  } = props;
+  const { classes, upload } = props;
 
-  return(
+  return (
     <li data-cy="upload-card-0">
-      <ul 
-      data-cy="card-title"
-      style={{textAlign:"center",
-      listStyleType: "none",
-      display:"table",
-      padding: 0,
-      margin: 0,
-      borderBottom:"1px solid grey",
-      width:"100%"}}>
-        <li style={{display:"table-cell"}}>
-          <small>{
-          curAnswer && curAnswer.answer?.question?.question.length > 35 ?
-           curAnswer.answer?.question?.question.substring(0, 35) + "..." :
-            curAnswer.answer?.question?.question}</small>
-        </li>
-        <li data-cy="upload-status" 
+      <ul
+        data-cy="card-title"
         style={{
-          display:"table-cell",
-          color: recordState.isUploading ? "black" : recordState.error? "red" : "green"}}>
-          <small>{recordState.isUploading ? "Uploading" : recordState.error ? "ERROR" : "Complete"}</small>
+          textAlign: "center",
+          listStyleType: "none",
+          display: "table",
+          padding: 0,
+          margin: 0,
+          borderBottom: "1px solid grey",
+          width: "100%",
+        }}
+      >
+        <li style={{ display: "table-cell" }}>
+          <small>
+            {upload?.question?.question.length > 35
+              ? upload?.question?.question.substring(0, 35) + "..."
+              : upload?.question?.question}
+          </small>
         </li>
-        <li 
-        data-cy="cancel-upload"
-        style={{
-          display:"table-cell",
-          paddingRight:"8px",
-          paddingLeft:"8px",
-          visibility: recordState.isUploading ? "visible" : "hidden",
-          cursor:"pointer"}}>
+        <li
+          data-cy="upload-status"
+          style={{
+            display: "table-cell",
+            color:
+              upload.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
+              upload.uploadStatus === UploadStatus.UPLOAD_FAILED
+                ? "red"
+                : upload.uploadStatus !== UploadStatus.DONE
+                ? "black"
+                : "green",
+          }}
+        >
+          <small>
+            {upload.uploadStatus === UploadStatus.TRANSCRIBE_FAILED
+              ? "Transcribe Failed"
+              : upload.uploadStatus === UploadStatus.UPLOAD_FAILED
+              ? "Upload Failed"
+              : upload.uploadStatus === UploadStatus.DONE
+              ? "Complete"
+              : "Uploading"}
+          </small>
+        </li>
+        <li
+          data-cy="cancel-upload"
+          style={{
+            display: "table-cell",
+            paddingRight: "8px",
+            paddingLeft: "8px",
+            visibility:
+              upload.uploadStatus !== UploadStatus.DONE ? "visible" : "hidden",
+            cursor: "pointer",
+          }}
+        >
           x
         </li>
       </ul>
     </li>
-  )
+  );
 }
 
 export default UploadingListItem;

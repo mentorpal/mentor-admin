@@ -39,11 +39,11 @@ const videoJsOptions = {
 function VideoRecorder({
   classes,
   curAnswer,
-  recordState,
   height,
   width,
   onRecordStart,
   onRecordStop,
+  isRecording,
 }) {
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
@@ -105,7 +105,7 @@ function VideoRecorder({
   }, [curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!recordState.isRecording || !curAnswer.minVideoLength) {
+    if (!isRecording || !curAnswer.minVideoLength) {
       return;
     }
     if (recordDurationCounter > curAnswer.minVideoLength) {
@@ -184,7 +184,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            opacity: recordState.isRecording ? 0.5 : 0.75,
+            opacity: isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
@@ -203,7 +203,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
@@ -230,7 +230,7 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
@@ -255,10 +255,10 @@ function VideoRecorder({
         }}
       >
         <IconButton
-          onClick={recordState.isRecording ? stopRecording : startRecording}
+          onClick={isRecording ? stopRecording : startRecording}
           style={{ color: "red" }}
         >
-          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
+          {isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
         </IconButton>
       </div>
       <div

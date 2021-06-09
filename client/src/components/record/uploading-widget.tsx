@@ -11,79 +11,69 @@ import { CurAnswerState } from "hooks/graphql/use-with-record-state";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { NoEncryption } from "@material-ui/icons";
 import ListItem from "./uploading-list-item";
-import { Answer} from "types";
+import { Answer } from "types";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 
 function UploadingView(props: {
   classes: Record<string, string>;
-  curAnswer: CurAnswerState;
-  answers: Answer[];
-  recordState: RecordingState;
+  uploads: UploadTask[];
   disabled: boolean;
 }): JSX.Element {
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const {
-    classes,
-    curAnswer,
-    answers,
-    recordState,
-    disabled
-  } = props;
-  const [uploadCount, setUploadCount] = useState(0);
-
-  function updateUploadCount(amount: number){
-    if(uploadCount!=amount)
-      setUploadCount(amount);
-  }
-
-  function produceList(){
-    //When Answers has uploadStatusUrl available, the existence of this variable tells us that an
-    //upload is in progress, so add it to the list.
-
-    //When the 
-    const uploadingItems = [];
-    uploadingItems.push(<ListItem
-      classes={classes}
-      curAnswer={curAnswer}
-      recordState={recordState}
-      />);
-    return(
-      <ul style={{
-        listStyleType: "none",
-        padding: 0,
-        margin: 0
-      }}>
-        {uploadingItems}
-      </ul>
-    )
-  }
+  const { classes, uploads } = props;
+  const disabled = uploads.length === 0;
+  const uploadsInProgress = uploads.filter(
+    (u) =>
+      u.uploadStatus !== UploadStatus.NONE &&
+      u.uploadStatus !== UploadStatus.TRANSCRIBE_FAILED &&
+      u.uploadStatus !== UploadStatus.UPLOAD_FAILED &&
+      u.uploadStatus !== UploadStatus.DONE
+  );
 
   const height = 150;
   const width = 300;
-  return(
+  return (
     <div
       data-cy="uploading-widget"
       style={{
-      visibility: disabled ? "hidden" : "visible",
-      position: "absolute",
-      right:50,
-      marginTop: 200,
-      boxShadow: "1px 1px 1px 1px",
-      width: width,
-      height: height}}>
-        <div 
+        visibility: disabled ? "hidden" : "visible",
+        position: "absolute",
+        right: 50,
+        marginTop: 200,
+        boxShadow: "1px 1px 1px 1px",
+        width: width,
+        height: height,
+      }}
+    >
+      <div
         data-cy="uploading-widget-title"
         style={{
-          width:"100%",
-          height:height*.20,
-          backgroundColor:"#303030",
-          color:"white"}}>
-            <div style={{paddingTop:height*.03}}>
-          {recordState.isUploading ? "Uploading 1 item..." : "Uploading Complete"}
-          </div>
+          width: "100%",
+          height: height * 0.2,
+          backgroundColor: "#303030",
+          color: "white",
+        }}
+      >
+        <div style={{ paddingTop: height * 0.03 }}>
+          {uploadsInProgress.length > 0
+            ? `Uploading ${uploadsInProgress.length} item(s)...`
+            : "Uploading Complete"}
         </div>
-    {produceList()}
+      </div>
+      <ul
+        style={{
+          listStyleType: "none",
+          padding: 0,
+          margin: 0,
+        }}
+      >
+        {uploads.map((u, i) => (
+          <div key={`upload-${i}`} data-cy={`upload-${i}`}>
+            <ListItem classes={classes} upload={u} />
+          </div>
+        ))}
+      </ul>
     </div>
-  )
+  );
 }
 
 export default UploadingView;

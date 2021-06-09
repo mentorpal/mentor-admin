@@ -103,12 +103,15 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
+    isUploading,
+    isRecording,
+    uploads,
+
     mentor,
     isLoading,
     answers,
     answerIdx,
     curAnswer,
-    recordState,
     prevAnswer,
     nextAnswer,
     editAnswer,
@@ -117,7 +120,6 @@ function RecordPage(props: {
     startRecording,
     stopRecording,
     uploadVideo,
-    clearRecordingError,
     setMinVideoLength,
   } = useWithRecordState(props.accessToken, props.search);
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
@@ -148,14 +150,14 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
-      {curAnswer? (
-      <UploadingWidget
-      classes={classes}
-      answers={answers}
-      curAnswer={curAnswer}
-      recordState={recordState}
-      disabled = {!recordState.isUploading}
-      />): undefined}
+      {curAnswer ? (
+        <UploadingWidget
+          classes={classes}
+          answers={answers}
+          curAnswer={curAnswer}
+          uploads={uploads}
+        />
+      ) : undefined}
       <NavBar title="Record Mentor" mentorId={mentor?._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
@@ -171,7 +173,7 @@ function RecordPage(props: {
         <VideoPlayer
           classes={classes}
           curAnswer={curAnswer}
-          recordState={recordState}
+          isRecording={isRecording}
           onUpload={uploadVideo}
           onRerecord={rerecord}
           onRecordStart={startRecording}
@@ -304,7 +306,8 @@ function RecordPage(props: {
             data-cy="back-btn"
             className={classes.backBtn}
             disabled={
-              answerIdx === 0 || recordState.isSaving || recordState.isUploading
+              // answerIdx === 0 || recordState.isSaving || recordState.isUploading
+              answerIdx === 0
             }
             onClick={() => switchAnswer(prevAnswer)}
           >
@@ -316,9 +319,9 @@ function RecordPage(props: {
             color="primary"
             disableElevation
             disabled={
-              !curAnswer?.isEdited ||
-              recordState.isSaving ||
-              recordState.isUploading
+              !curAnswer?.isEdited
+              // recordState.isSaving ||
+              // recordState.isUploading
             }
             onClick={saveAnswer}
           >
@@ -330,7 +333,7 @@ function RecordPage(props: {
               variant="contained"
               color="primary"
               disableElevation
-              disabled={recordState.isSaving || recordState.isUploading}
+              // disabled={recordState.isSaving || recordState.isUploading}
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
@@ -341,9 +344,9 @@ function RecordPage(props: {
               data-cy="next-btn"
               className={classes.nextBtn}
               disabled={
-                answerIdx === answers.length - 1 ||
-                recordState.isSaving ||
-                recordState.isUploading
+                answerIdx === answers.length - 1
+                // recordState.isSaving ||
+                // recordState.isUploading
               }
               onClick={() => switchAnswer(nextAnswer)}
             >
@@ -352,20 +355,19 @@ function RecordPage(props: {
           )}
         </Toolbar>
       </AppBar>
-      
-      <LoadingDialog
+
+      {/* <LoadingDialog
         title={
           isLoading
             ? "Loading..."
             : recordState.isSaving
-            ? "Saving..."
-            : recordState.isUploading
-            ? "Uploading..."
-            : ""
+              ? "Saving..."
+              : recordState.isUploading
+                ? "Uploading..."
+                : ""
         }
-      />
-      
-      <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
+      /> */}
+      {/* <ErrorDialog error={recordState.error} clearError={clearRecordingError} /> */}
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>

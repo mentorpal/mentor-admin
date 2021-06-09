@@ -19,6 +19,7 @@ import {
   VideoInfo,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
+import { UploadTask } from "hooks/graphql/use-with-upload-status";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -668,4 +669,52 @@ export async function loginGoogle(
     variables: { accessToken },
   });
   return result.data.data.loginGoogle;
+}
+
+export async function fetchUploads(accessToken: string): Promise<UploadTask[]> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      query UploadTasks() {
+        me {
+          uploadTasks {
+            question {
+              _id
+              question
+            }
+            uploadStatus
+            transcript
+            media {
+              type
+              tag
+              url
+            }
+          }  
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.uploadTasks;
+}
+
+export async function clearUploads(accessToken: string): Promise<boolean> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      mutation ClearUploads() {
+        me {
+          deleteUploadTasks()
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.deleteUploadTasks;
 }
