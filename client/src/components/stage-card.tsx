@@ -12,8 +12,11 @@ import {
   CardContent,
   LinearProgress,
   Typography,
+  Tooltip,
+  Icon,
 } from "@material-ui/core";
 import { createStyles, withStyles } from "@material-ui/core/styles";
+import { HelpOutline } from "@material-ui/icons";
 
 const StageProgressBar = withStyles((theme) =>
   createStyles({
@@ -42,11 +45,21 @@ function StageCard(props: { value: number }): JSX.Element {
           <Typography variant="body1" color="textSecondary">
             Scope: Scripted
           </Typography>
-          <Typography variant="body2" color="textSecondary">
+          <Typography variant="body1" color="textSecondary">
             Your mentor can respond to questions picked from a list.
           </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Next Goal: Interactive (?)
+          <Typography variant="body1" color="textSecondary">
+            Next Goal: Interactive{"   "}
+            <Tooltip
+              title={
+                <React.Fragment>
+                  <Typography color="inherit">Interactive</Typography>
+                  {"Interactive mentors can process user questions."}
+                </React.Fragment>
+              }
+            >
+              <HelpOutline fontSize="small" />
+            </Tooltip>
           </Typography>
           <StageProgressBar
             data-cy="progress-bar"
