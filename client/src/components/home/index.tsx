@@ -108,7 +108,11 @@ function HomePage(props: {
     <div className={classes.root}>
       <div style={{ flexShrink: 0 }}>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
-        <StageCard value={mentor?.answers.length || 0} />
+        <StageCard
+          value={
+            mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
+          }
+        />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
