@@ -100,6 +100,7 @@ function RecordPage(props: {
     status?: string;
     category?: string;
     back?: string;
+    poll?: string;
   };
 }): JSX.Element {
   const classes = useStyles();

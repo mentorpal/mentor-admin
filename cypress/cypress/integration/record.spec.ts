@@ -3,7 +3,7 @@ This software is Copyright ©️ 2020 The University of Southern California. All
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
+import { cySetup, cyMockDefault, mockGQL, cyMockUpload } from "../support/functions";
 import { Mentor, MentorType, QuestionType, Status, JobState, MediaType } from "../support/types";
 import {
   completeMentor,
@@ -472,6 +472,7 @@ describe("Record", () => {
   //START of new tests
   it("A successfully cancelled upload item should dissapear from the list of uploads", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -569,6 +570,7 @@ describe("Record", () => {
 
   it("cancelling an upload changes the local uploading status to \"cancelling\"", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -655,6 +657,7 @@ describe("Record", () => {
   //Test that once you click the title card, it goes to that card appropriate answer
   it("tapping an item from active uploads (via upload button) takes you to that item", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
@@ -687,6 +690,7 @@ describe("Record", () => {
 
   it("User gets guidance to know they can move on and record another answer", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -771,6 +775,7 @@ describe("Record", () => {
 
   it("Upload button changes to cancel while an upload is in progress", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -857,6 +862,7 @@ describe("Record", () => {
 
   it("Option to cancel upload is available when returning to page with an upload in progress", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -946,6 +952,7 @@ describe("Record", () => {
 
   it("the upload card corresponding to current question should be highlighted", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1065,6 +1072,7 @@ describe("Record", () => {
   //Test that the widget displays mutliple cards with multiple uploads
   it("displays multiple cards with multiple uploads", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1176,6 +1184,7 @@ describe("Record", () => {
 
   it("uploading widget should not be open if there are no uploads", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
@@ -1190,6 +1199,7 @@ describe("Record", () => {
 
   it("uploading widget should be open if there are active uploads", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
@@ -1230,6 +1240,7 @@ describe("Record", () => {
 
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1351,6 +1362,7 @@ describe("Record", () => {
 
   it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1469,6 +1481,7 @@ describe("Record", () => {
 
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1592,6 +1605,7 @@ describe("Record", () => {
 
   it("hides video if mentor type is CHAT", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [chatMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
@@ -1607,6 +1621,7 @@ describe("Record", () => {
 
   it("shows video recorder if mentor type is VIDEO and no video", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1631,6 +1646,7 @@ describe("Record", () => {
 
   it("shows video player if mentor type is VIDEO and has video", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1667,6 +1683,7 @@ describe("Record", () => {
 
   it("can update status", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
@@ -1705,6 +1722,7 @@ describe("Record", () => {
 
   it("can update transcript", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
@@ -1756,6 +1774,7 @@ describe("Record", () => {
 
   it("cannot update question for a question not belonging to mentor", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: chatMentor,
       gqlQueries: [
@@ -1774,6 +1793,7 @@ describe("Record", () => {
 
   it("can update question for a question belonging to mentor", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
@@ -1823,6 +1843,80 @@ describe("Record", () => {
     cy.get("[data-cy=question-input]").within($input => {
       cy.get("textarea").should('have.text', "How old are you now?test")
       cy.get("textarea").should("not.have.attr", "disabled");
+    });
+  });
+
+  it("can upload a video file and receive a transcript", () => {
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson"
+        })
+      ],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [
+          [],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "",
+              media: []
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "My name is Clint Anderson",
+              media: [
+                {
+                  type: 'video',
+                  tag: 'web',
+                  url: 'video.mp4'
+                }
+              ]
+            }
+          ],
+        ], true),
+      ],
+    });
+    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
+    cy.visit("/record");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+    // upload file
+    cy.fixture('video.mp4').then(fileContent => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: fileContent.toString(),
+        fileName: 'video.mp4',
+        mimeType: 'video/mp4'
+      });
+    });
+    // show video
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=rerecord-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=trim-video]").should("be.visible");
+    cy.get("[data-cy=slider]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=trim-video]").should("be.disabled");
+    // upload video
+    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+    cy.get("[data-cy=transcript-input]").within($input => {
+      cy.get("textarea").should('have.text', "My name is Clint Anderson")
     });
   });
 });

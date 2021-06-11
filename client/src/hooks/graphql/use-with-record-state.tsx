@@ -40,6 +40,7 @@ export function useWithRecordState(
     subject?: string;
     status?: string;
     category?: string;
+    poll?: string;
   }
 ): UseWithRecordState {
   const [answers, setAnswers] = useState<AnswerState[]>([]);
@@ -47,6 +48,7 @@ export function useWithRecordState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [error, setError] = useState<RecordingError>();
+  const pollingInterval = parseInt(filter.poll || "");
   const {
     data: mentor,
     error: mentorError,
@@ -57,7 +59,11 @@ export function useWithRecordState(
     isUploading,
     upload,
     isTaskDoneOrFailed,
-  } = useWithUploadStatus(accessToken, onAnswerUploaded);
+  } = useWithUploadStatus(
+    accessToken,
+    onAnswerUploaded,
+    isNaN(pollingInterval) ? undefined : pollingInterval
+  );
 
   useEffect(() => {
     if (!mentor) {

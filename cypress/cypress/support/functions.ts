@@ -215,3 +215,30 @@ export function cyMockTrainStatus(
     );
   });
 }
+
+export function cyMockUpload(
+  cy,
+  params: {
+    statusUrl?: string;
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("/upload/answer", (req) => {
+    req.alias = "upload";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {
+            statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
+          },
+          errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
