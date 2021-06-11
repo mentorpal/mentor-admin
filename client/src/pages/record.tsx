@@ -36,6 +36,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -237,7 +238,7 @@ function RecordPage(props: {
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={curAnswer.minVideoLength}
+            value={curAnswer!.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) => recordState.setMinVideoLength(event.target.value as number)}
@@ -307,7 +308,7 @@ function RecordPage(props: {
           <MenuItem
             data-cy="complete"
             value={Status.COMPLETE}
-            disabled={!curAnswer.isValid}
+            disabled={!curAnswer!.isValid}
           >
             Active
           </MenuItem>
@@ -375,7 +376,17 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
-      <UploadingWidget classes={classes} uploads={recordState.uploads} />
+      {curAnswer ? (
+        <UploadingWidget
+          curAnswer={curAnswer.answer}
+          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
+          currentUploads={recordState.uploads}
+          answers={recordState.answers}
+          setAnswerIDx={recordState.setAnswerIDx}
+        />
+      ) : undefined}
     </div>
   );
 }

@@ -141,7 +141,7 @@ function UploadingView(props: {
       </div>
       {produceList()}
     </div>
-  );
+  )
 }
 
 export default UploadingView;

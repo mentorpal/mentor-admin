@@ -429,7 +429,7 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
     });
-
+    
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor: chatMentor });
