@@ -470,7 +470,7 @@ describe("Record", () => {
   });
 
   //START of new tests
-  it.only("A successfully cancelled upload item should dissapear from the list of uploads", () => {
+  it("A successfully cancelled upload item should dissapear from the list of uploads", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -570,6 +570,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -646,6 +647,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -695,6 +697,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -746,6 +749,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -795,13 +799,12 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should('be.visible');
   })
 
-
-
   it("the upload card corresponding to current question should be highlighted", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -871,6 +874,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -936,7 +940,12 @@ describe("Record", () => {
 
   it("uploading widget should be open if there are active uploads", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockDefault(cy, {
+      mentor: [videoMentor], gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     // upload file
@@ -956,6 +965,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1027,6 +1037,7 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1090,12 +1101,12 @@ describe("Record", () => {
     });
   })
 
-
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1162,7 +1173,6 @@ describe("Record", () => {
     })
   })
 
-
   //END of new tests
 
   it("hides video if mentor type is CHAT", () => {
@@ -1216,138 +1226,6 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.hidden");
     cy.get("[data-cy=trim-video]").should("be.disabled");
   });
-
-  it("can upload a video file and receive a transcript", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [
-        videoMentor,
-        updateMentorAnswer(videoMentor, "A1_1_1", {
-          transcript: "My name is Clint Anderson"
-        })
-      ]
-    });
-    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
-    cy.visit("/record");
-    cy.get("[data-cy=video-recorder]").should("be.visible");
-    cy.get("[data-cy=upload-file]").should("be.visible");
-    // upload file
-    cy.fixture('video.mp4').then(fileContent => {
-      cy.get('input[type="file"]').attachFile({
-        fileContent: fileContent.toString(),
-        fileName: 'video.mp4',
-        mimeType: 'video/mp4'
-      });
-    });
-    // show video
-    cy.get("[data-cy=video-player]").should("be.visible");
-    cy.get("[data-cy=rerecord-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=trim-video]").should("be.visible");
-    cy.get("[data-cy=slider]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=trim-video]").should("be.disabled");
-    // upload video
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    //cy.contains("Uploading...");
-    cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "My name is Clint Anderson")
-    });
-  })
-
-  it("fails gracefully if uploadVideo fails", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [
-        videoMentor,
-        undefined
-      ]
-    });
-    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
-    cy.visit("/record");
-    // upload file
-    cy.fixture('video.mp4').then(fileContent => {
-      cy.get('input[type="file"]').attachFile({
-        fileContent: fileContent.toString(),
-        fileName: 'video.mp4',
-        mimeType: 'video/mp4'
-      });
-    });
-    // upload video
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    //cy.contains("Failed to upload");
-    cy.get("[data-cy=question-input]").within($input => {
-      cy.get("textarea").should('have.text', "Who are you and what do you do?")
-    });
-    cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "")
-    });
-  })
-
-  it("fails gracefully if fetchMentor after upload fails", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [
-        videoMentor,
-        undefined
-      ]
-    });
-    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
-    cy.visit("/record");
-    // upload file
-    cy.fixture('video.mp4').then(fileContent => {
-      cy.get('input[type="file"]').attachFile({
-        fileContent: fileContent.toString(),
-        fileName: 'video.mp4',
-        mimeType: 'video/mp4'
-      });
-    });
-    // upload video
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    //cy.contains("Uploading...");
-    cy.wait(3000)
-    cy.get("[data-cy=question-input]").within($input => {
-      cy.get("textarea").should('have.text', "Who are you and what do you do?")
-    });
-    cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "")
-    });
-  })
-
-  it("fails gracefully if fetchMentor has invalid data", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [
-        videoMentor,
-        updateMentorAnswer(videoMentor, "A1_1_1", {
-          question: undefined,
-          transcript: "test"
-        })
-      ]
-    });
-    cyMockUpload(cy);
-    cyMockUploadStatus(cy, { status: { state: JobState.SUCCESS } });
-    cy.intercept("**/videos/mentors/clintanderson/A1_1_1.mp4", { fixture: "video.mp4" });
-    cy.visit("/record");
-    // upload file
-    cy.fixture('video.mp4').then(fileContent => {
-      cy.get('input[type="file"]').attachFile({
-        fileContent: fileContent.toString(),
-        fileName: 'video.mp4',
-        mimeType: 'video/mp4'
-      });
-    });
-    // upload video
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    //cy.contains("Uploading...");
-    cy.wait(3000)
-    cy.get("[data-cy=question-input]").within($input => {
-      cy.get("textarea").should('have.text', "Who are you and what do you do?")
-    });
-    cy.get("[data-cy=transcript-input]").within($input => {
-      cy.get("textarea").should('have.text', "test")
-    });
-  })
 
   it.skip("can seek and trim a recorded video", () => {
     // TODO: video does not consistently load in cypress
