@@ -297,10 +297,6 @@ export function useWithRecordState(
   }
 
   return {
-    uploads: useWithUploads.uploads,
-    isUploading: useWithUploads.isPolling,
-    isRecording,
-
     mentor,
     answers,
     answerIdx,

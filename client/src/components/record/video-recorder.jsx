@@ -179,7 +179,7 @@ function VideoRecorder({ classes, height, width, recordState }) {
             bottom: 0,
             left: 0,
             right: 0,
-            opacity: isRecording ? 0.5 : 0.75,
+            opacity: recordState.isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
@@ -198,7 +198,7 @@ function VideoRecorder({ classes, height, width, recordState }) {
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: isRecording ? "visible" : "hidden",
+            visibility: recordState.isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
@@ -226,7 +226,7 @@ function VideoRecorder({ classes, height, width, recordState }) {
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: isRecording ? "visible" : "hidden",
+            visibility: recordState.isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
@@ -252,10 +252,10 @@ function VideoRecorder({ classes, height, width, recordState }) {
         }}
       >
         <IconButton
-          onClick={isRecording ? stopRecording : startRecording}
+          onClick={recordState.isRecording ? stopRecording : startRecording}
           style={{ color: "red" }}
         >
-          {isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
+          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
         </IconButton>
       </div>
       <div

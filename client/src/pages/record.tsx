@@ -190,12 +190,7 @@ function RecordPage(props: {
         />
       </div>
       {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer
-          classes={classes}
-          recordState={recordState}
-          cancelAnswerUpload={setCancelledAnswerID}
-          cancelledAnswerID={cancelledAnswerID}
-        />
+        <VideoPlayer classes={classes} recordState={recordState} />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
@@ -242,7 +237,7 @@ function RecordPage(props: {
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={curAnswer?.minVideoLength}
+            value={curAnswer.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) => recordState.setMinVideoLength(event.target.value as number)}
@@ -312,7 +307,7 @@ function RecordPage(props: {
           <MenuItem
             data-cy="complete"
             value={Status.COMPLETE}
-            disabled={!curAnswer?.isValid}
+            disabled={!curAnswer.isValid}
           >
             Active
           </MenuItem>
@@ -380,6 +375,7 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
+      <UploadingWidget classes={classes} uploads={recordState.uploads} />
     </div>
   );
 }
