@@ -590,6 +590,7 @@ describe("Record", () => {
 
   it("A successfully cancelled upload item should dissapear from the list of uploads", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -707,6 +708,7 @@ describe("Record", () => {
   //Test that once you click the title card, it goes to that card appropriate answer
   it("tapping an item from active uploads (via upload button) takes you to that item", () => {
     cySetup(cy);
+    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
