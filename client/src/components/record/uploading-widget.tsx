@@ -67,7 +67,7 @@ function UploadingView(props: {
         padding: 0,
         margin: 0
       }}>
-        {currentUploads.map((job, i)=>{
+        {currentUploads.filter(upload => upload.uploadStatus !== UploadStatus.CANCELLED).map((job, i)=>{
         return <div 
         key={`upload-card-${i}`}
         data-cy={`upload-card-${i}`}

@@ -470,6 +470,118 @@ describe("Record", () => {
   });
 
 //START of new tests
+it("A successfully cancelled upload item should dissapear from the list of uploads", () =>{
+  cySetup(cy);
+  cyMockDefault(cy, {
+    mentor: [videoMentor],
+    gqlQueries: [
+      mockGQL("uploadTasks", [
+        [
+          {
+            question: {
+              _id: videoMentor.answers[0].question._id,
+              question: videoMentor.answers[0].question.question
+            },
+            uploadStatus: "UPLOAD_IN_PROGRESS",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+          {
+            question: {
+              _id: videoMentor.answers[1].question._id,
+              question: videoMentor.answers[1].question.question
+            },
+            uploadStatus: "UPLOAD_IN_PROGRESS",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+          {
+            question: {
+              _id: videoMentor.answers[2].question._id,
+              question: videoMentor.answers[2].question.question
+            },
+            uploadStatus: "UPLOAD_IN_PROGRESS",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          }
+        ],
+        [
+          {
+            question: {
+              _id: videoMentor.answers[0].question._id,
+              question: videoMentor.answers[0].question.question
+            },
+            uploadStatus: "UPLOAD_IN_PROGRESS",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+          {
+            question: {
+              _id: videoMentor.answers[1].question._id,
+              question: videoMentor.answers[1].question.question
+            },
+            uploadStatus: "CANCELLED",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+          {
+            question: {
+              _id: videoMentor.answers[2].question._id,
+              question: videoMentor.answers[2].question.question
+            },
+            uploadStatus: "CANCELLED",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+        ]
+      ], true),
+    ],
+  });
+  cy.visit("/record");
+  cy.get("[data-cy=upload-card-0]").should("exist");
+  cy.get("[data-cy=upload-card-1]").should("exist");
+  cy.get("[data-cy=upload-card-2]").should("exist");
+  //after next poll, these cards should be gone since they were cancelled
+  cy.get("[data-cy=upload-card-1]").should("not.exist");
+  cy.get("[data-cy=upload-card-2]").should("not.exist");
+})
+
 it("cancelling an upload changes the local uploading status to \"cancelling\"", () =>{
   cySetup(cy);
   cyMockDefault(cy, {

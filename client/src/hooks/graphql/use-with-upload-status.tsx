@@ -9,6 +9,7 @@ import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
 import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
+import { cpuUsage } from "node:process";
 
 export enum UploadStatus {
   PENDING = "PENDING", // local state only; sending upload request to upload api
@@ -85,6 +86,7 @@ export function useWithUploadStatus(
 
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
+      task.uploadStatus === UploadStatus.CANCELLED ||
       task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
       task.uploadStatus === UploadStatus.UPLOAD_FAILED ||
       task.uploadStatus === UploadStatus.DONE
@@ -102,6 +104,12 @@ export function useWithUploadStatus(
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
+      //TODO: current workaround since copyAndSet isn't working properly
+      for(let i = 0; i < uploads.length; i++){
+        if(uploads[i].question._id == task.question._id){
+          uploads[i] = task;
+        }
+      }
       setUploads(copyAndSet(uploads, idx, task));
     }
   }

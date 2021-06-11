@@ -153,6 +153,7 @@ function RecordPage(props: {
       </div>
     );
   }
+  console.log(recordState.uploads)
   return (
     <div className={classes.root}>
       <NavBar title="Record Mentor" mentorId={mentor._id} />
