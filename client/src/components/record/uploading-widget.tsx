@@ -62,26 +62,28 @@ function UploadingView(props: {
           margin: 0,
         }}
       >
-        {currentUploads.map((job, i) => {
-          return (
-            <div
-              key={`upload-card-${i}`}
-              data-cy={`upload-card-${i}`}
-              style={
-                curAnswer.question._id == job.question._id
-                  ? { background: "yellow" }
-                  : {}
-              }
-            >
-              <ListItem
-                setAnswerIDx={setAnswerIDx}
-                answerIDx={retrieveAnswerIDx(job.question._id)}
-                jobStatus={job.uploadStatus}
-                jobTitle={retrieveAnswerTitle(job.question._id)}
-              />
-            </div>
-          );
-        })}
+        {currentUploads
+          .filter((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
+          .map((job, i) => {
+            return (
+              <div
+                key={`upload-card-${i}`}
+                data-cy={`upload-card-${i}`}
+                style={
+                  curAnswer.question._id == job.question._id
+                    ? { background: "yellow" }
+                    : {}
+                }
+              >
+                <ListItem
+                  setAnswerIDx={setAnswerIDx}
+                  answerIDx={retrieveAnswerIDx(job.question._id)}
+                  jobStatus={job.uploadStatus}
+                  jobTitle={retrieveAnswerTitle(job.question._id)}
+                />
+              </div>
+            );
+          })}
       </ul>
     );
   }

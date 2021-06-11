@@ -92,6 +92,7 @@ export function useWithUploadStatus(
 
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
+      task.uploadStatus === UploadStatus.CANCELLED ||
       task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
       task.uploadStatus === UploadStatus.UPLOAD_FAILED ||
       task.uploadStatus === UploadStatus.DONE
