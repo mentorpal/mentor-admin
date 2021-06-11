@@ -36,7 +36,6 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -119,7 +118,7 @@ function RecordPage(props: {
 
   function switchAnswer(onNav: () => void) {
     if (curAnswer!.isEdited) {
-      if (curAnswer!.recordedVideo) {
+      if (curAnswer!.recordedVideo && !curAnswer!.isUploading) {
         setConfirmLeave({
           message:
             "You have not uploaded your recorded video yet. Would you like to move on anyway?",
@@ -141,7 +140,7 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  if (!mentor || recordState.answers.length === 0) {
+  if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
         <NavBar title="Record Mentor" mentorId={undefined} />
@@ -153,8 +152,20 @@ function RecordPage(props: {
       </div>
     );
   }
+
   return (
     <div className={classes.root}>
+      {curAnswer ? (
+        <UploadingWidget
+          curAnswer={curAnswer.answer}
+          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
+          currentUploads={recordState.uploads}
+          answers={recordState.answers}
+          setAnswerIDx={recordState.setAnswerIDx}
+        />
+      ) : undefined}
       <NavBar title="Record Mentor" mentorId={mentor._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
@@ -355,17 +366,6 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
-      {curAnswer ? (
-        <UploadingWidget
-          curAnswer={curAnswer.answer}
-          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
-          currentUploads={recordState.uploads}
-          answers={recordState.answers}
-          setAnswerIDx={recordState.setAnswerIDx}
-        />
-      ) : undefined}
     </div>
   );
 }

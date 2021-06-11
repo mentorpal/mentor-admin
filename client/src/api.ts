@@ -693,7 +693,7 @@ export async function fetchUploadTasks(
                 tag
                 url
               }
-            }  
+            }
           }
         }`,
     },

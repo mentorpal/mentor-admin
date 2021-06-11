@@ -147,7 +147,10 @@ function VideoRecorder({ classes, height, width, recordState }) {
       data-cy="recorder"
       style={{
         position: "absolute",
-        visibility: recordState.curAnswer.videoSrc || recordState.curAnswer.isUploading ? "hidden" : "visible",
+        visibility:
+          recordState.curAnswer.videoSrc || recordState.curAnswer.isUploading
+            ? "hidden"
+            : "visible",
       }}
     >
       <Typography

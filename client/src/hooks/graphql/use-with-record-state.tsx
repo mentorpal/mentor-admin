@@ -119,13 +119,22 @@ export function useWithRecordState(
     );
     if (idx !== -1) {
       const answer = answers[idx];
-      updateAnswerState({
-        answer: {
-          ...answer.answer,
-          transcript: upload.transcript || "",
-          media: upload.media || [],
+      updateAnswerState(
+        {
+          recordedVideo: undefined,
+          answer: {
+            ...answer.answer,
+            transcript: upload.transcript || "",
+            media: upload.media || [],
+          },
+          editedAnswer: {
+            ...answer.editedAnswer,
+            transcript: upload.transcript || "",
+            media: upload.media || [],
+          },
         },
-      });
+        idx
+      );
     }
   }
   function isAnswerUploading(answer: Answer) {
@@ -179,7 +188,7 @@ export function useWithRecordState(
     setAnswerIdx(answerIdx + 1);
   }
 
-  function setAnswerIDx(num: number){
+  function setAnswerIDx(num: number) {
     setAnswerIdx(num);
   }
 

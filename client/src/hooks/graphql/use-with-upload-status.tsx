@@ -18,7 +18,7 @@ export enum UploadStatus {
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
   DONE = "DONE", // api is done with upload process
-  CANCELLED = "CANCELLED" // api has successfully cancelled the upload
+  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
 }
 
 export interface UploadTask {
@@ -55,6 +55,11 @@ export function useWithUploadStatus(
   }, []);
 
   useEffect(() => {
+    uploads.forEach((u) => {
+      if (isTaskDoneOrFailed(u)) {
+        deleteUploadTask(u.question._id, accessToken);
+      }
+    });
     setIsUploading(uploads.some((u) => !isTaskDoneOrFailed(u)));
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
@@ -67,12 +72,14 @@ export function useWithUploadStatus(
             return;
           }
           data.forEach((u) => {
-            addOrEditTask(u);
-            if (isTaskDoneOrFailed(u)) {
-              deleteUploadTask(u.question._id, accessToken);
-            }
-            if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
-              onUploadedCallback(u);
+            const findUpload = uploads.find(
+              (up) => up.question._id === u.question._id
+            );
+            if (!findUpload || findUpload.uploadStatus !== u.uploadStatus) {
+              addOrEditTask(u);
+              if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
+                onUploadedCallback(u);
+              }
             }
           });
         })

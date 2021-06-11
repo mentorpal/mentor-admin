@@ -7,7 +7,12 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
-import { Button, Slider, CircularProgress, Typography } from "@material-ui/core";
+import {
+  Button,
+  Slider,
+  CircularProgress,
+  Typography,
+} from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { RecordingState } from "hooks/graphql/recording-reducer";
@@ -101,7 +106,11 @@ function VideoPlayer(props: {
       <div
         style={{
           position: "absolute",
-          visibility: recordState.curAnswer!.videoSrc || recordState.curAnswer?.isUploading ? "visible" : "hidden",
+          visibility:
+            recordState.curAnswer!.videoSrc ||
+            recordState.curAnswer?.isUploading
+              ? "visible"
+              : "hidden",
         }}
       >
         <Typography
@@ -123,25 +132,29 @@ function VideoPlayer(props: {
             backgroundColor: "#000",
             height: height,
             width: width,
-            color: "white"
+            color: "white",
           }}
         >
-           <div 
-            data-cy="upload-in-progress-notifier" 
+          <div
+            data-cy="upload-in-progress-notifier"
             style={{
               width: "100%",
               height: "100%",
-              textAlign:"center",
-              position:"absolute",
-              justifyContent:"center",
-              top:"25%",
-              visibility: recordState.curAnswer?.isUploading ? "visible": "hidden"}}>
-              <CircularProgress />
-              <p></p>
-              Upload in progress.
-              <p></p>
-              You may continue to record other questions.
-            </div>
+              textAlign: "center",
+              position: "absolute",
+              justifyContent: "center",
+              top: "25%",
+              visibility: recordState.curAnswer?.isUploading
+                ? "visible"
+                : "hidden",
+            }}
+          >
+            <CircularProgress />
+            <p></p>
+            Upload in progress.
+            <p></p>
+            You may continue to record other questions.
+          </div>
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
@@ -197,7 +210,11 @@ function VideoPlayer(props: {
               !recordState.curAnswer!.isUploading
             }
             className={classes.button}
-            onClick={() => {!recordState.curAnswer!.isUploading ? recordState.uploadVideo() : console.log("Cancel Upload here")}}
+            onClick={() => {
+              !recordState.curAnswer!.isUploading
+                ? recordState.uploadVideo()
+                : console.log("Cancel Upload here");
+            }}
             style={{ marginRight: 15 }}
           >
             {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
