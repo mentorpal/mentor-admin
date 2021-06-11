@@ -36,7 +36,6 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -158,6 +157,7 @@ function RecordPage(props: {
       </div>
     );
   }
+
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -376,17 +376,6 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
-      {curAnswer ? (
-        <UploadingWidget
-          curAnswer={curAnswer.answer}
-          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
-          currentUploads={recordState.uploads}
-          answers={recordState.answers}
-          setAnswerIDx={recordState.setAnswerIDx}
-        />
-      ) : undefined}
     </div>
   );
 }
