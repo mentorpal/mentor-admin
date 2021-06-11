@@ -36,7 +36,7 @@ const StageProgressBar = withStyles((theme) =>
 const StageSelect = (value: number) => {
   var stages = [
     {
-      name: "incomplete",
+      name: "Incomplete",
       index: 0,
       description: "This Mentor can't be built yet.",
       max: 5,
@@ -54,7 +54,7 @@ const StageSelect = (value: number) => {
       max: value,
     },
     {
-      name: "none",
+      name: "None",
       index: 3,
       description: "you've reached the final stage",
       max: value,
@@ -97,6 +97,7 @@ function StageCard(props: { value: number }): JSX.Element {
                   {currentStage!.next!.description}
                 </React.Fragment>
               }
+              data-cy="next-stage-info"
             >
               <HelpOutline fontSize="small" />
             </Tooltip>

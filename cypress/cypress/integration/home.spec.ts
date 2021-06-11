@@ -103,10 +103,12 @@ describe('Review answers page', () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-    cy.get('[data-cy=stage-card]').contains('Scope: Scripted');
-    cy.get('[data-cy=stage-card]').contains(
-      'Your mentor can respond to questions picked from a list.'
-    );
+    cy.get('[data-cy=stage-card]').contains('Scope: Incomplete');
+    cy.get('[data-cy=stage-card]').contains("This Mentor can't be built yet.");
+    cy.get('[data-cy=stage-card]')
+      .find('[data-cy=next-stage-info]')
+      .trigger('mouseover');
+    cy.contains('This Mentor can select questions from a list');
   });
 
   it('can pick a subject from dropdown and view questions and categories', () => {
