@@ -157,7 +157,6 @@ function RecordPage(props: {
       </div>
     );
   }
-
   return (
     <div className={classes.root}>
       {curAnswer ? (
