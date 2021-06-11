@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
-import { Button, Slider, Typography } from "@material-ui/core";
+import { Button, Slider, CircularProgress, Typography } from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { RecordingState } from "hooks/graphql/recording-reducer";
@@ -39,7 +39,7 @@ function VideoPlayer(props: {
   React.useEffect(() => {
     setVideoLength(0);
     setTrim([0, 100]);
-  }, [recordState.curAnswer.videoSrc, recordState.curAnswer.answer._id]);
+  }, [recordState.curAnswer!.videoSrc, recordState.curAnswer!.answer._id]);
 
   function sliderToVideoDuration(): number[] | undefined {
     if (!reactPlayerRef?.current) {
@@ -101,7 +101,7 @@ function VideoPlayer(props: {
       <div
         style={{
           position: "absolute",
-          visibility: recordState.curAnswer.videoSrc ? "visible" : "hidden",
+          visibility: recordState.curAnswer!.videoSrc || recordState.curAnswer?.isUploading ? "visible" : "hidden",
         }}
       >
         <Typography
@@ -109,13 +109,13 @@ function VideoPlayer(props: {
           style={{
             textAlign: "center",
             visibility:
-              recordState.curAnswer.videoSrc &&
-              videoLength < (recordState.curAnswer.minVideoLength || 0)
+              recordState.curAnswer!.videoSrc &&
+              videoLength < (recordState.curAnswer!.minVideoLength || 0)
                 ? "visible"
                 : "hidden",
           }}
         >
-          Video should be {recordState.curAnswer.minVideoLength} seconds long
+          Video should be {recordState.curAnswer!.minVideoLength} seconds long
           but is only {videoLength} seconds long.
         </Typography>
         <div
@@ -123,14 +123,31 @@ function VideoPlayer(props: {
             backgroundColor: "#000",
             height: height,
             width: width,
+            color: "white"
           }}
         >
+           <div 
+            data-cy="upload-in-progress-notifier" 
+            style={{
+              width: "100%",
+              height: "100%",
+              textAlign:"center",
+              position:"absolute",
+              justifyContent:"center",
+              top:"25%",
+              visibility: recordState.curAnswer?.isUploading ? "visible": "hidden"}}>
+              <CircularProgress />
+              <p></p>
+              Upload in progress.
+              <p></p>
+              You may continue to record other questions.
+            </div>
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
-            url={recordState.curAnswer.videoSrc}
+            url={recordState.curAnswer!.videoSrc}
             controls={true}
-            playing={!recordState.curAnswer.isUploading}
+            playing={!recordState.curAnswer!.isUploading}
             height={height}
             width={width}
             playsinline
@@ -139,7 +156,7 @@ function VideoPlayer(props: {
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
             style={{
-              visibility: recordState.curAnswer.isUploading
+              visibility: recordState.curAnswer!.isUploading
                 ? "hidden"
                 : "inherit",
             }}
@@ -152,9 +169,9 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
-          disabled={recordState.curAnswer.isUploading}
+          disabled={recordState.curAnswer!.isUploading}
           style={{
-            visibility: recordState.curAnswer.videoSrc ? "visible" : "hidden",
+            visibility: recordState.curAnswer!.videoSrc ? "visible" : "hidden",
           }}
         />
         <div className={classes.row} style={{ justifyContent: "center" }}>
@@ -163,7 +180,7 @@ function VideoPlayer(props: {
             variant="outlined"
             color="primary"
             disableElevation
-            disabled={recordState.curAnswer.isUploading}
+            disabled={recordState.curAnswer!.isUploading}
             className={classes.button}
             onClick={recordState.rerecord}
             style={{ marginRight: 15 }}
@@ -176,14 +193,14 @@ function VideoPlayer(props: {
             color="primary"
             disableElevation
             disabled={
-              !recordState.curAnswer.recordedVideo ||
-              recordState.curAnswer.isUploading
+              !recordState.curAnswer!.recordedVideo &&
+              !recordState.curAnswer!.isUploading
             }
             className={classes.button}
-            onClick={() => recordState.uploadVideo()}
+            onClick={() => {!recordState.curAnswer!.isUploading ? recordState.uploadVideo() : console.log("Cancel Upload here")}}
             style={{ marginRight: 15 }}
           >
-            Upload Video
+            {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
           </Button>
           <Button
             data-cy="trim-video"
@@ -191,10 +208,10 @@ function VideoPlayer(props: {
             color="primary"
             disableElevation
             disabled={
-              !recordState.curAnswer.videoSrc ||
+              !recordState.curAnswer!.videoSrc ||
               (trim[0] === 0 && trim[1] === 100) ||
               !isFinite(videoLength) ||
-              recordState.curAnswer.isUploading
+              recordState.curAnswer!.isUploading
             }
             className={classes.button}
             onClick={() =>

@@ -19,7 +19,7 @@ import { useWithMentor } from "./use-with-mentor";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
 
-interface AnswerState {
+export interface AnswerState {
   answer: Answer;
   editedAnswer: Answer;
   recordedVideo?: File;
@@ -179,6 +179,10 @@ export function useWithRecordState(
     setAnswerIdx(answerIdx + 1);
   }
 
+  function setAnswerIDx(num: number){
+    setAnswerIdx(num);
+  }
+
   function rerecord() {
     const answer = answers[answerIdx];
     updateAnswerState({
@@ -297,6 +301,7 @@ export function useWithRecordState(
     uploads: uploads,
     prevAnswer,
     nextAnswer,
+    setAnswerIDx,
     editAnswer,
     saveAnswer,
     rerecord,
@@ -321,6 +326,7 @@ export interface UseWithRecordState {
   uploads: UploadTask[];
   prevAnswer: () => void;
   nextAnswer: () => void;
+  setAnswerIDx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
   rerecord: () => void;

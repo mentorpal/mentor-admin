@@ -4,82 +4,82 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
-import React, { useState, useRef } from "react";
-import { RecordingState } from "hooks/graphql/recording-reducer";
-import { CurAnswerState } from "hooks/graphql/use-with-record-state";
+import React, {useState} from "react";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { NoEncryption } from "@material-ui/icons";
-import { copyFile } from "node:fs";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 
 function UploadingListItem(props: {
-  classes: Record<string, string>;
-  upload: UploadTask;
+  jobTitle: string;
+  jobStatus: string;
+  setAnswerIDx: (id: number) =>void;
+  answerIDx: number;
 }): JSX.Element {
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, upload } = props;
+  const {
+    jobTitle,
+    setAnswerIDx,
+    answerIDx,
+    jobStatus
+  } = props;
+  const [cancelling, setCancelling] = useState(false);
 
-  return (
-    <li data-cy="upload-card-0">
-      <ul
-        data-cy="card-title"
-        style={{
-          textAlign: "center",
-          listStyleType: "none",
-          display: "table",
-          padding: 0,
-          margin: 0,
-          borderBottom: "1px solid grey",
-          width: "100%",
-        }}
-      >
-        <li style={{ display: "table-cell" }}>
-          <small>
-            {upload?.question?.question.length > 35
-              ? upload?.question?.question.substring(0, 35) + "..."
-              : upload?.question?.question}
-          </small>
+  return(
+    <li>
+      <ul 
+      style={{textAlign:"center",
+      listStyleType: "none",
+      display:"table",
+      padding: 0,
+      margin: 0,
+      borderBottom:"1px solid grey",
+      width:"100%"}}>
+        <li 
+        data-cy="card-answer-title"
+        style={{display:"table-cell"}}
+        onClick={()=>{setAnswerIDx(answerIDx)}}>
+          <small>{
+          jobTitle && jobTitle.length > 35 ?
+          jobTitle.substring(0, 35) + "..." :
+          jobTitle}</small>
         </li>
         <li
-          data-cy="upload-status"
-          style={{
-            display: "table-cell",
-            color:
-              upload.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
-              upload.uploadStatus === UploadStatus.UPLOAD_FAILED
-                ? "red"
-                : upload.uploadStatus !== UploadStatus.DONE
-                ? "black"
-                : "green",
-          }}
-        >
+        data-cy="upload-status" 
+        style={{
+          display:"table-cell",
+          color:               
+          jobStatus === UploadStatus.TRANSCRIBE_FAILED ||
+          jobStatus === UploadStatus.UPLOAD_FAILED
+            ? "red"
+            : jobStatus !== UploadStatus.DONE
+            ? "black"
+            : "green",}}>
           <small>
-            {upload.uploadStatus === UploadStatus.TRANSCRIBE_FAILED
+          {
+              cancelling ? "Cancelling..." :
+              jobStatus === UploadStatus.TRANSCRIBE_FAILED
               ? "Transcribe Failed"
-              : upload.uploadStatus === UploadStatus.UPLOAD_FAILED
+              : jobStatus === UploadStatus.UPLOAD_FAILED
               ? "Upload Failed"
-              : upload.uploadStatus === UploadStatus.DONE
+              : jobStatus === UploadStatus.DONE
               ? "Complete"
               : "Uploading"}
           </small>
         </li>
-        <li
-          data-cy="cancel-upload"
-          style={{
-            display: "table-cell",
-            paddingRight: "8px",
-            paddingLeft: "8px",
-            visibility:
-              upload.uploadStatus !== UploadStatus.DONE ? "visible" : "hidden",
-            cursor: "pointer",
-          }}
-        >
+        <li 
+        data-cy="cancel-upload"
+        onClick={()=>{setCancelling(true)}}
+        style={{
+          display:"table-cell",
+          paddingRight:"8px",
+          paddingLeft:"8px",
+          visibility: jobStatus !== UploadStatus.DONE ? "visible" : "hidden",
+          cursor:"pointer",
+          }}>
           x
         </li>
       </ul>
     </li>
-  );
+  )
 }
 
 export default UploadingListItem;

@@ -6,72 +6,114 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import React, { useState, useRef } from "react";
-import { RecordingState } from "hooks/graphql/recording-reducer";
-import { CurAnswerState } from "hooks/graphql/use-with-record-state";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { NoEncryption } from "@material-ui/icons";
 import ListItem from "./uploading-list-item";
-import { Answer } from "types";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import {Answer} from "types";
+import {UploadStatus, UploadTask} from "hooks/graphql/use-with-upload-status";
+import {AnswerState} from "hooks/graphql/use-with-record-state";
 
 function UploadingView(props: {
-  classes: Record<string, string>;
-  uploads: UploadTask[];
+  answers: AnswerState[];
+  currentUploads: UploadTask[];
+  setAnswerIDx: (id: number)=>void;
+  curAnswer: Answer;
 }): JSX.Element {
-  const { classes, uploads } = props;
-  const disabled = uploads.length === 0;
-  const uploadsInProgress = uploads.filter(
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
+  const {
+    answers,
+    setAnswerIDx,
+    currentUploads,
+    curAnswer
+  } = props;
+  const uploadsInProgress = currentUploads.filter(
     (u) =>
       u.uploadStatus !== UploadStatus.TRANSCRIBE_FAILED &&
       u.uploadStatus !== UploadStatus.UPLOAD_FAILED &&
       u.uploadStatus !== UploadStatus.DONE
   );
+  const uploadsDone = currentUploads.filter(
+    (u) =>
+      u.uploadStatus == UploadStatus.DONE
+  );
 
+
+  //the IDx of an answer corresponds to its position within the answers array
+  function retrieveAnswerIDx(id: string){
+    let i = 0;
+    for(; i < props.answers?.length; i++){
+      if(props.answers[i].answer.question._id == id){
+        return i;
+      }
+    }
+    //Default case
+    return 0;
+  }
+
+  function retrieveAnswerTitle(id: string){
+    let i = 0;
+    for(; i < props.answers?.length; i++){
+      if(props.answers[i]?.answer?.question?._id == id){
+        return props.answers[i].answer.question.question;
+      }
+    }
+    return "Text Not Found";
+  }
+
+  //this objects state will re render when record.tsx passes in new info from its query.
+  function produceList(){
+    return(
+      <ul style={{
+        listStyleType: "none",
+        padding: 0,
+        margin: 0
+      }}>
+        {currentUploads.map((job, i)=>{
+        return <div 
+        key={`upload-card-${i}`}
+        data-cy={`upload-card-${i}`}
+        style={curAnswer.question._id == job.question._id ? {background:"yellow"} : {}}>
+          <ListItem
+          setAnswerIDx = {setAnswerIDx}
+          answerIDx = {retrieveAnswerIDx(job.question._id)}
+          jobStatus={job.uploadStatus}
+          jobTitle={retrieveAnswerTitle(job.question._id)}
+          />
+        </div>
+        })}
+      </ul>
+    )
+  }
+
+  //TODO: taller height + scrolling?
   const height = 150;
   const width = 300;
-  return (
+  return(
     <div
       data-cy="uploading-widget"
       style={{
-        visibility: disabled ? "hidden" : "visible",
-        position: "absolute",
-        right: 50,
-        marginTop: 200,
-        boxShadow: "1px 1px 1px 1px",
-        width: width,
-        height: height,
-      }}
-    >
-      <div
+      visibility: uploadsInProgress.length>0 || uploadsDone.length > 0 ? "visible" : "hidden",
+      position: "absolute",
+      right:50,
+      marginTop: 200,
+      boxShadow: "1px 1px 1px 1px",
+      width: width,
+      height: height,}}>
+        <div 
         data-cy="uploading-widget-title"
         style={{
-          width: "100%",
-          height: height * 0.2,
-          backgroundColor: "#303030",
-          color: "white",
-        }}
-      >
-        <div style={{ paddingTop: height * 0.03 }}>
-          {uploadsInProgress.length > 0
+          width:"100%",
+          height:height*.20,
+          backgroundColor:"#303030",
+          color:"white"}}>
+            <div style={{paddingTop:height*.03}}>
+            {uploadsInProgress.length > 0
             ? `Uploading ${uploadsInProgress.length} item(s)...`
             : "Uploading Complete"}
-        </div>
-      </div>
-      <ul
-        style={{
-          listStyleType: "none",
-          padding: 0,
-          margin: 0,
-        }}
-      >
-        {uploads.map((u, i) => (
-          <div key={`upload-${i}`} data-cy={`upload-${i}`}>
-            <ListItem classes={classes} upload={u} />
           </div>
-        ))}
-      </ul>
+        </div>
+    {produceList()}
     </div>
-  );
+  )
 }
 
 export default UploadingView;

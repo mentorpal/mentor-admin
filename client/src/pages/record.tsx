@@ -36,6 +36,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -104,6 +105,7 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+  const [cancelledUploadIDx, setCancelledUploadIDx] = useState("");
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
 
@@ -116,8 +118,8 @@ function RecordPage(props: {
   }
 
   function switchAnswer(onNav: () => void) {
-    if (curAnswer.isEdited) {
-      if (curAnswer.recordedVideo) {
+    if (curAnswer!.isEdited) {
+      if (curAnswer!.recordedVideo) {
         setConfirmLeave({
           message:
             "You have not uploaded your recorded video yet. Would you like to move on anyway?",
@@ -151,7 +153,6 @@ function RecordPage(props: {
       </div>
     );
   }
-
   return (
     <div className={classes.root}>
       <NavBar title="Record Mentor" mentorId={mentor._id} />
@@ -177,10 +178,10 @@ function RecordPage(props: {
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer.editedAnswer.question?.question}
-            disabled={curAnswer.editedAnswer.question?.mentor !== mentor._id}
+            value={curAnswer!.editedAnswer.question?.question}
+            disabled={curAnswer!.editedAnswer.question?.mentor !== mentor._id}
             onChange={(e) => {
-              if (curAnswer.editedAnswer.question) {
+              if (curAnswer!.editedAnswer.question) {
                 recordState.editAnswer({
                   question: {
                     ...curAnswer?.editedAnswer.question,
@@ -194,12 +195,12 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer.editedAnswer.question?.question ===
-                    curAnswer.answer.question?.question
+                    curAnswer!.editedAnswer.question?.question ===
+                    curAnswer!.answer.question?.question
                   }
                   onClick={() =>
                     recordState.editAnswer({
-                      question: curAnswer.answer.question,
+                      question: curAnswer!.answer.question,
                     })
                   }
                 >
@@ -210,13 +211,13 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      {curAnswer.minVideoLength &&
-      curAnswer.editedAnswer.question?.name === UtteranceName.IDLE ? (
+      {curAnswer!.minVideoLength &&
+      curAnswer!.editedAnswer.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={curAnswer.minVideoLength}
+            value={curAnswer!.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) => recordState.setMinVideoLength(event.target.value as number)}
@@ -240,7 +241,7 @@ function RecordPage(props: {
             <OutlinedInput
               data-cy="transcript-input"
               multiline
-              value={curAnswer.editedAnswer.transcript}
+              value={curAnswer!.editedAnswer.transcript}
               onChange={(e) =>
                 recordState.editAnswer({ transcript: e.target.value })
               }
@@ -249,12 +250,12 @@ function RecordPage(props: {
                   <IconButton
                     data-cy="undo-transcript-btn"
                     disabled={
-                      curAnswer.editedAnswer.transcript ===
-                      curAnswer.answer.transcript
+                      curAnswer!.editedAnswer.transcript ===
+                      curAnswer!.answer.transcript
                     }
                     onClick={() =>
                       recordState.editAnswer({
-                        transcript: curAnswer.answer.transcript,
+                        transcript: curAnswer!.answer.transcript,
                       })
                     }
                   >
@@ -274,7 +275,7 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer.editedAnswer.status || ""}
+          value={curAnswer!.editedAnswer.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => recordState.editAnswer({ status: event.target.value as Status })}
@@ -286,7 +287,7 @@ function RecordPage(props: {
           <MenuItem
             data-cy="complete"
             value={Status.COMPLETE}
-            disabled={!curAnswer.isValid}
+            disabled={!curAnswer!.isValid}
           >
             Active
           </MenuItem>
@@ -308,7 +309,7 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={!curAnswer.isEdited}
+            disabled={!curAnswer!.isEdited}
             onClick={recordState.saveAnswer}
           >
             Save
@@ -354,7 +355,17 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
-      <UploadingWidget classes={classes} uploads={recordState.uploads} />
+      {curAnswer ? (
+        <UploadingWidget
+          curAnswer={curAnswer.answer}
+          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
+          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
+          currentUploads={recordState.uploads}
+          answers={recordState.answers}
+          setAnswerIDx={recordState.setAnswerIDx}
+        />
+      ) : undefined}
     </div>
   );
 }

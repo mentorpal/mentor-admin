@@ -18,6 +18,7 @@ export enum UploadStatus {
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
   DONE = "DONE", // api is done with upload process
+  CANCELLED = "CANCELLED" // api has successfully cancelled the upload
 }
 
 export interface UploadTask {
