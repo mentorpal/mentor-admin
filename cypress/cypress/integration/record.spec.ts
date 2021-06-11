@@ -476,6 +476,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -512,7 +514,7 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
-              uploadStatus: "UPLOAD_IN_PROGRESS",
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -571,6 +573,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -579,6 +583,38 @@ describe("Record", () => {
                 question: videoMentor.answers[0].question.question
               },
               uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -619,7 +655,14 @@ describe("Record", () => {
   //Test that once you click the title card, it goes to that card appropriate answer
   it("tapping an item from active uploads (via upload button) takes you to that item", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockDefault(cy, {
+      mentor: [videoMentor], gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
     cy.visit("/record");
     cy.fixture('video.mp4').then(fileContent => {
@@ -648,6 +691,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -656,6 +701,38 @@ describe("Record", () => {
                 question: videoMentor.answers[0].question.question
               },
               uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -698,6 +775,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -706,6 +785,38 @@ describe("Record", () => {
                 question: videoMentor.answers[0].question.question
               },
               uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -750,6 +861,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -758,6 +871,38 @@ describe("Record", () => {
                 question: videoMentor.answers[0].question.question
               },
               uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -805,6 +950,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -828,6 +975,53 @@ describe("Record", () => {
                 question: videoMentor.answers[1].question.question
               },
               uploadStatus: "UPLOAD_FAILED",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -875,6 +1069,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -898,6 +1094,53 @@ describe("Record", () => {
                 question: videoMentor.answers[1].question.question
               },
               uploadStatus: "UPLOAD_FAILED",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -933,7 +1176,14 @@ describe("Record", () => {
 
   it("uploading widget should not be open if there are no uploads", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: videoMentor });
+    cyMockDefault(cy, {
+      mentor: [videoMentor], gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.visit("/record");
     cy.get("[data-cy=uploading-widget]").should("not.be.visible");
   })
@@ -943,7 +1193,25 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
-        mockGQL("uploadTasks", [[]], true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[], [
+          {
+            question: {
+              _id: videoMentor.answers[0].question._id,
+              question: videoMentor.answers[0].question.question
+            },
+            uploadStatus: "DONE",
+            transcript: "i am kayla",
+            media: [
+              {
+                type: "video",
+                tag: "web",
+                url: "http://google.mp4"
+              }
+            ]
+          },
+        ]], true),
       ],
     });
     cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
@@ -966,6 +1234,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1013,7 +1283,54 @@ describe("Record", () => {
                 }
               ]
             }
-          ]
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
         ], true),
       ],
     });
@@ -1038,6 +1355,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1061,6 +1380,53 @@ describe("Record", () => {
                 question: videoMentor.answers[1].question.question
               },
               uploadStatus: "UPLOAD_FAILED",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -1107,6 +1473,8 @@ describe("Record", () => {
       mentor: [videoMentor],
       gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
           [
             {
@@ -1130,6 +1498,53 @@ describe("Record", () => {
                 question: videoMentor.answers[1].question.question
               },
               uploadStatus: "UPLOAD_FAILED",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -1177,7 +1592,14 @@ describe("Record", () => {
 
   it("hides video if mentor type is CHAT", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: chatMentor });
+    cyMockDefault(cy, {
+      mentor: [chatMentor], gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("not.exist");
     cy.get("[data-cy=video-player]").should("not.exist");
@@ -1185,7 +1607,15 @@ describe("Record", () => {
 
   it("shows video recorder if mentor type is VIDEO and no video", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: videoMentor });
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder showing
@@ -1201,7 +1631,15 @@ describe("Record", () => {
 
   it("shows video player if mentor type is VIDEO and has video", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: videoMentor });
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
     cy.intercept("**/videos/mentors/clintanderson/A2_1_1.mp4", { fixture: "video.mp4" });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-cy=video-recorder]").should("exist");
@@ -1227,10 +1665,6 @@ describe("Record", () => {
     cy.get("[data-cy=trim-video]").should("be.disabled");
   });
 
-  it.skip("can seek and trim a recorded video", () => {
-    // TODO: video does not consistently load in cypress
-  });
-
   it("can update status", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -1240,7 +1674,12 @@ describe("Record", () => {
           status: Status.COMPLETE,
         }),
       ],
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
     });
     cy.visit("/record?subject=background&status=COMPLETE");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
@@ -1273,7 +1712,12 @@ describe("Record", () => {
           transcript: "37",
         }),
       ],
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
     });
     cy.visit("/record?subject=background&status=INCOMPLETE");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
@@ -1314,6 +1758,12 @@ describe("Record", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: chatMentor,
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=question-input]").within($input => {
@@ -1336,8 +1786,10 @@ describe("Record", () => {
         }),
       ],
       gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
         mockGQL("updateAnswer", true, true),
         mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
