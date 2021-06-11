@@ -13,7 +13,6 @@ import {
   LinearProgress,
   Typography,
   Tooltip,
-  Icon,
 } from "@material-ui/core";
 import { createStyles, withStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
@@ -34,27 +33,68 @@ const StageProgressBar = withStyles((theme) =>
     },
   })
 )(LinearProgress);
-
+const StageSelect = (value: number) => {
+  var stages = [
+    {
+      name: "incomplete",
+      index: 0,
+      description: "This Mentor can't be built yet.",
+      max: 5,
+    },
+    {
+      name: "Minimal",
+      index: 1,
+      description: "This Mentor can select questions from a list",
+      max: 8,
+    },
+    {
+      name: "Good As Can Be",
+      index: 2,
+      description: "This Mentor is as good as it gets",
+      max: value,
+    },
+    {
+      name: "none",
+      index: 3,
+      description: "you've reached the final stage",
+      max: value,
+    },
+  ];
+  var currentStage = stages.find((stage) => {
+    return stage.max >= value;
+  });
+  return {
+    ...currentStage,
+    ...{
+      next: stages[currentStage!.index + 1],
+      percent: Math.round((value / currentStage!.max) * 100),
+    },
+  };
+};
 function StageCard(props: { value: number }): JSX.Element {
-  const percent = Math.round((props.value / 20) * 100);
+  const currentStage = StageSelect(props.value);
+
   return (
     <Box display="flex" width="100%" mt={2} alignItems="center">
       <Box width="33%" alignItems="center"></Box>
       <Card style={{ width: "33%" }} data-cy="stage-card">
         <CardContent>
           <Typography variant="body1" color="textSecondary">
-            Scope: Scripted
+            Scope: {currentStage!.name}
           </Typography>
           <Typography variant="body1" color="textSecondary">
-            Your mentor can respond to questions picked from a list.
+            {currentStage!.description}
           </Typography>
           <Typography variant="body1" color="textSecondary">
-            Next Goal: Interactive{"   "}
+            Next Goal: {currentStage!.next!.name}
+            {"   "}
             <Tooltip
               title={
                 <React.Fragment>
-                  <Typography color="inherit">Interactive</Typography>
-                  {"Interactive mentors can process user questions."}
+                  <Typography color="inherit">
+                    {currentStage!.next!.name}
+                  </Typography>
+                  {currentStage!.next!.description}
                 </React.Fragment>
               }
             >
@@ -64,10 +104,10 @@ function StageCard(props: { value: number }): JSX.Element {
           <StageProgressBar
             data-cy="progress-bar"
             variant="determinate"
-            {...{ value: percent }}
+            {...{ value: currentStage!.percent }}
           />
           <Typography variant="body2" color="textSecondary">
-            {props.value} / {20} ({percent}%)
+            {props.value} / {currentStage!.max} ({currentStage!.percent}%)
           </Typography>
         </CardContent>
       </Card>
