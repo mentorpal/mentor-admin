@@ -671,50 +671,55 @@ export async function loginGoogle(
   return result.data.data.loginGoogle;
 }
 
-export async function fetchUploads(accessToken: string): Promise<UploadTask[]> {
+export async function fetchUploadTasks(
+  accessToken: string
+): Promise<UploadTask[]> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await graphqlRequest.post(
     "",
     {
       query: `
-      query UploadTasks() {
-        me {
-          uploadTasks {
-            question {
-              _id
-              question
-            }
-            uploadStatus
-            transcript
-            media {
-              type
-              tag
-              url
-            }
-          }  
-        }
-      }
-    `,
+        query {
+          me {
+            uploadTasks {
+              question {
+                _id
+                question
+              }
+              uploadStatus
+              transcript
+              media {
+                type
+                tag
+                url
+              }
+            }  
+          }
+        }`,
     },
     { headers: headers }
   );
   return result.data.data.me.uploadTasks;
 }
 
-export async function clearUploads(accessToken: string): Promise<boolean> {
+export async function deleteUploadTask(
+  question: string,
+  accessToken: string
+): Promise<boolean> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await graphqlRequest.post(
     "",
     {
       query: `
-      mutation ClearUploads() {
-        me {
-          deleteUploadTasks()
+        mutation UploadTaskDelete($questionId: ID!) {
+          me {
+            uploadTaskDelete(questionId: $questionId)
+          }
         }
-      }
-    `,
+      `,
+      variables: { questionId: question },
     },
     { headers: headers }
   );
-  return result.data.data.me.deleteUploadTasks;
+  return result.data.data.me.uploadTaskDelete;
 }

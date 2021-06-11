@@ -4,53 +4,41 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
-import { fetchUploads, uploadVideo } from "api";
+import { useEffect, useState } from "react";
+import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
+import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
-import { useEffect, useState } from "react";
-import { MediaType, Mentor, Question } from "types";
 
 export enum UploadStatus {
-  NONE = "NONE",
-  PENDING = "PENDING",
-  POLLING = "POLLING",
-  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS",
-  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED",
-  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS",
-  UPLOAD_FAILED = "UPLOAD_FAILED",
-  DONE = "DONE",
+  PENDING = "PENDING", // local state only; sending upload request to upload api
+  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
+  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
+  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
+  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
+  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
+  DONE = "DONE", // api is done with upload process
 }
 
 export interface UploadTask {
   question: Question;
   uploadStatus: UploadStatus;
   transcript?: string;
-  media?: MediaType[];
-}
-
-export interface UseWithUploadStatus {
-  uploads: UploadTask[];
-  isUploading: boolean;
-  isPolling: boolean;
-  upload: (
-    question: Question,
-    video: File,
-    trim?: { start: number; end: number }
-  ) => void;
+  media?: Media[];
 }
 
 export function useWithUploadStatus(
   accessToken: string,
+  onUploadedCallback?: (task: UploadTask) => void,
   pollingInterval = 1000
-) {
+): UseWithUploadStatus {
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
-    fetchUploads(accessToken)
+    fetchUploadTasks(accessToken)
       .then((data) => {
         if (!mounted) {
           return;
@@ -66,33 +54,26 @@ export function useWithUploadStatus(
   }, []);
 
   useEffect(() => {
-    const isUploading = uploads.some(
-      (u) =>
-        u.uploadStatus !== UploadStatus.NONE &&
-        u.uploadStatus !== UploadStatus.TRANSCRIBE_FAILED &&
-        u.uploadStatus !== UploadStatus.UPLOAD_FAILED &&
-        u.uploadStatus !== UploadStatus.DONE
-    );
-    const isPolling = uploads.some(
-      (u) =>
-        u.uploadStatus !== UploadStatus.NONE &&
-        u.uploadStatus !== UploadStatus.PENDING &&
-        u.uploadStatus !== UploadStatus.TRANSCRIBE_FAILED &&
-        u.uploadStatus !== UploadStatus.UPLOAD_FAILED &&
-        u.uploadStatus !== UploadStatus.DONE
-    );
-    setIsUploading(isUploading);
-    setIsPolling(isPolling);
+    setIsUploading(uploads.some((u) => !isTaskDoneOrFailed(u)));
+    setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
   useInterval(
     (isCancelled) => {
-      fetchUploads(accessToken)
+      fetchUploadTasks(accessToken)
         .then((data) => {
-          if (!isCancelled()) {
+          if (isCancelled()) {
             return;
           }
-          setUploads(data);
+          data.forEach((u) => {
+            addOrEditTask(u);
+            if (isTaskDoneOrFailed(u)) {
+              deleteUploadTask(u.question._id, accessToken);
+            }
+            if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
+              onUploadedCallback(u);
+            }
+          });
         })
         .catch((err) => {
           console.error(err);
@@ -100,6 +81,20 @@ export function useWithUploadStatus(
     },
     isPolling ? pollingInterval : null
   );
+
+  function isTaskDoneOrFailed(task: UploadTask) {
+    return (
+      task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
+      task.uploadStatus === UploadStatus.UPLOAD_FAILED ||
+      task.uploadStatus === UploadStatus.DONE
+    );
+  }
+
+  function isTaskPolling(task: UploadTask) {
+    return (
+      task.uploadStatus !== UploadStatus.PENDING && !isTaskDoneOrFailed(task)
+    );
+  }
 
   function addOrEditTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question._id === task.question._id);
@@ -123,17 +118,30 @@ export function useWithUploadStatus(
       })
       .catch((err) => {
         console.error(err);
+        addOrEditTask({ question, uploadStatus: UploadStatus.UPLOAD_FAILED });
       });
   }
 
-  function cancelUpload() {}
+  // function cancelUpload() {}
 
-  function deleteUpload() {}
+  // function deleteUpload() {}
 
   return {
     uploads,
     isUploading,
-    isPolling,
     upload,
+    isTaskDoneOrFailed,
   };
+}
+
+export interface UseWithUploadStatus {
+  uploads: UploadTask[];
+  isUploading: boolean;
+  upload: (
+    mentorId: string,
+    question: Question,
+    video: File,
+    trim?: { start: number; end: number }
+  ) => void;
+  isTaskDoneOrFailed: (upload: UploadTask) => boolean;
 }

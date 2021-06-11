@@ -17,13 +17,11 @@ import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 function UploadingView(props: {
   classes: Record<string, string>;
   uploads: UploadTask[];
-  disabled: boolean;
 }): JSX.Element {
   const { classes, uploads } = props;
   const disabled = uploads.length === 0;
   const uploadsInProgress = uploads.filter(
     (u) =>
-      u.uploadStatus !== UploadStatus.NONE &&
       u.uploadStatus !== UploadStatus.TRANSCRIBE_FAILED &&
       u.uploadStatus !== UploadStatus.UPLOAD_FAILED &&
       u.uploadStatus !== UploadStatus.DONE

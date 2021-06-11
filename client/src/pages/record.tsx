@@ -88,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface LeaveConfirmation {
+  message: string;
   callback: () => void;
 }
 
@@ -102,27 +103,9 @@ function RecordPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const {
-    isUploading,
-    isRecording,
-    uploads,
-
-    mentor,
-    isLoading,
-    answers,
-    answerIdx,
-    curAnswer,
-    prevAnswer,
-    nextAnswer,
-    editAnswer,
-    saveAnswer,
-    rerecord,
-    startRecording,
-    stopRecording,
-    uploadVideo,
-    setMinVideoLength,
-  } = useWithRecordState(props.accessToken, props.search);
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+  const recordState = useWithRecordState(props.accessToken, props.search);
+  const { curAnswer, mentor } = recordState;
 
   function onBack() {
     if (props.search.back) {
@@ -133,8 +116,16 @@ function RecordPage(props: {
   }
 
   function switchAnswer(onNav: () => void) {
-    if (curAnswer?.isEdited) {
-      setConfirmLeave({ callback: onNav });
+    if (curAnswer.isEdited) {
+      if (curAnswer.recordedVideo) {
+        setConfirmLeave({
+          message:
+            "You have not uploaded your recorded video yet. Would you like to move on anyway?",
+          callback: onNav,
+        });
+      } else {
+        onNav();
+      }
     } else {
       onNav();
     }
@@ -148,37 +139,37 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
+  if (!mentor || recordState.answers.length === 0) {
+    return (
+      <div className={classes.root}>
+        <NavBar title="Record Mentor" mentorId={undefined} />
+        <LoadingDialog title={"Loading..."} />
+        <ErrorDialog
+          error={recordState.error}
+          clearError={recordState.clearError}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={classes.root}>
-      {curAnswer ? (
-        <UploadingWidget
-          classes={classes}
-          answers={answers}
-          curAnswer={curAnswer}
-          uploads={uploads}
-        />
-      ) : undefined}
-      <NavBar title="Record Mentor" mentorId={mentor?._id} />
+      <NavBar title="Record Mentor" mentorId={mentor._id} />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {answerIdx + 1} / {answers.length}
+          Questions {recordState.answerIdx + 1} / {recordState.answers.length}
         </Typography>
-        <ProgressBar value={answerIdx + 1} total={answers.length} />
-      </div>
-      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer
-          classes={classes}
-          curAnswer={curAnswer}
-          isRecording={isRecording}
-          onUpload={uploadVideo}
-          onRerecord={rerecord}
-          onRecordStart={startRecording}
-          onRecordStop={stopRecording}
+        <ProgressBar
+          value={recordState.answerIdx + 1}
+          total={recordState.answers.length}
         />
+      </div>
+      {mentor.mentorType === MentorType.VIDEO ? (
+        <VideoPlayer classes={classes} recordState={recordState} />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>
@@ -186,13 +177,13 @@ function RecordPage(props: {
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer?.answer?.question?.question}
-            disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
+            value={curAnswer.editedAnswer.question?.question}
+            disabled={curAnswer.editedAnswer.question?.mentor !== mentor._id}
             onChange={(e) => {
-              if (curAnswer?.answer?.question) {
-                editAnswer({
+              if (curAnswer.editedAnswer.question) {
+                recordState.editAnswer({
                   question: {
-                    ...curAnswer?.answer.question,
+                    ...curAnswer?.editedAnswer.question,
                     question: e.target.value,
                   },
                 });
@@ -203,12 +194,12 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer?.answer?.question?.question ===
-                    answers[answerIdx]?.question?.question
+                    curAnswer.editedAnswer.question?.question ===
+                    curAnswer.answer.question?.question
                   }
                   onClick={() =>
-                    editAnswer({
-                      question: answers[answerIdx].question,
+                    recordState.editAnswer({
+                      question: curAnswer.answer.question,
                     })
                   }
                 >
@@ -219,16 +210,16 @@ function RecordPage(props: {
           />
         </FormControl>
       </div>
-      {curAnswer?.minVideoLength &&
-      curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
+      {curAnswer.minVideoLength &&
+      curAnswer.editedAnswer.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
             data-cy="idle-duration"
-            value={curAnswer?.minVideoLength}
+            value={curAnswer.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => setMinVideoLength(event.target.value as number)}
+            ) => recordState.setMinVideoLength(event.target.value as number)}
             style={{ marginLeft: 10 }}
           >
             <MenuItem data-cy="10" value={10}>
@@ -249,19 +240,21 @@ function RecordPage(props: {
             <OutlinedInput
               data-cy="transcript-input"
               multiline
-              value={curAnswer?.answer?.transcript}
-              onChange={(e) => editAnswer({ transcript: e.target.value })}
+              value={curAnswer.editedAnswer.transcript}
+              onChange={(e) =>
+                recordState.editAnswer({ transcript: e.target.value })
+              }
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     data-cy="undo-transcript-btn"
                     disabled={
-                      curAnswer?.answer?.transcript ===
-                      answers[answerIdx]?.transcript
+                      curAnswer.editedAnswer.transcript ===
+                      curAnswer.answer.transcript
                     }
                     onClick={() =>
-                      editAnswer({
-                        transcript: answers[answerIdx]?.transcript,
+                      recordState.editAnswer({
+                        transcript: curAnswer.answer.transcript,
                       })
                     }
                   >
@@ -281,10 +274,10 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer?.answer?.status || ""}
+          value={curAnswer.editedAnswer.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => editAnswer({ status: event.target.value as Status })}
+          ) => recordState.editAnswer({ status: event.target.value as Status })}
           style={{ marginLeft: 10 }}
         >
           <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
@@ -293,7 +286,7 @@ function RecordPage(props: {
           <MenuItem
             data-cy="complete"
             value={Status.COMPLETE}
-            disabled={!curAnswer?.isValid}
+            disabled={!curAnswer.isValid}
           >
             Active
           </MenuItem>
@@ -305,11 +298,8 @@ function RecordPage(props: {
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}
-            disabled={
-              // answerIdx === 0 || recordState.isSaving || recordState.isUploading
-              answerIdx === 0
-            }
-            onClick={() => switchAnswer(prevAnswer)}
+            disabled={recordState.answerIdx === 0}
+            onClick={() => switchAnswer(recordState.prevAnswer)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -318,22 +308,17 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={
-              !curAnswer?.isEdited
-              // recordState.isSaving ||
-              // recordState.isUploading
-            }
-            onClick={saveAnswer}
+            disabled={!curAnswer.isEdited}
+            onClick={recordState.saveAnswer}
           >
             Save
           </Button>
-          {answerIdx === answers.length - 1 ? (
+          {recordState.answerIdx === recordState.answers.length - 1 ? (
             <Button
               data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
-              // disabled={recordState.isSaving || recordState.isUploading}
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
@@ -344,35 +329,23 @@ function RecordPage(props: {
               data-cy="next-btn"
               className={classes.nextBtn}
               disabled={
-                answerIdx === answers.length - 1
-                // recordState.isSaving ||
-                // recordState.isUploading
+                recordState.answerIdx === recordState.answers.length - 1
               }
-              onClick={() => switchAnswer(nextAnswer)}
+              onClick={() => switchAnswer(recordState.nextAnswer)}
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
           )}
         </Toolbar>
       </AppBar>
-
-      {/* <LoadingDialog
-        title={
-          isLoading
-            ? "Loading..."
-            : recordState.isSaving
-              ? "Saving..."
-              : recordState.isUploading
-                ? "Uploading..."
-                : ""
-        }
-      /> */}
-      {/* <ErrorDialog error={recordState.error} clearError={clearRecordingError} /> */}
+      <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
+      <ErrorDialog
+        error={recordState.error}
+        clearError={recordState.clearError}
+      />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
-          <DialogContentText>
-            You have unsaved changes. Are you sure you&apos;d like to move on?
-          </DialogContentText>
+          <DialogContentText>{confirmLeave?.message}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={confirm}>Yes</Button>
@@ -381,6 +354,7 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
+      <UploadingWidget classes={classes} uploads={recordState.uploads} />
     </div>
   );
 }

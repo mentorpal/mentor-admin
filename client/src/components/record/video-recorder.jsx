@@ -36,15 +36,7 @@ const videoJsOptions = {
   },
 };
 
-function VideoRecorder({
-  classes,
-  curAnswer,
-  height,
-  width,
-  onRecordStart,
-  onRecordStop,
-  isRecording,
-}) {
+function VideoRecorder({ classes, height, width, recordState }) {
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
@@ -91,7 +83,7 @@ function VideoRecorder({
     if (recordedVideo) {
       // if you put onRecordStop directly into player.on("finishRecord")
       // it overwrite with the state from whatever the first question was
-      onRecordStop(recordedVideo);
+      recordState.stopRecording(recordedVideo);
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
@@ -102,13 +94,13 @@ function VideoRecorder({
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
     setIsCameraOn(false);
-  }, [curAnswer.answer._id]);
+  }, [recordState.curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!isRecording || !curAnswer.minVideoLength) {
+    if (!recordState.isRecording || !recordState.curAnswer.minVideoLength) {
       return;
     }
-    if (recordDurationCounter > curAnswer.minVideoLength) {
+    if (recordDurationCounter > recordState.curAnswer.minVideoLength) {
       videoRecorderRef?.record().stop();
     }
   }, [recordDurationCounter]);
@@ -142,7 +134,7 @@ function VideoRecorder({
   );
 
   function startRecording() {
-    onRecordStart();
+    recordState.startRecording();
     setRecordStartCountdown(3);
   }
 
@@ -155,7 +147,7 @@ function VideoRecorder({
       data-cy="recorder"
       style={{
         position: "absolute",
-        visibility: curAnswer.videoSrc ? "hidden" : "visible",
+        visibility: recordState.curAnswer.videoSrc ? "hidden" : "visible",
       }}
     >
       <Typography
@@ -184,7 +176,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            opacity: isRecording ? 0.5 : 0.75,
+            opacity: recordState.isRecording ? 0.5 : 0.75,
             visibility: isCameraOn ? "visible" : "hidden",
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
@@ -203,7 +195,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: isRecording ? "visible" : "hidden",
+            visibility: recordState.isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
@@ -212,7 +204,8 @@ function VideoRecorder({
             ? "Recording ends in"
             : Math.max(
                 Math.ceil(
-                  (curAnswer.minVideoLength || 0) - recordDurationCounter
+                  (recordState.curAnswer.minVideoLength || 0) -
+                    recordDurationCounter
                 ),
                 0
               )
@@ -230,14 +223,15 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: isRecording ? "visible" : "hidden",
+            visibility: recordState.isRecording ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
             recordStopCountdown ||
             Math.max(
               Math.ceil(
-                (curAnswer.minVideoLength || 0) - recordDurationCounter
+                (recordState.curAnswer.minVideoLength || 0) -
+                  recordDurationCounter
               ),
               0
             ) ||
@@ -255,10 +249,10 @@ function VideoRecorder({
         }}
       >
         <IconButton
-          onClick={isRecording ? stopRecording : startRecording}
+          onClick={recordState.isRecording ? stopRecording : startRecording}
           style={{ color: "red" }}
         >
-          {isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
+          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
         </IconButton>
       </div>
       <div
@@ -269,7 +263,7 @@ function VideoRecorder({
           data-cy="upload-file"
           type="file"
           accept="audio/*,video/*"
-          onChange={(e) => onRecordStop(e.target.files[0])}
+          onChange={(e) => recordState.stopRecording(e.target.files[0])}
         />
       </div>
     </div>
