@@ -92,7 +92,6 @@ function UploadingView(props: {
       </List>
     );
   }
-
   return (
     <div
       data-cy="uploading-widget"
