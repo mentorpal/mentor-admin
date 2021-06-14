@@ -105,7 +105,7 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-  const [cancelledUploadIDx, setCancelledUploadIDx] = useState("");
+  const [uploadCancelled, setUploadCancelled] = useState(false);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
 
@@ -162,6 +162,7 @@ function RecordPage(props: {
           // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
           //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
           //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
+          cancelledCurAnswer={uploadCancelled}
           currentUploads={recordState.uploads}
           answers={recordState.answers}
           setAnswerIDx={recordState.setAnswerIDx}
@@ -182,7 +183,14 @@ function RecordPage(props: {
         />
       </div>
       {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer classes={classes} recordState={recordState} />
+        <VideoPlayer
+          classes={classes}
+          recordState={recordState}
+          cancelUpload={() => {
+            setUploadCancelled(true);
+          }}
+          uploadCancelled={uploadCancelled}
+        />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>

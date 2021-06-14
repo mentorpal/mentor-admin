@@ -5,19 +5,23 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useState } from "react";
-import { useWithWindowSize } from "hooks/use-with-window-size";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 function UploadingListItem(props: {
   jobTitle: string;
   jobStatus: string;
   setAnswerIDx: (id: number) => void;
   answerIDx: number;
+  cancelledAnswer: boolean;
 }): JSX.Element {
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { jobTitle, setAnswerIDx, answerIDx, jobStatus } = props;
+  const {
+    jobTitle,
+    setAnswerIDx,
+    answerIDx,
+    jobStatus,
+    cancelledAnswer,
+  } = props;
   const [cancelling, setCancelling] = useState(false);
-
   return (
     <li>
       <ul
@@ -58,7 +62,7 @@ function UploadingListItem(props: {
           }}
         >
           <small>
-            {cancelling
+            {cancelling || cancelledAnswer
               ? "Cancelling..."
               : jobStatus === UploadStatus.TRANSCRIBE_FAILED
               ? "Transcribe Failed"

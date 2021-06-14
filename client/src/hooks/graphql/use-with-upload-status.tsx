@@ -122,7 +122,7 @@ export function useWithUploadStatus(
   ) {
     addOrEditTask({ question, uploadStatus: UploadStatus.PENDING });
     uploadVideo(mentorId, question._id, video, trim)
-      .then((data) => {
+      .then(() => {
         addOrEditTask({ question, uploadStatus: UploadStatus.POLLING });
       })
       .catch((err) => {

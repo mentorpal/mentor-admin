@@ -15,23 +15,21 @@ import {
 } from "@material-ui/core";
 
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { RecordingState } from "hooks/graphql/recording-reducer";
-import {
-  CurAnswerState,
-  UseWithRecordState,
-} from "hooks/graphql/use-with-record-state";
+import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
+  cancelUpload: (b: boolean) => void;
+  uploadCancelled: boolean;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, recordState } = props;
+  const { classes, recordState, cancelUpload, uploadCancelled } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -151,9 +149,11 @@ function VideoPlayer(props: {
           >
             <CircularProgress />
             <p></p>
-            Upload in progress.
+            {uploadCancelled ? "Cancelling your upload." : "Upload in progress"}
             <p></p>
-            You may continue to record other questions.
+            {!uploadCancelled
+              ? "You may continue to record other questions."
+              : undefined}
           </div>
           <ReactPlayer
             data-cy="video-player"
@@ -206,14 +206,15 @@ function VideoPlayer(props: {
             color="primary"
             disableElevation
             disabled={
-              !recordState.curAnswer!.recordedVideo &&
-              !recordState.curAnswer!.isUploading
+              (!recordState.curAnswer!.recordedVideo &&
+                !recordState.curAnswer!.isUploading) ||
+              uploadCancelled
             }
             className={classes.button}
             onClick={() => {
               !recordState.curAnswer!.isUploading
                 ? recordState.uploadVideo()
-                : console.log("Cancel Upload here");
+                : cancelUpload(true);
             }}
             style={{ marginRight: 15 }}
           >
