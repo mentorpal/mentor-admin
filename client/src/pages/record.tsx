@@ -190,7 +190,14 @@ function RecordPage(props: {
         />
       </div>
       {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer classes={classes} recordState={recordState} />
+        <VideoPlayer
+          classes={classes}
+          recordState={recordState}
+          cancelUpload={() => {
+            setUploadCancelled(true);
+          }}
+          uploadCancelled={uploadCancelled}
+        />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>

@@ -648,10 +648,10 @@ describe("Record", () => {
           [
             {
               question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
               },
-              uploadStatus: "DONE",
+              uploadStatus: "CANCELLED",
               transcript: "i am kayla",
               media: [
                 {
@@ -663,8 +663,8 @@ describe("Record", () => {
             },
             {
               question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
               },
               uploadStatus: "CANCELLED",
               transcript: "",
