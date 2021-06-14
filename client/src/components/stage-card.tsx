@@ -34,7 +34,7 @@ const StageProgressBar = withStyles((theme) =>
   })
 )(LinearProgress);
 const StageSelect = (value: number) => {
-  var stages = [
+  const stages = [
     {
       name: "Incomplete",
       index: 0,
@@ -64,7 +64,7 @@ const StageSelect = (value: number) => {
       ceiling: value + 1,
     },
   ];
-  var currentStage = stages.find((stage) => {
+  const currentStage = stages.find((stage) => {
     return stage.ceiling >= value;
   });
   return {
