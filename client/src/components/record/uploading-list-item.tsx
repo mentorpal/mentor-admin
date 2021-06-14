@@ -6,6 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useState } from "react";
 import { UploadStatus } from "hooks/graphql/use-with-upload-status";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import { makeStyles } from "@material-ui/core/styles";
+import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
+import CancelRoundedIcon from "@material-ui/icons/CancelRounded";
+import DoneIcon from "@material-ui/icons/Done";
+import CloseIcon from "@material-ui/icons/Close";
 
 function UploadingListItem(props: {
   jobTitle: string;
@@ -22,74 +30,71 @@ function UploadingListItem(props: {
     cancelledAnswer,
   } = props;
   const [cancelling, setCancelling] = useState(false);
+  const useStyles = makeStyles(() => ({
+    primaryListItemText: {
+      fontSize: "0.9em",
+    },
+    secondaryListItemText: {
+      fontSize: "0.7em",
+    },
+  }));
+  const classes = useStyles();
   return (
-    <li>
-      <ul
-        style={{
-          textAlign: "center",
-          listStyleType: "none",
-          display: "table",
-          padding: 0,
-          margin: 0,
-          borderBottom: "1px solid grey",
-          width: "100%",
+    <ListItem divider={true} dense={true} alignItems={"center"}>
+      <ListItemIcon style={{ minWidth: 0, paddingRight: 15 }}>
+        {jobStatus == UploadStatus.DONE ? (
+          <DoneIcon />
+        ) : jobStatus == UploadStatus.UPLOAD_FAILED ? (
+          <CancelRoundedIcon />
+        ) : (
+          <PublishRoundedIcon />
+        )}
+      </ListItemIcon>
+      <ListItemText
+        data-cy="card-answer-title"
+        onClick={() => {
+          setAnswerIDx(answerIDx);
         }}
+        classes={{
+          primary: classes.primaryListItemText,
+          secondary: classes.secondaryListItemText,
+        }}
+        primary={
+          jobTitle && jobTitle.length > 35
+            ? jobTitle.substring(0, 35) + "..."
+            : jobTitle
+        }
+        secondary={
+          cancelling || cancelledAnswer
+            ? "Cancelling"
+            : jobStatus === UploadStatus.TRANSCRIBE_FAILED
+            ? "Transcribe Failed"
+            : jobStatus === UploadStatus.UPLOAD_FAILED
+            ? "Upload Failed"
+            : jobStatus === UploadStatus.DONE
+            ? "Complete"
+            : "Uploading"
+        }
+      />
+      <ListItemIcon
+        style={{
+          minWidth: 0,
+          visibility:
+            jobStatus == UploadStatus.DONE ||
+            jobStatus == UploadStatus.UPLOAD_FAILED
+              ? "hidden"
+              : "visible",
+        }}
+        data-cy="cancel-upload"
       >
-        <li
-          data-cy="card-answer-title"
-          style={{ display: "table-cell" }}
-          onClick={() => {
-            setAnswerIDx(answerIDx);
-          }}
-        >
-          <small>
-            {jobTitle && jobTitle.length > 35
-              ? jobTitle.substring(0, 35) + "..."
-              : jobTitle}
-          </small>
-        </li>
-        <li
-          data-cy="upload-status"
-          style={{
-            display: "table-cell",
-            color:
-              jobStatus === UploadStatus.TRANSCRIBE_FAILED ||
-              jobStatus === UploadStatus.UPLOAD_FAILED
-                ? "red"
-                : jobStatus !== UploadStatus.DONE
-                ? "black"
-                : "green",
-          }}
-        >
-          <small>
-            {cancelling || cancelledAnswer
-              ? "Cancelling..."
-              : jobStatus === UploadStatus.TRANSCRIBE_FAILED
-              ? "Transcribe Failed"
-              : jobStatus === UploadStatus.UPLOAD_FAILED
-              ? "Upload Failed"
-              : jobStatus === UploadStatus.DONE
-              ? "Complete"
-              : "Uploading"}
-          </small>
-        </li>
-        <li
-          data-cy="cancel-upload"
+        <CloseIcon
           onClick={() => {
             setCancelling(true);
           }}
-          style={{
-            display: "table-cell",
-            paddingRight: "8px",
-            paddingLeft: "8px",
-            visibility: jobStatus !== UploadStatus.DONE ? "visible" : "hidden",
-            cursor: "pointer",
-          }}
-        >
-          x
-        </li>
-      </ul>
-    </li>
+          style={{ cursor: "pointer" }}
+        />
+      </ListItemIcon>
+    </ListItem>
   );
 }
 

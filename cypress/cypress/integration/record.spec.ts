@@ -470,6 +470,66 @@ describe("Record", () => {
   });
 
   //START of new tests
+  it("When an upload finishes on record page, should redirect user to video page", () => {
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [
+            [            
+              {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ]
+        ], true),
+      ],
+    });
+    cy.visit("/record");
+    //upload in progress
+    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should('contain.text', "Cancel");
+    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=video-player]").should("not.be.visible");
+    //upload complete, should swap to video view
+    cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
+    cy.get("[data-cy=upload-video]").should('contain.text', "Upload Video");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=video-player]").should("be.visible");
+  });
+
   it("cancelling an upload changes the local uploading status to \"cancelling\"", () => {
     cySetup(cy);
     cyMockUpload(cy);
@@ -516,11 +576,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").within($within => {
+    cy.get("[data-cy=upload-card-0").should("exist");
+    cy.get("[data-cy=upload-card-0").within($within => {
+      //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=cancel-upload]").trigger('mouseover').click();
     })
-    cy.get("[data-cy=upload-card-0]").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Cancelling...")
+    cy.get("[data-cy=upload-card-0").within($within => {
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Cancelling")
     })
     cy.get("[data-cy=upload-video]").trigger('mouseover').click();
     cy.get("[data-cy=upload-card-0]").trigger('mouseover').click();
@@ -1208,128 +1271,6 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("be.visible");
   })
 
-  it("displays status info for each job: Uploading, Completed, Failed", () => {
-    cySetup(cy);
-    cyMockUpload(cy);
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "UPLOAD_IN_PROGRESS",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-              uploadStatus: "UPLOAD_FAILED",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[2].question._id,
-                question: videoMentor.answers[2].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
-          ],
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[2].question._id,
-                question: videoMentor.answers[2].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
-          ],
-        ], true),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Uploading")
-    })
-    cy.get("[data-cy=upload-card-1").should("exist");
-    cy.get("[data-cy=upload-card-1").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Upload Failed")
-    })
-    cy.get("[data-cy=upload-card-2").should("exist");
-    cy.get("[data-cy=upload-card-2").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Complete")
-    })
-  })
-
   it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
     cySetup(cy);
     cyMockUpload(cy);
@@ -1505,53 +1446,6 @@ describe("Record", () => {
                 }
               ]
             }
-          ],
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[2].question._id,
-                question: videoMentor.answers[2].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
           ]
         ], true),
       ],
@@ -1559,15 +1453,21 @@ describe("Record", () => {
     cy.visit("/record");
     cy.get("[data-cy=upload-card-0").should("exist");
     cy.get("[data-cy=upload-card-0").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Uploading")
+      //ListItems primary text is under <span> and its secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[0].question.question)
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Uploading")
     })
     cy.get("[data-cy=upload-card-1").should("exist");
     cy.get("[data-cy=upload-card-1").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Upload Failed")
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[1].question.question)
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Upload Failed")
     })
     cy.get("[data-cy=upload-card-2").should("exist");
     cy.get("[data-cy=upload-card-2").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Complete")
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[2].question.question)
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Complete")
     })
   })
 
@@ -1604,12 +1504,12 @@ describe("Record", () => {
     cy.visit("/record");
     cy.get("[data-cy=upload-card-0").should("exist");
     cy.get("[data-cy=upload-card-0").within($within => {
-      cy.get("[data-cy=upload-status]").should('have.text', "Uploading")
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Uploading")
     })
     cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
     cy.get("[data-cy=upload-card-0]").within($within =>{
-      cy.get("[data-cy=upload-status]").should('have.text', "Cancelling...");
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Cancelling")
     })
     cy.get("[data-cy=upload-video]").should("be.disabled");
   })

@@ -10,6 +10,7 @@ import ListItem from "./uploading-list-item";
 import { Answer } from "types";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { AnswerState } from "hooks/graphql/use-with-record-state";
+import List from "@material-ui/core/List";
 
 function UploadingView(props: {
   answers: AnswerState[];
@@ -28,6 +29,11 @@ function UploadingView(props: {
   const uploadsToShow = currentUploads.filter(
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
   );
+  const uploadsInProgress = uploadsToShow.filter(
+    (upload) => upload.uploadStatus !== UploadStatus.DONE
+  );
+  const height = 250;
+  const width = 350;
 
   //the IDx of an answer corresponds to its position within the answers array
   function retrieveAnswerIDx(id: string) {
@@ -53,11 +59,13 @@ function UploadingView(props: {
 
   function produceList() {
     return (
-      <ul
+      <List
         style={{
           listStyleType: "none",
           padding: 0,
           margin: 0,
+          maxHeight: "213px",
+          overflow: "scroll",
         }}
       >
         {uploadsToShow.map((job, i) => {
@@ -84,19 +92,16 @@ function UploadingView(props: {
             </div>
           );
         })}
-      </ul>
+      </List>
     );
   }
-
-  const height = 150;
-  const width = 300;
   return (
     <div
       data-cy="uploading-widget"
       style={{
         visibility: uploadsToShow.length > 0 ? "visible" : "hidden",
         position: "absolute",
-        right: 50,
+        right: 10,
         marginTop: 200,
         boxShadow: "1px 1px 1px 1px",
         width: width,
@@ -107,14 +112,14 @@ function UploadingView(props: {
         data-cy="uploading-widget-title"
         style={{
           width: "100%",
-          height: height * 0.2,
+          height: height * 0.15,
           backgroundColor: "#303030",
           color: "white",
         }}
       >
         <div style={{ paddingTop: height * 0.03 }}>
-          {uploadsToShow.length > 0
-            ? `Uploading ${uploadsToShow.length} item(s)...`
+          {uploadsInProgress.length > 0
+            ? `Uploading ${uploadsInProgress.length} item(s)...`
             : "Uploading Complete"}
         </div>
       </div>
