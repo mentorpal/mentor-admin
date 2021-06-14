@@ -530,7 +530,7 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
   });
 
-  it.skip("cancelling an upload changes the local uploading status to \"cancelling\"", () => {
+  it("cancelling an upload changes the local uploading status to \"cancelling\"", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -590,7 +590,6 @@ describe("Record", () => {
 
   it("A successfully cancelled upload item should dissapear from the list of uploads", () => {
     cySetup(cy);
-    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -708,7 +707,6 @@ describe("Record", () => {
   //Test that once you click the title card, it goes to that card appropriate answer
   it("tapping an item from active uploads (via upload button) takes you to that item", () => {
     cySetup(cy);
-    cyMockUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor], gqlQueries: [
         mockGQL("uploadTaskDelete", true, true),
@@ -1186,7 +1184,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-1").should("exist");
   })
 
-  it.skip("uploading widget should not be open if there are no uploads", () => {
+  it("uploading widget should not be open if there are no uploads", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1276,7 +1274,7 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("be.visible");
   })
 
-  it.skip("tapping an item from active uploads (via graphql query) takes you to that item", () => {
+  it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1726,7 +1724,7 @@ describe("Record", () => {
     })
   })
 
-  it.skip("pressing cancel button changes UI to indicate cancel in progress", () => {
+  it("pressing cancel button changes UI to indicate cancel in progress", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
