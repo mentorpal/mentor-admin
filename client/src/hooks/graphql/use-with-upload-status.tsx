@@ -57,7 +57,9 @@ export function useWithUploadStatus(
   useEffect(() => {
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
-        deleteUploadTask(u.question._id, accessToken);
+        deleteUploadTask(u.question._id, accessToken).catch((error) => {
+          console.log(error);
+        });
       }
     });
     setIsUploading(uploads.some((u) => !isTaskDoneOrFailed(u)));
