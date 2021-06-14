@@ -40,28 +40,32 @@ const StageSelect = (value: number) => {
       index: 0,
       description: "This Mentor can't be built yet.",
       max: 5,
+      ceiling: 4,
     },
     {
       name: "Minimal",
       index: 1,
       description: "This Mentor can select questions from a list",
       max: 8,
+      ceiling: 7,
     },
     {
       name: "Good As Can Be",
       index: 2,
       description: "This Mentor is as good as it gets",
       max: value,
+      ceiling: value + 1,
     },
     {
       name: "None",
       index: 3,
       description: "you've reached the final stage",
       max: value,
+      ceiling: value + 1,
     },
   ];
   var currentStage = stages.find((stage) => {
-    return stage.max >= value;
+    return stage.ceiling >= value;
   });
   return {
     ...currentStage,
