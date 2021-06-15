@@ -19,9 +19,6 @@ import MuiAlert from "@material-ui/lab/Alert";
 
 import { createStyles, withStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
-function Alert(props: any) {
-  return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 const StageProgressBar = withStyles((theme) =>
   createStyles({
@@ -136,9 +133,9 @@ export default function StageCard(props: { value: number }): JSX.Element {
           setOpen(false);
         }}
       >
-        <Alert severity="success">
+        <MuiAlert elevation={6} variant="filled" severity="success">
           Your mentor has reached the {currentStage.name} stage!
-        </Alert>
+        </MuiAlert>
       </Snackbar>
     </div>
   );
