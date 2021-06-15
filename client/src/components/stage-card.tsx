@@ -44,35 +44,61 @@ const StageSelect = (value: number) => {
       description: "This Mentor can't be built yet.",
       floor: 0,
       max: 5,
-      ceiling: 4,
     },
     {
-      name: "Minimal",
+      name: "Scripted",
       index: 1,
       description: "This Mentor can select questions from a list",
       floor: 5,
-      max: 8,
-      ceiling: 7,
+      max: 20,
     },
     {
-      name: "Good As Can Be",
+      name: "Interactive",
       index: 2,
-      description: "This Mentor is as good as it gets",
-      floor: value,
+      description: "This Mentor can respond to simple questions.",
+      floor: 20,
+      max: 50,
+    },
+    {
+      name: "Specialist",
+      index: 3,
+      description: "This mentor can answer questions within a specific topic.",
+      floor: 50,
+      max: 150,
+    },
+    {
+      name: "Conversational",
+      index: 4,
+      description: "This mentor can respond to questions with some nuance.",
+      floor: 150,
+      max: 250,
+    },
+    {
+      name: "Full-Subject",
+      index: 5,
+      description:
+        "Your mentor is equipped to answer questions within a broad subject.",
+      floor: 250,
+      max: 1000,
+    },
+    {
+      name: "Life-Story",
+      index: 6,
+      description:
+        "Your mentor can hold a natural conversation. Congratulations!",
+      floor: 1000,
       max: value,
-      ceiling: value + 1,
     },
     {
       name: "None",
-      index: 3,
+      index: 7,
       description: "you've reached the final stage",
       floor: value,
       max: value,
-      ceiling: value + 1,
     },
   ];
   const currentStage = stages.find((stage) => {
-    return stage.ceiling >= value;
+    return stage.max - 1 >= value;
   });
   return {
     ...currentStage,
@@ -142,9 +168,5 @@ export default function StageCard(props: { value: number }): JSX.Element {
 }
 
 StageCard.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
   value: PropTypes.number.isRequired,
 };
