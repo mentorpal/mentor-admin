@@ -14,8 +14,14 @@ import {
   Typography,
   Tooltip,
 } from "@material-ui/core";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+
 import { createStyles, withStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
+function Alert(props: any) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const StageProgressBar = withStyles((theme) =>
   createStyles({
@@ -39,6 +45,7 @@ const StageSelect = (value: number) => {
       name: "Incomplete",
       index: 0,
       description: "This Mentor can't be built yet.",
+      floor: 0,
       max: 5,
       ceiling: 4,
     },
@@ -46,6 +53,7 @@ const StageSelect = (value: number) => {
       name: "Minimal",
       index: 1,
       description: "This Mentor can select questions from a list",
+      floor: 5,
       max: 8,
       ceiling: 7,
     },
@@ -53,6 +61,7 @@ const StageSelect = (value: number) => {
       name: "Good As Can Be",
       index: 2,
       description: "This Mentor is as good as it gets",
+      floor: value,
       max: value,
       ceiling: value + 1,
     },
@@ -60,6 +69,7 @@ const StageSelect = (value: number) => {
       name: "None",
       index: 3,
       description: "you've reached the final stage",
+      floor: value,
       max: value,
       ceiling: value + 1,
     },
@@ -75,48 +85,62 @@ const StageSelect = (value: number) => {
     },
   };
 };
-function StageCard(props: { value: number }): JSX.Element {
+export default function StageCard(props: { value: number }): JSX.Element {
   const currentStage = StageSelect(props.value);
+  const [open, setOpen] = React.useState(currentStage.floor == props.value);
 
   return (
-    <Box display="flex" width="100%" mt={2} alignItems="center">
-      <Box width="33%" alignItems="center"></Box>
-      <Card style={{ width: "33%" }} data-cy="stage-card">
-        <CardContent>
-          <Typography variant="body1" color="textSecondary">
-            Scope: {currentStage!.name}
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            {currentStage!.description}
-          </Typography>
-          <Typography variant="body1" color="textSecondary">
-            Next Goal: {currentStage!.next!.name}
-            {"   "}
-            <Tooltip
-              title={
-                <React.Fragment>
-                  <Typography color="inherit">
-                    {currentStage!.next!.name}
-                  </Typography>
-                  {currentStage!.next!.description}
-                </React.Fragment>
-              }
-              data-cy="next-stage-info"
-            >
-              <HelpOutline fontSize="small" />
-            </Tooltip>
-          </Typography>
-          <StageProgressBar
-            data-cy="progress-bar"
-            variant="determinate"
-            {...{ value: currentStage!.percent }}
-          />
-          <Typography variant="body2" color="textSecondary">
-            {props.value} / {currentStage!.max} ({currentStage!.percent}%)
-          </Typography>
-        </CardContent>
-      </Card>
-    </Box>
+    <div>
+      <Box display="flex" width="100%" mt={2} alignItems="center">
+        <Box width="33%" alignItems="center"></Box>
+        <Card style={{ width: "33%" }} data-cy="stage-card">
+          <CardContent>
+            <Typography variant="body1" color="textSecondary">
+              Scope: {currentStage!.name}
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              {currentStage!.description}
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Next Goal: {currentStage!.next!.name}
+              {"   "}
+              <Tooltip
+                title={
+                  <React.Fragment>
+                    <Typography color="inherit">
+                      {currentStage!.next!.name}
+                    </Typography>
+                    {currentStage!.next!.description}
+                  </React.Fragment>
+                }
+                data-cy="next-stage-info"
+              >
+                <HelpOutline fontSize="small" />
+              </Tooltip>
+            </Typography>
+            <StageProgressBar
+              data-cy="progress-bar"
+              variant="determinate"
+              {...{ value: currentStage!.percent }}
+            />
+            <Typography variant="body2" color="textSecondary">
+              {props.value} / {currentStage!.max} ({currentStage!.percent}%)
+            </Typography>
+          </CardContent>
+        </Card>
+      </Box>
+      <Snackbar
+        open={open}
+        autoHideDuration={6000}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        <Alert severity="success">
+          Your mentor has reached the {currentStage.name} stage!
+        </Alert>
+      </Snackbar>
+    </div>
   );
 }
 
@@ -127,5 +151,3 @@ StageCard.propTypes = {
    */
   value: PropTypes.number.isRequired,
 };
-
-export default StageCard;
