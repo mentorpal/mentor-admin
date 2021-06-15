@@ -142,7 +142,7 @@ export default function StageCard(props: { value: number }): JSX.Element {
               </Tooltip>
             </Typography>
 
-            {currentStage!.max != props.value + 1 && (
+            {currentStage!.floor != 1000 && (
               <div>
                 <StageProgressBar
                   data-cy="progress-bar"
