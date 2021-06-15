@@ -87,7 +87,7 @@ const StageSelect = (value: number) => {
       description:
         "Your mentor can hold a natural conversation. Congratulations!",
       floor: 1000,
-      max: value,
+      max: value + 1,
     },
     {
       name: "None",
@@ -141,26 +141,37 @@ export default function StageCard(props: { value: number }): JSX.Element {
                 <HelpOutline fontSize="small" />
               </Tooltip>
             </Typography>
-            <StageProgressBar
-              data-cy="progress-bar"
-              variant="determinate"
-              {...{ value: currentStage!.percent }}
-            />
-            <Typography variant="body2" color="textSecondary">
-              {props.value} / {currentStage!.max} ({currentStage!.percent}%)
-            </Typography>
+
+            {currentStage!.max != props.value + 1 && (
+              <div>
+                <StageProgressBar
+                  data-cy="progress-bar"
+                  variant="determinate"
+                  {...{ value: currentStage!.percent }}
+                />
+                <Typography variant="body2" color="textSecondary">
+                  {props.value} / {currentStage!.max} ({currentStage!.percent}%)
+                </Typography>
+              </div>
+            )}
           </CardContent>
         </Card>
       </Box>
       <Snackbar
         open={open}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         autoHideDuration={6000}
         onClose={() => {
           setOpen(false);
         }}
       >
         <MuiAlert elevation={6} variant="filled" severity="success">
-          Your mentor has reached the {currentStage.name} stage!
+          <Typography variant="body1">
+            Your mentor has reached the {currentStage.name} stage!
+          </Typography>
+          <Typography variant="body2">
+            You have {props.value} total questions.
+          </Typography>
         </MuiAlert>
       </Snackbar>
     </div>
