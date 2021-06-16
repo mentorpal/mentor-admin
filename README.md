@@ -51,6 +51,15 @@ To run cypress tests headlessly in docker, you do **not** need the client runnin
 make test-e2e
 ```
 
+## Windows 10 Development
+
+- Install git on the native windows side.
+- Clone https://github.com/mentorpal/mentor-admin to your machine.
+- Install nvm for windows: https://dev.to/skaytech/how-to-install-node-version-manager-nvm-for-windows-10-4nbi
+- Install node 12.x for the mentorpal admin project.
+- Go to the client directory of the admin project and run npm install then npm develop.
+- Go to the cypress directory of the admin project and run npm install then npm cy:open
+
 Releases
 --------
 
