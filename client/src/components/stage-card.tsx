@@ -14,8 +14,7 @@ import {
   Typography,
   Tooltip,
 } from "@material-ui/core";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert from "@material-ui/lab/Alert";
+import StageToast from "./stage-toast";
 
 import { createStyles, withStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
@@ -110,7 +109,6 @@ const StageSelect = (value: number) => {
 };
 export default function StageCard(props: { value: number }): JSX.Element {
   const currentStage = StageSelect(props.value);
-  const [open, setOpen] = React.useState(currentStage.floor == props.value);
 
   return (
     <div>
@@ -157,23 +155,11 @@ export default function StageCard(props: { value: number }): JSX.Element {
           </CardContent>
         </Card>
       </Box>
-      <Snackbar
-        open={open}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        autoHideDuration={6000}
-        onClose={() => {
-          setOpen(false);
-        }}
-      >
-        <MuiAlert elevation={6} variant="filled" severity="success">
-          <Typography variant="body1">
-            Your mentor has reached the {currentStage.name} stage!
-          </Typography>
-          <Typography variant="body2">
-            You have {props.value} total questions.
-          </Typography>
-        </MuiAlert>
-      </Snackbar>
+      <StageToast
+        value={props.value}
+        floor={currentStage!.floor!}
+        name={currentStage!.name!}
+      />
     </div>
   );
 }
