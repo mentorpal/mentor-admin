@@ -13,24 +13,32 @@ const mentor = {
 };
 
 describe("Edit subjects", () => {
-
   it("shows list of subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor, subjects: [allSubjects] });
     cy.visit("/author/subjects");
     cy.get("[data-cy=subjects]").children().should("have.length", 3);
-    cy.get("[data-cy=subjects]").within($subjects => {
-      cy.get("[data-cy=subject-background]").within($subject => {
-        cy.get("[data-cy=name]").should('have.text', "Background");
-        cy.get("[data-cy=description]").should('have.text', "These questions will ask general questions about your background that might be relevant to how people understand your career.");
+    cy.get("[data-cy=subjects]").within(($subjects) => {
+      cy.get("[data-cy=subject-background]").within(($subject) => {
+        cy.get("[data-cy=name]").should("have.text", "Background");
+        cy.get("[data-cy=description]").should(
+          "have.text",
+          "These questions will ask general questions about your background that might be relevant to how people understand your career."
+        );
       });
-      cy.get("[data-cy=subject-repeat_after_me]").within($subject => {
-        cy.get("[data-cy=name]").should('have.text', "Repeat After Me");
-        cy.get("[data-cy=description]").should('have.text', "These are miscellaneous phrases you'll be asked to repeat.");
+      cy.get("[data-cy=subject-repeat_after_me]").within(($subject) => {
+        cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=description]").should(
+          "have.text",
+          "These are miscellaneous phrases you'll be asked to repeat."
+        );
       });
-      cy.get("[data-cy=subject-leadership]").within($subject => {
-        cy.get("[data-cy=name]").should('have.text', "Leadership");
-        cy.get("[data-cy=description]").should('have.text', "These questions will ask about being in a leadership role.");
+      cy.get("[data-cy=subject-leadership]").within(($subject) => {
+        cy.get("[data-cy=name]").should("have.text", "Leadership");
+        cy.get("[data-cy=description]").should(
+          "have.text",
+          "These questions will ask about being in a leadership role."
+        );
       });
     });
   });
@@ -43,14 +51,16 @@ describe("Edit subjects", () => {
       subject: background,
     });
     cy.visit("/author/subjects");
-    cy.get("[data-cy=subjects]").within($subjects => {
-      cy.get("[data-cy=subject-background]").within($subject => {
-        cy.get("[data-cy=name]").within($name => {
+    cy.get("[data-cy=subjects]").within(($subjects) => {
+      cy.get("[data-cy=subject-background]").within(($subject) => {
+        cy.get("[data-cy=name]").within(($name) => {
           cy.get("a").trigger("mouseover").click();
-        })
+        });
       });
     });
-    cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/author/subject"));
+    cy.location("pathname").then(($el) =>
+      assert($el.replace("/admin", ""), "/author/subject")
+    );
     cy.location("search").should("equal", "?id=background");
   });
 
@@ -62,10 +72,11 @@ describe("Edit subjects", () => {
     });
     cy.visit("/author/subjects");
     cy.get("[data-cy=create-button]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) => assert($el.replace("/admin", ""), "/author/subject"));
+    cy.location("pathname").then(($el) =>
+      assert($el.replace("/admin", ""), "/author/subject")
+    );
     cy.location("search").should("equal", "");
-
-  })
+  });
 
   it.skip("can delete a subject", () => {
     // not implemented
