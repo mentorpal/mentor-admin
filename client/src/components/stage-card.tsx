@@ -143,7 +143,7 @@ export default function StageCard(props: { value: number }): JSX.Element {
             {currentStage!.floor != 1000 && (
               <div>
                 <StageProgressBar
-                  data-cy="progress-bar"
+                  data-cy="stage-progress"
                   variant="determinate"
                   {...{ value: currentStage!.percent }}
                 />

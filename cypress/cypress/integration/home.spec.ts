@@ -11,8 +11,9 @@ import {
   cyMockTrainStatus,
 } from '../support/functions';
 import clint from '../fixtures/mentor/clint_home';
-import { JobState, Status } from '../support/types';
+import { JobState, Status, QuestionType } from '../support/types';
 
+const originalAnswers = clint.answers;
 describe('Review answers page', () => {
   it('shows all questions for all subjects by default', () => {
     cySetup(cy);
@@ -105,6 +106,7 @@ describe('Review answers page', () => {
     cy.visit('/');
     cy.get('[data-cy=stage-card]').contains('Scope: Incomplete');
     cy.get('[data-cy=stage-card]').contains("This Mentor can't be built yet.");
+    cy.get('[data-cy=stage-progress]').should('exist');
     cy.get('[data-cy=stage-card]')
       .find('[data-cy=next-stage-info]')
       .trigger('mouseover');
@@ -126,9 +128,35 @@ describe('Review answers page', () => {
     );
     cy.get('[data-cy=stage-toast]').contains('You have 5 total questions.');
   });
+  it('does not show progress bar at maxed level', () => {
+    cySetup(cy);
+    clint.answers = [
+      ...Array(1000)
+        .fill(0)
+        .map((x) => ({
+          _id: 'A1_1_1',
+          question: {
+            _id: 'A1_1_1',
+            question: 'Who are you and what do you do?',
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],
+          },
+          transcript:
+            "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+          status: Status.COMPLETE,
+        })),
+    ];
+
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-card]').contains('Scope: Life-Story');
+    cy.get('[data-cy=stage-progress]').should('not.exist');
+  });
 
   it('can pick a subject from dropdown and view questions and categories', () => {
     cySetup(cy);
+    clint.answers = originalAnswers;
     clint.answers[4].status = Status.INCOMPLETE;
     cyMockDefault(cy, { mentor: clint });
 
