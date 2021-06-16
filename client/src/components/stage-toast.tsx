@@ -27,7 +27,12 @@ export default function StageToast(props: {
         setOpen(false);
       }}
     >
-      <MuiAlert elevation={6} variant="filled" severity="success">
+      <MuiAlert
+        elevation={6}
+        variant="filled"
+        severity="success"
+        data-cy="stage-toast"
+      >
         <Typography variant="body1">
           Your mentor has reached the {props.name} stage!
         </Typography>

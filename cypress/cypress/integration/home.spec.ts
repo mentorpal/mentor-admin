@@ -11,7 +11,7 @@ import {
   cyMockTrainStatus,
 } from '../support/functions';
 import clint from '../fixtures/mentor/clint_home';
-import { JobState } from '../support/types';
+import { JobState, Status } from '../support/types';
 
 describe('Review answers page', () => {
   it('shows all questions for all subjects by default', () => {
@@ -110,10 +110,28 @@ describe('Review answers page', () => {
       .trigger('mouseover');
     cy.contains('This Mentor can select questions from a list');
   });
+  it('does not show toast on incomplete level', () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-toast]').should('not.exist');
+  });
+  it('shows mentor scope toast on stage floor', () => {
+    cySetup(cy);
+    clint.answers[4].status = Status.COMPLETE;
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-toast]').contains(
+      'Your mentor has reached the Scripted stage!'
+    );
+    cy.get('[data-cy=stage-toast]').contains('You have 5 total questions.');
+  });
 
   it('can pick a subject from dropdown and view questions and categories', () => {
     cySetup(cy);
+    clint.answers[4].status = Status.INCOMPLETE;
     cyMockDefault(cy, { mentor: clint });
+
     cy.visit('/');
     cy.get('[data-cy=select-subject]').contains('All Answers (4 / 5)');
     cy.get('[data-cy=select-subject]').trigger('mouseover').click();
