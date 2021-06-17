@@ -56,6 +56,7 @@ export function useWithUploadStatus(
   }, []);
 
   useEffect(() => {
+    // TODO
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
         deleteUploadTask(u.question._id, accessToken).catch((error) => {
