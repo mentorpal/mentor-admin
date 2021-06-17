@@ -5,29 +5,34 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useState } from "react";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import {
+  LinearProgress,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
-import CancelRoundedIcon from "@material-ui/icons/CancelRounded";
-import DoneIcon from "@material-ui/icons/Done";
+import { PublishRounded, CancelRounded, CheckCircle } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 
 function UploadingListItem(props: {
+  upload: UploadTask;
   jobTitle: string;
-  jobStatus: string;
   setAnswerIDx: (id: number) => void;
   answerIDx: number;
   cancelledAnswer: boolean;
+  cancelAnswerUpload: (s: string) => void;
+  representsCurrentAnswer: boolean;
 }): JSX.Element {
   const {
     jobTitle,
     setAnswerIDx,
     answerIDx,
-    jobStatus,
     cancelledAnswer,
+    cancelAnswerUpload,
+    representsCurrentAnswer,
+    upload,
   } = props;
   const [cancelling, setCancelling] = useState(false);
   const useStyles = makeStyles(() => ({
@@ -38,16 +43,30 @@ function UploadingListItem(props: {
       fontSize: "0.7em",
     },
   }));
+  const jobStatus = upload.uploadStatus;
+  const jobDone = jobStatus == UploadStatus.DONE;
+  const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
   const classes = useStyles();
+
+  if (cancelledAnswer == true && cancelling !== cancelledAnswer) {
+    setCancelling(true);
+  }
+
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
-      <ListItemIcon style={{ minWidth: 0, paddingRight: 15 }}>
-        {jobStatus == UploadStatus.DONE ? (
-          <DoneIcon />
-        ) : jobStatus == UploadStatus.UPLOAD_FAILED ? (
-          <CancelRoundedIcon />
+      <ListItemIcon
+        style={{
+          minWidth: 0,
+          paddingRight: 15,
+          color: jobFailed ? "#ff0000" : jobDone ? "green" : "black",
+        }}
+      >
+        {jobDone ? (
+          <CheckCircle />
+        ) : jobFailed ? (
+          <CancelRounded />
         ) : (
-          <PublishRoundedIcon />
+          <PublishRounded />
         )}
       </ListItemIcon>
       <ListItemText
@@ -65,33 +84,44 @@ function UploadingListItem(props: {
             : jobTitle
         }
         secondary={
-          cancelling || cancelledAnswer
-            ? "Cancelling"
-            : jobStatus === UploadStatus.TRANSCRIBE_FAILED
-            ? "Transcribe Failed"
-            : jobStatus === UploadStatus.UPLOAD_FAILED
-            ? "Upload Failed"
-            : jobStatus === UploadStatus.DONE
-            ? "Complete"
-            : "Uploading"
+          //ADD DETERMINISTIC PROGRESS BAR HERE
+          cancelling || cancelledAnswer ? (
+            "Cancelling"
+          ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
+            "Transcribe Failed"
+          ) : jobFailed ? (
+            "Upload Failed"
+          ) : jobStatus == UploadStatus.TRANSCRIBE_IN_PROGRESS ? (
+            "Transcribing"
+          ) : jobDone ? (
+            "Complete"
+          ) : jobStatus === UploadStatus.PENDING ||
+            jobStatus == UploadStatus.UPLOAD_IN_PROGRESS ? (
+            <LinearProgress
+              data-cy="progress-bar"
+              variant={"determinate"}
+              value={upload.uploadProgress}
+            />
+          ) : (
+            ""
+          )
         }
       />
       <ListItemIcon
         style={{
           minWidth: 0,
-          visibility:
-            jobStatus == UploadStatus.DONE ||
-            jobStatus == UploadStatus.UPLOAD_FAILED
-              ? "hidden"
-              : "visible",
+          visibility: jobDone || jobFailed ? "hidden" : "visible",
         }}
         data-cy="cancel-upload"
       >
         <CloseIcon
           onClick={() => {
+            if (representsCurrentAnswer) {
+              cancelAnswerUpload(upload.question._id);
+            }
             setCancelling(true);
           }}
-          style={{ cursor: "pointer" }}
+          style={{ cursor: "pointer", paddingRight: 5 }}
         />
       </ListItemIcon>
     </ListItem>

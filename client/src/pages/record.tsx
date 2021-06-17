@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Button,
@@ -105,9 +105,14 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-  const [uploadCancelled, setUploadCancelled] = useState(false);
+  const [cancelledAnswerID, setCancelledAnswerID] = useState("");
+  const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
+
+  useEffect(() => {
+    setCancelledAnswerID("");
+  }, [recordState.curAnswer?.answer._id]);
 
   function onBack() {
     if (props.search.back) {
@@ -116,7 +121,6 @@ function RecordPage(props: {
       navigate("/");
     }
   }
-
   function switchAnswer(onNav: () => void) {
     if (curAnswer!.isEdited) {
       if (curAnswer!.recordedVideo && !curAnswer!.isUploading) {
@@ -153,22 +157,25 @@ function RecordPage(props: {
       </div>
     );
   }
-
   return (
     <div className={classes.root}>
       {curAnswer ? (
         <UploadingWidget
+          visible={uploadingWidgetVisible}
+          setUploadWidgetVisible={setUploadingWidgetVisible}
           curAnswer={curAnswer.answer}
-          // currentUploads={[{question: curAnswer.answer.question, uploadStatus: UploadStatus.UPLOAD_IN_PROGRESS},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.DONE},
-          //   {question: curAnswer.answer.question, uploadStatus: UploadStatus.CANCELLED }]}
-          cancelledCurAnswer={uploadCancelled}
-          currentUploads={recordState.uploads}
-          answers={recordState.answers}
-          setAnswerIDx={recordState.setAnswerIDx}
+          cancelAnswerUpload={setCancelledAnswerID}
+          cancelledAnswerID={cancelledAnswerID}
+          recordState={recordState}
         />
       ) : undefined}
-      <NavBar title="Record Mentor" mentorId={mentor._id} />
+      <NavBar
+        title="Record Mentor"
+        mentorId={mentor._id}
+        uploads={recordState.uploads}
+        uploadsButtonVisible={uploadingWidgetVisible}
+        toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+      />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
@@ -186,10 +193,8 @@ function RecordPage(props: {
         <VideoPlayer
           classes={classes}
           recordState={recordState}
-          cancelUpload={() => {
-            setUploadCancelled(true);
-          }}
-          uploadCancelled={uploadCancelled}
+          cancelAnswerUpload={setCancelledAnswerID}
+          cancelledAnswerID={cancelledAnswerID}
         />
       ) : undefined}
       <div data-cy="question" className={classes.block}>

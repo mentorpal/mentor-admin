@@ -19,7 +19,7 @@ import {
   VideoInfo,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
-import { UploadTask } from "hooks/graphql/use-with-upload-status";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -608,17 +608,24 @@ export async function fetchTrainingStatus(
 
 export async function uploadVideo(
   mentorId: string,
-  questionId: string,
   video: File,
+  question: Question,
+  addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
 ): Promise<AsyncJob> {
   const data = new FormData();
   data.append(
     "body",
-    JSON.stringify({ mentor: mentorId, question: questionId, trim })
+    JSON.stringify({ mentor: mentorId, question: question._id, trim })
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
+    onUploadProgress: (progressEvent: { loaded: string }) =>
+      addOrEditTask({
+        question,
+        uploadStatus: UploadStatus.PENDING,
+        uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
+      }),
     headers: {
       "Content-Type": "multipart/form-data",
     },

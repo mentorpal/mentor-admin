@@ -8,29 +8,35 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import ListItem from "./uploading-list-item";
 import { Answer } from "types";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
-import { AnswerState } from "hooks/graphql/use-with-record-state";
-import List from "@material-ui/core/List";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
+import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
+import { Typography, List, Button } from "@material-ui/core";
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 
 function UploadingView(props: {
-  answers: AnswerState[];
-  currentUploads: UploadTask[];
-  setAnswerIDx: (id: number) => void;
+  recordState: UseWithRecordState;
   curAnswer: Answer;
-  cancelledCurAnswer: boolean;
+  cancelledAnswerID: string;
+  cancelAnswerUpload: (s: string) => void;
+  visible: boolean;
+  setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
   const {
-    answers,
-    setAnswerIDx,
-    currentUploads,
+    recordState,
     curAnswer,
-    cancelledCurAnswer,
+    cancelAnswerUpload,
+    visible,
+    setUploadWidgetVisible,
+    cancelledAnswerID,
   } = props;
-  const uploadsToShow = currentUploads.filter(
+  const { answers, setAnswerIDx, uploads } = recordState;
+  const uploadsToShow = uploads.filter(
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
   );
   const uploadsInProgress = uploadsToShow.filter(
-    (upload) => upload.uploadStatus !== UploadStatus.DONE
+    (upload) =>
+      upload.uploadStatus !== UploadStatus.DONE &&
+      upload.uploadStatus !== UploadStatus.UPLOAD_FAILED
   );
   const height = 250;
   const width = 350;
@@ -47,16 +53,6 @@ function UploadingView(props: {
     return 0;
   }
 
-  function retrieveAnswerTitle(id: string) {
-    let i = 0;
-    for (; i < answers?.length; i++) {
-      if (answers[i]?.answer?.question?._id == id) {
-        return answers[i].answer.question.question;
-      }
-    }
-    return "Text Not Found";
-  }
-
   function produceList() {
     return (
       <List
@@ -68,26 +64,27 @@ function UploadingView(props: {
           overflow: "scroll",
         }}
       >
-        {uploadsToShow.map((job, i) => {
+        {uploadsToShow.map((upload, i) => {
           return (
             <div
               key={`upload-card-${i}`}
               data-cy={`upload-card-${i}`}
               style={
-                curAnswer.question._id == job.question._id
-                  ? { background: "yellow" }
+                curAnswer.question._id == upload.question._id
+                  ? { background: "#FFFBCC" }
                   : {}
               }
             >
               <ListItem
-                setAnswerIDx={setAnswerIDx}
-                answerIDx={retrieveAnswerIDx(job.question._id)}
-                jobStatus={job.uploadStatus}
-                jobTitle={retrieveAnswerTitle(job.question._id)}
-                cancelledAnswer={
-                  curAnswer.question._id == job.question._id &&
-                  cancelledCurAnswer
+                upload={upload}
+                cancelAnswerUpload={cancelAnswerUpload}
+                representsCurrentAnswer={
+                  curAnswer.question._id == upload.question._id
                 }
+                setAnswerIDx={setAnswerIDx}
+                answerIDx={retrieveAnswerIDx(upload.question._id)}
+                jobTitle={upload.question.question}
+                cancelledAnswer={cancelledAnswerID == upload.question._id}
               />
             </div>
           );
@@ -95,13 +92,15 @@ function UploadingView(props: {
       </List>
     );
   }
+
   return (
     <div
       data-cy="uploading-widget"
       style={{
-        visibility: uploadsToShow.length > 0 ? "visible" : "hidden",
+        display: uploadsToShow.length > 0 && visible ? "block" : "none",
         position: "absolute",
         right: 10,
+        borderRadius: "5px",
         marginTop: 200,
         boxShadow: "1px 1px 1px 1px",
         width: width,
@@ -115,12 +114,29 @@ function UploadingView(props: {
           height: height * 0.15,
           backgroundColor: "#303030",
           color: "white",
+          borderRadius: "5px 5px 0px 0px",
         }}
       >
         <div style={{ paddingTop: height * 0.03 }}>
-          {uploadsInProgress.length > 0
-            ? `Uploading ${uploadsInProgress.length} item(s)...`
-            : "Uploading Complete"}
+          <Button
+            onClick={() => {
+              setUploadWidgetVisible(!visible);
+            }}
+            data-cy="close-uploads-widget-button"
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              cursor: "pointer",
+            }}
+          >
+            <ExpandLessIcon style={{ color: "White" }} />
+          </Button>
+          <Typography>
+            {uploadsInProgress.length > 0
+              ? `Uploading ${uploadsInProgress.length} item(s)...`
+              : "Uploading Complete"}
+          </Typography>
         </div>
       </div>
       {produceList()}

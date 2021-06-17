@@ -21,15 +21,15 @@ import VideoRecorder from "./video-recorder";
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
-  cancelUpload: (b: boolean) => void;
-  uploadCancelled: boolean;
+  cancelAnswerUpload: (s: string) => void;
+  cancelledAnswerID: string;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, recordState, cancelUpload, uploadCancelled } = props;
+  const { classes, recordState, cancelAnswerUpload, cancelledAnswerID } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -85,7 +85,6 @@ function VideoPlayer(props: {
       setTrim(value);
     }
   }
-
   return (
     <div
       className={classes.block}
@@ -149,9 +148,11 @@ function VideoPlayer(props: {
           >
             <CircularProgress />
             <p></p>
-            {uploadCancelled ? "Cancelling your upload." : "Upload in progress"}
+            {cancelledAnswerID == recordState.curAnswer?.answer._id
+              ? "Cancelling your upload."
+              : "Upload in progress"}
             <p></p>
-            {!uploadCancelled
+            {!(cancelledAnswerID == recordState.curAnswer?.answer._id)
               ? "You may continue to record other questions."
               : undefined}
           </div>
@@ -208,13 +209,17 @@ function VideoPlayer(props: {
             disabled={
               (!recordState.curAnswer!.recordedVideo &&
                 !recordState.curAnswer!.isUploading) ||
-              uploadCancelled
+              cancelledAnswerID == recordState.curAnswer?.answer._id
             }
             className={classes.button}
             onClick={() => {
               !recordState.curAnswer!.isUploading
                 ? recordState.uploadVideo()
-                : cancelUpload(true);
+                : cancelAnswerUpload(
+                    recordState.curAnswer?.answer?._id
+                      ? recordState.curAnswer?.answer?._id
+                      : "hi"
+                  );
             }}
             style={{ marginRight: 15 }}
           >

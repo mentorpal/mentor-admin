@@ -23,6 +23,7 @@ export enum UploadStatus {
 
 export interface UploadTask {
   question: Question;
+  uploadProgress: number;
   uploadStatus: UploadStatus;
   transcript?: string;
   media?: Media[];
@@ -77,7 +78,12 @@ export function useWithUploadStatus(
             const findUpload = uploads.find(
               (up) => up.question._id === u.question._id
             );
-            if (!findUpload || findUpload.uploadStatus !== u.uploadStatus) {
+            // add  || findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS   if you are cypress testing uploadProgress
+            if (
+              !findUpload ||
+              findUpload.uploadStatus !== u.uploadStatus ||
+              findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS
+            ) {
               addOrEditTask(u);
               if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
                 onUploadedCallback(u);
@@ -122,14 +128,26 @@ export function useWithUploadStatus(
     video: File,
     trim?: { start: number; end: number }
   ) {
-    addOrEditTask({ question, uploadStatus: UploadStatus.PENDING });
-    uploadVideo(mentorId, question._id, video, trim)
+    addOrEditTask({
+      question,
+      uploadStatus: UploadStatus.PENDING,
+      uploadProgress: 0,
+    });
+    uploadVideo(mentorId, video, question, addOrEditTask, trim)
       .then(() => {
-        addOrEditTask({ question, uploadStatus: UploadStatus.POLLING });
+        addOrEditTask({
+          question,
+          uploadStatus: UploadStatus.POLLING,
+          uploadProgress: 100,
+        });
       })
       .catch((err) => {
         console.error(err);
-        addOrEditTask({ question, uploadStatus: UploadStatus.UPLOAD_FAILED });
+        addOrEditTask({
+          question,
+          uploadStatus: UploadStatus.UPLOAD_FAILED,
+          uploadProgress: 0,
+        });
       });
   }
 
