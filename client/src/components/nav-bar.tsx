@@ -244,9 +244,9 @@ export function NavBar(props: {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
   const disableUploadsButton = uploads
-    ? uploads.find(
-        (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
-      ) == undefined
+    ? Boolean(
+        uploads.find((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
+      ) === false
     : true;
   function toggleDrawer(tf: boolean): void {
     setIsDrawerOpen(tf);

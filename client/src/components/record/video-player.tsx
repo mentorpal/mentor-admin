@@ -42,7 +42,7 @@ function VideoPlayer(props: {
   React.useEffect(() => {
     setVideoLength(0);
     setTrim([0, 100]);
-  }, [recordState.curAnswer!.videoSrc, recordState.curAnswer!.answer._id]);
+  }, [recordState.curAnswer?.videoSrc, recordState.curAnswer?.answer._id]);
 
   function sliderToVideoDuration(): number[] | undefined {
     if (!reactPlayerRef?.current) {
@@ -104,7 +104,7 @@ function VideoPlayer(props: {
         style={{
           position: "absolute",
           visibility:
-            recordState.curAnswer!.videoSrc ||
+            recordState.curAnswer?.videoSrc ||
             recordState.curAnswer?.isUploading
               ? "visible"
               : "hidden",
@@ -115,13 +115,13 @@ function VideoPlayer(props: {
           style={{
             textAlign: "center",
             visibility:
-              recordState.curAnswer!.videoSrc &&
-              videoLength < (recordState.curAnswer!.minVideoLength || 0)
+              recordState.curAnswer?.videoSrc &&
+              videoLength < (recordState.curAnswer?.minVideoLength || 0)
                 ? "visible"
                 : "hidden",
           }}
         >
-          Video should be {recordState.curAnswer!.minVideoLength} seconds long
+          Video should be {recordState.curAnswer?.minVideoLength} seconds long
           but is only {videoLength} seconds long.
         </Typography>
         <div
@@ -159,9 +159,9 @@ function VideoPlayer(props: {
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
-            url={recordState.curAnswer!.videoSrc}
+            url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!recordState.curAnswer!.isUploading}
+            playing={!recordState.curAnswer?.isUploading}
             height={height}
             width={width}
             playsinline
@@ -170,7 +170,7 @@ function VideoPlayer(props: {
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
             style={{
-              visibility: recordState.curAnswer!.isUploading
+              visibility: recordState.curAnswer?.isUploading
                 ? "hidden"
                 : "inherit",
             }}
@@ -183,9 +183,9 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
-          disabled={recordState.curAnswer!.isUploading}
+          disabled={recordState.curAnswer?.isUploading}
           style={{
-            visibility: recordState.curAnswer!.videoSrc ? "visible" : "hidden",
+            visibility: recordState.curAnswer?.videoSrc ? "visible" : "hidden",
           }}
         />
         <div className={classes.row} style={{ justifyContent: "center" }}>
@@ -194,7 +194,7 @@ function VideoPlayer(props: {
             variant="outlined"
             color="primary"
             disableElevation
-            disabled={recordState.curAnswer!.isUploading}
+            disabled={recordState.curAnswer?.isUploading}
             className={classes.button}
             onClick={recordState.rerecord}
             style={{ marginRight: 15 }}
@@ -207,13 +207,13 @@ function VideoPlayer(props: {
             color="primary"
             disableElevation
             disabled={
-              (!recordState.curAnswer!.recordedVideo &&
-                !recordState.curAnswer!.isUploading) ||
+              (!recordState.curAnswer?.recordedVideo &&
+                !recordState.curAnswer?.isUploading) ||
               cancelledAnswerID == recordState.curAnswer?.answer._id
             }
             className={classes.button}
             onClick={() => {
-              !recordState.curAnswer!.isUploading
+              !recordState.curAnswer?.isUploading
                 ? recordState.uploadVideo()
                 : cancelAnswerUpload(
                     recordState.curAnswer?.answer?._id
@@ -231,10 +231,10 @@ function VideoPlayer(props: {
             color="primary"
             disableElevation
             disabled={
-              !recordState.curAnswer!.videoSrc ||
+              !recordState.curAnswer?.videoSrc ||
               (trim[0] === 0 && trim[1] === 100) ||
               !isFinite(videoLength) ||
-              recordState.curAnswer!.isUploading
+              recordState.curAnswer?.isUploading
             }
             className={classes.button}
             onClick={() =>

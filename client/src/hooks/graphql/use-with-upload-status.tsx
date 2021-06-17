@@ -56,7 +56,6 @@ export function useWithUploadStatus(
   }, []);
 
   useEffect(() => {
-    // TODO
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
         deleteUploadTask(u.question._id, accessToken).catch((error) => {
@@ -110,10 +109,7 @@ export function useWithUploadStatus(
   }
 
   function isTaskPolling(task: UploadTask) {
-    return (
-      //task.uploadStatus !== UploadStatus.PENDING &&
-      !isTaskDoneOrFailed(task)
-    );
+    return !isTaskDoneOrFailed(task);
   }
 
   function addOrEditTask(task: UploadTask) {
