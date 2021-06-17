@@ -56,6 +56,7 @@ export function useWithUploadStatus(
   }, []);
 
   useEffect(() => {
+    // TODO
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
         deleteUploadTask(u.question._id, accessToken).catch((error) => {
@@ -67,6 +68,7 @@ export function useWithUploadStatus(
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
+  //we start polling because we added an upload to our state when pressed
   useInterval(
     (isCancelled) => {
       fetchUploadTasks(accessToken)
@@ -109,7 +111,8 @@ export function useWithUploadStatus(
 
   function isTaskPolling(task: UploadTask) {
     return (
-      task.uploadStatus !== UploadStatus.PENDING && !isTaskDoneOrFailed(task)
+      //task.uploadStatus !== UploadStatus.PENDING &&
+      !isTaskDoneOrFailed(task)
     );
   }
 
@@ -122,6 +125,7 @@ export function useWithUploadStatus(
     }
   }
 
+  //this is the upload function being used
   function upload(
     mentorId: string,
     question: Question,
@@ -133,6 +137,7 @@ export function useWithUploadStatus(
       uploadStatus: UploadStatus.PENDING,
       uploadProgress: 0,
     });
+    //video gets uploaded to axios
     uploadVideo(mentorId, video, question, addOrEditTask, trim)
       .then(() => {
         addOrEditTask({

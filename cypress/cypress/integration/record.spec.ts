@@ -1642,7 +1642,6 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-2").within($within => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[2].question.question)
-      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Complete")
     })
   })
 

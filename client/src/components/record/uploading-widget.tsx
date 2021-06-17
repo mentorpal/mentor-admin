@@ -11,7 +11,7 @@ import { Answer } from "types";
 import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
+import Close from "@material-ui/icons/Close";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -130,7 +130,7 @@ function UploadingView(props: {
               cursor: "pointer",
             }}
           >
-            <ExpandLessIcon style={{ color: "White" }} />
+            <Close style={{ color: "White" }} />
           </Button>
           <Typography>
             {uploadsInProgress.length > 0

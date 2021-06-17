@@ -91,10 +91,6 @@ function UploadingListItem(props: {
             "Transcribe Failed"
           ) : jobFailed ? (
             "Upload Failed"
-          ) : jobStatus == UploadStatus.TRANSCRIBE_IN_PROGRESS ? (
-            "Transcribing"
-          ) : jobDone ? (
-            "Complete"
           ) : jobStatus === UploadStatus.PENDING ||
             jobStatus == UploadStatus.UPLOAD_IN_PROGRESS ? (
             <LinearProgress
@@ -102,6 +98,8 @@ function UploadingListItem(props: {
               variant={"determinate"}
               value={upload.uploadProgress}
             />
+          ) : jobStatus !== UploadStatus.DONE ? (
+            "Processing"
           ) : (
             ""
           )
