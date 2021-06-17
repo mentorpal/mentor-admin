@@ -9,7 +9,6 @@ import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
 import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
-import { cpuUsage } from "node:process";
 
 export enum UploadStatus {
   PENDING = "PENDING", // local state only; sending upload request to upload api

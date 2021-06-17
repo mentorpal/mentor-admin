@@ -193,10 +193,8 @@ function RecordPage(props: {
         <VideoPlayer
           classes={classes}
           recordState={recordState}
-          cancelUpload={() => {
-            setUploadCancelled(true);
-          }}
-          uploadCancelled={uploadCancelled}
+          cancelAnswerUpload={setCancelledAnswerID}
+          cancelledAnswerID={cancelledAnswerID}
         />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
