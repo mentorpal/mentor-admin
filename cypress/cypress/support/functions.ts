@@ -242,28 +242,3 @@ export function cyMockUpload(
     );
   });
 }
-
-export function cyMockUploadStatus(
-  cy,
-  params: {
-    status?: TaskStatus<VideoInfo>;
-    statusUrl?: string;
-    statusCode?: number;
-  } = {}
-): void {
-  params = params || {};
-  cy.intercept(`/${params.statusUrl || UPLOAD_STATUS_URL}`, (req) => {
-    req.reply(
-      staticResponse({
-        statusCode: params.statusCode || 200,
-        body: {
-          data: params.status,
-          errors: null,
-        },
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-    );
-  });
-}

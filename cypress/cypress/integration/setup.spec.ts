@@ -436,7 +436,7 @@ describe("Setup", () => {
     cy.get("[data-cy=done-btn]").should("be.disabled");
   });
 
-  it("video mentor shows idle slide", () => {
+  it.skip("video mentor shows idle slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
@@ -507,7 +507,7 @@ describe("Setup", () => {
     });
   });
 
-  it("shows required subject, repeat after me, questions slide", () => {
+  it.skip("shows required subject, repeat after me, questions slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,

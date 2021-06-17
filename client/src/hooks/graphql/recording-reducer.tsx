@@ -12,7 +12,6 @@ export interface RecordingError {
 
 export interface RecordingState {
   isSaving: boolean;
-  isUploading: boolean;
   isRecording: boolean;
   error: RecordingError | undefined;
 }
@@ -24,7 +23,6 @@ export interface RecordingAction {
 
 export enum RecordingActionType {
   SAVING = "SAVING",
-  UPLOADING = "UPLOADING",
   RECORDING = "RECORDING",
   ERROR = "ERROR",
 }
@@ -40,11 +38,6 @@ export function RecordingReducer(
         return state;
       }
       return { ...state, isSaving: payload };
-    case RecordingActionType.UPLOADING:
-      if (typeof payload !== "boolean") {
-        return state;
-      }
-      return { ...state, isUploading: payload };
     case RecordingActionType.RECORDING:
       if (typeof payload !== "boolean") {
         return state;

@@ -22,13 +22,16 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import CloseIcon from "@material-ui/icons/Close";
-import MenuIcon from "@material-ui/icons/Menu";
-
+import {
+  AccountCircle,
+  Close as CloseIcon,
+  Menu as MenuIcon,
+} from "@material-ui/icons";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { CLIENT_ENDPOINT } from "api";
 import Context from "context";
 import withLocation from "wrap-with-location";
+import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -50,8 +53,14 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   login: {
-    position: "absolute",
+    float: "right",
     right: theme.spacing(1),
+  },
+  uploadsButton: {
+    float: "right",
+    color: "white",
+    textTransform: "none",
+    marginRight: "10px",
   },
 }));
 
@@ -206,22 +215,42 @@ function NavMenu(props: {
     </List>
   );
 }
-
 export function NavBar(props: {
   mentorId: string | undefined;
   title: string;
   search: {
     back?: string;
   };
+  uploads: UploadTask[];
+  uploadsButtonVisible: boolean;
+  toggleUploadsButtonVisibility: (b: boolean) => void;
 }): JSX.Element {
   const classes = useStyles();
   const { back } = props.search;
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const {
+    uploads,
+    uploadsButtonVisible,
+    toggleUploadsButtonVisibility,
+  } = props;
+  const numUploadsInProgress = uploads?.filter(
+    (upload) =>
+      upload.uploadStatus !== UploadStatus.DONE &&
+      upload.uploadStatus !== UploadStatus.CANCELLED
+  ).length;
+  const numUploadsComplete = uploads?.filter(
+    (upload) => upload.uploadStatus == UploadStatus.DONE
+  ).length;
 
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
+  const disableUploadsButton = uploads
+    ? Boolean(
+        uploads.find((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
+      ) === false
+    : true;
   function toggleDrawer(tf: boolean): void {
     setIsDrawerOpen(tf);
   }
-
   return (
     <div data-cy="nav-bar" className={classes.root}>
       <AppBar position="fixed">
@@ -245,6 +274,31 @@ export function NavBar(props: {
           <Typography data-cy="title" variant="h6" className={classes.title}>
             {props.title}
           </Typography>
+
+          <Button
+            variant="outlined"
+            disabled={disableUploadsButton}
+            onClick={() => {
+              toggleUploadsButtonVisibility(!uploadsButtonVisible);
+            }}
+            data-cy="header-uploads-button"
+            className={classes.uploadsButton}
+            style={{
+              opacity:
+                disableUploadsButton || uploadsButtonVisible ? "50%" : "100%",
+              width: "20%",
+            }}
+          >
+            <PublishRoundedIcon style={{ paddingRight: 5 }} />
+            {disableUploadsButton
+              ? ""
+              : numUploadsInProgress == 0
+              ? "Uploads Complete"
+              : `${numUploadsComplete} of ${
+                  numUploadsInProgress + numUploadsComplete
+                } Uploads Complete`}
+          </Button>
+
           <Login classes={classes} />
         </Toolbar>
       </AppBar>

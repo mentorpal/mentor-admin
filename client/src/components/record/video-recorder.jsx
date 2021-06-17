@@ -36,15 +36,7 @@ const videoJsOptions = {
   },
 };
 
-function VideoRecorder({
-  classes,
-  curAnswer,
-  recordState,
-  height,
-  width,
-  onRecordStart,
-  onRecordStop,
-}) {
+function VideoRecorder({ classes, height, width, recordState }) {
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
@@ -91,7 +83,7 @@ function VideoRecorder({
     if (recordedVideo) {
       // if you put onRecordStop directly into player.on("finishRecord")
       // it overwrite with the state from whatever the first question was
-      onRecordStop(recordedVideo);
+      recordState.stopRecording(recordedVideo);
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
@@ -102,13 +94,13 @@ function VideoRecorder({
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
     setIsCameraOn(false);
-  }, [curAnswer.answer._id]);
+  }, [recordState.curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!recordState.isRecording || !curAnswer.minVideoLength) {
+    if (!recordState.isRecording || !recordState.curAnswer.minVideoLength) {
       return;
     }
-    if (recordDurationCounter > curAnswer.minVideoLength) {
+    if (recordDurationCounter > recordState.curAnswer.minVideoLength) {
       videoRecorderRef?.record().stop();
     }
   }, [recordDurationCounter]);
@@ -142,7 +134,7 @@ function VideoRecorder({
   );
 
   function startRecording() {
-    onRecordStart();
+    recordState.startRecording();
     setRecordStartCountdown(3);
   }
 
@@ -155,7 +147,10 @@ function VideoRecorder({
       data-cy="recorder"
       style={{
         position: "absolute",
-        visibility: curAnswer.videoSrc ? "hidden" : "visible",
+        visibility:
+          recordState.curAnswer.videoSrc || recordState.curAnswer.isUploading
+            ? "hidden"
+            : "visible",
       }}
     >
       <Typography
@@ -212,7 +207,8 @@ function VideoRecorder({
             ? "Recording ends in"
             : Math.max(
                 Math.ceil(
-                  (curAnswer.minVideoLength || 0) - recordDurationCounter
+                  (recordState.curAnswer.minVideoLength || 0) -
+                    recordDurationCounter
                 ),
                 0
               )
@@ -237,7 +233,8 @@ function VideoRecorder({
             recordStopCountdown ||
             Math.max(
               Math.ceil(
-                (curAnswer.minVideoLength || 0) - recordDurationCounter
+                (recordState.curAnswer.minVideoLength || 0) -
+                  recordDurationCounter
               ),
               0
             ) ||
@@ -269,7 +266,7 @@ function VideoRecorder({
           data-cy="upload-file"
           type="file"
           accept="audio/*,video/*"
-          onChange={(e) => onRecordStop(e.target.files[0])}
+          onChange={(e) => recordState.stopRecording(e.target.files[0])}
         />
       </div>
     </div>
