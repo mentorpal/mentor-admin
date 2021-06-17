@@ -26,6 +26,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import StageCard from "components/stage-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -107,6 +108,11 @@ function HomePage(props: {
     <div className={classes.root}>
       <div style={{ flexShrink: 0 }}>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <StageCard
+          value={
+            mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
+          }
+        />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
