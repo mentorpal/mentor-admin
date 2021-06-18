@@ -58,6 +58,7 @@ export function useWithRecordState(
     uploads,
     isUploading,
     upload,
+    removeCompletedTask,
     isTaskDoneOrFailed,
   } = useWithUploadStatus(
     accessToken,
@@ -319,6 +320,7 @@ export function useWithRecordState(
     setAnswerIDx,
     editAnswer,
     saveAnswer,
+    removeCompletedTask,
     rerecord,
     startRecording,
     stopRecording,
@@ -344,6 +346,7 @@ export interface UseWithRecordState {
   setAnswerIDx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
+  removeCompletedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;

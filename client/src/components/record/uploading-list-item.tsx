@@ -15,6 +15,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import { PublishRounded, CancelRounded, CheckCircle } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
+import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 
 function UploadingListItem(props: {
   upload: UploadTask;
@@ -24,6 +25,7 @@ function UploadingListItem(props: {
   cancelledAnswer: boolean;
   cancelAnswerUpload: (s: string) => void;
   representsCurrentAnswer: boolean;
+  recordState: UseWithRecordState;
 }): JSX.Element {
   const {
     jobTitle,
@@ -33,6 +35,7 @@ function UploadingListItem(props: {
     cancelAnswerUpload,
     representsCurrentAnswer,
     upload,
+    recordState,
   } = props;
   const [cancelling, setCancelling] = useState(false);
   const useStyles = makeStyles(() => ({
@@ -70,6 +73,7 @@ function UploadingListItem(props: {
         )}
       </ListItemIcon>
       <ListItemText
+        style={{ cursor: "pointer" }}
         data-cy="card-answer-title"
         onClick={() => {
           setAnswerIDx(answerIDx);
@@ -101,23 +105,25 @@ function UploadingListItem(props: {
           ) : jobStatus !== UploadStatus.DONE ? (
             "Processing"
           ) : (
-            ""
+            "Tap to preview"
           )
         }
       />
       <ListItemIcon
         style={{
           minWidth: 0,
-          visibility: jobDone || jobFailed ? "hidden" : "visible",
+          visibility: jobFailed ? "hidden" : "visible",
         }}
         data-cy="cancel-upload"
       >
         <CloseIcon
           onClick={() => {
-            if (representsCurrentAnswer) {
+            if (!jobDone && representsCurrentAnswer) {
               cancelAnswerUpload(upload.question._id);
+              setCancelling(true);
+            } else {
+              recordState.removeCompletedTask(upload);
             }
-            setCancelling(true);
           }}
           style={{ cursor: "pointer", paddingRight: 5 }}
         />

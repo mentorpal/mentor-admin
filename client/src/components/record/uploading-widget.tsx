@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import React from "react";
+import React, { useEffect } from "react";
 import ListItem from "./uploading-list-item";
 import { Answer } from "types";
 import { UploadStatus } from "hooks/graphql/use-with-upload-status";
@@ -30,6 +30,17 @@ function UploadingView(props: {
     cancelledAnswerID,
   } = props;
   const { answers, setAnswerIDx, uploads } = recordState;
+
+  useEffect(() => {
+    uploads.forEach((u) => {
+      if (
+        u.uploadStatus == UploadStatus.DONE &&
+        u.question._id === curAnswer.question._id
+      )
+        recordState.removeCompletedTask(u);
+    });
+  }, [uploads, curAnswer]);
+
   const uploadsToShow = uploads.filter(
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
   );
@@ -76,6 +87,7 @@ function UploadingView(props: {
               }
             >
               <ListItem
+                recordState={recordState}
                 upload={upload}
                 cancelAnswerUpload={cancelAnswerUpload}
                 representsCurrentAnswer={
