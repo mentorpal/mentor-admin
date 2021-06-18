@@ -99,6 +99,16 @@ export function useWithUploadStatus(
     isPolling ? pollingInterval : null
   );
 
+  function removeCompletedTask(task: UploadTask) {
+    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
+      const newArray = uploads.filter(
+        (u) => u.question._id !== task.question._id
+      );
+      setUploads(newArray);
+    }
+  }
+
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
       task.uploadStatus === UploadStatus.CANCELLED ||
@@ -166,6 +176,7 @@ export function useWithUploadStatus(
     uploads,
     isUploading,
     upload,
+    removeCompletedTask,
     isTaskDoneOrFailed,
   };
 }
@@ -179,5 +190,6 @@ export interface UseWithUploadStatus {
     video: File,
     trim?: { start: number; end: number }
   ) => void;
+  removeCompletedTask: (tasks: UploadTask) => void;
   isTaskDoneOrFailed: (upload: UploadTask) => boolean;
 }
