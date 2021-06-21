@@ -237,9 +237,11 @@ function VideoPlayer(props: {
               recordState.curAnswer?.isUploading
             }
             className={classes.button}
-            onClick={() =>
-              recordState.uploadVideo({ start: trim[0], end: trim[1] })
-            }
+            onClick={() => {
+              const trimStart = (trim[0] / 100) * videoLength;
+              const trimEnd = (trim[1] / 100) * videoLength;
+              recordState.uploadVideo({ start: trimStart, end: trimEnd });
+            }}
           >
             Trim Video
           </Button>
