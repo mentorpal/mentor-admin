@@ -220,48 +220,46 @@ function VideoPlayer(props: {
           >
             Re-Record
           </Button>
-          {!recordState.curAnswer?.isValid ||
-          recordState.curAnswer?.isUploading ? (
+          {recordState.curAnswer?.isUploading ? (
             <Button
               data-cy="upload-video"
               variant="contained"
               color="primary"
               disableElevation
-              disabled={
-                (!recordState.curAnswer?.recordedVideo &&
-                  !recordState.curAnswer?.isUploading) ||
-                cancelling
-              }
               className={classes.button}
-              onClick={() => {
-                !recordState.curAnswer?.isUploading
-                  ? recordState.uploadVideo()
-                  : upload
-                  ? recordState.cancelUpload(upload)
-                  : undefined;
-              }}
+              onClick={() => upload ? recordState.cancelUpload(upload) : undefined}
               style={{ marginRight: 15 }}
             >
-              {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
+              Cancel
+            </Button>
+          ) : trim[0] !== 0 || trim[1] !== 100 ? (
+            <Button
+              data-cy="trim-video"
+              variant="contained"
+              color="primary"
+              disableElevation
+              disabled={!isFinite(videoLength)}
+              className={classes.button}
+              onClick={() => {
+                const trimStart = (trim[0] / 100) * videoLength;
+                const trimEnd = (trim[1] / 100) * videoLength;
+                recordState.uploadVideo({ start: trimStart, end: trimEnd });
+              }}
+            >
+              Trim Video
             </Button>
           ) : (
             <Button
-              data-cy="trim-video"
-              variant="outlined"
+              data-cy="upload-video"
+              variant="contained"
               color="primary"
               disableElevation
-              disabled={
-                !recordState.curAnswer?.videoSrc ||
-                (trim[0] === 0 && trim[1] === 100) ||
-                !isFinite(videoLength) ||
-                recordState.curAnswer?.isUploading
-              }
+              disabled={!recordState.curAnswer?.recordedVideo || cancelling}
               className={classes.button}
-              onClick={() =>
-                recordState.uploadVideo({ start: trim[0], end: trim[1] })
-              }
+              onClick={() => recordState.uploadVideo()}
+              style={{ marginRight: 15 }}
             >
-              Trim Video
+              Upload Video
             </Button>
           )}
         </div>
