@@ -29,7 +29,6 @@ import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-s
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 import StageCard from "components/stage-card";
-import { ControlPointDuplicateOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
