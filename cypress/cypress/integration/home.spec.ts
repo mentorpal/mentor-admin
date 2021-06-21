@@ -100,10 +100,15 @@ describe('Review answers page', () => {
       });
     });
   });
-  it('shows mentor scope card', () => {
+  it('shows mentor info card', () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
+    cy.get('[data-cy=stage-card]').contains('Clinton Anderson');
+    cy.get('[data-cy=stage-card]').contains('Video Mentor');
+    cy.get('[data-cy=stage-card]').contains(
+      "Title: Nuclear Electrician's Mate - Last Trained: Today"
+    );
     cy.get('[data-cy=stage-card]').contains('Scope: Incomplete');
     cy.get('[data-cy=stage-card]').contains("This Mentor can't be built yet.");
     cy.get('[data-cy=stage-progress]').should('exist');
@@ -111,6 +116,7 @@ describe('Review answers page', () => {
       .find('[data-cy=next-stage-info]')
       .trigger('mouseover');
     cy.contains('This Mentor can select questions from a list');
+    cy.get('[data-cy=stage-thumbnail]').contains('no image');
   });
   it('does not show toast on incomplete level', () => {
     cySetup(cy);

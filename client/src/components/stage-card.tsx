@@ -125,10 +125,9 @@ export default function StageCard(props: {
         <Card style={{ width: "60%" }} data-cy="stage-card">
           <CardContent>
             <Box display="flex" width="100%" alignItems="center">
-              <Box width="33%" alignItems="center">
+              <Box width="33%" alignItems="center" data-cy="stage-thumbnail">
                 {props.thumbnail ? (
                   <ReactPlayer
-                    data-cy="stage-thumbnail"
                     url={props.thumbnail}
                     controls={false}
                     playing={true}
@@ -143,28 +142,52 @@ export default function StageCard(props: {
                 )}
               </Box>
               <Box width="66%" alignItems="center" textAlign="left">
-                <Typography variant="h4" color="textSecondary">
+                <Typography
+                  variant="h4"
+                  color="textSecondary"
+                  data-cy="mentor-card-name"
+                >
                   {props.name}
                 </Typography>
                 {props.type ? (
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography
+                    variant="h6"
+                    color="textSecondary"
+                    data-cy="mentor-card-type"
+                  >
                     {props.type[0].toUpperCase() +
                       props.type.slice(1).toLowerCase()}{" "}
                     Mentor
                   </Typography>
                 ) : (
-                  <Typography variant="h6" color="textSecondary">
+                  <Typography
+                    variant="h6"
+                    color="textSecondary"
+                    data-cy="mentor-card-type"
+                  >
                     Invalid Mentor
                   </Typography>
                 )}
-                <Typography variant="body1" color="textSecondary">
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  data-cy="mentor-card-info"
+                >
                   Title: {props.title} - Last Trained:{" "}
                   {props.lastTrainedAt.substring(0, 10)}
                 </Typography>
-                <Typography variant="h6" color="textSecondary">
+                <Typography
+                  variant="h6"
+                  color="textSecondary"
+                  data-cy="mentor-card-scope"
+                >
                   Scope: {currentStage!.name}
                 </Typography>
-                <Typography variant="body1" color="textSecondary">
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  data-cy="mentor-card-scope-description"
+                >
                   {currentStage!.description}
                 </Typography>
                 <Typography variant="body1" color="textSecondary">
