@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect } from "react";
+import { MentorType, Status, UtteranceName } from "types";
 import { navigate } from "gatsby";
 import {
   AppBar,
@@ -26,7 +27,9 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+
 import StageCard from "components/stage-card";
+import { ControlPointDuplicateOutlined } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -88,6 +91,18 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
   const { setupStatus } = useWithSetup(props.accessToken);
+  const idleAnswer = mentor
+    ? mentor.answers.find((a) => a.question.name === UtteranceName.IDLE)
+    : undefined;
+  const idle = mentor
+    ? mentor.mentorType === MentorType.VIDEO && idleAnswer
+      ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
+      : undefined
+    : undefined;
+  const idleUrl =
+    idle?.complete && idleAnswer!.media!
+      ? idleAnswer!.media![0].url
+      : undefined;
 
   useEffect(() => {
     if (setupStatus?.isSetupComplete === false) {
@@ -109,9 +124,14 @@ function HomePage(props: {
       <div style={{ flexShrink: 0 }}>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <StageCard
+          name={mentor!.name || "Unnamed"}
+          type={mentor!.mentorType}
+          title={mentor!.title || "none"}
+          lastTrainedAt={mentor!.lastTrainedAt || "never"}
           value={
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
+          thumbnail={idleUrl}
         />
         <Select
           data-cy="select-subject"

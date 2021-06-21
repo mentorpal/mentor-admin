@@ -15,9 +15,10 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
-
+import ReactPlayer from "react-player";
 import { createStyles, withStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
+import { MentorType } from "types";
 
 const StageProgressBar = withStyles((theme) =>
   createStyles({
@@ -107,51 +108,98 @@ const StageSelect = (value: number) => {
     },
   };
 };
-export default function StageCard(props: { value: number }): JSX.Element {
+export default function StageCard(props: {
+  name: string;
+  type: MentorType | undefined;
+  title: string;
+  lastTrainedAt: string;
+  value: number;
+  thumbnail: string | undefined;
+}): JSX.Element {
   const currentStage = StageSelect(props.value);
 
   return (
     <div>
       <Box display="flex" width="100%" mt={2} alignItems="center">
-        <Box width="33%" alignItems="center"></Box>
-        <Card style={{ width: "33%" }} data-cy="stage-card">
+        <Box width="20%" alignItems="center"></Box>
+        <Card style={{ width: "60%" }} data-cy="stage-card">
           <CardContent>
-            <Typography variant="body1" color="textSecondary">
-              Scope: {currentStage!.name}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              {currentStage!.description}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              Next Goal: {currentStage!.next!.name}
-              {"   "}
-              <Tooltip
-                title={
-                  <React.Fragment>
-                    <Typography color="inherit">
-                      {currentStage!.next!.name}
-                    </Typography>
-                    {currentStage!.next!.description}
-                  </React.Fragment>
-                }
-                data-cy="next-stage-info"
-              >
-                <HelpOutline fontSize="small" />
-              </Tooltip>
-            </Typography>
-
-            {currentStage!.floor != 1000 && (
-              <div>
-                <StageProgressBar
-                  data-cy="stage-progress"
-                  variant="determinate"
-                  {...{ value: currentStage!.percent }}
-                />
-                <Typography variant="body2" color="textSecondary">
-                  {props.value} / {currentStage!.max} ({currentStage!.percent}%)
+            <Box display="flex" width="100%" alignItems="center">
+              <Box width="33%" alignItems="center">
+                {props.thumbnail ? (
+                  <ReactPlayer
+                    data-cy="stage-thumbnail"
+                    url={props.thumbnail}
+                    controls={false}
+                    playing={true}
+                    loop={true}
+                    width={"80%"}
+                    playsinline
+                    webkit-playsinline="true"
+                    progressInterval={100}
+                  />
+                ) : (
+                  "no image"
+                )}
+              </Box>
+              <Box width="66%" alignItems="center" textAlign="left">
+                <Typography variant="h4" color="textSecondary">
+                  {props.name}
                 </Typography>
-              </div>
-            )}
+                {props.type ? (
+                  <Typography variant="h6" color="textSecondary">
+                    {props.type[0].toUpperCase() +
+                      props.type.slice(1).toLowerCase()}{" "}
+                    Mentor
+                  </Typography>
+                ) : (
+                  <Typography variant="h6" color="textSecondary">
+                    Invalid Mentor
+                  </Typography>
+                )}
+                <Typography variant="body1" color="textSecondary">
+                  Title: {props.title} - Last Trained:{" "}
+                  {props.lastTrainedAt.substring(0, 10)}
+                </Typography>
+                <Typography variant="h6" color="textSecondary">
+                  Scope: {currentStage!.name}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  {currentStage!.description}
+                </Typography>
+                <Typography variant="body1" color="textSecondary">
+                  Next Goal: {currentStage!.next!.name}
+                  {"   "}
+                  <Tooltip
+                    title={
+                      <React.Fragment>
+                        <Typography color="inherit">
+                          {currentStage!.next!.name}
+                        </Typography>
+                        {currentStage!.next!.description}
+                      </React.Fragment>
+                    }
+                    data-cy="next-stage-info"
+                  >
+                    <HelpOutline fontSize="small" />
+                  </Tooltip>
+                </Typography>
+
+                {currentStage!.floor != 1000 && (
+                  <div>
+                    <StageProgressBar
+                      data-cy="stage-progress"
+                      variant="determinate"
+                      {...{ value: currentStage!.percent }}
+                    />
+                    <Typography variant="body2" color="textSecondary">
+                      {props.value} / {currentStage!.max} (
+                      {currentStage!.percent}%)
+                    </Typography>
+                  </div>
+                )}
+              </Box>
+            </Box>
           </CardContent>
         </Card>
       </Box>
@@ -165,5 +213,7 @@ export default function StageCard(props: { value: number }): JSX.Element {
 }
 
 StageCard.propTypes = {
+  name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
+  thumbnail: PropTypes.string.isRequired,
 };
