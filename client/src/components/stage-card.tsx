@@ -185,7 +185,7 @@ export default function StageCard(props: {
           <Box display="flex" width="100%" alignItems="center">
             <Tooltip
               title={
-                <Typography color="inherit">Upload new Mentor image</Typography>
+                <input data-cy="upload-file" type="file" accept="image/*" />
               }
               data-cy="upload-tip"
             >

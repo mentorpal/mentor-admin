@@ -179,6 +179,22 @@ describe('Review answers page', () => {
     cy.get('[data-cy=stage-card]').contains('Scope: Life-Story');
     cy.get('[data-cy=stage-progress]').should('not.exist');
   });
+  it('shows thumbnail when idle video', () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-thumbnail]')
+      .get('[data-cy=idle-thumbnail]')
+      .should('exist');
+    cy.fixture('avatar.png').then((fileContent) => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: fileContent.toString(),
+        fileName: 'avatar.png',
+        mimeType: 'avatr.png',
+      });
+    });
+    cy.get('[data-cy=uploaded-thumbnail]').should('exist');
+  });
 
   it('can pick a subject from dropdown and view questions and categories', () => {
     cySetup(cy);
