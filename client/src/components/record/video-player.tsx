@@ -201,48 +201,52 @@ function VideoPlayer(props: {
           >
             Re-Record
           </Button>
-          <Button
-            data-cy="upload-video"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={
-              (!recordState.curAnswer?.recordedVideo &&
-                !recordState.curAnswer?.isUploading) ||
-              cancelledAnswerID == recordState.curAnswer?.answer._id
-            }
-            className={classes.button}
-            onClick={() => {
-              !recordState.curAnswer?.isUploading
-                ? recordState.uploadVideo()
-                : cancelAnswerUpload(
-                    recordState.curAnswer?.answer?._id
-                      ? recordState.curAnswer?.answer?._id
-                      : "hi"
-                  );
-            }}
-            style={{ marginRight: 15 }}
-          >
-            {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
-          </Button>
-          <Button
-            data-cy="trim-video"
-            variant="outlined"
-            color="primary"
-            disableElevation
-            disabled={
-              !recordState.curAnswer?.videoSrc ||
-              (trim[0] === 0 && trim[1] === 100) ||
-              !isFinite(videoLength) ||
-              recordState.curAnswer?.isUploading
-            }
-            className={classes.button}
-            onClick={() =>
-              recordState.uploadVideo({ start: trim[0], end: trim[1] })
-            }
-          >
-            Trim Video
-          </Button>
+          {!recordState.curAnswer?.isValid ||
+          recordState.curAnswer?.isUploading ? (
+            <Button
+              data-cy="upload-video"
+              variant="contained"
+              color="primary"
+              disableElevation
+              disabled={
+                (!recordState.curAnswer?.recordedVideo &&
+                  !recordState.curAnswer?.isUploading) ||
+                cancelledAnswerID == recordState.curAnswer?.answer._id
+              }
+              className={classes.button}
+              onClick={() => {
+                !recordState.curAnswer?.isUploading
+                  ? recordState.uploadVideo()
+                  : cancelAnswerUpload(
+                      recordState.curAnswer?.answer?._id
+                        ? recordState.curAnswer?.answer?._id
+                        : ""
+                    );
+              }}
+              style={{ marginRight: 15 }}
+            >
+              {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
+            </Button>
+          ) : (
+            <Button
+              data-cy="trim-video"
+              variant="outlined"
+              color="primary"
+              disableElevation
+              disabled={
+                !recordState.curAnswer?.videoSrc ||
+                (trim[0] === 0 && trim[1] === 100) ||
+                !isFinite(videoLength) ||
+                recordState.curAnswer?.isUploading
+              }
+              className={classes.button}
+              onClick={() =>
+                recordState.uploadVideo({ start: trim[0], end: trim[1] })
+              }
+            >
+              Trim Video
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -19,6 +19,7 @@ export enum UploadStatus {
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
   DONE = "DONE", // api is done with upload process
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload
+  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
 }
 
 export interface UploadTask {
