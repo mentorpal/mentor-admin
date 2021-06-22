@@ -79,7 +79,7 @@ StageProgress.propTypes = {
   max: PropTypes.number.isRequired,
   percent: PropTypes.number.isRequired,
 };
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   placeholder: {
     width: "100%",
     height: "100%",
@@ -183,26 +183,35 @@ export default function StageCard(props: {
         <Card style={{ width: "60%" }} data-cy="stage-card">
           <CardContent>
             <Box display="flex" width="100%" alignItems="center">
-              <Box
-                className={classes.square}
-                alignItems="center"
-                data-cy="stage-thumbnail"
+              <Tooltip
+                title={
+                  <Typography color="inherit">
+                    Upload new Mentor image
+                  </Typography>
+                }
+                data-cy="upload-tip"
               >
-                {props.thumbnail ? (
-                  <CardMedia
-                    data-cy="idle-thumbnail"
-                    component="video"
-                    src={props.thumbnail ? props.thumbnail : ""}
-                    className={classes.placeholder}
-                  />
-                ) : (
-                  <Avatar
-                    data-cy="placeholder-thumbnail"
-                    variant="square"
-                    className={classes.placeholder}
-                  />
-                )}
-              </Box>
+                <Box
+                  className={classes.square}
+                  alignItems="center"
+                  data-cy="stage-thumbnail"
+                >
+                  {props.thumbnail ? (
+                    <CardMedia
+                      data-cy="idle-thumbnail"
+                      component="video"
+                      src={props.thumbnail ? props.thumbnail : ""}
+                      className={classes.placeholder}
+                    />
+                  ) : (
+                    <Avatar
+                      data-cy="placeholder-thumbnail"
+                      variant="square"
+                      className={classes.placeholder}
+                    />
+                  )}
+                </Box>
+              </Tooltip>
               <Box width="66%" alignItems="center" ml={2} textAlign="left">
                 <Typography
                   variant="h4"

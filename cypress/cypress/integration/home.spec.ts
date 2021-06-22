@@ -117,7 +117,8 @@ describe('Review answers page', () => {
       .find('[data-cy=next-stage-info]')
       .trigger('mouseover');
     cy.contains('This Mentor can select questions from a list');
-    cy.get('[data-cy=stage-thumbnail]').should('exist');
+    cy.get('[data-cy=stage-thumbnail]').trigger('mouseover');
+    cy.contains('Upload new Mentor image');
   });
   it('shows placeholder when no idle video', () => {
     cySetup(cy);
