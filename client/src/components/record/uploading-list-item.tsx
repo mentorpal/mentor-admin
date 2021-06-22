@@ -88,7 +88,6 @@ function UploadingListItem(props: {
             : jobTitle
         }
         secondary={
-          //ADD DETERMINISTIC PROGRESS BAR HERE
           cancelling || cancelledAnswer ? (
             "Cancelling"
           ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
@@ -102,6 +101,8 @@ function UploadingListItem(props: {
               variant={"determinate"}
               value={upload.uploadProgress}
             />
+          ) : jobStatus == UploadStatus.TRIM_IN_PROGRESS ? (
+            "Trimming video"
           ) : jobStatus !== UploadStatus.DONE ? (
             "Processing"
           ) : (

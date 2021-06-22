@@ -525,8 +525,8 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("not.be.visible");
     //upload complete, should swap to video view
     cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
-    cy.get("[data-cy=upload-video]").should('contain.text', "Upload Video");
-    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=trim-video]").should('contain.text', "Trim Video");
+    cy.get("[data-cy=trim-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("be.visible");
   });
 
@@ -790,127 +790,6 @@ describe("Record", () => {
     cy.get("[data-cy=upload-in-progress-notifier]").should('be.visible');
   })
 
-  //uploads re-appear since we can't choose WHEN graphql responds with certain values
-  it("dismisses item for completed task when on that page", ()=>{
-    cySetup(cy);
-    cyMockUpload(cy);
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "UPLOAD_IN_PROGRESS",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4"
-                  }
-                ]
-              },
-              {
-                question: {
-                  _id: videoMentor.answers[2].question._id,
-                  question: videoMentor.answers[2].question.question
-                },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
-          ],
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[2].question._id,
-                question: videoMentor.answers[2].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
-          ]
-        ], true),
-      ],
-    });
-    cy.visit("/record");
-    //waiting for first page to complete
-    cy.get("[data-cy=upload-card-0]").within($within =>{
-      cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[1].question.question)
-    })
-    cy.get("[data-cy=upload-card-2]").should("not.exist")
-    cy.get("[data-cy=upload-card-0]").within($within =>{
-      cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
-      cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[2].question.question)
-    })
-    cy.get("[data-cy=upload-card-1]").should("not.exist")
-  })
-
   it("can dismiss completed items in list via x button", ()=>{
     cySetup(cy);
     cyMockUpload(cy);
@@ -982,6 +861,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-1]").should("not.exist")
     
   })
+  
 
   it("showcase - dismisses item for completed task when on that page", ()=>{
     cySetup(cy);
@@ -1097,8 +977,9 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should('not.be.disabled');
     cy.get("[data-cy=upload-video]").should('be.visible');
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-video]").should('have.text', "Upload Video")
-    cy.get("[data-cy=upload-video]").should('be.disabled');
+    cy.get("[data-cy=trim-video]").should('have.text', "Trim Video")
+    cy.get("[data-cy=trim-video]").should('be.disabled');
+    cy.get("[data-cy=upload-video]").should('not.exist');
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   })
 
@@ -1152,8 +1033,8 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should('not.be.disabled');
     cy.get("[data-cy=upload-video]").should('be.visible');
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-video]").should('have.text', "Upload Video")
-    cy.get("[data-cy=upload-video]").should('be.disabled');
+    cy.get("[data-cy=trim-video]").should('have.text', "Trim Video")
+    cy.get("[data-cy=trim-video]").should('be.disabled');
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.get("[data-cy=upload-video]").should('have.text', "Cancel")
     cy.get("[data-cy=upload-video]").should('not.be.disabled');
@@ -1759,6 +1640,83 @@ describe("Record", () => {
     cy.get("[data-cy=header-uploads-button]").should('have.css', 'opacity', '0.5')
   })
 
+  it("Only trim button visible when video already exists, else only upload button", ()=>{
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "TRIM_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ]
+        ], true),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-video]").should('be.visible');
+    cy.get("[data-cy=upload-video]").should('not.be.disabled');
+    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
+    cy.get("[data-cy=upload-video]").should('be.visible');
+    cy.get("[data-cy=upload-video]").should('not.be.disabled');
+    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
+    //now on page with complete upload
+    cy.get("[data-cy=upload-video]").should('not.exist');
+    cy.get("[data-cy=trim-video]").should('exist');
+    cy.get("[data-cy=trim-video]").should('be.disabled');
+    
+        
+  })
+
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
     cyMockUpload(cy);
@@ -1775,7 +1733,7 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
-              uploadStatus: "UPLOAD_IN_PROGRESS",
+              uploadStatus: "TRIM_IN_PROGRESS",
               transcript: "i am kayla",
               media: [
                 {
@@ -1824,6 +1782,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-0").within($within => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]").get('span').should('have.text', videoMentor.answers[0].question.question)
+      cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Trimming video")
     })
     cy.get("[data-cy=upload-card-1").should("exist");
     cy.get("[data-cy=upload-card-1").within($within => {
@@ -1918,7 +1877,6 @@ describe("Record", () => {
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
-    cy.get("[data-cy=trim-video]").should("be.hidden");
   });
 
   it("shows video player if mentor type is VIDEO and has video", () => {
@@ -1942,11 +1900,10 @@ describe("Record", () => {
     // video player showing
     cy.get("[data-cy=video-player]").should("be.visible");
     cy.get("[data-cy=rerecord-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=trim-video]").should("be.visible");
     // editing hidden
-    cy.get("[data-cy=upload-video]").should("be.disabled");
-    cy.get("[data-cy=slider]").should("not.be.hidden");
     cy.get("[data-cy=trim-video]").should("be.disabled");
+    cy.get("[data-cy=slider]").should("not.be.hidden");
     // can re-record video
     cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
     cy.get("[data-cy=video-recorder]").should("be.visible");
@@ -1955,7 +1912,7 @@ describe("Record", () => {
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
-    cy.get("[data-cy=trim-video]").should("be.disabled");
+    cy.get("[data-cy=trim-video]").should("not.exist");
   });
 
   it("progress bars shown for each upload task", () => {
@@ -2270,10 +2227,10 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
     cy.get("[data-cy=rerecord-video]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=trim-video]").should("be.visible");
+    cy.get("[data-cy=trim-video]").should("not.exist");
     cy.get("[data-cy=slider]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=trim-video]").should("be.disabled");
+    cy.get("[data-cy=trim-video]").should("not.exist");
     // upload video
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
     cy.get("[data-cy=transcript-input]").within($input => {
