@@ -179,13 +179,15 @@ describe('Review answers page', () => {
     cy.get('[data-cy=stage-card]').contains('Scope: Life-Story');
     cy.get('[data-cy=stage-progress]').should('not.exist');
   });
-  it('shows thumbnail when idle video', () => {
+  it('switches to new image when uploaded', () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
     cy.get('[data-cy=stage-thumbnail]')
       .get('[data-cy=idle-thumbnail]')
       .should('exist');
+    cy.get('[data-cy=stage-thumbnail]').trigger('mouseover');
+    cy.contains('input[type="file"]');
     cy.fixture('avatar.png').then((fileContent) => {
       cy.get('input[type="file"]').attachFile({
         fileContent: fileContent.toString(),
