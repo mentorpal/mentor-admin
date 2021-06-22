@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
+import axios, { CancelTokenSource } from "axios";
 import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
 import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
@@ -26,6 +27,7 @@ export interface UploadTask {
   question: Question;
   uploadProgress: number;
   uploadStatus: UploadStatus;
+  tokenSource?: CancelTokenSource;
   transcript?: string;
   media?: Media[];
 }
@@ -38,6 +40,7 @@ export function useWithUploadStatus(
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
+  const CancelToken = axios.CancelToken;
 
   useEffect(() => {
     let mounted = true;
@@ -139,13 +142,14 @@ export function useWithUploadStatus(
     video: File,
     trim?: { start: number; end: number }
   ) {
+    const tokenSource = CancelToken.source();
     addOrEditTask({
       question,
       uploadStatus: UploadStatus.PENDING,
       uploadProgress: 0,
+      tokenSource: tokenSource,
     });
-    //video gets uploaded to axios
-    uploadVideo(mentorId, video, question, addOrEditTask, trim)
+    uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
       .then(() => {
         addOrEditTask({
           question,
@@ -163,7 +167,9 @@ export function useWithUploadStatus(
       });
   }
 
-  // function cancelUpload() {}
+  function cancelUpload(task: UploadTask) {
+    task.tokenSource?.cancel();
+  }
 
   // function deleteUpload() {}
 
@@ -171,6 +177,7 @@ export function useWithUploadStatus(
     uploads,
     isUploading,
     upload,
+    cancelUpload,
     removeCompletedTask,
     isTaskDoneOrFailed,
   };
@@ -185,6 +192,7 @@ export interface UseWithUploadStatus {
     video: File,
     trim?: { start: number; end: number }
   ) => void;
+  cancelUpload: (task: UploadTask) => void;
   removeCompletedTask: (tasks: UploadTask) => void;
   isTaskDoneOrFailed: (upload: UploadTask) => boolean;
 }

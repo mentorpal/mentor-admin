@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import axios from "axios";
+import axios, { CancelTokenSource } from "axios";
 import {
   UserAccessToken,
   Mentor,
@@ -610,6 +610,7 @@ export async function uploadVideo(
   mentorId: string,
   video: File,
   question: Question,
+  tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
 ): Promise<AsyncJob> {
@@ -625,10 +626,12 @@ export async function uploadVideo(
         question,
         uploadStatus: UploadStatus.PENDING,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
+        tokenSource: tokenSource,
       }),
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    cancelToken: tokenSource.token,
   });
   return result.data.data;
 }

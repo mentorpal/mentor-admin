@@ -58,6 +58,7 @@ export function useWithRecordState(
     uploads,
     isUploading,
     upload,
+    cancelUpload,
     removeCompletedTask,
     isTaskDoneOrFailed,
   } = useWithUploadStatus(
@@ -325,6 +326,7 @@ export function useWithRecordState(
     startRecording,
     stopRecording,
     uploadVideo,
+    cancelUpload,
     setMinVideoLength,
 
     isUploading,
@@ -358,6 +360,7 @@ export interface UseWithRecordState {
         }
       | undefined
   ) => void;
+  cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
 
   isUploading: boolean;

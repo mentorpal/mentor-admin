@@ -125,6 +125,7 @@ function UploadingListItem(props: {
             } else {
               recordState.removeCompletedTask(upload);
             }
+            recordState.cancelUpload(upload);
           }}
           style={{ cursor: "pointer", paddingRight: 5 }}
         />

@@ -861,9 +861,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-1]").should("not.exist")
     
   })
-  
-
-  it("showcase - dismisses item for completed task when on that page", ()=>{
+  it("Only trim button visible when video already exists, else only upload button", ()=>{
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -879,7 +877,84 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
+              uploadStatus: "TRIM_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
               uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
+              },
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ]
+        ], true),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-video]").should('be.visible');
+    cy.get("[data-cy=upload-video]").should('not.be.disabled');
+    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
+    cy.get("[data-cy=upload-video]").should('be.visible');
+    cy.get("[data-cy=upload-video]").should('not.be.disabled');
+    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
+    //now on page with complete upload
+    cy.get("[data-cy=upload-video]").should('not.exist');
+    cy.get("[data-cy=trim-video]").should('exist');
+    cy.get("[data-cy=trim-video]").should('be.disabled');
+    
+        
+  })
+
+  it("showcase - dismisss item via x button", ()=>{
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
                 {
@@ -1640,82 +1715,7 @@ describe("Record", () => {
     cy.get("[data-cy=header-uploads-button]").should('have.css', 'opacity', '0.5')
   })
 
-  it("Only trim button visible when video already exists, else only upload button", ()=>{
-    cySetup(cy);
-    cyMockUpload(cy);
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [
-          [
-            {
-              question: {
-                _id: videoMentor.answers[0].question._id,
-                question: videoMentor.answers[0].question.question
-              },
-              uploadStatus: "TRIM_IN_PROGRESS",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[1].question._id,
-                question: videoMentor.answers[1].question.question
-              },
-              uploadStatus: "UPLOAD_IN_PROGRESS",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            },
-            {
-              question: {
-                _id: videoMentor.answers[2].question._id,
-                question: videoMentor.answers[2].question.question
-              },
-              uploadStatus: "DONE",
-              transcript: "i am kayla",
-              media: [
-                {
-                  type: "video",
-                  tag: "web",
-                  url: "http://google.mp4"
-                }
-              ]
-            }
-          ]
-        ], true),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-video]").should('be.visible');
-    cy.get("[data-cy=upload-video]").should('not.be.disabled');
-    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
-    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
-    cy.get("[data-cy=upload-video]").should('be.visible');
-    cy.get("[data-cy=upload-video]").should('not.be.disabled');
-    cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
-    cy.get("[data-cy=next-btn]").invoke("mouseover").trigger("click");
-    //now on page with complete upload
-    cy.get("[data-cy=upload-video]").should('not.exist');
-    cy.get("[data-cy=trim-video]").should('exist');
-    cy.get("[data-cy=trim-video]").should('be.disabled');
-    
-        
-  })
+
 
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
