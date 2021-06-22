@@ -82,7 +82,7 @@ StageProgress.propTypes = {
   percent: PropTypes.number.isRequired,
 };
 const useStyles = makeStyles(() => ({
-  placeholder: {
+  avatar: {
     width: "100%",
     height: "100%",
   },
@@ -179,7 +179,7 @@ export default function StageCard(props: {
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const thumbnailAvailable = props.thumbnail === "";
+  const thumbnailAvailable = props.thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
@@ -218,12 +218,20 @@ export default function StageCard(props: {
                   data-cy="thumbnail-wrapper"
                   width="80%"
                 >
-                  <Avatar
-                    data-cy="mentor-thumbnail"
-                    variant="square"
-                    className={classes.placeholder}
-                    src={thumbnailAvailable ? props.thumbnail : ""}
-                  />
+                  {thumbnailAvailable ? (
+                    <Avatar
+                      data-cy="uploaded-thumbnail"
+                      variant="square"
+                      className={classes.avatar}
+                      src={props.thumbnail}
+                    />
+                  ) : (
+                    <Avatar
+                      data-cy="placeholder-thumbnail"
+                      variant="square"
+                      className={classes.avatar}
+                    />
+                  )}
                 </Box>
               </Box>
             </Tooltip>

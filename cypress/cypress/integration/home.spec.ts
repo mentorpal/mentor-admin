@@ -10,7 +10,7 @@ import {
   cyMockTrain,
   cyMockTrainStatus,
 } from '../support/functions';
-import clint, { mentor } from '../fixtures/mentor/clint_home';
+import clint from '../fixtures/mentor/clint_home';
 import { JobState, Status, QuestionType } from '../support/types';
 
 const originalAnswers = clint.answers;
@@ -125,13 +125,13 @@ describe('Review answers page', () => {
     clint.thumbnail = '';
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-    cy.get('[data-cy=mentor-thumbnail]').should('not.have.attr', 'src');
+    cy.get('[data-cy=placeholder-thumbnail]').should('exist');
   });
   it('switches to new image when uploaded', () => {
     cySetup(cy);
+    clint.thumbnail = 'url';
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-
     cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
     cy.fixture('avatar.png').then((fileContent) => {
       cy.get('input[type="file"]').attachFile({
@@ -139,9 +139,8 @@ describe('Review answers page', () => {
         fileName: 'avatar.png',
         mimeType: 'avatr.png',
       });
-      cy.get('[data-cy=mentor-thumbnail]').should('have.attr', 'src');
+      cy.get('[data-cy=uploaded-thumbnail]').should('exist');
     });
-    cy.get('[data-cy=mentor-thumbnail]').should('exist');
   });
   it('does not show toast on incomplete level', () => {
     cySetup(cy);
