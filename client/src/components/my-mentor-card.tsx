@@ -168,7 +168,7 @@ const StageSelect = (value: number) => {
     },
   };
 };
-export default function StageCard(props: {
+export default function MyMentorCard(props: {
   mentorId: string;
   name: string;
   type: MentorType | undefined;
@@ -324,7 +324,7 @@ export default function StageCard(props: {
   );
 }
 
-StageCard.propTypes = {
+MyMentorCard.propTypes = {
   mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,

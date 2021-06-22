@@ -25,7 +25,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import StageCard from "components/stage-card";
+import MyMentorCard from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -107,7 +107,7 @@ function HomePage(props: {
     <div className={classes.root}>
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
-        <StageCard
+        <MyMentorCard
           mentorId={mentor!._id || ""}
           name={mentor!.name || "Unnamed"}
           type={mentor!.mentorType}
