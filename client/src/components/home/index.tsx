@@ -120,7 +120,7 @@ function HomePage(props: {
 
   return (
     <div className={classes.root}>
-      <div style={{ flexShrink: 0 }}>
+      <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <StageCard
           name={mentor!.name || "Unnamed"}

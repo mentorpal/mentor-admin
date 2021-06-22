@@ -11,8 +11,7 @@ import {
   cyMockTrainStatus,
 } from '../support/functions';
 import clint from '../fixtures/mentor/clint_home';
-import { JobState, Status, QuestionType, MediaType } from '../support/types';
-import { completeQuestion } from '../support/helpers';
+import { JobState, Status, QuestionType } from '../support/types';
 
 const originalAnswers = clint.answers;
 describe('Review answers page', () => {
@@ -108,8 +107,9 @@ describe('Review answers page', () => {
     cy.get('[data-cy=stage-card]').contains('Clinton Anderson');
     cy.get('[data-cy=stage-card]').contains('Video Mentor');
     cy.get('[data-cy=stage-card]').contains(
-      "Title: Nuclear Electrician's Mate - Last Trained: Today"
+      "Title: Nuclear Electrician's Mate"
     );
+    cy.get('[data-cy=stage-card]').contains('Last Trained: Today');
     cy.get('[data-cy=stage-card]').contains('Scope: Incomplete');
     cy.get('[data-cy=stage-card]').contains("This Mentor can't be built yet.");
     cy.get('[data-cy=stage-progress]').should('exist');
