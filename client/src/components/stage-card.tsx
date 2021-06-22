@@ -10,32 +10,90 @@ import {
   Box,
   Card,
   CardContent,
-  LinearProgress,
   Typography,
   Tooltip,
+  CardMedia,
+  Avatar,
+  CircularProgress,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
-import ReactPlayer from "react-player";
-import { createStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
 
-const StageProgressBar = withStyles((theme) =>
-  createStyles({
-    root: {
-      height: 10,
-      borderRadius: 5,
+function StageProgress(props: { value: number; max: number; percent: number }) {
+  return (
+    <div>
+      <Box position="relative" display="inline-flex">
+        <CircularProgress
+          data-cy="stage-progress"
+          variant="determinate"
+          style={{ color: "lightgrey" }}
+          value={100}
+        />
+
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <CircularProgress
+            data-cy="stage-progress"
+            variant="determinate"
+            value={props.percent}
+          />
+        </Box>
+        <Box
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          position="absolute"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Typography variant="caption" component="div" color="textSecondary">
+            {props.value}/{props.max}
+          </Typography>
+        </Box>
+      </Box>
+      <Typography variant="caption" color="textSecondary">
+        {props.percent}%
+      </Typography>
+    </div>
+  );
+}
+
+StageProgress.propTypes = {
+  /**
+   * The value of the progress indicator for the determinate variant.
+   * Value between 0 and 100.
+   */
+  value: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  percent: PropTypes.number.isRequired,
+};
+const useStyles = makeStyles((theme) => ({
+  placeholder: {
+    width: "100%",
+    height: "100%",
+  },
+  square: {
+    position: "relative",
+    height: "40%",
+    "&::before": {
+      display: "block",
+      content: "''",
+      paddingLeft: "100%",
     },
-    colorPrimary: {
-      backgroundColor:
-        theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: "#1a90ff",
-    },
-  })
-)(LinearProgress);
+  },
+}));
 const StageSelect = (value: number) => {
   const stages = [
     {
@@ -117,7 +175,7 @@ export default function StageCard(props: {
   thumbnail: string | undefined;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
-
+  const classes = useStyles();
   return (
     <div>
       <Box display="flex" width="100%" mt={2} alignItems="center">
@@ -125,23 +183,27 @@ export default function StageCard(props: {
         <Card style={{ width: "60%" }} data-cy="stage-card">
           <CardContent>
             <Box display="flex" width="100%" alignItems="center">
-              <Box width="33%" alignItems="center" data-cy="stage-thumbnail">
+              <Box
+                className={classes.square}
+                alignItems="center"
+                data-cy="stage-thumbnail"
+              >
                 {props.thumbnail ? (
-                  <ReactPlayer
-                    url={props.thumbnail}
-                    controls={false}
-                    playing={true}
-                    loop={true}
-                    width={"80%"}
-                    playsinline
-                    webkit-playsinline="true"
-                    progressInterval={100}
+                  <CardMedia
+                    data-cy="idle-thumbnail"
+                    component="video"
+                    src={props.thumbnail ? props.thumbnail : ""}
+                    className={classes.placeholder}
                   />
                 ) : (
-                  "no image"
+                  <Avatar
+                    data-cy="placeholder-thumbnail"
+                    variant="square"
+                    className={classes.placeholder}
+                  />
                 )}
               </Box>
-              <Box width="66%" alignItems="center" textAlign="left">
+              <Box width="66%" alignItems="center" ml={2} textAlign="left">
                 <Typography
                   variant="h4"
                   color="textSecondary"
@@ -209,17 +271,11 @@ export default function StageCard(props: {
                 </Typography>
 
                 {currentStage!.floor != 1000 && (
-                  <div>
-                    <StageProgressBar
-                      data-cy="stage-progress"
-                      variant="determinate"
-                      {...{ value: currentStage!.percent }}
-                    />
-                    <Typography variant="body2" color="textSecondary">
-                      {props.value} / {currentStage!.max} (
-                      {currentStage!.percent}%)
-                    </Typography>
-                  </div>
+                  <StageProgress
+                    value={props.value}
+                    max={currentStage!.max || 0}
+                    percent={currentStage!.percent || 0}
+                  />
                 )}
               </Box>
             </Box>

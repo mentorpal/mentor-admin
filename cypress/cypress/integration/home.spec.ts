@@ -11,7 +11,8 @@ import {
   cyMockTrainStatus,
 } from '../support/functions';
 import clint from '../fixtures/mentor/clint_home';
-import { JobState, Status, QuestionType } from '../support/types';
+import { JobState, Status, QuestionType, MediaType } from '../support/types';
+import { completeQuestion } from '../support/helpers';
 
 const originalAnswers = clint.answers;
 describe('Review answers page', () => {
@@ -116,7 +117,25 @@ describe('Review answers page', () => {
       .find('[data-cy=next-stage-info]')
       .trigger('mouseover');
     cy.contains('This Mentor can select questions from a list');
-    cy.get('[data-cy=stage-thumbnail]').contains('no image');
+    cy.get('[data-cy=stage-thumbnail]').should('exist');
+  });
+  it('shows placeholder when no idle video', () => {
+    cySetup(cy);
+    clint.answers[2].status = Status.INCOMPLETE;
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-thumbnail]')
+      .get('[data-cy=placeholder-thumbnail]')
+      .should('exist');
+  });
+  it('shows thumbnail when idle video', () => {
+    cySetup(cy);
+    clint.answers[2].status = Status.COMPLETE;
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit('/');
+    cy.get('[data-cy=stage-thumbnail]')
+      .get('[data-cy=idle-thumbnail]')
+      .should('exist');
   });
   it('does not show toast on incomplete level', () => {
     cySetup(cy);
