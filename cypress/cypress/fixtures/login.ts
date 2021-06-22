@@ -1,13 +1,12 @@
-import { UserAccessToken } from "../support/types";
+import { UserAccessToken } from '../support/types';
 
 export const login: UserAccessToken = {
   user: {
-    _id: "clintanderson",
-    name: "Clinton Anderson",
-    email: "clint@anderson.com"
+    _id: 'clintanderson',
+    name: 'Clinton Anderson',
+    email: 'clint@anderson.com',
   },
-  accessToken: "accessToken",
-  expirationDate: ""
-
+  accessToken: 'accessToken',
+  expirationDate: '',
 };
 export default login;

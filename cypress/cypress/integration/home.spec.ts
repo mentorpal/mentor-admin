@@ -10,7 +10,7 @@ import {
   cyMockTrain,
   cyMockTrainStatus,
 } from '../support/functions';
-import clint from '../fixtures/mentor/clint_home';
+import clint, { mentor } from '../fixtures/mentor/clint_home';
 import { JobState, Status, QuestionType } from '../support/types';
 
 const originalAnswers = clint.answers;
@@ -117,26 +117,30 @@ describe('Review answers page', () => {
       .find('[data-cy=next-stage-info]')
       .trigger('mouseover');
     cy.contains('This Mentor can select questions from a list');
-    cy.get('[data-cy=stage-thumbnail]').trigger('mouseover');
-    cy.contains('Upload new Mentor image');
+    cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
+    cy.get('[data-cy=upload-file]').should('exist');
   });
-  it('shows placeholder when no idle video', () => {
+  it('shows placeholder when no thumbnail', () => {
     cySetup(cy);
-    clint.answers[2].status = Status.INCOMPLETE;
+    clint.thumbnailSrc = '';
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-    cy.get('[data-cy=stage-thumbnail]')
-      .get('[data-cy=placeholder-thumbnail]')
-      .should('exist');
+    cy.get('[data-cy=mentor-thumbnail]').should('exist');
   });
-  it('shows thumbnail when idle video', () => {
+  it('switches to new image when uploaded', () => {
     cySetup(cy);
-    clint.answers[2].status = Status.COMPLETE;
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-    cy.get('[data-cy=stage-thumbnail]')
-      .get('[data-cy=idle-thumbnail]')
-      .should('exist');
+
+    cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
+    cy.fixture('avatar.png').then((fileContent) => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: fileContent.toString(),
+        fileName: 'avatar.png',
+        mimeType: 'avatr.png',
+      });
+    });
+    cy.get('[data-cy=mentor-thumbnail]').should('exist');
   });
   it('does not show toast on incomplete level', () => {
     cySetup(cy);
@@ -178,24 +182,6 @@ describe('Review answers page', () => {
     cy.visit('/');
     cy.get('[data-cy=stage-card]').contains('Scope: Life-Story');
     cy.get('[data-cy=stage-progress]').should('not.exist');
-  });
-  it('switches to new image when uploaded', () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit('/');
-    cy.get('[data-cy=stage-thumbnail]')
-      .get('[data-cy=idle-thumbnail]')
-      .should('exist');
-    cy.get('[data-cy=stage-thumbnail]').trigger('mouseover');
-    cy.contains('input[type="file"]');
-    cy.fixture('avatar.png').then((fileContent) => {
-      cy.get('input[type="file"]').attachFile({
-        fileContent: fileContent.toString(),
-        fileName: 'avatar.png',
-        mimeType: 'avatr.png',
-      });
-    });
-    cy.get('[data-cy=uploaded-thumbnail]').should('exist');
   });
 
   it('can pick a subject from dropdown and view questions and categories', () => {

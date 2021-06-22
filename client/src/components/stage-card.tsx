@@ -174,10 +174,11 @@ export default function StageCard(props: {
   title: string;
   lastTrainedAt: string;
   value: number;
-  thumbnail: string | undefined;
+  thumbnail: string;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
+  const thumbnailAvailable = props.thumbnail === "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
@@ -187,6 +188,7 @@ export default function StageCard(props: {
               title={
                 <input data-cy="upload-file" type="file" accept="image/*" />
               }
+              interactive
               data-cy="upload-tip"
             >
               <Box alignItems="center">
@@ -207,23 +209,15 @@ export default function StageCard(props: {
                 <Box
                   className={classes.square}
                   alignItems="center"
-                  data-cy="stage-thumbnail"
+                  data-cy="thumbnail-wrapper"
                   width="80%"
                 >
-                  {props.thumbnail ? (
-                    <CardMedia
-                      data-cy="idle-thumbnail"
-                      component="video"
-                      src={props.thumbnail ? props.thumbnail : ""}
-                      className={classes.placeholder}
-                    />
-                  ) : (
-                    <Avatar
-                      data-cy="placeholder-thumbnail"
-                      variant="square"
-                      className={classes.placeholder}
-                    />
-                  )}
+                  <Avatar
+                    data-cy="mentor-thumbnail"
+                    variant="square"
+                    className={classes.placeholder}
+                    src={thumbnailAvailable ? props.thumbnail : ""}
+                  />
                 </Box>
               </Box>
             </Tooltip>
