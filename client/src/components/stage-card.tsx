@@ -23,13 +23,14 @@ import { MentorType } from "types";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
-    <div>
+    <Box alignItems="center">
       <Box position="relative" display="inline-flex">
         <CircularProgress
           data-cy="stage-progress"
           variant="determinate"
           style={{ color: "lightgrey" }}
           value={100}
+          size={80}
         />
 
         <Box
@@ -46,6 +47,7 @@ function StageProgress(props: { value: number; max: number; percent: number }) {
             data-cy="stage-progress"
             variant="determinate"
             value={props.percent}
+            size={80}
           />
         </Box>
         <Box
@@ -58,15 +60,15 @@ function StageProgress(props: { value: number; max: number; percent: number }) {
           alignItems="center"
           justifyContent="center"
         >
-          <Typography variant="caption" component="div" color="textSecondary">
+          <Typography variant="h5" component="div" color="textSecondary">
             {props.value}/{props.max}
           </Typography>
         </Box>
       </Box>
-      <Typography variant="caption" color="textSecondary">
+      <Typography variant="body1" color="textSecondary">
         {props.percent}%
       </Typography>
-    </div>
+    </Box>
   );
 }
 
@@ -187,11 +189,7 @@ export default function StageCard(props: {
               }
               data-cy="upload-tip"
             >
-              <Box
-                className={classes.square}
-                alignItems="center"
-                data-cy="stage-thumbnail"
-              >
+              <Box alignItems="center">
                 <Typography
                   variant="h3"
                   color="textSecondary"
@@ -206,23 +204,36 @@ export default function StageCard(props: {
                 >
                   Title: {props.title}
                 </Typography>
-                {props.thumbnail ? (
-                  <CardMedia
-                    data-cy="idle-thumbnail"
-                    component="video"
-                    src={props.thumbnail ? props.thumbnail : ""}
-                    className={classes.placeholder}
-                  />
-                ) : (
-                  <Avatar
-                    data-cy="placeholder-thumbnail"
-                    variant="square"
-                    className={classes.placeholder}
-                  />
-                )}
+                <Box
+                  className={classes.square}
+                  alignItems="center"
+                  data-cy="stage-thumbnail"
+                  width="80%"
+                >
+                  {props.thumbnail ? (
+                    <CardMedia
+                      data-cy="idle-thumbnail"
+                      component="video"
+                      src={props.thumbnail ? props.thumbnail : ""}
+                      className={classes.placeholder}
+                    />
+                  ) : (
+                    <Avatar
+                      data-cy="placeholder-thumbnail"
+                      variant="square"
+                      className={classes.placeholder}
+                    />
+                  )}
+                </Box>
               </Box>
             </Tooltip>
-            <Box width="33%" alignItems="center" ml={2} textAlign="left">
+            <Box
+              width="33%"
+              minWidth={140}
+              alignItems="center"
+              ml={2}
+              textAlign="left"
+            >
               <Typography
                 variant="h6"
                 color="textSecondary"
