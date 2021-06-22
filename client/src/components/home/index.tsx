@@ -110,6 +110,7 @@ function HomePage(props: {
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <StageCard
+          mentorId={mentor!._id || ""}
           name={mentor!.name || "Unnamed"}
           type={mentor!.mentorType}
           title={mentor!.title || "none"}
@@ -117,7 +118,7 @@ function HomePage(props: {
           value={
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
-          thumbnail={mentor!.thumbnailSrc || ""}
+          thumbnail={mentor!.thumbnail || ""}
         />
         <Select
           data-cy="select-subject"

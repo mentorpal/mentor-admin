@@ -12,7 +12,6 @@ import {
   CardContent,
   Typography,
   Tooltip,
-  CardMedia,
   Avatar,
   CircularProgress,
 } from "@material-ui/core";
@@ -20,6 +19,7 @@ import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
+import { uploadThumbnail } from "api";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -169,6 +169,7 @@ const StageSelect = (value: number) => {
   };
 };
 export default function StageCard(props: {
+  mentorId: string;
   name: string;
   type: MentorType | undefined;
   title: string;
@@ -186,7 +187,12 @@ export default function StageCard(props: {
           <Box display="flex" width="100%" alignItems="center">
             <Tooltip
               title={
-                <input data-cy="upload-file" type="file" accept="image/*" />
+                <input
+                  data-cy="upload-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => uploadThumbnail("", e!.target!.files![0])}
+                />
               }
               interactive
               data-cy="upload-tip"
@@ -311,6 +317,7 @@ export default function StageCard(props: {
 }
 
 StageCard.propTypes = {
+  mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
   thumbnail: PropTypes.string.isRequired,

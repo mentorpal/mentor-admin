@@ -122,10 +122,10 @@ describe('Review answers page', () => {
   });
   it('shows placeholder when no thumbnail', () => {
     cySetup(cy);
-    clint.thumbnailSrc = '';
+    clint.thumbnail = '';
     cyMockDefault(cy, { mentor: clint });
     cy.visit('/');
-    cy.get('[data-cy=mentor-thumbnail]').should('exist');
+    cy.get('[data-cy=mentor-thumbnail]').should('not.have.attr', 'src');
   });
   it('switches to new image when uploaded', () => {
     cySetup(cy);
@@ -139,6 +139,7 @@ describe('Review answers page', () => {
         fileName: 'avatar.png',
         mimeType: 'avatr.png',
       });
+      cy.get('[data-cy=mentor-thumbnail]').should('have.attr', 'src');
     });
     cy.get('[data-cy=mentor-thumbnail]').should('exist');
   });
