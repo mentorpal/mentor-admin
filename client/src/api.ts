@@ -373,6 +373,7 @@ export async function fetchMentor(
             title
             email
             mentorType
+            thumbnail
             lastTrainedAt
             defaultSubject {
               _id
