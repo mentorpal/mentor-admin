@@ -54,16 +54,12 @@ export function useWithRecordState(
     error: mentorError,
     clearError: clearMentorError,
   } = useWithMentor(accessToken);
-  const {
-    uploads,
-    isUploading,
-    upload,
-    isTaskDoneOrFailed,
-  } = useWithUploadStatus(
-    accessToken,
-    onAnswerUploaded,
-    isNaN(pollingInterval) ? undefined : pollingInterval
-  );
+  const { uploads, isUploading, upload, isTaskDoneOrFailed } =
+    useWithUploadStatus(
+      accessToken,
+      onAnswerUploaded,
+      isNaN(pollingInterval) ? undefined : pollingInterval
+    );
 
   useEffect(() => {
     if (!mentor) {

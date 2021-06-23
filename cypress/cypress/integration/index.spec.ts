@@ -35,6 +35,6 @@ describe("Index page", () => {
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/");
     });
-    cy.contains("All Answers (6 / 6)")
+    cy.contains("All Answers (6 / 6)");
   });
 });

@@ -1,4 +1,9 @@
-import { Connection, QuestionType, Subject, UtteranceName } from "../../support/types";
+import {
+  Connection,
+  QuestionType,
+  Subject,
+  UtteranceName,
+} from "../../support/types";
 
 export const subjects: Connection<Subject> = {
   edges: [
@@ -7,7 +12,8 @@ export const subjects: Connection<Subject> = {
       node: {
         _id: "repeat_after_me",
         name: "Repeat After Me",
-        description: "These are miscellaneous phrases you'll be asked to repeat.",
+        description:
+          "These are miscellaneous phrases you'll be asked to repeat.",
         isRequired: true,
         categories: [],
         topics: [],
@@ -32,7 +38,7 @@ export const subjects: Connection<Subject> = {
               name: UtteranceName.INTRO,
               paraphrases: [],
             },
-            topics: []
+            topics: [],
           },
           {
             question: {
@@ -44,16 +50,16 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
-          }
-        ]
-      }
-    }
+          },
+        ],
+      },
+    },
   ],
   pageInfo: {
     startCursor: null,
     endCursor: null,
     hasNextPage: false,
     hasPreviousPage: false,
-  }
-}
+  },
+};
 export default subjects;

@@ -1,22 +1,17 @@
 import { Mentor } from "../support/types";
 
-export function updateAnswer(
-  m: Mentor,
-  qid: string,
-  update: any
-): Mentor {
+export function updateAnswer(m: Mentor, qid: string, update: any): Mentor {
   return {
     ...m,
     answers: m.answers.map((answer) => {
-      if(answer.question._id === qid) {
+      if (answer.question._id === qid) {
         return {
           ...answer,
-          ...update
-        }
+          ...update,
+        };
+      } else {
+        return answer;
       }
-      else {
-        return answer
-      }
-    })
+    }),
   };
 }

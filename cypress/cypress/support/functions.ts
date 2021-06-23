@@ -157,7 +157,9 @@ export function cyMockDefault(
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
     mockGQL("login", args.login || loginDefault),
-    ...(args.mentor ? [mockGQL("mentor", args.mentor, true)] : [mockGQL("mentor", mentorDefault, true)]),
+    ...(args.mentor
+      ? [mockGQL("mentor", args.mentor, true)]
+      : [mockGQL("mentor", mentorDefault, true)]),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,

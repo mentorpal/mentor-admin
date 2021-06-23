@@ -14,10 +14,10 @@ export const subject: Partial<Subject> = {
         question: "What's the hardest decision you've had to make as a leader?",
         type: null,
         name: null,
-        paraphrases: [],  
+        paraphrases: [],
       },
       topics: [],
-    }
-  ]
-}
+    },
+  ],
+};
 export default subject;

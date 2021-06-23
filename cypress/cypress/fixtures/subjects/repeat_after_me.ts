@@ -15,7 +15,7 @@ export const subject: Partial<Subject> = {
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.IDLE,
-        paraphrases: [],  
+        paraphrases: [],
       },
       topics: [],
     },
@@ -26,9 +26,9 @@ export const subject: Partial<Subject> = {
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.INTRO,
-        paraphrases: [],  
+        paraphrases: [],
       },
-      topics: []
+      topics: [],
     },
     {
       question: {
@@ -37,10 +37,10 @@ export const subject: Partial<Subject> = {
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.OFF_TOPIC,
-        paraphrases: [],  
+        paraphrases: [],
       },
       topics: [],
-    }
-  ]
-}
+    },
+  ],
+};
 export default subject;

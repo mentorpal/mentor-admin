@@ -11,7 +11,7 @@ export const subject: Subject = {
       question: "What does STEM mean?",
       type: null,
       name: null,
-}
-  ]
-}
+    },
+  ],
+};
 export default subject;

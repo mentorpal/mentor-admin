@@ -28,14 +28,14 @@ describe("Profile", () => {
     });
     cy.visit("/profile");
     cy.contains("My Profile");
-    cy.get("[data-cy=mentor-name]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-name]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=mentor-first-name]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-first-name]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=mentor-job-title]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-job-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=update-btn]").should("be.disabled");
 
@@ -44,14 +44,14 @@ describe("Profile", () => {
     cy.get("[data-cy=update-btn]").should("not.be.disabled");
     cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.get("[data-cy=update-btn]").should("be.disabled");
-    cy.get("[data-cy=mentor-name]").within($input => {
-      cy.get("input").should('have.value', "Clinton Anderson")
+    cy.get("[data-cy=mentor-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=mentor-first-name]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-first-name]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=mentor-job-title]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-job-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
 
     // fill out first name and save
@@ -59,14 +59,14 @@ describe("Profile", () => {
     cy.get("[data-cy=update-btn]").should("not.be.disabled");
     cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.get("[data-cy=update-btn]").should("be.disabled");
-    cy.get("[data-cy=mentor-name]").within($input => {
-      cy.get("input").should('have.value', "Clinton Anderson")
+    cy.get("[data-cy=mentor-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=mentor-first-name]").within($input => {
-      cy.get("input").should('have.value', "Clint")
+    cy.get("[data-cy=mentor-first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
     });
-    cy.get("[data-cy=mentor-job-title]").within($input => {
-      cy.get("input").should('have.value', "")
+    cy.get("[data-cy=mentor-job-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
 
     // fill out title and save
@@ -74,14 +74,14 @@ describe("Profile", () => {
     cy.get("[data-cy=update-btn]").should("not.be.disabled");
     cy.get("[data-cy=update-btn]").trigger("mouseover").click();
     cy.get("[data-cy=update-btn]").should("be.disabled");
-    cy.get("[data-cy=mentor-name]").within($input => {
-      cy.get("input").should('have.value', "Clinton Anderson")
+    cy.get("[data-cy=mentor-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=mentor-first-name]").within($input => {
-      cy.get("input").should('have.value', "Clint")
+    cy.get("[data-cy=mentor-first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
     });
-    cy.get("[data-cy=mentor-job-title]").within($input => {
-      cy.get("input").should('have.value', "Nuclear Electrician's Mate")
+    cy.get("[data-cy=mentor-job-title]").within(($input) => {
+      cy.get("input").should("have.value", "Nuclear Electrician's Mate");
     });
   });
 });

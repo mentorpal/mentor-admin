@@ -104,7 +104,7 @@ export interface Media {
 }
 
 export enum MediaType {
-  VIDEO = 'video',
+  VIDEO = "video",
 }
 
 export interface Answer {
@@ -129,42 +129,42 @@ export interface UserQuestion {
 }
 
 export enum MentorType {
-  VIDEO = 'VIDEO',
-  CHAT = 'CHAT',
+  VIDEO = "VIDEO",
+  CHAT = "CHAT",
 }
 
 export enum Status {
-  INCOMPLETE = 'INCOMPLETE',
-  COMPLETE = 'COMPLETE',
+  INCOMPLETE = "INCOMPLETE",
+  COMPLETE = "COMPLETE",
 }
 
 export enum Feedback {
-  GOOD = 'GOOD',
-  BAD = 'BAD',
-  NEUTRAL = 'NEUTRAL',
+  GOOD = "GOOD",
+  BAD = "BAD",
+  NEUTRAL = "NEUTRAL",
 }
 
 export enum ClassifierAnswerType {
-  CLASSIFIER = 'CLASSIFIER',
-  OFF_TOPIC = 'OFF_TOPIC',
-  EXACT_MATCH = 'EXACT',
-  PARAPHRASE = 'PARAPHRASE',
+  CLASSIFIER = "CLASSIFIER",
+  OFF_TOPIC = "OFF_TOPIC",
+  EXACT_MATCH = "EXACT",
+  PARAPHRASE = "PARAPHRASE",
 }
 
 export enum QuestionType {
-  UTTERANCE = 'UTTERANCE',
-  QUESTION = 'QUESTION',
+  UTTERANCE = "UTTERANCE",
+  QUESTION = "QUESTION",
 }
 
 export enum UtteranceName {
-  IDLE = '_IDLE_',
-  INTRO = '_INTRO_',
-  OFF_TOPIC = '_OFF_TOPIC_',
-  PROMPT = '_PROMPT_',
-  FEEDBACK = '_FEEDBACK_',
-  REPEAT = '_REPEAT_',
-  REPEAT_BUMP = '_REPEAT_BUMP_',
-  PROFANIY = '_PROFANITY_',
+  IDLE = "_IDLE_",
+  INTRO = "_INTRO_",
+  OFF_TOPIC = "_OFF_TOPIC_",
+  PROMPT = "_PROMPT_",
+  FEEDBACK = "_FEEDBACK_",
+  REPEAT = "_REPEAT_",
+  REPEAT_BUMP = "_REPEAT_BUMP_",
+  PROFANIY = "_PROFANITY_",
 }
 
 export interface AsyncJob {
@@ -173,11 +173,11 @@ export interface AsyncJob {
 }
 
 export enum JobState {
-  NONE = 'NONE',
-  FAILURE = 'FAILURE',
-  SUCCESS = 'SUCCESS',
-  PENDING = 'PENDING',
-  STARTED = 'STARTED',
+  NONE = "NONE",
+  FAILURE = "FAILURE",
+  SUCCESS = "SUCCESS",
+  PENDING = "PENDING",
+  STARTED = "STARTED",
 }
 
 export interface TaskStatus<T> {

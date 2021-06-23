@@ -16,15 +16,16 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A7_1_1",
-            question: "What's the hardest decision you've had to make as a leader?",
+            question:
+              "What's the hardest decision you've had to make as a leader?",
             type: QuestionType.QUESTION,
             name: null,
-            paraphrases: [],  
+            paraphrases: [],
           },
-          topics: []
-        }
-      ]
-    }
+          topics: [],
+        },
+      ],
+    },
   ],
   answers: [
     ...clint_prev.answers,
@@ -39,7 +40,7 @@ export const mentor: Mentor = {
       },
       transcript: "",
       status: Status.INCOMPLETE,
-    }
-  ]
-}
+    },
+  ],
+};
 export default mentor;

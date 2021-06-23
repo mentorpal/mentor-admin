@@ -3,7 +3,8 @@ import { Subject } from "../../support/types";
 export const subject: Partial<Subject> = {
   _id: "background",
   name: "Background",
-  description: "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+  description:
+    "These questions will ask general questions about your background that might be relevant to how people understand your career.",
   isRequired: true,
   categories: [],
   topics: [],
@@ -27,7 +28,7 @@ export const subject: Partial<Subject> = {
         paraphrases: [],
       },
       topics: [],
-    }
-  ]
-}
+    },
+  ],
+};
 export default subject;
