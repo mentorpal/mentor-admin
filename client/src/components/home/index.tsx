@@ -18,7 +18,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
 import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
 import withLocation from "wrap-with-location";
@@ -26,7 +25,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import StageCard from "components/stage-card";
+import MyMentorCard from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -106,12 +105,18 @@ function HomePage(props: {
 
   return (
     <div className={classes.root}>
-      <div style={{ flexShrink: 0 }}>
+      <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
-        <StageCard
+        <MyMentorCard
+          mentorId={mentor!._id || ""}
+          name={mentor!.name || "Unnamed"}
+          type={mentor!.mentorType}
+          title={mentor!.title || "none"}
+          lastTrainedAt={mentor!.lastTrainedAt || "never"}
           value={
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
+          thumbnail={mentor!.thumbnail || ""}
         />
         <Select
           data-cy="select-subject"

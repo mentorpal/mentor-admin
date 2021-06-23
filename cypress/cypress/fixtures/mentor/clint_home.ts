@@ -147,6 +147,7 @@ export const mentor: Mentor = {
         name: UtteranceName.IDLE,
         paraphrases: [],
       },
+      media: [{ url: "video.mp4", tag: "idle", type: "video" }],
       transcript: "",
       status: Status.COMPLETE,
     },

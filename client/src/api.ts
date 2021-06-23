@@ -374,6 +374,7 @@ export async function fetchMentor(
             title
             email
             mentorType
+            thumbnail
             lastTrainedAt
             defaultSubject {
               _id
@@ -606,7 +607,20 @@ export async function fetchTrainingStatus(
   }
   return result.data.data;
 }
-
+export async function uploadThumbnail(
+  mentorId: string,
+  thumbnail: File
+): Promise<AsyncJob> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentor: mentorId }));
+  data.append("thumbnail", thumbnail);
+  const result = await uploadRequest.post("/thumbnail", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return result.data.data;
+}
 export async function uploadVideo(
   mentorId: string,
   video: File,
