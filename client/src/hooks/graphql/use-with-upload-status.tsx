@@ -186,7 +186,14 @@ export function useWithUploadStatus(
   }
 
   function cancelUpload(mentorId: string, task: UploadTask) {
-    task.tokenSource?.cancel();
+    if (!task.taskId) {
+      task.tokenSource?.cancel();
+      addOrEditTask({
+        ...task,
+        uploadStatus: UploadStatus.CANCELLED,
+      });
+      return;
+    }
     addOrEditTask({
       ...task,
       uploadStatus: UploadStatus.CANCEL_PENDING,

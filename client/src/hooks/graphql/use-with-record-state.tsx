@@ -299,7 +299,7 @@ export function useWithRecordState(
   }
 
   function cancelUploadVideo(task: UploadTask) {
-    if (!mentor || !task || !task.taskId || isTaskDoneOrFailed(task)) {
+    if (!mentor || !task || isTaskDoneOrFailed(task)) {
       return;
     }
     cancelUpload(mentor._id, task);
