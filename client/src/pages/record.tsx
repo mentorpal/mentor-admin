@@ -36,6 +36,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import { UploadTask } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -105,14 +106,9 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-  const [cancelledAnswerID, setCancelledAnswerID] = useState("");
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
-
-  useEffect(() => {
-    setCancelledAnswerID("");
-  }, [recordState.curAnswer?.answer._id]);
 
   function onBack() {
     if (props.search.back) {
@@ -145,6 +141,11 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
+  function cancelUpload(task: UploadTask) {
+    setCancelledAnswerID(task.question._id);
+    recordState.cancelUpload(task);
+  }
+
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
@@ -164,8 +165,6 @@ function RecordPage(props: {
           visible={uploadingWidgetVisible}
           setUploadWidgetVisible={setUploadingWidgetVisible}
           curAnswer={curAnswer.answer}
-          cancelAnswerUpload={setCancelledAnswerID}
-          cancelledAnswerID={cancelledAnswerID}
           recordState={recordState}
         />
       ) : undefined}
@@ -190,12 +189,7 @@ function RecordPage(props: {
         />
       </div>
       {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer
-          classes={classes}
-          recordState={recordState}
-          cancelAnswerUpload={setCancelledAnswerID}
-          cancelledAnswerID={cancelledAnswerID}
-        />
+        <VideoPlayer classes={classes} recordState={recordState} />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>

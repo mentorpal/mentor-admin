@@ -17,19 +17,18 @@ import {
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
-  cancelAnswerUpload: (s: string) => void;
-  cancelledAnswerID: string;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, recordState, cancelAnswerUpload, cancelledAnswerID } = props;
+  const { classes, recordState } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -38,6 +37,13 @@ function VideoPlayer(props: {
     windowHeight > windowWidth
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
+  const upload = recordState.uploads.find(
+    (u) => u.question._id === recordState.curAnswer?.answer.question._id
+  );
+  const cancelling = upload
+    ? upload.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
+      upload.uploadStatus === UploadStatus.CANCEL_PENDING
+    : false;
 
   React.useEffect(() => {
     setVideoLength(0);
@@ -85,6 +91,7 @@ function VideoPlayer(props: {
       setTrim(value);
     }
   }
+
   return (
     <div
       className={classes.block}
@@ -148,11 +155,9 @@ function VideoPlayer(props: {
           >
             <CircularProgress />
             <p></p>
-            {cancelledAnswerID == recordState.curAnswer?.answer._id
-              ? "Cancelling your upload."
-              : "Upload in progress"}
+            {cancelling ? "Cancelling your upload." : "Upload in progress"}
             <p></p>
-            {!(cancelledAnswerID == recordState.curAnswer?.answer._id)
+            {!cancelling
               ? "You may continue to record other questions."
               : undefined}
           </div>
@@ -211,17 +216,13 @@ function VideoPlayer(props: {
               disabled={
                 (!recordState.curAnswer?.recordedVideo &&
                   !recordState.curAnswer?.isUploading) ||
-                cancelledAnswerID == recordState.curAnswer?.answer._id
+                cancelling
               }
               className={classes.button}
               onClick={() => {
                 !recordState.curAnswer?.isUploading
                   ? recordState.uploadVideo()
-                  : cancelAnswerUpload(
-                      recordState.curAnswer?.answer?._id
-                        ? recordState.curAnswer?.answer?._id
-                        : ""
-                    );
+                  : recordState.cancelUpload(upload!);
               }}
               style={{ marginRight: 15 }}
             >

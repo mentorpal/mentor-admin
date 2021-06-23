@@ -22,22 +22,10 @@ function UploadingListItem(props: {
   jobTitle: string;
   setAnswerIDx: (id: number) => void;
   answerIDx: number;
-  cancelledAnswer: boolean;
-  cancelAnswerUpload: (s: string) => void;
-  representsCurrentAnswer: boolean;
   recordState: UseWithRecordState;
 }): JSX.Element {
-  const {
-    jobTitle,
-    setAnswerIDx,
-    answerIDx,
-    cancelledAnswer,
-    cancelAnswerUpload,
-    representsCurrentAnswer,
-    upload,
-    recordState,
-  } = props;
-  const [cancelling, setCancelling] = useState(false);
+  const { upload, jobTitle, setAnswerIDx, answerIDx, recordState } = props;
+  // const [cancelling, setCancelling] = useState(false);
   const useStyles = makeStyles(() => ({
     primaryListItemText: {
       fontSize: "0.9em",
@@ -49,11 +37,11 @@ function UploadingListItem(props: {
   const jobStatus = upload.uploadStatus;
   const jobDone = jobStatus == UploadStatus.DONE;
   const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
+  const cancelling =
+    jobStatus === UploadStatus.CANCEL_IN_PROGRESS ||
+    jobStatus === UploadStatus.CANCEL_PENDING ||
+    jobStatus === UploadStatus.CANCELLED;
   const classes = useStyles();
-
-  if (cancelledAnswer == true && cancelling !== cancelledAnswer) {
-    setCancelling(true);
-  }
 
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
@@ -88,7 +76,7 @@ function UploadingListItem(props: {
             : jobTitle
         }
         secondary={
-          cancelling || cancelledAnswer ? (
+          cancelling ? (
             "Cancelling"
           ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
             "Transcribe Failed"
@@ -119,13 +107,11 @@ function UploadingListItem(props: {
       >
         <CloseIcon
           onClick={() => {
-            if (!jobDone && representsCurrentAnswer) {
-              cancelAnswerUpload(upload.question._id);
-              setCancelling(true);
-            } else {
+            if (jobDone) {
               recordState.removeCompletedTask(upload);
+            } else {
+              recordState.cancelUpload(upload);
             }
-            recordState.cancelUpload(upload);
           }}
           style={{ cursor: "pointer", paddingRight: 5 }}
         />

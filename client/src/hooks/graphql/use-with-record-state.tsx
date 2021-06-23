@@ -298,6 +298,14 @@ export function useWithRecordState(
     upload(mentor._id, answer.answer.question, answer.recordedVideo, trim);
   }
 
+  function cancelUploadVideo(task: UploadTask) {
+    if (!mentor || !task || !task.taskId || isTaskDoneOrFailed(task)) {
+      return;
+    }
+    console.log(`cancel upload ${JSON.stringify(task, null, " ")}`);
+    cancelUpload(mentor._id, task);
+  }
+
   return {
     mentor,
     answers,
@@ -326,9 +334,8 @@ export function useWithRecordState(
     startRecording,
     stopRecording,
     uploadVideo,
-    cancelUpload,
+    cancelUpload: cancelUploadVideo,
     setMinVideoLength,
-
     isUploading,
     isRecording,
     isSaving,
@@ -362,7 +369,6 @@ export interface UseWithRecordState {
   ) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
-
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
