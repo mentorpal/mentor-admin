@@ -58,6 +58,8 @@ export function useWithRecordState(
     uploads,
     isUploading,
     upload,
+    cancelUpload,
+    removeCompletedTask,
     isTaskDoneOrFailed,
   } = useWithUploadStatus(
     accessToken,
@@ -296,6 +298,13 @@ export function useWithRecordState(
     upload(mentor._id, answer.answer.question, answer.recordedVideo, trim);
   }
 
+  function cancelUploadVideo(task: UploadTask) {
+    if (!mentor || !task || isTaskDoneOrFailed(task)) {
+      return;
+    }
+    cancelUpload(mentor._id, task);
+  }
+
   return {
     mentor,
     answers,
@@ -319,12 +328,13 @@ export function useWithRecordState(
     setAnswerIDx,
     editAnswer,
     saveAnswer,
+    removeCompletedTask,
     rerecord,
     startRecording,
     stopRecording,
     uploadVideo,
+    cancelUpload: cancelUploadVideo,
     setMinVideoLength,
-
     isUploading,
     isRecording,
     isSaving,
@@ -344,6 +354,7 @@ export interface UseWithRecordState {
   setAnswerIDx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
+  removeCompletedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;
@@ -355,8 +366,8 @@ export interface UseWithRecordState {
         }
       | undefined
   ) => void;
+  cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
-
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;

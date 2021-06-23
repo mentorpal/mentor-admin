@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Button,
@@ -105,14 +105,9 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-  const [cancelledAnswerID, setCancelledAnswerID] = useState("");
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
-
-  useEffect(() => {
-    setCancelledAnswerID("");
-  }, [recordState.curAnswer?.answer._id]);
 
   function onBack() {
     if (props.search.back) {
@@ -157,6 +152,7 @@ function RecordPage(props: {
       </div>
     );
   }
+
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -164,8 +160,6 @@ function RecordPage(props: {
           visible={uploadingWidgetVisible}
           setUploadWidgetVisible={setUploadingWidgetVisible}
           curAnswer={curAnswer.answer}
-          cancelAnswerUpload={setCancelledAnswerID}
-          cancelledAnswerID={cancelledAnswerID}
           recordState={recordState}
         />
       ) : undefined}
@@ -190,12 +184,7 @@ function RecordPage(props: {
         />
       </div>
       {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer
-          classes={classes}
-          recordState={recordState}
-          cancelAnswerUpload={setCancelledAnswerID}
-          cancelledAnswerID={cancelledAnswerID}
-        />
+        <VideoPlayer classes={classes} recordState={recordState} />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
         <Typography className={classes.title}>Question:</Typography>

@@ -31,8 +31,8 @@ The full terms of this copyright and license should always be found in the root 
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 import "cypress-fill-command";
-import "cypress-localstorage-commands"
-import 'cypress-file-upload';
+import "cypress-localstorage-commands";
+import "cypress-file-upload";
 import { addMatchImageSnapshotCommand } from "cypress-image-snapshot/command";
 
 addMatchImageSnapshotCommand({

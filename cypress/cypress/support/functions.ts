@@ -1,3 +1,9 @@
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import { Mentor, TrainingInfo, VideoInfo, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
@@ -157,7 +163,9 @@ export function cyMockDefault(
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
     mockGQL("login", args.login || loginDefault),
-    ...(args.mentor ? [mockGQL("mentor", args.mentor, true)] : [mockGQL("mentor", mentorDefault, true)]),
+    ...(args.mentor
+      ? [mockGQL("mentor", args.mentor, true)]
+      : [mockGQL("mentor", mentorDefault, true)]),
     ...(args.subject ? [mockGQL("subject", args.subject)] : []),
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,
@@ -219,6 +227,7 @@ export function cyMockTrainStatus(
 export function cyMockUpload(
   cy,
   params: {
+    id?: string;
     statusUrl?: string;
     statusCode?: number;
   } = {}
@@ -231,7 +240,37 @@ export function cyMockUpload(
         statusCode: params.statusCode || 200,
         body: {
           data: {
+            id: params.id || "fake_task_id",
             statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
+          },
+          errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockCancelUpload(
+  cy,
+  params: {
+    id?: string;
+    cancelledId?: string;
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("/upload/answer/cancel", (req) => {
+    req.alias = "cancelUpload";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {
+            id: params.id || "fake_cancel_id",
+            cancelledId: params.cancelledId || "fake_task_id",
           },
           errors: null,
         },

@@ -16,20 +16,12 @@ import Close from "@material-ui/icons/Close";
 function UploadingView(props: {
   recordState: UseWithRecordState;
   curAnswer: Answer;
-  cancelledAnswerID: string;
-  cancelAnswerUpload: (s: string) => void;
   visible: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
-  const {
-    recordState,
-    curAnswer,
-    cancelAnswerUpload,
-    visible,
-    setUploadWidgetVisible,
-    cancelledAnswerID,
-  } = props;
+  const { recordState, curAnswer, visible, setUploadWidgetVisible } = props;
   const { answers, setAnswerIDx, uploads } = recordState;
+
   const uploadsToShow = uploads.filter(
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
   );
@@ -43,8 +35,7 @@ function UploadingView(props: {
 
   //the IDx of an answer corresponds to its position within the answers array
   function retrieveAnswerIDx(id: string) {
-    let i = 0;
-    for (; i < answers?.length; i++) {
+    for (let i = 0; i < answers?.length; i++) {
       if (answers[i].answer.question._id == id) {
         return i;
       }
@@ -76,15 +67,11 @@ function UploadingView(props: {
               }
             >
               <ListItem
+                recordState={recordState}
                 upload={upload}
-                cancelAnswerUpload={cancelAnswerUpload}
-                representsCurrentAnswer={
-                  curAnswer.question._id == upload.question._id
-                }
                 setAnswerIDx={setAnswerIDx}
                 answerIDx={retrieveAnswerIDx(upload.question._id)}
                 jobTitle={upload.question.question}
-                cancelledAnswer={cancelledAnswerID == upload.question._id}
               />
             </div>
           );

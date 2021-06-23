@@ -5,7 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
+import axios, { CancelTokenSource } from "axios";
+import {
+  cancelUploadVideo,
+  deleteUploadTask,
+  fetchUploadTasks,
+  uploadVideo,
+} from "api";
 import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
@@ -13,18 +19,24 @@ import useInterval from "hooks/task/use-interval";
 export enum UploadStatus {
   PENDING = "PENDING", // local state only; sending upload request to upload api
   POLLING = "POLLING", // local state only; upload request has been received by api, start polling
+  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
   TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
   TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
-  DONE = "DONE", // api is done with upload process
+  CANCEL_PENDING = "CANCEL_PENDING", //
+  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
+  CANCEL_FAILED = "CANCEL_FAILED",
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload
+  DONE = "DONE", // api is done with upload process
 }
 
 export interface UploadTask {
   question: Question;
   uploadProgress: number;
+  taskId: string;
   uploadStatus: UploadStatus;
+  tokenSource?: CancelTokenSource;
   transcript?: string;
   media?: Media[];
 }
@@ -37,6 +49,7 @@ export function useWithUploadStatus(
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
+  const CancelToken = axios.CancelToken;
 
   useEffect(() => {
     let mounted = true;
@@ -99,6 +112,16 @@ export function useWithUploadStatus(
     isPolling ? pollingInterval : null
   );
 
+  function removeCompletedTask(task: UploadTask) {
+    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
+      const newArray = uploads.filter(
+        (u) => u.question._id !== task.question._id
+      );
+      setUploads(newArray);
+    }
+  }
+
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
       task.uploadStatus === UploadStatus.CANCELLED ||
@@ -117,6 +140,12 @@ export function useWithUploadStatus(
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
+      //TODO: current workaround since copyAndSet isn't working properly
+      for (let i = 0; i < uploads.length; i++) {
+        if (uploads[i].question._id == task.question._id) {
+          uploads[i] = task;
+        }
+      }
       setUploads(copyAndSet(uploads, idx, task));
     }
   }
@@ -128,31 +157,64 @@ export function useWithUploadStatus(
     video: File,
     trim?: { start: number; end: number }
   ) {
+    const tokenSource = CancelToken.source();
     addOrEditTask({
       question,
       uploadStatus: UploadStatus.PENDING,
       uploadProgress: 0,
+      tokenSource: tokenSource,
+      taskId: "",
     });
-    //video gets uploaded to axios
-    uploadVideo(mentorId, video, question, addOrEditTask, trim)
-      .then(() => {
+    uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
+      .then((task) => {
         addOrEditTask({
           question,
           uploadStatus: UploadStatus.POLLING,
           uploadProgress: 100,
+          taskId: task.id,
+        });
+      })
+      .catch((err) => {
+        addOrEditTask({
+          question,
+          uploadStatus:
+            err.message && err.message === UploadStatus.CANCELLED
+              ? UploadStatus.CANCELLED
+              : UploadStatus.UPLOAD_FAILED,
+          uploadProgress: 0,
+          taskId: "",
+        });
+      });
+  }
+
+  function cancelUpload(mentorId: string, task: UploadTask) {
+    if (!task.taskId) {
+      task.tokenSource?.cancel(UploadStatus.CANCELLED);
+      addOrEditTask({
+        ...task,
+        uploadStatus: UploadStatus.CANCELLED,
+      });
+      return;
+    }
+    addOrEditTask({
+      ...task,
+      uploadStatus: UploadStatus.CANCEL_PENDING,
+    });
+    cancelUploadVideo(mentorId, task.question, task.taskId)
+      .then(() => {
+        addOrEditTask({
+          ...task,
+          uploadStatus: UploadStatus.POLLING,
         });
       })
       .catch((err) => {
         console.error(err);
         addOrEditTask({
-          question,
-          uploadStatus: UploadStatus.UPLOAD_FAILED,
-          uploadProgress: 0,
+          ...task,
+          uploadStatus: UploadStatus.CANCEL_FAILED,
         });
       });
   }
-
-  // function cancelUpload() {}
 
   // function deleteUpload() {}
 
@@ -160,6 +222,8 @@ export function useWithUploadStatus(
     uploads,
     isUploading,
     upload,
+    cancelUpload,
+    removeCompletedTask,
     isTaskDoneOrFailed,
   };
 }
@@ -173,5 +237,7 @@ export interface UseWithUploadStatus {
     video: File,
     trim?: { start: number; end: number }
   ) => void;
+  cancelUpload: (mentorId: string, task: UploadTask) => void;
+  removeCompletedTask: (tasks: UploadTask) => void;
   isTaskDoneOrFailed: (upload: UploadTask) => boolean;
 }
