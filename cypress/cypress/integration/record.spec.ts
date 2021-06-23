@@ -1650,6 +1650,40 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
+              uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              uploadStatus: "UPLOAD_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
               uploadStatus: "CANCELLED",
               transcript: "i am kayla",
               media: [
