@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Button,
@@ -35,6 +35,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import UploadingWidget from "components/record/uploading-widget";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -87,6 +88,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface LeaveConfirmation {
+  message: string;
   callback: () => void;
 }
 
@@ -98,28 +100,19 @@ function RecordPage(props: {
     status?: string;
     category?: string;
     back?: string;
+    poll?: string;
   };
 }): JSX.Element {
   const classes = useStyles();
-  const {
-    mentor,
-    isLoading,
-    answers,
-    answerIdx,
-    curAnswer,
-    recordState,
-    prevAnswer,
-    nextAnswer,
-    editAnswer,
-    saveAnswer,
-    rerecord,
-    startRecording,
-    stopRecording,
-    uploadVideo,
-    clearRecordingError,
-    setMinVideoLength,
-  } = useWithRecordState(props.accessToken, props.search);
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+  const [cancelledAnswerID, setCancelledAnswerID] = useState("");
+  const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
+  const recordState = useWithRecordState(props.accessToken, props.search);
+  const { curAnswer, mentor } = recordState;
+
+  useEffect(() => {
+    setCancelledAnswerID("");
+  }, [recordState.curAnswer?.answer._id]);
 
   function onBack() {
     if (props.search.back) {
@@ -128,10 +121,17 @@ function RecordPage(props: {
       navigate("/");
     }
   }
-
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
-      setConfirmLeave({ callback: onNav });
+      if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
+        setConfirmLeave({
+          message:
+            "You have not uploaded your recorded video yet. Would you like to move on anyway?",
+          callback: onNav,
+        });
+      } else {
+        onNav();
+      }
     } else {
       onNav();
     }
@@ -145,28 +145,56 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
+  if (!mentor || !curAnswer) {
+    return (
+      <div className={classes.root}>
+        <NavBar title="Record Mentor" mentorId={undefined} />
+        <LoadingDialog title={"Loading..."} />
+        <ErrorDialog
+          error={recordState.error}
+          clearError={recordState.clearError}
+        />
+      </div>
+    );
+  }
   return (
     <div className={classes.root}>
-      <NavBar title="Record Mentor" mentorId={mentor?._id} />
+      {curAnswer ? (
+        <UploadingWidget
+          visible={uploadingWidgetVisible}
+          setUploadWidgetVisible={setUploadingWidgetVisible}
+          curAnswer={curAnswer.answer}
+          cancelAnswerUpload={setCancelledAnswerID}
+          cancelledAnswerID={cancelledAnswerID}
+          recordState={recordState}
+        />
+      ) : undefined}
+      <NavBar
+        title="Record Mentor"
+        mentorId={mentor._id}
+        uploads={recordState.uploads}
+        uploadsButtonVisible={uploadingWidgetVisible}
+        toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+      />
       <div data-cy="progress" className={classes.block}>
         <Typography
           variant="h6"
           className={classes.title}
           style={{ textAlign: "center" }}
         >
-          Questions {answerIdx + 1} / {answers.length}
+          Questions {recordState.answerIdx + 1} / {recordState.answers.length}
         </Typography>
-        <ProgressBar value={answerIdx + 1} total={answers.length} />
+        <ProgressBar
+          value={recordState.answerIdx + 1}
+          total={recordState.answers.length}
+        />
       </div>
-      {curAnswer && mentor?.mentorType === MentorType.VIDEO ? (
+      {mentor.mentorType === MentorType.VIDEO ? (
         <VideoPlayer
           classes={classes}
-          curAnswer={curAnswer}
           recordState={recordState}
-          onUpload={uploadVideo}
-          onRerecord={rerecord}
-          onRecordStart={startRecording}
-          onRecordStop={stopRecording}
+          cancelAnswerUpload={setCancelledAnswerID}
+          cancelledAnswerID={cancelledAnswerID}
         />
       ) : undefined}
       <div data-cy="question" className={classes.block}>
@@ -175,13 +203,13 @@ function RecordPage(props: {
           <OutlinedInput
             data-cy="question-input"
             multiline
-            value={curAnswer?.answer?.question?.question}
-            disabled={curAnswer?.answer?.question?.mentor !== mentor?._id}
+            value={curAnswer?.editedAnswer.question?.question}
+            disabled={curAnswer?.editedAnswer.question?.mentor !== mentor._id}
             onChange={(e) => {
-              if (curAnswer?.answer?.question) {
-                editAnswer({
+              if (curAnswer?.editedAnswer.question) {
+                recordState.editAnswer({
                   question: {
-                    ...curAnswer?.answer.question,
+                    ...curAnswer?.editedAnswer.question,
                     question: e.target.value,
                   },
                 });
@@ -192,12 +220,12 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="undo-question-btn"
                   disabled={
-                    curAnswer?.answer?.question?.question ===
-                    answers[answerIdx]?.question?.question
+                    curAnswer?.editedAnswer.question?.question ===
+                    curAnswer?.answer.question?.question
                   }
                   onClick={() =>
-                    editAnswer({
-                      question: answers[answerIdx].question,
+                    recordState.editAnswer({
+                      question: curAnswer?.answer.question,
                     })
                   }
                 >
@@ -209,7 +237,7 @@ function RecordPage(props: {
         </FormControl>
       </div>
       {curAnswer?.minVideoLength &&
-      curAnswer?.answer?.question?.name === UtteranceName.IDLE ? (
+      curAnswer?.editedAnswer.question?.name === UtteranceName.IDLE ? (
         <div data-cy="idle" className={classes.block}>
           <Typography className={classes.title}>Idle Duration:</Typography>
           <Select
@@ -217,7 +245,7 @@ function RecordPage(props: {
             value={curAnswer?.minVideoLength}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => setMinVideoLength(event.target.value as number)}
+            ) => recordState.setMinVideoLength(event.target.value as number)}
             style={{ marginLeft: 10 }}
           >
             <MenuItem data-cy="10" value={10}>
@@ -238,19 +266,21 @@ function RecordPage(props: {
             <OutlinedInput
               data-cy="transcript-input"
               multiline
-              value={curAnswer?.answer?.transcript}
-              onChange={(e) => editAnswer({ transcript: e.target.value })}
+              value={curAnswer?.editedAnswer.transcript}
+              onChange={(e) =>
+                recordState.editAnswer({ transcript: e.target.value })
+              }
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
                     data-cy="undo-transcript-btn"
                     disabled={
-                      curAnswer?.answer?.transcript ===
-                      answers[answerIdx]?.transcript
+                      curAnswer?.editedAnswer.transcript ===
+                      curAnswer?.answer.transcript
                     }
                     onClick={() =>
-                      editAnswer({
-                        transcript: answers[answerIdx]?.transcript,
+                      recordState.editAnswer({
+                        transcript: curAnswer?.answer.transcript,
                       })
                     }
                   >
@@ -270,10 +300,10 @@ function RecordPage(props: {
         <Typography className={classes.title}>Status:</Typography>
         <Select
           data-cy="select-status"
-          value={curAnswer?.answer?.status || ""}
+          value={curAnswer?.editedAnswer.status || ""}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => editAnswer({ status: event.target.value as Status })}
+          ) => recordState.editAnswer({ status: event.target.value as Status })}
           style={{ marginLeft: 10 }}
         >
           <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
@@ -294,10 +324,8 @@ function RecordPage(props: {
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}
-            disabled={
-              answerIdx === 0 || recordState.isSaving || recordState.isUploading
-            }
-            onClick={() => switchAnswer(prevAnswer)}
+            disabled={recordState.answerIdx === 0}
+            onClick={() => switchAnswer(recordState.prevAnswer)}
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -306,22 +334,17 @@ function RecordPage(props: {
             variant="contained"
             color="primary"
             disableElevation
-            disabled={
-              !curAnswer?.isEdited ||
-              recordState.isSaving ||
-              recordState.isUploading
-            }
-            onClick={saveAnswer}
+            disabled={!curAnswer?.isEdited}
+            onClick={recordState.saveAnswer}
           >
             Save
           </Button>
-          {answerIdx === answers.length - 1 ? (
+          {recordState.answerIdx === recordState.answers.length - 1 ? (
             <Button
               data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
-              disabled={recordState.isSaving || recordState.isUploading}
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
@@ -332,34 +355,23 @@ function RecordPage(props: {
               data-cy="next-btn"
               className={classes.nextBtn}
               disabled={
-                answerIdx === answers.length - 1 ||
-                recordState.isSaving ||
-                recordState.isUploading
+                recordState.answerIdx === recordState.answers.length - 1
               }
-              onClick={() => switchAnswer(nextAnswer)}
+              onClick={() => switchAnswer(recordState.nextAnswer)}
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
           )}
         </Toolbar>
       </AppBar>
-      <LoadingDialog
-        title={
-          isLoading
-            ? "Loading..."
-            : recordState.isSaving
-            ? "Saving..."
-            : recordState.isUploading
-            ? "Uploading..."
-            : ""
-        }
+      <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
+      <ErrorDialog
+        error={recordState.error}
+        clearError={recordState.clearError}
       />
-      <ErrorDialog error={recordState.error} clearError={clearRecordingError} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
-          <DialogContentText>
-            You have unsaved changes. Are you sure you&apos;d like to move on?
-          </DialogContentText>
+          <DialogContentText>{confirmLeave?.message}</DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={confirm}>Yes</Button>

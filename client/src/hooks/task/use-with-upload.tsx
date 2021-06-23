@@ -18,14 +18,8 @@ export interface UploadParams {
 export function useWithUploading(
   pollingInterval = 1000
 ): Task<TrainingInfo, UploadParams> {
-  const {
-    status,
-    statusUrl,
-    error,
-    isPolling,
-    startTask,
-    clearError,
-  } = useWithTask<TrainingInfo, UploadParams>(upload, poll, pollingInterval);
+  const { status, statusUrl, error, isPolling, startTask, clearError } =
+    useWithTask<TrainingInfo, UploadParams>(upload, poll, pollingInterval);
 
   function upload(params: UploadParams) {
     return uploadVideo(
