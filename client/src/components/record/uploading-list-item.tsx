@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React from "react";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import {
   LinearProgress,
@@ -25,7 +25,6 @@ function UploadingListItem(props: {
   recordState: UseWithRecordState;
 }): JSX.Element {
   const { upload, jobTitle, setAnswerIDx, answerIDx, recordState } = props;
-  // const [cancelling, setCancelling] = useState(false);
   const useStyles = makeStyles(() => ({
     primaryListItemText: {
       fontSize: "0.9em",
