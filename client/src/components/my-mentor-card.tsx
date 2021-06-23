@@ -225,7 +225,9 @@ export default function MyMentorCard(props: {
                 data-cy="upload-file"
                 type="file"
                 accept="image/*"
-                onChange={(e) => uploadThumbnail("", e!.target!.files![0])}
+                onChange={(e) =>
+                  uploadThumbnail(props.mentorId, e!.target!.files![0])
+                }
               />
             </Box>
             <Box
