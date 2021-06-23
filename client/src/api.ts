@@ -644,7 +644,9 @@ export async function cancelUploadVideo(
   taskId: string
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
-    body: { mentor: mentorId, question: question._id, task: taskId },
+    mentor: mentorId,
+    question: question._id,
+    task: taskId,
   });
   return result.data.data;
 }
