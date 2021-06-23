@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Button,
@@ -36,7 +36,6 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { UploadTask } from "hooks/graphql/use-with-upload-status";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -141,11 +140,6 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  function cancelUpload(task: UploadTask) {
-    setCancelledAnswerID(task.question._id);
-    recordState.cancelUpload(task);
-  }
-
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
@@ -158,6 +152,7 @@ function RecordPage(props: {
       </div>
     );
   }
+
   return (
     <div className={classes.root}>
       {curAnswer ? (

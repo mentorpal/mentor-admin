@@ -302,7 +302,6 @@ export function useWithRecordState(
     if (!mentor || !task || !task.taskId || isTaskDoneOrFailed(task)) {
       return;
     }
-    console.log(`cancel upload ${JSON.stringify(task, null, " ")}`);
     cancelUpload(mentor._id, task);
   }
 

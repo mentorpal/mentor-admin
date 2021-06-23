@@ -137,7 +137,6 @@ export function useWithUploadStatus(
 
   function addOrEditTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question._id === task.question._id);
-    console.log(`add or edit task ${JSON.stringify(task, null, " ")}`);
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
