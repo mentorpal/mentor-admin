@@ -43,12 +43,10 @@ const defaultSearchParams: SearchParams = {
 export function useWithDataConnection<T>(
   fetch: () => Promise<Connection<T>>
 ): UseDataConnection<T> {
-  const [searchParams, setSearchParams] = useState<SearchParams>(
-    defaultSearchParams
-  );
-  const { data, isLoading, error, clearError, reloadData } = useWithData<
-    Connection<T>
-  >(fetch);
+  const [searchParams, setSearchParams] =
+    useState<SearchParams>(defaultSearchParams);
+  const { data, isLoading, error, clearError, reloadData } =
+    useWithData<Connection<T>>(fetch);
 
   useEffect(() => {
     reloadData();

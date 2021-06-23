@@ -141,8 +141,8 @@ export function useWithUploadStatus(
       setUploads([...uploads, task]);
     } else {
       //TODO: current workaround since copyAndSet isn't working properly
-      for(let i = 0; i < uploads.length; i++){
-        if(uploads[i].question._id == task.question._id){
+      for (let i = 0; i < uploads.length; i++) {
+        if (uploads[i].question._id == task.question._id) {
           uploads[i] = task;
         }
       }

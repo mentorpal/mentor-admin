@@ -50,7 +50,6 @@ function UploadingListItem(props: {
           paddingRight: 15,
           color: jobFailed ? "#ff0000" : jobDone ? "green" : "black",
         }}
-        data-cy="cancel-upload"
       >
         {jobDone ? (
           <CheckCircle />

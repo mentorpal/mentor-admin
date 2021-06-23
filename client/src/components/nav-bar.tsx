@@ -227,11 +227,8 @@ export function NavBar(props: {
 }): JSX.Element {
   const classes = useStyles();
   const { back } = props.search;
-  const {
-    uploads,
-    uploadsButtonVisible,
-    toggleUploadsButtonVisibility,
-  } = props;
+  const { uploads, uploadsButtonVisible, toggleUploadsButtonVisibility } =
+    props;
   const numUploadsInProgress = uploads?.filter(
     (upload) =>
       upload.uploadStatus !== UploadStatus.DONE &&
