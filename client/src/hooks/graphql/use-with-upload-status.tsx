@@ -169,10 +169,12 @@ export function useWithUploadStatus(
         });
       })
       .catch((err) => {
-        console.error(err);
         addOrEditTask({
           question,
-          uploadStatus: UploadStatus.UPLOAD_FAILED,
+          uploadStatus:
+            err.message && err.message === UploadStatus.CANCELLED
+              ? UploadStatus.CANCELLED
+              : UploadStatus.UPLOAD_FAILED,
           uploadProgress: 0,
           taskId: "",
         });
@@ -181,7 +183,7 @@ export function useWithUploadStatus(
 
   function cancelUpload(mentorId: string, task: UploadTask) {
     if (!task.taskId) {
-      task.tokenSource?.cancel();
+      task.tokenSource?.cancel(UploadStatus.CANCELLED);
       addOrEditTask({
         ...task,
         uploadStatus: UploadStatus.CANCELLED,
