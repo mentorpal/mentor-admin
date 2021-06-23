@@ -643,12 +643,9 @@ export async function cancelUploadVideo(
   question: Question,
   taskId: string
 ): Promise<CancelJob> {
-  const data = new FormData();
-  data.append(
-    "body",
-    JSON.stringify({ mentor: mentorId, question: question._id, task: taskId })
-  );
-  const result = await uploadRequest.post("/answer/cancel", data);
+  const result = await uploadRequest.post("/answer/cancel", {
+    body: { mentor: mentorId, question: question._id, task: taskId },
+  });
   return result.data.data;
 }
 

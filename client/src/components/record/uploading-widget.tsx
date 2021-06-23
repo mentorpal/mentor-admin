@@ -35,8 +35,7 @@ function UploadingView(props: {
 
   //the IDx of an answer corresponds to its position within the answers array
   function retrieveAnswerIDx(id: string) {
-    let i = 0;
-    for (; i < answers?.length; i++) {
+    for (let i = 0; i < answers?.length; i++) {
       if (answers[i].answer.question._id == id) {
         return i;
       }
