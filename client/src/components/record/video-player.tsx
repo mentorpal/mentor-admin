@@ -30,6 +30,8 @@ function VideoPlayer(props: {
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { classes, recordState, cancelAnswerUpload, cancelledAnswerID } = props;
+  const cancelling =
+    cancelledAnswerID === recordState.curAnswer?.answer?.question._id;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -148,11 +150,9 @@ function VideoPlayer(props: {
           >
             <CircularProgress />
             <p></p>
-            {cancelledAnswerID == recordState.curAnswer?.answer._id
-              ? "Cancelling your upload."
-              : "Upload in progress"}
+            {cancelling ? "Cancelling your upload." : "Upload in progress"}
             <p></p>
-            {!(cancelledAnswerID == recordState.curAnswer?.answer._id)
+            {!cancelling
               ? "You may continue to record other questions."
               : undefined}
           </div>
@@ -211,15 +211,15 @@ function VideoPlayer(props: {
               disabled={
                 (!recordState.curAnswer?.recordedVideo &&
                   !recordState.curAnswer?.isUploading) ||
-                cancelledAnswerID == recordState.curAnswer?.answer._id
+                cancelling
               }
               className={classes.button}
               onClick={() => {
                 !recordState.curAnswer?.isUploading
                   ? recordState.uploadVideo()
                   : cancelAnswerUpload(
-                      recordState.curAnswer?.answer?._id
-                        ? recordState.curAnswer?.answer?._id
+                      recordState.curAnswer?.answer?.question?._id
+                        ? recordState.curAnswer?.answer?.question?._id
                         : ""
                     );
               }}
