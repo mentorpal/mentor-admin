@@ -3,7 +3,7 @@ This software is Copyright ©️ 2020 The University of Southern California. All
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault, mockGQL, cyMockUpload} from "../support/functions";
+import { cySetup, cyMockDefault, mockGQL, cyMockUpload, cyMockCancelUpload } from "../support/functions";
 import { Mentor, MentorType, QuestionType, Status, MediaType } from "../support/types";
 import {
   completeMentor,
@@ -480,8 +480,8 @@ describe("Record", () => {
         mockGQL("updateAnswer", true, true),
         mockGQL("updateQuestion", true, true),
         mockGQL("uploadTasks", [
-            [            
-              {
+          [
+            {
               question: {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
@@ -533,6 +533,7 @@ describe("Record", () => {
   it("cancelling an upload changes the local uploading status to \"cancelling\"", () => {
     cySetup(cy);
     cyMockUpload(cy);
+    cyMockCancelUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -546,6 +547,7 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
+              taskId: "fake_task_id_1",
               uploadStatus: "UPLOAD_IN_PROGRESS",
               transcript: "i am kayla",
               media: [
@@ -561,6 +563,41 @@ describe("Record", () => {
                 _id: videoMentor.answers[1].question._id,
                 question: videoMentor.answers[1].question.question
               },
+              taskId: "fake_task_id_2",
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              taskId: "fake_task_id_1",
+              uploadStatus: "CANCEL_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[1].question._id,
+                question: videoMentor.answers[1].question.question
+              },
+              taskId: "fake_task_id_2",
               uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
@@ -637,11 +674,11 @@ describe("Record", () => {
               transcript: "",
               media: [
                 {
-                type: "video",
-                tag: "web",
-                url: "http://google.mp4"
-              }
-            ]
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
             }
           ],
           [
@@ -790,7 +827,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-in-progress-notifier]").should('be.visible');
   })
 
-  it("can dismiss completed items in list via x button", ()=>{
+  it("can dismiss completed items in list via x button", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -821,21 +858,21 @@ describe("Record", () => {
                 _id: videoMentor.answers[1].question._id,
                 question: videoMentor.answers[1].question.question
               },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4"
-                  }
-                ]
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
               },
-              {
-                question: {
-                  _id: videoMentor.answers[2].question._id,
-                  question: videoMentor.answers[2].question.question
-                },
               uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
@@ -851,17 +888,17 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-2]").within($within =>{
+    cy.get("[data-cy=upload-card-2]").within($within => {
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     })
     cy.get("[data-cy=upload-card-2]").should("not.exist")
-    cy.get("[data-cy=upload-card-1]").within($within =>{
+    cy.get("[data-cy=upload-card-1]").within($within => {
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     })
     cy.get("[data-cy=upload-card-1]").should("not.exist")
-    
+
   })
-  it("Only trim button visible when video already exists, else only upload button", ()=>{
+  it("Only trim button visible when video already exists, else only upload button", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -934,11 +971,11 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should('not.exist');
     cy.get("[data-cy=trim-video]").should('exist');
     cy.get("[data-cy=trim-video]").should('be.disabled');
-    
-        
+
+
   })
 
-  it("showcase - dismisss item via x button", ()=>{
+  it("showcase - dismisss item via x button", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -969,21 +1006,21 @@ describe("Record", () => {
                 _id: videoMentor.answers[1].question._id,
                 question: videoMentor.answers[1].question.question
               },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4"
-                  }
-                ]
+              uploadStatus: "DONE",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            },
+            {
+              question: {
+                _id: videoMentor.answers[2].question._id,
+                question: videoMentor.answers[2].question.question
               },
-              {
-                question: {
-                  _id: videoMentor.answers[2].question._id,
-                  question: videoMentor.answers[2].question.question
-                },
               uploadStatus: "DONE",
               transcript: "i am kayla",
               media: [
@@ -1510,7 +1547,7 @@ describe("Record", () => {
     });
   })
 
-  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", ()=>{
+  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1627,7 +1664,7 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("not.be.visible")
   })
 
-  it("When an upload gets cancelled, should return user back to recording page", ()=>{
+  it("When an upload gets cancelled, should return user back to recording page", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1678,10 +1715,10 @@ describe("Record", () => {
     cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
     //after poll, should be back to upload video/file stage because upload was cancelled
     cy.get("[data-cy=upload-file]").should("be.visible");
-    
+
   })
 
-  it("Header shows a count of N of M uploads", ()=>{
+  it("Header shows a count of N of M uploads", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1745,7 +1782,7 @@ describe("Record", () => {
     cy.get("[data-cy=header-uploads-button]").should('have.text', '2 of 3 Uploads Complete')
   })
 
-  it("If no uploads occuring, uploads header only shows a dimmed out icon", ()=>{
+  it("If no uploads occuring, uploads header only shows a dimmed out icon", () => {
     cySetup(cy);
     cyMockUpload(cy);
     cyMockDefault(cy, {
@@ -1761,8 +1798,6 @@ describe("Record", () => {
     cy.get("[data-cy=header-uploads-button]").should('have.text', '')
     cy.get("[data-cy=header-uploads-button]").should('have.css', 'opacity', '0.5')
   })
-
-
 
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cySetup(cy);
@@ -1847,6 +1882,7 @@ describe("Record", () => {
   it("pressing cancel button changes UI to indicate cancel in progress", () => {
     cySetup(cy);
     cyMockUpload(cy);
+    cyMockCancelUpload(cy);
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -1860,6 +1896,7 @@ describe("Record", () => {
                 _id: videoMentor.answers[0].question._id,
                 question: videoMentor.answers[0].question.question
               },
+              taskId: "fake_task_id",
               uploadStatus: "UPLOAD_IN_PROGRESS",
               transcript: "i am kayla",
               media: [
@@ -1870,7 +1907,25 @@ describe("Record", () => {
                 }
               ]
             }
-          ]
+          ],
+          [
+            {
+              question: {
+                _id: videoMentor.answers[0].question._id,
+                question: videoMentor.answers[0].question.question
+              },
+              taskId: "fake_task_id",
+              uploadStatus: "CANCEL_IN_PROGRESS",
+              transcript: "i am kayla",
+              media: [
+                {
+                  type: "video",
+                  tag: "web",
+                  url: "http://google.mp4"
+                }
+              ]
+            }
+          ],
         ], true),
       ],
     });
@@ -1878,7 +1933,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-0").should("exist");
     cy.get("[data-cy=upload-video]").should('have.text', "Cancel");
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0]").within($within =>{
+    cy.get("[data-cy=upload-card-0]").within($within => {
       cy.get("[data-cy=card-answer-title]").get('p').should('have.text', "Cancelling")
     })
     cy.get("[data-cy=upload-video]").should("be.disabled");
