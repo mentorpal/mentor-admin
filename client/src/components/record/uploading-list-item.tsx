@@ -89,7 +89,7 @@ function UploadingListItem(props: {
             : jobTitle
         }
         secondary={
-          cancelling || cancelledAnswer ? (
+          cancelling || jobStatus === UploadStatus.CANCELLED ? (
             "Cancelling"
           ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
             "Transcribe Failed"
