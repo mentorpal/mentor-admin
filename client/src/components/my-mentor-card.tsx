@@ -185,56 +185,49 @@ export default function MyMentorCard(props: {
       <Card data-cy="stage-card">
         <CardContent>
           <Box display="flex" width="100%" alignItems="center">
-            <Tooltip
-              title={
-                <input
-                  data-cy="upload-file"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => uploadThumbnail("", e!.target!.files![0])}
-                />
-              }
-              interactive
-              data-cy="upload-tip"
-            >
-              <Box alignItems="center">
-                <Typography
-                  variant="h3"
-                  color="textSecondary"
-                  data-cy="mentor-card-name"
-                >
-                  {props.name}
-                </Typography>
-                <Typography
-                  variant="h5"
-                  color="textSecondary"
-                  data-cy="mentor-card-info"
-                >
-                  Title: {props.title}
-                </Typography>
-                <Box
-                  className={classes.square}
-                  alignItems="center"
-                  data-cy="thumbnail-wrapper"
-                  width="80%"
-                >
-                  {thumbnailAvailable ? (
-                    <Avatar
-                      data-cy="uploaded-thumbnail"
-                      variant="square"
-                      className={classes.avatar}
-                      src={props.thumbnail}
-                    />
-                  ) : (
-                    <Avatar
-                      data-cy="placeholder-thumbnail"
-                      variant="square"
-                      className={classes.avatar}
-                    />
-                  )}
-                </Box>
+            <Box alignItems="center">
+              <Typography
+                variant="h3"
+                color="textSecondary"
+                data-cy="mentor-card-name"
+              >
+                {props.name}
+              </Typography>
+              <Typography
+                variant="h5"
+                color="textSecondary"
+                data-cy="mentor-card-info"
+              >
+                Title: {props.title}
+              </Typography>
+              <Box
+                className={classes.square}
+                alignItems="center"
+                data-cy="thumbnail-wrapper"
+                width="80%"
+              >
+                {thumbnailAvailable ? (
+                  <Avatar
+                    data-cy="uploaded-thumbnail"
+                    variant="square"
+                    className={classes.avatar}
+                    src={props.thumbnail}
+                  />
+                ) : (
+                  <Avatar
+                    data-cy="placeholder-thumbnail"
+                    variant="square"
+                    className={classes.avatar}
+                  />
+                )}
               </Box>
-            </Tooltip>
+              <input
+                data-cy="upload-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => uploadThumbnail("", e!.target!.files![0])}
+              />
+            </Box>
             <Box
               width="33%"
               minWidth={140}
