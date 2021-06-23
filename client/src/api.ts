@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import axios from "axios";
+import axios, { CancelTokenSource } from "axios";
 import {
   UserAccessToken,
   Mentor,
@@ -17,6 +17,7 @@ import {
   TaskStatus,
   TrainingInfo,
   VideoInfo,
+  CancelJob,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -624,6 +625,7 @@ export async function uploadVideo(
   mentorId: string,
   video: File,
   question: Question,
+  tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
 ): Promise<AsyncJob> {
@@ -639,10 +641,26 @@ export async function uploadVideo(
         question,
         uploadStatus: UploadStatus.PENDING,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
+        tokenSource: tokenSource,
+        taskId: "",
       }),
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    cancelToken: tokenSource.token,
+  });
+  return result.data.data;
+}
+
+export async function cancelUploadVideo(
+  mentorId: string,
+  question: Question,
+  taskId: string
+): Promise<CancelJob> {
+  const result = await uploadRequest.post("/answer/cancel", {
+    mentor: mentorId,
+    question: question._id,
+    task: taskId,
   });
   return result.data.data;
 }
@@ -707,6 +725,7 @@ export async function fetchUploadTasks(
                 _id
                 question
               }
+              taskId
               uploadStatus
               transcript
               media {

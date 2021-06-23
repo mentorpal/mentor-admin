@@ -169,6 +169,11 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
+export interface CancelJob {
+  id: string;
+  cancelledId: string;
+}
+
 export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",

@@ -227,6 +227,7 @@ export function cyMockTrainStatus(
 export function cyMockUpload(
   cy,
   params: {
+    id?: string;
     statusUrl?: string;
     statusCode?: number;
   } = {}
@@ -239,7 +240,37 @@ export function cyMockUpload(
         statusCode: params.statusCode || 200,
         body: {
           data: {
+            id: params.id || "fake_task_id",
             statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
+          },
+          errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockCancelUpload(
+  cy,
+  params: {
+    id?: string;
+    cancelledId?: string;
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("/upload/answer/cancel", (req) => {
+    req.alias = "cancelUpload";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {
+            id: params.id || "fake_cancel_id",
+            cancelledId: params.cancelledId || "fake_task_id",
           },
           errors: null,
         },
