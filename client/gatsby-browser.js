@@ -3,10 +3,13 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { Provider } from "./src/context";
 
 import "video.js/dist/video-js.css";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import videojs from "video.js";
 import "webrtc-adapter";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import RecordRTC from "recordrtc";
 import "videojs-record/dist/css/videojs.record.css";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Record from "videojs-record/dist/videojs.record.js";
 
 const theme = createMuiTheme({
