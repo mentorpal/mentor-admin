@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React from "react";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import {
   LinearProgress,
@@ -22,22 +22,9 @@ function UploadingListItem(props: {
   jobTitle: string;
   setAnswerIDx: (id: number) => void;
   answerIDx: number;
-  cancelledAnswer: boolean;
-  cancelAnswerUpload: (s: string) => void;
-  representsCurrentAnswer: boolean;
   recordState: UseWithRecordState;
 }): JSX.Element {
-  const {
-    jobTitle,
-    setAnswerIDx,
-    answerIDx,
-    cancelledAnswer,
-    cancelAnswerUpload,
-    representsCurrentAnswer,
-    upload,
-    recordState,
-  } = props;
-  const [cancelling, setCancelling] = useState(false);
+  const { upload, jobTitle, setAnswerIDx, answerIDx, recordState } = props;
   const useStyles = makeStyles(() => ({
     primaryListItemText: {
       fontSize: "0.9em",
@@ -49,11 +36,11 @@ function UploadingListItem(props: {
   const jobStatus = upload.uploadStatus;
   const jobDone = jobStatus == UploadStatus.DONE;
   const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
+  const cancelling =
+    jobStatus === UploadStatus.CANCEL_IN_PROGRESS ||
+    jobStatus === UploadStatus.CANCEL_PENDING ||
+    jobStatus === UploadStatus.CANCELLED;
   const classes = useStyles();
-
-  if (cancelledAnswer == true && cancelling !== cancelledAnswer) {
-    setCancelling(true);
-  }
 
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
@@ -88,7 +75,7 @@ function UploadingListItem(props: {
             : jobTitle
         }
         secondary={
-          cancelling || jobStatus === UploadStatus.CANCELLED ? (
+          cancelling ? (
             "Cancelling"
           ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
             "Transcribe Failed"
@@ -119,13 +106,11 @@ function UploadingListItem(props: {
       >
         <CloseIcon
           onClick={() => {
-            if (!jobDone && representsCurrentAnswer) {
-              cancelAnswerUpload(upload.question._id);
-              setCancelling(true);
-            } else {
+            if (jobDone) {
               recordState.removeCompletedTask(upload);
+            } else {
+              recordState.cancelUpload(upload);
             }
-            recordState.cancelUpload(upload);
           }}
           style={{ cursor: "pointer", paddingRight: 5 }}
         />

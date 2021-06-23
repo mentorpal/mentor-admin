@@ -17,6 +17,7 @@ import {
   TaskStatus,
   TrainingInfo,
   VideoInfo,
+  CancelJob,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -627,12 +628,27 @@ export async function uploadVideo(
         uploadStatus: UploadStatus.PENDING,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
+        taskId: "",
       }),
     headers: {
       "Content-Type": "multipart/form-data",
     },
     cancelToken: tokenSource.token,
   });
+  return result.data.data;
+}
+
+export async function cancelUploadVideo(
+  mentorId: string,
+  question: Question,
+  taskId: string
+): Promise<CancelJob> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: question._id, task: taskId })
+  );
+  const result = await uploadRequest.post("/answer/cancel", data);
   return result.data.data;
 }
 
@@ -696,6 +712,7 @@ export async function fetchUploadTasks(
                 _id
                 question
               }
+              taskId
               uploadStatus
               transcript
               media {
