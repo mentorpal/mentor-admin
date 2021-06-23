@@ -14,10 +14,7 @@
     "build": "npx gatsby build --prefix-paths",
     "serve": "gatsby serve --prefix-paths",
     "clean": "gatsby clean",
-    "license:fix": "license-check-and-add remove -f license-config.json && license-check-and-add add -f license-config.json",
-    "test:license": "license-check-and-add check -f license-config.json",
     "test:audit": "npm audit --production --audit-level=moderate",
-    "test:format": "prettier --check '**/*.{js,jsx,json,ts,tsx}'",
     "test:lint": "eslint src --ext ts --ext tsx --ext js --ext jsx --max-warnings 0",
     "test:types": "tsc --noEmit"
   },
@@ -55,8 +52,6 @@
     "gatsby-plugin-material-ui": "^3.0.1",
     "gatsby-plugin-sitemap": "^3.3.0",
     "gatsby-plugin-typescript": "^3.3.0",
-    "license-check-and-add": "^4.0.2",
-    "prettier": "^2.2.1",
     "typescript": "^4.2.4"
   }
 }
