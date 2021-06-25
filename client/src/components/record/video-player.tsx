@@ -17,7 +17,6 @@ import {
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -40,10 +39,7 @@ function VideoPlayer(props: {
   const upload = recordState.uploads.find(
     (u) => u.question._id === recordState.curAnswer?.answer.question._id
   );
-  const cancelling = upload
-    ? upload.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
-      upload.uploadStatus === UploadStatus.CANCEL_PENDING
-    : false;
+  const cancelling = upload ? upload.isCancelling : false;
 
   React.useEffect(() => {
     setVideoLength(0);

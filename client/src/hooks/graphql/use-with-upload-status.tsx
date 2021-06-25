@@ -24,7 +24,6 @@ export enum UploadStatus {
   TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
-  CANCEL_PENDING = "CANCEL_PENDING", //
   CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
   CANCEL_FAILED = "CANCEL_FAILED",
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload
@@ -32,10 +31,12 @@ export enum UploadStatus {
 }
 
 export interface UploadTask {
-  question: Question;
-  uploadProgress: number;
   taskId: string;
+  question: Question;
   uploadStatus: UploadStatus;
+  uploadProgress: number;
+
+  isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
   media?: Media[];
@@ -98,7 +99,13 @@ export function useWithUploadStatus(
               findUpload.uploadStatus !== u.uploadStatus ||
               findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS
             ) {
-              addOrEditTask(u);
+              addOrEditTask({
+                ...u,
+                isCancelling:
+                  findUpload?.isCancelling ||
+                  u.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
+                  u.uploadStatus === UploadStatus.CANCELLED,
+              });
               if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
                 onUploadedCallback(u);
               }
@@ -132,7 +139,9 @@ export function useWithUploadStatus(
   }
 
   function isTaskPolling(task: UploadTask) {
-    return !isTaskDoneOrFailed(task);
+    return (
+      !isTaskDoneOrFailed(task) && task.uploadStatus !== UploadStatus.PENDING
+    );
   }
 
   function addOrEditTask(task: UploadTask) {
@@ -193,18 +202,21 @@ export function useWithUploadStatus(
       addOrEditTask({
         ...task,
         uploadStatus: UploadStatus.CANCELLED,
+        isCancelling: true,
       });
       return;
     }
     addOrEditTask({
       ...task,
-      uploadStatus: UploadStatus.CANCEL_PENDING,
+      uploadStatus: UploadStatus.PENDING,
+      isCancelling: true,
     });
     cancelUploadVideo(mentorId, task.question, task.taskId)
       .then(() => {
         addOrEditTask({
           ...task,
           uploadStatus: UploadStatus.POLLING,
+          isCancelling: true,
         });
       })
       .catch((err) => {
@@ -212,6 +224,7 @@ export function useWithUploadStatus(
         addOrEditTask({
           ...task,
           uploadStatus: UploadStatus.CANCEL_FAILED,
+          isCancelling: true,
         });
       });
   }
