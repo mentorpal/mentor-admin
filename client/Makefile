@@ -8,7 +8,7 @@ develop: node_modules/gatsby
 
 .PHONY: format
 format:
-	cd .. && $(MAKE) format
+	npm run format
 
 .PHONY: license
 license:
