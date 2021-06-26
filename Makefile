@@ -40,10 +40,10 @@ LICENSE_HEADER:
 .PHONY: format
 format: LICENSE LICENSE_HEADER
 	npm run license:fix && npm run format
-	
+
 .PHONY: license
 license: LICENSE LICENSE_HEADER
-	npm run license:fix && npm run format
+	npm run license:fix 
 
 .PHONY: test
 test:
