@@ -6,6 +6,10 @@ clean:
 develop: node_modules/gatsby
 	npx gatsby develop
 
+.PHONY: pretty
+pretty: 
+	cd .. && $(MAKE) pretty
+
 .PHONY: format
 format:
 	cd .. && $(MAKE) format
