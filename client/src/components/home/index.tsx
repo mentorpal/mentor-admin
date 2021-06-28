@@ -97,7 +97,7 @@ function HomePage(props: {
   if (!setupStatus) {
     return (
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="My Mentor" mentorId={mentor?._id} />
         <CircularProgress />
       </div>
     );
@@ -106,7 +106,7 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="My Mentor" mentorId={mentor?._id} />
         <MyMentorCard
           mentorId={mentor!._id || ""}
           name={mentor!.name || "Unnamed"}
