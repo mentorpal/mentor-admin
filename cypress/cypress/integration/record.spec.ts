@@ -2450,6 +2450,50 @@ describe("Record", () => {
     cy.get("[data-cy=save-btn]").should("be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
   });
+  it("shows toast on goal saved answer", () => {
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [
+        chatMentor,
+        updateMentorAnswer(chatMentor as unknown as Mentor, "A2_1_1", {
+          transcript: "37",
+        }),
+        updateMentorAnswer(chatMentor as unknown as Mentor, "A3_1_1", {
+          status: Status.COMPLETE,
+        }),
+        ,
+        updateMentorAnswer(chatMentor as unknown as Mentor, "A5_1_1", {
+          status: Status.COMPLETE,
+        }),
+      ],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL("uploadTasks", [[]], true),
+      ],
+    });
+    cy.visit("/record?subject=background&status=INCOMPLETE");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=save-btn]").should("be.disabled");
+    cy.get("[data-cy=stage-toast]").should("not.exist");
+    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "37");
+    });
+    cy.get("[data-cy=save-btn]").should("not.be.disabled");
+    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=stage-toast]").should("exist");
+  });
 
   it("cannot update question for a question not belonging to mentor", () => {
     cySetup(cy);

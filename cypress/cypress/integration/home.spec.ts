@@ -127,37 +127,12 @@ describe("Review answers page", () => {
     cy.visit("/");
     cy.get("[data-cy=placeholder-thumbnail]").should("exist");
   });
-  it("switches to new image when uploaded", () => {
+  it("displays thumbnail when available", () => {
     cySetup(cy);
     clint.thumbnail = "url";
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    /* uncomment when graphql is available */
-    // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
-    // cy.fixture('avatar.png').then((fileContent) => {
-    //   cy.get('input[type="file"]').attachFile({
-    //     fileContent: fileContent.toString(),
-    //     fileName: 'avatar.png',
-    //     mimeType: 'avatr.png',
-    //   });
-    // });
     cy.get("[data-cy=uploaded-thumbnail]").should("exist");
-  });
-  it("does not show toast on incomplete level", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=stage-toast]").should("not.exist");
-  });
-  it("shows mentor scope toast on stage floor", () => {
-    cySetup(cy);
-    clint.answers[4].status = Status.COMPLETE;
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=stage-toast]").contains(
-      "Your mentor has reached the Scripted stage!"
-    );
-    cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
   });
   it("does not show progress bar at maxed level", () => {
     cySetup(cy);

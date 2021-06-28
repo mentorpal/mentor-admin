@@ -15,7 +15,6 @@ import {
   Avatar,
   CircularProgress,
 } from "@material-ui/core";
-import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
@@ -309,12 +308,6 @@ export default function MyMentorCard(props: {
           </Box>
         </CardContent>
       </Card>
-
-      <StageToast
-        value={props.value}
-        floor={currentStage!.floor!}
-        name={currentStage!.name!}
-      />
     </div>
   );
 }

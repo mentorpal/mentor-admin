@@ -36,6 +36,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import StageToast from "components/stage-toast";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -108,6 +109,16 @@ function RecordPage(props: {
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
+  const [totalAnswers, setTotalAnswers] = useState(0);
+  const answersThisSession = 0;
+
+  function handleSave() {
+    recordState.saveAnswer();
+    setTotalAnswers(
+      mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
+    );
+    console.log("total: ", totalAnswers);
+  }
 
   function onBack() {
     if (props.search.back) {
@@ -324,7 +335,7 @@ function RecordPage(props: {
             color="primary"
             disableElevation
             disabled={!curAnswer?.isEdited}
-            onClick={recordState.saveAnswer}
+            onClick={handleSave}
           >
             Save
           </Button>
@@ -369,6 +380,7 @@ function RecordPage(props: {
           </Button>
         </DialogActions>
       </Dialog>
+      <StageToast value={totalAnswers} />
     </div>
   );
 }

@@ -8,15 +8,57 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Typography, Snackbar } from "@material-ui/core";
 import MuiAlert from "@material-ui/lab/Alert";
-
-export default function StageToast(props: {
-  value: number;
-  floor: number;
-  name: string;
-}): JSX.Element {
-  const [open, setOpen] = React.useState(
-    props.floor == props.value && props.floor != 0
-  );
+export default function StageToast(props: { value: number }): JSX.Element {
+  const toastLandmarks = new Map([
+    [
+      5,
+      {
+        name: "Scripted",
+        description: "This Mentor can select questions from a list",
+      },
+    ],
+    [
+      20,
+      {
+        name: "Interactive",
+        description: "This Mentor can respond to simple questions.",
+      },
+    ],
+    [
+      50,
+      {
+        name: "Specialist",
+        description:
+          "This mentor can answer questions within a specific topic.",
+      },
+    ],
+    [
+      150,
+      {
+        name: "Conversational",
+        description: "This mentor can respond to questions with some nuance.",
+      },
+    ],
+    [
+      250,
+      {
+        name: "Full-Subject",
+        description:
+          "Your mentor is equipped to answer questions within a broad subject.",
+      },
+    ],
+    [
+      1000,
+      {
+        name: "Life-Story",
+        description:
+          "Your mentor can hold a natural conversation. Congratulations!",
+      },
+    ],
+  ]);
+  const [open, setOpen] = React.useState(toastLandmarks.has(props.value));
+  const toast = toastLandmarks.get(props.value);
+  console.log(props.value, open, toast);
 
   return (
     <Snackbar
@@ -34,10 +76,10 @@ export default function StageToast(props: {
         data-cy="stage-toast"
       >
         <Typography variant="body1">
-          Your mentor has reached the {props.name} stage!
+          You have reached {props.value} total questions!
         </Typography>
         <Typography variant="body2">
-          You have {props.value} total questions.
+          {toast?.name}: {toast?.description}
         </Typography>
       </MuiAlert>
     </Snackbar>
@@ -46,6 +88,4 @@ export default function StageToast(props: {
 
 StageToast.propTypes = {
   value: PropTypes.number.isRequired,
-  floor: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
 };
