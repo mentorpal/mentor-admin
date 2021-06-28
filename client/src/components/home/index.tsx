@@ -86,15 +86,14 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
-  const { setupStatus } = useWithSetup(props.accessToken);
 
+  const { setupStatus } = useWithSetup(props.accessToken);
   useEffect(() => {
     if (setupStatus?.isSetupComplete === false) {
       navigate(`/setup`);
     }
   }, [setupStatus]);
-
-  if (!setupStatus) {
+  if (!mentor || !setupStatus) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
@@ -108,15 +107,15 @@ function HomePage(props: {
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <MyMentorCard
-          mentorId={mentor!._id || ""}
-          name={mentor!.name || "Unnamed"}
-          type={mentor!.mentorType}
-          title={mentor!.title || "none"}
-          lastTrainedAt={mentor!.lastTrainedAt || "never"}
+          mentorId={mentor?._id || ""}
+          name={mentor?.name || "Unnamed"}
+          type={mentor?.mentorType}
+          title={mentor?.title || "none"}
+          lastTrainedAt={mentor?.lastTrainedAt || "never"}
           value={
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
-          thumbnail={mentor!.thumbnail || ""}
+          thumbnail={mentor?.thumbnail || ""}
         />
         <Select
           data-cy="select-subject"
@@ -185,7 +184,7 @@ function HomePage(props: {
             data-cy="train-button"
             variant="extended"
             color="primary"
-            disabled={isTraining || isLoading || isSaving}
+            disabled={!mentor || isTraining || isLoading || isSaving}
             onClick={() => startTraining(mentor!._id)}
             className={classes.fab}
           >

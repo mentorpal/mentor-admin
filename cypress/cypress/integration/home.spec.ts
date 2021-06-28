@@ -100,6 +100,7 @@ describe("Review answers page", () => {
       });
     });
   });
+
   it("shows my mentor card", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
@@ -120,6 +121,7 @@ describe("Review answers page", () => {
     cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
     cy.get("[data-cy=upload-file]").should("exist");
   });
+
   it("shows placeholder when no thumbnail", () => {
     cySetup(cy);
     clint.thumbnail = "";
@@ -127,6 +129,7 @@ describe("Review answers page", () => {
     cy.visit("/");
     cy.get("[data-cy=placeholder-thumbnail]").should("exist");
   });
+
   it("switches to new image when uploaded", () => {
     cySetup(cy);
     clint.thumbnail = "url";
@@ -143,12 +146,14 @@ describe("Review answers page", () => {
     // });
     cy.get("[data-cy=uploaded-thumbnail]").should("exist");
   });
+
   it("does not show toast on incomplete level", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
     cy.get("[data-cy=stage-toast]").should("not.exist");
   });
+
   it("shows mentor scope toast on stage floor", () => {
     cySetup(cy);
     clint.answers[4].status = Status.COMPLETE;
@@ -159,6 +164,7 @@ describe("Review answers page", () => {
     );
     cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
   });
+
   it("does not show progress bar at maxed level", () => {
     cySetup(cy);
     clint.answers = [
@@ -190,7 +196,6 @@ describe("Review answers page", () => {
     clint.answers = originalAnswers;
     clint.answers[4].status = Status.INCOMPLETE;
     cyMockDefault(cy, { mentor: clint });
-
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();

@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyMockDefault } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
-import doneMentor from "../fixtures/mentor/clint_setup11";
+import clint from "../fixtures/mentor/clint_home";
 
 describe("Index page", () => {
   it("if not logged in, show login page", () => {
@@ -30,11 +30,11 @@ describe("Index page", () => {
 
   it("if logged in and setup complete, show home page", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: doneMentor });
+    cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/");
     });
-    cy.contains("All Answers (6 / 6)");
+    cy.get("[data-cy=select-subject]").should("exist");
   });
 });
