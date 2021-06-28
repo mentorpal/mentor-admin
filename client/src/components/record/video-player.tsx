@@ -22,7 +22,6 @@ function VideoPlayer(props: {
   recordState: UseWithRecordState;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
-  // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
@@ -39,7 +38,11 @@ function VideoPlayer(props: {
   const upload = recordState.uploads.find(
     (u) => u.question._id === recordState.curAnswer?.answer.question._id
   );
-  const cancelling = upload ? upload.isCancelling : false;
+  const isCancelling = upload ? upload.isCancelling : false;
+  const isUploading = recordState.curAnswer?.isUploading;
+  const isTrimming =
+    isFinite(videoLength) && !(trim[0] === 0 && trim[1] === 100);
+
   React.useEffect(() => {
     setVideoLength(0);
     setTrim([0, 100]);
@@ -84,6 +87,7 @@ function VideoPlayer(props: {
       setTrim(value);
     }
   }
+  
   return (
     <div
       className={classes.block}
@@ -103,8 +107,7 @@ function VideoPlayer(props: {
         style={{
           position: "absolute",
           visibility:
-            recordState.curAnswer?.videoSrc ||
-            recordState.curAnswer?.isUploading
+            recordState.curAnswer?.videoSrc || isUploading
               ? "visible"
               : "hidden",
         }}
@@ -114,7 +117,6 @@ function VideoPlayer(props: {
           style={{
             textAlign: "center",
             visibility:
-              recordState.curAnswer?.videoSrc &&
               videoLength < (recordState.curAnswer?.minVideoLength || 0)
                 ? "visible"
                 : "hidden",
@@ -140,16 +142,14 @@ function VideoPlayer(props: {
               position: "absolute",
               justifyContent: "center",
               top: "25%",
-              visibility: recordState.curAnswer?.isUploading
-                ? "visible"
-                : "hidden",
+              visibility: isUploading ? "visible" : "hidden",
             }}
           >
             <CircularProgress />
             <p></p>
-            {cancelling ? "Cancelling your upload." : "Upload in progress"}
+            {isCancelling ? "Cancelling your upload." : "Upload in progress"}
             <p></p>
-            {!cancelling
+            {!isCancelling
               ? "You may continue to record other questions."
               : undefined}
           </div>
@@ -158,7 +158,7 @@ function VideoPlayer(props: {
             ref={reactPlayerRef}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!recordState.curAnswer?.isUploading}
+            playing={!isUploading}
             height={height}
             width={width}
             playsinline
@@ -167,9 +167,7 @@ function VideoPlayer(props: {
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
             style={{
-              visibility: recordState.curAnswer?.isUploading
-                ? "hidden"
-                : "inherit",
+              visibility: isUploading ? "hidden" : "inherit",
             }}
           />
           <div
@@ -202,7 +200,7 @@ function VideoPlayer(props: {
           onChangeCommitted={() => {
             setTrimInProgress(false);
           }}
-          disabled={recordState.curAnswer?.isUploading}
+          disabled={isUploading}
           style={{
             visibility: recordState.curAnswer?.videoSrc ? "visible" : "hidden",
           }}
@@ -213,55 +211,45 @@ function VideoPlayer(props: {
             variant="outlined"
             color="primary"
             disableElevation
-            disabled={recordState.curAnswer?.isUploading}
+            disabled={isUploading}
             className={classes.button}
             onClick={recordState.rerecord}
             style={{ marginRight: 15 }}
           >
             Re-Record
           </Button>
-          {recordState.curAnswer?.isUploading ? (
-            <Button
-              data-cy="upload-video"
-              variant="contained"
-              color="primary"
-              disableElevation
-              className={classes.button}
-              onClick={() => upload ? recordState.cancelUpload(upload) : undefined}
-              style={{ marginRight: 15 }}
-            >
-              Cancel
-            </Button>
-          ) : trim[0] !== 0 || trim[1] !== 100 ? (
-            <Button
-              data-cy="trim-video"
-              variant="contained"
-              color="primary"
-              disableElevation
-              disabled={!isFinite(videoLength)}
-              className={classes.button}
-              onClick={() => {
+          <Button
+            data-cy="upload-video"
+            variant="contained"
+            color="primary"
+            disableElevation
+            disabled={
+              isUploading
+                ? false
+                : isTrimming
+                ? false
+                : !recordState.curAnswer?.recordedVideo
+            }
+            className={classes.button}
+            onClick={() => {
+              if (isUploading) {
+                recordState.cancelUpload(upload!);
+              } else if (isTrimming) {
                 const trimStart = (trim[0] / 100) * videoLength;
                 const trimEnd = (trim[1] / 100) * videoLength;
                 recordState.uploadVideo({ start: trimStart, end: trimEnd });
-              }}
-            >
-              Trim Video
-            </Button>
-          ) : (
-            <Button
-              data-cy="upload-video"
-              variant="contained"
-              color="primary"
-              disableElevation
-              disabled={!recordState.curAnswer?.recordedVideo || cancelling}
-              className={classes.button}
-              onClick={() => recordState.uploadVideo()}
-              style={{ marginRight: 15 }}
-            >
-              Upload Video
-            </Button>
-          )}
+              } else {
+                recordState.uploadVideo();
+              }
+            }}
+            style={{ marginRight: 15 }}
+          >
+            {isUploading
+              ? "Cancel"
+              : isTrimming
+              ? "Trim Video"
+              : "Upload Video"}
+          </Button>
         </div>
       </div>
     </div>
