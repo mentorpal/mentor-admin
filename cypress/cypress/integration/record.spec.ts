@@ -30,6 +30,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
+import { createImmediatelyInvokedFunctionExpression } from "typescript";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -2259,6 +2260,65 @@ describe("Record", () => {
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
     cy.get("[data-cy=trim-video]").should("not.exist");
+  });
+
+  it("guide silhouette should be visible while trimming a video", () => {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    ).set;
+    cySetup(cy);
+    cyMockUpload(cy);
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL(
+          "uploadTasks",
+          [
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "DONE",
+                transcript: "My name is Clint Anderson",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "video.mp4",
+                  },
+                ],
+              },
+            ],
+          ],
+          true
+        ),
+      ],
+    });
+    cy.intercept("**/videos/mentors/*/*.mp4", { fixture: "video.mp4" });
+    cy.visit("/record");
+    cy.fixture("video.mp4").then((fileContent) => {
+      cy.get('input[type="file"]').attachFile({
+        fileContent: fileContent.toString(),
+        fileName: "video.mp4",
+        mimeType: "video/mp4",
+      });
+    });
+    cy.get("[data-cy=outline]").should("not.be.visible");
+    cy.get("[data-cy=slider]")
+      .invoke("mouseover")
+      .trigger("mousedown", { button: 0 });
+    cy.get("[data-cy=outline]").should("be.visible");
   });
 
   it("progress bars shown for each upload task", () => {

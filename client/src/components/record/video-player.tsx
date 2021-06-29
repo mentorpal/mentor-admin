@@ -17,6 +17,7 @@ import {
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
+import overlay from "images/face-position-white.png";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -25,6 +26,7 @@ function VideoPlayer(props: {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
+  const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { classes, recordState } = props;
@@ -78,6 +80,7 @@ function VideoPlayer(props: {
   }
 
   function onUpdateTrim(value: number | number[]): void {
+    if (!trimInProgress) setTrimInProgress(true);
     if (!Array.isArray(value) || !reactPlayerRef?.current) {
       return;
     }
@@ -176,6 +179,25 @@ function VideoPlayer(props: {
                 : "inherit",
             }}
           />
+          <div
+            data-cy="outline"
+            className={classes.overlay}
+            style={{
+              width: width,
+              height: height,
+              position: "absolute",
+              top: 25,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              opacity: recordState.isRecording ? 0.5 : 0.75,
+              visibility: trimInProgress ? "visible" : "hidden",
+              backgroundImage: `url(${overlay})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+            }}
+          />
         </div>
         <Slider
           data-cy="slider"
@@ -184,6 +206,9 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
+          onChangeCommitted={() => {
+            setTrimInProgress(false);
+          }}
           disabled={recordState.curAnswer?.isUploading}
           style={{
             visibility: recordState.curAnswer?.videoSrc ? "visible" : "hidden",
