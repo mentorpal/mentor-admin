@@ -192,7 +192,16 @@ function VideoPlayer(props: {
         </div>
         <Slider
           data-cy="slider"
-          valueLabelDisplay="auto"
+          valueLabelDisplay="on"
+          valueLabelFormat={(x) => {
+            if (!isFinite(videoLength)) {
+              return x;
+            }
+            const seconds = (x / 100) * videoLength;
+            const date = new Date(0);
+            date.setSeconds(seconds);
+            return date.toISOString().substr(15, 4);
+          }}
           aria-labelledby="range-slider"
           getAriaValueText={sliderText}
           value={trim}
