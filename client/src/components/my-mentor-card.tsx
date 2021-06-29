@@ -157,14 +157,15 @@ const StageSelect = (value: number) => {
       max: value,
     },
   ];
-  const currentStage = stages.find((stage) => {
+  let currentStage = stages.find((stage) => {
     return stage.max - 1 >= value;
   });
+  if (!currentStage) currentStage = stages[0];
   return {
     ...currentStage,
     ...{
-      next: stages[currentStage!.index + 1],
-      percent: Math.round((value / currentStage!.max) * 100),
+      next: stages[currentStage.index + 1],
+      percent: Math.round((value / currentStage.max) * 100),
     },
   };
 };
@@ -225,9 +226,10 @@ export default function MyMentorCard(props: {
                 data-cy="upload-file"
                 type="file"
                 accept="image/*"
-                onChange={(e) =>
-                  uploadThumbnail(props.mentorId, e!.target!.files![0])
-                }
+                onChange={(e) => {
+                  if (e.target.files)
+                    uploadThumbnail(props.mentorId, e.target.files[0]);
+                }}
               />
             </Box>
             <Box
@@ -242,14 +244,14 @@ export default function MyMentorCard(props: {
                 color="textSecondary"
                 data-cy="mentor-card-scope"
               >
-                Scope: {currentStage!.name}
+                Scope: {currentStage.name}
               </Typography>
               <Typography
                 variant="body1"
                 color="textSecondary"
                 data-cy="mentor-card-scope-description"
               >
-                {currentStage!.description}
+                {currentStage.description}
               </Typography>
               {props.type ? (
                 <Typography
@@ -281,15 +283,15 @@ export default function MyMentorCard(props: {
             </Box>
             <Box width="33%" alignItems="center" ml={2} textAlign="left">
               <Typography variant="body1" color="textSecondary">
-                Next Goal: {currentStage!.next!.name}
+                Next Goal: {currentStage.next.name}
                 {"   "}
                 <Tooltip
                   title={
                     <React.Fragment>
                       <Typography color="inherit">
-                        {currentStage!.next!.name}
+                        {currentStage.next.name}
                       </Typography>
-                      {currentStage!.next!.description}
+                      {currentStage.next.description}
                     </React.Fragment>
                   }
                   data-cy="next-stage-info"
@@ -298,11 +300,11 @@ export default function MyMentorCard(props: {
                 </Tooltip>
               </Typography>
 
-              {currentStage!.floor != 1000 && (
+              {currentStage.floor != 1000 && (
                 <StageProgress
                   value={props.value}
-                  max={currentStage!.max || 0}
-                  percent={currentStage!.percent || 0}
+                  max={currentStage.max || 0}
+                  percent={currentStage.percent || 0}
                 />
               )}
             </Box>
@@ -312,8 +314,8 @@ export default function MyMentorCard(props: {
 
       <StageToast
         value={props.value}
-        floor={currentStage!.floor!}
-        name={currentStage!.name!}
+        floor={currentStage.floor}
+        name={currentStage.name}
       />
     </div>
   );

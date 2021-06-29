@@ -185,7 +185,7 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={() => startTraining(mentor!._id)}
+            onClick={() => startTraining(mentor._id)}
             className={classes.fab}
           >
             Build Mentor

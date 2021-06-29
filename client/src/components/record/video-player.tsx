@@ -218,7 +218,9 @@ function VideoPlayer(props: {
               onClick={() => {
                 !recordState.curAnswer?.isUploading
                   ? recordState.uploadVideo()
-                  : recordState.cancelUpload(upload!);
+                  : upload
+                  ? recordState.cancelUpload(upload)
+                  : undefined;
               }}
               style={{ marginRight: 15 }}
             >
