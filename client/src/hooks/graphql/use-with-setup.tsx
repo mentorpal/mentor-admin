@@ -24,6 +24,7 @@ export enum SetupStepType {
   MENTOR_TYPE,
   INTRODUCTION,
   SELECT_SUBJECTS,
+  IDLE_TIPS,
   IDLE,
   REQUIRED_SUBJECT,
   BUILD,
@@ -155,6 +156,7 @@ export function useWithSetup(
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
     ];
     if (idle) {
+      status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
       status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
     requiredSubjects.forEach((s) => {

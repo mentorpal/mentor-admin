@@ -18,6 +18,7 @@ import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
 import { RecordIdleSlide } from "components/setup/record-idle-slide";
+import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { BuildMentorSlide } from "components/setup/build-mentor-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -139,6 +140,8 @@ function SetupPage(props: {
         return <IntroductionSlide key="introduction" classes={classes} />;
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
+      case SetupStepType.IDLE_TIPS:
+        return <IdleTipsSlide classes={classes} />;
       case SetupStepType.IDLE:
         return (
           <RecordIdleSlide
