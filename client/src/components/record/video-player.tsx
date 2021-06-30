@@ -4,7 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import {
@@ -13,10 +17,10 @@ import {
   CircularProgress,
   Typography,
 } from "@material-ui/core";
-
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
+import overlay from "images/face-position-white.png";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -25,6 +29,7 @@ function VideoPlayer(props: {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
+  const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { classes, recordState } = props;
@@ -40,12 +45,10 @@ function VideoPlayer(props: {
     (u) => u.question._id === recordState.curAnswer?.answer.question._id
   );
   const cancelling = upload ? upload.isCancelling : false;
-
   React.useEffect(() => {
     setVideoLength(0);
     setTrim([0, 100]);
   }, [recordState.curAnswer?.videoSrc, recordState.curAnswer?.answer._id]);
-
   function sliderToVideoDuration(): number[] | undefined {
     if (!reactPlayerRef?.current) {
       return undefined;
@@ -58,7 +61,6 @@ function VideoPlayer(props: {
     const endTime = (trim[1] / 100) * videoLength;
     return [startTime, endTime];
   }
-
   function sliderText(value: number, index: number): string {
     const duration = sliderToVideoDuration();
     if (!duration) {
@@ -66,7 +68,6 @@ function VideoPlayer(props: {
     }
     return new Date(duration[index] * 1000).toISOString().substr(14, 5);
   }
-
   function onVideoProgress(state: { played: number }): void {
     if (!reactPlayerRef?.current) {
       return;
@@ -78,6 +79,7 @@ function VideoPlayer(props: {
   }
 
   function onUpdateTrim(value: number | number[]): void {
+    if (!trimInProgress) setTrimInProgress(true);
     if (!Array.isArray(value) || !reactPlayerRef?.current) {
       return;
     }
@@ -87,7 +89,6 @@ function VideoPlayer(props: {
       setTrim(value);
     }
   }
-
   return (
     <div
       className={classes.block}
@@ -176,6 +177,25 @@ function VideoPlayer(props: {
                 : "inherit",
             }}
           />
+          <div
+            data-cy="outline"
+            className={classes.overlay}
+            style={{
+              width: width,
+              height: height,
+              position: "absolute",
+              top: 25,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              opacity: recordState.isRecording ? 0.5 : 0.75,
+              visibility: trimInProgress ? "visible" : "hidden",
+              backgroundImage: `url(${overlay})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
+            }}
+          />
         </div>
         <Slider
           data-cy="slider"
@@ -184,6 +204,9 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
+          onChangeCommitted={() => {
+            setTrimInProgress(false);
+          }}
           disabled={recordState.curAnswer?.isUploading}
           style={{
             visibility: recordState.curAnswer?.videoSrc ? "visible" : "hidden",
@@ -218,7 +241,9 @@ function VideoPlayer(props: {
               onClick={() => {
                 !recordState.curAnswer?.isUploading
                   ? recordState.uploadVideo()
-                  : recordState.cancelUpload(upload!);
+                  : upload
+                  ? recordState.cancelUpload(upload)
+                  : undefined;
               }}
               style={{ marginRight: 15 }}
             >
@@ -249,5 +274,4 @@ function VideoPlayer(props: {
     </div>
   );
 }
-
 export default VideoPlayer;
