@@ -425,7 +425,9 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={() => startTraining(mentor!._id)}
+              onClick={() => {
+                if (mentor) startTraining(mentor._id);
+              }}
               disabled={isTraining || isMentorLoading || isFeedbackLoading}
             >
               Train Mentor
