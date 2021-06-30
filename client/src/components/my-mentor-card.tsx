@@ -14,6 +14,7 @@ import {
   Tooltip,
   Avatar,
   CircularProgress,
+  Button,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
@@ -175,6 +176,7 @@ export default function MyMentorCard(props: {
   title: string;
   lastTrainedAt: string;
   value: number;
+  atHome: boolean;
   thumbnail: string;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
@@ -184,10 +186,15 @@ export default function MyMentorCard(props: {
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
         <CardContent>
-          <Box display="flex" width="100%" alignItems="center">
+          <Box
+            display="flex"
+            width="100%"
+            alignItems="center"
+            flexDirection="row"
+          >
             <Box alignItems="center">
               <Typography
-                variant="h3"
+                variant={props.atHome ? "h3" : "h4"}
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
@@ -221,91 +228,108 @@ export default function MyMentorCard(props: {
                   />
                 )}
               </Box>
-              <input
-                data-cy="upload-file"
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  uploadThumbnail(props.mentorId, e!.target!.files![0])
-                }
-              />
-            </Box>
-            <Box
-              width="33%"
-              minWidth={140}
-              alignItems="center"
-              ml={2}
-              textAlign="left"
-            >
-              <Typography
-                variant="h6"
-                color="textSecondary"
-                data-cy="mentor-card-scope"
-              >
-                Scope: {currentStage!.name}
-              </Typography>
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                data-cy="mentor-card-scope-description"
-              >
-                {currentStage!.description}
-              </Typography>
-              {props.type ? (
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  data-cy="mentor-card-type"
-                >
-                  {props.type[0].toUpperCase() +
-                    props.type.slice(1).toLowerCase()}{" "}
-                  Mentor
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  data-cy="mentor-card-type"
-                >
-                  Invalid Mentor
-                </Typography>
-              )}
-
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                data-cy="mentor-card-trained"
-              >
-                Last Trained: {props.lastTrainedAt.substring(0, 10)}
-              </Typography>
-            </Box>
-            <Box width="33%" alignItems="center" ml={2} textAlign="left">
-              <Typography variant="body1" color="textSecondary">
-                Next Goal: {currentStage!.next!.name}
-                {"   "}
-                <Tooltip
-                  title={
-                    <React.Fragment>
-                      <Typography color="inherit">
-                        {currentStage!.next!.name}
-                      </Typography>
-                      {currentStage!.next!.description}
-                    </React.Fragment>
+              {props.atHome && (
+                <input
+                  data-cy="upload-file"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    uploadThumbnail(props.mentorId, e!.target!.files![0])
                   }
-                  data-cy="next-stage-info"
-                >
-                  <HelpOutline fontSize="small" />
-                </Tooltip>
-              </Typography>
-
-              {currentStage!.floor != 1000 && (
-                <StageProgress
-                  value={props.value}
-                  max={currentStage!.max || 0}
-                  percent={currentStage!.percent || 0}
                 />
               )}
             </Box>
+            <Box
+              width={props.atHome ? "40%" : "60%"}
+              flexDirection={props.atHome ? "row" : "column"}
+            >
+              <Box
+                width={props.atHome ? "50%" : "100%"}
+                minWidth={140}
+                alignItems="center"
+                ml={2}
+                textAlign="left"
+              >
+                <Typography
+                  variant="h6"
+                  color="textSecondary"
+                  data-cy="mentor-card-scope"
+                >
+                  Scope: {currentStage!.name}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  data-cy="mentor-card-scope-description"
+                >
+                  {currentStage!.description}
+                </Typography>
+                {props.type ? (
+                  <Typography
+                    variant="h6"
+                    color="textSecondary"
+                    data-cy="mentor-card-type"
+                  >
+                    {props.type[0].toUpperCase() +
+                      props.type.slice(1).toLowerCase()}{" "}
+                    Mentor
+                  </Typography>
+                ) : (
+                  <Typography
+                    variant="h6"
+                    color="textSecondary"
+                    data-cy="mentor-card-type"
+                  >
+                    Invalid Mentor
+                  </Typography>
+                )}
+
+                <Typography
+                  variant="body1"
+                  color="textSecondary"
+                  data-cy="mentor-card-trained"
+                >
+                  Last Trained: {props.lastTrainedAt.substring(0, 10)}
+                </Typography>
+              </Box>
+              <Box
+                width={props.atHome ? "50%" : "100%"}
+                alignItems="center"
+                ml={2}
+                textAlign="left"
+              >
+                <Typography variant="body1" color="textSecondary">
+                  Next Goal: {currentStage!.next!.name}
+                  {"   "}
+                  <Tooltip
+                    title={
+                      <React.Fragment>
+                        <Typography color="inherit">
+                          {currentStage!.next!.name}
+                        </Typography>
+                        {currentStage!.next!.description}
+                      </React.Fragment>
+                    }
+                    data-cy="next-stage-info"
+                  >
+                    <HelpOutline fontSize="small" />
+                  </Tooltip>
+                </Typography>
+
+                {currentStage!.floor != 1000 && (
+                  <StageProgress
+                    value={props.value}
+                    max={currentStage!.max || 0}
+                    percent={currentStage!.percent || 0}
+                  />
+                )}
+              </Box>
+            </Box>
+            {props.atHome && (
+              <Box>
+                <Button>Bash</Button>
+              </Box>
+            )}
           </Box>
         </CardContent>
       </Card>
@@ -323,5 +347,5 @@ MyMentorCard.propTypes = {
   mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
-  thumbnail: PropTypes.string.isRequired,
+  atHome: PropTypes.bool.isRequired,
 };
