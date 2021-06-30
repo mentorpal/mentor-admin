@@ -710,6 +710,27 @@ export async function loginGoogle(
   return result.data.data.loginGoogle;
 }
 
+export async function fetchFollowUpQuestions(
+  accessToken: string
+): Promise<string[]> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+        query {
+          me {
+            followUpQuestions {
+              questions
+            }
+          }
+        }`,
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.followUpQuestions[0].questions;
+}
+
 export async function fetchUploadTasks(
   accessToken: string
 ): Promise<UploadTask[]> {

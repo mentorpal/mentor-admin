@@ -37,8 +37,10 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { fetchMentor } from "api";
+import { fetchMentor, fetchFollowUpQuestions } from "api";
 import MyMentorCard from "components/my-mentor-card";
+import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
+import { useEffect } from "react";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -113,6 +115,14 @@ function RecordPage(props: {
   const { curAnswer, mentor } = recordState;
   const [recordSession, setRecordSesssion] = useState(true);
   const [editedMentor, setEditedMentor] = useState(mentor);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [recordFollowUpQs, setRecordFollowUpQs] = useState(false);
+
+  useEffect(()=>{
+    fetchFollowUpQuestions(props.accessToken).then(data =>{
+      setFollowUpQuestions(data);
+    })
+  },[recordSession])
 
   function onBack() {
     if (props.search.back) {
@@ -333,7 +343,7 @@ function RecordPage(props: {
         </div>
       ) : (
         <div>
-          <Box height="100%" width="50%">
+          <Box height="100%" width="50%" style={{float:"left"}}>
             <MyMentorCard
               mentorId={editedMentor?._id || ""}
               name={editedMentor?.name || "Unnamed"}
@@ -348,7 +358,10 @@ function RecordPage(props: {
               atHome={false}
             />
           </Box>
-          {/* Aaron: Your component can go here */}
+          
+          <Box height="100%" width="50%" style={{float:"right"}}>
+            <FollowUpQuestionsWidget questions={followUpQuestions} setRecordFollowUpQs={setRecordFollowUpQs} />
+          </Box>
         </div>
       )}
       <div className={classes.toolbar} />
@@ -397,18 +410,29 @@ function RecordPage(props: {
                 <ArrowForwardIcon fontSize="large" />
               </IconButton>
             )
-          ) : (
+          ) : recordFollowUpQs ? (
             <Button
-              data-cy="done-btn"
+              data-cy="record-follow-up-qs-btn"
               variant="contained"
               color="primary"
               disableElevation
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
-              Done
+              Next
             </Button>
-          )}
+          ) : 
+          <Button
+          data-cy="done-btn"
+          variant="contained"
+          color="primary"
+          disableElevation
+          onClick={() => switchAnswer(onBack)}
+          className={classes.nextBtn}
+        >
+          Done
+        </Button>
+          }
         </Toolbar>
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
