@@ -8,6 +8,7 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
   AppBar,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -331,18 +332,24 @@ function RecordPage(props: {
           </div>
         </div>
       ) : (
-        <MyMentorCard
-          mentorId={editedMentor?._id || ""}
-          name={editedMentor?.name || "Unnamed"}
-          type={editedMentor?.mentorType}
-          title={editedMentor?.title || "none"}
-          lastTrainedAt={editedMentor?.lastTrainedAt || "never"}
-          value={
-            editedMentor?.answers.filter((a) => a.status === "COMPLETE")
-              .length || 0
-          }
-          thumbnail={editedMentor?.thumbnail || ""}
-        />
+        <div>
+          <Box height="100%" width="50%">
+            <MyMentorCard
+              mentorId={editedMentor?._id || ""}
+              name={editedMentor?.name || "Unnamed"}
+              type={editedMentor?.mentorType}
+              title={editedMentor?.title || "none"}
+              lastTrainedAt={editedMentor?.lastTrainedAt || "never"}
+              value={
+                editedMentor?.answers.filter((a) => a.status === "COMPLETE")
+                  .length || 0
+              }
+              thumbnail={editedMentor?.thumbnail || ""}
+              atHome={false}
+            />
+          </Box>
+          {/* Aaron: Your component can go here */}
+        </div>
       )}
       <div className={classes.toolbar} />
 

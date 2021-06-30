@@ -116,6 +116,7 @@ function HomePage(props: {
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
           thumbnail={mentor?.thumbnail || ""}
+          atHome={true}
         />
         <Select
           data-cy="select-subject"
