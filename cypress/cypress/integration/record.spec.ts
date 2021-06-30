@@ -559,6 +559,47 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
     });
   });
+  describe("Recording Session Ending Page", () => {
+    it("Done Button after recording sessions leads to page containing Mentor Progress Card", () => {
+      cySetup(cy);
+      cyMockDefault(cy, { mentor: chatMentor });
+      cy.visit("/record?subject=background");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=stage-card]").should("exist");
+    });
+  });
 
   //START of new tests
   it("When an upload finishes on record page, should redirect user to video page", () => {
