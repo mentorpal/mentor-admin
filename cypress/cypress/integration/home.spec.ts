@@ -165,6 +165,17 @@ describe("Review answers page", () => {
     cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
   });
 
+  it("dropdown should expand when question is added", () => {
+    cySetup(cy);
+    clint.answers[4].status = Status.COMPLETE;
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit("/");
+    cy.get("[data-cy=answer-0]").should("not.exist");
+    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
+    cy.get("[data-cy=answer-0]").first().should("exist");
+    cy.get("[data-cy=answer-0]").first().should("be.visible");
+  });
+
   it("does not show progress bar at maxed level", () => {
     cySetup(cy);
     clint.answers = [
