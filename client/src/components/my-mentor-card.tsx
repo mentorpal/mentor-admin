@@ -229,13 +229,17 @@ export default function MyMentorCard(props: {
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  uploadThumbnail(props.mentorId, e!.target!.files![0]).then(
-                    () => {
-                      fetchThumbnail(props.accessToken).then((src) => {
-                        setThumbnail(src);
-                      });
-                    }
-                  );
+                  e.target.files instanceof FileList
+                    ? uploadThumbnail(props.mentorId, e.target.files[0]).then(
+                        () => {
+                          fetchThumbnail(props.accessToken).then(
+                            (src: string) => {
+                              setThumbnail(src);
+                            }
+                          );
+                        }
+                      )
+                    : undefined;
                 }}
               />
             </Box>
