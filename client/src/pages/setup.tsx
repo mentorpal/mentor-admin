@@ -140,14 +140,16 @@ function SetupPage(props: {
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
       case SetupStepType.IDLE:
-        return (
-          <RecordIdleSlide
-            key="idle"
-            classes={classes}
-            idle={status.idle!.idle}
-            i={idx}
-          />
-        );
+        if (status.idle)
+          return (
+            <RecordIdleSlide
+              key="idle"
+              classes={classes}
+              idle={status.idle.idle}
+              i={idx}
+            />
+          );
+        else return <div />;
       case SetupStepType.REQUIRED_SUBJECT:
         return (
           <RecordSubjectSlide
