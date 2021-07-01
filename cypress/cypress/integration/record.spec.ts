@@ -2014,7 +2014,7 @@ describe("Record", () => {
         ),
       ],
     });
-    cy.visit("/record")
+    cy.visit("/record");
     cy.get("[data-cy=upload-card-0]").should("exist");
     cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
