@@ -20,8 +20,7 @@ import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
-import { fetchThumbnail, uploadThumbnail } from "api";
-import { useState } from "react";
+import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -174,7 +173,11 @@ export default function MyMentorCard(props: {
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const [thumbnail, setThumbnail] = useState(props.thumbnail);
+  const [thumbnail, updateThumbnail] = useWithThumbnail(
+    props.mentorId,
+    props.accessToken,
+    props.thumbnail
+  );
   const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
@@ -231,15 +234,7 @@ export default function MyMentorCard(props: {
                 accept="image/*"
                 onChange={(e) => {
                   e.target.files instanceof FileList
-                    ? uploadThumbnail(props.mentorId, e.target.files[0]).then(
-                        () => {
-                          fetchThumbnail(props.accessToken).then(
-                            (src: string) => {
-                              setThumbnail(src);
-                            }
-                          );
-                        }
-                      )
+                    ? updateThumbnail(e.target.files[0])
                     : undefined;
                 }}
               />
