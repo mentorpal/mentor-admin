@@ -687,12 +687,12 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     });
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("p")
@@ -1349,27 +1349,27 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").should(
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").should(
       "have.css",
       "background-color",
       "rgb(255, 251, 204)"
     );
-    cy.get("[data-cy=upload-card-1").should("exist");
-    cy.get("[data-cy=upload-card-1").should(
+    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=upload-card-1]").should(
       "have.css",
       "background-color",
       "rgba(0, 0, 0, 0)"
     );
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").should(
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").should(
       "have.css",
       "background-color",
       "rgba(0, 0, 0, 0)"
     );
-    cy.get("[data-cy=upload-card-1").should("exist");
-    cy.get("[data-cy=upload-card-1").should(
+    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=upload-card-1]").should(
       "have.css",
       "background-color",
       "rgb(255, 251, 204)"
@@ -1440,8 +1440,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-1").should("exist");
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-1]").should("exist");
   });
 
   it("uploading widget should not be open if there are no uploads", () => {
@@ -1643,8 +1643,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-1").should("exist");
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-1]").should("exist");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=upload-card-0]").within(($i) => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
@@ -1952,7 +1952,7 @@ describe("Record", () => {
     );
   });
 
-  it("displays status info for each job: Uploading, Completed, Failed", () => {
+  it.only("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -2014,9 +2014,9 @@ describe("Record", () => {
         ),
       ],
     });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.visit("/record")
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -2025,8 +2025,8 @@ describe("Record", () => {
         .get("p")
         .should("have.text", "Trimming video");
     });
-    cy.get("[data-cy=upload-card-1").should("exist");
-    cy.get("[data-cy=upload-card-1").within(($within) => {
+    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=upload-card-1]").within(($within) => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -2035,8 +2035,8 @@ describe("Record", () => {
         .get("p")
         .should("have.text", "Upload Failed");
     });
-    cy.get("[data-cy=upload-card-2").should("exist");
-    cy.get("[data-cy=upload-card-2").within(($within) => {
+    cy.get("[data-cy=upload-card-2]").should("exist");
+    cy.get("[data-cy=upload-card-2]").within(($within) => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -2096,7 +2096,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
+    cy.get("[data-cy=upload-card-0]").should("exist");
     cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
     cy.get("[data-cy=upload-card-0]").within(($within) => {
@@ -2332,8 +2332,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0").should("exist");
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -2342,7 +2342,7 @@ describe("Record", () => {
         .invoke("attr", "aria-valuenow")
         .should("eq", "0");
     });
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -2351,7 +2351,7 @@ describe("Record", () => {
         .invoke("attr", "aria-valuenow")
         .should("eq", "50");
     });
-    cy.get("[data-cy=upload-card-0").within(($within) => {
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
