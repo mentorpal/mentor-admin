@@ -87,7 +87,7 @@ function VideoPlayer(props: {
       setTrim(value);
     }
   }
-  
+
   return (
     <div
       className={classes.block}

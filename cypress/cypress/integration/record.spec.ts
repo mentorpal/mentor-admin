@@ -1933,7 +1933,7 @@ describe("Record", () => {
     );
   });
 
-  it.only("displays status info for each job: Uploading, Completed, Failed", () => {
+  it("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -2528,17 +2528,6 @@ describe("Record", () => {
       cy.get("[data-cy=transcript-input]").within(($input) => {
         cy.get("textarea").should("have.text", "My name is Clint Anderson");
       });
-    });
-    // show video
-    cy.get("[data-cy=video-player]").should("be.visible");
-    cy.get("[data-cy=rerecord-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=slider]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    // upload video
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "My name is Clint Anderson");
     });
   });
 });
