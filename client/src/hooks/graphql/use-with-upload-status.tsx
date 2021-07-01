@@ -73,7 +73,7 @@ export function useWithUploadStatus(
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
         deleteUploadTask(u.question._id, accessToken).catch((error) => {
-          console.log(error);
+          console.error(error);
         });
       }
     });

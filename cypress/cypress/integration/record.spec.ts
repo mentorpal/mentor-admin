@@ -1109,45 +1109,10 @@ describe("Record", () => {
         mockGQL("uploadTaskDelete", true, true),
         mockGQL("updateAnswer", true, true),
         mockGQL("updateQuestion", true, true),
-        mockGQL(
-          "uploadTasks",
-          [
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-              },
-            ],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-          ],
-          true
-        ),
+        mockGQL("uploadTasks", [[]], true),
       ],
     });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
-    // finish uploading
+    cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-cy=upload-video]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");

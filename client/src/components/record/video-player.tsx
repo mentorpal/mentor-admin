@@ -264,4 +264,5 @@ function VideoPlayer(props: {
     </div>
   );
 }
+
 export default VideoPlayer;
