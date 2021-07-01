@@ -132,15 +132,7 @@ describe("Review answers page", () => {
     clint.thumbnail = "url";
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    /* uncomment when graphql is available */
-    // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
-    // cy.fixture('avatar.png').then((fileContent) => {
-    //   cy.get('input[type="file"]').attachFile({
-    //     fileContent: fileContent.toString(),
-    //     fileName: 'avatar.png',
-    //     mimeType: 'avatr.png',
-    //   });
-    // });
+
     cy.get("[data-cy=uploaded-thumbnail]").should("exist");
   });
   it("does not show toast on incomplete level", () => {
