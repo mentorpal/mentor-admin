@@ -19,7 +19,8 @@ import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
-import { uploadThumbnail } from "api";
+import { fetchThumbnail, uploadThumbnail } from "api";
+import { useState } from "react";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -83,8 +84,8 @@ StageProgress.propTypes = {
 };
 const useStyles = makeStyles(() => ({
   avatar: {
-    width: "100%",
-    height: "100%",
+    width: 240,
+    height: 180,
   },
   square: {
     position: "relative",
@@ -169,6 +170,7 @@ const StageSelect = (value: number) => {
   };
 };
 export default function MyMentorCard(props: {
+  accessToken: string;
   mentorId: string;
   name: string;
   type: MentorType | undefined;
@@ -179,7 +181,8 @@ export default function MyMentorCard(props: {
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const thumbnailAvailable = props.thumbnail !== "";
+  const [thumbnail, setThumbnail] = useState(props.thumbnail);
+  const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
@@ -209,9 +212,9 @@ export default function MyMentorCard(props: {
                 {thumbnailAvailable ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
-                    variant="square"
+                    variant="rounded"
                     className={classes.avatar}
-                    src={props.thumbnail}
+                    src={thumbnail}
                   />
                 ) : (
                   <Avatar
@@ -225,9 +228,15 @@ export default function MyMentorCard(props: {
                 data-cy="upload-file"
                 type="file"
                 accept="image/*"
-                onChange={(e) =>
-                  uploadThumbnail(props.mentorId, e!.target!.files![0])
-                }
+                onChange={(e) => {
+                  uploadThumbnail(props.mentorId, e!.target!.files![0]).then(
+                    () => {
+                      fetchThumbnail(props.accessToken).then((src) => {
+                        setThumbnail(src);
+                      });
+                    }
+                  );
+                }}
               />
             </Box>
             <Box
