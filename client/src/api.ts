@@ -621,6 +621,7 @@ export async function uploadThumbnail(
   });
   return result.data.data;
 }
+
 export async function uploadVideo(
   mentorId: string,
   video: File,
