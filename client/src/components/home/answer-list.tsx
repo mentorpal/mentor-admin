@@ -86,7 +86,10 @@ function AnswerList(props: {
                 variant="outlined"
                 startIcon={<AddIcon />}
                 className={classes.button}
-                onClick={onAddQuestion}
+                onClick={() => {
+                  onAddQuestion();
+                  setExpanded(true);
+                }}
               >
                 Question
               </Button>
