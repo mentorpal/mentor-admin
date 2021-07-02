@@ -348,10 +348,12 @@ export function ProgressCard(props: {
   title: string;
   lastTrainedAt: string;
   value: number;
+  start: number;
   thumbnail: string;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
+  const difference = props.value - props.start;
 
   return (
     <Card data-cy="progress-card">
@@ -478,8 +480,22 @@ export function ProgressCard(props: {
               />
             )}
           </Grid>
-          <Grid item={true} alignItems="center" xs={12} md={6}>
-            <Typography>you edited some questions this session</Typography>
+          <Grid
+            item={true}
+            alignItems="center"
+            xs={12}
+            md={6}
+            data-cy="modified-questions"
+          >
+            {difference < 0 ? (
+              <Typography>
+                You removed {-1 * difference} questions this session.
+              </Typography>
+            ) : (
+              <Typography>
+                You added {difference} questions this session.
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </CardContent>

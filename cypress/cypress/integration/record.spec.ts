@@ -19,6 +19,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
+import mentor from "../fixtures/mentor/clint_home";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -540,8 +541,7 @@ describe("Record", () => {
     });
   });
   describe("Recording Session Ending Page", () => {
-    it("Done Button after recording sessions leads to page containing Mentor Progress Card", () => {
-      cySetup(cy);
+    it("Done Button after recording sessions leads to page containing Session Progress Card", () => {
       cyMockDefault(cy, { mentor: chatMentor });
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
@@ -578,6 +578,46 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
       cy.get("[data-cy=progress-card]").should("exist");
+    });
+    it("Session Progress Card shows how many questions were added or removed", () => {
+      cyMockDefault(cy, { mentor: chatMentor });
+      cy.visit("/record?subject=background");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=progress-card]").should("exist");
+      cy.get("[data-cy=modified-questions]").contains(
+        "You added 0 questions this session."
+      );
     });
   });
 

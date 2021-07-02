@@ -357,6 +357,10 @@ function RecordPage(props: {
                 editedMentor?.answers.filter((a) => a.status === "COMPLETE")
                   .length || 0
               }
+              start={
+                mentor?.answers.filter((a) => a.status === "COMPLETE").length ||
+                0
+              }
               thumbnail={editedMentor?.thumbnail || ""}
             />
           </Grid>
