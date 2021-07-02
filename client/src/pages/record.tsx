@@ -8,13 +8,13 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
   AppBar,
-  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   FormControl,
+  Grid,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -38,7 +38,7 @@ import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
 import { fetchMentor } from "api";
-import MyMentorCard from "components/my-mentor-card";
+import { ProgressCard } from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -332,9 +332,22 @@ function RecordPage(props: {
           </div>
         </div>
       ) : (
-        <div>
-          <Box height="100%" width="50%">
-            <MyMentorCard
+        <Grid
+          xs={12}
+          container
+          spacing={2}
+          alignItems="center"
+          justify="center"
+        >
+          <Grid
+            xs={12}
+            md={6}
+            item
+            spacing={2}
+            alignItems="center"
+            justify="center"
+          >
+            <ProgressCard
               mentorId={editedMentor?._id || ""}
               name={editedMentor?.name || "Unnamed"}
               type={editedMentor?.mentorType}
@@ -345,11 +358,12 @@ function RecordPage(props: {
                   .length || 0
               }
               thumbnail={editedMentor?.thumbnail || ""}
-              atHome={false}
             />
-          </Box>
-          {/* Aaron: Your component can go here */}
-        </div>
+          </Grid>
+          <Grid xs={12} md={6} item spacing={2}>
+            {/* Aaron: Your component can go here */}
+          </Grid>
+        </Grid>
       )}
       <div className={classes.toolbar} />
 

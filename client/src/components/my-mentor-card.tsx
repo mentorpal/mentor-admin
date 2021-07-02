@@ -82,9 +82,13 @@ StageProgress.propTypes = {
   percent: PropTypes.number.isRequired,
 };
 const useStyles = makeStyles(() => ({
-  avatar: {
+  homeThumbnail: {
     width: 240,
     height: 180,
+  },
+  siteThumbnail: {
+    width: 180,
+    height: 135,
   },
 }));
 const StageSelect = (value: number) => {
@@ -160,7 +164,7 @@ const StageSelect = (value: number) => {
     },
   };
 };
-export default function MyMentorCard(props: {
+export function MyMentorCard(props: {
   accessToken: string;
   mentorId: string;
   name: string;
@@ -182,10 +186,10 @@ export default function MyMentorCard(props: {
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
         <CardContent>
-          <Grid alignItems="center" container={true} xs={12}>
+          <Grid alignItems="center" container xs={12}>
             <Grid
-              item={true}
-              container={true}
+              item
+              container
               alignItems="center"
               justify="center"
               xs={12}
@@ -216,14 +220,14 @@ export default function MyMentorCard(props: {
                   <Avatar
                     data-cy="uploaded-thumbnail"
                     variant="rounded"
-                    className={classes.avatar}
+                    className={classes.homeThumbnail}
                     src={thumbnail}
                   />
                 ) : (
                   <Avatar
                     data-cy="placeholder-thumbnail"
                     variant="square"
-                    className={classes.avatar}
+                    className={classes.homeThumbnail}
                   />
                 )}
               </Grid>
@@ -238,7 +242,7 @@ export default function MyMentorCard(props: {
                 }}
               />
             </Grid>
-            <Grid item={true} alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={4}>
               <Typography
                 variant="h6"
                 color="textSecondary"
@@ -286,7 +290,7 @@ export default function MyMentorCard(props: {
                 Last Trained: {props.lastTrainedAt.substring(0, 10)}
               </Typography>
             </Grid>
-            <Grid item={true} alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={4}>
               <Typography variant="body1" color="textSecondary">
                 Next Goal: {currentStage.next.name}
                 {"   "}
@@ -316,7 +320,6 @@ export default function MyMentorCard(props: {
           </Grid>
         </CardContent>
       </Card>
-
       <StageToast
         value={props.value}
         floor={currentStage.floor}
@@ -326,7 +329,160 @@ export default function MyMentorCard(props: {
   );
 }
 
+export function ProgressCard(props: {
+  mentorId: string;
+  name: string;
+  type: MentorType | undefined;
+  title: string;
+  lastTrainedAt: string;
+  value: number;
+  thumbnail: string;
+}): JSX.Element {
+  const currentStage = StageSelect(props.value);
+  const classes = useStyles();
+
+  return (
+    <Card>
+      <CardContent>
+        <Grid alignItems="center" container={true} xs={12} spacing={2}>
+          <Grid
+            item={true}
+            container={true}
+            alignItems="center"
+            justify="center"
+            xs={12}
+            md={6}
+          >
+            <Typography
+              variant="h5"
+              color="textSecondary"
+              data-cy="mentor-card-name"
+            >
+              {props.name}
+            </Typography>
+            <Typography
+              variant="h6"
+              color="textSecondary"
+              data-cy="mentor-card-info"
+            >
+              Title: {props.title}
+            </Typography>
+            <Grid
+              justify="center"
+              alignItems="center"
+              data-cy="thumbnail-wrapper"
+              item
+              xs={10}
+            >
+              {props.thumbnail != "" ? (
+                <Avatar
+                  data-cy="uploaded-thumbnail"
+                  variant="rounded"
+                  className={classes.siteThumbnail}
+                  src={props.thumbnail}
+                />
+              ) : (
+                <Avatar
+                  data-cy="placeholder-thumbnail"
+                  variant="square"
+                  className={classes.siteThumbnail}
+                />
+              )}
+            </Grid>
+          </Grid>
+          <Grid item={true} alignItems="center" xs={6}>
+            <Typography
+              variant="h6"
+              color="textSecondary"
+              align="left"
+              data-cy="mentor-card-scope"
+            >
+              Scope: {currentStage.name}
+            </Typography>
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="left"
+              data-cy="mentor-card-scope-description"
+            >
+              {currentStage.description}
+            </Typography>
+            {props.type ? (
+              <Typography
+                variant="h6"
+                color="textSecondary"
+                align="left"
+                data-cy="mentor-card-type"
+              >
+                {props.type[0].toUpperCase() +
+                  props.type.slice(1).toLowerCase()}{" "}
+                Mentor
+              </Typography>
+            ) : (
+              <Typography
+                variant="h6"
+                color="textSecondary"
+                align="left"
+                data-cy="mentor-card-type"
+              >
+                Invalid Mentor
+              </Typography>
+            )}
+
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="left"
+              data-cy="mentor-card-trained"
+            >
+              Last Trained: {props.lastTrainedAt.substring(0, 10)}
+            </Typography>
+          </Grid>
+
+          <Grid item={true} alignItems="center" xs={6}>
+            <Typography variant="body1" color="textSecondary">
+              Next Goal: {currentStage.next.name}
+              {"   "}
+              <Tooltip
+                title={
+                  <React.Fragment>
+                    <Typography color="inherit">
+                      {currentStage.next.name}
+                    </Typography>
+                    {currentStage.next.description}
+                  </React.Fragment>
+                }
+                data-cy="next-stage-info"
+              >
+                <HelpOutline fontSize="small" />
+              </Tooltip>
+            </Typography>
+
+            {currentStage.floor != 1000 && (
+              <StageProgress
+                value={props.value}
+                max={currentStage.max || 0}
+                percent={currentStage.percent || 0}
+              />
+            )}
+          </Grid>
+          <Grid item={true} alignItems="center" xs={12} md={6}>
+            <Typography>you edited some questions this session</Typography>
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
+  );
+}
+
 MyMentorCard.propTypes = {
+  mentorId: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.number.isRequired,
+  thumbnail: PropTypes.string.isRequired,
+};
+
+ProgressCard.propTypes = {
   mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,

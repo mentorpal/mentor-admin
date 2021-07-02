@@ -25,7 +25,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import MyMentorCard from "components/my-mentor-card";
+import { MyMentorCard } from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -117,7 +117,6 @@ function HomePage(props: {
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
           thumbnail={mentor?.thumbnail || ""}
-          atHome={true}
         />
         <Select
           data-cy="select-subject"
