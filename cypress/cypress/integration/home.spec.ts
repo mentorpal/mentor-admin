@@ -140,15 +140,7 @@ describe("Review answers page", () => {
     };
     cyMockDefault(cy, { mentor: testClint });
     cy.visit("/");
-    /* uncomment when graphql is available */
-    // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
-    // cy.fixture('avatar.png').then((fileContent) => {
-    //   cy.get('input[type="file"]').attachFile({
-    //     fileContent: fileContent.toString(),
-    //     fileName: 'avatar.png',
-    //     mimeType: 'avatr.png',
-    //   });
-    // });
+
     cy.get("[data-cy=uploaded-thumbnail]").should("exist");
   });
 

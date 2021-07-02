@@ -107,6 +107,7 @@ function HomePage(props: {
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <MyMentorCard
+          accessToken={props.accessToken}
           mentorId={mentor?._id || ""}
           name={mentor?.name || "Unnamed"}
           type={mentor?.mentorType}

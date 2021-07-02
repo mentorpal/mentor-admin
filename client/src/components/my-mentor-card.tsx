@@ -14,12 +14,13 @@ import {
   Tooltip,
   Avatar,
   CircularProgress,
+  Grid,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
-import { uploadThumbnail } from "api";
+import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -83,17 +84,8 @@ StageProgress.propTypes = {
 };
 const useStyles = makeStyles(() => ({
   avatar: {
-    width: "100%",
-    height: "100%",
-  },
-  square: {
-    position: "relative",
-    height: "40%",
-    "&::before": {
-      display: "block",
-      content: "''",
-      paddingLeft: "100%",
-    },
+    width: 240,
+    height: 180,
   },
 }));
 const StageSelect = (value: number) => {
@@ -170,6 +162,7 @@ const StageSelect = (value: number) => {
   };
 };
 export default function MyMentorCard(props: {
+  accessToken: string;
   mentorId: string;
   name: string;
   type: MentorType | undefined;
@@ -180,15 +173,27 @@ export default function MyMentorCard(props: {
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const thumbnailAvailable = props.thumbnail !== "";
+  const [thumbnail, updateThumbnail] = useWithThumbnail(
+    props.mentorId,
+    props.accessToken,
+    props.thumbnail
+  );
+  const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
         <CardContent>
-          <Box display="flex" width="100%" alignItems="center">
-            <Box alignItems="center">
+          <Grid alignItems="center" container={true} xs={12}>
+            <Grid
+              item={true}
+              container={true}
+              alignItems="center"
+              justify="center"
+              xs={12}
+              md={4}
+            >
               <Typography
-                variant="h3"
+                variant="h4"
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
@@ -201,18 +206,19 @@ export default function MyMentorCard(props: {
               >
                 Title: {props.title}
               </Typography>
-              <Box
-                className={classes.square}
+              <Grid
+                justify="center"
                 alignItems="center"
                 data-cy="thumbnail-wrapper"
-                width="80%"
+                item
+                xs={10}
               >
                 {thumbnailAvailable ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
-                    variant="square"
+                    variant="rounded"
                     className={classes.avatar}
-                    src={props.thumbnail}
+                    src={thumbnail}
                   />
                 ) : (
                   <Avatar
@@ -221,27 +227,23 @@ export default function MyMentorCard(props: {
                     className={classes.avatar}
                   />
                 )}
-              </Box>
+              </Grid>
               <input
                 data-cy="upload-file"
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
-                  if (e.target.files)
-                    uploadThumbnail(props.mentorId, e.target.files[0]);
+                  e.target.files instanceof FileList
+                    ? updateThumbnail(e.target.files[0])
+                    : undefined;
                 }}
               />
-            </Box>
-            <Box
-              width="33%"
-              minWidth={140}
-              alignItems="center"
-              ml={2}
-              textAlign="left"
-            >
+            </Grid>
+            <Grid item={true} alignItems="center" xs={12} md={4}>
               <Typography
                 variant="h6"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-scope"
               >
                 Scope: {currentStage.name}
@@ -249,6 +251,7 @@ export default function MyMentorCard(props: {
               <Typography
                 variant="body1"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-scope-description"
               >
                 {currentStage.description}
@@ -257,6 +260,7 @@ export default function MyMentorCard(props: {
                 <Typography
                   variant="h6"
                   color="textSecondary"
+                  align="left"
                   data-cy="mentor-card-type"
                 >
                   {props.type[0].toUpperCase() +
@@ -267,6 +271,7 @@ export default function MyMentorCard(props: {
                 <Typography
                   variant="h6"
                   color="textSecondary"
+                  align="left"
                   data-cy="mentor-card-type"
                 >
                   Invalid Mentor
@@ -276,12 +281,13 @@ export default function MyMentorCard(props: {
               <Typography
                 variant="body1"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-trained"
               >
                 Last Trained: {props.lastTrainedAt.substring(0, 10)}
               </Typography>
-            </Box>
-            <Box width="33%" alignItems="center" ml={2} textAlign="left">
+            </Grid>
+            <Grid item={true} alignItems="center" xs={12} md={4}>
               <Typography variant="body1" color="textSecondary">
                 Next Goal: {currentStage.next.name}
                 {"   "}
@@ -307,8 +313,8 @@ export default function MyMentorCard(props: {
                   percent={currentStage.percent || 0}
                 />
               )}
-            </Box>
-          </Box>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 
