@@ -3,10 +3,10 @@
   "description": "cypress testing",
   "version": "1.0.0",
   "dependencies": {
-    "cypress": "^7.1.0",
+    "cypress": "^7.6.0",
     "cypress-fill-command": "^1.0.2",
     "cypress-image-snapshot": "^4.0.1",
-    "typescript": "^4.2.4"
+    "typescript": "^4.3.5"
   },
   "scripts": {
     "cy:open": "npx cypress open --env failOnSnapshotDiff=false",
@@ -16,7 +16,7 @@
     "cy:verify": "npx cypress verify"
   },
   "devDependencies": {
-    "cypress-file-upload": "^5.0.6",
-    "cypress-localstorage-commands": "^1.4.3"
+    "cypress-file-upload": "^5.0.8",
+    "cypress-localstorage-commands": "^1.4.5"
   }
 }
