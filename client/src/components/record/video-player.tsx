@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import {
@@ -13,18 +12,18 @@ import {
   CircularProgress,
   Typography,
 } from "@material-ui/core";
-
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
+import overlay from "images/face-position-white.png";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
-  // can't store trim and videoLength in RecordingState because updating recordState will force ReactPlayer to re-render
   const [trim, setTrim] = useState([0, 100]);
+  const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { classes, recordState } = props;
@@ -39,13 +38,15 @@ function VideoPlayer(props: {
   const upload = recordState.uploads.find(
     (u) => u.question._id === recordState.curAnswer?.answer.question._id
   );
-  const cancelling = upload ? upload.isCancelling : false;
+  const isCancelling = upload ? upload.isCancelling : false;
+  const isUploading = recordState.curAnswer?.isUploading;
+  const isTrimming =
+    isFinite(videoLength) && !(trim[0] === 0 && trim[1] === 100);
 
   React.useEffect(() => {
     setVideoLength(0);
     setTrim([0, 100]);
   }, [recordState.curAnswer?.videoSrc, recordState.curAnswer?.answer._id]);
-
   function sliderToVideoDuration(): number[] | undefined {
     if (!reactPlayerRef?.current) {
       return undefined;
@@ -58,7 +59,6 @@ function VideoPlayer(props: {
     const endTime = (trim[1] / 100) * videoLength;
     return [startTime, endTime];
   }
-
   function sliderText(value: number, index: number): string {
     const duration = sliderToVideoDuration();
     if (!duration) {
@@ -66,7 +66,6 @@ function VideoPlayer(props: {
     }
     return new Date(duration[index] * 1000).toISOString().substr(14, 5);
   }
-
   function onVideoProgress(state: { played: number }): void {
     if (!reactPlayerRef?.current) {
       return;
@@ -78,6 +77,7 @@ function VideoPlayer(props: {
   }
 
   function onUpdateTrim(value: number | number[]): void {
+    if (!trimInProgress) setTrimInProgress(true);
     if (!Array.isArray(value) || !reactPlayerRef?.current) {
       return;
     }
@@ -107,8 +107,7 @@ function VideoPlayer(props: {
         style={{
           position: "absolute",
           visibility:
-            recordState.curAnswer?.videoSrc ||
-            recordState.curAnswer?.isUploading
+            recordState.curAnswer?.videoSrc || isUploading
               ? "visible"
               : "hidden",
         }}
@@ -118,7 +117,6 @@ function VideoPlayer(props: {
           style={{
             textAlign: "center",
             visibility:
-              recordState.curAnswer?.videoSrc &&
               videoLength < (recordState.curAnswer?.minVideoLength || 0)
                 ? "visible"
                 : "hidden",
@@ -144,16 +142,14 @@ function VideoPlayer(props: {
               position: "absolute",
               justifyContent: "center",
               top: "25%",
-              visibility: recordState.curAnswer?.isUploading
-                ? "visible"
-                : "hidden",
+              visibility: isUploading ? "visible" : "hidden",
             }}
           >
             <CircularProgress />
             <p></p>
-            {cancelling ? "Cancelling your upload." : "Upload in progress"}
+            {isCancelling ? "Cancelling your upload." : "Upload in progress"}
             <p></p>
-            {!cancelling
+            {!isCancelling
               ? "You may continue to record other questions."
               : undefined}
           </div>
@@ -162,7 +158,7 @@ function VideoPlayer(props: {
             ref={reactPlayerRef}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!recordState.curAnswer?.isUploading}
+            playing={!isUploading}
             height={height}
             width={width}
             playsinline
@@ -171,20 +167,49 @@ function VideoPlayer(props: {
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
             style={{
-              visibility: recordState.curAnswer?.isUploading
-                ? "hidden"
-                : "inherit",
+              visibility: isUploading ? "hidden" : "inherit",
+            }}
+          />
+          <div
+            data-cy="outline"
+            className={classes.overlay}
+            style={{
+              width: width,
+              height: height,
+              position: "absolute",
+              top: 25,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              opacity: recordState.isRecording ? 0.5 : 0.75,
+              visibility: trimInProgress ? "visible" : "hidden",
+              backgroundImage: `url(${overlay})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              backgroundSize: "contain",
             }}
           />
         </div>
         <Slider
           data-cy="slider"
-          valueLabelDisplay="auto"
+          valueLabelDisplay="on"
+          valueLabelFormat={(x) => {
+            if (!isFinite(videoLength)) {
+              return x;
+            }
+            const seconds = (x / 100) * videoLength;
+            const date = new Date(0);
+            date.setSeconds(seconds);
+            return date.toISOString().substr(15, 4);
+          }}
           aria-labelledby="range-slider"
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => onUpdateTrim(v)}
-          disabled={recordState.curAnswer?.isUploading}
+          onChangeCommitted={() => {
+            setTrimInProgress(false);
+          }}
+          disabled={isUploading}
           style={{
             visibility: recordState.curAnswer?.videoSrc ? "visible" : "hidden",
           }}
@@ -195,55 +220,45 @@ function VideoPlayer(props: {
             variant="outlined"
             color="primary"
             disableElevation
-            disabled={recordState.curAnswer?.isUploading}
+            disabled={isUploading}
             className={classes.button}
             onClick={recordState.rerecord}
             style={{ marginRight: 15 }}
           >
             Re-Record
           </Button>
-          {!recordState.curAnswer?.isValid ||
-          recordState.curAnswer?.isUploading ? (
-            <Button
-              data-cy="upload-video"
-              variant="contained"
-              color="primary"
-              disableElevation
-              disabled={
-                (!recordState.curAnswer?.recordedVideo &&
-                  !recordState.curAnswer?.isUploading) ||
-                cancelling
+          <Button
+            data-cy="upload-video"
+            variant="contained"
+            color="primary"
+            disableElevation
+            disabled={
+              isUploading
+                ? false
+                : isTrimming
+                ? false
+                : !recordState.curAnswer?.recordedVideo
+            }
+            className={classes.button}
+            onClick={() => {
+              if (isUploading) {
+                recordState.cancelUpload(upload!);
+              } else if (isTrimming) {
+                const trimStart = (trim[0] / 100) * videoLength;
+                const trimEnd = (trim[1] / 100) * videoLength;
+                recordState.uploadVideo({ start: trimStart, end: trimEnd });
+              } else {
+                recordState.uploadVideo();
               }
-              className={classes.button}
-              onClick={() => {
-                !recordState.curAnswer?.isUploading
-                  ? recordState.uploadVideo()
-                  : recordState.cancelUpload(upload!);
-              }}
-              style={{ marginRight: 15 }}
-            >
-              {recordState.curAnswer?.isUploading ? "Cancel" : "Upload Video"}
-            </Button>
-          ) : (
-            <Button
-              data-cy="trim-video"
-              variant="outlined"
-              color="primary"
-              disableElevation
-              disabled={
-                !recordState.curAnswer?.videoSrc ||
-                (trim[0] === 0 && trim[1] === 100) ||
-                !isFinite(videoLength) ||
-                recordState.curAnswer?.isUploading
-              }
-              className={classes.button}
-              onClick={() =>
-                recordState.uploadVideo({ start: trim[0], end: trim[1] })
-              }
-            >
-              Trim Video
-            </Button>
-          )}
+            }}
+            style={{ marginRight: 15 }}
+          >
+            {isUploading
+              ? "Cancel"
+              : isTrimming
+              ? "Trim Video"
+              : "Upload Video"}
+          </Button>
         </div>
       </div>
     </div>

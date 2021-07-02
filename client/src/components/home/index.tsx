@@ -107,6 +107,7 @@ function HomePage(props: {
       <div>
         <NavBar title="Mentor Studio" mentorId={mentor?._id} />
         <MyMentorCard
+          accessToken={props.accessToken}
           mentorId={mentor?._id || ""}
           name={mentor?.name || "Unnamed"}
           type={mentor?.mentorType}
@@ -186,7 +187,7 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={() => startTraining(mentor!._id)}
+            onClick={() => startTraining(mentor._id)}
             className={classes.fab}
           >
             Build Mentor

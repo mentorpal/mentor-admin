@@ -1,7 +1,6 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
@@ -14,13 +13,13 @@ import {
   Tooltip,
   Avatar,
   CircularProgress,
-  Button,
+  Grid,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
-import { uploadThumbnail } from "api";
+import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -84,17 +83,8 @@ StageProgress.propTypes = {
 };
 const useStyles = makeStyles(() => ({
   avatar: {
-    width: "100%",
-    height: "100%",
-  },
-  square: {
-    position: "relative",
-    height: "40%",
-    "&::before": {
-      display: "block",
-      content: "''",
-      paddingLeft: "100%",
-    },
+    width: 240,
+    height: 180,
   },
 }));
 const StageSelect = (value: number) => {
@@ -158,43 +148,51 @@ const StageSelect = (value: number) => {
       max: value,
     },
   ];
-  const currentStage = stages.find((stage) => {
+  let currentStage = stages.find((stage) => {
     return stage.max - 1 >= value;
   });
+  if (!currentStage) currentStage = stages[0];
   return {
     ...currentStage,
     ...{
-      next: stages[currentStage!.index + 1],
-      percent: Math.round((value / currentStage!.max) * 100),
+      next: stages[currentStage.index + 1],
+      percent: Math.round((value / currentStage.max) * 100),
     },
   };
 };
 export default function MyMentorCard(props: {
+  accessToken: string;
   mentorId: string;
   name: string;
   type: MentorType | undefined;
   title: string;
   lastTrainedAt: string;
   value: number;
-  atHome: boolean;
   thumbnail: string;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const thumbnailAvailable = props.thumbnail !== "";
+  const [thumbnail, updateThumbnail] = useWithThumbnail(
+    props.mentorId,
+    props.accessToken,
+    props.thumbnail
+  );
+  const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="stage-card">
         <CardContent>
-          <Box
-            display="flex"
-            width="100%"
-            alignItems="center"
-            flexDirection="row"
-          >
-            <Box alignItems="center">
+          <Grid alignItems="center" container={true} xs={12}>
+            <Grid
+              item={true}
+              container={true}
+              alignItems="center"
+              justify="center"
+              xs={12}
+              md={4}
+            >
               <Typography
-                variant={props.atHome ? "h3" : "h4"}
+                variant="h4"
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
@@ -207,18 +205,19 @@ export default function MyMentorCard(props: {
               >
                 Title: {props.title}
               </Typography>
-              <Box
-                className={classes.square}
+              <Grid
+                justify="center"
                 alignItems="center"
                 data-cy="thumbnail-wrapper"
-                width="80%"
+                item
+                xs={10}
               >
                 {thumbnailAvailable ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
-                    variant="square"
+                    variant="rounded"
                     className={classes.avatar}
-                    src={props.thumbnail}
+                    src={thumbnail}
                   />
                 ) : (
                   <Avatar
@@ -227,117 +226,101 @@ export default function MyMentorCard(props: {
                     className={classes.avatar}
                   />
                 )}
-              </Box>
-              {props.atHome && (
-                <input
-                  data-cy="upload-file"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    uploadThumbnail(props.mentorId, e!.target!.files![0])
-                  }
-                />
-              )}
-            </Box>
-            <Box
-              width={props.atHome ? "40%" : "60%"}
-              flexDirection={props.atHome ? "row" : "column"}
-            >
-              <Box
-                width={props.atHome ? "50%" : "100%"}
-                minWidth={140}
-                alignItems="center"
-                ml={2}
-                textAlign="left"
+              </Grid>
+              <input
+                data-cy="upload-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  e.target.files instanceof FileList
+                    ? updateThumbnail(e.target.files[0])
+                    : undefined;
+                }}
+              />
+            </Grid>
+            <Grid item={true} alignItems="center" xs={12} md={4}>
+              <Typography
+                variant="h6"
+                color="textSecondary"
+                align="left"
+                data-cy="mentor-card-scope"
               >
+                Scope: {currentStage.name}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                align="left"
+                data-cy="mentor-card-scope-description"
+              >
+                {currentStage.description}
+              </Typography>
+              {props.type ? (
                 <Typography
                   variant="h6"
                   color="textSecondary"
-                  data-cy="mentor-card-scope"
+                  align="left"
+                  data-cy="mentor-card-type"
                 >
-                  Scope: {currentStage!.name}
+                  {props.type[0].toUpperCase() +
+                    props.type.slice(1).toLowerCase()}{" "}
+                  Mentor
                 </Typography>
+              ) : (
                 <Typography
-                  variant="body1"
+                  variant="h6"
                   color="textSecondary"
-                  data-cy="mentor-card-scope-description"
+                  align="left"
+                  data-cy="mentor-card-type"
                 >
-                  {currentStage!.description}
+                  Invalid Mentor
                 </Typography>
-                {props.type ? (
-                  <Typography
-                    variant="h6"
-                    color="textSecondary"
-                    data-cy="mentor-card-type"
-                  >
-                    {props.type[0].toUpperCase() +
-                      props.type.slice(1).toLowerCase()}{" "}
-                    Mentor
-                  </Typography>
-                ) : (
-                  <Typography
-                    variant="h6"
-                    color="textSecondary"
-                    data-cy="mentor-card-type"
-                  >
-                    Invalid Mentor
-                  </Typography>
-                )}
+              )}
 
-                <Typography
-                  variant="body1"
-                  color="textSecondary"
-                  data-cy="mentor-card-trained"
-                >
-                  Last Trained: {props.lastTrainedAt.substring(0, 10)}
-                </Typography>
-              </Box>
-              <Box
-                width={props.atHome ? "50%" : "100%"}
-                alignItems="center"
-                ml={2}
-                textAlign="left"
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                align="left"
+                data-cy="mentor-card-trained"
               >
-                <Typography variant="body1" color="textSecondary">
-                  Next Goal: {currentStage!.next!.name}
-                  {"   "}
-                  <Tooltip
-                    title={
-                      <React.Fragment>
-                        <Typography color="inherit">
-                          {currentStage!.next!.name}
-                        </Typography>
-                        {currentStage!.next!.description}
-                      </React.Fragment>
-                    }
-                    data-cy="next-stage-info"
-                  >
-                    <HelpOutline fontSize="small" />
-                  </Tooltip>
-                </Typography>
+                Last Trained: {props.lastTrainedAt.substring(0, 10)}
+              </Typography>
+            </Grid>
+            <Grid item={true} alignItems="center" xs={12} md={4}>
+              <Typography variant="body1" color="textSecondary">
+                Next Goal: {currentStage.next.name}
+                {"   "}
+                <Tooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color="inherit">
+                        {currentStage.next.name}
+                      </Typography>
+                      {currentStage.next.description}
+                    </React.Fragment>
+                  }
+                  data-cy="next-stage-info"
+                >
+                  <HelpOutline fontSize="small" />
+                </Tooltip>
+              </Typography>
 
-                {currentStage!.floor != 1000 && (
-                  <StageProgress
-                    value={props.value}
-                    max={currentStage!.max || 0}
-                    percent={currentStage!.percent || 0}
-                  />
-                )}
-              </Box>
-            </Box>
-            {props.atHome && (
-              <Box>
-                <Button>Bash</Button>
-              </Box>
-            )}
-          </Box>
+              {currentStage.floor != 1000 && (
+                <StageProgress
+                  value={props.value}
+                  max={currentStage.max || 0}
+                  percent={currentStage.percent || 0}
+                />
+              )}
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 
       <StageToast
         value={props.value}
-        floor={currentStage!.floor!}
-        name={currentStage!.name!}
+        floor={currentStage.floor}
+        name={currentStage.name}
       />
     </div>
   );
@@ -347,5 +330,5 @@ MyMentorCard.propTypes = {
   mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
-  atHome: PropTypes.bool.isRequired,
+  thumbnail: PropTypes.string.isRequired,
 };
