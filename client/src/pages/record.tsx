@@ -37,8 +37,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { fetchMentor, fetchFollowUpQuestions } from "api";
-import MyMentorCard from "components/my-mentor-card";
+import { fetchFollowUpQuestions } from "api";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
 import { useEffect } from "react";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
@@ -117,9 +116,15 @@ function RecordPage(props: {
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
   const [recordSession, setRecordSesssion] = useState(true);
-  const [editedMentor, setEditedMentor] = useState(mentor);
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]); //TODO: send this to the backend
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false); //lets us know if we are gonna be saving extra questions and recording
+  const curSubject = mentor?.subjects.find(
+    (s) => s._id == props.search.subject
+  );
+  const subjectTitle = curSubject?.name || "";
+  const categoryTitle =
+    curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
+    "";
   useEffect(() => {
     fetchFollowUpQuestions(props.accessToken).then((data) => {
       setFollowUpQuestions(data);
@@ -140,10 +145,7 @@ function RecordPage(props: {
     }
   }
   function onEnd() {
-    fetchMentor(props.accessToken).then((data) => {
-      setEditedMentor(data);
-      setRecordSesssion(false);
-    });
+    setRecordSesssion(false);
   }
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
@@ -172,7 +174,7 @@ function RecordPage(props: {
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
-        <NavBar title="Record Mentor" mentorId={undefined} />
+        <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
         <ErrorDialog
           error={recordState.error}
@@ -193,7 +195,7 @@ function RecordPage(props: {
         />
       ) : undefined}
       <NavBar
-        title="Record Mentor"
+        title={`Recording: ${subjectTitle} - ${categoryTitle}`}
         mentorId={mentor._id}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
@@ -351,26 +353,11 @@ function RecordPage(props: {
         </div>
       ) : (
         <div>
-          <Box height="100%" width="50%" style={{ float: "left" }}>
-            <MyMentorCard
-              mentorId={editedMentor?._id || ""}
-              name={editedMentor?.name || "Unnamed"}
-              type={editedMentor?.mentorType}
-              title={editedMentor?.title || "none"}
-              lastTrainedAt={editedMentor?.lastTrainedAt || "never"}
-              value={
-                editedMentor?.answers.filter((a) => a.status === "COMPLETE")
-                  .length || 0
-              }
-              thumbnail={editedMentor?.thumbnail || ""}
-              atHome={false}
-            />
-          </Box>
-
-          <Box height="100%" width="50%" style={{ float: "right" }}>
+          <Box height="100%" width="100%">
             <FollowUpQuestionsWidget
               categoryID={props.search.category}
               questions={followUpQuestions}
+              mentorID={mentor._id}
               toRecordFollowUpQs={setRecordFollowUpQs}
               addQuestion={addQuestion}
               removeQuestion={removeQuestion}
@@ -436,7 +423,7 @@ function RecordPage(props: {
               }} //window.location.reload();
               className={classes.nextBtn}
             >
-              Next
+              Record
             </Button>
           ) : (
             <Button

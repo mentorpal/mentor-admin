@@ -15,7 +15,12 @@ function FollowUpQuestionsWidget(props: {
   //insert expected props here
   questions: string[];
   categoryID: string | undefined;
-  addQuestion: (question?: string, catagoryID?: string) => void;
+  mentorID: string | undefined;
+  addQuestion: (
+    question?: string,
+    catagoryID?: string,
+    mentorID?: string
+  ) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   editedData: Subject | undefined;
   toRecordFollowUpQs: (b: boolean) => void;
@@ -29,6 +34,7 @@ function FollowUpQuestionsWidget(props: {
     addQuestion,
     removeQuestion,
     editedData,
+    mentorID,
   } = props;
 
   useEffect(() => {
@@ -51,7 +57,7 @@ function FollowUpQuestionsWidget(props: {
     const newCheckValue = !questionList[i].checked;
     const question = questionList[i].question;
     if (newCheckValue == true) {
-      addQuestion(question, categoryID);
+      addQuestion(question, categoryID, mentorID);
     } else {
       let questionObject = undefined;
       for (let i = 0; i < editedData.questions.length; i++) {

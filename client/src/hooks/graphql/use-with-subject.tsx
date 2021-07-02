@@ -20,7 +20,11 @@ interface UseWithSubject extends UseData<Subject> {
   updateTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
-  addQuestion: (question?: string, categoryID?: string) => void;
+  addQuestion: (
+    question?: string,
+    categoryID?: string,
+    mentorID?: string
+  ) => void;
   updateQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   moveQuestion: (
@@ -165,7 +169,11 @@ export function useWithSubject(
     editData({ topics: copyAndMove(editedData.topics, toMove, moveTo) });
   }
 
-  function addQuestion(question?: string, categoryID?: string) {
+  function addQuestion(
+    question?: string,
+    categoryID?: string,
+    mentorID?: string
+  ) {
     if (!editedData) {
       return;
     }
@@ -179,6 +187,7 @@ export function useWithSubject(
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: "",
+            mentor: mentorID || "",
           },
           category: categoryID
             ? editedData.categories.find((c) => c.id == categoryID)
