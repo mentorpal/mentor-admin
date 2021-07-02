@@ -51,6 +51,7 @@ export function useWithRecordState(
   const pollingInterval = parseInt(filter.poll || "");
   const {
     data: mentor,
+    reloadData: reloadMentor,
     error: mentorError,
     clearError: clearMentorError,
   } = useWithMentor(accessToken);
@@ -180,6 +181,10 @@ export function useWithRecordState(
       );
     }
     return false;
+  }
+
+  function reloadMentorData() {
+    reloadMentor();
   }
 
   function prevAnswer() {
@@ -330,6 +335,7 @@ export function useWithRecordState(
     saveAnswer,
     removeCompletedTask,
     rerecord,
+    reloadMentorData,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -350,6 +356,7 @@ export interface UseWithRecordState {
   curAnswer: CurAnswerState | undefined;
   uploads: UploadTask[];
   prevAnswer: () => void;
+  reloadMentorData: () => void;
   nextAnswer: () => void;
   setAnswerIDx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;

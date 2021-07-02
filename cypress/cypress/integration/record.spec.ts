@@ -602,6 +602,8 @@ describe("Record", () => {
       cy.get("[data-cy=stage-card]").should("exist");
     });
 
+    it.only("On next button, picked follow up questions should be recordable", () => {});
+
     it.only("End-of-category page should display unorded list of follow up questions", () => {
       cySetup(cy);
       cyMockDefault(cy, {
@@ -612,11 +614,28 @@ describe("Record", () => {
             [
               [
                 {
-                  questions: ["Can you tell me more about Aaron?", "What was Florida like?", "What does an Intern do?", "What is foosball?",
-                  "Can you tell me more about Aaron?", "What was Florida like?", "What does an Intern do?", "What is foosball?",
-                  "Can you tell me more about Aaron?", "What was Florida like?", "What does an Intern do?", "What is foosball?",
-                  "Can you tell me more about Aaron?", "What was Florida like?", "What does an Intern do?", "What is foosball?",
-                "Can you tell me more about Aaron?", "What was Florida like?", "What does an Intern do?", "What is foosball?"]
+                  questions: [
+                    "Can you tell me more about Aaron?",
+                    "What was Florida like?",
+                    "What does an Intern do?",
+                    "What is foosball?",
+                    "Can you tell me more about Aaron?",
+                    "What was Florida like?",
+                    "What does an Intern do?",
+                    "What is foosball?",
+                    "Can you tell me more about Aaron?",
+                    "What was Florida like?",
+                    "What does an Intern do?",
+                    "What is foosball?",
+                    "Can you tell me more about Aaron?",
+                    "What was Florida like?",
+                    "What does an Intern do?",
+                    "What is foosball?",
+                    "Can you tell me more about Aaron?",
+                    "What was Florida like?",
+                    "What does an Intern do?",
+                    "What is foosball?",
+                  ],
                 },
               ],
             ],
@@ -659,8 +678,6 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
       cy.get("[data-cy=stage-card]").should("exist");
-
-
     });
   });
 

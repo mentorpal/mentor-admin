@@ -41,6 +41,7 @@ import { fetchMentor, fetchFollowUpQuestions } from "api";
 import MyMentorCard from "components/my-mentor-card";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
 import { useEffect } from "react";
+import { useWithSubject } from "hooks/graphql/use-with-subject";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -113,16 +114,23 @@ function RecordPage(props: {
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
+  const { addQuestion, removeQuestion, editedData, saveSubject } =
+    useWithSubject(props.search.subject || "", props.accessToken);
   const [recordSession, setRecordSesssion] = useState(true);
   const [editedMentor, setEditedMentor] = useState(mentor);
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [recordFollowUpQs, setRecordFollowUpQs] = useState(false);
-
-  useEffect(()=>{
-    fetchFollowUpQuestions(props.accessToken).then(data =>{
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]); //TODO: send this to the backend
+  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false); //lets us know if we are gonna be saving extra questions and recording
+  useEffect(() => {
+    fetchFollowUpQuestions(props.accessToken).then((data) => {
       setFollowUpQuestions(data);
-    })
-  },[recordSession])
+    });
+  }, [recordSession]);
+
+  //when the length of the answers changes, we have more questions to record.
+  useEffect(() => {
+    setRecordSesssion(true);
+    recordState.nextAnswer();
+  }, [mentor?.answers]);
 
   function onBack() {
     if (props.search.back) {
@@ -343,7 +351,7 @@ function RecordPage(props: {
         </div>
       ) : (
         <div>
-          <Box height="100%" width="50%" style={{float:"left"}}>
+          <Box height="100%" width="50%" style={{ float: "left" }}>
             <MyMentorCard
               mentorId={editedMentor?._id || ""}
               name={editedMentor?.name || "Unnamed"}
@@ -358,9 +366,16 @@ function RecordPage(props: {
               atHome={false}
             />
           </Box>
-          
-          <Box height="100%" width="50%" style={{float:"right"}}>
-            <FollowUpQuestionsWidget questions={followUpQuestions} setRecordFollowUpQs={setRecordFollowUpQs} />
+
+          <Box height="100%" width="50%" style={{ float: "right" }}>
+            <FollowUpQuestionsWidget
+              categoryID={props.search.category}
+              questions={followUpQuestions}
+              toRecordFollowUpQs={setRecordFollowUpQs}
+              addQuestion={addQuestion}
+              removeQuestion={removeQuestion}
+              editedData={editedData}
+            />
           </Box>
         </div>
       )}
@@ -410,29 +425,31 @@ function RecordPage(props: {
                 <ArrowForwardIcon fontSize="large" />
               </IconButton>
             )
-          ) : recordFollowUpQs ? (
+          ) : toRecordFollowUpQs ? (
             <Button
               data-cy="record-follow-up-qs-btn"
+              variant="contained"
+              color="primary"
+              disableElevation
+              onClick={() => {
+                saveSubject(recordState.reloadMentorData);
+              }} //window.location.reload();
+              className={classes.nextBtn}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
               onClick={() => switchAnswer(onBack)}
               className={classes.nextBtn}
             >
-              Next
+              Done
             </Button>
-          ) : 
-          <Button
-          data-cy="done-btn"
-          variant="contained"
-          color="primary"
-          disableElevation
-          onClick={() => switchAnswer(onBack)}
-          className={classes.nextBtn}
-        >
-          Done
-        </Button>
-          }
+          )}
         </Toolbar>
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />

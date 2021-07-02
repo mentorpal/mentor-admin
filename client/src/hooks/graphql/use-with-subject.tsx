@@ -12,7 +12,7 @@ import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
 
 interface UseWithSubject extends UseData<Subject> {
-  saveSubject: () => void;
+  saveSubject: (callbackFunc?: () => void) => void;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -20,7 +20,7 @@ interface UseWithSubject extends UseData<Subject> {
   updateTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
-  addQuestion: () => void;
+  addQuestion: (question?: string, categoryID?: string) => void;
   updateQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   moveQuestion: (
@@ -64,9 +64,12 @@ export function useWithSubject(
     return fetchSubject(subjectId);
   }
 
-  function update() {
+  function update(callBackFunc?: () => void) {
     saveData({
-      callback: (editedData: Subject) => updateSubject(editedData, accessToken),
+      callback: (editedData: Subject) =>
+        updateSubject(editedData, accessToken).then(() => {
+          if (callBackFunc) callBackFunc();
+        }),
     });
   }
 
@@ -162,7 +165,7 @@ export function useWithSubject(
     editData({ topics: copyAndMove(editedData.topics, toMove, moveTo) });
   }
 
-  function addQuestion() {
+  function addQuestion(question?: string, categoryID?: string) {
     if (!editedData) {
       return;
     }
@@ -172,12 +175,14 @@ export function useWithSubject(
         {
           question: {
             _id: uuid(),
-            question: "",
+            question: question || "",
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: "",
           },
-          category: undefined,
+          category: categoryID
+            ? editedData.categories.find((c) => c.id == categoryID)
+            : undefined,
           topics: [],
         },
       ],
