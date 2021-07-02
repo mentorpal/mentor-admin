@@ -1,6 +1,12 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
@@ -14,6 +20,7 @@ import {
   Avatar,
   CircularProgress,
   Grid,
+  Button,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
@@ -184,7 +191,7 @@ export function MyMentorCard(props: {
   const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
-      <Card data-cy="stage-card">
+      <Card data-cy="my-mentor-card">
         <CardContent>
           <Grid alignItems="center" container xs={12}>
             <Grid
@@ -242,7 +249,7 @@ export function MyMentorCard(props: {
                 }}
               />
             </Grid>
-            <Grid item alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography
                 variant="h6"
                 color="textSecondary"
@@ -290,7 +297,7 @@ export function MyMentorCard(props: {
                 Last Trained: {props.lastTrainedAt.substring(0, 10)}
               </Typography>
             </Grid>
-            <Grid item alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography variant="body1" color="textSecondary">
                 Next Goal: {currentStage.next.name}
                 {"   "}
@@ -317,6 +324,11 @@ export function MyMentorCard(props: {
                 />
               )}
             </Grid>
+            <Grid xs={12} md={2}>
+              <Button fullWidth data-cy="bash-button">
+                BASH!!
+              </Button>
+            </Grid>
           </Grid>
         </CardContent>
       </Card>
@@ -342,7 +354,7 @@ export function ProgressCard(props: {
   const classes = useStyles();
 
   return (
-    <Card>
+    <Card data-cy="progress-card">
       <CardContent>
         <Grid alignItems="center" container={true} xs={12} spacing={2}>
           <Grid

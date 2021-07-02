@@ -577,7 +577,7 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=stage-card]").should("exist");
+      cy.get("[data-cy=progress-card]").should("exist");
     });
   });
 

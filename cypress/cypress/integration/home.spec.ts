@@ -104,21 +104,24 @@ describe("Review answers page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Clinton Anderson");
-    cy.get("[data-cy=stage-card]").contains("Video Mentor");
-    cy.get("[data-cy=stage-card]").contains(
+    cy.get("[data-cy=my-mentor-card]").contains("Clinton Anderson");
+    cy.get("[data-cy=my-mentor-card]").contains("Video Mentor");
+    cy.get("[data-cy=my-mentor-card]").contains(
       "Title: Nuclear Electrician's Mate"
     );
-    cy.get("[data-cy=stage-card]").contains("Last Trained: Today");
-    cy.get("[data-cy=stage-card]").contains("Scope: Incomplete");
-    cy.get("[data-cy=stage-card]").contains("This Mentor can't be built yet.");
+    cy.get("[data-cy=my-mentor-card]").contains("Last Trained: Today");
+    cy.get("[data-cy=my-mentor-card]").contains("Scope: Incomplete");
+    cy.get("[data-cy=my-mentor-card]").contains(
+      "This Mentor can't be built yet."
+    );
     cy.get("[data-cy=stage-progress]").should("exist");
-    cy.get("[data-cy=stage-card]")
+    cy.get("[data-cy=my-mentor-card]")
       .find("[data-cy=next-stage-info]")
       .trigger("mouseover");
     cy.contains("This Mentor can select questions from a list");
     cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
     cy.get("[data-cy=upload-file]").should("exist");
+    cy.get("[data-cy=bash-button]").should("exist");
   });
 
   it("shows placeholder when no thumbnail", () => {
@@ -206,7 +209,7 @@ describe("Review answers page", () => {
     };
     cyMockDefault(cy, { mentor: testClint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Scope: Life-Story");
+    cy.get("[data-cy=my-mentor-card]").contains("Scope: Life-Story");
     cy.get("[data-cy=stage-progress]").should("not.exist");
   });
 
