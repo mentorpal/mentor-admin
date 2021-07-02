@@ -14,8 +14,8 @@ export function useWithThumbnail(
 ): [string, (file: File) => void] {
   const [thumbnail, setThumbnail] = useState(current);
 
-  function updateThumbnail(file: File) {
-    uploadThumbnail(mentorId, file).then(() => {
+  function updateThumbnail(file: File): Promise<void> {
+    return uploadThumbnail(mentorId, file).then(() => {
       fetchThumbnail(accessToken).then((src: string) => {
         setThumbnail(src);
       });

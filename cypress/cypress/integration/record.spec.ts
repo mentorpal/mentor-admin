@@ -189,7 +189,7 @@ const videoMentor: Mentor = completeMentor({
   ],
 });
 
-describe.only("Record", () => {
+describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cyMockDefault(cy, { mentor: chatMentor });
@@ -1898,7 +1898,7 @@ describe.only("Record", () => {
     );
   });
 
-  it.only("displays status info for each job: Uploading, Completed, Failed", () => {
+  it("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
