@@ -26,6 +26,7 @@ import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MyMentorCard } from "components/my-mentor-card";
+import { UtteranceName } from "types";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -117,6 +118,9 @@ function HomePage(props: {
             mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
           }
           thumbnail={mentor?.thumbnail || ""}
+          idle={mentor?.answers.some((a) => {
+            a.question.name === UtteranceName.IDLE && a.status === "COMPLETE";
+          })}
         />
         <Select
           data-cy="select-subject"
