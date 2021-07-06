@@ -180,7 +180,6 @@ export function MyMentorCard(props: {
   lastTrainedAt: string;
   value: number;
   thumbnail: string;
-  idle: boolean;
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
@@ -190,7 +189,6 @@ export function MyMentorCard(props: {
     props.thumbnail
   );
   const thumbnailAvailable = thumbnail !== "";
-  console.log(props.idle);
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
@@ -327,7 +325,7 @@ export function MyMentorCard(props: {
               )}
             </Grid>
             <Grid xs={12} md={2}>
-              <BashButton thumbnail={props.thumbnail != ""} idle={props.idle} />
+              <BashButton accessToken={props.accessToken} />
             </Grid>
           </Grid>
         </CardContent>
@@ -508,7 +506,6 @@ MyMentorCard.propTypes = {
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
   thumbnail: PropTypes.string.isRequired,
-  idle: PropTypes.bool.isRequired,
 };
 
 ProgressCard.propTypes = {

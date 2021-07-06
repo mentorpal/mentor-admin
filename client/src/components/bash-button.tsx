@@ -6,12 +6,17 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { Button, Typography } from "@material-ui/core";
 import React from "react";
+import { navigate } from "gatsby";
 import PropTypes from "prop-types";
+import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
+import { MentorType, Status, UtteranceName } from "types";
 
 export default function BashButton(props: {
-  thumbnail: boolean;
-  idle: boolean;
+  accessToken: string;
 }): JSX.Element {
+  const { mentor } = useWithReviewAnswerState(props.accessToken, {
+    subject: undefined,
+  });
   const bash = {
     text: "",
     reason: "",
@@ -19,16 +24,27 @@ export default function BashButton(props: {
       undefined;
     },
   };
+  const idle = mentor?.answers.find(
+    (a) => a.question.name === UtteranceName.IDLE
+  );
+
   switch (true) {
-    case !props.thumbnail:
+    case mentor?.thumbnail == "":
       bash.text = "Add a Thumbnail";
       bash.reason = "A thumbnail helps a user identify your mentor";
       bash.action = () => console.log("upload");
       break;
-    case !props.idle:
+    case idle?.status === Status.INCOMPLETE &&
+      mentor?.mentorType === MentorType.VIDEO:
       bash.text = "Record an Idle Video";
       bash.reason = "Users see your idle video while typing a question";
-      bash.action = () => console.log("record idle");
+      bash.action = () => {
+        navigate(
+          `/record?back=${encodeURI(`/?subject=${undefined}`)}&videoId=${
+            idle?.question._id
+          }`
+        );
+      };
       break;
     default:
       bash.text = "Add a Subject";
@@ -49,6 +65,5 @@ export default function BashButton(props: {
 }
 
 BashButton.propTypes = {
-  thumbnail: PropTypes.bool.isRequired,
-  idle: PropTypes.bool.isRequired,
+  accessToken: PropTypes.string.isRequired,
 };
