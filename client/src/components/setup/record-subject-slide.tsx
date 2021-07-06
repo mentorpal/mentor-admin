@@ -6,9 +6,9 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { Paper, Typography, Button } from "@material-ui/core";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import { Typography, Button } from "@material-ui/core";
 import { Status, Subject, Answer } from "types";
+import { Slide } from "./slide";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
@@ -27,31 +27,28 @@ export function RecordSubjectSlide(props: {
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        {subject.name} questions
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          {subject.description}
-        </Typography>
-      </div>
-      <Button
-        data-cy="record-btn"
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        onClick={onRecord}
-      >
-        Record
-      </Button>
-      {isRecorded ? (
-        <CheckCircleIcon data-cy="check" style={{ color: "green" }} />
-      ) : (
-        <Typography variant="h6" className={classes.text}>
-          {recorded.length} / {questions.length}
-        </Typography>
-      )}
-    </Paper>
+    <Slide
+      classes={classes}
+      title={`${subject.name} questions`}
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            {subject.description}
+          </Typography>
+          <Button
+            data-cy="record-btn"
+            variant="contained"
+            color={isRecorded ? "secondary" : "primary"}
+            onClick={onRecord}
+            className={classes.button}
+          >
+            Record
+          </Button>
+          <Typography variant="h6" className={classes.text}>
+            {recorded.length} / {questions.length}
+          </Typography>
+        </div>
+      }
+    />
   );
 }
