@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import Carousel from "react-material-ui-carousel";
-import { IconButton } from "@material-ui/core";
+import { Avatar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
@@ -77,6 +77,9 @@ const useStyles = makeStyles(() => ({
   button: {
     width: 100,
     margin: 5,
+  },
+  navButton: {
+    top: "calc(50% - 20px) !important",
   },
 }));
 
@@ -193,17 +196,21 @@ function SetupPage(props: {
           return (
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}
-              onClick={onClick}
-              className={className}
+              onClick={() => onClick()}
               style={style}
+              className={classes.navButton}
             >
-              {next && <ArrowForwardIcon />}
-              {prev && <ArrowBackIcon />}
+              <Avatar>
+                {next && <ArrowForwardIcon />}
+                {prev && <ArrowBackIcon />}
+              </Avatar>
             </IconButton>
           );
         }}
         onChange={(idx: number) => toStep(idx)}
-        IndicatorIcon={<FiberManualRecordIcon data-cy="radio" />}
+        IndicatorIcon={
+          <FiberManualRecordIcon data-cy="radio" fontSize="small" />
+        }
         activeIndicatorIconButtonProps={{
           className: "",
           style: {

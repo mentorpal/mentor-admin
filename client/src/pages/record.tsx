@@ -128,11 +128,16 @@ function RecordPage(props: {
 
   function onBack() {
     if (props.search.back) {
-      navigate(decodeURI(props.search.back));
+      switchAnswer(() => {
+        navigate(decodeURI(props.search.back!));
+      });
     } else {
-      navigate("/");
+      switchAnswer(() => {
+        navigate("/");
+      });
     }
   }
+
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
       if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
@@ -142,6 +147,7 @@ function RecordPage(props: {
           callback: onNav,
         });
       } else {
+        recordState.saveAnswer();
         onNav();
       }
     } else {
@@ -151,6 +157,9 @@ function RecordPage(props: {
   function confirm() {
     if (!confirmLeave) {
       return;
+    }
+    if (curAnswer?.isEdited) {
+      recordState.saveAnswer();
     }
     confirmLeave.callback();
     setConfirmLeave(undefined);
@@ -381,16 +390,6 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          <Button
-            data-cy="save-btn"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={!curAnswer?.isEdited}
-            onClick={recordState.saveAnswer}
-          >
-            Save
-          </Button>
           {displayRecordingPage ? (
             recordState.answerIdx === recordState.answers.length - 1 ? (
               <Button
