@@ -49,7 +49,7 @@ export default function BashButton(props: {
     default:
       bash.text = "Add a Subject";
       bash.reason = "Add a subject to answer more questions";
-      bash.action = () => console.log("add subject");
+      bash.action = () => navigate("/subjects");
       break;
   }
   return (

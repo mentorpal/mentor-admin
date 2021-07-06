@@ -157,5 +157,7 @@ describe("Bash Button Guides User To Improve Mentor", () => {
     cyMockDefault(cy, { mentor: bashClint });
     cy.visit("/");
     cy.get("[data-cy=bash-button]").contains("Add a Subject");
+    cy.get("[data-cy=bash-button]").trigger("mouseover").click();
+    cy.url().should("include", "/subjects");
   });
 });
