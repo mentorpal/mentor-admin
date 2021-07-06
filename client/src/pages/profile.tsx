@@ -4,17 +4,22 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import React from "react";
 import {
   Button,
+  Checkbox,
   FormControl,
-  FormHelperText,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   TextField,
-  Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -60,16 +65,43 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
     saveMentorDetails,
   } = useWithMentor(props.accessToken);
 
+  if (!editedMentor) {
+    return <div />;
+  }
+
   return (
     <div className={classes.root}>
       <NavBar title="User Profile" mentorId={editedMentor?._id} />
       <Paper className={classes.paper}>
-        <Typography variant="h6" className={classes.title}>
-          My Profile
-        </Typography>
+        <div className={classes.inputField}>
+          <FormControl>
+            <InputLabel>Mentor Type</InputLabel>
+            <Select
+              data-cy="select-chat-type"
+              label="Mentor Type"
+              value={editedMentor?.mentorType}
+              style={{ width: 200 }}
+              onChange={(
+                event: React.ChangeEvent<{
+                  name?: string | undefined;
+                  value: unknown;
+                }>
+              ) => {
+                editMentor({ mentorType: event.target.value as MentorType });
+              }}
+            >
+              <MenuItem data-cy="chat" value={MentorType.CHAT}>
+                Chat
+              </MenuItem>
+              <MenuItem data-cy="video" value={MentorType.VIDEO}>
+                Video
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </div>
         <TextField
           data-cy="mentor-name"
-          label="Name"
+          label="Full Name"
           variant="outlined"
           value={editedMentor?.name || ""}
           onChange={(e) => editMentor({ name: e.target.value })}
@@ -96,43 +128,23 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           label="Email"
           type="email"
           variant="outlined"
-          helperText="Leave blank if you don't want anyone to contact you"
           value={editedMentor?.email || ""}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
-        <div className={classes.inputField}>
-          <FormControl>
-            <InputLabel>Mentor Type</InputLabel>
-            <Select
-              data-cy="select-chat-type"
-              label="Mentor Type"
-              value={editedMentor?.mentorType}
-              onChange={(
-                event: React.ChangeEvent<{
-                  name?: string | undefined;
-                  value: unknown;
-                }>
-              ) => {
-                editMentor({ mentorType: event.target.value as MentorType });
-              }}
-            >
-              <MenuItem data-cy="chat" value={MentorType.CHAT}>
-                Chat
-              </MenuItem>
-              <MenuItem data-cy="video" value={MentorType.VIDEO}>
-                Video
-              </MenuItem>
-            </Select>
-            <FormHelperText>
-              {editedMentor?.mentorType === MentorType.CHAT
-                ? "Respond with text-only chat bubbles"
-                : editedMentor?.mentorType === MentorType.VIDEO
-                ? "Respond with pre-recorded videos"
-                : ""}
-            </FormHelperText>
-          </FormControl>
-        </div>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={editedMentor?.allowContact}
+              onChange={() =>
+                editMentor({ allowContact: !editedMentor?.allowContact })
+              }
+              color="secondary"
+            />
+          }
+          label="Allow people to contact me"
+          style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
+        />
         <Button
           data-cy="update-btn"
           variant="contained"

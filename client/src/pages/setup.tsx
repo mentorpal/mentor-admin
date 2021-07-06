@@ -191,7 +191,6 @@ function SetupPage(props: {
         prev={() => prevStep()}
         NavButton={({ onClick, className, style, next, prev }) => {
           return (
-            // @ts-ignore
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}
               onClick={onClick}
