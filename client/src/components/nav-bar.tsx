@@ -13,6 +13,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
   Menu,
@@ -24,8 +25,16 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import {
   AccountCircle,
+  Build as BuildIcon,
+  Chat as ChatIcon,
   Close as CloseIcon,
+  Edit as EditIcon,
+  ExitToApp as ExitToAppIcon,
   Menu as MenuIcon,
+  Mic as MicIcon,
+  QuestionAnswer as QuestionAnswerIcon,
+  RateReview as RateReviewIcon,
+  Subject as SubjectIcon,
 } from "@material-ui/icons";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { CLIENT_ENDPOINT } from "api";
@@ -137,14 +146,17 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/"}
         selected={location.pathname === "/"}
       >
-        <ListItemText primary="My Mentor" />
+        <ListItemIcon>
+          <AccountCircle />
+        </ListItemIcon>
+        <ListItemText primary="Profile" />
       </ListItem>
       <ListItem
         button
@@ -152,19 +164,22 @@ function NavMenu(props: {
         to={"/record"}
         selected={location.pathname.includes("/record")}
       >
-        <ListItemText primary="Record Questions" />
+        <ListItemIcon>
+          <SubjectIcon />
+        </ListItemIcon>
+        <ListItemText primary="Select Subjects" />
       </ListItem>
 
       <ListItem
         button
         component={Link}
-        to={"/feedback"}
-        selected={location.pathname.includes("/feedback")}
+        to={"/"}
+        selected={location.pathname === "/"}
       >
-        <ListItemText primary="User Feedback" />
-      </ListItem>
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
-        <ListItemText primary="Chat with Mentor" />
+        <ListItemIcon>
+          <ChatIcon />
+        </ListItemIcon>
+        <ListItemText primary="Review Answers" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
@@ -172,18 +187,24 @@ function NavMenu(props: {
       <ListItem
         button
         component={Link}
-        to={"/profile"}
-        selected={location.pathname === "/profile"}
+        to={"/setup"}
+        selected={location.pathname === "/setup"}
       >
-        <ListItemText primary="Profile" />
+        <ListItemIcon>
+          <BuildIcon />
+        </ListItemIcon>
+        <ListItemText primary="Setup" />
       </ListItem>
       <ListItem
         button
         component={Link}
-        to={"/subjects"}
-        selected={location.pathname === "/subjects"}
+        to={"/record"}
+        selected={location.pathname.includes("/record")}
       >
-        <ListItemText primary="Select Subjects" />
+        <ListItemIcon>
+          <MicIcon />
+        </ListItemIcon>
+        <ListItemText primary="Record Answers" />
       </ListItem>
       <ListItem
         button
@@ -191,32 +212,46 @@ function NavMenu(props: {
         to={"/setup"}
         selected={location.pathname === "/setup"}
       >
-        <ListItemText primary="Setup" />
+        <ListItemIcon>
+          <RateReviewIcon />
+        </ListItemIcon>
+        <ListItemText primary="Review User Feedback" />
+      </ListItem>
+      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+        <ListItemIcon>
+          <QuestionAnswerIcon />
+        </ListItemIcon>
+        <ListItemText primary="Chat with Mentor" />
       </ListItem>
 
       <Divider style={{ marginTop: 15 }} />
 
-      <ListSubheader className={classes.menuHeader}>
-        Subjects and Templates
-      </ListSubheader>
+      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
       <ListItem
         button
         component={Link}
         to={"/author/subjects"}
         selected={location.pathname.includes("/author/subject")}
       >
-        <ListItemText primary="Subjects" />
+        <ListItemIcon>
+          <EditIcon />
+        </ListItemIcon>
+        <ListItemText primary="Create Subject" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
+        <ListItemIcon>
+          <ExitToAppIcon />
+        </ListItemIcon>
         <ListItemText primary="Log Out" />
       </ListItem>
       <Divider />
     </List>
   );
 }
+
 export function NavBar(props: {
   mentorId: string | undefined;
   title: string;
