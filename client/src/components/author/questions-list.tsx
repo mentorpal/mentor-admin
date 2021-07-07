@@ -234,7 +234,7 @@ export function QuestionsList(props: {
               variant="outlined"
               startIcon={<AddIcon />}
               className={classes.button}
-              onClick={props.addQuestion}
+              onClick={() => props.addQuestion()}
             >
               Add Question
             </Button>

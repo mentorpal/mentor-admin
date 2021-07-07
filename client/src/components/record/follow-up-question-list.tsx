@@ -115,7 +115,10 @@ function FollowUpQuestionsWidget(props: {
                   }}
                   checked={question.checked}
                 />
-                <ListItemText primary={question.question} />
+                <ListItemText
+                  primary={question.question}
+                  data-cy={`follow-up-question-${i}`}
+                />
               </ListItem>
             </div>
           );

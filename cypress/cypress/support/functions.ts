@@ -281,3 +281,27 @@ export function cyMockCancelUpload(
     );
   });
 }
+
+export function cyMockFollowUpQuestions(
+  cy,
+  params: {
+    data?: string[];
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("GET", "/classifier/followups/*/*", (req) => {
+    req.alias = "followups";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: params.data || [],
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}

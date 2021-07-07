@@ -586,6 +586,15 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return result.data.data;
 }
 
+export async function fetchFollowUpQuestions(
+  mentorID: string,
+  categoryID: string
+): Promise<string[]> {
+  const result = await axios.get(
+    urljoin(CLASSIFIER_ENTRYPOINT, "followups", mentorID, categoryID)
+  );
+  return result.data.data;
+}
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {
@@ -708,27 +717,6 @@ export async function loginGoogle(
     variables: { accessToken },
   });
   return result.data.data.loginGoogle;
-}
-
-export async function fetchFollowUpQuestions(
-  accessToken: string
-): Promise<string[]> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
-    {
-      query: `
-        query {
-          me {
-            followUpQuestions {
-              questions
-            }
-          }
-        }`,
-    },
-    { headers: headers }
-  );
-  return result.data.data.me.followUpQuestions[0].questions;
 }
 
 export async function fetchUploadTasks(

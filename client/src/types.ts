@@ -182,6 +182,14 @@ export enum JobState {
   STARTED = "STARTED",
 }
 
+export enum RecordPageState {
+  INITIALIZING = "INITIALIZING",
+  RECORDING_ANSWERS = "RECORDING_ANSWERS",
+  FETCHING_FOLLOW_UPS = "FETCHING_FOLLOW_UPS",
+  REVIEWING_FOLLOW_UPS = "REVIEWING_FOLLOW_UPS",
+  RELOADING_MENTOR = "RELOADING_MENTOR",
+}
+
 export interface TaskStatus<T> {
   state: JobState;
   status?: string;

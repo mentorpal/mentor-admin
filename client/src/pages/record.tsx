@@ -28,7 +28,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status, UtteranceName } from "types";
+import { MentorType, Status, UtteranceName, RecordPageState } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -37,9 +37,7 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { fetchFollowUpQuestions } from "api";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
-import { useEffect } from "react";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 
 const useStyles = makeStyles((theme) => ({
@@ -112,12 +110,11 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor } = recordState;
+  const { curAnswer, mentor, setRecordPageState, recordPageState } =
+    recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
-  const [recordSession, setRecordSesssion] = useState(true);
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]); //TODO: send this to the backend
-  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false); //lets us know if we are gonna be saving extra questions and recording
+  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const curSubject = mentor?.subjects.find(
     (s) => s._id == props.search.subject
   );
@@ -125,27 +122,12 @@ function RecordPage(props: {
   const categoryTitle =
     curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
     "";
-  useEffect(() => {
-    fetchFollowUpQuestions(props.accessToken).then((data) => {
-      setFollowUpQuestions(data);
-    });
-  }, [recordSession]);
-
-  //when the length of the answers changes, we have more questions to record.
-  useEffect(() => {
-    setRecordSesssion(true);
-    recordState.nextAnswer();
-  }, [mentor?.answers]);
-
   function onBack() {
     if (props.search.back) {
       navigate(decodeURI(props.search.back));
     } else {
       navigate("/");
     }
-  }
-  function onEnd() {
-    setRecordSesssion(false);
   }
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
@@ -184,6 +166,18 @@ function RecordPage(props: {
     );
   }
 
+  if (
+    recordPageState == RecordPageState.REVIEWING_FOLLOW_UPS &&
+    recordState.followUpQuestions.length === 0
+  ) {
+    //default leave page method
+    onBack();
+  }
+
+  const displayRecordingPage = !(
+    recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
+    recordPageState === RecordPageState.RELOADING_MENTOR
+  );
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -195,14 +189,18 @@ function RecordPage(props: {
         />
       ) : undefined}
       <NavBar
-        title={`Recording: ${subjectTitle} - ${categoryTitle}`}
+        title={
+          categoryTitle
+            ? `Recording: ${subjectTitle} - ${categoryTitle}`
+            : `Recording: ${subjectTitle}`
+        }
         mentorId={mentor._id}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
       />
 
-      {recordSession ? (
+      {displayRecordingPage ? (
         <div>
           <div data-cy="progress" className={classes.block}>
             <Typography
@@ -356,7 +354,7 @@ function RecordPage(props: {
           <Box height="100%" width="100%">
             <FollowUpQuestionsWidget
               categoryID={props.search.category}
-              questions={followUpQuestions}
+              questions={recordState.followUpQuestions}
               mentorID={mentor._id}
               toRecordFollowUpQs={setRecordFollowUpQs}
               addQuestion={addQuestion}
@@ -388,17 +386,21 @@ function RecordPage(props: {
           >
             Save
           </Button>
-          {recordSession ? (
+          {displayRecordingPage ? (
             recordState.answerIdx === recordState.answers.length - 1 ? (
               <Button
                 data-cy="done-btn"
                 variant="contained"
                 color="primary"
+                disabled={
+                  recordState.recordPageState ===
+                  RecordPageState.FETCHING_FOLLOW_UPS
+                }
                 disableElevation
-                onClick={() => switchAnswer(onEnd)}
+                onClick={() => switchAnswer(recordState.fetchFollowUpQs)}
                 className={classes.nextBtn}
               >
-                Review
+                Next
               </Button>
             ) : (
               <IconButton
@@ -418,9 +420,11 @@ function RecordPage(props: {
               variant="contained"
               color="primary"
               disableElevation
+              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
               onClick={() => {
+                setRecordPageState(RecordPageState.RELOADING_MENTOR);
                 saveSubject(recordState.reloadMentorData);
-              }} //window.location.reload();
+              }}
               className={classes.nextBtn}
             >
               Record

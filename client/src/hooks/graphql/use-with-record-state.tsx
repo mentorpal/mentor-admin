@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer, updateQuestion } from "api";
+import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
 import {
   Answer,
   MediaTag,
@@ -18,6 +18,7 @@ import { copyAndSet, equals } from "helpers";
 import { useWithMentor } from "./use-with-mentor";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
+import { RecordPageState } from "types";
 
 export interface AnswerState {
   answer: Answer;
@@ -47,13 +48,18 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordPageState, setRecordPageState] = useState<RecordPageState>(
+    RecordPageState.INITIALIZING
+  );
   const [error, setError] = useState<RecordingError>();
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
   const {
     data: mentor,
     reloadData: reloadMentor,
     error: mentorError,
     clearError: clearMentorError,
+    isLoading: isMentorLoading,
   } = useWithMentor(accessToken);
   const {
     uploads,
@@ -103,6 +109,7 @@ export function useWithRecordState(
         minVideoLength: a.question?.minVideoLength,
       }))
     );
+    setRecordPageState(RecordPageState.RECORDING_ANSWERS);
   }, [mentor]);
 
   useEffect(() => {
@@ -115,6 +122,31 @@ export function useWithRecordState(
       clearMentorError();
     }
   }, [mentorError]);
+
+  useEffect(() => {
+    if (!mentor) return;
+    if (
+      recordPageState === RecordPageState.RELOADING_MENTOR &&
+      !isMentorLoading
+    ) {
+      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
+      if (answerIdx < mentor.answers.length) nextAnswer();
+    }
+  }, [isMentorLoading]);
+
+  function fetchFollowUpQs() {
+    if (!mentor) return;
+    if (!filter.category) {
+      setFollowUpQuestions([]);
+      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
+      return;
+    }
+    setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
+    fetchFollowUpQuestions(mentor._id, filter.category).then((data) => {
+      setFollowUpQuestions(data);
+      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
+    });
+  }
 
   function updateAnswerState(
     edits: Partial<AnswerState>,
@@ -184,6 +216,7 @@ export function useWithRecordState(
   }
 
   function reloadMentorData() {
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
     reloadMentor();
   }
 
@@ -314,6 +347,7 @@ export function useWithRecordState(
     mentor,
     answers,
     answerIdx,
+    recordPageState,
     curAnswer:
       answers.length >= answerIdx + 1
         ? {
@@ -328,12 +362,15 @@ export function useWithRecordState(
           }
         : undefined,
     uploads: uploads,
+    followUpQuestions,
     prevAnswer,
     nextAnswer,
     setAnswerIDx,
+    setRecordPageState,
     editAnswer,
     saveAnswer,
     removeCompletedTask,
+    fetchFollowUpQs,
     rerecord,
     reloadMentorData,
     startRecording,
@@ -353,11 +390,15 @@ export interface UseWithRecordState {
   mentor: Mentor | undefined;
   answers: AnswerState[];
   answerIdx: number;
+  recordPageState: RecordPageState;
   curAnswer: CurAnswerState | undefined;
   uploads: UploadTask[];
+  followUpQuestions: string[];
+  fetchFollowUpQs: () => void;
   prevAnswer: () => void;
   reloadMentorData: () => void;
   nextAnswer: () => void;
+  setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIDx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;

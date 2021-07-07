@@ -71,8 +71,9 @@ export function useWithSubject(
   function update(callBackFunc?: () => void) {
     saveData({
       callback: (editedData: Subject) =>
-        updateSubject(editedData, accessToken).then(() => {
+        updateSubject(editedData, accessToken).then((data) => {
           if (callBackFunc) callBackFunc();
+          return data;
         }),
     });
   }
@@ -187,7 +188,7 @@ export function useWithSubject(
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: "",
-            mentor: mentorID || "",
+            mentor: mentorID || undefined,
           },
           category: categoryID
             ? editedData.categories.find((c) => c.id == categoryID)
