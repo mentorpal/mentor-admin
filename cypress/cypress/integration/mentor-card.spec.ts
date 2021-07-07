@@ -128,32 +128,36 @@ describe("Bash Button Guides User To Improve Mentor", () => {
   it("Asks user with thumbnail and without idle video to upload one", () => {
     cySetup(cy);
     bashClint.thumbnail = "url";
-    (bashClint.answers = [
-      {
-        status: Status.INCOMPLETE,
-        _id: "idletest",
-        transcript:
-          "This is an idle calibration video. Please get into position and look at the camera without speaking or moving",
-        question: {
-          _id: "idletest",
-          question:
-            "This is an idle calibration video. Please get into position and look at the camera without speaking or moving",
-          type: undefined,
-          paraphrases: undefined,
-          name: UtteranceName.IDLE,
-        },
-      },
-    ]),
-      cyMockDefault(cy, { mentor: bashClint });
+    bashClint.answers.forEach((a) => {
+      if (a.question.name === UtteranceName.IDLE) {
+        a.status = Status.INCOMPLETE;
+        a.question._id = "idletest";
+      }
+    });
+    cyMockDefault(cy, { mentor: bashClint });
     cy.visit("/");
     cy.get("[data-cy=bash-button]").contains("Record an Idle Video");
     cy.get("[data-cy=bash-button]").trigger("mouseover").click();
     cy.url().should("include", "videoId=idletest");
   });
 
-  it("Asks user with thumbnail and idle video to add a subject", () => {
+  it("Asks user with thumbnail and idle video to answer incomplete questions", () => {
     cySetup(cy);
-    bashClint.answers[0].status = Status.COMPLETE;
+    bashClint.answers.forEach((a) => {
+      if (a.question.name === UtteranceName.IDLE) {
+        a.status = Status.COMPLETE;
+      }
+    });
+    cyMockDefault(cy, { mentor: bashClint });
+    cy.visit("/");
+    cy.get("[data-cy=bash-button]").contains("Answer Category2 Questions");
+    cy.get("[data-cy=bash-button]").trigger("mouseover").click();
+    cy.url().should("include", "/record");
+  });
+
+  it("Asks user with thumbnail, idle video, and complete questions to add a subject", () => {
+    cySetup(cy);
+    bashClint.answers.forEach((a) => (a.status = Status.COMPLETE));
     cyMockDefault(cy, { mentor: bashClint });
     cy.visit("/");
     cy.get("[data-cy=bash-button]").contains("Add a Subject");

@@ -9,7 +9,7 @@ import React from "react";
 import { navigate } from "gatsby";
 import PropTypes from "prop-types";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
-import { MentorType, Status, UtteranceName } from "types";
+import { Answer, MentorType, Status, UtteranceName } from "types";
 
 export default function BashButton(props: {
   accessToken: string;
@@ -27,7 +27,47 @@ export default function BashButton(props: {
   const idle = mentor?.answers.find(
     (a) => a.question.name === UtteranceName.IDLE
   );
+  const categories: {
+    subjectName: string;
+    subject: string;
+    categoryName: string;
+    category: string | undefined;
+    answers: Answer[];
+  }[] = [];
 
+  mentor?.subjects.forEach((s) => {
+    categories.push({
+      subjectName: s.name,
+      subject: s._id,
+      categoryName: "Uncategorized",
+      category: undefined,
+      answers: mentor?.answers.filter((a) =>
+        s.questions
+          .filter((q) => !q.category)
+          .map((q) => q.question._id)
+          .includes(a.question._id)
+      ),
+    });
+    s.categories.forEach((c) => {
+      categories.push({
+        subjectName: s.name,
+        subject: s._id,
+        categoryName: c.name,
+        category: c.id,
+        answers: mentor?.answers.filter((a) =>
+          s.questions
+            .filter((q) => q.category?.id === c.id)
+            .map((q) => q.question._id)
+            .includes(a.question._id)
+        ),
+      });
+    });
+  });
+  const firstIncomplete = categories.find((c) =>
+    c.answers.find((a) => a.status === Status.INCOMPLETE)
+  );
+  console.log(mentor);
+  console.log(firstIncomplete);
   switch (true) {
     case mentor?.thumbnail == "":
       bash.text = "Add a Thumbnail";
@@ -45,6 +85,21 @@ export default function BashButton(props: {
           }`
         );
       };
+      break;
+    case Boolean(firstIncomplete):
+      bash.text = "Answer " + firstIncomplete?.categoryName + " Questions";
+      bash.reason =
+        "You have unanswered questions in the " +
+        firstIncomplete?.subjectName +
+        " subject";
+      bash.action = () =>
+        navigate(
+          `/record?back=${encodeURI(
+            `/?subject=${firstIncomplete?.subject}`
+          )}&status=${"INCOMPLETE"}&subject=${
+            firstIncomplete?.subject
+          }&category=${firstIncomplete?.category}`
+        );
       break;
     default:
       bash.text = "Add a Subject";
