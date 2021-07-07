@@ -122,7 +122,8 @@ describe("Bash Button Guides User To Improve Mentor", () => {
     bashClint.thumbnail = "";
     cyMockDefault(cy, { mentor: bashClint });
     cy.visit("/");
-    cy.get("[data-cy=bash-button]").contains("Add a Thumbnail");
+    cy.get("[data-cy=bash-thumbnail]").should("exist");
+    cy.get("[data-cy=bash-upload]").should("be.hidden");
   });
 
   it("Asks user with thumbnail and without idle video to upload one", () => {

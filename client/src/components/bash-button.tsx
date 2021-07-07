@@ -13,6 +13,7 @@ import { Answer, MentorType, Status, UtteranceName } from "types";
 
 export default function BashButton(props: {
   accessToken: string;
+  setThumbnail: (file: File) => void;
 }): JSX.Element {
   const { mentor } = useWithReviewAnswerState(props.accessToken, {
     subject: undefined,
@@ -66,13 +67,14 @@ export default function BashButton(props: {
   const firstIncomplete = categories.find((c) =>
     c.answers.find((a) => a.status === Status.INCOMPLETE)
   );
-  console.log(mentor);
-  console.log(firstIncomplete);
+
   switch (true) {
     case mentor?.thumbnail == "":
       bash.text = "Add a Thumbnail";
       bash.reason = "A thumbnail helps a user identify your mentor";
-      bash.action = () => console.log("upload");
+      bash.action = () => {
+        undefined;
+      };
       break;
     case idle?.status === Status.INCOMPLETE &&
       mentor?.mentorType === MentorType.VIDEO:
@@ -107,12 +109,35 @@ export default function BashButton(props: {
       bash.action = () => navigate("/subjects");
       break;
   }
-  return (
+  return mentor?.thumbnail == "" ? (
+    <div>
+      <input
+        accept="image/*"
+        style={{ display: "none" }}
+        id="thumbnail-upload"
+        data-cy="bash-upload"
+        type="file"
+        onChange={(e) => {
+          e.target.files instanceof FileList
+            ? props.setThumbnail(e.target.files[0])
+            : undefined;
+        }}
+      />
+      <label htmlFor="thumbnail-upload">
+        <Button component="span" fullWidth data-cy="bash-thumbnail">
+          {bash.text}
+        </Button>
+      </label>
+      <Typography variant="body1" color="textSecondary" data-cy="bash-reason">
+        {bash.reason}
+      </Typography>
+    </div>
+  ) : (
     <div>
       <Button fullWidth data-cy="bash-button" onClick={bash.action}>
         {bash.text}
       </Button>
-      <Typography variant="body1" color="textSecondary">
+      <Typography variant="body1" color="textSecondary" data-cy="bash-reason">
         {bash.reason}
       </Typography>
     </div>

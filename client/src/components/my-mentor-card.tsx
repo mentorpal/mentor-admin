@@ -325,7 +325,10 @@ export function MyMentorCard(props: {
               )}
             </Grid>
             <Grid xs={12} md={2}>
-              <BashButton accessToken={props.accessToken} />
+              <BashButton
+                accessToken={props.accessToken}
+                setThumbnail={updateThumbnail}
+              />
             </Grid>
           </Grid>
         </CardContent>
