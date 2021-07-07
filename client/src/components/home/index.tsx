@@ -25,7 +25,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { MyMentorCard } from "components/my-mentor-card";
+import MyMentorCard from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,

@@ -4,11 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/*
-This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
-Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
-*/
 import React from "react";
 import PropTypes from "prop-types";
 import {
@@ -171,7 +166,7 @@ const StageSelect = (value: number) => {
     },
   };
 };
-export function MyMentorCard(props: {
+export default function MyMentorCard(props: {
   accessToken: string;
   mentorId: string;
   name: string;
@@ -342,176 +337,7 @@ export function MyMentorCard(props: {
   );
 }
 
-export function ProgressCard(props: {
-  mentorId: string;
-  name: string;
-  type: MentorType | undefined;
-  title: string;
-  lastTrainedAt: string;
-  value: number;
-  start: number;
-  thumbnail: string;
-}): JSX.Element {
-  const currentStage = StageSelect(props.value);
-  const classes = useStyles();
-  const difference = props.value - props.start;
-
-  return (
-    <Card data-cy="progress-card">
-      <CardContent>
-        <Grid alignItems="center" container={true} xs={12} spacing={2}>
-          <Grid
-            item={true}
-            container={true}
-            alignItems="center"
-            justify="center"
-            xs={12}
-            md={6}
-          >
-            <Typography
-              variant="h5"
-              color="textSecondary"
-              data-cy="mentor-card-name"
-            >
-              {props.name}
-            </Typography>
-            <Typography
-              variant="h6"
-              color="textSecondary"
-              data-cy="mentor-card-info"
-            >
-              Title: {props.title}
-            </Typography>
-            <Grid
-              justify="center"
-              alignItems="center"
-              data-cy="thumbnail-wrapper"
-              item
-              xs={10}
-            >
-              {props.thumbnail != "" ? (
-                <Avatar
-                  data-cy="uploaded-thumbnail"
-                  variant="rounded"
-                  className={classes.siteThumbnail}
-                  src={props.thumbnail}
-                />
-              ) : (
-                <Avatar
-                  data-cy="placeholder-thumbnail"
-                  variant="square"
-                  className={classes.siteThumbnail}
-                />
-              )}
-            </Grid>
-          </Grid>
-          <Grid item={true} alignItems="center" xs={6}>
-            <Typography
-              variant="h6"
-              color="textSecondary"
-              align="left"
-              data-cy="mentor-card-scope"
-            >
-              Scope: {currentStage.name}
-            </Typography>
-            <Typography
-              variant="body1"
-              color="textSecondary"
-              align="left"
-              data-cy="mentor-card-scope-description"
-            >
-              {currentStage.description}
-            </Typography>
-            {props.type ? (
-              <Typography
-                variant="h6"
-                color="textSecondary"
-                align="left"
-                data-cy="mentor-card-type"
-              >
-                {props.type[0].toUpperCase() +
-                  props.type.slice(1).toLowerCase()}{" "}
-                Mentor
-              </Typography>
-            ) : (
-              <Typography
-                variant="h6"
-                color="textSecondary"
-                align="left"
-                data-cy="mentor-card-type"
-              >
-                Invalid Mentor
-              </Typography>
-            )}
-
-            <Typography
-              variant="body1"
-              color="textSecondary"
-              align="left"
-              data-cy="mentor-card-trained"
-            >
-              Last Trained: {props.lastTrainedAt.substring(0, 10)}
-            </Typography>
-          </Grid>
-
-          <Grid item={true} alignItems="center" xs={6}>
-            <Typography variant="body1" color="textSecondary">
-              Next Goal: {currentStage.next.name}
-              {"   "}
-              <Tooltip
-                title={
-                  <React.Fragment>
-                    <Typography color="inherit">
-                      {currentStage.next.name}
-                    </Typography>
-                    {currentStage.next.description}
-                  </React.Fragment>
-                }
-                data-cy="next-stage-info"
-              >
-                <HelpOutline fontSize="small" />
-              </Tooltip>
-            </Typography>
-
-            {currentStage.floor != 1000 && (
-              <StageProgress
-                value={props.value}
-                max={currentStage.max || 0}
-                percent={currentStage.percent || 0}
-              />
-            )}
-          </Grid>
-          <Grid
-            item={true}
-            alignItems="center"
-            xs={12}
-            md={6}
-            data-cy="modified-questions"
-          >
-            {difference < 0 ? (
-              <Typography>
-                You removed {-1 * difference} questions this session.
-              </Typography>
-            ) : (
-              <Typography>
-                You added {difference} questions this session.
-              </Typography>
-            )}
-          </Grid>
-        </Grid>
-      </CardContent>
-    </Card>
-  );
-}
-
 MyMentorCard.propTypes = {
-  mentorId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  thumbnail: PropTypes.string.isRequired,
-};
-
-ProgressCard.propTypes = {
   mentorId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,

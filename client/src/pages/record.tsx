@@ -38,7 +38,6 @@ import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
 import { fetchMentor } from "api";
-import { ProgressCard } from "components/my-mentor-card";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -112,7 +111,6 @@ function RecordPage(props: {
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, mentor } = recordState;
   const [recordSession, setRecordSesssion] = useState(true);
-  const [editedMentor, setEditedMentor] = useState(mentor);
 
   function onBack() {
     if (props.search.back) {
@@ -122,8 +120,7 @@ function RecordPage(props: {
     }
   }
   function onEnd() {
-    fetchMentor(props.accessToken).then((data) => {
-      setEditedMentor(data);
+    fetchMentor(props.accessToken).then(() => {
       setRecordSesssion(false);
     });
   }
@@ -338,36 +335,7 @@ function RecordPage(props: {
           spacing={2}
           alignItems="center"
           justify="center"
-        >
-          <Grid
-            xs={12}
-            md={6}
-            item
-            spacing={2}
-            alignItems="center"
-            justify="center"
-          >
-            <ProgressCard
-              mentorId={editedMentor?._id || ""}
-              name={editedMentor?.name || "Unnamed"}
-              type={editedMentor?.mentorType}
-              title={editedMentor?.title || "none"}
-              lastTrainedAt={editedMentor?.lastTrainedAt || "never"}
-              value={
-                editedMentor?.answers.filter((a) => a.status === "COMPLETE")
-                  .length || 0
-              }
-              start={
-                mentor?.answers.filter((a) => a.status === "COMPLETE").length ||
-                0
-              }
-              thumbnail={editedMentor?.thumbnail || ""}
-            />
-          </Grid>
-          <Grid xs={12} md={6} item spacing={2}>
-            {/* Aaron: Your component can go here */}
-          </Grid>
-        </Grid>
+        ></Grid>
       )}
       <div className={classes.toolbar} />
 
