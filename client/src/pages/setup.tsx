@@ -192,7 +192,7 @@ function SetupPage(props: {
         className={classes.carousel}
         next={() => nextStep()}
         prev={() => prevStep()}
-        NavButton={({ onClick, className, style, next, prev }) => {
+        NavButton={({ onClick, style, next, prev }) => {
           return (
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}

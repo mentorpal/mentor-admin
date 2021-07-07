@@ -127,9 +127,35 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   );
 }
 
+function NavItem(props: {
+  icon: JSX.Element;
+  text: string;
+  link: string;
+  isSelected: boolean;
+  onNav?: (cb: () => void) => void;
+}): JSX.Element {
+  return (
+    <ListItem
+      button
+      selected={props.isSelected}
+      onClick={() => {
+        if (props.onNav) {
+          props.onNav(() => navigate(props.link));
+        } else {
+          navigate(props.link);
+        }
+      }}
+    >
+      <ListItemIcon>{props.icon}</ListItemIcon>
+      <ListItemText primary={props.text} />
+    </ListItem>
+  );
+}
+
 function NavMenu(props: {
   mentorId: string | undefined;
   classes: Record<string, string>;
+  onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
@@ -147,17 +173,13 @@ function NavMenu(props: {
   return (
     <List dense className={classes.menu}>
       <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemIcon>
-          <AccountCircle />
-        </ListItemIcon>
-        <ListItemText primary="Profile" />
-      </ListItem>
+      <NavItem
+        text={"Profile"}
+        link={"/profile"}
+        icon={<AccountCircle />}
+        onNav={props.onNav}
+        isSelected={location.pathname === "/profile"}
+      />
       <ListItem
         button
         component={Link}
@@ -255,17 +277,20 @@ function NavMenu(props: {
 export function NavBar(props: {
   mentorId: string | undefined;
   title: string;
-  search: {
-    back?: string;
-  };
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;
   toggleUploadsButtonVisibility: (b: boolean) => void;
+  onNav?: (cb: () => void) => void;
+  onBack?: () => void;
 }): JSX.Element {
   const classes = useStyles();
-  const { back } = props.search;
-  const { uploads, uploadsButtonVisible, toggleUploadsButtonVisibility } =
-    props;
+  const {
+    uploads,
+    uploadsButtonVisible,
+    toggleUploadsButtonVisibility,
+    onNav,
+    onBack,
+  } = props;
   const numUploadsInProgress = uploads?.filter(
     (upload) =>
       upload.uploadStatus !== UploadStatus.DONE &&
@@ -282,33 +307,34 @@ export function NavBar(props: {
         uploads.find((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
       ) === false
     : true;
+
   function toggleDrawer(tf: boolean): void {
     setIsDrawerOpen(tf);
   }
+
   return (
     <div data-cy="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
           <IconButton
-            data-cy={back ? "back-button" : "menu-button"}
+            data-cy={onBack ? "back-button" : "menu-button"}
             edge="start"
             color="inherit"
             aria-label="menu"
             className={classes.menuButton}
             onClick={() => {
-              if (back) {
-                navigate(decodeURI(back));
+              if (onBack) {
+                onBack();
               } else {
                 toggleDrawer(true);
               }
             }}
           >
-            {back ? <CloseIcon /> : <MenuIcon />}
+            {onBack ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Typography data-cy="title" variant="h5" className={classes.title}>
             {props.title}
           </Typography>
-
           <Button
             variant="outlined"
             disabled={disableUploadsButton}
@@ -344,7 +370,7 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu classes={classes} mentorId={props.mentorId} />
+        <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>

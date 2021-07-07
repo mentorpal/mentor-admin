@@ -128,13 +128,9 @@ function RecordPage(props: {
 
   function onBack() {
     if (props.search.back) {
-      switchAnswer(() => {
-        navigate(decodeURI(props.search.back!));
-      });
+      navigate(decodeURI(props.search.back));
     } else {
-      switchAnswer(() => {
-        navigate("/");
-      });
+      navigate("/");
     }
   }
 
@@ -214,6 +210,7 @@ function RecordPage(props: {
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+        onBack={() => switchAnswer(onBack)}
       />
 
       {displayRecordingPage ? (
