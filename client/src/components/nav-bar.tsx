@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate, Link } from "gatsby";
+import { navigate } from "gatsby";
 import React, { useContext } from "react";
 import {
   AppBar,
@@ -131,13 +131,12 @@ function NavItem(props: {
   icon: JSX.Element;
   text: string;
   link: string;
-  isSelected: boolean;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   return (
     <ListItem
       button
-      selected={props.isSelected}
+      selected={location.pathname === props.link}
       onClick={() => {
         if (props.onNav) {
           props.onNav(() => navigate(props.link));
@@ -178,67 +177,39 @@ function NavMenu(props: {
         link={"/profile"}
         icon={<AccountCircle />}
         onNav={props.onNav}
-        isSelected={location.pathname === "/profile"}
       />
-      <ListItem
-        button
-        component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
-      >
-        <ListItemIcon>
-          <SubjectIcon />
-        </ListItemIcon>
-        <ListItemText primary="Select Subjects" />
-      </ListItem>
-
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemIcon>
-          <ChatIcon />
-        </ListItemIcon>
-        <ListItemText primary="Review Answers" />
-      </ListItem>
+      <NavItem
+        text={"Select Subjects"}
+        link={"/subjects"}
+        icon={<SubjectIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Review Answers"}
+        link={"/"}
+        icon={<ChatIcon />}
+        onNav={props.onNav}
+      />
       <Divider style={{ marginTop: 15 }} />
-
-      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
-      >
-        <ListItemIcon>
-          <BuildIcon />
-        </ListItemIcon>
-        <ListItemText primary="Setup" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
-      >
-        <ListItemIcon>
-          <MicIcon />
-        </ListItemIcon>
-        <ListItemText primary="Record Answers" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
-      >
-        <ListItemIcon>
-          <RateReviewIcon />
-        </ListItemIcon>
-        <ListItemText primary="Review User Feedback" />
-      </ListItem>
+      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
+      <NavItem
+        text={"Setup"}
+        link={"/setup"}
+        icon={<BuildIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Record Answers"}
+        link={"/record"}
+        icon={<MicIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Review User Feedback"}
+        link={"/feedback"}
+        icon={<RateReviewIcon />}
+        onNav={props.onNav}
+      />
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
         <ListItemIcon>
           <QuestionAnswerIcon />
@@ -247,21 +218,14 @@ function NavMenu(props: {
       </ListItem>
 
       <Divider style={{ marginTop: 15 }} />
-
       <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/subjects"}
-        selected={location.pathname.includes("/author/subject")}
-      >
-        <ListItemIcon>
-          <EditIcon />
-        </ListItemIcon>
-        <ListItemText primary="Create Subject" />
-      </ListItem>
+      <NavItem
+        text={"Create Subject"}
+        link={"/author/subjects"}
+        icon={<EditIcon />}
+        onNav={props.onNav}
+      />
       <Divider style={{ marginTop: 15 }} />
-
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
         <ListItemIcon>

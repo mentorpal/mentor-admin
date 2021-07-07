@@ -596,7 +596,7 @@ describe("Setup", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup6, setup7, setup7, setup8, setup8],
+      mentor: [setup6, setup6, setup8, setup8],
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("updateAnswer", true, true)],
     });
@@ -632,8 +632,8 @@ describe("Setup", () => {
       cy.get("textarea").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Active");
-    // record second question
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.wait(500);
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should(
@@ -655,61 +655,7 @@ describe("Setup", () => {
       assert($el.replace("/admin", ""), "/setup")
     );
     cy.location("search").should("contain", "?i=6");
-    cy.get("[data-cy=slide]").contains("2 / 3");
-    cy.get("[data-cy=radio]")
-      .eq(6)
-      .should("have.css", "color", "rgb(255, 0, 0)");
-    // back to record
-    cy.wait(500);
-    cy.get("[data-cy=record-btn]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?subject=repeat_after_me&back=/setup?i=6"
-    );
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=progress]").contains("Questions 2 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please give a short introduction of yourself, which includes your name, current job, and title."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "My name is Clint Anderson I'm a Nuclear Electrician's Mate"
-      );
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=status]").contains("Active");
-    // record third question
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=progress]").contains("Questions 3 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").type(
-      "I couldn't understand the question. Try asking me something else."
-    );
-    cy.get("[data-cy=status]").contains("Skip");
-    // back to setup
-    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
+    cy.get("[data-cy=slide]").contains("3 / 3");
     cy.get("[data-cy=radio]")
       .eq(6)
       .should("have.css", "color", "rgb(0, 128, 0)");
