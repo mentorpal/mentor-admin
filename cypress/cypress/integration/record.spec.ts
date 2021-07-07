@@ -609,28 +609,63 @@ describe("Record", () => {
         mentor: [chatMentor],
       });
       cyMockFollowUpQuestions(cy, {
-        data: [
-          "Can you tell me more about Aaron?",
-          "What was Florida like?",
-          "What does an Intern do?",
-          "What is foosball?",
-          "Can you tell me more about Aaron?",
-          "What was Florida like?",
-          "What does an Intern do?",
-          "What is foosball?",
-          "Can you tell me more about Aaron?",
-          "What was Florida like?",
-          "What does an Intern do?",
-          "What is foosball?",
-          "Can you tell me more about Aaron?",
-          "What was Florida like?",
-          "What does an Intern do?",
-          "What is foosball?",
-          "Can you tell me more about Aaron?",
-          "What was Florida like?",
-          "What does an Intern do?",
-          "What is foosball?",
-        ],
+        errors: null,
+        data: {
+          followups: [
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+          ],
+        },
       });
       cy.visit("/record?subject=background&category=cat");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");

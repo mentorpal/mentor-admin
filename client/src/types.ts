@@ -125,6 +125,11 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface FollowUpQuestion {
+  question: string;
+  entityType?: string;
+}
+
 export enum MentorType {
   VIDEO = "VIDEO",
   CHAT = "CHAT",

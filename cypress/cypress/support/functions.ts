@@ -285,7 +285,8 @@ export function cyMockCancelUpload(
 export function cyMockFollowUpQuestions(
   cy,
   params: {
-    data?: string[];
+    errors?: null | string[];
+    data?: {};
     statusCode?: number;
   } = {}
 ): void {
@@ -296,7 +297,8 @@ export function cyMockFollowUpQuestions(
       staticResponse({
         statusCode: params.statusCode || 200,
         body: {
-          data: params.data || [],
+          errors: params.errors,
+          data: params.data || {},
         },
         headers: {
           "Content-Type": "application/json",

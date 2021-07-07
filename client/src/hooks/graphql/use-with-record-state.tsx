@@ -143,7 +143,12 @@ export function useWithRecordState(
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(mentor._id, filter.category).then((data) => {
-      setFollowUpQuestions(data);
+      const followUps = data
+        ? data.map((d) => {
+            return d.question;
+          })
+        : [];
+      setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
   }
