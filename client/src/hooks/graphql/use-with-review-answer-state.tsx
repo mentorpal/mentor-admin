@@ -109,7 +109,7 @@ export function useWithReviewAnswerState(
           name: subject.name,
           description: subject.description,
           answers: uncategorizedAnswers,
-          recordAll: (status) => recordAnswers(status, subject._id, "none"),
+          recordAll: (status) => recordAnswers(status, subject._id, undefined),
           recordOne: recordAnswer,
           addQuestion: () => addNewQuestion(subject, undefined),
           editQuestion: (question) => editQuestion(subject, question),
