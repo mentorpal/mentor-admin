@@ -16,6 +16,7 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
+import { equals } from "helpers";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -71,19 +72,23 @@ function VideoPlayer(props: {
       return;
     }
     const duration = sliderToVideoDuration();
-    if (duration && state.played >= trim[1] / 100) {
+    if (duration && state.played >= trim[1] / 100 && !trimInProgress) {
       reactPlayerRef.current.seekTo(duration[0]);
     }
   }
 
   function onUpdateTrim(value: number | number[]): void {
     if (!trimInProgress) setTrimInProgress(true);
-    if (!Array.isArray(value) || !reactPlayerRef?.current) {
+    if (
+      !Array.isArray(value) ||
+      !reactPlayerRef?.current ||
+      equals(trim, value)
+    ) {
       return;
     }
     const duration = sliderToVideoDuration();
     if (duration) {
-      reactPlayerRef.current.seekTo(duration[0]);
+      reactPlayerRef.current.seekTo(duration[value[1] !== trim[1] ? 1 : 0]);
       setTrim(value);
     }
   }
@@ -158,7 +163,7 @@ function VideoPlayer(props: {
             ref={reactPlayerRef}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!isUploading}
+            playing={!isUploading && !trimInProgress}
             height={height}
             width={width}
             playsinline
