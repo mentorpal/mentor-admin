@@ -43,6 +43,7 @@ function VideoPlayer(props: {
   const isUploading = recordState.curAnswer?.isUploading;
   const isTrimming =
     isFinite(videoLength) && !(trim[0] === 0 && trim[1] === 100);
+  type StartAndEnd = [number, number];
 
   React.useEffect(() => {
     setVideoLength(0);
@@ -77,7 +78,7 @@ function VideoPlayer(props: {
     }
   }
 
-  function onUpdateTrim(newTrimValues: number[]): void {
+  function onUpdateTrim(newTrimValues: StartAndEnd): void {
     if (!trimInProgress) setTrimInProgress(true);
     if (!reactPlayerRef?.current || equals(trim, newTrimValues)) {
       return;
@@ -209,7 +210,7 @@ function VideoPlayer(props: {
           getAriaValueText={sliderText}
           value={trim}
           onChange={(e, v) => {
-            if (Array.isArray(v)) onUpdateTrim(v);
+            if (Array.isArray(v) && v.length === 2) onUpdateTrim([v[0], v[1]]);
           }}
           onChangeCommitted={() => {
             setTrimInProgress(false);
