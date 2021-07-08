@@ -87,16 +87,10 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
-  const { setupStatus } = useWithSetup(props.accessToken);
-  useEffect(() => {
-    if (setupStatus?.isSetupComplete === false) {
-      navigate(`/setup`);
-    }
-  }, [setupStatus]);
-  if (!mentor || !setupStatus) {
+  if (!mentor) {
     return (
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="Mentor Studio" mentorId={undefined} />
         <CircularProgress />
       </div>
     );

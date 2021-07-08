@@ -1,11 +1,18 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { Answer, JobState, Mentor, Status, Subject } from "types";
+import {
+  Answer,
+  JobState,
+  Mentor,
+  MentorType,
+  Status,
+  Subject,
+  UtteranceName,
+} from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
@@ -16,6 +23,7 @@ export enum SetupStepType {
   MENTOR_TYPE,
   INTRODUCTION,
   SELECT_SUBJECTS,
+  IDLE,
   REQUIRED_SUBJECT,
   BUILD,
 }
@@ -28,6 +36,12 @@ interface SetupStep {
 interface SetupStatus {
   isMentorInfoDone: boolean;
   isMentorTypeChosen: boolean;
+  idle:
+    | {
+        idle: Answer;
+        complete: boolean;
+      }
+    | undefined;
   requiredSubjects: {
     subject: Subject;
     answers: Answer[];
@@ -93,6 +107,13 @@ export function useWithSetup(
       mentor.name && mentor.firstName && mentor.title
     );
     const isMentorTypeChosen = Boolean(mentor.mentorType);
+    const idleAnswer = mentor.answers.find(
+      (a) => a.question.name === UtteranceName.IDLE
+    );
+    const idle =
+      mentor.mentorType === MentorType.VIDEO && idleAnswer
+        ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
+        : undefined;
     const requiredSubjects = mentor.subjects
       .filter((s) => s.isRequired)
       .map((s) => {
@@ -108,13 +129,17 @@ export function useWithSetup(
           complete: answers.every((a) => a.status === Status.COMPLETE),
         };
       });
-    const isBuildable = isMentorInfoDone && isMentorTypeChosen; //&&
-    // requiredSubjects.every((s) => s.complete);
+    const isBuildable =
+      isMentorInfoDone &&
+      isMentorTypeChosen &&
+      (!idle || idle.complete) &&
+      requiredSubjects.every((s) => s.complete);
     const isBuilt = Boolean(mentor.lastTrainedAt);
     const isSetupComplete = isBuildable && isBuilt;
     setStatus({
       isMentorInfoDone,
       isMentorTypeChosen,
+      idle,
       requiredSubjects,
       isBuildable,
       isBuilt,
@@ -128,7 +153,9 @@ export function useWithSetup(
       { type: SetupStepType.INTRODUCTION, complete: true },
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
     ];
-
+    if (idle) {
+      status.push({ type: SetupStepType.IDLE, complete: idle.complete });
+    }
     requiredSubjects.forEach((s) => {
       status.push({
         type: SetupStepType.REQUIRED_SUBJECT,
