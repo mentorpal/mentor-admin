@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect } from "react";
-import { navigate } from "gatsby";
+import React from "react";
 import {
   AppBar,
   CircularProgress,
@@ -22,7 +21,6 @@ import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
