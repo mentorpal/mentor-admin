@@ -21,6 +21,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
+import RecommendedActionButton from "./recommended-action-button";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -83,9 +84,13 @@ StageProgress.propTypes = {
   percent: PropTypes.number.isRequired,
 };
 const useStyles = makeStyles(() => ({
-  avatar: {
+  homeThumbnail: {
     width: 240,
     height: 180,
+  },
+  siteThumbnail: {
+    width: 180,
+    height: 135,
   },
 }));
 const StageSelect = (value: number) => {
@@ -181,12 +186,12 @@ export default function MyMentorCard(props: {
   const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
-      <Card data-cy="stage-card">
+      <Card data-cy="my-mentor-card">
         <CardContent>
-          <Grid alignItems="center" container={true} xs={12}>
+          <Grid alignItems="center" container xs={12}>
             <Grid
-              item={true}
-              container={true}
+              item
+              container
               alignItems="center"
               justify="center"
               xs={12}
@@ -217,14 +222,14 @@ export default function MyMentorCard(props: {
                   <Avatar
                     data-cy="uploaded-thumbnail"
                     variant="rounded"
-                    className={classes.avatar}
+                    className={classes.homeThumbnail}
                     src={thumbnail}
                   />
                 ) : (
                   <Avatar
                     data-cy="placeholder-thumbnail"
                     variant="square"
-                    className={classes.avatar}
+                    className={classes.homeThumbnail}
                   />
                 )}
               </Grid>
@@ -239,7 +244,7 @@ export default function MyMentorCard(props: {
                 }}
               />
             </Grid>
-            <Grid item={true} alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography
                 variant="h6"
                 color="textSecondary"
@@ -287,7 +292,7 @@ export default function MyMentorCard(props: {
                 Last Trained: {props.lastTrainedAt.substring(0, 10)}
               </Typography>
             </Grid>
-            <Grid item={true} alignItems="center" xs={12} md={4}>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography variant="body1" color="textSecondary">
                 Next Goal: {currentStage.next.name}
                 {"   "}
@@ -314,10 +319,15 @@ export default function MyMentorCard(props: {
                 />
               )}
             </Grid>
+            <Grid xs={12} md={2}>
+              <RecommendedActionButton
+                accessToken={props.accessToken}
+                setThumbnail={updateThumbnail}
+              />
+            </Grid>
           </Grid>
         </CardContent>
       </Card>
-
       <StageToast
         value={props.value}
         floor={currentStage.floor}
