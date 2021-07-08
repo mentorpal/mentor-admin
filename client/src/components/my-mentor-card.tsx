@@ -21,7 +21,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
-import BashButton from "./bash-button";
+import RecommendedActionButton from "./recommended-action-button";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -320,7 +320,7 @@ export default function MyMentorCard(props: {
               )}
             </Grid>
             <Grid xs={12} md={2}>
-              <BashButton
+              <RecommendedActionButton
                 accessToken={props.accessToken}
                 setThumbnail={updateThumbnail}
               />

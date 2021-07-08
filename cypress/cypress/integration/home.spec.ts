@@ -107,7 +107,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=my-mentor-card]").should("exist");
     cy.get("[data-cy=stage-progress]").should("exist");
     cy.get("[data-cy=upload-file]").should("exist");
-    cy.get("[data-cy=bash-button]").should("exist");
+    cy.get("[data-cy=recommended-action-button]").should("exist");
   });
 
   it("dropdown should expand when question is added", () => {
