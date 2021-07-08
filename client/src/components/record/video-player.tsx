@@ -77,19 +77,17 @@ function VideoPlayer(props: {
     }
   }
 
-  function onUpdateTrim(value: number | number[]): void {
+  function onUpdateTrim(newTrimValues: number[]): void {
     if (!trimInProgress) setTrimInProgress(true);
-    if (
-      !Array.isArray(value) ||
-      !reactPlayerRef?.current ||
-      equals(trim, value)
-    ) {
+    if (!reactPlayerRef?.current || equals(trim, newTrimValues)) {
       return;
     }
     const duration = sliderToVideoDuration();
     if (duration) {
-      reactPlayerRef.current.seekTo(duration[value[1] !== trim[1] ? 1 : 0]);
-      setTrim(value);
+      reactPlayerRef.current.seekTo(
+        duration[newTrimValues[1] !== trim[1] ? 1 : 0]
+      );
+      setTrim(newTrimValues);
     }
   }
 
@@ -210,7 +208,9 @@ function VideoPlayer(props: {
           aria-labelledby="range-slider"
           getAriaValueText={sliderText}
           value={trim}
-          onChange={(e, v) => onUpdateTrim(v)}
+          onChange={(e, v) => {
+            if (Array.isArray(v)) onUpdateTrim(v);
+          }}
           onChangeCommitted={() => {
             setTrimInProgress(false);
           }}
