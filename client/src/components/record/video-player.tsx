@@ -16,6 +16,7 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
+import { equals } from "helpers";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -42,6 +43,7 @@ function VideoPlayer(props: {
   const isUploading = recordState.curAnswer?.isUploading;
   const isTrimming =
     isFinite(videoLength) && !(trim[0] === 0 && trim[1] === 100);
+  type StartAndEnd = [number, number];
 
   React.useEffect(() => {
     setVideoLength(0);
@@ -71,20 +73,22 @@ function VideoPlayer(props: {
       return;
     }
     const duration = sliderToVideoDuration();
-    if (duration && state.played >= trim[1] / 100) {
+    if (duration && state.played >= trim[1] / 100 && !trimInProgress) {
       reactPlayerRef.current.seekTo(duration[0]);
     }
   }
 
-  function onUpdateTrim(value: number | number[]): void {
+  function onUpdateTrim(newTrimValues: StartAndEnd): void {
     if (!trimInProgress) setTrimInProgress(true);
-    if (!Array.isArray(value) || !reactPlayerRef?.current) {
+    if (!reactPlayerRef?.current || equals(trim, newTrimValues)) {
       return;
     }
     const duration = sliderToVideoDuration();
     if (duration) {
-      reactPlayerRef.current.seekTo(duration[0]);
-      setTrim(value);
+      reactPlayerRef.current.seekTo(
+        duration[newTrimValues[1] !== trim[1] ? 1 : 0]
+      );
+      setTrim(newTrimValues);
     }
   }
 
@@ -158,7 +162,7 @@ function VideoPlayer(props: {
             ref={reactPlayerRef}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!isUploading}
+            playing={!isUploading && !trimInProgress}
             height={height}
             width={width}
             playsinline
@@ -205,7 +209,9 @@ function VideoPlayer(props: {
           aria-labelledby="range-slider"
           getAriaValueText={sliderText}
           value={trim}
-          onChange={(e, v) => onUpdateTrim(v)}
+          onChange={(e, v) => {
+            if (Array.isArray(v) && v.length === 2) onUpdateTrim([v[0], v[1]]);
+          }}
           onChangeCommitted={() => {
             setTrimInProgress(false);
           }}
