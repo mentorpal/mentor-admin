@@ -10,6 +10,12 @@ import { navigate } from "gatsby";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { Answer, MentorType, Status, UtteranceName } from "types";
 
+function urlBuild(base: string, params: Record<string, string>) {
+  const query = new URLSearchParams();
+  Object.keys(params).forEach((n) => query.append(n, params[n]));
+  return `${base}?${query.toString()}`;
+}
+
 export default function RecommendedActionButton(props: {
   accessToken: string;
   setThumbnail: (file: File) => void;
@@ -80,9 +86,7 @@ export default function RecommendedActionButton(props: {
         reason: "Users see your idle video while typing a question",
         action: () => {
           navigate(
-            `/record?back=${encodeURI(`/?subject=${undefined}`)}&videoId=${
-              idle?.question._id
-            }`
+            urlBuild("/record", { subject: "", videoId: idle?.question._id })
           );
         },
       };
@@ -92,11 +96,11 @@ export default function RecommendedActionButton(props: {
         reason: `You have unanswered questions in the ${firstIncomplete?.subjectName} subject`,
         action: () =>
           navigate(
-            `/record?back=${encodeURI(
-              `/?subject=${firstIncomplete?.subject}`
-            )}&status=${"INCOMPLETE"}&subject=${
-              firstIncomplete?.subject
-            }&category=${firstIncomplete?.category}`
+            urlBuild("/record", {
+              subject: firstIncomplete?.subject,
+              status: "INCOMPLETE",
+              category: firstIncomplete?.category,
+            })
           ),
       };
     return {
