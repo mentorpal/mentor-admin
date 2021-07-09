@@ -103,13 +103,7 @@ function LoginPage(): JSX.Element {
             <Button
               variant="contained"
               color="primary"
-              onClick={() =>
-                onGoogleLogin({
-                  accessToken:
-                    "ya29.a0ARrdaM_7Ck74fpKlMjlLnDIPR9fadDxa_gVLKZQld4sFlQqjRLMy_oY2q5a0l3Kl0wkG_2Xgc6B6FO_GNYL-QzzLRuNU7BT5G927SGIU5qOMe6Osl_QtlBR8vaYURZ7ZoPPeCEXe6W2QvCtIdGLXbZvmHnisVMc",
-                })
-              }
-              // onClick={renderProps.onClick}
+              onClick={renderProps.onClick}
               className={classes.button}
               disabled={renderProps.disabled}
             >
