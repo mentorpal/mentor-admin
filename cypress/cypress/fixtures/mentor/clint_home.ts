@@ -61,6 +61,7 @@ export const mentor: Mentor = {
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
+      isRequired: true,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       categories: [
         {

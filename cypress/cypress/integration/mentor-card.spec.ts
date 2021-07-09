@@ -153,22 +153,108 @@ describe("My Mentor Page", () => {
       cy.url().should("include", "videoId=idletest");
     });
 
-    it("Asks user with thumbnail and idle video to answer incomplete questions", () => {
+    it("Asks user with incomplete Required Subjects to finish them.", () => {
       cySetup(cy);
-
       cyMockDefault(cy, {
         mentor: {
           ...clint,
+          thumbnail: "url",
           answers: clint.answers.map((a) => {
-            if (a.question.name === UtteranceName.IDLE)
+            if (a.question.type === QuestionType.UTTERANCE) {
+              a.status = Status.INCOMPLETE;
+            }
+            if (a.question.name === UtteranceName.IDLE) {
               a.status = Status.COMPLETE;
+            }
             return a;
           }),
         },
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action-button]").contains(
-        "Answer Category2 Questions"
+        "Finish Required Questions"
+      );
+      cy.get("[data-cy=recommended-action-button]")
+        .trigger("mouseover")
+        .click();
+      cy.url().should("include", "/record");
+    });
+
+    it("Asks user with unbuildable mentor to answer enough questions", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: {
+          ...clint,
+          answers: clint.answers.map((a) => {
+            if (a.question.type === QuestionType.UTTERANCE)
+              a.status = Status.COMPLETE;
+            else a.status = Status.INCOMPLETE;
+            return a;
+          }),
+        },
+      });
+      cy.visit("/");
+      cy.get("[data-cy=recommended-action-button]").contains(
+        "Answer More Questions"
+      );
+      cy.get("[data-cy=recommended-action-button]")
+        .trigger("mouseover")
+        .click();
+      cy.url().should("include", "/record");
+    });
+
+    it("Asks user with buildable mentor to answer incomplete questions", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: {
+          ...clint,
+          subjects: [
+            ...clint.subjects,
+            {
+              _id: "extra",
+              name: "extra",
+              description: "extra",
+              categories: [],
+              questions: [
+                {
+                  question: {
+                    _id: "A1_1_6",
+                    question: "additional question?",
+                    type: QuestionType.QUESTION,
+                    name: null,
+                    paraphrases: [],
+                  },
+                  topics: [],
+                  category: undefined,
+                },
+              ],
+              isRequired: false,
+              topics: [],
+            },
+          ],
+          answers: [
+            ...clint.answers.map((a) => {
+              a.status = Status.COMPLETE;
+              return a;
+            }),
+            {
+              _id: "A1_1_6",
+              question: {
+                _id: "A1_1_6",
+                question: "additional question?",
+                type: QuestionType.QUESTION,
+                name: null,
+                paraphrases: [],
+              },
+              transcript: "additional answer",
+              status: Status.INCOMPLETE,
+            },
+          ],
+        },
+      });
+      cy.visit("/");
+      cy.get("[data-cy=recommended-action-button]").contains(
+        "Answer Uncategorized Questions"
       );
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")

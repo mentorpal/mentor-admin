@@ -29,6 +29,7 @@ export default function RecommendedActionButton(props: {
   const categories: {
     subjectName: string;
     subject: string;
+    isRequired: boolean;
     categoryName: string;
     category: string;
     answers: Answer[];
@@ -38,6 +39,7 @@ export default function RecommendedActionButton(props: {
     categories.push({
       subjectName: s.name,
       subject: s._id,
+      isRequired: s.isRequired,
       categoryName: "Uncategorized",
       category: "",
       answers: mentor?.answers.filter((a) =>
@@ -51,6 +53,7 @@ export default function RecommendedActionButton(props: {
       categories.push({
         subjectName: s.name,
         subject: s._id,
+        isRequired: s.isRequired,
         categoryName: c.name,
         category: c.id,
         answers: mentor?.answers.filter((a) =>
@@ -62,9 +65,17 @@ export default function RecommendedActionButton(props: {
       });
     });
   });
+  const incompleteRequirement = categories
+    .filter((c) => c.isRequired)
+    .find((c) => c.answers.find((a) => a.status === Status.INCOMPLETE));
+  console.log;
   const firstIncomplete = categories.find((c) =>
     c.answers.find((a) => a.status === Status.INCOMPLETE)
   );
+
+  const completedAnswers =
+    mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
+  const totalAnswers = mentor?.answers.length || 0;
 
   function recommend(): {
     text: string;
@@ -88,6 +99,37 @@ export default function RecommendedActionButton(props: {
           navigate(
             urlBuild("/record", { subject: "", videoId: idle?.question._id })
           );
+        },
+      };
+    if (incompleteRequirement)
+      return {
+        text: "Finish Required Questions",
+        reason:
+          "You can't build your mentor until you record all required subjects.",
+        action: () =>
+          navigate(
+            urlBuild("/record", {
+              subject: incompleteRequirement.subject,
+              status: "INCOMPLETE",
+              category: incompleteRequirement.category,
+            })
+          ),
+      };
+    if (completedAnswers < 5)
+      return {
+        text: totalAnswers < 5 ? "Add a Subject" : "Answer More Questions",
+        reason:
+          "You can't build your mentor until you have at least 5 questions",
+        action: () => {
+          totalAnswers < 5
+            ? navigate("/subjects")
+            : navigate(
+                urlBuild("/record", {
+                  subject: "",
+                  status: "INCOMPLETE",
+                  category: "",
+                })
+              );
         },
       };
     if (firstIncomplete)
