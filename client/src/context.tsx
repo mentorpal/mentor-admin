@@ -80,13 +80,10 @@ function Provider(props: { children: any }): JSX.Element {
         loginStatus: LoginStatus.IN_PROGRESS,
       });
       const token = await api.login(accessToken);
-      if (token?.accessToken) {
-        accessTokenStore(token.accessToken);
-      }
       setContextState({
         ...contextState,
         user: token.user,
-        accessToken: token.accessToken,
+        accessToken: accessToken,
         loginStatus:
           token.user && token.accessToken
             ? LoginStatus.AUTHENTICATED

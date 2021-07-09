@@ -25,7 +25,8 @@ import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
-export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+//export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+
 export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
@@ -57,6 +58,7 @@ interface Config {
 }
 
 const graphqlRequest = axios.create({
+  withCredentials: true,
   baseURL: GRAPHQL_ENDPOINT,
   timeout: 5000,
 });
@@ -64,6 +66,30 @@ const uploadRequest = axios.create({
   baseURL: UPLOAD_ENTRYPOINT,
   timeout: 30000,
 });
+
+graphqlRequest.interceptors.response.use(
+  function (response) {
+    console.log(
+      "graphqlRequest response:",
+      response,
+      response.data.extensions.newToken
+    );
+    if (
+      response.data.extensions &&
+      response.data.extensions.newToken &&
+      response.data.extensions.newToken.accessToken
+    ) {
+      localStorage.setItem(
+        "accessToken",
+        response.data.extensions.newToken.accessToken
+      );
+    }
+    return response;
+  },
+  function (error) {
+    return error;
+  }
+);
 
 export async function fetchConfig(): Promise<Config> {
   const gqlRes = await graphqlRequest.post<GraphQLResponse<{ config: Config }>>(
