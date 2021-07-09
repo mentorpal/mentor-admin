@@ -55,9 +55,7 @@ export function IdleTipsSlide(props: {
           >
             <ReactPlayer
               data-cy="video-player"
-              url={
-                "https://static-v2.mentorpal.org/videos/60bad2ab733e6a54b909a351/6098b41257ab183da46cf777/20210629T002928Z/web.mp4"
-              }
+              url={"https://youtu.be/xSu1BhuFt8A"}
               controls={true}
               playing={true}
               height={height}
