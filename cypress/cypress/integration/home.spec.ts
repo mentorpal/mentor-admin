@@ -13,8 +13,7 @@ import {
 import clint from "../fixtures/mentor/clint_home";
 import { JobState, Status, QuestionType } from "../support/types";
 
-const originalAnswers = clint.answers;
-describe("Review answers page", () => {
+describe("My Mentor Page", () => {
   it("shows all questions for all subjects by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
@@ -100,97 +99,41 @@ describe("Review answers page", () => {
       });
     });
   });
+
   it("shows my mentor card", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Clinton Anderson");
-    cy.get("[data-cy=stage-card]").contains("Video Mentor");
-    cy.get("[data-cy=stage-card]").contains(
-      "Title: Nuclear Electrician's Mate"
-    );
-    cy.get("[data-cy=stage-card]").contains("Last Trained: Today");
-    cy.get("[data-cy=stage-card]").contains("Scope: Incomplete");
-    cy.get("[data-cy=stage-card]").contains("This Mentor can't be built yet.");
+    cy.get("[data-cy=my-mentor-card]").should("exist");
     cy.get("[data-cy=stage-progress]").should("exist");
-    cy.get("[data-cy=stage-card]")
-      .find("[data-cy=next-stage-info]")
-      .trigger("mouseover");
-    cy.contains("This Mentor can select questions from a list");
-    cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
     cy.get("[data-cy=upload-file]").should("exist");
+    cy.get("[data-cy=recommended-action-button]").should("exist");
   });
-  it("shows placeholder when no thumbnail", () => {
-    cySetup(cy);
-    clint.thumbnail = "";
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=placeholder-thumbnail]").should("exist");
-  });
-  it("switches to new image when uploaded", () => {
-    cySetup(cy);
-    clint.thumbnail = "url";
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    /* uncomment when graphql is available */
-    // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
-    // cy.fixture('avatar.png').then((fileContent) => {
-    //   cy.get('input[type="file"]').attachFile({
-    //     fileContent: fileContent.toString(),
-    //     fileName: 'avatar.png',
-    //     mimeType: 'avatr.png',
-    //   });
-    // });
-    cy.get("[data-cy=uploaded-thumbnail]").should("exist");
-  });
-  it("does not show toast on incomplete level", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=stage-toast]").should("not.exist");
-  });
-  it("shows mentor scope toast on stage floor", () => {
-    cySetup(cy);
-    clint.answers[4].status = Status.COMPLETE;
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=stage-toast]").contains(
-      "Your mentor has reached the Scripted stage!"
-    );
-    cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
-  });
-  it("does not show progress bar at maxed level", () => {
-    cySetup(cy);
-    clint.answers = [
-      ...Array(1000)
-        .fill(0)
-        .map((x) => ({
-          _id: "A1_1_1",
-          question: {
-            _id: "A1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          transcript:
-            "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-          status: Status.COMPLETE,
-        })),
-    ];
 
+  it("dropdown should expand when question is added", () => {
+    cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Scope: Life-Story");
-    cy.get("[data-cy=stage-progress]").should("not.exist");
+    cy.get("[data-cy=answer-0]").should("not.exist");
+    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
+    cy.get("[data-cy=answer-0]").first().should("exist");
+    cy.get("[data-cy=answer-0]").first().should("be.visible");
   });
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    clint.answers = originalAnswers;
-    clint.answers[4].status = Status.INCOMPLETE;
-    cyMockDefault(cy, { mentor: clint });
-
+    const testClint = {
+      ...clint,
+      answers: clint.answers.map((a, i) => {
+        return i !== 4
+          ? a
+          : {
+              ...a,
+              status: Status.INCOMPLETE,
+            };
+      }),
+    };
+    cyMockDefault(cy, { mentor: testClint });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();

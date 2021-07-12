@@ -621,6 +621,25 @@ export async function uploadThumbnail(
   });
   return result.data.data;
 }
+export async function fetchThumbnail(accessToken: string): Promise<string> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      query {
+        me {
+          mentor {
+            thumbnail
+          }
+        }
+      }
+    `,
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.mentor.thumbnail;
+}
 export async function uploadVideo(
   mentorId: string,
   video: File,

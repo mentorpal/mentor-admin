@@ -14,12 +14,14 @@ import {
   Tooltip,
   Avatar,
   CircularProgress,
+  Grid,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { MentorType } from "types";
-import { uploadThumbnail } from "api";
+import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
+import RecommendedActionButton from "./recommended-action-button";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -82,18 +84,13 @@ StageProgress.propTypes = {
   percent: PropTypes.number.isRequired,
 };
 const useStyles = makeStyles(() => ({
-  avatar: {
-    width: "100%",
-    height: "100%",
+  homeThumbnail: {
+    width: 240,
+    height: 180,
   },
-  square: {
-    position: "relative",
-    height: "40%",
-    "&::before": {
-      display: "block",
-      content: "''",
-      paddingLeft: "100%",
-    },
+  siteThumbnail: {
+    width: 180,
+    height: 135,
   },
 }));
 const StageSelect = (value: number) => {
@@ -157,18 +154,20 @@ const StageSelect = (value: number) => {
       max: value,
     },
   ];
-  const currentStage = stages.find((stage) => {
+  let currentStage = stages.find((stage) => {
     return stage.max - 1 >= value;
   });
+  if (!currentStage) currentStage = stages[0];
   return {
     ...currentStage,
     ...{
-      next: stages[currentStage!.index + 1],
-      percent: Math.round((value / currentStage!.max) * 100),
+      next: stages[currentStage.index + 1],
+      percent: Math.round((value / currentStage.max) * 100),
     },
   };
 };
 export default function MyMentorCard(props: {
+  accessToken: string;
   mentorId: string;
   name: string;
   type: MentorType | undefined;
@@ -179,15 +178,27 @@ export default function MyMentorCard(props: {
 }): JSX.Element {
   const currentStage = StageSelect(props.value);
   const classes = useStyles();
-  const thumbnailAvailable = props.thumbnail !== "";
+  const [thumbnail, updateThumbnail] = useWithThumbnail(
+    props.mentorId,
+    props.accessToken,
+    props.thumbnail
+  );
+  const thumbnailAvailable = thumbnail !== "";
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
-      <Card data-cy="stage-card">
+      <Card data-cy="my-mentor-card">
         <CardContent>
-          <Box display="flex" width="100%" alignItems="center">
-            <Box alignItems="center">
+          <Grid alignItems="center" container xs={12}>
+            <Grid
+              item
+              container
+              alignItems="center"
+              justify="center"
+              xs={12}
+              md={4}
+            >
               <Typography
-                variant="h3"
+                variant="h4"
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
@@ -200,61 +211,61 @@ export default function MyMentorCard(props: {
               >
                 Title: {props.title}
               </Typography>
-              <Box
-                className={classes.square}
+              <Grid
+                justify="center"
                 alignItems="center"
                 data-cy="thumbnail-wrapper"
-                width="80%"
+                item
+                xs={10}
               >
                 {thumbnailAvailable ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
-                    variant="square"
-                    className={classes.avatar}
-                    src={props.thumbnail}
+                    variant="rounded"
+                    className={classes.homeThumbnail}
+                    src={thumbnail}
                   />
                 ) : (
                   <Avatar
                     data-cy="placeholder-thumbnail"
                     variant="square"
-                    className={classes.avatar}
+                    className={classes.homeThumbnail}
                   />
                 )}
-              </Box>
+              </Grid>
               <input
                 data-cy="upload-file"
                 type="file"
                 accept="image/*"
-                onChange={(e) =>
-                  uploadThumbnail(props.mentorId, e!.target!.files![0])
-                }
+                onChange={(e) => {
+                  e.target.files instanceof FileList
+                    ? updateThumbnail(e.target.files[0])
+                    : undefined;
+                }}
               />
-            </Box>
-            <Box
-              width="33%"
-              minWidth={140}
-              alignItems="center"
-              ml={2}
-              textAlign="left"
-            >
+            </Grid>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography
                 variant="h6"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-scope"
               >
-                Scope: {currentStage!.name}
+                Scope: {currentStage.name}
               </Typography>
               <Typography
                 variant="body1"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-scope-description"
               >
-                {currentStage!.description}
+                {currentStage.description}
               </Typography>
               {props.type ? (
                 <Typography
                   variant="h6"
                   color="textSecondary"
+                  align="left"
                   data-cy="mentor-card-type"
                 >
                   {props.type[0].toUpperCase() +
@@ -265,6 +276,7 @@ export default function MyMentorCard(props: {
                 <Typography
                   variant="h6"
                   color="textSecondary"
+                  align="left"
                   data-cy="mentor-card-type"
                 >
                   Invalid Mentor
@@ -274,22 +286,23 @@ export default function MyMentorCard(props: {
               <Typography
                 variant="body1"
                 color="textSecondary"
+                align="left"
                 data-cy="mentor-card-trained"
               >
                 Last Trained: {props.lastTrainedAt.substring(0, 10)}
               </Typography>
-            </Box>
-            <Box width="33%" alignItems="center" ml={2} textAlign="left">
+            </Grid>
+            <Grid item alignItems="center" xs={12} md={3}>
               <Typography variant="body1" color="textSecondary">
-                Next Goal: {currentStage!.next!.name}
+                Next Goal: {currentStage.next.name}
                 {"   "}
                 <Tooltip
                   title={
                     <React.Fragment>
                       <Typography color="inherit">
-                        {currentStage!.next!.name}
+                        {currentStage.next.name}
                       </Typography>
-                      {currentStage!.next!.description}
+                      {currentStage.next.description}
                     </React.Fragment>
                   }
                   data-cy="next-stage-info"
@@ -298,22 +311,27 @@ export default function MyMentorCard(props: {
                 </Tooltip>
               </Typography>
 
-              {currentStage!.floor != 1000 && (
+              {currentStage.floor != 1000 && (
                 <StageProgress
                   value={props.value}
-                  max={currentStage!.max || 0}
-                  percent={currentStage!.percent || 0}
+                  max={currentStage.max || 0}
+                  percent={currentStage.percent || 0}
                 />
               )}
-            </Box>
-          </Box>
+            </Grid>
+            <Grid xs={12} md={2}>
+              <RecommendedActionButton
+                accessToken={props.accessToken}
+                setThumbnail={updateThumbnail}
+              />
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
-
       <StageToast
         value={props.value}
-        floor={currentStage!.floor!}
-        name={currentStage!.name!}
+        floor={currentStage.floor}
+        name={currentStage.name}
       />
     </div>
   );

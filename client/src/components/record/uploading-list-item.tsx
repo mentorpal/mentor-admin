@@ -36,10 +36,7 @@ function UploadingListItem(props: {
   const jobStatus = upload.uploadStatus;
   const jobDone = jobStatus == UploadStatus.DONE;
   const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
-  const cancelling =
-    jobStatus === UploadStatus.CANCEL_IN_PROGRESS ||
-    jobStatus === UploadStatus.CANCEL_PENDING ||
-    jobStatus === UploadStatus.CANCELLED;
+  const cancelling = upload.isCancelling;
   const classes = useStyles();
 
   return (
