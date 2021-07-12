@@ -88,11 +88,7 @@ function HomePage(props: {
   if (!mentor) {
     return (
       <div>
-<<<<<<< HEAD
-        <NavBar title="My Mentor" mentorId={mentor?._id} />
-=======
         <NavBar title="Mentor Studio" mentorId={""} />
->>>>>>> origin/main
         <CircularProgress />
       </div>
     );
