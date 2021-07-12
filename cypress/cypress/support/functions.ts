@@ -291,7 +291,7 @@ export function cyMockFollowUpQuestions(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("GET", "/classifier/followups/*/*", (req) => {
+  cy.intercept("GET", "/classifier/me/followups/*/*", (req) => {
     req.alias = "followups";
     req.reply(
       staticResponse({
