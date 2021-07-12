@@ -137,33 +137,6 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/profile"}
-        selected={location.pathname === "/profile"}
-      >
-        <ListItemText primary="Profile" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/subjects"}
-        selected={location.pathname === "/subjects"}
-      >
-        <ListItemText primary="Select Subjects" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
-      >
-        <ListItemText primary="Setup" />
-      </ListItem>
-      <Divider style={{ marginTop: 15 }} />
-
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <ListItem
         button
@@ -193,6 +166,34 @@ function NavMenu(props: {
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
+      <Divider style={{ marginTop: 15 }} />
+
+      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
+      <ListItem
+        button
+        component={Link}
+        to={"/profile"}
+        selected={location.pathname === "/profile"}
+      >
+        <ListItemText primary="Profile" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/subjects"}
+        selected={location.pathname === "/subjects"}
+      >
+        <ListItemText primary="Select Subjects" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/setup"}
+        selected={location.pathname === "/setup"}
+      >
+        <ListItemText primary="Setup" />
+      </ListItem>
+
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>
