@@ -60,7 +60,21 @@ const graphqlRequest = axios.create({
   baseURL: GRAPHQL_ENDPOINT,
   timeout: 5000,
 });
+
+graphqlRequest.interceptors.response.use(function(response) {
+  console.log("graphqlRequest response:", response,response.data.extensions.newToken);
+   if(response.data.extensions && response.data.extensions.newToken &&
+  response.data.extensions.newToken.accessToken) {
+    localStorage.setItem("accessToken", response.data.extensions.newToken.accessToken);
+  }
+  return response
+}, function(error) {
+  return error;
+});
+
+
 const uploadRequest = axios.create({
+  withCredentials: true,
   baseURL: UPLOAD_ENTRYPOINT,
   timeout: 30000,
 });
