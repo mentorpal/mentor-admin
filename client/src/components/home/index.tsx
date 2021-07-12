@@ -97,7 +97,7 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="My Mentor" mentorId={mentor?._id} />
         <MyMentorCard
           accessToken={props.accessToken}
           mentorId={mentor?._id || ""}

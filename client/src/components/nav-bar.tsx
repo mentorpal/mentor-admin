@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   title: {
-    textAlign: "left",
+    textAlign: "center",
     flexGrow: 1,
   },
   login: {
@@ -137,6 +137,37 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
+      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
+      <ListItem
+        button
+        component={Link}
+        to={"/"}
+        selected={location.pathname === "/"}
+      >
+        <ListItemText primary="My Mentor" />
+      </ListItem>
+      <ListItem
+        button
+        component={Link}
+        to={"/record"}
+        selected={location.pathname.includes("/record")}
+      >
+        <ListItemText primary="Record Questions" />
+      </ListItem>
+
+      <ListItem
+        button
+        component={Link}
+        to={"/feedback"}
+        selected={location.pathname.includes("/feedback")}
+      >
+        <ListItemText primary="Corrections and User Feedback" />
+      </ListItem>
+      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+        <ListItemText primary="Chat with Mentor" />
+      </ListItem>
+      <Divider style={{ marginTop: 15 }} />
+
       <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
       <ListItem
         button
@@ -162,36 +193,7 @@ function NavMenu(props: {
       >
         <ListItemText primary="Setup" />
       </ListItem>
-      <Divider style={{ marginTop: 15 }} />
 
-      <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
-      >
-        <ListItemText primary="Record Questions" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemText primary="Review Answers" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/feedback"}
-        selected={location.pathname.includes("/feedback")}
-      >
-        <ListItemText primary="Corrections and User Feedback" />
-      </ListItem>
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
-        <ListItemText primary="Chat with Mentor" />
-      </ListItem>
       <Divider style={{ marginTop: 15 }} />
 
       <ListSubheader className={classes.menuHeader}>
@@ -268,7 +270,7 @@ export function NavBar(props: {
           >
             {back ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
-          <Typography data-cy="title" variant="h6" className={classes.title}>
+          <Typography data-cy="title" variant="h5" className={classes.title}>
             {props.title}
           </Typography>
 
