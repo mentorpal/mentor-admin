@@ -142,7 +142,7 @@ export function useWithRecordState(
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
-    fetchFollowUpQuestions(mentor._id, filter.category).then((data) => {
+    fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
       const followUps = data
         ? data.map((d) => {
             return d.question;
