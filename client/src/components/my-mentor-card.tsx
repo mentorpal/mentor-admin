@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import PropTypes from "prop-types";
 import {
   Box,
   Card,
@@ -19,7 +18,7 @@ import {
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
-import { MentorType } from "types";
+import { Mentor } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 
@@ -74,15 +73,6 @@ function StageProgress(props: { value: number; max: number; percent: number }) {
   );
 }
 
-StageProgress.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate variant.
-   * Value between 0 and 100.
-   */
-  value: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  percent: PropTypes.number.isRequired,
-};
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
     width: 240,
@@ -168,20 +158,22 @@ const StageSelect = (value: number) => {
 };
 export default function MyMentorCard(props: {
   accessToken: string;
-  mentorId: string;
-  name: string;
-  type: MentorType | undefined;
-  title: string;
-  lastTrainedAt: string;
-  value: number;
-  thumbnail: string;
+  mentor: Mentor;
 }): JSX.Element {
-  const currentStage = StageSelect(props.value);
+  const mentorId = props.mentor?._id || "";
+  const name = props.mentor?.name || "Unnamed";
+  const type = props.mentor?.mentorType;
+  const title = props.mentor?.title || "none";
+  const lastTrainedAt = props.mentor?.lastTrainedAt || "never";
+  const value =
+    props.mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0;
+
+  const currentStage = StageSelect(value);
   const classes = useStyles();
   const [thumbnail, updateThumbnail] = useWithThumbnail(
-    props.mentorId,
+    mentorId,
     props.accessToken,
-    props.thumbnail
+    props.mentor?.thumbnail || ""
   );
   const thumbnailAvailable = thumbnail !== "";
   return (
@@ -202,14 +194,14 @@ export default function MyMentorCard(props: {
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
-                {props.name}
+                {name}
               </Typography>
               <Typography
                 variant="h5"
                 color="textSecondary"
                 data-cy="mentor-card-info"
               >
-                Title: {props.title}
+                Title: {title}
               </Typography>
               <Grid
                 justify="center"
@@ -261,16 +253,14 @@ export default function MyMentorCard(props: {
               >
                 {currentStage.description}
               </Typography>
-              {props.type ? (
+              {type ? (
                 <Typography
                   variant="h6"
                   color="textSecondary"
                   align="left"
                   data-cy="mentor-card-type"
                 >
-                  {props.type[0].toUpperCase() +
-                    props.type.slice(1).toLowerCase()}{" "}
-                  Mentor
+                  {type[0].toUpperCase() + type.slice(1).toLowerCase()} Mentor
                 </Typography>
               ) : (
                 <Typography
@@ -289,7 +279,7 @@ export default function MyMentorCard(props: {
                 align="left"
                 data-cy="mentor-card-trained"
               >
-                Last Trained: {props.lastTrainedAt.substring(0, 10)}
+                Last Trained: {lastTrainedAt.substring(0, 10)}
               </Typography>
             </Grid>
             <Grid item alignItems="center" xs={12} md={3}>
@@ -313,7 +303,7 @@ export default function MyMentorCard(props: {
 
               {currentStage.floor != 1000 && (
                 <StageProgress
-                  value={props.value}
+                  value={value}
                   max={currentStage.max || 0}
                   percent={currentStage.percent || 0}
                 />
@@ -321,6 +311,7 @@ export default function MyMentorCard(props: {
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
+                mentor={props.mentor}
                 accessToken={props.accessToken}
                 setThumbnail={updateThumbnail}
               />
@@ -329,17 +320,10 @@ export default function MyMentorCard(props: {
         </CardContent>
       </Card>
       <StageToast
-        value={props.value}
+        value={value}
         floor={currentStage.floor}
         name={currentStage.name}
       />
     </div>
   );
 }
-
-MyMentorCard.propTypes = {
-  mentorId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  thumbnail: PropTypes.string.isRequired,
-};

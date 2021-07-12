@@ -280,5 +280,46 @@ describe("My Mentor Page", () => {
         .click();
       cy.url().should("include", "/subjects");
     });
+    describe("Skip Button allows user to see next recommendation.", () => {
+      it("Skip button shows user next recommendation.", () => {
+        cySetup(cy);
+        cyMockDefault(cy, {
+          mentor: {
+            ...clint,
+            thumbnail: "url",
+            answers: clint.answers.map((a) => {
+              if (a.question.name === UtteranceName.IDLE) {
+                a.status = Status.INCOMPLETE;
+                a.question._id = "idletest";
+              }
+              return a;
+            }),
+          },
+        });
+        cy.visit("/");
+        cy.get("[data-cy=recommended-action-button]").contains(
+          "Record an Idle Video"
+        );
+        cy.get("[data-cy=skip-action-button]").should("exist");
+        cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+        cy.get("[data-cy=recommended-action-button]").contains("Questions");
+      });
+
+      it("Skip button is hidden at final recommendation.", () => {
+        cySetup(cy);
+        cyMockDefault(cy, {
+          mentor: {
+            ...clint,
+            answers: clint.answers.map((a) => {
+              a.status = Status.COMPLETE;
+              return a;
+            }),
+          },
+        });
+        cy.visit("/");
+        cy.get("[data-cy=recommended-action-button]").contains("Add a Subject");
+        cy.get("[data-cy=skip-action-button]").should("not.exist");
+      });
+    });
   });
 });

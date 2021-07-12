@@ -7,8 +7,8 @@ The full terms of this copyright and license should always be found in the root 
 import { Button, Typography } from "@material-ui/core";
 import React from "react";
 import { navigate } from "gatsby";
-import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
-import { Answer, MentorType, Status, UtteranceName } from "types";
+import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
+import { useState } from "react";
 
 function urlBuild(base: string, params: Record<string, string>) {
   const query = new URLSearchParams();
@@ -19,30 +19,32 @@ function urlBuild(base: string, params: Record<string, string>) {
 export default function RecommendedActionButton(props: {
   accessToken: string;
   setThumbnail: (file: File) => void;
+  mentor: Mentor;
 }): JSX.Element {
-  const { mentor } = useWithReviewAnswerState(props.accessToken, {
-    subject: "",
-  });
-  const idle = mentor?.answers.find(
+  const idle = props.mentor?.answers.find(
     (a) => a.question.name === UtteranceName.IDLE
   );
-  const categories: {
+  const idleIncomplete = idle?.status === Status.INCOMPLETE;
+  const isVideo = props.mentor?.mentorType === MentorType.VIDEO;
+  const thumbnail = props.mentor?.thumbnail;
+  interface category {
     subjectName: string;
     subject: string;
     isRequired: boolean;
     categoryName: string;
     category: string;
     answers: Answer[];
-  }[] = [];
+  }
+  const categories: category[] = [];
 
-  mentor?.subjects.forEach((s) => {
+  props.mentor?.subjects.forEach((s) => {
     categories.push({
       subjectName: s.name,
       subject: s._id,
       isRequired: s.isRequired,
       categoryName: "Uncategorized",
       category: "",
-      answers: mentor?.answers.filter((a) =>
+      answers: props.mentor?.answers.filter((a) =>
         s.questions
           .filter((q) => !q.category)
           .map((q) => q.question._id)
@@ -56,7 +58,7 @@ export default function RecommendedActionButton(props: {
         isRequired: s.isRequired,
         categoryName: c.name,
         category: c.id,
-        answers: mentor?.answers.filter((a) =>
+        answers: props.mentor?.answers.filter((a) =>
           s.questions
             .filter((q) => q.category?.id === c.id)
             .map((q) => q.question._id)
@@ -74,54 +76,82 @@ export default function RecommendedActionButton(props: {
   );
 
   const completedAnswers =
-    mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
-  const totalAnswers = mentor?.answers.length || 0;
+    props.mentor?.answers.filter((a) => a.status === Status.COMPLETE).length ||
+    0;
+  const totalAnswers = props.mentor?.answers.length || 0;
 
-  function recommend(): {
+  interface Conditions {
+    idle: Answer | undefined;
+    idleIncomplete: boolean;
+    isVideo: boolean;
+    thumbnail: string;
+    categories: category[];
+    incompleteRequirement: category | undefined;
+    firstIncomplete: category | undefined;
+    completedAnswers: number;
+    totalAnswers: number;
+  }
+  interface Recommendation {
     text: string;
     reason: string;
     action: () => void;
-  } {
-    if (mentor?.thumbnail == "")
+    skippable: boolean;
+    skip: Conditions;
+  }
+
+  function recommend(conditions: Conditions): Recommendation {
+    if (conditions.thumbnail == "")
       return {
         text: "Add a Thumbnail",
         reason: "A thumbnail helps a user identify your mentor",
         action: () => undefined,
+        skippable: true,
+        skip: { ...conditions, thumbnail: "skipped" },
       };
-    if (
-      idle?.status === Status.INCOMPLETE &&
-      mentor?.mentorType === MentorType.VIDEO
-    )
+    if (conditions.idleIncomplete && conditions.isVideo)
       return {
         text: "Record an Idle Video",
         reason: "Users see your idle video while typing a question",
         action: () => {
-          navigate(
-            urlBuild("/record", { subject: "", videoId: idle?.question._id })
-          );
+          if (conditions.idle)
+            navigate(
+              urlBuild("/record", {
+                subject: "",
+                videoId: conditions.idle?.question._id,
+              })
+            );
         },
+        skippable: true,
+        skip: { ...conditions, idleIncomplete: false },
       };
-    if (incompleteRequirement)
+    if (conditions.incompleteRequirement)
       return {
         text: "Finish Required Questions",
         reason:
           "You can't build your mentor until you record all required subjects.",
-        action: () =>
-          navigate(
-            urlBuild("/record", {
-              subject: incompleteRequirement.subject,
-              status: "INCOMPLETE",
-              category: incompleteRequirement.category,
-            })
-          ),
+        action: () => {
+          if (conditions.incompleteRequirement)
+            navigate(
+              urlBuild("/record", {
+                subject: conditions.incompleteRequirement.subject,
+                status: "INCOMPLETE",
+                category: conditions.incompleteRequirement.category,
+              })
+            );
+        },
+        skippable: true,
+        skip: { ...conditions, incompleteRequirement: undefined },
       };
-    if (completedAnswers < 5)
+    if (conditions.completedAnswers < 5)
       return {
-        text: totalAnswers < 5 ? "Add a Subject" : "Answer More Questions",
+        text:
+          conditions.totalAnswers < 5
+            ? "Add a Subject"
+            : "Answer More Questions",
         reason:
           "You can't build your mentor until you have at least 5 questions",
         action: () => {
-          totalAnswers < 5
+          conditions.totalAnswers < 5
             ? navigate("/subjects")
             : navigate(
                 urlBuild("/record", {
@@ -131,75 +161,110 @@ export default function RecommendedActionButton(props: {
                 })
               );
         },
+        skippable: true,
+        skip: { ...conditions, completedAnswers: 5 },
       };
-    if (firstIncomplete)
+    if (conditions.firstIncomplete)
       return {
-        text: `Answer ${firstIncomplete?.categoryName} Questions`,
-        reason: `You have unanswered questions in the ${firstIncomplete?.subjectName} subject`,
-        action: () =>
-          navigate(
-            urlBuild("/record", {
-              subject: firstIncomplete?.subject,
-              status: "INCOMPLETE",
-              category: firstIncomplete?.category,
-            })
-          ),
+        text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
+        reason: `You have unanswered questions in the ${conditions.firstIncomplete?.subjectName} subject`,
+        action: () => {
+          if (conditions.firstIncomplete)
+            navigate(
+              urlBuild("/record", {
+                subject: conditions.firstIncomplete?.subject,
+                status: "INCOMPLETE",
+                category: conditions.firstIncomplete?.category,
+              })
+            );
+        },
+        skippable: true,
+        skip: { ...conditions, firstIncomplete: undefined },
       };
     return {
       text: "Add a Subject",
       reason: "Add a subject to answer more questions",
       action: () => navigate("/subjects"),
+      skippable: false,
+      skip: conditions,
     };
   }
-  const recommendedAction = recommend();
+  const [recommendedAction, setRecommendedAction] = useState(
+    recommend({
+      idle: idle,
+      idleIncomplete: idleIncomplete,
+      isVideo: isVideo,
+      thumbnail: thumbnail,
+      categories: categories,
+      incompleteRequirement: incompleteRequirement,
+      firstIncomplete: firstIncomplete,
+      completedAnswers: completedAnswers,
+      totalAnswers: totalAnswers,
+    })
+  );
 
-  return mentor?.thumbnail == "" ? (
+  return (
     <div>
-      <input
-        accept="image/*"
-        style={{ display: "none" }}
-        id="thumbnail-upload"
-        data-cy="recommended-action-upload"
-        type="file"
-        onChange={(e) => {
-          e.target.files instanceof FileList
-            ? props.setThumbnail(e.target.files[0])
-            : undefined;
-        }}
-      />
-      <label htmlFor="thumbnail-upload">
+      {props.mentor?.thumbnail == "" ? (
+        <div>
+          <input
+            accept="image/*"
+            style={{ display: "none" }}
+            id="thumbnail-upload"
+            data-cy="recommended-action-upload"
+            type="file"
+            onChange={(e) => {
+              e.target.files instanceof FileList
+                ? props.setThumbnail(e.target.files[0])
+                : undefined;
+            }}
+          />
+          <label htmlFor="thumbnail-upload">
+            <Button
+              component="span"
+              fullWidth
+              data-cy="recommended-action-thumbnail"
+            >
+              {recommendedAction.text}
+            </Button>
+          </label>
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            data-cy="recommended-action-reason"
+          >
+            {recommendedAction.reason}
+          </Typography>
+        </div>
+      ) : (
+        <div>
+          <Button
+            fullWidth
+            data-cy="recommended-action-button"
+            onClick={recommendedAction.action}
+          >
+            {recommendedAction.text}
+          </Button>
+          <Typography
+            variant="body1"
+            color="textSecondary"
+            data-cy="recommended-action-reason"
+          >
+            {recommendedAction.reason}
+          </Typography>
+        </div>
+      )}
+      {recommendedAction.skippable && (
         <Button
-          component="span"
           fullWidth
-          data-cy="recommended-action-thumbnail"
+          data-cy="skip-action-button"
+          onClick={() =>
+            setRecommendedAction(recommend(recommendedAction.skip))
+          }
         >
-          {recommendedAction.text}
+          next recommendation
         </Button>
-      </label>
-      <Typography
-        variant="body1"
-        color="textSecondary"
-        data-cy="recommended-action-reason"
-      >
-        {recommendedAction.reason}
-      </Typography>
-    </div>
-  ) : (
-    <div>
-      <Button
-        fullWidth
-        data-cy="recommended-action-button"
-        onClick={recommendedAction.action}
-      >
-        {recommendedAction.text}
-      </Button>
-      <Typography
-        variant="body1"
-        color="textSecondary"
-        data-cy="recommended-action-reason"
-      >
-        {recommendedAction.reason}
-      </Typography>
+      )}
     </div>
   );
 }
