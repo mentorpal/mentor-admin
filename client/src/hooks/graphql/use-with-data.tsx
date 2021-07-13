@@ -92,20 +92,16 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    const updated = await update.action(editedData).catch((err) => {
+    update.action(editedData).catch((err) => {
       console.error(err);
       dispatch({
         type: LoadingActionType.ERROR,
         payload: { message: "Failed to save", error: err.message },
       });
       dispatch({ type: LoadingActionType.SAVING, payload: false });
-    });
-
-    if (state.isLoading) {
       return;
-    }
-    if (!updated) {
-      dispatch({ type: LoadingActionType.SAVING, payload: false });
+    });
+    if (state.isLoading) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: false });

@@ -112,22 +112,24 @@ describe("My Mentor Page", () => {
 
   it("shows placeholder when no thumbnail", () => {
     cySetup(cy);
-    const testClint = {
-      ...clint,
-      thumbnail: "",
-    };
-    cyMockDefault(cy, { mentor: testClint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "",
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=placeholder-thumbnail]").should("exist");
   });
 
   it("switches to new image when uploaded", () => {
     cySetup(cy);
-    const testClint = {
-      ...clint,
-      thumbnail: "url",
-    };
-    cyMockDefault(cy, { mentor: testClint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "url",
+      },
+    });
     cy.visit("/");
     /* uncomment when graphql is available */
     // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
@@ -150,18 +152,19 @@ describe("My Mentor Page", () => {
 
   it("shows mentor scope toast on stage floor", () => {
     cySetup(cy);
-    const testClint = {
-      ...clint,
-      answers: clint.answers.map((a, i) => {
-        return i !== 4
-          ? a
-          : {
-              ...a,
-              status: Status.COMPLETE,
-            };
-      }),
-    };
-    cyMockDefault(cy, { mentor: testClint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.COMPLETE,
+              };
+        }),
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=stage-toast]").contains(
       "Your mentor has reached the Scripted stage!"
@@ -190,18 +193,19 @@ describe("My Mentor Page", () => {
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    const testClint = {
-      ...clint,
-      answers: clint.answers.map((a, i) => {
-        return i !== 4
-          ? a
-          : {
-              ...a,
-              status: Status.INCOMPLETE,
-            };
-      }),
-    };
-    cyMockDefault(cy, { mentor: testClint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.INCOMPLETE,
+              };
+        }),
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();
