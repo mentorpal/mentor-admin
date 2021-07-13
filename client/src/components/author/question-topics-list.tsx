@@ -102,7 +102,9 @@ export function TopicsList(props: {
           startIcon={<AddIcon />}
           className={classes.button}
           disabled={!topicSearch}
-          onClick={() => addTopic(topicSearch!)}
+          onClick={() => {
+            if (topicSearch) addTopic(topicSearch);
+          }}
         >
           Add Topic
         </Button>

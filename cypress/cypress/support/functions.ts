@@ -157,9 +157,12 @@ export function cyMockDefault(
 ) {
   const config = args?.config || {};
   const gqlQueries = args?.gqlQueries || [];
+  cySetup(cy);
   if (!args.noAccessTokenStored) {
     cyMockLogin(cy);
   }
+  cyMockUpload(cy);
+  cyMockCancelUpload(cy);
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
     mockGQL("login", args.login || loginDefault),
@@ -170,6 +173,19 @@ export function cyMockDefault(
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,
   ]);
+}
+
+export function cyAttachUpload(cy, fileName?: string): Promise<void> {
+  cy.intercept("**/videos/mentors/*/*.mp4", {
+    fixture: fileName || "video.mp4",
+  });
+  return cy.fixture(fileName || "video.mp4").then((fileContent) => {
+    cy.get('input[type="file"]').attachFile({
+      fileContent: fileContent.toString(),
+      fileName: fileName || "video.mp4",
+      mimeType: "video/mp4",
+    });
+  });
 }
 
 export function cyMockTrain(
@@ -224,7 +240,7 @@ export function cyMockTrainStatus(
   });
 }
 
-export function cyMockUpload(
+function cyMockUpload(
   cy,
   params: {
     id?: string;
@@ -253,7 +269,7 @@ export function cyMockUpload(
   });
 }
 
-export function cyMockCancelUpload(
+function cyMockCancelUpload(
   cy,
   params: {
     id?: string;

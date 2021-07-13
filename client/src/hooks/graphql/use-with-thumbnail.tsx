@@ -4,25 +4,23 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { uploadThumbnail, fetchThumbnail } from "api";
+import { useState } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function equals<T>(val1: T, val2: T): boolean {
-  return JSON.stringify(val1) === JSON.stringify(val2);
-}
+export function useWithThumbnail(
+  mentorId: string,
+  accessToken: string,
+  current: string
+): [string, (file: File) => void] {
+  const [thumbnail, setThumbnail] = useState(current);
 
-export function copyAndSet<T>(a: T[], i: number, item: T): T[] {
-  return [...a.slice(0, i), item, ...a.slice(i + 1)];
-}
+  function updateThumbnail(file: File): Promise<void> {
+    return uploadThumbnail(mentorId, file).then(() => {
+      fetchThumbnail(accessToken).then((src: string) => {
+        setThumbnail(src);
+      });
+    });
+  }
 
-export function copyAndRemove<T>(a: T[], i: number): T[] {
-  return [...a.slice(0, i), ...a.slice(i + 1)];
-}
-
-export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
-  const item = a[moveFrom];
-  const removed = copyAndRemove(a, moveFrom);
-  return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
-}
-export function toTitleCase(convert: string): string {
-  return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
+  return [thumbnail, updateThumbnail];
 }

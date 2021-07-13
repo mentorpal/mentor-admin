@@ -161,6 +161,7 @@ export function useWithRecordState(
   ) {
     setAnswers(copyAndSet(answers, idx, { ...answers[idx], ...edits }));
   }
+
   function onAnswerUploaded(upload: UploadTask) {
     const idx = answers.findIndex(
       (a) => a.answer.question?._id === upload.question._id
@@ -185,13 +186,16 @@ export function useWithRecordState(
       );
     }
   }
+
   function isAnswerUploading(answer: Answer) {
     const upload = uploads.find((u) => u.question._id === answer.question._id);
     return Boolean(upload && !isTaskDoneOrFailed(upload));
   }
+
   function clearError() {
     setError(undefined);
   }
+
   function getVideoSrc() {
     if (!mentor) {
       return undefined;
@@ -204,6 +208,7 @@ export function useWithRecordState(
       (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
     )?.url;
   }
+
   function isAnswerValid() {
     if (!mentor) {
       return false;

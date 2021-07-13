@@ -125,6 +125,7 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor =
     curAnswer?.editedAnswer.question?.mentor === mentor?._id;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
+
   function onBack() {
     if (props.search.back) {
       navigate(decodeURI(props.search.back));

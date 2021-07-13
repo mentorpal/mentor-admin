@@ -109,7 +109,7 @@ export function useWithReviewAnswerState(
           name: subject.name,
           description: subject.description,
           answers: uncategorizedAnswers,
-          recordAll: (status) => recordAnswers(status, subject._id, "none"),
+          recordAll: (status) => recordAnswers(status, subject._id, ""),
           recordOne: recordAnswer,
           addQuestion: () => addNewQuestion(subject, undefined),
           editQuestion: (question) => editQuestion(subject, question),
@@ -124,7 +124,7 @@ export function useWithReviewAnswerState(
           name: s.name,
           description: s.description,
           answers: subjectAnswers,
-          recordAll: (status) => recordAnswers(status, s._id, undefined),
+          recordAll: (status) => recordAnswers(status, s._id, ""),
           recordOne: recordAnswer,
           addQuestion: () => addNewQuestion(s, undefined),
           editQuestion: (question) => editQuestion(s, question),
@@ -152,15 +152,11 @@ export function useWithReviewAnswerState(
     }
   }, [trainError]);
 
-  function recordAnswers(
-    status: Status,
-    subject: string | undefined,
-    category: string | undefined
-  ) {
+  function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
       `/record?back=${encodeURI(
         `/?subject=${selectedSubject}`
-      )}&status=${status}&subject=${subject || ""}&category=${category || ""}`
+      )}&status=${status}&subject=${subject}&category=${category}`
     );
   }
 
