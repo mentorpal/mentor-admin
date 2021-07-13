@@ -63,11 +63,6 @@ const graphqlRequest = axios.create({
 
 graphqlRequest.interceptors.response.use(
   function (response) {
-    console.log(
-      "graphqlRequest response:",
-      response,
-      response.data.extensions.newToken
-    );
     if (
       response.data.extensions &&
       response.data.extensions.newToken &&
