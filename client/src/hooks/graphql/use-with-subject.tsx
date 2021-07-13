@@ -72,7 +72,7 @@ export function useWithSubject(
 
   async function update(): Promise<void> {
     await saveData({
-      callback: (editedData: Subject) => updateSubject(editedData, accessToken),
+      action: (editedData: Subject) => updateSubject(editedData, accessToken),
     });
   }
 

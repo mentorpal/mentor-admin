@@ -130,7 +130,9 @@ export function useWithRecordState(
       !isMentorLoading
     ) {
       setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length) nextAnswer();
+      if (answerIdx < answers.length) {
+        nextAnswer();
+      }
     }
   }, [isMentorLoading]);
 

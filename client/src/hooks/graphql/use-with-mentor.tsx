@@ -33,14 +33,14 @@ export function useWithMentor(accessToken: string): UseMentorData {
 
   function saveMentorDetails() {
     saveData({
-      callback: (editedData: Mentor) =>
+      action: (editedData: Mentor) =>
         updateMentorDetails(editedData, accessToken),
     });
   }
 
   function saveMentorSubjects() {
     saveData({
-      callback: (editedData: Mentor) =>
+      action: (editedData: Mentor) =>
         updateMentorSubjects(editedData, accessToken),
     });
   }

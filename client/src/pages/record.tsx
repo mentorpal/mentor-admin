@@ -147,13 +147,16 @@ function RecordPage(props: {
       onNav();
     }
   }
-
   function confirm() {
     if (!confirmLeave) {
       return;
     }
     confirmLeave.callback();
     setConfirmLeave(undefined);
+  }
+  function handleSaveSubject() {
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
+    saveSubject().then(() => recordState.reloadMentorData());
   }
 
   if (!mentor || !curAnswer) {
@@ -422,10 +425,7 @@ function RecordPage(props: {
               color="primary"
               disableElevation
               disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
-              onClick={() => {
-                setRecordPageState(RecordPageState.RELOADING_MENTOR);
-                saveSubject().then(() => recordState.reloadMentorData());
-              }}
+              onClick={() => handleSaveSubject()}
               className={classes.nextBtn}
             >
               Record

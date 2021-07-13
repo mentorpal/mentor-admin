@@ -21,7 +21,7 @@ const initialState: LoadingState = {
 
 interface UpdateFunc<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  callback: (data: T) => Promise<any>;
+  action: (data: T) => Promise<any>;
 }
 
 export interface UseData<T> {
@@ -34,7 +34,7 @@ export interface UseData<T> {
   clearError: () => void;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
-  saveData: (update: UpdateFunc<T>) => Promise<void>;
+  saveData: (action: UpdateFunc<T>) => Promise<void>;
 }
 
 export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
@@ -92,28 +92,25 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    await update
-      .callback(editedData)
-      .then((updated) => {
-        if (state.isLoading) {
-          return;
-        }
-        if (!updated) {
-          dispatch({ type: LoadingActionType.SAVING, payload: false });
-          return;
-        }
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
-        setData(editedData);
-        setEditedData(undefined);
-      })
-      .catch((err) => {
-        console.error(err);
-        dispatch({
-          type: LoadingActionType.ERROR,
-          payload: { message: "Failed to save", error: err.message },
-        });
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
+    const updated = await update.action(editedData).catch((err) => {
+      console.error(err);
+      dispatch({
+        type: LoadingActionType.ERROR,
+        payload: { message: "Failed to save", error: err.message },
       });
+      dispatch({ type: LoadingActionType.SAVING, payload: false });
+    });
+
+    if (state.isLoading) {
+      return;
+    }
+    if (!updated) {
+      dispatch({ type: LoadingActionType.SAVING, payload: false });
+      return;
+    }
+    dispatch({ type: LoadingActionType.SAVING, payload: false });
+    setData(editedData);
+    setEditedData(undefined);
   }
 
   return {
