@@ -20,8 +20,7 @@ const initialState: LoadingState = {
 };
 
 interface UpdateFunc<T> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  action: (data: T) => Promise<any>;
+  action: (data: T) => Promise<void>;
 }
 
 export interface UseData<T> {
