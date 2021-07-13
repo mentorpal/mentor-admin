@@ -5,84 +5,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import PropTypes from "prop-types";
 import {
-  Box,
   Card,
   CardContent,
   Typography,
   Tooltip,
   Avatar,
-  CircularProgress,
   Grid,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
-import { MentorType } from "types";
+import { Mentor } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
+import { toTitleCase } from "helpers";
+import StageProgress from "./stage-progress";
+import parseMentor from "./mentor-info";
 
-function StageProgress(props: { value: number; max: number; percent: number }) {
-  return (
-    <Box alignItems="center">
-      <Box position="relative" display="inline-flex">
-        <CircularProgress
-          data-cy="stage-progress"
-          variant="determinate"
-          style={{ color: "lightgrey" }}
-          value={100}
-          size={80}
-        />
-
-        <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <CircularProgress
-            data-cy="stage-progress"
-            variant="determinate"
-            value={props.percent}
-            size={80}
-          />
-        </Box>
-        <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Typography variant="h5" component="div" color="textSecondary">
-            {props.value}/{props.max}
-          </Typography>
-        </Box>
-      </Box>
-      <Typography variant="body1" color="textSecondary">
-        {props.percent}%
-      </Typography>
-    </Box>
-  );
-}
-
-StageProgress.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate variant.
-   * Value between 0 and 100.
-   */
-  value: PropTypes.number.isRequired,
-  max: PropTypes.number.isRequired,
-  percent: PropTypes.number.isRequired,
-};
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
     width: 240,
@@ -93,95 +33,17 @@ const useStyles = makeStyles(() => ({
     height: 135,
   },
 }));
-const StageSelect = (value: number) => {
-  const stages = [
-    {
-      name: "Incomplete",
-      index: 0,
-      description: "This Mentor can't be built yet.",
-      floor: 0,
-      max: 5,
-    },
-    {
-      name: "Scripted",
-      index: 1,
-      description: "This Mentor can select questions from a list",
-      floor: 5,
-      max: 20,
-    },
-    {
-      name: "Interactive",
-      index: 2,
-      description: "This Mentor can respond to simple questions.",
-      floor: 20,
-      max: 50,
-    },
-    {
-      name: "Specialist",
-      index: 3,
-      description: "This mentor can answer questions within a specific topic.",
-      floor: 50,
-      max: 150,
-    },
-    {
-      name: "Conversational",
-      index: 4,
-      description: "This mentor can respond to questions with some nuance.",
-      floor: 150,
-      max: 250,
-    },
-    {
-      name: "Full-Subject",
-      index: 5,
-      description:
-        "Your mentor is equipped to answer questions within a broad subject.",
-      floor: 250,
-      max: 1000,
-    },
-    {
-      name: "Life-Story",
-      index: 6,
-      description:
-        "Your mentor can hold a natural conversation. Congratulations!",
-      floor: 1000,
-      max: value + 1,
-    },
-    {
-      name: "None",
-      index: 7,
-      description: "you've reached the final stage",
-      floor: value,
-      max: value,
-    },
-  ];
-  let currentStage = stages.find((stage) => {
-    return stage.max - 1 >= value;
-  });
-  if (!currentStage) currentStage = stages[0];
-  return {
-    ...currentStage,
-    ...{
-      next: stages[currentStage.index + 1],
-      percent: Math.round((value / currentStage.max) * 100),
-    },
-  };
-};
+
 export default function MyMentorCard(props: {
   accessToken: string;
-  mentorId: string;
-  name: string;
-  type: MentorType | undefined;
-  title: string;
-  lastTrainedAt: string;
-  value: number;
-  thumbnail: string;
+  mentor: Mentor;
 }): JSX.Element {
-  const currentStage = StageSelect(props.value);
+  const mentorInfo = parseMentor(props.mentor);
   const classes = useStyles();
   const [thumbnail, updateThumbnail] = useWithThumbnail(
-    props.mentorId,
+    props.mentor?._id,
     props.accessToken,
-    props.thumbnail
+    props.mentor?.thumbnail || ""
   );
   const thumbnailAvailable = thumbnail !== "";
   return (
@@ -202,14 +64,14 @@ export default function MyMentorCard(props: {
                 color="textSecondary"
                 data-cy="mentor-card-name"
               >
-                {props.name}
+                {mentorInfo.name}
               </Typography>
               <Typography
                 variant="h5"
                 color="textSecondary"
                 data-cy="mentor-card-info"
               >
-                Title: {props.title}
+                Title: {mentorInfo.title}
               </Typography>
               <Grid
                 justify="center"
@@ -251,7 +113,7 @@ export default function MyMentorCard(props: {
                 align="left"
                 data-cy="mentor-card-scope"
               >
-                Scope: {currentStage.name}
+                Scope: {mentorInfo.currentStage.name}
               </Typography>
               <Typography
                 variant="body1"
@@ -259,18 +121,16 @@ export default function MyMentorCard(props: {
                 align="left"
                 data-cy="mentor-card-scope-description"
               >
-                {currentStage.description}
+                {mentorInfo.currentStage.description}
               </Typography>
-              {props.type ? (
+              {mentorInfo.type ? (
                 <Typography
                   variant="h6"
                   color="textSecondary"
                   align="left"
                   data-cy="mentor-card-type"
                 >
-                  {props.type[0].toUpperCase() +
-                    props.type.slice(1).toLowerCase()}{" "}
-                  Mentor
+                  {toTitleCase(mentorInfo.type)} Mentor
                 </Typography>
               ) : (
                 <Typography
@@ -289,20 +149,20 @@ export default function MyMentorCard(props: {
                 align="left"
                 data-cy="mentor-card-trained"
               >
-                Last Trained: {props.lastTrainedAt.substring(0, 10)}
+                Last Trained: {mentorInfo.lastTrainedAt.substring(0, 10)}
               </Typography>
             </Grid>
             <Grid item alignItems="center" xs={12} md={3}>
               <Typography variant="body1" color="textSecondary">
-                Next Goal: {currentStage.next.name}
+                Next Goal: {mentorInfo.currentStage.next.name}
                 {"   "}
                 <Tooltip
                   title={
                     <React.Fragment>
                       <Typography color="inherit">
-                        {currentStage.next.name}
+                        {mentorInfo.currentStage.next.name}
                       </Typography>
-                      {currentStage.next.description}
+                      {mentorInfo.currentStage.next.description}
                     </React.Fragment>
                   }
                   data-cy="next-stage-info"
@@ -311,17 +171,17 @@ export default function MyMentorCard(props: {
                 </Tooltip>
               </Typography>
 
-              {currentStage.floor != 1000 && (
+              {mentorInfo.currentStage.floor != 1000 && (
                 <StageProgress
-                  value={props.value}
-                  max={currentStage.max || 0}
-                  percent={currentStage.percent || 0}
+                  value={mentorInfo.value}
+                  max={mentorInfo.currentStage.max || 0}
+                  percent={mentorInfo.currentStage.percent || 0}
                 />
               )}
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
-                accessToken={props.accessToken}
+                mentor={props.mentor}
                 setThumbnail={updateThumbnail}
               />
             </Grid>
@@ -329,17 +189,10 @@ export default function MyMentorCard(props: {
         </CardContent>
       </Card>
       <StageToast
-        value={props.value}
-        floor={currentStage.floor}
-        name={currentStage.name}
+        value={mentorInfo.value}
+        floor={mentorInfo.currentStage.floor}
+        name={mentorInfo.currentStage.name}
       />
     </div>
   );
 }
-
-MyMentorCard.propTypes = {
-  mentorId: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  thumbnail: PropTypes.string.isRequired,
-};

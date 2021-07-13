@@ -98,18 +98,7 @@ function HomePage(props: {
     <div className={classes.root}>
       <div>
         <NavBar title="My Mentor" mentorId={mentor?._id} />
-        <MyMentorCard
-          accessToken={props.accessToken}
-          mentorId={mentor?._id || ""}
-          name={mentor?.name || "Unnamed"}
-          type={mentor?.mentorType}
-          title={mentor?.title || "none"}
-          lastTrainedAt={mentor?.lastTrainedAt || "never"}
-          value={
-            mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
-          }
-          thumbnail={mentor?.thumbnail || ""}
-        />
+        <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
