@@ -35,6 +35,10 @@ Cypress.on("uncaught:exception", (err, runnable) => {
   return false;
 });
 
+function snapname(n) {
+  return `screenshots-setup-${n}`;
+}
+
 describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
@@ -203,9 +207,7 @@ describe("Setup", () => {
       cy.contains("It's nice to meet you, Clinton Anderson!");
       cy.contains("Let's get started setting up your new mentor.");
     });
-    cy.get("[data-cy=radio]")
-      .eq(0)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.matchImageSnapshot(snapname("welcome-slide"));
   });
 
   it("shows mentor slide", () => {
@@ -238,9 +240,8 @@ describe("Setup", () => {
         cy.get("input").should("have.value", "");
       });
     });
-    cy.get("[data-cy=radio]")
-      .eq(1)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Tell us a little about yourself.");
+    cy.matchImageSnapshot(snapname("mentor-slide-0"));
     // fill out first name and save
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -261,9 +262,8 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(1)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Tell us a little about yourself.");
+    cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -285,9 +285,8 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(1)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Tell us a little about yourself.");
+    cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -309,9 +308,8 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(1)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Tell us a little about yourself.");
+    cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -333,9 +331,8 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(1)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Tell us a little about yourself.");
+    cy.matchImageSnapshot(snapname("mentor-slide-4"));
   });
 
   it("shows mentor chat type", () => {
@@ -346,9 +343,8 @@ describe("Setup", () => {
       gqlQueries: [mockGQL("updateMentorDetails", true, true)],
     });
     cy.visit("/setup?i=2");
-    cy.get("[data-cy=radio]")
-      .eq(2)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Pick a mentor type");
+    cy.matchImageSnapshot(snapname("type-slide-0"));
     // select chat type
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -361,15 +357,13 @@ describe("Setup", () => {
       cy.contains("Make a text-only mentor that responds with chat bubbles");
     });
     // save changes
-    cy.get("[data-cy=radio]")
-      .eq(2)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Pick a mentor type");
+    cy.matchImageSnapshot(snapname("type-slide-1"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(2)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Pick a mentor type");
+    cy.matchImageSnapshot(snapname("type-slide-2"));
     cy.get("[data-cy=radio]").should("have.length", 7);
     // select video type
     cy.wait(500);
@@ -385,15 +379,13 @@ describe("Setup", () => {
       );
     });
     // save changes
-    cy.get("[data-cy=radio]")
-      .eq(2)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Pick a mentor type");
+    cy.matchImageSnapshot(snapname("type-slide-3"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.wait(500);
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=radio]")
-      .eq(2)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Pick a mentor type");
+    cy.matchImageSnapshot(snapname("type-slide-4"));
     cy.get("[data-cy=radio]").should("have.length", 8);
   });
 
@@ -436,9 +428,8 @@ describe("Setup", () => {
         "After recording a subject, you'll be placed in a panel with other mentors in your field."
       );
     });
-    cy.get("[data-cy=radio]")
-      .eq(3)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Pick the ones you feel qualified to mentor in!");
+    cy.matchImageSnapshot(snapname("subjects-slide-0"));
     // go to subjects page
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -525,9 +516,7 @@ describe("Setup", () => {
       cy.contains("You'll be asked to answer some generic questions.");
       cy.contains("Once you're done, you can build and preview your mentor.");
     });
-    cy.get("[data-cy=radio]")
-      .eq(4)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.matchImageSnapshot(snapname("intro-slide-0"));
   });
 
   it("video mentor shows idle slide", () => {
@@ -545,9 +534,8 @@ describe("Setup", () => {
         "Click the record button and you'll be taken to a recording screen."
       );
     });
-    cy.get("[data-cy=radio]")
-      .eq(5)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Idle");
+    cy.matchImageSnapshot(snapname("idle-slide-0"));
     cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=record-btn]").trigger("mouseover").click();
@@ -575,9 +563,8 @@ describe("Setup", () => {
       assert($el.replace("/admin", ""), "/setup")
     );
     cy.location("search").should("contain", "?i=5");
-    cy.get("[data-cy=radio]")
-      .eq(5)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Idle");
+    cy.matchImageSnapshot(snapname("idle-slide-1"));
   });
 
   it("chat mentor does not show idle slide", () => {
@@ -606,9 +593,8 @@ describe("Setup", () => {
       cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
       cy.contains("1 / 3");
     });
-    cy.get("[data-cy=radio]")
-      .eq(6)
-      .should("have.css", "color", "rgb(255, 0, 0)");
+    cy.contains("Repeat After Me questions");
+    cy.matchImageSnapshot(snapname("utterance-slide-0"));
     cy.wait(500);
     cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     // go to record
@@ -656,9 +642,8 @@ describe("Setup", () => {
     );
     cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("3 / 3");
-    cy.get("[data-cy=radio]")
-      .eq(6)
-      .should("have.css", "color", "rgb(0, 128, 0)");
+    cy.contains("Repeat After Me questions");
+    cy.matchImageSnapshot(snapname("utterance-slide-1"));
   });
 
   describe("shows build mentor slide after completing setup", () => {
@@ -678,9 +663,8 @@ describe("Setup", () => {
         cy.get("[data-cy=train-btn]").contains("Build");
         cy.get("[data-cy=train-btn]").should("be.disabled");
       });
-      cy.get("[data-cy=radio]")
-        .eq(7)
-        .should("have.css", "color", "rgb(255, 0, 0)");
+      cy.contains("Oops! Your mentor is not ready yet.");
+      cy.matchImageSnapshot(snapname("build-slide-0"));
     });
 
     it("builds mentor once setup is done", () => {
@@ -692,9 +676,9 @@ describe("Setup", () => {
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
       cy.visit("/setup?i=7");
-      cy.get("[data-cy=radio]")
-        .eq(7)
-        .should("have.css", "color", "rgb(255, 0, 0)");
+      cy.get("[data-cy=slide]");
+      cy.contains("Great job! You're ready to build your mentor!");
+      cy.matchImageSnapshot(snapname("build-slide-1"));
       cy.wait(500);
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
@@ -709,9 +693,8 @@ describe("Setup", () => {
         cy.contains("Click the preview button to see your mentor.");
         cy.get("[data-cy=preview-btn]").contains("Preview");
       });
-      cy.get("[data-cy=radio]")
-        .eq(7)
-        .should("have.css", "color", "rgb(0, 128, 0)");
+      cy.contains("Great job! You're ready to build your mentor!");
+      cy.matchImageSnapshot(snapname("build-slide-2"));
       // preview mentor
       cy.get("[data-cy=preview-btn]").trigger("mouseover").click();
       cy.location("pathname").then(($el) =>
@@ -729,9 +712,8 @@ describe("Setup", () => {
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
       cy.visit("/setup?i=7");
-      cy.get("[data-cy=radio]")
-        .eq(7)
-        .should("have.css", "color", "rgb(255, 0, 0)");
+      cy.contains("Great job! You're ready to build your mentor!");
+      cy.matchImageSnapshot(snapname("build-slide-3"));
       cy.wait(500);
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
@@ -742,9 +724,7 @@ describe("Setup", () => {
       });
       cy.contains("Building your mentor...");
       cy.contains("Oops, training failed. Please try again.");
-      cy.get("[data-cy=radio]")
-        .eq(7)
-        .should("have.css", "color", "rgb(255, 0, 0)");
+      cy.matchImageSnapshot(snapname("build-slide-4"));
     });
   });
 });

@@ -66,7 +66,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="User Profile" mentorId={editedMentor?._id} />
+      <NavBar title="My Profile" mentorId={editedMentor?._id} />
       <Paper className={classes.paper}>
         <div className={classes.inputField}>
           <FormControl>
