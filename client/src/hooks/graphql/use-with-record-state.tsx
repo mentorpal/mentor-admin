@@ -130,7 +130,7 @@ export function useWithRecordState(
       !isMentorLoading
     ) {
       setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < mentor.answers.length) nextAnswer();
+      if (answerIdx < answers.length) nextAnswer();
     }
   }, [isMentorLoading]);
 
@@ -237,10 +237,6 @@ export function useWithRecordState(
       return;
     }
     setAnswerIdx(answerIdx + 1);
-  }
-
-  function setAnswerIDx(num: number) {
-    setAnswerIdx(num);
   }
 
   function rerecord() {
@@ -370,7 +366,7 @@ export function useWithRecordState(
     followUpQuestions,
     prevAnswer,
     nextAnswer,
-    setAnswerIDx,
+    setAnswerIdx,
     setRecordPageState,
     editAnswer,
     saveAnswer,
@@ -404,7 +400,7 @@ export interface UseWithRecordState {
   reloadMentorData: () => void;
   nextAnswer: () => void;
   setRecordPageState: (newState: RecordPageState) => void;
-  setAnswerIDx: (id: number) => void;
+  setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
   removeCompletedTask: (tasks: UploadTask) => void;

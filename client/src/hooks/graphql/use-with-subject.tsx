@@ -11,8 +11,14 @@ import { Category, QuestionType, Subject, SubjectQuestion, Topic } from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
 
+export interface NewQuestionArgs {
+  question: string;
+  categoryId: string;
+  mentorId: string;
+}
+
 interface UseWithSubject extends UseData<Subject> {
-  saveSubject: (callbackFunc?: () => void) => void;
+  saveSubject: () => Promise<void>;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -20,11 +26,7 @@ interface UseWithSubject extends UseData<Subject> {
   updateTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
-  addQuestion: (
-    question?: string,
-    categoryID?: string,
-    mentorID?: string
-  ) => void;
+  addQuestion: (q?: NewQuestionArgs) => void;
   updateQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   moveQuestion: (
@@ -68,13 +70,9 @@ export function useWithSubject(
     return fetchSubject(subjectId);
   }
 
-  function update(callBackFunc?: () => void) {
-    saveData({
-      callback: (editedData: Subject) =>
-        updateSubject(editedData, accessToken).then((data) => {
-          if (callBackFunc) callBackFunc();
-          return data;
-        }),
+  async function update(): Promise<void> {
+    await saveData({
+      callback: (editedData: Subject) => updateSubject(editedData, accessToken),
     });
   }
 
@@ -170,11 +168,7 @@ export function useWithSubject(
     editData({ topics: copyAndMove(editedData.topics, toMove, moveTo) });
   }
 
-  function addQuestion(
-    question?: string,
-    categoryID?: string,
-    mentorID?: string
-  ) {
+  function addQuestion(q?: NewQuestionArgs) {
     if (!editedData) {
       return;
     }
@@ -184,14 +178,14 @@ export function useWithSubject(
         {
           question: {
             _id: uuid(),
-            question: question || "",
+            question: q?.question || "",
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: "",
-            mentor: mentorID || undefined,
+            mentor: q?.mentorId || undefined,
           },
-          category: categoryID
-            ? editedData.categories.find((c) => c.id == categoryID)
+          category: q?.categoryId
+            ? editedData.categories.find((c) => c.id == q.categoryId)
             : undefined,
           topics: [],
         },

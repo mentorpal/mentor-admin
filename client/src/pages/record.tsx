@@ -122,6 +122,9 @@ function RecordPage(props: {
   const categoryTitle =
     curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
     "";
+  const curAnswerBelongsToMentor =
+    curAnswer?.editedAnswer.question?.mentor === mentor?._id;
+  const curEditedQuestion = curAnswer?.editedAnswer?.question;
   function onBack() {
     if (props.search.back) {
       navigate(decodeURI(props.search.back));
@@ -225,15 +228,13 @@ function RecordPage(props: {
               <OutlinedInput
                 data-cy="question-input"
                 multiline
-                value={curAnswer?.editedAnswer.question?.question}
-                disabled={
-                  curAnswer?.editedAnswer.question?.mentor !== mentor._id
-                }
+                value={curEditedQuestion?.question}
+                disabled={!curAnswerBelongsToMentor}
                 onChange={(e) => {
-                  if (curAnswer?.editedAnswer.question) {
+                  if (curEditedQuestion) {
                     recordState.editAnswer({
                       question: {
-                        ...curAnswer?.editedAnswer.question,
+                        ...curEditedQuestion,
                         question: e.target.value,
                       },
                     });
@@ -244,7 +245,7 @@ function RecordPage(props: {
                     <IconButton
                       data-cy="undo-question-btn"
                       disabled={
-                        curAnswer?.editedAnswer.question?.question ===
+                        curEditedQuestion?.question ===
                         curAnswer?.answer.question?.question
                       }
                       onClick={() =>
@@ -261,7 +262,7 @@ function RecordPage(props: {
             </FormControl>
           </div>
           {curAnswer?.minVideoLength &&
-          curAnswer?.editedAnswer.question?.name === UtteranceName.IDLE ? (
+          curEditedQuestion?.name === UtteranceName.IDLE ? (
             <div data-cy="idle" className={classes.block}>
               <Typography className={classes.title}>Idle Duration:</Typography>
               <Select
@@ -353,9 +354,9 @@ function RecordPage(props: {
         <div>
           <Box height="100%" width="100%">
             <FollowUpQuestionsWidget
-              categoryID={props.search.category}
+              categoryId={props.search.category || ""}
               questions={recordState.followUpQuestions}
-              mentorID={mentor._id}
+              mentorId={mentor._id || ""}
               toRecordFollowUpQs={setRecordFollowUpQs}
               addQuestion={addQuestion}
               removeQuestion={removeQuestion}
@@ -423,7 +424,7 @@ function RecordPage(props: {
               disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
               onClick={() => {
                 setRecordPageState(RecordPageState.RELOADING_MENTOR);
-                saveSubject(recordState.reloadMentorData);
+                saveSubject().then(() => recordState.reloadMentorData());
               }}
               className={classes.nextBtn}
             >

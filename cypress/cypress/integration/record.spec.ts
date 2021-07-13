@@ -603,7 +603,7 @@ describe("Record", () => {
       cy.get("[data-cy=stage-card]").should("exist");
     });
 
-    it.only("End-of-category page should display unordered list of follow up questions", () => {
+    it("End-of-category page should display unordered list of follow up questions", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [chatMentor],

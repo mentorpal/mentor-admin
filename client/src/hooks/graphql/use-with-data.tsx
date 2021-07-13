@@ -34,7 +34,7 @@ export interface UseData<T> {
   clearError: () => void;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
-  saveData: (update: UpdateFunc<T>) => void;
+  saveData: (update: UpdateFunc<T>) => Promise<void>;
 }
 
 export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
@@ -87,12 +87,12 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
-  function saveData(update: UpdateFunc<T>) {
+  async function saveData(update: UpdateFunc<T>): Promise<void> {
     if (state.isLoading || state.isSaving || !editedData || !update) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    update
+    await update
       .callback(editedData)
       .then((updated) => {
         if (state.isLoading) {

@@ -20,7 +20,7 @@ function UploadingView(props: {
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
   const { recordState, curAnswer, visible, setUploadWidgetVisible } = props;
-  const { answers, setAnswerIDx, uploads } = recordState;
+  const { answers, setAnswerIdx, uploads } = recordState;
 
   const uploadsToShow = uploads.filter(
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
@@ -33,8 +33,7 @@ function UploadingView(props: {
   const height = 250;
   const width = 350;
 
-  //the IDx of an answer corresponds to its position within the answers array
-  function retrieveAnswerIDx(id: string) {
+  function retrieveAnswerIdx(id: string) {
     for (let i = 0; i < answers?.length; i++) {
       if (answers[i].answer.question._id == id) {
         return i;
@@ -69,8 +68,8 @@ function UploadingView(props: {
               <ListItem
                 recordState={recordState}
                 upload={upload}
-                setAnswerIDx={setAnswerIDx}
-                answerIDx={retrieveAnswerIDx(upload.question._id)}
+                setAnswerIdx={setAnswerIdx}
+                answerIdx={retrieveAnswerIdx(upload.question._id)}
                 jobTitle={upload.question.question}
               />
             </div>

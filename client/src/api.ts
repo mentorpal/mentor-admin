@@ -588,12 +588,12 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
 }
 
 export async function fetchFollowUpQuestions(
-  categoryID: string,
+  categoryId: string,
   accessToken: string
 ): Promise<FollowUpQuestion[]> {
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.get(
-    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryID),
+    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
     { headers: headers }
   );
   return result.data.data.followups;

@@ -10,17 +10,14 @@ import { List, ListItem, ListItemText } from "@material-ui/core";
 import { Card, Button, Checkbox } from "@material-ui/core";
 import { copyAndSet } from "helpers";
 import { Subject, SubjectQuestion } from "types";
+import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 
 function FollowUpQuestionsWidget(props: {
   //insert expected props here
   questions: string[];
-  categoryID: string | undefined;
-  mentorID: string | undefined;
-  addQuestion: (
-    question?: string,
-    catagoryID?: string,
-    mentorID?: string
-  ) => void;
+  categoryId: string;
+  mentorId: string;
+  addQuestion: (q: NewQuestionArgs) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   editedData: Subject | undefined;
   toRecordFollowUpQs: (b: boolean) => void;
@@ -29,12 +26,12 @@ function FollowUpQuestionsWidget(props: {
   const [questionList, setQuestionList] = useState<question[]>([]);
   const {
     questions,
-    categoryID,
+    categoryId,
     toRecordFollowUpQs,
     addQuestion,
     removeQuestion,
     editedData,
-    mentorID,
+    mentorId,
   } = props;
 
   useEffect(() => {
@@ -57,7 +54,11 @@ function FollowUpQuestionsWidget(props: {
     const newCheckValue = !questionList[i].checked;
     const question = questionList[i].question;
     if (newCheckValue == true) {
-      addQuestion(question, categoryID, mentorID);
+      addQuestion({
+        question: question,
+        categoryId: categoryId,
+        mentorId: mentorId,
+      });
     } else {
       let questionObject = undefined;
       for (let i = 0; i < editedData.questions.length; i++) {
