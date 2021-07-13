@@ -26,8 +26,8 @@ export default function RecommendedActionButton(props: {
   );
   const idleIncomplete = idle?.status === Status.INCOMPLETE;
   const isVideo = props.mentor?.mentorType === MentorType.VIDEO;
-  const thumbnail = props.mentor?.thumbnail;
-  interface category {
+  const thumbnail = props.mentor?.thumbnail != "";
+  interface Category {
     subjectName: string;
     subject: string;
     isRequired: boolean;
@@ -35,7 +35,7 @@ export default function RecommendedActionButton(props: {
     category: string;
     answers: Answer[];
   }
-  const categories: category[] = [];
+  const categories: Category[] = [];
 
   props.mentor?.subjects.forEach((s) => {
     categories.push({
@@ -70,7 +70,6 @@ export default function RecommendedActionButton(props: {
   const incompleteRequirement = categories
     .filter((c) => c.isRequired)
     .find((c) => c.answers.find((a) => a.status === Status.INCOMPLETE));
-  console.log;
   const firstIncomplete = categories.find((c) =>
     c.answers.find((a) => a.status === Status.INCOMPLETE)
   );
@@ -84,34 +83,37 @@ export default function RecommendedActionButton(props: {
     idle: Answer | undefined;
     idleIncomplete: boolean;
     isVideo: boolean;
-    thumbnail: string;
-    categories: category[];
-    incompleteRequirement: category | undefined;
-    firstIncomplete: category | undefined;
+    thumbnail: boolean;
+    categories: Category[];
+    incompleteRequirement: Category | undefined;
+    firstIncomplete: Category | undefined;
     completedAnswers: number;
     totalAnswers: number;
   }
   interface Recommendation {
     text: string;
     reason: string;
+    input: boolean;
     action: () => void;
     skippable: boolean;
     skip: Conditions;
   }
 
   function recommend(conditions: Conditions): Recommendation {
-    if (conditions.thumbnail == "")
+    if (!thumbnail)
       return {
         text: "Add a Thumbnail",
         reason: "A thumbnail helps a user identify your mentor",
+        input: true,
         action: () => undefined,
         skippable: true,
-        skip: { ...conditions, thumbnail: "skipped" },
+        skip: { ...conditions, thumbnail: true },
       };
     if (conditions.idleIncomplete && conditions.isVideo)
       return {
         text: "Record an Idle Video",
         reason: "Users see your idle video while typing a question",
+        input: false,
         action: () => {
           if (conditions.idle)
             navigate(
@@ -129,6 +131,7 @@ export default function RecommendedActionButton(props: {
         text: "Finish Required Questions",
         reason:
           "You can't build your mentor until you record all required subjects.",
+        input: false,
         action: () => {
           if (conditions.incompleteRequirement)
             navigate(
@@ -150,6 +153,7 @@ export default function RecommendedActionButton(props: {
             : "Answer More Questions",
         reason:
           "You can't build your mentor until you have at least 5 questions",
+        input: false,
         action: () => {
           conditions.totalAnswers < 5
             ? navigate("/subjects")
@@ -168,6 +172,7 @@ export default function RecommendedActionButton(props: {
       return {
         text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
         reason: `You have unanswered questions in the ${conditions.firstIncomplete?.subjectName} subject`,
+        input: false,
         action: () => {
           if (conditions.firstIncomplete)
             navigate(
@@ -184,6 +189,7 @@ export default function RecommendedActionButton(props: {
     return {
       text: "Add a Subject",
       reason: "Add a subject to answer more questions",
+      input: false,
       action: () => navigate("/subjects"),
       skippable: false,
       skip: conditions,
@@ -205,7 +211,7 @@ export default function RecommendedActionButton(props: {
 
   return (
     <div>
-      {props.mentor?.thumbnail == "" ? (
+      {recommendedAction.input ? (
         <div>
           <input
             accept="image/*"

@@ -23,3 +23,6 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
   const removed = copyAndRemove(a, moveFrom);
   return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }
+export function toTitleCase(convert: string) {
+  return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
+}

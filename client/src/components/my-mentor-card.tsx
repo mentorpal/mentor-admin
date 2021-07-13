@@ -21,6 +21,7 @@ import { HelpOutline } from "@material-ui/icons";
 import { Mentor } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
+import { toTitleCase } from "helpers";
 
 function StageProgress(props: { value: number; max: number; percent: number }) {
   return (
@@ -260,7 +261,7 @@ export default function MyMentorCard(props: {
                   align="left"
                   data-cy="mentor-card-type"
                 >
-                  {type[0].toUpperCase() + type.slice(1).toLowerCase()} Mentor
+                  {toTitleCase(type)} Mentor
                 </Typography>
               ) : (
                 <Typography

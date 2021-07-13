@@ -153,7 +153,7 @@ describe("My Mentor Page", () => {
       cy.url().should("include", "videoId=idletest");
     });
 
-    it("Asks user with incomplete Required Subjects to finish them.", () => {
+    it("Asks user with incomplete required subjects to finish them.", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
@@ -262,7 +262,7 @@ describe("My Mentor Page", () => {
       cy.url().should("include", "/record");
     });
 
-    it("Asks user with thumbnail, idle video, and complete questions to add a subject", () => {
+    it("If user has completed previous suggestions, ask to add a subject", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
