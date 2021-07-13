@@ -97,7 +97,7 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="My Mentor" mentorId={mentor?._id} />
         <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
         <Select
           data-cy="select-subject"
