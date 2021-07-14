@@ -5,37 +5,33 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import PropTypes from "prop-types";
-import { Box, LinearProgress, Typography } from "@material-ui/core";
-import { createStyles, withStyles } from "@material-ui/core/styles";
 
-const LinearProgressBar = withStyles((theme) =>
-  createStyles({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor:
-        theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: "#1a90ff",
-    },
-  })
-)(LinearProgress);
+import { Box, Radio, Typography } from "@material-ui/core";
 
-function ProgressBar(props: { value: number; total: number }): JSX.Element {
+export default function ProgressBar(props: {
+  value: number;
+  total: number;
+}): JSX.Element {
   const percent = Math.round((props.value / props.total) * 100);
+  const questions = [
+    ...Array(props.total)
+      .fill(0)
+      .map((q, i) => {
+        return { complete: i < props.value };
+      }),
+  ];
+
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
-        <LinearProgressBar
-          data-cy="progress-bar"
-          variant="determinate"
-          {...{ value: percent }}
-        />
+        {questions.map((q, i) => (
+          <Radio
+            data-cy={`radio-${i}`}
+            key={i}
+            checked={q.complete}
+            color={q.complete ? "primary" : "default"}
+          />
+        ))}
       </Box>
       <Box minWidth={100}>
         <Typography variant="body2" color="textSecondary">
@@ -45,13 +41,3 @@ function ProgressBar(props: { value: number; total: number }): JSX.Element {
     </Box>
   );
 }
-
-ProgressBar.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
-  value: PropTypes.number.isRequired,
-};
-
-export default ProgressBar;
