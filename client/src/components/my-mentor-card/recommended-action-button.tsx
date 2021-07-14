@@ -5,10 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Button, Typography } from "@material-ui/core";
+import { DoubleArrow, PlayCircleFilled } from "@material-ui/icons";
 import React from "react";
 import { Mentor } from "types";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
-
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   mentor: Mentor;
@@ -35,15 +35,19 @@ export default function RecommendedActionButton(props: {
           />
           <label htmlFor="thumbnail-upload">
             <Button
-              component="span"
+              size="large"
               fullWidth
+              color="primary"
+              variant="contained"
+              component="span"
               data-cy="recommended-action-thumbnail"
+              startIcon={<PlayCircleFilled />}
             >
               {recommendedAction.text}
             </Button>
           </label>
           <Typography
-            variant="body1"
+            variant="caption"
             color="textSecondary"
             data-cy="recommended-action-reason"
           >
@@ -51,16 +55,20 @@ export default function RecommendedActionButton(props: {
           </Typography>
         </div>
       ) : (
-        <div>
+        <div color="green">
           <Button
+            size="large"
             fullWidth
+            color="primary"
+            variant="contained"
             data-cy="recommended-action-button"
             onClick={recommendedAction.action}
+            startIcon={<PlayCircleFilled />}
           >
             {recommendedAction.text}
           </Button>
           <Typography
-            variant="body1"
+            variant="caption"
             color="textSecondary"
             data-cy="recommended-action-reason"
           >
@@ -74,7 +82,10 @@ export default function RecommendedActionButton(props: {
           data-cy="skip-action-button"
           onClick={skipRecommendation}
         >
-          next recommendation
+          <Typography variant="caption" color="textPrimary">
+            skip
+          </Typography>
+          <DoubleArrow />
         </Button>
       )}
     </div>

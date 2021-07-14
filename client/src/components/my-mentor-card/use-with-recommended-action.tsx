@@ -154,7 +154,7 @@ export function UseWithRecommendedAction(
       subjectName: s.name,
       subject: s._id,
       isRequired: s.isRequired,
-      categoryName: "Uncategorized",
+      categoryName: s.name,
       category: "",
       answers: mentor?.answers.filter((a) =>
         s.questions
