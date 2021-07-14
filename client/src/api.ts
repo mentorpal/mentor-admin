@@ -18,6 +18,7 @@ import {
   TrainingInfo,
   VideoInfo,
   CancelJob,
+  FollowUpQuestion,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -607,6 +608,18 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return result.data.data;
 }
 
+export async function fetchFollowUpQuestions(
+  categoryId: string,
+  accessToken: string
+): Promise<FollowUpQuestion[]> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await axios.post(
+    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
+    null,
+    { headers: headers }
+  );
+  return result.data.data.followups;
+}
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {

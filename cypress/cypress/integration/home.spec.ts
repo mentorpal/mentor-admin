@@ -89,6 +89,77 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=recommended-action-button]").should("exist");
   });
 
+  it("shows placeholder when no thumbnail", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "",
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=placeholder-thumbnail]").should("exist");
+  });
+
+  it("switches to new image when uploaded", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "url",
+      },
+    });
+    cy.visit("/");
+    /* uncomment when graphql is available */
+    // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
+    // cy.fixture('avatar.png').then((fileContent) => {
+    //   cy.get('input[type="file"]').attachFile({
+    //     fileContent: fileContent.toString(),
+    //     fileName: 'avatar.png',
+    //     mimeType: 'avatr.png',
+    //   });
+    // });
+    cy.get("[data-cy=uploaded-thumbnail]").should("exist");
+  });
+
+  it("does not show toast on incomplete level", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit("/");
+    cy.get("[data-cy=stage-toast]").should("not.exist");
+  });
+
+  it("shows mentor scope toast on stage floor", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.COMPLETE,
+              };
+        }),
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=stage-toast]").contains(
+      "Your mentor has reached the Scripted stage!"
+    );
+    cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
+  });
+
+  it("dropdown should expand when question is added", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit("/");
+    cy.get("[data-cy=answer-0]").should("not.exist");
+    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
+    cy.get("[data-cy=answer-0]").first().should("exist");
+    cy.get("[data-cy=answer-0]").first().should("be.visible");
+  });
   it("dropdown should expand when question is added", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
@@ -101,18 +172,19 @@ describe("My Mentor Page", () => {
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    const testClint = {
-      ...clint,
-      answers: clint.answers.map((a, i) => {
-        return i !== 4
-          ? a
-          : {
-              ...a,
-              status: Status.INCOMPLETE,
-            };
-      }),
-    };
-    cyMockDefault(cy, { mentor: testClint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.INCOMPLETE,
+              };
+        }),
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();

@@ -20,8 +20,7 @@ const initialState: LoadingState = {
 };
 
 interface UpdateFunc<T> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  callback: (data: T) => Promise<any>;
+  action: (data: T) => Promise<void>;
 }
 
 export interface UseData<T> {
@@ -34,7 +33,7 @@ export interface UseData<T> {
   clearError: () => void;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
-  saveData: (update: UpdateFunc<T>) => void;
+  saveData: (action: UpdateFunc<T>) => Promise<void>;
 }
 
 export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
@@ -87,33 +86,26 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
-  function saveData(update: UpdateFunc<T>) {
+  async function saveData(update: UpdateFunc<T>): Promise<void> {
     if (state.isLoading || state.isSaving || !editedData || !update) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    update
-      .callback(editedData)
-      .then((updated) => {
-        if (state.isLoading) {
-          return;
-        }
-        if (!updated) {
-          dispatch({ type: LoadingActionType.SAVING, payload: false });
-          return;
-        }
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
-        setData(editedData);
-        setEditedData(undefined);
-      })
-      .catch((err) => {
-        console.error(err);
-        dispatch({
-          type: LoadingActionType.ERROR,
-          payload: { message: "Failed to save", error: err.message },
-        });
-        dispatch({ type: LoadingActionType.SAVING, payload: false });
+    update.action(editedData).catch((err) => {
+      console.error(err);
+      dispatch({
+        type: LoadingActionType.ERROR,
+        payload: { message: "Failed to save", error: err.message },
       });
+      dispatch({ type: LoadingActionType.SAVING, payload: false });
+      return;
+    });
+    if (state.isLoading) {
+      return;
+    }
+    dispatch({ type: LoadingActionType.SAVING, payload: false });
+    setData(editedData);
+    setEditedData(undefined);
   }
 
   return {

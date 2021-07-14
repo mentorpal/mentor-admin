@@ -4,7 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cyMockDefault, mockGQL, cyAttachUpload } from "../support/functions";
+import {
+  cyMockDefault,
+  mockGQL,
+  cyMockFollowUpQuestions,
+  cyAttachUpload,
+} from "../support/functions";
 import {
   Mentor,
   MentorType,
@@ -577,6 +582,141 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+    });
+
+    it("displays a list of followup questions", () => {
+      cyMockDefault(cy, {
+        mentor: [chatMentor],
+      });
+      cyMockFollowUpQuestions(cy, {
+        errors: null,
+        data: {
+          followups: [
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+            {
+              question: "Can you tell me more about Aaron?",
+              entityType: "profession",
+            },
+            {
+              question: "What was Florida like?",
+            },
+            {
+              question: "What does an Intern do?",
+            },
+            {
+              question: "What is foosball?",
+            },
+          ],
+        },
+      });
+      cy.visit("/record?subject=background&category=cat");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=follow-up-question-0]").should("exist");
+      cy.get("[data-cy=follow-up-question-0]").should("be.visible");
+      cy.get("[data-cy=follow-up-question-0]").should(
+        "have.text",
+        "Can you tell me more about Aaron?"
+      );
+      cy.get("[data-cy=follow-up-question-1]").should("exist");
+      cy.get("[data-cy=follow-up-question-1]").should("be.visible");
+      cy.get("[data-cy=follow-up-question-1]").should(
+        "have.text",
+        "What was Florida like?"
+      );
+      cy.get("[data-cy=follow-up-question-2]").should("exist");
+      cy.get("[data-cy=follow-up-question-2]").should("be.visible");
+      cy.get("[data-cy=follow-up-question-2]").should(
+        "have.text",
+        "What does an Intern do?"
+      );
+    });
+
+    it("does not traverse to followups page if there are no followups", () => {
+      cyMockDefault(cy, {
+        mentor: [chatMentor],
+      });
+      cyMockFollowUpQuestions(cy, {
+        data: [],
+      });
+      cy.visit("/record?subject=background&category=cat");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=follow-up-q-widget]").should("not.exist");
     });
   });
 
@@ -2482,17 +2622,6 @@ describe("Record", () => {
           "uploadTasks",
           [
             [],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-                transcript: "",
-                media: [],
-              },
-            ],
             [
               {
                 question: {

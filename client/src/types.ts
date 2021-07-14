@@ -125,6 +125,11 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface FollowUpQuestion {
+  question: string;
+  entityType?: string;
+}
+
 export enum MentorType {
   VIDEO = "VIDEO",
   CHAT = "CHAT",
@@ -180,6 +185,14 @@ export enum JobState {
   SUCCESS = "SUCCESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
+}
+
+export enum RecordPageState {
+  INITIALIZING = "INITIALIZING",
+  RECORDING_ANSWERS = "RECORDING_ANSWERS",
+  FETCHING_FOLLOW_UPS = "FETCHING_FOLLOW_UPS",
+  REVIEWING_FOLLOW_UPS = "REVIEWING_FOLLOW_UPS",
+  RELOADING_MENTOR = "RELOADING_MENTOR",
 }
 
 export interface TaskStatus<T> {
