@@ -45,7 +45,7 @@ export default function MyMentorCard(props: {
     props.accessToken,
     props.mentor?.thumbnail || ""
   );
-  const thumbnailAvailable = thumbnail !== "";
+  const thumbnailAvailable = /(ftp|http|https):/.test(thumbnail);
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
@@ -63,6 +63,7 @@ export default function MyMentorCard(props: {
                 variant="h4"
                 color="textSecondary"
                 data-cy="mentor-card-name"
+                display="inline"
               >
                 {mentorInfo.name}
               </Typography>
@@ -70,6 +71,7 @@ export default function MyMentorCard(props: {
                 variant="h5"
                 color="textSecondary"
                 data-cy="mentor-card-info"
+                display="inline"
               >
                 Title: {mentorInfo.title}
               </Typography>
@@ -153,8 +155,19 @@ export default function MyMentorCard(props: {
               </Typography>
             </Grid>
             <Grid item alignItems="center" xs={12} md={3}>
-              <Typography variant="body1" color="textSecondary">
-                Next Goal: {mentorInfo.currentStage.next.name}
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                display="inline"
+              >
+                Next Goal:{" "}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                display="inline"
+              >
+                {mentorInfo.currentStage.next.name}
                 {"   "}
                 <Tooltip
                   title={

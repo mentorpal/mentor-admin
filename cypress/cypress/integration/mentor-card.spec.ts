@@ -51,7 +51,7 @@ describe("My Mentor Page", () => {
       cyMockDefault(cy, {
         mentor: {
           ...clint,
-          thumbnail: "url",
+          thumbnail: "https://new.url/test.png",
         },
       });
       cy.visit("/");
@@ -133,7 +133,7 @@ describe("My Mentor Page", () => {
       cyMockDefault(cy, {
         mentor: {
           ...clint,
-          thumbnail: "url",
+          thumbnail: "https://new.url/test.png",
           answers: clint.answers.map((a) => {
             if (a.question.name === UtteranceName.IDLE) {
               a.status = Status.INCOMPLETE;
@@ -158,7 +158,7 @@ describe("My Mentor Page", () => {
       cyMockDefault(cy, {
         mentor: {
           ...clint,
-          thumbnail: "url",
+          thumbnail: "https://new.url/test.png",
           answers: clint.answers.map((a) => {
             if (a.question.type === QuestionType.UTTERANCE) {
               a.status = Status.INCOMPLETE;
@@ -286,7 +286,7 @@ describe("My Mentor Page", () => {
         cyMockDefault(cy, {
           mentor: {
             ...clint,
-            thumbnail: "url",
+            thumbnail: "https://new.url/test.png",
             answers: clint.answers.map((a) => {
               if (a.question.name === UtteranceName.IDLE) {
                 a.status = Status.INCOMPLETE;

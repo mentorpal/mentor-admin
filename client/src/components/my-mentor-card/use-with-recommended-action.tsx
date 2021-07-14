@@ -145,8 +145,7 @@ export function UseWithRecommendedAction(
   );
   const idleIncomplete = idle?.status === Status.INCOMPLETE;
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
-  const hasThumbnail = mentor?.thumbnail != "";
-
+  const hasThumbnail = /(ftp|http|https):/.test(mentor?.thumbnail);
   const categories: Category[] = [];
 
   mentor?.subjects.forEach((s) => {

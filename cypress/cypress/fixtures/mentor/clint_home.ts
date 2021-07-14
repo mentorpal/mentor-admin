@@ -14,6 +14,7 @@ import {
 
 export const mentor: Mentor = {
   _id: "clintanderson",
+  thumbnail: "https://new.url/test.png",
   name: "Clinton Anderson",
   firstName: "Clint",
   title: "Nuclear Electrician's Mate",
