@@ -8,7 +8,7 @@ import React from "react";
 import { Paper, Typography } from "@material-ui/core";
 import { Answer, Question, Status } from "types";
 import AnswerList from "components/home/answer-list";
-import ProgressBar from "components/progress-bar";
+import ProgressChecks from "components/progress-checks";
 
 export interface RecordingBlock {
   name: string;
@@ -42,7 +42,7 @@ export default function RecordingBlockItem(props: {
           data-cy="block-progress"
           style={{ flexGrow: 1, marginLeft: 25, marginRight: 25 }}
         >
-          <ProgressBar value={complete.length} total={answers.length} />
+          <ProgressChecks value={complete.length} total={answers.length} />
         </div>
       </div>
       <Typography data-cy="block-description" className={classes.subtitle}>

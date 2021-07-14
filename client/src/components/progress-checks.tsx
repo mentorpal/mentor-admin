@@ -1,42 +1,37 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Box, LinearProgress, Typography } from "@material-ui/core";
-import { createStyles, withStyles } from "@material-ui/core/styles";
 
-const LinearProgressBar = withStyles((theme) =>
-  createStyles({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor:
-        theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: "#1a90ff",
-    },
-  })
-)(LinearProgress);
+import { Box, Radio, Typography } from "@material-ui/core";
 
-export default function ProgressBar(props: {
+export default function ProgressChecks(props: {
   value: number;
   total: number;
 }): JSX.Element {
   const percent = Math.round((props.value / props.total) * 100);
+  const questions = [
+    ...Array(props.total)
+      .fill(0)
+      .map((q, i) => {
+        return { complete: i < props.value };
+      }),
+  ];
+
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
-        <LinearProgressBar
-          data-cy="progress-bar"
-          variant="determinate"
-          {...{ value: percent }}
-        />
+        {questions.map((q, i) => (
+          <Radio
+            data-cy={`radio-${i}`}
+            key={i}
+            checked={q.complete}
+            color={q.complete ? "primary" : "default"}
+          />
+        ))}
       </Box>
       <Box minWidth={100}>
         <Typography variant="body2" color="textSecondary">
