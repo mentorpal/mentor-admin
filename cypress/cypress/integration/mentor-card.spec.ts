@@ -254,7 +254,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action-button]").contains(
-        "Answer Uncategorized Questions"
+        "Answer extra Questions"
       );
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
