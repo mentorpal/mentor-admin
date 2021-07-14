@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 
 import { Box, Radio, Typography } from "@material-ui/core";
+import { Stop, StopOutlined } from "@material-ui/icons";
 
 export default function ProgressChecks(props: {
   value: number;
@@ -27,9 +28,13 @@ export default function ProgressChecks(props: {
         {questions.map((q, i) => (
           <Radio
             data-cy={`radio-${i}`}
+            disableRipple
+            icon={<StopOutlined />}
+            checkedIcon={<Stop />}
             key={i}
             checked={q.complete}
             color={q.complete ? "primary" : "default"}
+            size="small"
           />
         ))}
       </Box>
