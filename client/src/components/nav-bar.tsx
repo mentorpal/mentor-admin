@@ -161,7 +161,7 @@ function NavMenu(props: {
         to={"/feedback"}
         selected={location.pathname.includes("/feedback")}
       >
-        <ListItemText primary="Corrections and User Feedback" />
+        <ListItemText primary="User Feedback" />
       </ListItem>
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
         <ListItemText primary="Chat with Mentor" />

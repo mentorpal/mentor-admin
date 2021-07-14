@@ -71,16 +71,34 @@ export function useWithReviewAnswerState(
       return;
     }
     const _blocks: RecordingBlock[] = [];
-    const subject = editedMentor.subjects.find(
+    const foundSubject = editedMentor.subjects.find(
       (s) => s._id === selectedSubject
     );
-    let answers = editedMentor.answers;
-    if (subject) {
-      answers = answers.filter((a) =>
+    const answers = editedMentor.answers;
+    if (foundSubject) {
+      const subject = foundSubject;
+      const subjectAnswers = answers.filter((a) =>
         subject.questions.map((q) => q.question._id).includes(a.question._id)
       );
+      const uncategorizedAnswers = subjectAnswers.filter((a) =>
+        subject.questions
+          .filter((q) => !q.category)
+          .map((q) => q.question._id)
+          .includes(a.question._id)
+      );
+      if (uncategorizedAnswers.length > 0) {
+        _blocks.push({
+          name: subject.name,
+          description: subject.description,
+          answers: uncategorizedAnswers,
+          recordAll: (status) => recordAnswers(status, subject._id, ""),
+          recordOne: recordAnswer,
+          addQuestion: () => addNewQuestion(subject, undefined),
+          editQuestion: (question) => editQuestion(subject, question),
+        });
+      }
       subject.categories.forEach((c) => {
-        const categoryAnswers = answers.filter((a) =>
+        const categoryAnswers = subjectAnswers.filter((a) =>
           subject.questions
             .filter((q) => q.category?.id === c.id)
             .map((q) => q.question._id)
@@ -98,43 +116,60 @@ export function useWithReviewAnswerState(
           });
         }
       });
-      const uncategorizedAnswers = answers.filter((a) =>
-        subject.questions
-          .filter((q) => !q.category)
-          .map((q) => q.question._id)
-          .includes(a.question._id)
-      );
-      if (uncategorizedAnswers.length > 0) {
-        _blocks.push({
-          name: subject.name,
-          description: subject.description,
-          answers: uncategorizedAnswers,
-          recordAll: (status) => recordAnswers(status, subject._id, ""),
-          recordOne: recordAnswer,
-          addQuestion: () => addNewQuestion(subject, undefined),
-          editQuestion: (question) => editQuestion(subject, question),
-        });
-      }
+
+      setProgress({
+        complete: subjectAnswers.filter((a) => a.status === Status.COMPLETE)
+          .length,
+        total: subjectAnswers.length,
+      });
     } else {
-      editedMentor.subjects.forEach((s) => {
+      editedMentor.subjects.forEach((subject) => {
         const subjectAnswers = answers.filter((a) =>
-          s.questions.map((q) => q.question._id).includes(a.question._id)
+          subject.questions.map((q) => q.question._id).includes(a.question._id)
         );
-        _blocks.push({
-          name: s.name,
-          description: s.description,
-          answers: subjectAnswers,
-          recordAll: (status) => recordAnswers(status, s._id, ""),
-          recordOne: recordAnswer,
-          addQuestion: () => addNewQuestion(s, undefined),
-          editQuestion: (question) => editQuestion(s, question),
+        const uncategorizedAnswers = subjectAnswers.filter((a) =>
+          subject.questions
+            .filter((q) => !q.category)
+            .map((q) => q.question._id)
+            .includes(a.question._id)
+        );
+        if (uncategorizedAnswers.length > 0) {
+          _blocks.push({
+            name: subject.name,
+            description: subject.description,
+            answers: uncategorizedAnswers,
+            recordAll: (status) => recordAnswers(status, subject._id, ""),
+            recordOne: recordAnswer,
+            addQuestion: () => addNewQuestion(subject, undefined),
+            editQuestion: (question) => editQuestion(subject, question),
+          });
+        }
+        subject.categories.forEach((c) => {
+          const categoryAnswers = subjectAnswers.filter((a) =>
+            subject.questions
+              .filter((q) => q.category?.id === c.id)
+              .map((q) => q.question._id)
+              .includes(a.question._id)
+          );
+          if (categoryAnswers.length > 0) {
+            _blocks.push({
+              name: c.name,
+              description: c.description,
+              answers: categoryAnswers,
+              recordAll: (status) => recordAnswers(status, subject._id, c.id),
+              recordOne: recordAnswer,
+              addQuestion: () => addNewQuestion(subject, c),
+              editQuestion: (question) => editQuestion(subject, question),
+            });
+          }
         });
       });
+      setProgress({
+        complete: answers.filter((a) => a.status === Status.COMPLETE).length,
+        total: answers.length,
+      });
     }
-    setProgress({
-      complete: answers.filter((a) => a.status === Status.COMPLETE).length,
-      total: answers.length,
-    });
+
     setBlocks(_blocks);
   }, [editedMentor, selectedSubject]);
 
