@@ -594,6 +594,7 @@ export async function fetchFollowUpQuestions(
   const headers = { Authorization: `bearer ${accessToken}` };
   const result = await axios.post(
     urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
+    null,
     { headers: headers }
   );
   return result.data.data.followups;
