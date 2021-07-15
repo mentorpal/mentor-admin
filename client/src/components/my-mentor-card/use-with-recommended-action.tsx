@@ -33,7 +33,6 @@ interface Recommendation {
   reason: string;
   input: boolean;
   action: () => void;
-  skippable: boolean;
   skip: Conditions;
 }
 
@@ -43,14 +42,14 @@ function urlBuild(base: string, params: Record<string, string>) {
   return `${base}?${query.toString()}`;
 }
 
-function recommend(conditions: Conditions): Recommendation {
+function recommend(conditions: Conditions, mentor: Mentor): Recommendation {
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
       reason: "A thumbnail helps a user identify your mentor",
       input: true,
       action: () => undefined,
-      skippable: true,
+
       skip: { ...conditions, hasThumbnail: true },
     };
   if (conditions.idleIncomplete && conditions.isVideo)
@@ -67,7 +66,7 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, idleIncomplete: false },
     };
   if (conditions.incompleteRequirement)
@@ -86,7 +85,7 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, incompleteRequirement: undefined },
     };
   if (conditions.completedAnswers < 5)
@@ -106,7 +105,7 @@ function recommend(conditions: Conditions): Recommendation {
               })
             );
       },
-      skippable: true,
+
       skip: { ...conditions, completedAnswers: 5 },
     };
   if (conditions.firstIncomplete)
@@ -124,7 +123,7 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, firstIncomplete: undefined },
     };
   return {
@@ -132,14 +131,10 @@ function recommend(conditions: Conditions): Recommendation {
     reason: "Add a subject to answer more questions",
     input: false,
     action: () => navigate("/subjects"),
-    skippable: false,
-    skip: conditions,
+    skip: parseMentor(mentor),
   };
 }
-
-export function UseWithRecommendedAction(
-  mentor: Mentor
-): [Recommendation, () => void] {
+function parseMentor(mentor: Mentor): Conditions {
   const idle = mentor?.answers.find(
     (a) => a.question.name === UtteranceName.IDLE
   );
@@ -189,22 +184,27 @@ export function UseWithRecommendedAction(
     mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
   const totalAnswers = mentor?.answers.length || 0;
 
+  return {
+    idle: idle,
+    idleIncomplete: idleIncomplete,
+    isVideo: isVideo,
+    hasThumbnail: hasThumbnail,
+    categories: categories,
+    incompleteRequirement: incompleteRequirement,
+    firstIncomplete: firstIncomplete,
+    completedAnswers: completedAnswers,
+    totalAnswers: totalAnswers,
+  };
+}
+export function UseWithRecommendedAction(
+  mentor: Mentor
+): [Recommendation, () => void] {
   const [recommendedAction, setRecommendedAction] = useState(
-    recommend({
-      idle: idle,
-      idleIncomplete: idleIncomplete,
-      isVideo: isVideo,
-      hasThumbnail: hasThumbnail,
-      categories: categories,
-      incompleteRequirement: incompleteRequirement,
-      firstIncomplete: firstIncomplete,
-      completedAnswers: completedAnswers,
-      totalAnswers: totalAnswers,
-    })
+    recommend(parseMentor(mentor), mentor)
   );
 
   function skipRecommendation() {
-    setRecommendedAction(recommend(recommendedAction.skip));
+    setRecommendedAction(recommend(recommendedAction.skip, mentor));
   }
 
   return [recommendedAction, skipRecommendation];

@@ -76,18 +76,17 @@ export default function RecommendedActionButton(props: {
           </Typography>
         </div>
       )}
-      {recommendedAction.skippable && (
-        <Button
-          fullWidth
-          data-cy="skip-action-button"
-          onClick={skipRecommendation}
-        >
-          <Typography variant="caption" color="textPrimary">
-            skip
-          </Typography>
-          <DoubleArrow />
-        </Button>
-      )}
+
+      <Button
+        fullWidth
+        data-cy="skip-action-button"
+        onClick={skipRecommendation}
+      >
+        <Typography variant="caption" color="textPrimary">
+          skip
+        </Typography>
+        <DoubleArrow />
+      </Button>
     </div>
   );
 }

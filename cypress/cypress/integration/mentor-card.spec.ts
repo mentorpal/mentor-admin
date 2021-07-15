@@ -304,22 +304,6 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
         cy.get("[data-cy=recommended-action-button]").contains("Questions");
       });
-
-      it("Skip button is hidden at final recommendation.", () => {
-        cySetup(cy);
-        cyMockDefault(cy, {
-          mentor: {
-            ...clint,
-            answers: clint.answers.map((a) => {
-              a.status = Status.COMPLETE;
-              return a;
-            }),
-          },
-        });
-        cy.visit("/");
-        cy.get("[data-cy=recommended-action-button]").contains("Add a Subject");
-        cy.get("[data-cy=skip-action-button]").should("not.exist");
-      });
     });
   });
 });

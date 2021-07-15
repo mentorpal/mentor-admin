@@ -45,7 +45,6 @@ export default function MyMentorCard(props: {
     props.accessToken,
     props.mentor?.thumbnail || ""
   );
-  const hasThumbnail = Boolean(thumbnail);
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
@@ -63,7 +62,7 @@ export default function MyMentorCard(props: {
                 variant="h4"
                 color="textSecondary"
                 data-cy="mentor-card-name"
-                display="inline"
+                display="block"
               >
                 {mentorInfo.name}
               </Typography>
@@ -71,7 +70,7 @@ export default function MyMentorCard(props: {
                 variant="h5"
                 color="textSecondary"
                 data-cy="mentor-card-info"
-                display="inline"
+                display="block"
               >
                 Title: {mentorInfo.title}
               </Typography>
@@ -82,7 +81,7 @@ export default function MyMentorCard(props: {
                 item
                 xs={10}
               >
-                {hasThumbnail ? (
+                {thumbnail ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
                     variant="rounded"
