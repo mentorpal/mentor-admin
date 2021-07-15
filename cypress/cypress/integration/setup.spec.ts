@@ -50,43 +50,35 @@ describe("Setup", () => {
         "Welcome to MentorPal!"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Tell us a little about yourself."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Pick a mentor type."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should("have.text", "Select subjects?");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Let's start recording!"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should("have.text", "Idle");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Repeat After Me questions"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Oops! Your mentor is not ready yet."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Welcome to MentorPal!"
@@ -102,43 +94,35 @@ describe("Setup", () => {
         "Oops! Your mentor is not ready yet."
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Repeat After Me questions"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should("have.text", "Idle");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Let's start recording!"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should("have.text", "Select subjects?");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Pick a mentor type."
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Tell us a little about yourself."
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Welcome to MentorPal!"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.wait(500);
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Oops! Your mentor is not ready yet."
@@ -149,31 +133,23 @@ describe("Setup", () => {
       cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup");
-      cy.get("[data-cy=slide]").contains("Welcome to MentorPal!");
+      cy.contains("Welcome to MentorPal!");
       cy.get("[data-cy=radio]").eq(1).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Tell us a little about yourself.");
+      cy.contains("Tell us a little about yourself.");
       cy.get("[data-cy=radio]").eq(2).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Pick a mentor type.");
+      cy.contains("Pick a mentor type.");
       cy.get("[data-cy=radio]").eq(3).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Select subjects?");
+      cy.contains("Select subjects?");
       cy.get("[data-cy=radio]").eq(4).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Let's start recording!");
+      cy.contains("Let's start recording!");
       cy.get("[data-cy=radio]").eq(5).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Idle");
+      cy.contains("Idle");
       cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.contains("Repeat After Me questions");
       cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Oops! Your mentor is not ready yet.");
+      cy.contains("Oops! Your mentor is not ready yet.");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
-      cy.wait(500);
-      cy.get("[data-cy=slide]").contains("Welcome to MentorPal!");
+      cy.contains("Welcome to MentorPal!");
     });
 
     it("with query param i", () => {
@@ -240,10 +216,8 @@ describe("Setup", () => {
         cy.get("input").should("have.value", "");
       });
     });
-    cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-0"));
     // fill out first name and save
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=first-name]").type("Clint");
       cy.get("[data-cy=first-name]").within(($input) => {
@@ -260,14 +234,12 @@ describe("Setup", () => {
       });
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Tell us a little about yourself.");
       cy.get("[data-cy=name]").type("Clinton Anderson");
       cy.get("[data-cy=first-name]").within(($input) => {
         cy.get("input").should("have.value", "Clint");
@@ -283,14 +255,12 @@ describe("Setup", () => {
       });
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Tell us a little about yourself.");
       cy.get("[data-cy=title]").type("Nuclear Electrician's Mate");
       cy.get("[data-cy=first-name]").within(($input) => {
         cy.get("input").should("have.value", "Clint");
@@ -306,14 +276,12 @@ describe("Setup", () => {
       });
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Tell us a little about yourself.");
       cy.get("[data-cy=email]").type("clint@anderson.com");
       cy.get("[data-cy=first-name]").within(($input) => {
         cy.get("input").should("have.value", "Clint");
@@ -329,7 +297,7 @@ describe("Setup", () => {
       });
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-4"));
@@ -346,9 +314,7 @@ describe("Setup", () => {
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-0"));
     // select chat type
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Pick a mentor type");
       cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
     });
     cy.get("[data-cy=video]").should("exist");
@@ -357,18 +323,15 @@ describe("Setup", () => {
       cy.contains("Make a text-only mentor that responds with chat bubbles");
     });
     // save changes
-    cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-1"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Select subjects?");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-2"));
     cy.get("[data-cy=radio]").should("have.length", 7);
     // select video type
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Pick a mentor type");
       cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
     });
     cy.get("[data-cy=chat]").should("exist");
@@ -379,10 +342,9 @@ describe("Setup", () => {
       );
     });
     // save changes
-    cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-3"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
+    cy.contains("Select subjects?");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-4"));
@@ -431,7 +393,6 @@ describe("Setup", () => {
     cy.contains("Pick the ones you feel qualified to mentor in!");
     cy.matchImageSnapshot(snapname("subjects-slide-0"));
     // go to subjects page
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=button]").trigger("mouseover").click();
     });
@@ -536,7 +497,6 @@ describe("Setup", () => {
     });
     cy.contains("Idle");
     cy.matchImageSnapshot(snapname("idle-slide-0"));
-    cy.wait(500);
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     });
@@ -595,7 +555,6 @@ describe("Setup", () => {
     });
     cy.contains("Repeat After Me questions");
     cy.matchImageSnapshot(snapname("utterance-slide-0"));
-    cy.wait(500);
     cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     // go to record
     cy.location("pathname").then(($el) =>
@@ -619,7 +578,6 @@ describe("Setup", () => {
     });
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.wait(500);
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should(
@@ -679,7 +637,6 @@ describe("Setup", () => {
       cy.get("[data-cy=slide]");
       cy.contains("Great job! You're ready to build your mentor!");
       cy.matchImageSnapshot(snapname("build-slide-1"));
-      cy.wait(500);
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
         cy.contains("Click the build button to start building your mentor.");
@@ -714,7 +671,6 @@ describe("Setup", () => {
       cy.visit("/setup?i=7");
       cy.contains("Great job! You're ready to build your mentor!");
       cy.matchImageSnapshot(snapname("build-slide-3"));
-      cy.wait(500);
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
         cy.contains("Click the build button to start building your mentor.");
