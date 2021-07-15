@@ -720,7 +720,6 @@ describe("Record", () => {
     });
   });
 
-  //START of new tests
   it("When an upload finishes on record view, should swap user to video view", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -2231,8 +2230,6 @@ describe("Record", () => {
         .should("have.text", "Cancelling");
     });
   });
-
-  //END of new tests
 
   it("hides video if mentor type is CHAT", () => {
     cyMockDefault(cy, {

@@ -96,7 +96,8 @@ function VideoPlayer(props: {
     <div
       className={classes.block}
       style={{
-        alignSelf: "center",
+        marginLeft: "auto",
+        marginRight: "auto",
         height: height + 50,
         width: width,
       }}

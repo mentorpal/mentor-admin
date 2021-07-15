@@ -91,7 +91,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING, payload: true });
-    update.action(editedData).catch((err) => {
+    await update.action(editedData).catch((err) => {
       console.error(err);
       dispatch({
         type: LoadingActionType.ERROR,

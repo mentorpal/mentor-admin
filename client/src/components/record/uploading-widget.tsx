@@ -51,7 +51,7 @@ function UploadingView(props: {
           padding: 0,
           margin: 0,
           maxHeight: "213px",
-          overflow: "scroll",
+          overflow: "auto",
         }}
       >
         {uploadsToShow.map((upload, i) => {
