@@ -11,44 +11,37 @@ export interface LoadingError {
 }
 
 export interface LoadingState {
-  isLoading: boolean;
-  isSaving: boolean;
+  status: LoadingStatusType;
   error: LoadingError | undefined;
 }
 
-export interface LoadingAction {
-  type: LoadingActionType;
-  payload: boolean | LoadingError | undefined;
+export interface LoadingStatus {
+  statusType: LoadingStatusType;
+  payload?: LoadingError;
 }
 
-export enum LoadingActionType {
+export enum LoadingStatusType {
   LOADING = "LOADING",
   SAVING = "SAVING",
+  DONE = "DONE",
   ERROR = "ERROR",
+  CLEAR_ERROR = "CLEAR_ERROR",
 }
 
 export function LoadingReducer(
   state: LoadingState,
-  action: LoadingAction
+  action: LoadingStatus
 ): LoadingState {
-  const { type, payload } = action;
-  switch (type) {
-    case LoadingActionType.LOADING:
-      if (typeof payload !== "boolean") {
-        return state;
-      }
-      return { ...state, isLoading: payload };
-    case LoadingActionType.SAVING:
-      if (typeof payload !== "boolean") {
-        return state;
-      }
-      return { ...state, isSaving: payload };
-    case LoadingActionType.ERROR:
+  const { statusType, payload } = action;
+  switch (statusType) {
+    case LoadingStatusType.ERROR:
       if (typeof payload !== "object" && typeof payload !== "undefined") {
         return state;
       }
-      return { ...state, error: payload };
+      return { status: LoadingStatusType.ERROR, error: payload };
+    case LoadingStatusType.CLEAR_ERROR:
+      return { status: state.status, error: undefined };
     default:
-      return state;
+      return { ...state, status: statusType };
   }
 }

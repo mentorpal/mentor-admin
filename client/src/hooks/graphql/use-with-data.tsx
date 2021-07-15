@@ -7,15 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useReducer, useState } from "react";
 import { equals } from "helpers";
 import {
-  LoadingActionType,
+  LoadingStatusType,
   LoadingError,
   LoadingReducer,
   LoadingState,
 } from "./loading-reducer";
 
 const initialState: LoadingState = {
-  isLoading: true,
-  isSaving: false,
+  status: LoadingStatusType.LOADING,
   error: undefined,
 };
 
@@ -40,72 +39,65 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
   const [data, setData] = useState<T>();
   const [editedData, setEditedData] = useState<T>();
   const [state, dispatch] = useReducer(LoadingReducer, initialState);
+  const loading = state.status === LoadingStatusType.LOADING;
+  const saving = state.status === LoadingStatusType.SAVING;
+  const actionInProgress = loading || saving;
 
-  // Load data from graphql
   useEffect(() => {
-    if (!state.isLoading || state.isSaving) {
+    if (!loading) {
       return;
     }
-    let mounted = true;
     fetch()
       .then((data) => {
-        if (!mounted || !state.isLoading || state.isSaving) {
-          return;
-        }
-        dispatch({ type: LoadingActionType.LOADING, payload: false });
+        dispatch({ statusType: LoadingStatusType.DONE });
         setData(data);
       })
       .catch((err) => {
         console.error(err);
         dispatch({
-          type: LoadingActionType.ERROR,
+          statusType: LoadingStatusType.ERROR,
           payload: { message: "Failed to load", error: err.message },
         });
-        dispatch({ type: LoadingActionType.LOADING, payload: false });
       });
-    return () => {
-      mounted = false;
-    };
-  }, [state.isLoading]);
+  }, [state.status]);
 
   function clearError() {
-    dispatch({ type: LoadingActionType.ERROR, payload: undefined });
+    dispatch({ statusType: LoadingStatusType.CLEAR_ERROR });
   }
 
   function reloadData() {
-    if (state.isLoading || state.isSaving) {
+    if (actionInProgress) {
       return;
     }
-    dispatch({ type: LoadingActionType.LOADING, payload: true });
+    dispatch({ statusType: LoadingStatusType.LOADING });
   }
 
   function editData(edits: Partial<T>) {
-    if (state.isLoading || state.isSaving || !data) {
+    if (actionInProgress || !data) {
       return;
     }
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
   async function saveData(update: UpdateFunc<T>): Promise<void> {
-    if (state.isLoading || state.isSaving || !editedData || !update) {
+    if (actionInProgress || !editedData || !update) {
       return;
     }
-    dispatch({ type: LoadingActionType.SAVING, payload: true });
+    dispatch({ statusType: LoadingStatusType.SAVING });
     try {
       await update.action(editedData);
     } catch (err) {
       console.error(err);
       dispatch({
-        type: LoadingActionType.ERROR,
+        statusType: LoadingStatusType.ERROR,
         payload: { message: "Failed to save", error: err.message },
       });
-      dispatch({ type: LoadingActionType.SAVING, payload: false });
       return;
     }
-    if (state.isLoading) {
+    if (loading) {
       return;
     }
-    dispatch({ type: LoadingActionType.SAVING, payload: false });
+    dispatch({ statusType: LoadingStatusType.DONE });
     setData(editedData);
     setEditedData(undefined);
   }
@@ -114,8 +106,8 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     data,
     editedData: editedData || data,
     isEdited: editedData !== undefined && !equals(data, editedData),
-    isLoading: state.isLoading,
-    isSaving: state.isSaving,
+    isLoading: loading,
+    isSaving: saving,
     error: state.error,
     editData,
     saveData,
