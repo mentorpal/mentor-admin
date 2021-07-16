@@ -1594,7 +1594,7 @@ describe("Record", () => {
         mockGQL("uploadTasks", [[]], true),
       ],
     });
-    cy.visit("/record?subject=background&status=COMPLETE");
+    cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
@@ -1608,15 +1608,11 @@ describe("Record", () => {
       cy.get("textarea").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Active");
-    cy.get("[data-cy=save-btn]").should("be.disabled");
-
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=incomplete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
-    cy.get("[data-cy=save-btn]").should("not.be.disabled");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("Skip");
-    cy.get("[data-cy=save-btn]").should("be.disabled");
+    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]");
   });
 
   it("uploading widget should be open if there are active uploads", () => {
@@ -2501,8 +2497,8 @@ describe("Record", () => {
         mockGQL("uploadTasks", [[]], true),
       ],
     });
-    cy.visit("/record?subject=background&status=INCOMPLETE");
-    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
       cy.get("textarea").should("not.have.attr", "disabled");
@@ -2511,28 +2507,25 @@ describe("Record", () => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=save-btn]").should("be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
 
     cy.get("[data-cy=transcript-input]").type("37");
     cy.get("[data-cy=transcript-input]").within(($input) => {
       cy.get("textarea").should("have.text", "37");
     });
-    cy.get("[data-cy=save-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").trigger("mouseover").click();
     cy.get("[data-cy=transcript-input]").within(($input) => {
       cy.get("textarea").should("have.text", "");
     });
-    cy.get("[data-cy=save-btn]").should("be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
     cy.get("[data-cy=transcript-input]").type("37");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.get("[data-cy=transcript-input]").within(($input) => {
       cy.get("textarea").should("have.text", "37");
     });
-    cy.get("[data-cy=save-btn]").should("be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
   });
 
@@ -2572,33 +2565,31 @@ describe("Record", () => {
         mockGQL("uploadTasks", [[]], true),
       ],
     });
-    cy.visit("/record?videoId=A2_1_1");
-    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
-    cy.get("[data-cy=save-btn]").should("be.disabled");
 
     cy.get("[data-cy=question-input]").type("test");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?test");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=save-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-question-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-question-btn]").trigger("mouseover").click();
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=save-btn]").should("be.disabled");
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
 
     cy.get("[data-cy=question-input]").type("test");
-    cy.get("[data-cy=save-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=save-btn]").should("be.disabled");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?test");
