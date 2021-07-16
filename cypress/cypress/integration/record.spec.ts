@@ -9,6 +9,7 @@ import {
   mockGQL,
   cyMockFollowUpQuestions,
   cyAttachUpload,
+  cyMockUpload,
 } from "../support/functions";
 import {
   Mentor,
@@ -1863,40 +1864,6 @@ describe("Record", () => {
                   _id: videoMentor.answers[0].question._id,
                   question: videoMentor.answers[0].question.question,
                 },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
                 uploadStatus: "CANCELLED",
                 transcript: "i am kayla",
                 media: [
@@ -2023,6 +1990,53 @@ describe("Record", () => {
                   _id: videoMentor.answers[0].question._id,
                   question: videoMentor.answers[0].question.question,
                 },
+                uploadStatus: "UPLOAD_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+              {
+                question: {
+                  _id: videoMentor.answers[1].question._id,
+                  question: videoMentor.answers[1].question.question,
+                },
+                uploadStatus: "UPLOAD_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+              {
+                question: {
+                  _id: videoMentor.answers[2].question._id,
+                  question: videoMentor.answers[2].question.question,
+                },
+                uploadStatus: "UPLOAD_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
                 uploadStatus: "TRIM_IN_PROGRESS",
                 transcript: "i am kayla",
                 media: [
@@ -2088,7 +2102,7 @@ describe("Record", () => {
         .should("have.text", videoMentor.answers[1].question.question);
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Upload Failed");
+        .should("have.text", "Failed to process file: UPLOAD_FAILED");
     });
     cy.get("[data-cy=upload-card-2]").should("exist");
     cy.get("[data-cy=upload-card-2]").within(($within) => {
@@ -2584,6 +2598,117 @@ describe("Record", () => {
       cy.get("[data-cy=transcript-input]").within(($input) => {
         cy.get("textarea").should("have.text", "My name is Clint Anderson");
       });
+    });
+  });
+
+  it("failed http upload displays error message in upload widget", () => {
+    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockUpload(cy, { statusCode: 400 });
+    cy.visit("/record");
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.get("[data-cy=uploading-widget]").should("be.visible");
+
+      cy.get("[data-cy=upload-card-0]").should("exist");
+      cy.get("[data-cy=upload-card-0]").within(($within) => {
+        cy.get("[data-cy=card-answer-title]")
+          .get("p")
+          .should("have.text", "Failed to upload file: Error 400: Bad Request");
+      });
+    });
+  });
+
+  it("failed gql process displays error message in upload widget", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL(
+          "uploadTasks",
+          [
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "UPLOAD_IN_PROGRESS",
+                transcript: "",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+              {
+                question: {
+                  _id: videoMentor.answers[1].question._id,
+                  question: videoMentor.answers[1].question.question,
+                },
+                uploadStatus: "UPLOAD_IN_PROGRESS",
+                transcript: "",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "TRANSCRIBE_FAILED",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+              {
+                question: {
+                  _id: videoMentor.answers[1].question._id,
+                  question: videoMentor.answers[1].question.question,
+                },
+                uploadStatus: "UPLOAD_FAILED",
+                transcript: "",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+          ],
+          true
+        ),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Failed to process file: TRANSCRIBE_FAILED");
+    });
+    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=upload-card-1]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Failed to process file: UPLOAD_FAILED");
     });
   });
 });

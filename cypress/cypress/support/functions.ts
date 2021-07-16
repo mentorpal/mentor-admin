@@ -244,7 +244,7 @@ export function cyMockTrainStatus(
   });
 }
 
-function cyMockUpload(
+export function cyMockUpload(
   cy,
   params: {
     id?: string;
