@@ -185,7 +185,7 @@ function SetupPage(props: {
     <div className={classes.root}>
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
-        animation="slide"
+        animation="fade"
         index={idx}
         autoPlay={false}
         navButtonsAlwaysVisible={true}

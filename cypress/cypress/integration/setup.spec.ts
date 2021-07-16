@@ -201,37 +201,32 @@ describe("Setup", () => {
     });
     cy.visit("/setup?i=1");
     // empty mentor slide
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Tell us a little about yourself.");
-      cy.get("[data-cy=first-name]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=name]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=title]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=email]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
+    cy.contains("Tell us a little about yourself.");
+    cy.get("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
-    cy.matchImageSnapshot(snapname("mentor-slide-0"));
+    cy.get("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
+    cy.get("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
+    cy.get("[data-cy=email]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
     // fill out first name and save
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=first-name]").type("Clint");
-      cy.get("[data-cy=first-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clint");
-      });
-      cy.get("[data-cy=name]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=title]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=email]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
+    cy.getAttached("[data-cy=first-name]").type("Clint");
+    cy.get("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
+    });
+    cy.get("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
+    cy.get("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
+    cy.get("[data-cy=email]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
@@ -239,20 +234,18 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=name]").type("Clinton Anderson");
-      cy.get("[data-cy=first-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clint");
-      });
-      cy.get("[data-cy=name]").within(($input) => {
-        cy.get("input").should("have.value", "Clinton Anderson");
-      });
-      cy.get("[data-cy=title]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
-      cy.get("[data-cy=email]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
+    cy.getAttached("[data-cy=name]").type("Clinton Anderson");
+    cy.get("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
+    });
+    cy.get("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
+    });
+    cy.get("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "");
+    });
+    cy.get("[data-cy=email]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
@@ -260,20 +253,18 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=title]").type("Nuclear Electrician's Mate");
-      cy.get("[data-cy=first-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clint");
-      });
-      cy.get("[data-cy=name]").within(($input) => {
-        cy.get("input").should("have.value", "Clinton Anderson");
-      });
-      cy.get("[data-cy=title]").within(($input) => {
-        cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-      });
-      cy.get("[data-cy=email]").within(($input) => {
-        cy.get("input").should("have.value", "");
-      });
+    cy.getAttached("[data-cy=mentor-title]").type("Nuclear Electrician's Mate");
+    cy.get("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
+    });
+    cy.get("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
+    });
+    cy.get("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "Nuclear Electrician's Mate");
+    });
+    cy.get("[data-cy=email]").within(($input) => {
+      cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
@@ -281,20 +272,18 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=email]").type("clint@anderson.com");
-      cy.get("[data-cy=first-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clint");
-      });
-      cy.get("[data-cy=name]").within(($input) => {
-        cy.get("input").should("have.value", "Clinton Anderson");
-      });
-      cy.get("[data-cy=title]").within(($input) => {
-        cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-      });
-      cy.get("[data-cy=email]").within(($input) => {
-        cy.get("input").should("have.value", "clint@anderson.com");
-      });
+    cy.getAttached("[data-cy=email]").type("clint@anderson.com");
+    cy.get("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clint");
+    });
+    cy.get("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
+    });
+    cy.get("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "Nuclear Electrician's Mate");
+    });
+    cy.get("[data-cy=email]").within(($input) => {
+      cy.get("input").should("have.value", "clint@anderson.com");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
@@ -312,7 +301,6 @@ describe("Setup", () => {
     });
     cy.visit("/setup?i=2");
     cy.contains("Pick a mentor type");
-    cy.matchImageSnapshot(snapname("type-slide-0"));
     // select chat type
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
@@ -391,7 +379,6 @@ describe("Setup", () => {
       );
     });
     cy.contains("Pick the ones you feel qualified to mentor in!");
-    cy.matchImageSnapshot(snapname("subjects-slide-0"));
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=button]").trigger("mouseover").click();
@@ -477,7 +464,6 @@ describe("Setup", () => {
       cy.contains("You'll be asked to answer some generic questions.");
       cy.contains("Once you're done, you can build and preview your mentor.");
     });
-    cy.matchImageSnapshot(snapname("intro-slide-0"));
   });
 
   it("video mentor shows idle slide", () => {
@@ -496,7 +482,6 @@ describe("Setup", () => {
       );
     });
     cy.contains("Idle");
-    cy.matchImageSnapshot(snapname("idle-slide-0"));
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     });
@@ -524,7 +509,6 @@ describe("Setup", () => {
     );
     cy.location("search").should("contain", "?i=5");
     cy.contains("Idle");
-    cy.matchImageSnapshot(snapname("idle-slide-1"));
   });
 
   it("chat mentor does not show idle slide", () => {
@@ -554,7 +538,6 @@ describe("Setup", () => {
       cy.contains("1 / 3");
     });
     cy.contains("Repeat After Me questions");
-    cy.matchImageSnapshot(snapname("utterance-slide-0"));
     cy.get("[data-cy=record-btn]").trigger("mouseover").click();
     // go to record
     cy.location("pathname").then(($el) =>
@@ -601,7 +584,6 @@ describe("Setup", () => {
     cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Repeat After Me questions");
-    cy.matchImageSnapshot(snapname("utterance-slide-1"));
   });
 
   describe("shows build mentor slide after completing setup", () => {
@@ -622,7 +604,6 @@ describe("Setup", () => {
         cy.get("[data-cy=train-btn]").should("be.disabled");
       });
       cy.contains("Oops! Your mentor is not ready yet.");
-      cy.matchImageSnapshot(snapname("build-slide-0"));
     });
 
     it("builds mentor once setup is done", () => {
@@ -636,7 +617,6 @@ describe("Setup", () => {
       cy.visit("/setup?i=7");
       cy.get("[data-cy=slide]");
       cy.contains("Great job! You're ready to build your mentor!");
-      cy.matchImageSnapshot(snapname("build-slide-1"));
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
         cy.contains("Click the build button to start building your mentor.");
@@ -645,11 +625,9 @@ describe("Setup", () => {
         cy.get("[data-cy=train-btn]").trigger("mouseover").click();
       });
       cy.contains("Building your mentor...");
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Congratulations! Your brand-new mentor is ready!");
-        cy.contains("Click the preview button to see your mentor.");
-        cy.get("[data-cy=preview-btn]").contains("Preview");
-      });
+      cy.contains("Your brand-new mentor is ready!");
+      cy.contains("Click the preview button to see your mentor.");
+      cy.get("[data-cy=preview-btn]").contains("Preview");
       cy.contains("Great job! You're ready to build your mentor!");
       cy.matchImageSnapshot(snapname("build-slide-2"));
       // preview mentor
@@ -670,7 +648,6 @@ describe("Setup", () => {
       cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
       cy.visit("/setup?i=7");
       cy.contains("Great job! You're ready to build your mentor!");
-      cy.matchImageSnapshot(snapname("build-slide-3"));
       cy.get("[data-cy=slide]").within(($slide) => {
         cy.contains("Great job! You're ready to build your mentor!");
         cy.contains("Click the build button to start building your mentor.");

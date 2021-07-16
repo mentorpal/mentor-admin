@@ -47,7 +47,7 @@ export function MentorInfoSlide(props: {
           />
           <TextField
             required
-            data-cy="title"
+            data-cy="mentor-title"
             label="Job Title"
             variant="outlined"
             value={mentor.title || ""}
