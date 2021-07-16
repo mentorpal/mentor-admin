@@ -57,7 +57,6 @@ export function useWithReviewAnswerState(
     isEdited: isMentorEdited,
     editData: editMentor,
     reloadData: reloadMentor,
-    clearError: clearMentorError,
   } = useWithMentor(accessToken);
   const {
     isPolling: isTraining,
@@ -176,14 +175,13 @@ export function useWithReviewAnswerState(
   useEffect(() => {
     if (mentorError) {
       setError(mentorError);
-      clearMentorError();
     }
   }, [mentorError]);
 
   useEffect(() => {
     if (trainError) {
       setError(trainError);
-      clearTrainingError();
+      clearTrainingError(); //here
     }
   }, [trainError]);
 

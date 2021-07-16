@@ -165,10 +165,7 @@ function RecordPage(props: {
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
-        <ErrorDialog
-          error={recordState.error}
-          clearError={recordState.clearError}
-        />
+        <ErrorDialog error={recordState.error} />
       </div>
     );
   }
@@ -446,10 +443,7 @@ function RecordPage(props: {
         </Toolbar>
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
-      <ErrorDialog
-        error={recordState.error}
-        clearError={recordState.clearError}
-      />
+      <ErrorDialog error={recordState.error} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>{confirmLeave?.message}</DialogContentText>

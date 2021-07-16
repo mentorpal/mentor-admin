@@ -15,33 +15,45 @@ export interface LoadingState {
   error: LoadingError | undefined;
 }
 
-export interface LoadingStatus {
-  statusType: LoadingStatusType;
+export interface LoadingAction {
+  actionType: LoadingActionType;
   payload?: LoadingError;
 }
 
+export enum LoadingActionType {
+  LOADING_STARTED = "LOADING_STARTED",
+  LOADING_SUCCEEDED = "LOADING_SUCCEEDED",
+  LOADING_FAILED = "LOADING_FAILED",
+  SAVING_STARTED = "SAVING_STARTED",
+  SAVING_SUCCEEDED = "SAVING_SUCCEEDED",
+  SAVING_FAILED = "SAVING_FAILED",
+}
+
 export enum LoadingStatusType {
-  LOADING = "LOADING",
+  NONE = "NONE",
   SAVING = "SAVING",
-  DONE = "DONE",
+  LOADING = "LOADING",
+  SUCCESS = "SUCCESS",
   ERROR = "ERROR",
-  CLEAR_ERROR = "CLEAR_ERROR",
 }
 
 export function LoadingReducer(
   state: LoadingState,
-  action: LoadingStatus
+  action: LoadingAction
 ): LoadingState {
-  const { statusType, payload } = action;
-  switch (statusType) {
-    case LoadingStatusType.ERROR:
-      if (typeof payload !== "object" && typeof payload !== "undefined") {
-        return state;
-      }
+  const { actionType, payload } = action;
+  switch (actionType) {
+    case LoadingActionType.LOADING_STARTED:
+      return { status: LoadingStatusType.LOADING, error: undefined };
+    case LoadingActionType.SAVING_STARTED:
+      return { status: LoadingStatusType.SAVING, error: undefined };
+    case LoadingActionType.LOADING_SUCCEEDED:
+    case LoadingActionType.SAVING_SUCCEEDED:
+      return { status: LoadingStatusType.SUCCESS, error: undefined };
+    case LoadingActionType.LOADING_FAILED:
+    case LoadingActionType.SAVING_FAILED:
       return { status: LoadingStatusType.ERROR, error: payload };
-    case LoadingStatusType.CLEAR_ERROR:
-      return { status: state.status, error: undefined };
     default:
-      return { ...state, status: statusType };
+      return { status: LoadingStatusType.NONE, error: undefined };
   }
 }

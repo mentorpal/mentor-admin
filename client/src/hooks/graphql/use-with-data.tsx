@@ -11,6 +11,7 @@ import {
   LoadingError,
   LoadingReducer,
   LoadingState,
+  LoadingActionType,
 } from "./loading-reducer";
 
 const initialState: LoadingState = {
@@ -29,7 +30,6 @@ export interface UseData<T> {
   isLoading: boolean;
   isSaving: boolean;
   error: LoadingError | undefined;
-  clearError: () => void;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
   saveData: (action: UpdateFunc<T>) => Promise<void>;
@@ -49,27 +49,23 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     }
     fetch()
       .then((data) => {
-        dispatch({ statusType: LoadingStatusType.DONE });
+        dispatch({ actionType: LoadingActionType.LOADING_SUCCEEDED });
         setData(data);
       })
       .catch((err) => {
         console.error(err);
         dispatch({
-          statusType: LoadingStatusType.ERROR,
+          actionType: LoadingActionType.LOADING_FAILED,
           payload: { message: "Failed to load", error: err.message },
         });
       });
   }, [state.status]);
 
-  function clearError() {
-    dispatch({ statusType: LoadingStatusType.CLEAR_ERROR });
-  }
-
   function reloadData() {
     if (actionInProgress) {
       return;
     }
-    dispatch({ statusType: LoadingStatusType.LOADING });
+    dispatch({ actionType: LoadingActionType.LOADING_STARTED });
   }
 
   function editData(edits: Partial<T>) {
@@ -83,13 +79,13 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (actionInProgress || !editedData || !update) {
       return;
     }
-    dispatch({ statusType: LoadingStatusType.SAVING });
+    dispatch({ actionType: LoadingActionType.SAVING_STARTED });
     try {
       await update.action(editedData);
     } catch (err) {
       console.error(err);
       dispatch({
-        statusType: LoadingStatusType.ERROR,
+        actionType: LoadingActionType.SAVING_FAILED,
         payload: { message: "Failed to save", error: err.message },
       });
       return;
@@ -97,7 +93,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (loading) {
       return;
     }
-    dispatch({ statusType: LoadingStatusType.DONE });
+    dispatch({ actionType: LoadingActionType.SAVING_SUCCEEDED });
     setData(editedData);
     setEditedData(undefined);
   }
@@ -112,6 +108,5 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     editData,
     saveData,
     reloadData,
-    clearError,
   };
 }

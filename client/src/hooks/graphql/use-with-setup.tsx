@@ -89,7 +89,6 @@ export function useWithSetup(
     isSaving: isMentorSaving,
     editData: editMentor,
     reloadData: reloadMentor,
-    clearError: clearMentorError,
     saveMentorDetails,
   } = useWithMentor(accessToken);
   const {
@@ -170,7 +169,6 @@ export function useWithSetup(
   useEffect(() => {
     if (mentorError) {
       setError(mentorError);
-      clearMentorError();
     }
   }, [mentorError]);
 

@@ -55,7 +55,6 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
     isEdited: isMentorEdited,
-    clearError: clearMentorError,
     editData: editMentor,
     saveMentorDetails,
   } = useWithMentor(props.accessToken);
@@ -146,7 +145,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
       <LoadingDialog
         title={isMentorLoading ? "Loading" : isMentorSaving ? "Saving" : ""}
       />
-      <ErrorDialog error={mentorError} clearError={clearMentorError} />
+      <ErrorDialog error={mentorError} />
     </div>
   );
 }

@@ -95,7 +95,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     isSaving: isMentorSaving,
     isEdited: isMentorEdited,
     error: mentorError,
-    clearError: clearMentorError,
     editData: editMentor,
     saveMentorSubjects,
   } = useWithMentor(props.accessToken);
@@ -107,7 +106,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
-    clearError: clearSubjectsError,
   } = useWithSubjects();
 
   function toggleSubject(subject: Subject) {
@@ -238,10 +236,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             : ""
         }
       />
-      <ErrorDialog
-        error={mentorError || subjectsError}
-        clearError={mentorError ? clearMentorError : clearSubjectsError}
-      />
+      <ErrorDialog error={mentorError || subjectsError} />
     </div>
   );
 }

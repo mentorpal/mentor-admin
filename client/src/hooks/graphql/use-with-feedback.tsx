@@ -22,7 +22,6 @@ export function useWithFeedback(): UseDataConnection<UserQuestion> {
     sortBy,
     nextPage,
     prevPage,
-    clearError,
   } = useWithDataConnection<UserQuestion>(fetch);
 
   function fetch() {
@@ -39,6 +38,5 @@ export function useWithFeedback(): UseDataConnection<UserQuestion> {
     filter,
     nextPage,
     prevPage,
-    clearError,
   };
 }
