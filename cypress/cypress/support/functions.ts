@@ -51,6 +51,7 @@ interface MockGraphQLQuery {
   query: string;
   data: any | any[];
   me: boolean;
+  params?: { statusCode: number };
 }
 
 function staticResponse(s: StaticResponse): StaticResponse {
@@ -109,6 +110,7 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         req.alias = mock.query;
         req.reply(
           staticResponse({
+            statusCode: mock.params?.statusCode || 200,
             body: {
               data: body,
               errors: null,
@@ -130,12 +132,14 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
 export function mockGQL(
   query: string,
   data: any | any[],
-  me = false
+  me = false,
+  params?: { statusCode: number }
 ): MockGraphQLQuery {
   return {
     query,
     data,
     me,
+    params,
   };
 }
 

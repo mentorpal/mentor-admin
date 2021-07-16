@@ -101,7 +101,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     data: mentor,
     isLoading: isMentorLoading,
     error: mentorError,
-    clearError: clearMentorError,
   } = useWithMentor(props.accessToken);
   const {
     data: subjects,
@@ -109,7 +108,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     isLoading: isSubjectsLoading,
     searchParams: subjectSearchParams,
     sortBy: subjectsSortBy,
-    clearError: clearSubjectsError,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
   } = useWithSubjects();
@@ -166,10 +164,7 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
         <LoadingDialog
           title={isMentorLoading || isSubjectsLoading ? "Loading" : ""}
         />
-        <ErrorDialog
-          error={mentorError || subjectsError}
-          clearError={mentorError ? clearMentorError : clearSubjectsError}
-        />
+        <ErrorDialog error={mentorError || subjectsError} />
       </div>
     </div>
   );

@@ -720,7 +720,6 @@ describe("Record", () => {
     });
   });
 
-  //START of new tests
   it("When an upload finishes on record view, should swap user to video view", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -1157,72 +1156,6 @@ describe("Record", () => {
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     });
     cy.get("[data-cy=upload-card-1]").should("not.exist");
-  });
-
-  it("showcase - dismisss item via x button", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL(
-          "uploadTasks",
-          [
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-              {
-                question: {
-                  _id: videoMentor.answers[1].question._id,
-                  question: videoMentor.answers[1].question.question,
-                },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-              {
-                question: {
-                  _id: videoMentor.answers[2].question._id,
-                  question: videoMentor.answers[2].question.question,
-                },
-                uploadStatus: "DONE",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-          ],
-          true
-        ),
-      ],
-    });
-    cy.visit("/record");
-    //waiting for first page to complete
   });
 
   it("upload button changes to cancel while an upload is in progress", () => {
@@ -2227,8 +2160,6 @@ describe("Record", () => {
         .should("have.text", "Cancelling");
     });
   });
-
-  //END of new tests
 
   it("hides video if mentor type is CHAT", () => {
     cyMockDefault(cy, {

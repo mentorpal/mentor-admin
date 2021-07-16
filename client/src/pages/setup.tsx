@@ -103,7 +103,6 @@ function SetupPage(props: {
     nextStep,
     prevStep,
     toStep,
-    clearError,
   } = useWithSetup(props.accessToken, props.search);
 
   function renderSlide(idx: number): JSX.Element {
@@ -235,7 +234,7 @@ function SetupPage(props: {
             : ""
         }
       />
-      <ErrorDialog error={error} clearError={clearError} />
+      <ErrorDialog error={error} />
     </div>
   );
 }

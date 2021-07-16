@@ -102,7 +102,6 @@ function SubjectsPage(props: {
     isSaving: isMentorSaving,
     isEdited: isMentorEdited,
     error: mentorError,
-    clearError: clearMentorError,
     editData: editMentor,
     saveMentorSubjects,
   } = useWithMentor(props.accessToken);
@@ -114,7 +113,6 @@ function SubjectsPage(props: {
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
-    clearError: clearSubjectsError,
   } = useWithSubjects();
 
   function toggleSubject(subject: Subject) {
@@ -253,10 +251,7 @@ function SubjectsPage(props: {
             : ""
         }
       />
-      <ErrorDialog
-        error={mentorError || subjectsError}
-        clearError={mentorError ? clearMentorError : clearSubjectsError}
-      />
+      <ErrorDialog error={mentorError || subjectsError} />
     </div>
   );
 }

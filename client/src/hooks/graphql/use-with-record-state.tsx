@@ -58,7 +58,6 @@ export function useWithRecordState(
     data: mentor,
     reloadData: reloadMentor,
     error: mentorError,
-    clearError: clearMentorError,
     isLoading: isMentorLoading,
   } = useWithMentor(accessToken);
   const {
@@ -119,7 +118,6 @@ export function useWithRecordState(
   useEffect(() => {
     if (mentorError) {
       setError({ message: "Failed to load", error: mentorError?.error });
-      clearMentorError();
     }
   }, [mentorError]);
 

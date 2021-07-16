@@ -4,32 +4,46 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   CircularProgress,
   DialogContentText,
+  Button,
 } from "@material-ui/core";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export function ErrorDialog(props: {
   error: LoadingError | undefined;
-  clearError: () => void;
+  clearError?: () => void;
 }): JSX.Element {
   const { error, clearError } = props;
+  const [open, setOpen] = useState<boolean>(true);
+  useEffect(() => {
+    if (error && !open) setOpen(true);
+  }, [error]);
   return (
     <Dialog
       data-cy="error-dialog"
       maxWidth="sm"
       fullWidth={true}
-      open={error !== undefined}
+      open={error !== undefined && open}
       onClose={clearError}
     >
       <DialogTitle>{error?.message}</DialogTitle>
       <DialogContent>
         <DialogContentText>{error?.error}</DialogContentText>
+      </DialogContent>
+      <DialogContent>
+        <Button
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          Close
+        </Button>
       </DialogContent>
     </Dialog>
   );
