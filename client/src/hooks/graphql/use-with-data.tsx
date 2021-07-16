@@ -49,13 +49,13 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     }
     fetch()
       .then((data) => {
-        dispatch({ actionType: LoadingActionType.LOADING_SUCCEEDED });
+        dispatch({ type: LoadingActionType.LOADING_SUCCEEDED });
         setData(data);
       })
       .catch((err) => {
         console.error(err);
         dispatch({
-          actionType: LoadingActionType.LOADING_FAILED,
+          type: LoadingActionType.LOADING_FAILED,
           payload: { message: "Failed to load", error: err.message },
         });
       });
@@ -65,7 +65,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (actionInProgress) {
       return;
     }
-    dispatch({ actionType: LoadingActionType.LOADING_STARTED });
+    dispatch({ type: LoadingActionType.LOADING_STARTED });
   }
 
   function editData(edits: Partial<T>) {
@@ -79,13 +79,13 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (actionInProgress || !editedData || !update) {
       return;
     }
-    dispatch({ actionType: LoadingActionType.SAVING_STARTED });
+    dispatch({ type: LoadingActionType.SAVING_STARTED });
     try {
       await update.action(editedData);
     } catch (err) {
       console.error(err);
       dispatch({
-        actionType: LoadingActionType.SAVING_FAILED,
+        type: LoadingActionType.SAVING_FAILED,
         payload: { message: "Failed to save", error: err.message },
       });
       return;
@@ -93,7 +93,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (loading) {
       return;
     }
-    dispatch({ actionType: LoadingActionType.SAVING_SUCCEEDED });
+    dispatch({ type: LoadingActionType.SAVING_SUCCEEDED });
     setData(editedData);
     setEditedData(undefined);
   }

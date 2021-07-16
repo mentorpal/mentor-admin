@@ -12,11 +12,11 @@ export interface LoadingError {
 
 export interface LoadingState {
   status: LoadingStatusType;
-  error: LoadingError | undefined;
+  error?: LoadingError;
 }
 
 export interface LoadingAction {
-  actionType: LoadingActionType;
+  type: LoadingActionType;
   payload?: LoadingError;
 }
 
@@ -41,19 +41,19 @@ export function LoadingReducer(
   state: LoadingState,
   action: LoadingAction
 ): LoadingState {
-  const { actionType, payload } = action;
-  switch (actionType) {
+  const { type, payload } = action;
+  switch (type) {
     case LoadingActionType.LOADING_STARTED:
-      return { status: LoadingStatusType.LOADING, error: undefined };
+      return { status: LoadingStatusType.LOADING };
     case LoadingActionType.SAVING_STARTED:
-      return { status: LoadingStatusType.SAVING, error: undefined };
+      return { status: LoadingStatusType.SAVING };
     case LoadingActionType.LOADING_SUCCEEDED:
     case LoadingActionType.SAVING_SUCCEEDED:
-      return { status: LoadingStatusType.SUCCESS, error: undefined };
+      return { status: LoadingStatusType.SUCCESS };
     case LoadingActionType.LOADING_FAILED:
     case LoadingActionType.SAVING_FAILED:
       return { status: LoadingStatusType.ERROR, error: payload };
     default:
-      return { status: LoadingStatusType.NONE, error: undefined };
+      return { status: LoadingStatusType.NONE };
   }
 }
