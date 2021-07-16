@@ -26,9 +26,7 @@ function UploadingView(props: {
     (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
   );
   const uploadsInProgress = uploadsToShow.filter(
-    (upload) =>
-      upload.uploadStatus !== UploadStatus.DONE &&
-      upload.uploadStatus !== UploadStatus.UPLOAD_FAILED
+    (upload) => upload.uploadStatus !== UploadStatus.DONE
   );
   const height = 250;
   const width = 350;

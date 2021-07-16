@@ -35,7 +35,9 @@ function UploadingListItem(props: {
   }));
   const jobStatus = upload.uploadStatus;
   const jobDone = jobStatus == UploadStatus.DONE;
-  const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
+  const jobFailed =
+    jobStatus === UploadStatus.UPLOAD_FAILED ||
+    jobStatus === UploadStatus.TRANSCRIBE_FAILED;
   const cancelling = upload.isCancelling;
   const classes = useStyles();
 
@@ -74,8 +76,6 @@ function UploadingListItem(props: {
         secondary={
           cancelling ? (
             "Cancelling"
-          ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
-            "Transcribe Failed"
           ) : jobFailed ? (
             upload.errorMessage
           ) : jobStatus === UploadStatus.PENDING ||
