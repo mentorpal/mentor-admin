@@ -84,7 +84,6 @@ graphqlRequest.interceptors.response.use(
 const uploadRequest = axios.create({
   withCredentials: true,
   baseURL: UPLOAD_ENTRYPOINT,
-  timeout: 5000,
 });
 
 export async function fetchConfig(): Promise<Config> {
