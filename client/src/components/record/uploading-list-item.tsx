@@ -77,7 +77,7 @@ function UploadingListItem(props: {
           ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
             "Transcribe Failed"
           ) : jobFailed ? (
-            "Upload Failed"
+            upload.errorMessage
           ) : jobStatus === UploadStatus.PENDING ||
             jobStatus == UploadStatus.UPLOAD_IN_PROGRESS ? (
             <LinearProgress

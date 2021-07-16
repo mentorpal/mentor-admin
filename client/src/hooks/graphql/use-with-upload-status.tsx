@@ -35,7 +35,7 @@ export interface UploadTask {
   question: Question;
   uploadStatus: UploadStatus;
   uploadProgress: number;
-
+  errorMessage?: string;
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
@@ -93,18 +93,20 @@ export function useWithUploadStatus(
             const findUpload = uploads.find(
               (up) => up.question._id === u.question._id
             );
-            // add  || findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS   if you are cypress testing uploadProgress
             if (
               !findUpload ||
               findUpload.uploadStatus !== u.uploadStatus ||
               findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS
             ) {
+              //TODO: This is where we will add the error from graphql
               addOrEditTask({
                 ...u,
                 isCancelling:
                   findUpload?.isCancelling ||
                   u.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
                   u.uploadStatus === UploadStatus.CANCELLED,
+                //TODO: add a function didTaskFail(u)
+                //errorMessage: didTaskFail(u) ? "failed to process file: {error from gql status endpoint}" : ""
               });
               if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
                 onUploadedCallback(u);
@@ -184,12 +186,15 @@ export function useWithUploadStatus(
         });
       })
       .catch((err) => {
+        console.log(err);
         addOrEditTask({
           question,
           uploadStatus:
             err.message && err.message === UploadStatus.CANCELLED
               ? UploadStatus.CANCELLED
               : UploadStatus.UPLOAD_FAILED,
+          //TODO: because this is getting mocked, the response object might be different in the integrated app
+          errorMessage: "Failed to upload file: " + err.toString(),
           uploadProgress: 0,
           taskId: "",
         });

@@ -1985,7 +1985,13 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
+  });
+
+  it.only("When an upload gets cancelled, should return user back to recording page", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+    });
+    cy.visit("/record");
     //after poll, should be back to upload video/file stage because upload was cancelled
     cy.get("[data-cy=upload-file]").should("be.visible");
   });
