@@ -1935,40 +1935,6 @@ describe("Record", () => {
                   _id: videoMentor.answers[0].question._id,
                   question: videoMentor.answers[0].question.question,
                 },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
-                uploadStatus: "UPLOAD_IN_PROGRESS",
-                transcript: "i am kayla",
-                media: [
-                  {
-                    type: "video",
-                    tag: "web",
-                    url: "http://google.mp4",
-                  },
-                ],
-              },
-            ],
-            [
-              {
-                question: {
-                  _id: videoMentor.answers[0].question._id,
-                  question: videoMentor.answers[0].question.question,
-                },
                 uploadStatus: "CANCELLED",
                 transcript: "i am kayla",
                 media: [
@@ -1986,6 +1952,9 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
+    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
+    //after poll, should be back to upload video/file stage because upload was cancelled
+    cy.get("[data-cy=upload-file]").should("be.visible");
   });
 
   it("Header shows a count of N of M uploads", () => {
