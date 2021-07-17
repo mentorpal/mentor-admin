@@ -1831,6 +1831,111 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("not.be.visible");
   });
 
+  it("upload 'processing' text animates three ellipsis", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("uploadTaskDelete", true, true),
+        mockGQL("updateAnswer", true, true),
+        mockGQL("updateQuestion", true, true),
+        mockGQL(
+          "uploadTasks",
+          [
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+            [
+              {
+                question: {
+                  _id: videoMentor.answers[0].question._id,
+                  question: videoMentor.answers[0].question.question,
+                },
+                uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+                transcript: "i am kayla",
+                media: [
+                  {
+                    type: "video",
+                    tag: "web",
+                    url: "http://google.mp4",
+                  },
+                ],
+              },
+            ],
+          ],
+          true
+        ),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
+      //ListItems primary text is under <span> and its secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing.");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing..");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing...");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing");
+    });
+  });
+
   it("When an upload gets cancelled, should return user back to recording page", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
