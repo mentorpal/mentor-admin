@@ -13,7 +13,7 @@ import {
   uploadVideo,
 } from "api";
 import { Media, Question } from "types";
-import { copyAndSet } from "helpers";
+import { copyAndSet, threeEllipsesHelper } from "helpers";
 import useInterval from "hooks/task/use-interval";
 
 export enum UploadStatus {
@@ -50,6 +50,8 @@ export function useWithUploadStatus(
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [uploadProcessingText, setUploadProcessingText] =
+    useState<string>("Processing");
   const CancelToken = axios.CancelToken;
 
   useEffect(() => {
@@ -81,11 +83,11 @@ export function useWithUploadStatus(
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
-  //we start polling because we added an upload to our state when pressed
   useInterval(
     (isCancelled) => {
       fetchUploadTasks(accessToken)
         .then((data) => {
+          setUploadProcessingText(threeEllipsesHelper(uploadProcessingText));
           if (isCancelled()) {
             return;
           }
@@ -120,7 +122,6 @@ export function useWithUploadStatus(
     },
     isPolling ? pollingInterval : null
   );
-
   function removeCompletedTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question._id === task.question._id);
     if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
@@ -130,7 +131,6 @@ export function useWithUploadStatus(
       setUploads(newArray);
     }
   }
-
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
       task.uploadStatus === UploadStatus.CANCELLED ||
@@ -158,17 +158,10 @@ export function useWithUploadStatus(
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
-      //TODO: current workaround since copyAndSet isn't working properly
-      for (let i = 0; i < uploads.length; i++) {
-        if (uploads[i].question._id == task.question._id) {
-          uploads[i] = task;
-        }
-      }
       setUploads(copyAndSet(uploads, idx, task));
     }
   }
 
-  //this is the upload function being used
   function upload(
     mentorId: string,
     question: Question,
@@ -242,6 +235,7 @@ export function useWithUploadStatus(
   // function deleteUpload() {}
 
   return {
+    uploadProcessingText,
     uploads,
     isUploading,
     upload,
@@ -252,6 +246,7 @@ export function useWithUploadStatus(
 }
 
 export interface UseWithUploadStatus {
+  uploadProcessingText: string;
   uploads: UploadTask[];
   isUploading: boolean;
   upload: (
