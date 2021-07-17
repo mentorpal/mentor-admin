@@ -63,7 +63,7 @@ export function useWithRecordState(
   const {
     uploads,
     isUploading,
-    uploadProcessingText,
+    pollStatusCount,
     upload,
     cancelUpload,
     removeCompletedTask,
@@ -369,7 +369,7 @@ export function useWithRecordState(
           }
         : undefined,
     uploads: uploads,
-    uploadProcessingText,
+    pollStatusCount,
     followUpQuestions,
     prevAnswer,
     nextAnswer,
@@ -401,7 +401,7 @@ export interface UseWithRecordState {
   recordPageState: RecordPageState;
   curAnswer: CurAnswerState | undefined;
   uploads: UploadTask[];
-  uploadProcessingText: string;
+  pollStatusCount: number;
   followUpQuestions: string[];
   fetchFollowUpQs: () => void;
   prevAnswer: () => void;

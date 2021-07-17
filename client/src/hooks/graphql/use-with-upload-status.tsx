@@ -13,7 +13,7 @@ import {
   uploadVideo,
 } from "api";
 import { Media, Question } from "types";
-import { copyAndSet, threeEllipsesHelper } from "helpers";
+import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
 
 export enum UploadStatus {
@@ -50,8 +50,7 @@ export function useWithUploadStatus(
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
-  const [uploadProcessingText, setUploadProcessingText] =
-    useState<string>("Processing");
+  const [pollStatusCount, setPollStatusCount] = useState<number>(0);
   const CancelToken = axios.CancelToken;
 
   useEffect(() => {
@@ -87,7 +86,7 @@ export function useWithUploadStatus(
     (isCancelled) => {
       fetchUploadTasks(accessToken)
         .then((data) => {
-          setUploadProcessingText(threeEllipsesHelper(uploadProcessingText));
+          setPollStatusCount(pollStatusCount + 1);
           if (isCancelled()) {
             return;
           }
@@ -235,7 +234,7 @@ export function useWithUploadStatus(
   // function deleteUpload() {}
 
   return {
-    uploadProcessingText,
+    pollStatusCount,
     uploads,
     isUploading,
     upload,
@@ -246,7 +245,7 @@ export function useWithUploadStatus(
 }
 
 export interface UseWithUploadStatus {
-  uploadProcessingText: string;
+  pollStatusCount: number;
   uploads: UploadTask[];
   isUploading: boolean;
   upload: (

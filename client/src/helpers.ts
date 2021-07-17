@@ -26,8 +26,3 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
-
-export function threeEllipsesHelper(text: string): string {
-  if (text.substr(-3) !== "...") return `${text}.`;
-  else return text.slice(0, -3);
-}
