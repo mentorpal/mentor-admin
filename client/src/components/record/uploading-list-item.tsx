@@ -20,11 +20,11 @@ import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 function UploadingListItem(props: {
   upload: UploadTask;
   jobTitle: string;
-  setAnswerIDx: (id: number) => void;
-  answerIDx: number;
+  setAnswerIdx: (id: number) => void;
+  answerIdx: number;
   recordState: UseWithRecordState;
 }): JSX.Element {
-  const { upload, jobTitle, setAnswerIDx, answerIDx, recordState } = props;
+  const { upload, jobTitle, setAnswerIdx, answerIdx, recordState } = props;
   const useStyles = makeStyles(() => ({
     primaryListItemText: {
       fontSize: "0.9em",
@@ -35,7 +35,9 @@ function UploadingListItem(props: {
   }));
   const jobStatus = upload.uploadStatus;
   const jobDone = jobStatus == UploadStatus.DONE;
-  const jobFailed = jobStatus == UploadStatus.UPLOAD_FAILED;
+  const jobFailed =
+    jobStatus === UploadStatus.UPLOAD_FAILED ||
+    jobStatus === UploadStatus.TRANSCRIBE_FAILED;
   const cancelling = upload.isCancelling;
   const classes = useStyles();
 
@@ -60,7 +62,7 @@ function UploadingListItem(props: {
         style={{ cursor: "pointer" }}
         data-cy="card-answer-title"
         onClick={() => {
-          setAnswerIDx(answerIDx);
+          setAnswerIdx(answerIdx);
         }}
         classes={{
           primary: classes.primaryListItemText,
@@ -74,10 +76,8 @@ function UploadingListItem(props: {
         secondary={
           cancelling ? (
             "Cancelling"
-          ) : jobStatus === UploadStatus.TRANSCRIBE_FAILED ? (
-            "Transcribe Failed"
           ) : jobFailed ? (
-            "Upload Failed"
+            upload.errorMessage
           ) : jobStatus === UploadStatus.PENDING ||
             jobStatus == UploadStatus.UPLOAD_IN_PROGRESS ? (
             <LinearProgress

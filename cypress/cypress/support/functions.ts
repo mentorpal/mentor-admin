@@ -51,6 +51,7 @@ interface MockGraphQLQuery {
   query: string;
   data: any | any[];
   me: boolean;
+  params?: { statusCode: number };
 }
 
 function staticResponse(s: StaticResponse): StaticResponse {
@@ -109,6 +110,7 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         req.alias = mock.query;
         req.reply(
           staticResponse({
+            statusCode: mock.params?.statusCode || 200,
             body: {
               data: body,
               errors: null,
@@ -130,12 +132,14 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
 export function mockGQL(
   query: string,
   data: any | any[],
-  me = false
+  me = false,
+  params?: { statusCode: number }
 ): MockGraphQLQuery {
   return {
     query,
     data,
     me,
+    params,
   };
 }
 
@@ -157,9 +161,12 @@ export function cyMockDefault(
 ) {
   const config = args?.config || {};
   const gqlQueries = args?.gqlQueries || [];
+  cySetup(cy);
   if (!args.noAccessTokenStored) {
     cyMockLogin(cy);
   }
+  cyMockUpload(cy);
+  cyMockCancelUpload(cy);
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
     mockGQL("login", args.login || loginDefault),
@@ -170,6 +177,19 @@ export function cyMockDefault(
     ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
     ...gqlQueries,
   ]);
+}
+
+export function cyAttachUpload(cy, fileName?: string): Promise<void> {
+  cy.intercept("**/videos/mentors/*/*.mp4", {
+    fixture: fileName || "video.mp4",
+  });
+  return cy.fixture(fileName || "video.mp4").then((fileContent) => {
+    cy.get('input[type="file"]').attachFile({
+      fileContent: fileContent.toString(),
+      fileName: fileName || "video.mp4",
+      mimeType: "video/mp4",
+    });
+  });
 }
 
 export function cyMockTrain(
@@ -253,7 +273,7 @@ export function cyMockUpload(
   });
 }
 
-export function cyMockCancelUpload(
+function cyMockCancelUpload(
   cy,
   params: {
     id?: string;
@@ -273,6 +293,32 @@ export function cyMockCancelUpload(
             cancelledId: params.cancelledId || "fake_task_id",
           },
           errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockFollowUpQuestions(
+  cy,
+  params: {
+    errors?: null | string[];
+    data?: {};
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("POST", "/classifier/me/followups/*/*", (req) => {
+    req.alias = "followups";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          errors: params.errors,
+          data: params.data || {},
         },
         headers: {
           "Content-Type": "application/json",

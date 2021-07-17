@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import PropTypes from "prop-types";
 import { Box, LinearProgress, Typography } from "@material-ui/core";
 import { createStyles, withStyles } from "@material-ui/core/styles";
 
@@ -26,7 +25,10 @@ const LinearProgressBar = withStyles((theme) =>
   })
 )(LinearProgress);
 
-function ProgressBar(props: { value: number; total: number }): JSX.Element {
+export default function ProgressBar(props: {
+  value: number;
+  total: number;
+}): JSX.Element {
   const percent = Math.round((props.value / props.total) * 100);
   return (
     <Box display="flex" alignItems="center">
@@ -45,13 +47,3 @@ function ProgressBar(props: { value: number; total: number }): JSX.Element {
     </Box>
   );
 }
-
-ProgressBar.propTypes = {
-  /**
-   * The value of the progress indicator for the determinate and buffer variants.
-   * Value between 0 and 100.
-   */
-  value: PropTypes.number.isRequired,
-};
-
-export default ProgressBar;

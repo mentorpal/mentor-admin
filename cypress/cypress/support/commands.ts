@@ -41,3 +41,23 @@ addMatchImageSnapshotCommand({
   failureThreshold: 0.01,
   failureThresholdType: "percent",
 });
+
+/**
+ * getAttached(selector)
+ * getAttached(selectorFn)
+ *
+ * Waits until the selector finds an attached element, then yields it (wrapped).
+ * selectorFn, if provided, is passed $(document). Don't use cy methods inside selectorFn.
+ */
+Cypress.Commands.add("getAttached", (selector) => {
+  const getElement =
+    typeof selector === "function" ? selector : ($d) => $d.find(selector);
+  let $el = null;
+  return cy
+    .document()
+    .should(($d) => {
+      $el = getElement(Cypress.$($d));
+      expect(Cypress.dom.isDetached($el)).to.be.false;
+    })
+    .then(() => cy.wrap($el));
+});

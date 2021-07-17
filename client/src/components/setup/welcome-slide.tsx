@@ -5,7 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Paper, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import { Slide } from "./slide";
 
 export function WelcomeSlide(props: {
   classes: Record<string, string>;
@@ -13,18 +14,19 @@ export function WelcomeSlide(props: {
 }): JSX.Element {
   const { classes } = props;
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Welcome to MentorPal!
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          It&apos;s nice to meet you, {props.userName}!
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Let&apos;s get started setting up your new mentor.
-        </Typography>
-      </div>
-    </Paper>
+    <Slide
+      classes={classes}
+      title="Welcome to MentorPal!"
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            It&apos;s nice to meet you, {props.userName}!
+          </Typography>
+          <Typography variant="h6" className={classes.text}>
+            Let&apos;s get started setting up your new mentor.
+          </Typography>
+        </div>
+      }
+    />
   );
 }

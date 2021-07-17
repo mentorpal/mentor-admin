@@ -14,6 +14,7 @@ import {
 
 export const mentor: Mentor = {
   _id: "clintanderson",
+  thumbnail: "https://new.url/test.png",
   name: "Clinton Anderson",
   firstName: "Clint",
   title: "Nuclear Electrician's Mate",
@@ -61,6 +62,7 @@ export const mentor: Mentor = {
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
+      isRequired: true,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       categories: [
         {

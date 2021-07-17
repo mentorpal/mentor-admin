@@ -13,37 +13,30 @@ import {
 import clint from "../fixtures/mentor/clint_home";
 import { JobState, Status, QuestionType } from "../support/types";
 
-const originalAnswers = clint.answers;
-describe("Review answers page", () => {
-  it("shows all questions for all subjects by default", () => {
+describe("My Mentor Page", () => {
+  it("shows all questions for all categories by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
-    cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
+    cy.get("[data-cy=recording-blocks]").children().should("have.length", 4);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Background");
-        cy.get("[data-cy=block-progress]").should("have.text", "2 / 2 (100%)");
+        cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
           "These questions will ask general questions about your background that might be relevant to how people understand your career."
         );
-        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (2)");
+        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (1)");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").should("not.be.disabled");
           cy.get("[data-cy=add-question]").should("not.exist");
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
           cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains(
-              "Who are you and what do you do?"
-            );
-            cy.get("[data-cy=answer-0]").contains(
-              "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
-            );
-            cy.get("[data-cy=answer-1]").contains("How old are you now?");
-            cy.get("[data-cy=answer-1]").contains("I'm 37 years old");
+            cy.get("[data-cy=answer-0]").contains("How old are you now?");
+            cy.get("[data-cy=answer-0]").contains("I'm 37 years old");
           });
         });
         cy.get("[data-cy=answers-Incomplete]").should(
@@ -57,9 +50,9 @@ describe("Review answers page", () => {
           cy.get("[data-cy=answer-list]").children().should("have.length", 0);
         });
       });
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-2]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
-        cy.get("[data-cy=block-progress]").should("have.text", "2 / 3 (67%)");
+        cy.get("[data-cy=block-progress]").should("have.text", "2 / 2 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
           "These are miscellaneous phrases you'll be asked to repeat."
@@ -82,21 +75,6 @@ describe("Review answers page", () => {
             );
           });
         });
-        cy.get("[data-cy=answers-Incomplete]").should(
-          "contain",
-          "Incomplete (1)"
-        );
-        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
-          cy.get("[data-cy=record-all]").should("not.be.disabled");
-          cy.get("[data-cy=add-question]").should("exist");
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains(
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-            );
-          });
-        });
       });
     });
   });
@@ -105,35 +83,32 @@ describe("Review answers page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Clinton Anderson");
-    cy.get("[data-cy=stage-card]").contains("Video Mentor");
-    cy.get("[data-cy=stage-card]").contains(
-      "Title: Nuclear Electrician's Mate"
-    );
-    cy.get("[data-cy=stage-card]").contains("Last Trained: Today");
-    cy.get("[data-cy=stage-card]").contains("Scope: Incomplete");
-    cy.get("[data-cy=stage-card]").contains("This Mentor can't be built yet.");
+    cy.get("[data-cy=my-mentor-card]").should("exist");
     cy.get("[data-cy=stage-progress]").should("exist");
-    cy.get("[data-cy=stage-card]")
-      .find("[data-cy=next-stage-info]")
-      .trigger("mouseover");
-    cy.contains("This Mentor can select questions from a list");
-    cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
     cy.get("[data-cy=upload-file]").should("exist");
+    cy.get("[data-cy=recommended-action-button]").should("exist");
   });
 
   it("shows placeholder when no thumbnail", () => {
     cySetup(cy);
-    clint.thumbnail = "";
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "",
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=placeholder-thumbnail]").should("exist");
   });
 
   it("switches to new image when uploaded", () => {
     cySetup(cy);
-    clint.thumbnail = "url";
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        thumbnail: "url",
+      },
+    });
     cy.visit("/");
     /* uncomment when graphql is available */
     // cy.get('[data-cy=thumbnail-wrapper]').trigger('mouseover');
@@ -156,8 +131,19 @@ describe("Review answers page", () => {
 
   it("shows mentor scope toast on stage floor", () => {
     cySetup(cy);
-    clint.answers[4].status = Status.COMPLETE;
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.COMPLETE,
+              };
+        }),
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=stage-toast]").contains(
       "Your mentor has reached the Scripted stage!"
@@ -165,37 +151,40 @@ describe("Review answers page", () => {
     cy.get("[data-cy=stage-toast]").contains("You have 5 total questions.");
   });
 
-  it("does not show progress bar at maxed level", () => {
+  it("dropdown should expand when question is added", () => {
     cySetup(cy);
-    clint.answers = [
-      ...Array(1000)
-        .fill(0)
-        .map((x) => ({
-          _id: "A1_1_1",
-          question: {
-            _id: "A1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          transcript:
-            "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-          status: Status.COMPLETE,
-        })),
-    ];
-
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
-    cy.get("[data-cy=stage-card]").contains("Scope: Life-Story");
-    cy.get("[data-cy=stage-progress]").should("not.exist");
+    cy.get("[data-cy=answer-0]").should("not.exist");
+    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
+    cy.get("[data-cy=answer-0]").first().should("exist");
+    cy.get("[data-cy=answer-0]").first().should("be.visible");
+  });
+  it("dropdown should expand when question is added", () => {
+    cySetup(cy);
+    cyMockDefault(cy, { mentor: clint });
+    cy.visit("/");
+    cy.get("[data-cy=answer-0]").should("not.exist");
+    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
+    cy.get("[data-cy=answer-0]").first().should("exist");
+    cy.get("[data-cy=answer-0]").first().should("be.visible");
   });
 
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
-    clint.answers = originalAnswers;
-    clint.answers[4].status = Status.INCOMPLETE;
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: clint.answers.map((a, i) => {
+          return i !== 4
+            ? a
+            : {
+                ...a,
+                status: Status.INCOMPLETE,
+              };
+        }),
+      },
+    });
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();
@@ -204,6 +193,35 @@ describe("Review answers page", () => {
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
+        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
+        cy.get("[data-cy=block-description]").should(
+          "have.text",
+          "These questions will ask general questions about your background that might be relevant to how people understand your career."
+        );
+        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (1)");
+        cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
+          cy.get("[data-cy=record-all]").should("not.be.disabled");
+          cy.get("[data-cy=add-question]").should("not.exist");
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within(($answers) => {
+            cy.get("[data-cy=answer-0]").contains("How old are you now?");
+            cy.get("[data-cy=answer-0]").contains("I'm 37 years old");
+          });
+        });
+        cy.get("[data-cy=answers-Incomplete]").should(
+          "contain",
+          "Incomplete (0)"
+        );
+        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
+          cy.get("[data-cy=record-all]").should("be.disabled");
+          cy.get("[data-cy=add-question]").should("exist");
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 0);
+        });
+      });
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should("have.text", "A category");
@@ -220,35 +238,6 @@ describe("Review answers page", () => {
             cy.get("[data-cy=answer-0]").contains(
               "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
             );
-          });
-        });
-        cy.get("[data-cy=answers-Incomplete]").should(
-          "contain",
-          "Incomplete (0)"
-        );
-        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
-          cy.get("[data-cy=record-all]").should("be.disabled");
-          cy.get("[data-cy=add-question]").should("exist");
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 0);
-        });
-      });
-      cy.get("[data-cy=block-1]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
-        cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
-        cy.get("[data-cy=block-description]").should(
-          "have.text",
-          "These questions will ask general questions about your background that might be relevant to how people understand your career."
-        );
-        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (1)");
-        cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
-          cy.get("[data-cy=record-all]").should("not.be.disabled");
-          cy.get("[data-cy=add-question]").should("not.exist");
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains("How old are you now?");
-            cy.get("[data-cy=answer-0]").contains("I'm 37 years old");
           });
         });
         cy.get("[data-cy=answers-Incomplete]").should(
@@ -273,6 +262,35 @@ describe("Review answers page", () => {
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
+        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
+        cy.get("[data-cy=block-description]").should(
+          "have.text",
+          "These questions will ask general questions about your background that might be relevant to how people understand your career."
+        );
+        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (1)");
+        cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
+          cy.get("[data-cy=record-all]").should("not.be.disabled");
+          cy.get("[data-cy=add-question]").should("not.exist");
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
+          cy.get("[data-cy=answer-list]").within(($answers) => {
+            cy.get("[data-cy=answer-0]").contains("How old are you now?");
+            cy.get("[data-cy=answer-0]").contains("I'm 37 years old");
+          });
+        });
+        cy.get("[data-cy=answers-Incomplete]").should(
+          "contain",
+          "Incomplete (0)"
+        );
+        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
+          cy.get("[data-cy=record-all]").should("be.disabled");
+          cy.get("[data-cy=add-question]").should("exist");
+          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+          cy.get("[data-cy=answer-list]").children().should("have.length", 0);
+        });
+      });
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should("have.text", "A category");
@@ -289,35 +307,6 @@ describe("Review answers page", () => {
             cy.get("[data-cy=answer-0]").contains(
               "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
             );
-          });
-        });
-        cy.get("[data-cy=answers-Incomplete]").should(
-          "contain",
-          "Incomplete (0)"
-        );
-        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
-          cy.get("[data-cy=record-all]").should("be.disabled");
-          cy.get("[data-cy=add-question]").should("exist");
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 0);
-        });
-      });
-      cy.get("[data-cy=block-1]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
-        cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
-        cy.get("[data-cy=block-description]").should(
-          "have.text",
-          "These questions will ask general questions about your background that might be relevant to how people understand your career."
-        );
-        cy.get("[data-cy=answers-Complete]").should("contain", "Complete (1)");
-        cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
-          cy.get("[data-cy=record-all]").should("not.be.disabled");
-          cy.get("[data-cy=add-question]").should("not.exist");
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains("How old are you now?");
-            cy.get("[data-cy=answer-0]").contains("I'm 37 years old");
           });
         });
         cy.get("[data-cy=answers-Incomplete]").should(
@@ -362,8 +351,8 @@ describe("Review answers page", () => {
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
+      cy.get("[data-cy=block-3]").within(($block) => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
         });
@@ -374,7 +363,7 @@ describe("Review answers page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=undefined&status=INCOMPLETE&subject=repeat_after_me&category="
+      "?back=/?subject=undefined&status=INCOMPLETE&subject=repeat_after_me&category=category2"
     );
   });
 
@@ -384,11 +373,11 @@ describe("Review answers page", () => {
     cy.visit("/");
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
+      cy.get("[data-cy=block-1]").within(($block) => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
           cy.get("[data-cy=answer-list]").within(($answers) => {
             cy.get("[data-cy=answer-0]").contains(
               "Who are you and what do you do?"
@@ -420,27 +409,20 @@ describe("Review answers page", () => {
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-2]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
           cy.get("[data-cy=add-question]").should("exist");
-          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains(
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
-            );
-          });
+          cy.get("[data-cy=answer-list]").children().should("have.length", 0);
+
           cy.get("[data-cy=add-question]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
+          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
           cy.get("[data-cy=answer-list]").within(($answers) => {
             cy.get("[data-cy=answer-0]").within(($answer) => {
               cy.get("textarea").should("have.value", "");
               cy.get("textarea").should("not.have.attr", "disabled");
             });
-            cy.get("[data-cy=answer-1]").contains(
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
-            );
           });
         });
       });
@@ -454,7 +436,7 @@ describe("Review answers page", () => {
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -476,7 +458,7 @@ describe("Review answers page", () => {
     cy.visit("/?subject=repeat_after_me");
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -498,7 +480,7 @@ describe("Review answers page", () => {
     cy.visit("/?subject=background");
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -534,7 +516,7 @@ describe("Review answers page", () => {
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -569,7 +551,7 @@ describe("Review answers page", () => {
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();

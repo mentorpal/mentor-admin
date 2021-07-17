@@ -90,7 +90,6 @@ export function useWithSetup(
     isSaving: isMentorSaving,
     editData: editMentor,
     reloadData: reloadMentor,
-    clearError: clearMentorError,
     saveMentorDetails,
   } = useWithMentor(accessToken);
   const {
@@ -152,8 +151,8 @@ export function useWithSetup(
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
       { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
-      { type: SetupStepType.INTRODUCTION, complete: true },
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
+      { type: SetupStepType.INTRODUCTION, complete: true },
     ];
     if (idle) {
       status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
@@ -172,7 +171,6 @@ export function useWithSetup(
   useEffect(() => {
     if (mentorError) {
       setError(mentorError);
-      clearMentorError();
     }
   }, [mentorError]);
 
@@ -196,6 +194,9 @@ export function useWithSetup(
     if (!status || idx === steps.length - 1) {
       return;
     }
+    if (isMentorEdited) {
+      saveMentorDetails();
+    }
     setIdx(idx + 1);
   }
 
@@ -203,12 +204,18 @@ export function useWithSetup(
     if (!status || idx === 0) {
       return;
     }
+    if (isMentorEdited) {
+      saveMentorDetails();
+    }
     setIdx(idx - 1);
   }
 
   function toStep(i: number) {
     if (!status || i < 0 || i >= steps.length) {
       return;
+    }
+    if (isMentorEdited) {
+      saveMentorDetails();
     }
     setIdx(i);
   }

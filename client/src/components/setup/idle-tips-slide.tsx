@@ -4,10 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Paper, Typography } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import React from "react";
 import ReactPlayer from "react-player";
+import { Slide } from "./slide";
 export function IdleTipsSlide(props: {
   classes: Record<string, string>;
 }): JSX.Element {
@@ -22,51 +23,29 @@ export function IdleTipsSlide(props: {
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Recording an idle video.
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          In this video, you will learn how to record an idle video and why it
-          is important.
-        </Typography>
-      </div>
-      <div
-        className={classes.block}
-        style={{
-          alignSelf: "center",
-          height: height + 50,
-          width: width,
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#000",
-              height: height,
-              width: width,
-              color: "white",
-            }}
-          >
-            <ReactPlayer
-              data-cy="video-player"
-              url={"https://youtu.be/xSu1BhuFt8A"}
-              controls={true}
-              playing={true}
-              height={height}
-              width={width}
-              playsinline
-              webkit-playsinline="true"
-              progressInterval={100}
-            />
-          </div>
+    <Slide
+      classes={classes}
+      title="Recording an idle video."
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            In this video, you will learn how to record an idle video and why it
+            is important.
+          </Typography>
+          <ReactPlayer
+            data-cy="video-player"
+            url={"https://youtu.be/xSu1BhuFt8A"}
+            controls={true}
+            playing={true}
+            height={height}
+            style={{ marginLeft: "auto", marginRight: "auto" }}
+            width={width}
+            playsinline
+            webkit-playsinline="true"
+            progressInterval={100}
+          />
         </div>
-      </div>
-    </Paper>
+      }
+    />
   );
 }

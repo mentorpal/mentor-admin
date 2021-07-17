@@ -84,7 +84,6 @@ function SubjectPage(props: {
     isEdited: isSubjectEdited,
     isLoading: isSubjectLoading,
     isSaving: isSubjectSaving,
-    clearError: clearSubjectError,
     editData: editSubject,
     saveSubject,
     addCategory,
@@ -218,7 +217,7 @@ function SubjectPage(props: {
             : ""
         }
       />
-      <ErrorDialog error={subjectError} clearError={clearSubjectError} />
+      <ErrorDialog error={subjectError} />
     </div>
   );
 }

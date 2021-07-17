@@ -35,7 +35,7 @@ export interface UploadTask {
   question: Question;
   uploadStatus: UploadStatus;
   uploadProgress: number;
-
+  errorMessage?: string;
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
@@ -73,7 +73,7 @@ export function useWithUploadStatus(
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
         deleteUploadTask(u.question._id, accessToken).catch((error) => {
-          console.log(error);
+          console.error(error);
         });
       }
     });
@@ -93,7 +93,6 @@ export function useWithUploadStatus(
             const findUpload = uploads.find(
               (up) => up.question._id === u.question._id
             );
-            // add  || findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS   if you are cypress testing uploadProgress
             if (
               !findUpload ||
               findUpload.uploadStatus !== u.uploadStatus ||
@@ -105,6 +104,9 @@ export function useWithUploadStatus(
                   findUpload?.isCancelling ||
                   u.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
                   u.uploadStatus === UploadStatus.CANCELLED,
+                errorMessage: isTaskFailed(u)
+                  ? `Failed to process file: ${u.uploadStatus}`
+                  : "",
               });
               if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
                 onUploadedCallback(u);
@@ -135,6 +137,13 @@ export function useWithUploadStatus(
       task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
       task.uploadStatus === UploadStatus.UPLOAD_FAILED ||
       task.uploadStatus === UploadStatus.DONE
+    );
+  }
+
+  function isTaskFailed(task: UploadTask) {
+    return (
+      task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
+      task.uploadStatus === UploadStatus.UPLOAD_FAILED
     );
   }
 
@@ -190,6 +199,7 @@ export function useWithUploadStatus(
             err.message && err.message === UploadStatus.CANCELLED
               ? UploadStatus.CANCELLED
               : UploadStatus.UPLOAD_FAILED,
+          errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
           uploadProgress: 0,
           taskId: "",
         });

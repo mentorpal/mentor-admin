@@ -8,6 +8,7 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
   AppBar,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -27,7 +28,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status, UtteranceName } from "types";
+import { MentorType, Status, UtteranceName, RecordPageState } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -36,6 +37,8 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
+import { useWithSubject } from "hooks/graphql/use-with-subject";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -107,7 +110,21 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor } = recordState;
+  const { curAnswer, mentor, setRecordPageState, recordPageState } =
+    recordState;
+  const { addQuestion, removeQuestion, editedData, saveSubject } =
+    useWithSubject(props.search.subject || "", props.accessToken);
+  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
+  const curSubject = mentor?.subjects.find(
+    (s) => s._id == props.search.subject
+  );
+  const subjectTitle = curSubject?.name || "";
+  const categoryTitle =
+    curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
+    "";
+  const curAnswerBelongsToMentor =
+    curAnswer?.editedAnswer.question?.mentor === mentor?._id;
+  const curEditedQuestion = curAnswer?.editedAnswer?.question;
 
   function onBack() {
     if (props.search.back) {
@@ -116,6 +133,7 @@ function RecordPage(props: {
       navigate("/");
     }
   }
+
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
       if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
@@ -125,34 +143,50 @@ function RecordPage(props: {
           callback: onNav,
         });
       } else {
+        recordState.saveAnswer();
         onNav();
       }
     } else {
       onNav();
     }
   }
-
   function confirm() {
     if (!confirmLeave) {
       return;
     }
+    if (curAnswer?.isEdited) {
+      recordState.saveAnswer();
+    }
     confirmLeave.callback();
     setConfirmLeave(undefined);
+  }
+  function handleSaveSubject() {
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
+    saveSubject().then(() => recordState.reloadMentorData());
   }
 
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
-        <NavBar title="Record Mentor" mentorId={undefined} />
+        <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
-        <ErrorDialog
-          error={recordState.error}
-          clearError={recordState.clearError}
-        />
+        <ErrorDialog error={recordState.error} />
       </div>
     );
   }
 
+  if (
+    recordPageState == RecordPageState.REVIEWING_FOLLOW_UPS &&
+    recordState.followUpQuestions.length === 0
+  ) {
+    //default leave page method
+    onBack();
+  }
+
+  const displayRecordingPage = !(
+    recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
+    recordPageState === RecordPageState.RELOADING_MENTOR
+  );
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -164,150 +198,182 @@ function RecordPage(props: {
         />
       ) : undefined}
       <NavBar
-        title="Record Mentor"
+        title={
+          categoryTitle
+            ? `Recording: ${subjectTitle} - ${categoryTitle}`
+            : `Recording: ${subjectTitle}`
+        }
         mentorId={mentor._id}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+        onBack={() => switchAnswer(onBack)}
       />
-      <div data-cy="progress" className={classes.block}>
-        <Typography
-          variant="h6"
-          className={classes.title}
-          style={{ textAlign: "center" }}
-        >
-          Questions {recordState.answerIdx + 1} / {recordState.answers.length}
-        </Typography>
-        <ProgressBar
-          value={recordState.answerIdx + 1}
-          total={recordState.answers.length}
-        />
-      </div>
-      {mentor.mentorType === MentorType.VIDEO ? (
-        <VideoPlayer classes={classes} recordState={recordState} />
-      ) : undefined}
-      <div data-cy="question" className={classes.block}>
-        <Typography className={classes.title}>Question:</Typography>
-        <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="question-input"
-            multiline
-            value={curAnswer?.editedAnswer.question?.question}
-            disabled={curAnswer?.editedAnswer.question?.mentor !== mentor._id}
-            onChange={(e) => {
-              if (curAnswer?.editedAnswer.question) {
-                recordState.editAnswer({
-                  question: {
-                    ...curAnswer?.editedAnswer.question,
-                    question: e.target.value,
-                  },
-                });
-              }
-            }}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-question-btn"
-                  disabled={
-                    curAnswer?.editedAnswer.question?.question ===
-                    curAnswer?.answer.question?.question
-                  }
-                  onClick={() =>
+
+      {displayRecordingPage ? (
+        <div>
+          <div data-cy="progress" className={classes.block}>
+            <Typography
+              variant="h6"
+              className={classes.title}
+              style={{ textAlign: "center" }}
+            >
+              Questions {recordState.answerIdx + 1} /{" "}
+              {recordState.answers.length}
+            </Typography>
+            <ProgressBar
+              value={recordState.answerIdx + 1}
+              total={recordState.answers.length}
+            />
+          </div>
+          {mentor.mentorType === MentorType.VIDEO ? (
+            <VideoPlayer classes={classes} recordState={recordState} />
+          ) : undefined}
+          <div data-cy="question" className={classes.block}>
+            <Typography className={classes.title}>Question:</Typography>
+            <FormControl className={classes.inputField} variant="outlined">
+              <OutlinedInput
+                data-cy="question-input"
+                multiline
+                value={curEditedQuestion?.question}
+                disabled={!curAnswerBelongsToMentor}
+                onChange={(e) => {
+                  if (curEditedQuestion) {
                     recordState.editAnswer({
-                      question: curAnswer?.answer.question,
-                    })
+                      question: {
+                        ...curEditedQuestion,
+                        question: e.target.value,
+                      },
+                    });
                   }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
-      </div>
-      {curAnswer?.minVideoLength &&
-      curAnswer?.editedAnswer.question?.name === UtteranceName.IDLE ? (
-        <div data-cy="idle" className={classes.block}>
-          <Typography className={classes.title}>Idle Duration:</Typography>
-          <Select
-            data-cy="idle-duration"
-            value={curAnswer?.minVideoLength}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => recordState.setMinVideoLength(event.target.value as number)}
-            style={{ marginLeft: 10 }}
+                }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      data-cy="undo-question-btn"
+                      disabled={
+                        curEditedQuestion?.question ===
+                        curAnswer?.answer.question?.question
+                      }
+                      onClick={() =>
+                        recordState.editAnswer({
+                          question: curAnswer?.answer.question,
+                        })
+                      }
+                    >
+                      <UndoIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+          </div>
+          {curAnswer?.minVideoLength &&
+          curEditedQuestion?.name === UtteranceName.IDLE ? (
+            <div data-cy="idle" className={classes.block}>
+              <Typography className={classes.title}>Idle Duration:</Typography>
+              <Select
+                data-cy="idle-duration"
+                value={curAnswer?.minVideoLength}
+                onChange={(
+                  event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+                ) =>
+                  recordState.setMinVideoLength(event.target.value as number)
+                }
+                style={{ marginLeft: 10 }}
+              >
+                <MenuItem data-cy="10" value={10}>
+                  10 seconds
+                </MenuItem>
+                <MenuItem data-cy="30" value={30}>
+                  30 seconds
+                </MenuItem>
+                <MenuItem data-cy="60" value={60}>
+                  60 seconds
+                </MenuItem>
+              </Select>
+            </div>
+          ) : (
+            <div data-cy="transcript" className={classes.block}>
+              <Typography className={classes.title}>
+                Answer Transcript:
+              </Typography>
+              <FormControl className={classes.inputField} variant="outlined">
+                <OutlinedInput
+                  data-cy="transcript-input"
+                  multiline
+                  value={curAnswer?.editedAnswer.transcript}
+                  onChange={(e) =>
+                    recordState.editAnswer({ transcript: e.target.value })
+                  }
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        data-cy="undo-transcript-btn"
+                        disabled={
+                          curAnswer?.editedAnswer.transcript ===
+                          curAnswer?.answer.transcript
+                        }
+                        onClick={() =>
+                          recordState.editAnswer({
+                            transcript: curAnswer?.answer.transcript,
+                          })
+                        }
+                      >
+                        <UndoIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+            </div>
+          )}
+          <div
+            data-cy="status"
+            className={classes.block}
+            style={{ textAlign: "right" }}
           >
-            <MenuItem data-cy="10" value={10}>
-              10 seconds
-            </MenuItem>
-            <MenuItem data-cy="30" value={30}>
-              30 seconds
-            </MenuItem>
-            <MenuItem data-cy="60" value={60}>
-              60 seconds
-            </MenuItem>
-          </Select>
+            <Typography className={classes.title}>Status:</Typography>
+            <Select
+              data-cy="select-status"
+              value={curAnswer?.editedAnswer.status || ""}
+              onChange={(
+                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+              ) =>
+                recordState.editAnswer({ status: event.target.value as Status })
+              }
+              style={{ marginLeft: 10 }}
+            >
+              <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
+                Skip
+              </MenuItem>
+              <MenuItem
+                data-cy="complete"
+                value={Status.COMPLETE}
+                disabled={!curAnswer?.isValid}
+              >
+                Active
+              </MenuItem>
+            </Select>
+          </div>
         </div>
       ) : (
-        <div data-cy="transcript" className={classes.block}>
-          <Typography className={classes.title}>Answer Transcript:</Typography>
-          <FormControl className={classes.inputField} variant="outlined">
-            <OutlinedInput
-              data-cy="transcript-input"
-              multiline
-              value={curAnswer?.editedAnswer.transcript}
-              onChange={(e) =>
-                recordState.editAnswer({ transcript: e.target.value })
-              }
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    data-cy="undo-transcript-btn"
-                    disabled={
-                      curAnswer?.editedAnswer.transcript ===
-                      curAnswer?.answer.transcript
-                    }
-                    onClick={() =>
-                      recordState.editAnswer({
-                        transcript: curAnswer?.answer.transcript,
-                      })
-                    }
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
+        <div>
+          <Box height="100%" width="100%">
+            <FollowUpQuestionsWidget
+              categoryId={props.search.category || ""}
+              questions={recordState.followUpQuestions}
+              mentorId={mentor._id || ""}
+              toRecordFollowUpQs={setRecordFollowUpQs}
+              addQuestion={addQuestion}
+              removeQuestion={removeQuestion}
+              editedData={editedData}
             />
-          </FormControl>
+          </Box>
         </div>
       )}
-      <div
-        data-cy="status"
-        className={classes.block}
-        style={{ textAlign: "right" }}
-      >
-        <Typography className={classes.title}>Status:</Typography>
-        <Select
-          data-cy="select-status"
-          value={curAnswer?.editedAnswer.status || ""}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => recordState.editAnswer({ status: event.target.value as Status })}
-          style={{ marginLeft: 10 }}
-        >
-          <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
-            Skip
-          </MenuItem>
-          <MenuItem
-            data-cy="complete"
-            value={Status.COMPLETE}
-            disabled={!curAnswer?.isValid}
-          >
-            Active
-          </MenuItem>
-        </Select>
-      </div>
       <div className={classes.toolbar} />
+
       <AppBar position="fixed" className={classes.footer}>
         <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
           <IconButton
@@ -318,17 +384,47 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          <Button
-            data-cy="save-btn"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={!curAnswer?.isEdited}
-            onClick={recordState.saveAnswer}
-          >
-            Save
-          </Button>
-          {recordState.answerIdx === recordState.answers.length - 1 ? (
+          {displayRecordingPage ? (
+            recordState.answerIdx === recordState.answers.length - 1 ? (
+              <Button
+                data-cy="done-btn"
+                variant="contained"
+                color="primary"
+                disabled={
+                  recordState.recordPageState ===
+                  RecordPageState.FETCHING_FOLLOW_UPS
+                }
+                disableElevation
+                onClick={() => switchAnswer(recordState.fetchFollowUpQs)}
+                className={classes.nextBtn}
+              >
+                Next
+              </Button>
+            ) : (
+              <IconButton
+                data-cy="next-btn"
+                className={classes.nextBtn}
+                disabled={
+                  recordState.answerIdx === recordState.answers.length - 1
+                }
+                onClick={() => switchAnswer(recordState.nextAnswer)}
+              >
+                <ArrowForwardIcon fontSize="large" />
+              </IconButton>
+            )
+          ) : toRecordFollowUpQs ? (
+            <Button
+              data-cy="record-follow-up-qs-btn"
+              variant="contained"
+              color="primary"
+              disableElevation
+              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
+              onClick={() => handleSaveSubject()}
+              className={classes.nextBtn}
+            >
+              Record
+            </Button>
+          ) : (
             <Button
               data-cy="done-btn"
               variant="contained"
@@ -339,25 +435,11 @@ function RecordPage(props: {
             >
               Done
             </Button>
-          ) : (
-            <IconButton
-              data-cy="next-btn"
-              className={classes.nextBtn}
-              disabled={
-                recordState.answerIdx === recordState.answers.length - 1
-              }
-              onClick={() => switchAnswer(recordState.nextAnswer)}
-            >
-              <ArrowForwardIcon fontSize="large" />
-            </IconButton>
           )}
         </Toolbar>
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
-      <ErrorDialog
-        error={recordState.error}
-        clearError={recordState.clearError}
-      />
+      <ErrorDialog error={recordState.error} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>{confirmLeave?.message}</DialogContentText>

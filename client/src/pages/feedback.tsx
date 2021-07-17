@@ -220,7 +220,6 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     data: mentor,
     error: mentorError,
     isLoading: isMentorLoading,
-    clearError: clearMentorError,
   } = useWithMentor(props.accessToken);
   const {
     data: feedback,
@@ -236,7 +235,6 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
     isPolling: isTraining,
     error: trainError,
     startTask: startTraining,
-    clearError: clearTrainingError,
   } = useWithTraining();
 
   useEffect(() => {
@@ -425,7 +423,9 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
               variant="extended"
               color="primary"
               className={classes.fab}
-              onClick={() => startTraining(mentor!._id)}
+              onClick={() => {
+                if (mentor) startTraining(mentor._id);
+              }}
               disabled={isTraining || isMentorLoading || isFeedbackLoading}
             >
               Train Mentor
@@ -442,10 +442,7 @@ function FeedbackPage(props: { accessToken: string }): JSX.Element {
             : ""
         }
       />
-      <ErrorDialog
-        error={mentorError || trainError}
-        clearError={mentorError ? clearMentorError : clearTrainingError}
-      />
+      <ErrorDialog error={mentorError || trainError} />
     </div>
   );
 }

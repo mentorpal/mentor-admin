@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer, updateQuestion } from "api";
+import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
 import {
   Answer,
   MediaTag,
@@ -18,6 +18,7 @@ import { copyAndSet, equals } from "helpers";
 import { useWithMentor } from "./use-with-mentor";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
+import { RecordPageState } from "types";
 
 export interface AnswerState {
   answer: Answer;
@@ -47,12 +48,17 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordPageState, setRecordPageState] = useState<RecordPageState>(
+    RecordPageState.INITIALIZING
+  );
   const [error, setError] = useState<RecordingError>();
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
   const {
     data: mentor,
+    reloadData: reloadMentor,
     error: mentorError,
-    clearError: clearMentorError,
+    isLoading: isMentorLoading,
   } = useWithMentor(accessToken);
   const {
     uploads,
@@ -102,6 +108,7 @@ export function useWithRecordState(
         minVideoLength: a.question?.minVideoLength,
       }))
     );
+    setRecordPageState(RecordPageState.RECORDING_ANSWERS);
   }, [mentor]);
 
   useEffect(() => {
@@ -111,9 +118,40 @@ export function useWithRecordState(
   useEffect(() => {
     if (mentorError) {
       setError({ message: "Failed to load", error: mentorError?.error });
-      clearMentorError();
     }
   }, [mentorError]);
+
+  useEffect(() => {
+    if (!mentor) return;
+    if (
+      recordPageState === RecordPageState.RELOADING_MENTOR &&
+      !isMentorLoading
+    ) {
+      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
+      if (answerIdx < answers.length) {
+        nextAnswer();
+      }
+    }
+  }, [isMentorLoading]);
+
+  function fetchFollowUpQs() {
+    if (!mentor) return;
+    if (!filter.category) {
+      setFollowUpQuestions([]);
+      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
+      return;
+    }
+    setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
+    fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
+      const followUps = data
+        ? data.map((d) => {
+            return d.question;
+          })
+        : [];
+      setFollowUpQuestions(followUps);
+      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
+    });
+  }
 
   function updateAnswerState(
     edits: Partial<AnswerState>,
@@ -121,6 +159,7 @@ export function useWithRecordState(
   ) {
     setAnswers(copyAndSet(answers, idx, { ...answers[idx], ...edits }));
   }
+
   function onAnswerUploaded(upload: UploadTask) {
     const idx = answers.findIndex(
       (a) => a.answer.question?._id === upload.question._id
@@ -145,13 +184,16 @@ export function useWithRecordState(
       );
     }
   }
+
   function isAnswerUploading(answer: Answer) {
     const upload = uploads.find((u) => u.question._id === answer.question._id);
     return Boolean(upload && !isTaskDoneOrFailed(upload));
   }
+
   function clearError() {
     setError(undefined);
   }
+
   function getVideoSrc() {
     if (!mentor) {
       return undefined;
@@ -164,6 +206,7 @@ export function useWithRecordState(
       (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
     )?.url;
   }
+
   function isAnswerValid() {
     if (!mentor) {
       return false;
@@ -182,6 +225,11 @@ export function useWithRecordState(
     return false;
   }
 
+  function reloadMentorData() {
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
+    reloadMentor();
+  }
+
   function prevAnswer() {
     if (answerIdx === 0) {
       return;
@@ -194,10 +242,6 @@ export function useWithRecordState(
       return;
     }
     setAnswerIdx(answerIdx + 1);
-  }
-
-  function setAnswerIDx(num: number) {
-    setAnswerIdx(num);
   }
 
   function rerecord() {
@@ -309,6 +353,7 @@ export function useWithRecordState(
     mentor,
     answers,
     answerIdx,
+    recordPageState,
     curAnswer:
       answers.length >= answerIdx + 1
         ? {
@@ -323,13 +368,17 @@ export function useWithRecordState(
           }
         : undefined,
     uploads: uploads,
+    followUpQuestions,
     prevAnswer,
     nextAnswer,
-    setAnswerIDx,
+    setAnswerIdx,
+    setRecordPageState,
     editAnswer,
     saveAnswer,
     removeCompletedTask,
+    fetchFollowUpQs,
     rerecord,
+    reloadMentorData,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -347,11 +396,16 @@ export interface UseWithRecordState {
   mentor: Mentor | undefined;
   answers: AnswerState[];
   answerIdx: number;
+  recordPageState: RecordPageState;
   curAnswer: CurAnswerState | undefined;
   uploads: UploadTask[];
+  followUpQuestions: string[];
+  fetchFollowUpQs: () => void;
   prevAnswer: () => void;
+  reloadMentorData: () => void;
   nextAnswer: () => void;
-  setAnswerIDx: (id: number) => void;
+  setRecordPageState: (newState: RecordPageState) => void;
+  setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
   removeCompletedTask: (tasks: UploadTask) => void;

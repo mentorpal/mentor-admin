@@ -65,7 +65,7 @@ export function QuestionsList(props: {
       .replace("category-", "")
       .replace("question-", "");
     const categoryId = result.destination.droppableId.startsWith("category")
-      ? result.destination!.droppableId.replace("category-", "")
+      ? result.destination.droppableId.replace("category-", "")
       : undefined;
 
     // re-ordering questions in question list
@@ -75,7 +75,7 @@ export function QuestionsList(props: {
     ) {
       props.moveQuestion(
         questionId,
-        uncategorizedQuestions[result.destination!.index].question._id,
+        uncategorizedQuestions[result.destination.index].question._id,
         categoryId
       );
     }
@@ -234,7 +234,7 @@ export function QuestionsList(props: {
               variant="outlined"
               startIcon={<AddIcon />}
               className={classes.button}
-              onClick={props.addQuestion}
+              onClick={() => props.addQuestion()}
             >
               Add Question
             </Button>

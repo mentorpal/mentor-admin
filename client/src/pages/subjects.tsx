@@ -30,6 +30,8 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithMentor } from "hooks/graphql/use-with-mentor";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
+import { navigate } from "gatsby";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,7 +89,12 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectsPage(props: { accessToken: string }): JSX.Element {
+function SubjectsPage(props: {
+  accessToken: string;
+  search: {
+    back?: string;
+  };
+}): JSX.Element {
   const classes = useStyles();
   const {
     editedData: editedMentor,
@@ -95,7 +102,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     isSaving: isMentorSaving,
     isEdited: isMentorEdited,
     error: mentorError,
-    clearError: clearMentorError,
     editData: editMentor,
     saveMentorSubjects,
   } = useWithMentor(props.accessToken);
@@ -107,7 +113,6 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
-    clearError: clearSubjectsError,
   } = useWithSubjects();
 
   function toggleSubject(subject: Subject) {
@@ -139,7 +144,15 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" mentor={editedMentor?._id} />
+      <NavBar
+        title="Subjects"
+        mentor={editedMentor?._id}
+        onBack={
+          props.search.back
+            ? () => navigate(decodeURI(props.search.back!))
+            : undefined
+        }
+      />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -238,12 +251,9 @@ function SubjectsPage(props: { accessToken: string }): JSX.Element {
             : ""
         }
       />
-      <ErrorDialog
-        error={mentorError || subjectsError}
-        clearError={mentorError ? clearMentorError : clearSubjectsError}
-      />
+      <ErrorDialog error={mentorError || subjectsError} />
     </div>
   );
 }
 
-export default withAuthorizationOnly(SubjectsPage);
+export default withAuthorizationOnly(withLocation(SubjectsPage));

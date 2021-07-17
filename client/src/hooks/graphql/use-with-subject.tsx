@@ -11,8 +11,14 @@ import { Category, QuestionType, Subject, SubjectQuestion, Topic } from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
 
+export interface NewQuestionArgs {
+  question: string;
+  categoryId: string;
+  mentorId: string;
+}
+
 interface UseWithSubject extends UseData<Subject> {
-  saveSubject: () => void;
+  saveSubject: () => Promise<void>;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -20,7 +26,7 @@ interface UseWithSubject extends UseData<Subject> {
   updateTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
-  addQuestion: () => void;
+  addQuestion: (q?: NewQuestionArgs) => void;
   updateQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   moveQuestion: (
@@ -41,7 +47,6 @@ export function useWithSubject(
     isLoading,
     isSaving,
     error,
-    clearError,
     editData,
     saveData,
     reloadData,
@@ -64,9 +69,11 @@ export function useWithSubject(
     return fetchSubject(subjectId);
   }
 
-  function update() {
-    saveData({
-      callback: (editedData: Subject) => updateSubject(editedData, accessToken),
+  async function update(): Promise<void> {
+    await saveData({
+      action: async (editedData: Subject) => {
+        await updateSubject(editedData, accessToken);
+      },
     });
   }
 
@@ -162,7 +169,7 @@ export function useWithSubject(
     editData({ topics: copyAndMove(editedData.topics, toMove, moveTo) });
   }
 
-  function addQuestion() {
+  function addQuestion(q?: NewQuestionArgs) {
     if (!editedData) {
       return;
     }
@@ -172,12 +179,15 @@ export function useWithSubject(
         {
           question: {
             _id: uuid(),
-            question: "",
+            question: q?.question || "",
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: "",
+            mentor: q?.mentorId || undefined,
           },
-          category: undefined,
+          category: q?.categoryId
+            ? editedData.categories.find((c) => c.id == q.categoryId)
+            : undefined,
           topics: [],
         },
       ],
@@ -241,11 +251,9 @@ export function useWithSubject(
     isLoading,
     isSaving,
     error,
-    clearError,
     editData,
     saveData,
     reloadData,
-
     saveSubject: update,
     addCategory,
     updateCategory,

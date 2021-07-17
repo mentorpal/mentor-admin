@@ -4,8 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect } from "react";
-import { navigate } from "gatsby";
+import React from "react";
 import {
   AppBar,
   CircularProgress,
@@ -22,7 +21,6 @@ import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
@@ -81,22 +79,15 @@ function HomePage(props: {
     isSaving,
     isTraining,
     error,
-    clearError,
     selectSubject,
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
-  const { setupStatus } = useWithSetup(props.accessToken);
-  useEffect(() => {
-    if (setupStatus?.isSetupComplete === false) {
-      navigate(`/setup`);
-    }
-  }, [setupStatus]);
-  if (!mentor || !setupStatus) {
+  if (!mentor) {
     return (
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
+        <NavBar title="Mentor Studio" mentorId={""} />
         <CircularProgress />
       </div>
     );
@@ -105,18 +96,8 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div>
-        <NavBar title="Mentor Studio" mentorId={mentor?._id} />
-        <MyMentorCard
-          mentorId={mentor?._id || ""}
-          name={mentor?.name || "Unnamed"}
-          type={mentor?.mentorType}
-          title={mentor?.title || "none"}
-          lastTrainedAt={mentor?.lastTrainedAt || "never"}
-          value={
-            mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0
-          }
-          thumbnail={mentor?.thumbnail || ""}
-        />
+        <NavBar title="My Mentor" mentorId={mentor?._id} />
+        <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
@@ -185,7 +166,7 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={() => startTraining(mentor!._id)}
+            onClick={() => startTraining(mentor._id)}
             className={classes.fab}
           >
             Build Mentor
@@ -203,7 +184,7 @@ function HomePage(props: {
             : ""
         }
       />
-      <ErrorDialog error={error} clearError={clearError} />
+      <ErrorDialog error={error} />
     </div>
   );
 }

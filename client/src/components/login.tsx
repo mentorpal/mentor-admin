@@ -12,7 +12,7 @@ import {
 } from "react-google-login";
 import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { getClientID } from "config";
+import { getClientId } from "config";
 import { loginGoogle } from "api";
 import { UserAccessToken } from "types";
 import Context from "context";
@@ -43,7 +43,7 @@ function LoginPage(): JSX.Element {
 
   React.useEffect(() => {
     let mounted = true;
-    getClientID()
+    getClientId()
       .then((id: string) => {
         if (!mounted) {
           return;

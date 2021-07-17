@@ -23,7 +23,6 @@ export interface UseDataConnection<T> {
   error: LoadingError | undefined;
   isLoading: boolean;
   searchParams: SearchParams;
-  clearError: () => void;
   reloadData: () => void;
   nextPage: () => void;
   prevPage: () => void;
@@ -45,7 +44,7 @@ export function useWithDataConnection<T>(
 ): UseDataConnection<T> {
   const [searchParams, setSearchParams] =
     useState<SearchParams>(defaultSearchParams);
-  const { data, isLoading, error, clearError, reloadData } =
+  const { data, isLoading, error, reloadData } =
     useWithData<Connection<T>>(fetch);
 
   useEffect(() => {
@@ -91,7 +90,6 @@ export function useWithDataConnection<T>(
     error,
     isLoading,
     searchParams,
-    clearError,
     reloadData,
     sortBy,
     filter,
