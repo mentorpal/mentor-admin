@@ -86,10 +86,10 @@ export function useWithUploadStatus(
     (isCancelled) => {
       fetchUploadTasks(accessToken)
         .then((data) => {
-          setPollStatusCount(pollStatusCount + 1);
           if (isCancelled()) {
             return;
           }
+          setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
             const findUpload = uploads.find(
               (up) => up.question._id === u.question._id
