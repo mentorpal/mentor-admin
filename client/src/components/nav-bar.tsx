@@ -30,6 +30,7 @@ import {
   Close as CloseIcon,
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
+  Group,
   Menu as MenuIcon,
   Mic as MicIcon,
   QuestionAnswer as QuestionAnswerIcon,
@@ -41,6 +42,7 @@ import { CLIENT_ENDPOINT } from "api";
 import Context from "context";
 import withLocation from "wrap-with-location";
 import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
+import { UserRole } from "types";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -153,11 +155,15 @@ function NavItem(props: {
 
 function NavMenu(props: {
   mentorId: string | undefined;
+  userRole: UserRole | undefined;
   classes: Record<string, string>;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
+  const usersView =
+    props.userRole === UserRole.ADMIN ||
+    props.userRole == UserRole.CONTENT_MANAGER;
 
   async function openChat() {
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
@@ -225,6 +231,14 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
+      {usersView ? (
+        <NavItem
+          text={"Users"}
+          link={"/users"}
+          icon={<Group />}
+          onNav={props.onNav}
+        />
+      ) : undefined}
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
@@ -240,6 +254,7 @@ function NavMenu(props: {
 
 export function NavBar(props: {
   mentorId: string | undefined;
+  userRole: UserRole | undefined;
   title: string;
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;
@@ -334,7 +349,12 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
+        <NavMenu
+          classes={classes}
+          mentorId={props.mentorId}
+          onNav={onNav}
+          userRole={props.userRole}
+        />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>

@@ -19,6 +19,7 @@ import {
   VideoInfo,
   CancelJob,
   FollowUpQuestion,
+  UserRole,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -734,6 +735,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
           user {
             _id
             name
+            userRole
           }
           accessToken
         }
@@ -754,6 +756,7 @@ export async function loginGoogle(
           user {
             _id
             name
+            userRole
           }
           accessToken
         }
@@ -762,6 +765,26 @@ export async function loginGoogle(
     variables: { accessToken },
   });
   return result.data.data.loginGoogle;
+}
+
+export async function fetchUsers(accessToken: string): Promise<UploadTask[]> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+        query {
+          fetchUsers {
+            id
+            name
+            email
+            userRole
+          }
+        }`,
+    },
+    { headers: headers }
+  );
+  return result.data.data.fetchUsers;
 }
 
 export async function fetchUploadTasks(

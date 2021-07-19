@@ -24,6 +24,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
+import { User } from "types";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -67,6 +68,7 @@ const useStyles = makeStyles((theme) => ({
 function HomePage(props: {
   accessToken: string;
   search: { subject?: string };
+  user: User;
 }): JSX.Element {
   const classes = useStyles();
   const {
@@ -96,7 +98,11 @@ function HomePage(props: {
   return (
     <div className={classes.root}>
       <div>
-        <NavBar title="My Mentor" mentorId={mentor?._id} />
+        <NavBar
+          title="My Mentor"
+          mentorId={mentor?._id}
+          userRole={props.user.userRole}
+        />
         <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
         <Select
           data-cy="select-subject"

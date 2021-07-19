@@ -4,13 +4,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault } from "../support/functions";
+import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
+import login, { login as loginDefault } from "../fixtures/login";
+import { UserRole } from "../support/types";
 
 describe("Index page", () => {
   it("if not logged in, show login page", () => {
-    cySetup(cy);
     cyMockDefault(cy, { noAccessTokenStored: true });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
@@ -20,7 +21,6 @@ describe("Index page", () => {
   });
 
   it("if logged in and setup not complete, redirect to setup page", () => {
-    cySetup(cy);
     cyMockDefault(cy, { mentor: newMentor });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
@@ -29,8 +29,23 @@ describe("Index page", () => {
   });
 
   it("if logged in and setup complete, show home page", () => {
-    cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=select-subject]").should("exist");
+  });
+
+  //TODO: update this to actually navigate to the page
+  it.only("an admin can navigate to users page from hamburger menu", () => {
+    cyMockDefault(cy, {
+      mentor: [clint],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+    });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/");

@@ -4,16 +4,33 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { UserAccessToken, UserRole } from "../support/types";
+import { UserRole } from "../support/types";
 
-export const login: UserAccessToken = {
-  user: {
-    _id: "clintanderson",
-    name: "Clinton Anderson",
-    email: "clint@anderson.com",
-    userRole: UserRole.USER,
-  },
-  accessToken: "accessToken",
-  expirationDate: "",
+export const users = {
+  users: [
+    {
+      node: {
+        id: "user1",
+        name: "Jane Doe",
+        email: "janedoe@gmail.com",
+        userRole: UserRole.ADMIN,
+      },
+    },
+    {
+      node: {
+        id: "user2",
+        name: "John Deer",
+        email: "johndeer@gmail.com",
+        userRole: UserRole.CONTENT_MANAGER,
+      },
+    },
+    {
+      node: {
+        id: "user3",
+        name: "Aaron Shiel",
+        email: "aaronshiel@gmail.com",
+        userRole: UserRole.USER,
+      },
+    },
+  ],
 };
-export default login;
