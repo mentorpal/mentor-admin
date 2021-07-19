@@ -21,6 +21,13 @@ export default function RecommendedActionButton(props: {
 
   return (
     <div>
+      <Typography
+        variant="body1"
+        color="textPrimary"
+        data-cy="recommended-action"
+      >
+        {recommendedAction.text}
+      </Typography>
       {recommendedAction.input ? (
         <div>
           <input
@@ -45,39 +52,30 @@ export default function RecommendedActionButton(props: {
               data-cy="recommended-action-thumbnail"
               startIcon={<PlayCircleFilled />}
             >
-              {recommendedAction.text}
+              Go
             </Button>
           </label>
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            data-cy="recommended-action-reason"
-          >
-            {recommendedAction.reason}
-          </Typography>
         </div>
       ) : (
-        <div color="green">
-          <Button
-            size="large"
-            fullWidth
-            color="primary"
-            variant="contained"
-            data-cy="recommended-action-button"
-            onClick={recommendedAction.action}
-            startIcon={<PlayCircleFilled />}
-          >
-            {recommendedAction.text}
-          </Button>
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            data-cy="recommended-action-reason"
-          >
-            {recommendedAction.reason}
-          </Typography>
-        </div>
+        <Button
+          size="large"
+          fullWidth
+          color="primary"
+          variant="contained"
+          data-cy="recommended-action-button"
+          onClick={recommendedAction.action}
+          startIcon={<PlayCircleFilled />}
+        >
+          Go
+        </Button>
       )}
+      <Typography
+        variant="caption"
+        color="textSecondary"
+        data-cy="recommended-action-reason"
+      >
+        {recommendedAction.reason}
+      </Typography>
 
       <Button
         fullWidth
