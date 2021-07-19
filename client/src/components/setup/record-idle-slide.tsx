@@ -6,9 +6,9 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { Paper, Typography, Button } from "@material-ui/core";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import { Status, Answer } from "types";
+import { Typography, Button } from "@material-ui/core";
+import { Answer, Status } from "types";
+import { Slide } from "./slide";
 
 export function RecordIdleSlide(props: {
   classes: Record<string, string>;
@@ -16,6 +16,7 @@ export function RecordIdleSlide(props: {
   i: number;
 }): JSX.Element {
   const { classes, idle, i } = props;
+  const isRecorded = idle.status === Status.COMPLETE;
 
   function onRecord() {
     navigate(
@@ -24,31 +25,32 @@ export function RecordIdleSlide(props: {
   }
 
   return (
-    <Paper className={classes.card}>
-      <Typography variant="h3" className={classes.title}>
-        Idle
-      </Typography>
-      <div className={classes.column}>
-        <Typography variant="h6" className={classes.text}>
-          Let&apos;s record a short idle calibration video.
-        </Typography>
-        <Typography variant="h6" className={classes.text}>
-          Click the record button and you&apos;ll be taken to a recording
-          screen.
-        </Typography>
-      </div>
-      <Button
-        data-cy="record-btn"
-        className={classes.button}
-        variant="contained"
-        color="primary"
-        onClick={onRecord}
-      >
-        Record
-      </Button>
-      {idle.status === Status.COMPLETE ? (
-        <CheckCircleIcon data-cy="check" style={{ color: "green" }} />
-      ) : undefined}
-    </Paper>
+    <Slide
+      classes={classes}
+      title="Idle"
+      content={
+        <div>
+          <Typography variant="h6" className={classes.text}>
+            Let&apos;s record a short idle calibration video.
+          </Typography>
+          <Typography variant="h6" className={classes.text}>
+            Click the record button and you&apos;ll be taken to a recording
+            screen.
+          </Typography>
+          <Button
+            data-cy="record-btn"
+            variant="contained"
+            color={isRecorded ? "secondary" : "primary"}
+            onClick={onRecord}
+            className={classes.button}
+          >
+            Record
+          </Button>
+          <Typography variant="h6" className={classes.text}>
+            {isRecorded ? 1 : 0} / 1
+          </Typography>
+        </div>
+      }
+    />
   );
 }

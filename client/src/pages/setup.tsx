@@ -4,10 +4,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
 import React from "react";
-import { Button, Radio } from "@material-ui/core";
+import Carousel from "react-material-ui-carousel";
+import { Avatar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
+import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 
 import { User } from "types";
 import NavBar from "components/nav-bar";
@@ -21,8 +24,8 @@ import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { BuildMentorSlide } from "components/setup/build-mentor-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import withLocation from "wrap-with-location";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -38,15 +41,6 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     padding: 25,
   },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    marginLeft: 25,
-    marginRight: 25,
-    padding: 25,
-    flexGrow: 1,
-  },
   column: {
     display: "flex",
     flexDirection: "column",
@@ -54,6 +48,20 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     height: "100%",
     width: "100%",
+  },
+  carousel: {
+    display: "flex",
+    flexDirection: "column",
+    justifyItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
+    height: "100%",
+    width: "100%",
+  },
+  card: {
+    minHeight: 450,
+    padding: 25,
   },
   title: {
     fontWeight: "bold",
@@ -70,6 +78,9 @@ const useStyles = makeStyles(() => ({
     width: 100,
     margin: 5,
   },
+  navButton: {
+    top: "calc(50% - 20px) !important",
+  },
 }));
 
 function SetupPage(props: {
@@ -83,21 +94,18 @@ function SetupPage(props: {
     setupStep: idx,
     setupSteps: steps,
     mentor,
-    isEdited,
     isLoading,
     isSaving,
     isTraining,
     error,
     editMentor,
-    saveMentor,
     startTraining,
     nextStep,
     prevStep,
     toStep,
-    clearError,
   } = useWithSetup(props.accessToken, props.search);
 
-  function renderSlide(): JSX.Element {
+  function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
     }
@@ -117,10 +125,8 @@ function SetupPage(props: {
             key="mentor-info"
             classes={classes}
             mentor={mentor}
-            isMentorEdited={isEdited}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
-            saveMentor={saveMentor}
           />
         );
       case SetupStepType.MENTOR_TYPE:
@@ -129,10 +135,8 @@ function SetupPage(props: {
             key="chat-type"
             classes={classes}
             mentor={mentor}
-            isMentorEdited={isEdited}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
-            saveMentor={saveMentor}
           />
         );
       case SetupStepType.INTRODUCTION:
@@ -140,16 +144,14 @@ function SetupPage(props: {
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
       case SetupStepType.IDLE:
-        if (status.idle)
-          return (
-            <RecordIdleSlide
-              key="idle"
-              classes={classes}
-              idle={status.idle.idle}
-              i={idx}
-            />
-          );
-        else return <div />;
+        return (
+          <RecordIdleSlide
+            key="idle"
+            classes={classes}
+            idle={status.idle!.idle}
+            i={idx}
+          />
+        );
       case SetupStepType.REQUIRED_SUBJECT:
         return (
           <RecordSubjectSlide
@@ -181,50 +183,46 @@ function SetupPage(props: {
   return (
     <div className={classes.root}>
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
-      <div data-cy="slide">{renderSlide()}</div>
-      <div className={classes.row} style={{ height: 150 }}>
-        <Button
-          data-cy="back-btn"
-          variant="contained"
-          className={classes.button}
-          disabled={idx === 0}
-          onClick={prevStep}
-        >
-          Back
-        </Button>
-        <Button
-          data-cy="done-btn"
-          variant="contained"
-          color="secondary"
-          className={classes.button}
-          disabled={!status?.isSetupComplete}
-          onClick={() => navigate("/")}
-        >
-          Done
-        </Button>
-        <Button
-          data-cy="next-btn"
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          onClick={nextStep}
-          disabled={idx === steps.length - 1}
-        >
-          Next
-        </Button>
-      </div>
-      <div className={classes.row}>
+      <Carousel
+        animation="fade"
+        index={idx}
+        autoPlay={false}
+        navButtonsAlwaysVisible={true}
+        className={classes.carousel}
+        next={() => nextStep()}
+        prev={() => prevStep()}
+        NavButton={({ onClick, style, next, prev }) => {
+          return (
+            <IconButton
+              data-cy={next ? "next-btn" : "back-btn"}
+              onClick={() => onClick()}
+              style={style}
+              className={classes.navButton}
+            >
+              <Avatar>
+                {next && <ArrowForwardIcon />}
+                {prev && <ArrowBackIcon />}
+              </Avatar>
+            </IconButton>
+          );
+        }}
+        onChange={(idx: number) => toStep(idx)}
+        IndicatorIcon={
+          <FiberManualRecordIcon data-cy="radio" fontSize="small" />
+        }
+        activeIndicatorIconButtonProps={{
+          className: "",
+          style: {
+            color: steps[idx]?.complete ? "green" : "red",
+          },
+        }}
+      >
         {steps.map((s, i) => (
-          <Radio
-            data-cy={`radio-${i}`}
-            key={i}
-            checked={i === idx}
-            onClick={() => toStep(i)}
-            color={s.complete ? "primary" : "default"}
-            style={{ color: s.complete ? "" : "red" }}
-          />
+          <div data-cy="slide" key={`slide-${i}`}>
+            {renderSlide(idx)}
+          </div>
         ))}
-      </div>
+      </Carousel>
       <LoadingDialog
         title={
           isLoading
@@ -236,7 +234,7 @@ function SetupPage(props: {
             : ""
         }
       />
-      <ErrorDialog error={error} clearError={clearError} />
+      <ErrorDialog error={error} />
     </div>
   );
 }

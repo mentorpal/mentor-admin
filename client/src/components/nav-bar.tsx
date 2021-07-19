@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate, Link } from "gatsby";
+import { navigate } from "gatsby";
 import React, { useContext } from "react";
 import {
   AppBar,
@@ -13,6 +13,7 @@ import {
   IconButton,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
   Menu,
@@ -24,8 +25,16 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 import {
   AccountCircle,
+  Build as BuildIcon,
+  Chat as ChatIcon,
   Close as CloseIcon,
+  Edit as EditIcon,
+  ExitToApp as ExitToAppIcon,
   Menu as MenuIcon,
+  Mic as MicIcon,
+  QuestionAnswer as QuestionAnswerIcon,
+  RateReview as RateReviewIcon,
+  Subject as SubjectIcon,
 } from "@material-ui/icons";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { CLIENT_ENDPOINT } from "api";
@@ -118,9 +127,34 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   );
 }
 
+function NavItem(props: {
+  icon: JSX.Element;
+  text: string;
+  link: string;
+  onNav?: (cb: () => void) => void;
+}): JSX.Element {
+  return (
+    <ListItem
+      button
+      selected={location.pathname === props.link}
+      onClick={() => {
+        if (props.onNav) {
+          props.onNav(() => navigate(props.link));
+        } else {
+          navigate(props.link);
+        }
+      }}
+    >
+      <ListItemIcon>{props.icon}</ListItemIcon>
+      <ListItemText primary={props.text} />
+    </ListItem>
+  );
+}
+
 function NavMenu(props: {
   mentorId: string | undefined;
   classes: Record<string, string>;
+  onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
@@ -137,100 +171,90 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
+      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
+      <NavItem
+        text={"Profile"}
+        link={"/profile"}
+        icon={<AccountCircle />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Select Subjects"}
+        link={"/subjects"}
+        icon={<SubjectIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Review Answers"}
+        link={"/"}
+        icon={<ChatIcon />}
+        onNav={props.onNav}
+      />
+      <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/"}
-        selected={location.pathname === "/"}
-      >
-        <ListItemText primary="My Mentor" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/record"}
-        selected={location.pathname.includes("/record")}
-      >
-        <ListItemText primary="Record Questions" />
-      </ListItem>
-
-      <ListItem
-        button
-        component={Link}
-        to={"/feedback"}
-        selected={location.pathname.includes("/feedback")}
-      >
-        <ListItemText primary="User Feedback" />
-      </ListItem>
+      <NavItem
+        text={"Setup"}
+        link={"/setup"}
+        icon={<BuildIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Record Answers"}
+        link={"/record"}
+        icon={<MicIcon />}
+        onNav={props.onNav}
+      />
+      <NavItem
+        text={"Review User Feedback"}
+        link={"/feedback"}
+        icon={<RateReviewIcon />}
+        onNav={props.onNav}
+      />
       <ListItem button disabled={!props.mentorId} onClick={openChat}>
+        <ListItemIcon>
+          <QuestionAnswerIcon />
+        </ListItemIcon>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-      <Divider style={{ marginTop: 15 }} />
-
-      <ListSubheader className={classes.menuHeader}>Setup Mentor</ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/profile"}
-        selected={location.pathname === "/profile"}
-      >
-        <ListItemText primary="Profile" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/subjects"}
-        selected={location.pathname === "/subjects"}
-      >
-        <ListItemText primary="Select Subjects" />
-      </ListItem>
-      <ListItem
-        button
-        component={Link}
-        to={"/setup"}
-        selected={location.pathname === "/setup"}
-      >
-        <ListItemText primary="Setup" />
-      </ListItem>
 
       <Divider style={{ marginTop: 15 }} />
-
-      <ListSubheader className={classes.menuHeader}>
-        Subjects and Templates
-      </ListSubheader>
-      <ListItem
-        button
-        component={Link}
-        to={"/author/subjects"}
-        selected={location.pathname.includes("/author/subject")}
-      >
-        <ListItemText primary="Subjects" />
-      </ListItem>
+      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
+      <NavItem
+        text={"Create Subject"}
+        link={"/author/subjects"}
+        icon={<EditIcon />}
+        onNav={props.onNav}
+      />
       <Divider style={{ marginTop: 15 }} />
-
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
+        <ListItemIcon>
+          <ExitToAppIcon />
+        </ListItemIcon>
         <ListItemText primary="Log Out" />
       </ListItem>
       <Divider />
     </List>
   );
 }
+
 export function NavBar(props: {
   mentorId: string | undefined;
   title: string;
-  search: {
-    back?: string;
-  };
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;
   toggleUploadsButtonVisibility: (b: boolean) => void;
+  onNav?: (cb: () => void) => void;
+  onBack?: () => void;
 }): JSX.Element {
   const classes = useStyles();
-  const { back } = props.search;
-  const { uploads, uploadsButtonVisible, toggleUploadsButtonVisibility } =
-    props;
+  const {
+    uploads,
+    uploadsButtonVisible,
+    toggleUploadsButtonVisibility,
+    onNav,
+    onBack,
+  } = props;
   const numUploadsInProgress = uploads?.filter(
     (upload) =>
       upload.uploadStatus !== UploadStatus.DONE &&
@@ -247,33 +271,34 @@ export function NavBar(props: {
         uploads.find((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
       ) === false
     : true;
+
   function toggleDrawer(tf: boolean): void {
     setIsDrawerOpen(tf);
   }
+
   return (
     <div data-cy="nav-bar" className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
           <IconButton
-            data-cy={back ? "back-button" : "menu-button"}
+            data-cy={onBack ? "back-button" : "menu-button"}
             edge="start"
             color="inherit"
             aria-label="menu"
             className={classes.menuButton}
             onClick={() => {
-              if (back) {
-                navigate(decodeURI(back));
+              if (onBack) {
+                onBack();
               } else {
                 toggleDrawer(true);
               }
             }}
           >
-            {back ? <CloseIcon /> : <MenuIcon />}
+            {onBack ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Typography data-cy="title" variant="h5" className={classes.title}>
             {props.title}
           </Typography>
-
           <Button
             variant="outlined"
             disabled={disableUploadsButton}
@@ -309,7 +334,7 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu classes={classes} mentorId={props.mentorId} />
+        <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>

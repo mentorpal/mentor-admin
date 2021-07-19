@@ -8,13 +8,13 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
   AppBar,
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   FormControl,
-  Grid,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -28,7 +28,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status, UtteranceName } from "types";
+import { MentorType, Status, UtteranceName, RecordPageState } from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -37,7 +37,8 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import { fetchMentor } from "api";
+import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
+import { useWithSubject } from "hooks/graphql/use-with-subject";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -109,8 +110,21 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor } = recordState;
-  const [recordSession, setRecordSesssion] = useState(true);
+  const { curAnswer, mentor, setRecordPageState, recordPageState } =
+    recordState;
+  const { addQuestion, removeQuestion, editedData, saveSubject } =
+    useWithSubject(props.search.subject || "", props.accessToken);
+  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
+  const curSubject = mentor?.subjects.find(
+    (s) => s._id == props.search.subject
+  );
+  const subjectTitle = curSubject?.name || "";
+  const categoryTitle =
+    curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
+    "";
+  const curAnswerBelongsToMentor =
+    curAnswer?.editedAnswer.question?.mentor === mentor?._id;
+  const curEditedQuestion = curAnswer?.editedAnswer?.question;
 
   function onBack() {
     if (props.search.back) {
@@ -119,11 +133,7 @@ function RecordPage(props: {
       navigate("/");
     }
   }
-  function onEnd() {
-    fetchMentor(props.accessToken).then(() => {
-      setRecordSesssion(false);
-    });
-  }
+
   function switchAnswer(onNav: () => void) {
     if (curAnswer?.isEdited) {
       if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
@@ -133,34 +143,50 @@ function RecordPage(props: {
           callback: onNav,
         });
       } else {
+        recordState.saveAnswer();
         onNav();
       }
     } else {
       onNav();
     }
   }
-
   function confirm() {
     if (!confirmLeave) {
       return;
     }
+    if (curAnswer?.isEdited) {
+      recordState.saveAnswer();
+    }
     confirmLeave.callback();
     setConfirmLeave(undefined);
+  }
+  function handleSaveSubject() {
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
+    saveSubject().then(() => recordState.reloadMentorData());
   }
 
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
-        <NavBar title="Record Mentor" mentorId={undefined} />
+        <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
-        <ErrorDialog
-          error={recordState.error}
-          clearError={recordState.clearError}
-        />
+        <ErrorDialog error={recordState.error} />
       </div>
     );
   }
 
+  if (
+    recordPageState == RecordPageState.REVIEWING_FOLLOW_UPS &&
+    recordState.followUpQuestions.length === 0
+  ) {
+    //default leave page method
+    onBack();
+  }
+
+  const displayRecordingPage = !(
+    recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
+    recordPageState === RecordPageState.RELOADING_MENTOR
+  );
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -172,14 +198,19 @@ function RecordPage(props: {
         />
       ) : undefined}
       <NavBar
-        title="Record Mentor"
+        title={
+          categoryTitle
+            ? `Recording: ${subjectTitle} - ${categoryTitle}`
+            : `Recording: ${subjectTitle}`
+        }
         mentorId={mentor._id}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+        onBack={() => switchAnswer(onBack)}
       />
 
-      {recordSession ? (
+      {displayRecordingPage ? (
         <div>
           <div data-cy="progress" className={classes.block}>
             <Typography
@@ -204,15 +235,13 @@ function RecordPage(props: {
               <OutlinedInput
                 data-cy="question-input"
                 multiline
-                value={curAnswer?.editedAnswer.question?.question}
-                disabled={
-                  curAnswer?.editedAnswer.question?.mentor !== mentor._id
-                }
+                value={curEditedQuestion?.question}
+                disabled={!curAnswerBelongsToMentor}
                 onChange={(e) => {
-                  if (curAnswer?.editedAnswer.question) {
+                  if (curEditedQuestion) {
                     recordState.editAnswer({
                       question: {
-                        ...curAnswer?.editedAnswer.question,
+                        ...curEditedQuestion,
                         question: e.target.value,
                       },
                     });
@@ -223,7 +252,7 @@ function RecordPage(props: {
                     <IconButton
                       data-cy="undo-question-btn"
                       disabled={
-                        curAnswer?.editedAnswer.question?.question ===
+                        curEditedQuestion?.question ===
                         curAnswer?.answer.question?.question
                       }
                       onClick={() =>
@@ -240,7 +269,7 @@ function RecordPage(props: {
             </FormControl>
           </div>
           {curAnswer?.minVideoLength &&
-          curAnswer?.editedAnswer.question?.name === UtteranceName.IDLE ? (
+          curEditedQuestion?.name === UtteranceName.IDLE ? (
             <div data-cy="idle" className={classes.block}>
               <Typography className={classes.title}>Idle Duration:</Typography>
               <Select
@@ -329,13 +358,19 @@ function RecordPage(props: {
           </div>
         </div>
       ) : (
-        <Grid
-          xs={12}
-          container
-          spacing={2}
-          alignItems="center"
-          justify="center"
-        ></Grid>
+        <div>
+          <Box height="100%" width="100%">
+            <FollowUpQuestionsWidget
+              categoryId={props.search.category || ""}
+              questions={recordState.followUpQuestions}
+              mentorId={mentor._id || ""}
+              toRecordFollowUpQs={setRecordFollowUpQs}
+              addQuestion={addQuestion}
+              removeQuestion={removeQuestion}
+              editedData={editedData}
+            />
+          </Box>
+        </div>
       )}
       <div className={classes.toolbar} />
 
@@ -349,27 +384,21 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          <Button
-            data-cy="save-btn"
-            variant="contained"
-            color="primary"
-            disableElevation
-            disabled={!curAnswer?.isEdited}
-            onClick={recordState.saveAnswer}
-          >
-            Save
-          </Button>
-          {recordSession ? (
+          {displayRecordingPage ? (
             recordState.answerIdx === recordState.answers.length - 1 ? (
               <Button
                 data-cy="done-btn"
                 variant="contained"
                 color="primary"
+                disabled={
+                  recordState.recordPageState ===
+                  RecordPageState.FETCHING_FOLLOW_UPS
+                }
                 disableElevation
-                onClick={() => switchAnswer(onEnd)}
+                onClick={() => switchAnswer(recordState.fetchFollowUpQs)}
                 className={classes.nextBtn}
               >
-                Review
+                Next
               </Button>
             ) : (
               <IconButton
@@ -383,6 +412,18 @@ function RecordPage(props: {
                 <ArrowForwardIcon fontSize="large" />
               </IconButton>
             )
+          ) : toRecordFollowUpQs ? (
+            <Button
+              data-cy="record-follow-up-qs-btn"
+              variant="contained"
+              color="primary"
+              disableElevation
+              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
+              onClick={() => handleSaveSubject()}
+              className={classes.nextBtn}
+            >
+              Record
+            </Button>
           ) : (
             <Button
               data-cy="done-btn"
@@ -398,10 +439,7 @@ function RecordPage(props: {
         </Toolbar>
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
-      <ErrorDialog
-        error={recordState.error}
-        clearError={recordState.clearError}
-      />
+      <ErrorDialog error={recordState.error} />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>{confirmLeave?.message}</DialogContentText>

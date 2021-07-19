@@ -80,7 +80,6 @@ function HomePage(props: {
     isSaving,
     isTraining,
     error,
-    clearError,
     selectSubject,
     saveChanges,
     startTraining,
@@ -197,7 +196,7 @@ function HomePage(props: {
             : ""
         }
       />
-      <ErrorDialog error={error} clearError={clearError} />
+      <ErrorDialog error={error} />
     </div>
   );
 }

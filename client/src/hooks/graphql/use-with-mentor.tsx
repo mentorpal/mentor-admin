@@ -21,7 +21,6 @@ export function useWithMentor(accessToken: string): UseMentorData {
     isLoading,
     isSaving,
     error,
-    clearError,
     editData,
     saveData,
     reloadData,
@@ -31,17 +30,19 @@ export function useWithMentor(accessToken: string): UseMentorData {
     return fetchMentor(accessToken);
   }
 
-  function saveMentorDetails() {
-    saveData({
-      callback: (editedData: Mentor) =>
-        updateMentorDetails(editedData, accessToken),
+  async function saveMentorDetails() {
+    await saveData({
+      action: async (editedData: Mentor) => {
+        await updateMentorDetails(editedData, accessToken);
+      },
     });
   }
 
-  function saveMentorSubjects() {
-    saveData({
-      callback: (editedData: Mentor) =>
-        updateMentorSubjects(editedData, accessToken),
+  async function saveMentorSubjects() {
+    await saveData({
+      action: async (editedData: Mentor) => {
+        await updateMentorSubjects(editedData, accessToken);
+      },
     });
   }
 
@@ -52,7 +53,6 @@ export function useWithMentor(accessToken: string): UseMentorData {
     isEdited,
     isLoading,
     isSaving,
-    clearError,
     reloadData,
     editData,
     saveData,
