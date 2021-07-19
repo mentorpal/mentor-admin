@@ -4,9 +4,17 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import React from "react";
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
+import {
+  AccountBox,
+  CheckCircleOutlined,
+  FiberManualRecord,
+  Image,
+  NoteAdd,
+} from "@material-ui/icons";
 
 interface Category {
   subjectName: string;
@@ -33,6 +41,7 @@ interface Conditions {
 interface Recommendation {
   text: string;
   reason: string;
+  icon: JSX.Element;
   input: boolean;
   action: () => void;
   skip: Conditions;
@@ -53,6 +62,7 @@ function recommend(
     return {
       text: "Add a Thumbnail",
       reason: "A thumbnail helps a user identify your mentor",
+      icon: <Image />,
       input: true,
       action: () => undefined,
 
@@ -62,6 +72,7 @@ function recommend(
     return {
       text: "Record an Idle Video",
       reason: "Users see your idle video while typing a question",
+      icon: <AccountBox />,
       input: false,
       action: () => {
         if (conditions.idle)
@@ -81,6 +92,7 @@ function recommend(
       reason:
         "You can't build your mentor until you record all required subjects.",
       input: false,
+      icon: <CheckCircleOutlined />,
       action: () => {
         if (conditions.incompleteRequirement)
           navigate(
@@ -99,6 +111,7 @@ function recommend(
       text:
         conditions.totalAnswers < 5 ? "Add a Subject" : "Answer More Questions",
       reason: "You can't build your mentor until you have at least 5 questions",
+      icon: conditions.totalAnswers < 5 ? <NoteAdd /> : <FiberManualRecord />,
       input: false,
       action: () => {
         conditions.totalAnswers < 5
@@ -118,6 +131,7 @@ function recommend(
     return {
       text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
       reason: `You have unanswered questions in the ${conditions.firstIncomplete?.subjectName} subject`,
+      icon: <FiberManualRecord />,
       input: false,
       action: () => {
         if (conditions.firstIncomplete)
@@ -137,6 +151,7 @@ function recommend(
       text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
+      icon: <FiberManualRecord />,
       input: false,
       action: () => buildAction(conditions.mentorId),
       skip: { ...conditions, isDirty: false },
@@ -144,6 +159,7 @@ function recommend(
   return {
     text: "Add a Subject",
     reason: "Add a subject to answer more questions",
+    icon: <NoteAdd />,
     input: false,
     action: () => navigate("/subjects"),
     skip: parseMentor(mentor),

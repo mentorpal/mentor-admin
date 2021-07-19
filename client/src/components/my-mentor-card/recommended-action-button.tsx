@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Button, Typography } from "@material-ui/core";
-import { DoubleArrow, PlayCircleFilled } from "@material-ui/icons";
+import { DoubleArrow } from "@material-ui/icons";
 import React from "react";
 import { Mentor } from "types";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
@@ -50,7 +50,7 @@ export default function RecommendedActionButton(props: {
               variant="contained"
               component="span"
               data-cy="recommended-action-thumbnail"
-              startIcon={<PlayCircleFilled />}
+              startIcon={recommendedAction.icon}
             >
               Go
             </Button>
@@ -64,7 +64,7 @@ export default function RecommendedActionButton(props: {
           variant="contained"
           data-cy="recommended-action-button"
           onClick={recommendedAction.action}
-          startIcon={<PlayCircleFilled />}
+          startIcon={recommendedAction.icon}
         >
           Go
         </Button>
