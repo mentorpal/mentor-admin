@@ -37,6 +37,7 @@ const useStyles = makeStyles(() => ({
 export default function MyMentorCard(props: {
   accessToken: string;
   mentor: Mentor;
+  buildAction: (mentorId: string) => void;
 }): JSX.Element {
   const mentorInfo = parseMentor(props.mentor);
   const classes = useStyles();
@@ -195,6 +196,7 @@ export default function MyMentorCard(props: {
               <RecommendedActionButton
                 mentor={props.mentor}
                 setThumbnail={updateThumbnail}
+                buildAction={props.buildAction}
               />
             </Grid>
           </Grid>

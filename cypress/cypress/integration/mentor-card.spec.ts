@@ -262,11 +262,30 @@ describe("My Mentor Page", () => {
       cy.url().should("include", "/record");
     });
 
+    it("If user has added questions since last build, recommend building mentor.", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: {
+          ...clint,
+          isDirty: true,
+          answers: clint.answers.map((a) => {
+            a.status = Status.COMPLETE;
+            return a;
+          }),
+        },
+      });
+      cy.visit("/");
+      cy.get("[data-cy=recommended-action-button]").contains(
+        "Build Your Mentor"
+      );
+    });
+
     it("If user has completed previous suggestions, ask to add a subject", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
           ...clint,
+          isDirty: false,
           answers: clint.answers.map((a) => {
             a.status = Status.COMPLETE;
             return a;

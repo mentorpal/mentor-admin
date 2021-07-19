@@ -98,7 +98,11 @@ function HomePage(props: {
     <div className={classes.root}>
       <div>
         <NavBar title="My Mentor" mentorId={mentor?._id} />
-        <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
+        <MyMentorCard
+          mentor={mentor}
+          accessToken={props.accessToken}
+          buildAction={startTraining}
+        />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}

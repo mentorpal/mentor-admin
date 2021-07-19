@@ -18,10 +18,12 @@ interface Category {
 }
 
 interface Conditions {
+  mentorId: string;
   idle: Answer | undefined;
   idleIncomplete: boolean;
   isVideo: boolean;
   hasThumbnail: boolean;
+  isDirty: boolean;
   categories: Category[];
   incompleteRequirement: Category | undefined;
   firstIncomplete: Category | undefined;
@@ -42,7 +44,11 @@ function urlBuild(base: string, params: Record<string, string>) {
   return `${base}?${query.toString()}`;
 }
 
-function recommend(conditions: Conditions, mentor: Mentor): Recommendation {
+function recommend(
+  conditions: Conditions,
+  mentor: Mentor,
+  buildAction: (mentorId: string) => void
+): Recommendation {
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
@@ -126,6 +132,15 @@ function recommend(conditions: Conditions, mentor: Mentor): Recommendation {
 
       skip: { ...conditions, firstIncomplete: undefined },
     };
+  if (conditions.isDirty)
+    return {
+      text: "Build Your Mentor",
+      reason:
+        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
+      input: false,
+      action: () => buildAction(conditions.mentorId),
+      skip: { ...conditions, isDirty: false },
+    };
   return {
     text: "Add a Subject",
     reason: "Add a subject to answer more questions",
@@ -185,10 +200,12 @@ function parseMentor(mentor: Mentor): Conditions {
   const totalAnswers = mentor?.answers.length || 0;
 
   return {
+    mentorId: mentor?._id,
     idle: idle,
     idleIncomplete: idleIncomplete,
     isVideo: isVideo,
     hasThumbnail: hasThumbnail,
+    isDirty: mentor?.isDirty,
     categories: categories,
     incompleteRequirement: incompleteRequirement,
     firstIncomplete: firstIncomplete,
@@ -197,14 +214,17 @@ function parseMentor(mentor: Mentor): Conditions {
   };
 }
 export function UseWithRecommendedAction(
-  mentor: Mentor
+  mentor: Mentor,
+  buildAction: (mentorId: string) => void
 ): [Recommendation, () => void] {
   const [recommendedAction, setRecommendedAction] = useState(
-    recommend(parseMentor(mentor), mentor)
+    recommend(parseMentor(mentor), mentor, buildAction)
   );
 
   function skipRecommendation() {
-    setRecommendedAction(recommend(recommendedAction.skip, mentor));
+    setRecommendedAction(
+      recommend(recommendedAction.skip, mentor, buildAction)
+    );
   }
 
   return [recommendedAction, skipRecommendation];
