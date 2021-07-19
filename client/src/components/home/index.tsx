@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import { CLIENT_ENDPOINT } from "api";
 import NavBar from "components/nav-bar";
 import RecordingBlockItem from "components/home/recording-block";
 import withLocation from "wrap-with-location";
@@ -85,6 +86,13 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
+  const buildAction = mentor?.isDirty
+    ? startTraining
+    : (mentorId: string) => {
+        const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
+        window.location.href = path;
+      };
+
   if (!mentor) {
     return (
       <div>
@@ -101,7 +109,7 @@ function HomePage(props: {
         <MyMentorCard
           mentor={mentor}
           accessToken={props.accessToken}
-          buildAction={startTraining}
+          buildAction={buildAction}
         />
         <Select
           data-cy="select-subject"
@@ -171,10 +179,10 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={() => startTraining(mentor._id)}
+            onClick={() => buildAction(mentor._id)}
             className={classes.fab}
           >
-            Build Mentor
+            {mentor?.isDirty ? "Build Mentor" : "Preview Mentor"}
           </Fab>
         </Toolbar>
       </AppBar>

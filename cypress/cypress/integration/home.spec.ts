@@ -512,7 +512,7 @@ describe("My Mentor Page", () => {
   it("fails to train mentor", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: clint,
+      mentor: { ...clint, isDirty: true },
     });
     cyMockTrain(cy);
     cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
@@ -521,16 +521,29 @@ describe("My Mentor Page", () => {
     cy.contains("Failed job");
   });
 
-  it("can train mentor", () => {
+  it("can train mentor if it's dirty", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: clint,
+      mentor: { ...clint, isDirty: true },
     });
     cyMockTrain(cy);
     cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.visit("/");
+    cy.get("[data-cy=train-button]").contains("Build Mentor");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Building...");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();
+  });
+  it("offers to preview mentor if it's not dirty", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: { ...clint, _id: "preview", isDirty: false },
+    });
+    cyMockTrain(cy);
+    cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
+    cy.visit("/");
+    cy.get("[data-cy=train-button]").contains("Preview Mentor");
+    cy.get("[data-cy=train-button]").trigger("mouseover").click();
+    cy.url().should("include", "preview");
   });
 });
