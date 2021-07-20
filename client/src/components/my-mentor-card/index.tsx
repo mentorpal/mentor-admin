@@ -37,7 +37,7 @@ const useStyles = makeStyles(() => ({
 export default function MyMentorCard(props: {
   accessToken: string;
   mentor: Mentor;
-  buildAction: (mentorId: string) => void;
+  buildAction: () => void;
 }): JSX.Element {
   const mentorInfo = parseMentor(props.mentor);
   const classes = useStyles();

@@ -11,7 +11,7 @@ import { Mentor } from "types";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
-  buildAction: (mentorId: string) => void;
+  buildAction: () => void;
   mentor: Mentor;
 }): JSX.Element {
   const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(

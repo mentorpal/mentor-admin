@@ -56,7 +56,7 @@ function urlBuild(base: string, params: Record<string, string>) {
 function recommend(
   conditions: Conditions,
   mentor: Mentor,
-  buildAction: (mentorId: string) => void
+  buildAction: () => void
 ): Recommendation {
   if (!conditions.hasThumbnail)
     return {
@@ -153,7 +153,7 @@ function recommend(
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <FiberManualRecord />,
       input: false,
-      action: () => buildAction(conditions.mentorId),
+      action: buildAction,
       skip: { ...conditions, isDirty: false },
     };
   return {
@@ -231,7 +231,7 @@ function parseMentor(mentor: Mentor): Conditions {
 }
 export function UseWithRecommendedAction(
   mentor: Mentor,
-  buildAction: (mentorId: string) => void
+  buildAction: () => void
 ): [Recommendation, () => void] {
   const [recommendedAction, setRecommendedAction] = useState(
     recommend(parseMentor(mentor), mentor, buildAction)
