@@ -9,11 +9,201 @@ import {
   cyMockDefault,
   cyMockTrain,
   cyMockTrainStatus,
+  mockGQL,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import { JobState, Status, QuestionType } from "../support/types";
+import clintNew from "../fixtures/mentor/clint_new";
+import {
+  JobState,
+  MentorType,
+  QuestionType,
+  Status,
+  UtteranceName,
+} from "../support/types";
 
 describe("My Mentor Page", () => {
+  it("exports mentor", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [clint],
+      gqlQueries: [
+        mockGQL(
+          "exportMentor",
+          {
+            _id: "clintanderson",
+            subjects: [
+              {
+                _id: "background",
+                name: "Background",
+                description:
+                  "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+                categories: [
+                  {
+                    id: "category",
+                    name: "Category",
+                    description: "A category",
+                  },
+                ],
+                topics: [],
+                questions: [
+                  {
+                    question: {
+                      _id: "A1_1_1",
+                      question: "Who are you and what do you do?",
+                      type: QuestionType.QUESTION,
+                      name: null,
+                      paraphrases: [],
+                    },
+                    topics: [],
+                    category: { id: "category" },
+                  },
+                  {
+                    question: {
+                      _id: "A2_1_1",
+                      question: "How old are you now?",
+                      type: QuestionType.QUESTION,
+                      name: null,
+                      paraphrases: [],
+                    },
+                    topics: [],
+                  },
+                ],
+              },
+              {
+                _id: "repeat_after_me",
+                name: "Repeat After Me",
+                isRequired: true,
+                description:
+                  "These are miscellaneous phrases you'll be asked to repeat.",
+                categories: [
+                  {
+                    id: "category2",
+                    name: "Category2",
+                    description: "Another category",
+                  },
+                ],
+                topics: [],
+                questions: [
+                  {
+                    question: {
+                      _id: "A3_1_1",
+                      question:
+                        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+                      type: QuestionType.UTTERANCE,
+                      name: UtteranceName.IDLE,
+                      paraphrases: [],
+                      mentorType: MentorType.VIDEO,
+                      minVideoLength: 10,
+                    },
+                    topics: [],
+                  },
+                  {
+                    question: {
+                      _id: "A4_1_1",
+                      question:
+                        "Please give a short introduction of yourself, which includes your name, current job, and title.",
+                      type: QuestionType.UTTERANCE,
+                      name: UtteranceName.INTRO,
+                      paraphrases: [],
+                    },
+                    topics: [],
+                  },
+                  {
+                    question: {
+                      _id: "A5_1_1",
+                      question:
+                        "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+                      type: QuestionType.UTTERANCE,
+                      name: UtteranceName.OFF_TOPIC,
+                      paraphrases: [],
+                    },
+                    topics: [],
+                    category: { id: "category2" },
+                  },
+                ],
+              },
+            ],
+            answers: [
+              {
+                _id: "A1_1_1",
+                question: {
+                  _id: "A1_1_1",
+                  question: "Who are you and what do you do?",
+                },
+                transcript:
+                  "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+                status: Status.COMPLETE,
+              },
+              {
+                _id: "A2_1_1",
+                question: {
+                  _id: "A2_1_1",
+                  question: "How old are you now?",
+                },
+                transcript: "I'm 37 years old",
+                status: Status.COMPLETE,
+              },
+              {
+                _id: "A3_1_1",
+                question: {
+                  _id: "A3_1_1",
+                  question:
+                    "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+                },
+                media: [{ url: "video.mp4", tag: "idle", type: "video" }],
+                transcript: "",
+                status: Status.COMPLETE,
+              },
+              {
+                _id: "A4_1_1",
+                question: {
+                  _id: "A4_1_1",
+                  question:
+                    "Please give a short introduction of yourself, which includes your name, current job, and title.",
+                },
+                transcript:
+                  "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+                status: Status.COMPLETE,
+              },
+              {
+                _id: "A5_1_1",
+                question: {
+                  _id: "A5_1_1",
+                  question:
+                    "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+                },
+                transcript: "",
+                status: Status.INCOMPLETE,
+              },
+            ],
+          },
+          false
+        ),
+      ],
+    });
+    cy.visit("/");
+    cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
+    cy.get("[data-cy=download-mentor]").trigger("mouseover").click();
+  });
+
+  it("imports a mentor", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [clintNew, clint],
+      gqlQueries: [mockGQL("importMentor", clint, true)],
+    });
+    cy.visit("/");
+    cy.get("[data-cy=select-subject]").contains("All Answers (0 / 5)");
+    cy.fixture("mentor.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent.toString(),
+        fileName: "mentor.json",
+        mimeType: "text/json",
+      });
+    });
+    cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
+  });
+
   it("shows all questions for all categories by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
@@ -160,6 +350,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=answer-0]").first().should("exist");
     cy.get("[data-cy=answer-0]").first().should("be.visible");
   });
+
   it("dropdown should expand when question is added", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });

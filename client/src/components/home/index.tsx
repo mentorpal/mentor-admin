@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import {
   AppBar,
+  Button,
   CircularProgress,
   Fab,
   List,
@@ -137,6 +138,27 @@ function HomePage(props: {
             </MenuItem>
           ))}
         </Select>
+        <div>
+          <Button
+            data-cy="download-mentor"
+            color="primary"
+            variant="contained"
+            style={{ marginRight: 10 }}
+            onClick={() => downloadMentor()}
+          >
+            Export Mentor
+          </Button>
+          <input
+            data-cy="upload-mentor"
+            type="file"
+            accept="text/json"
+            onChange={(e) => {
+              e.target.files instanceof FileList
+                ? uploadMentor(e.target.files[0])
+                : undefined;
+            }}
+          />
+        </div>
       </div>
       <List
         data-cy="recording-blocks"

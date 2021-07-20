@@ -27,6 +27,7 @@ import {
   FollowUpQuestion,
   User,
   Config,
+  MentorExportJson,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -750,6 +751,7 @@ export async function uploadThumbnail(
   });
   return getDataFromAxiosResponse(result, []);
 }
+
 export async function fetchThumbnail(accessToken: string): Promise<string> {
   return execGql<string>(
     {
@@ -766,6 +768,7 @@ export async function fetchThumbnail(accessToken: string): Promise<string> {
     { accessToken, dataPath: ["me", "thumbnail"] }
   );
 }
+
 export async function uploadVideo(
   mentorId: string,
   video: File,
@@ -906,4 +909,91 @@ export async function deleteUploadTask(
     },
     { accessToken, dataPath: ["me", "uploadTaskDelete"] }
   );
+}
+
+export async function exportMentor(mentor: string): Promise<MentorExportJson> {
+  const result = await graphqlRequest.post("", {
+    query: `
+      query ExportMentor($mentor: ID!) {
+        exportMentor(mentor: $mentor) {
+          _id
+          subjects {
+            _id
+            name
+            description
+            isRequired
+            topics {
+              id
+              name
+              description
+            }
+            categories {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+              category {
+                id
+              }
+              topics {
+                id
+              }
+            }
+          }
+          answers {
+            _id
+            transcript
+            status
+            question {
+              _id
+              question
+            }
+            media {
+              tag
+              type
+              url
+            }
+          }
+        }
+      }
+    `,
+    variables: { mentor },
+  });
+  return result.data.data.exportMentor;
+}
+
+export async function importMentor(
+  mentor: string,
+  json: MentorExportJson,
+  accessToken: string
+): Promise<Mentor> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      mutation ImportMentor($mentor: ID!, $json: MentorImportJsonType!) {
+        me {
+          importMentor(mentor: $mentor, json: $json) {
+            _id
+          }
+        }
+      }
+    `,
+      variables: { mentor, json },
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.importMentor;
 }

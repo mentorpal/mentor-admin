@@ -188,6 +188,39 @@ export function useWithReviewAnswerState(
     }
   }, [trainError]);
 
+  function downloadMentor() {
+    if (!mentor) {
+      return;
+    }
+    exportMentor(mentor._id).then((m) => {
+      const element = document.createElement("a");
+      element.setAttribute(
+        "href",
+        "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(m))
+      );
+      element.setAttribute("download", "mentor.json");
+      element.style.display = "none";
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    });
+  }
+
+  function uploadMentor(file: File) {
+    if (!mentor) {
+      return;
+    }
+    console.log(file);
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const result = JSON.parse(e.target?.result);
+      importMentor(mentor._id, result, accessToken).then((m) => {
+        reloadMentor();
+      });
+    };
+    reader.readAsText(file);
+  }
+
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
       urlBuild("/record", {
