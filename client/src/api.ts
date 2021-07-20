@@ -398,6 +398,7 @@ export async function fetchMentor(
             mentorType
             thumbnail
             lastTrainedAt
+            isDirty
             defaultSubject {
               _id
             }

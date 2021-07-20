@@ -51,6 +51,7 @@ export interface Mentor {
   thumbnail: string;
   mentorType: MentorType;
   lastTrainedAt: string;
+  isDirty: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];
