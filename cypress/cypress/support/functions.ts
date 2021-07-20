@@ -50,9 +50,7 @@ interface StaticResponse {
 interface MockGraphQLQuery {
   query: string;
   data: any | any[];
-  me: boolean;
   params?: { statusCode: number };
-  returnAsIs: boolean;
 }
 
 function staticResponse(s: StaticResponse): StaticResponse {
@@ -81,12 +79,9 @@ export const CONFIG_DEFAULT: Config = {
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
-  return mockGQL(
-    "FetchConfig",
-    { config: { ...CONFIG_DEFAULT, ...(config || {}) } },
-    false,
-    true
-  );
+  return mockGQL("FetchConfig", {
+    config: { ...CONFIG_DEFAULT, ...(config || {}) },
+  });
 }
 
 export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
@@ -101,22 +96,12 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
     for (const mock of mocks) {
       console.log(mock.query);
       if (
-        queryBody.match(new RegExp(`^(mutation|query) ${mock.query}[{(\\s]`)) ||
-        queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
-        queryBody.indexOf(`{ ${mock.query} {`) !== -1
+        queryBody.match(new RegExp(`^(mutation|query) ${mock.query}[{(\\s]`))
       ) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
-        let body = {};
-        if (mock.returnAsIs) {
-          body = val;
-        } else if (mock.me) {
-          const _inner = {};
-          _inner[mock.query] = val;
-          body["me"] = _inner;
-        } else {
-          body[mock.query] = val;
-        }
+        let body = val;
+
         req.alias = mock.query;
         req.reply(
           staticResponse({
@@ -142,16 +127,12 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
 export function mockGQL(
   query: string,
   data: any | any[],
-  me = false,
-  returnAsIs = false,
   params?: { statusCode: number }
 ): MockGraphQLQuery {
   return {
     query,
     data,
-    me,
     params,
-    returnAsIs,
   };
 }
 
@@ -223,13 +204,13 @@ export function cyMockDefault(
 
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    mockGQL("Login", { login: args.login || loginDefault }, false, true),
+    mockGQL("Login", { login: args.login || loginDefault }),
     // ...(args.mentor
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
-    ...[mockGQL("Mentor", mentors, false, true)],
-    ...(args.subject ? [mockGQL("Subject", subjectList, false, true)] : []),
-    ...(args.subjects ? [mockGQL("Subjects", subjectsList, false, true)] : []),
+    ...[mockGQL("Mentor", mentors)],
+    ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
+    ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
     ...gqlQueries,
   ]);
 }

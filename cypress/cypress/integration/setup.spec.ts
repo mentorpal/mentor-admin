@@ -198,12 +198,7 @@ describe("Setup", () => {
         { ...setup3, email: "clint@anderson.com" },
       ],
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorDetails",
-          { me: { updateMentorDetails: true } },
-          false,
-          true
-        ),
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
     });
     cy.visit("/setup?i=1");
@@ -305,12 +300,7 @@ describe("Setup", () => {
       ...baseMock,
       mentor: { ...setup0, mentorType: null },
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorDetails",
-          { me: { updateMentorDetails: true } },
-          false,
-          true
-        ),
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
     });
     cy.visit("/setup?i=2");
@@ -380,12 +370,7 @@ describe("Setup", () => {
       ],
       subjects: [allSubjects],
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorSubjects",
-          { me: { updateMentorSubjects: true } },
-          false,
-          true
-        ),
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
       ],
     });
     cy.visit("/setup?i=3");
@@ -492,9 +477,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
-      gqlQueries: [
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }, false, true),
-      ],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=5");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -552,9 +535,7 @@ describe("Setup", () => {
       ...baseMock,
       mentor: [setup6, setup6, setup8, setup8],
       subject: repeatAfterMe,
-      gqlQueries: [
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }, false, true),
-      ],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=6");
     cy.get("[data-cy=slide]").within(($slide) => {

@@ -31,12 +31,7 @@ describe("Profile", () => {
         },
       ],
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorDetails",
-          { me: { updateMentorDetails: true } },
-          true,
-          true
-        ),
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
     });
     cy.visit("/profile");

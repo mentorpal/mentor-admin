@@ -33,12 +33,7 @@ describe("Select Subjects", () => {
       mentor: mentor,
       subjects: [allSubjects],
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorSubjects",
-          { me: { updateMentorSubjects: true } },
-          false,
-          true
-        ),
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
       ],
     });
     cy.visit("/subjects");
@@ -124,12 +119,7 @@ describe("Select Subjects", () => {
       ],
       subjects: [allSubjects],
       gqlQueries: [
-        mockGQL(
-          "UpdateMentorSubjects",
-          { me: { updateMentorSubjects: true } },
-          false,
-          true
-        ),
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
       ],
     });
     cy.visit("/subjects");
