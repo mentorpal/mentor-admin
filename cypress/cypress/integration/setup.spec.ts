@@ -197,7 +197,9 @@ describe("Setup", () => {
         setup3,
         { ...setup3, email: "clint@anderson.com" },
       ],
-      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cy.visit("/setup?i=1");
     // empty mentor slide
@@ -297,7 +299,9 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null },
-      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cy.visit("/setup?i=2");
     cy.contains("Pick a mentor type");
@@ -365,7 +369,9 @@ describe("Setup", () => {
         },
       ],
       subjects: [allSubjects],
-      gqlQueries: [mockGQL("updateMentorSubjects", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      ],
     });
     cy.visit("/setup?i=3");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -471,7 +477,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=5");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -529,7 +535,7 @@ describe("Setup", () => {
       ...baseMock,
       mentor: [setup6, setup6, setup8, setup8],
       subject: repeatAfterMe,
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=6");
     cy.get("[data-cy=slide]").within(($slide) => {

@@ -91,7 +91,7 @@ export async function fetchConfig(): Promise<Config> {
     "",
     {
       query: `
-      query {
+      query FetchConfig{
         config {
           googleClientId
         }
@@ -772,7 +772,7 @@ export async function fetchUploadTasks(
     "",
     {
       query: `
-        query {
+        query FetchUploadTasks {
           me {
             uploadTasks {
               question {

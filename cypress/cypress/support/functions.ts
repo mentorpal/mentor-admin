@@ -50,7 +50,6 @@ interface StaticResponse {
 interface MockGraphQLQuery {
   query: string;
   data: any | any[];
-  me: boolean;
   params?: { statusCode: number };
 }
 
@@ -80,7 +79,9 @@ export const CONFIG_DEFAULT: Config = {
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
-  return mockGQL("config", { ...CONFIG_DEFAULT, ...(config || {}) }, false);
+  return mockGQL("FetchConfig", {
+    config: { ...CONFIG_DEFAULT, ...(config || {}) },
+  });
 }
 
 export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
@@ -93,20 +94,14 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
     const queryBody = body.query.replace(/\s+/g, " ").replace("\n", "").trim();
     let handled = false;
     for (const mock of mocks) {
+      console.log(mock.query);
       if (
-        queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
-        queryBody.indexOf(`{ ${mock.query} {`) !== -1
+        queryBody.match(new RegExp(`^(mutation|query) ${mock.query}[{(\\s]`))
       ) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
-        const body = {};
-        if (mock.me) {
-          const _inner = {};
-          _inner[mock.query] = val;
-          body["me"] = _inner;
-        } else {
-          body[mock.query] = val;
-        }
+        let body = val;
+
         req.alias = mock.query;
         req.reply(
           staticResponse({
@@ -132,13 +127,11 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
 export function mockGQL(
   query: string,
   data: any | any[],
-  me = false,
   params?: { statusCode: number }
 ): MockGraphQLQuery {
   return {
     query,
     data,
-    me,
     params,
   };
 }
@@ -167,14 +160,57 @@ export function cyMockDefault(
   }
   cyMockUpload(cy);
   cyMockCancelUpload(cy);
+
+  const mentors = [];
+  if (args.mentor) {
+    if (Array.isArray(args.mentor)) {
+      args.mentor.forEach((mentor) => {
+        mentors.push({ me: { mentor: mentor } });
+      });
+    } else {
+      mentors.push({ me: { mentor: args.mentor } });
+    }
+  } else {
+    if (Array.isArray(mentorDefault)) {
+      mentorDefault.forEach((mentor) => {
+        mentors.push({ me: { mentor: mentor } });
+      });
+    } else {
+      mentors.push({ me: { mentor: mentorDefault } });
+    }
+  }
+
+  const subjectList = [];
+  if (args.subject) {
+    if (Array.isArray(args.subject)) {
+      args.subject.forEach((subject) => {
+        subjectList.push({ subject: subject });
+      });
+    } else {
+      subjectList.push({ subject: args.subject });
+    }
+  }
+
+  const subjectsList = [];
+  if (args.subjects) {
+    if (Array.isArray(args.subjects)) {
+      args.subjects.forEach((subject) => {
+        subjectsList.push({ subjects: subject });
+      });
+    } else {
+      subjectsList.push({ subjects: args.subjects });
+    }
+  }
+
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
-    mockGQL("login", args.login || loginDefault),
-    ...(args.mentor
-      ? [mockGQL("mentor", args.mentor, true)]
-      : [mockGQL("mentor", mentorDefault, true)]),
-    ...(args.subject ? [mockGQL("subject", args.subject)] : []),
-    ...(args.subjects ? [mockGQL("subjects", args.subjects)] : []),
+    mockGQL("Login", { login: args.login || loginDefault }),
+    // ...(args.mentor
+    //   ? [mockGQL("mentor", args.mentor, true)]
+    //   : [mockGQL("mentor", mentorDefault, true)]),
+    ...[mockGQL("Mentor", mentors)],
+    ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
+    ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
     ...gqlQueries,
   ]);
 }
