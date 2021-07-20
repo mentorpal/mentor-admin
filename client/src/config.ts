@@ -17,3 +17,12 @@ export async function getClientId(): Promise<string> {
     throw err;
   }
 }
+
+export async function getIdleTipsVideoUrl(): Promise<string> {
+  try {
+    return (await fetchConfig()).idleTipsVideoUrl;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}

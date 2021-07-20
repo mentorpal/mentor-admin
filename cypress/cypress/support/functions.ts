@@ -73,10 +73,12 @@ export function cySetup(cy) {
 
 export interface Config {
   googleClientId: string;
+  idleTipsVideoUrl: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
+  idleTipsVideoUrl: "",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {

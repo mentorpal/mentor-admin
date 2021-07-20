@@ -55,6 +55,7 @@ interface GraphQLResponse<T> {
 
 interface Config {
   googleClientId: string;
+  idleTipsVideoUrl: string;
 }
 
 const graphqlRequest = axios.create({
@@ -94,13 +95,14 @@ export async function fetchConfig(): Promise<Config> {
       query {
         config {
           googleClientId
+          idleTipsVideoUrl
         }
       }
     `,
     }
   );
   if (gqlRes.status !== 200) {
-    throw new Error(`config load failed: ${gqlRes.statusText}}`);
+    throw new Error(`config load failed: ${gqlRes.statusText}`);
   }
   if (gqlRes.data.errors) {
     throw new Error(

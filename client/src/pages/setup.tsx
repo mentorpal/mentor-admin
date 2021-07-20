@@ -94,6 +94,7 @@ function SetupPage(props: {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    idleTipsVideoUrl,
     mentor,
     isLoading,
     isSaving,
@@ -145,7 +146,12 @@ function SetupPage(props: {
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
       case SetupStepType.IDLE_TIPS:
-        return <IdleTipsSlide classes={classes} />;
+        return (
+          <IdleTipsSlide
+            classes={classes}
+            idleTipsVideoUrl={idleTipsVideoUrl}
+          />
+        );
       case SetupStepType.IDLE:
         return (
           <RecordIdleSlide

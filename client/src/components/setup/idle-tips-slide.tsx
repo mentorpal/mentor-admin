@@ -11,8 +11,9 @@ import ReactPlayer from "react-player";
 import { Slide } from "./slide";
 export function IdleTipsSlide(props: {
   classes: Record<string, string>;
+  idleTipsVideoUrl: string;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, idleTipsVideoUrl } = props;
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const height =
     windowHeight > windowWidth
@@ -34,7 +35,7 @@ export function IdleTipsSlide(props: {
           </Typography>
           <ReactPlayer
             data-cy="video-player"
-            url={"https://youtu.be/xSu1BhuFt8A"}
+            url={idleTipsVideoUrl}
             controls={true}
             playing={true}
             height={height}

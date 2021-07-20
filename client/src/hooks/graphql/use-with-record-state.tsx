@@ -342,8 +342,8 @@ export function useWithRecordState(
     upload(mentor._id, answer.answer.question, answer.recordedVideo, trim);
   }
 
-  function cancelUploadVideo(task: UploadTask | undefined) {
-    if (!mentor || !task || isTaskDoneOrFailed(task)) {
+  function cancelUploadVideo(task: UploadTask) {
+    if (!mentor || isTaskDoneOrFailed(task)) {
       return;
     }
     cancelUpload(mentor._id, task);
@@ -420,7 +420,7 @@ export interface UseWithRecordState {
         }
       | undefined
   ) => void;
-  cancelUpload: (task: UploadTask | undefined) => void;
+  cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   isUploading: boolean;
   isRecording: boolean;

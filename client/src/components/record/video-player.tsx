@@ -248,8 +248,8 @@ function VideoPlayer(props: {
             }
             className={classes.button}
             onClick={() => {
-              if (isUploading) {
-                recordState.cancelUpload(upload!);
+              if (upload && isUploading) {
+                recordState.cancelUpload(upload);
               } else if (isTrimming) {
                 const trimStart = (trim[0] / 100) * videoLength;
                 const trimEnd = (trim[1] / 100) * videoLength;

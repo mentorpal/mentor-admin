@@ -42,7 +42,6 @@ function snapname(n) {
 describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
-      cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup");
       cy.get("[data-cy=slide-title]").should(
@@ -91,7 +90,6 @@ describe("Setup", () => {
     });
 
     it("with back button", () => {
-      cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup?i=8");
       cy.get("[data-cy=slide-title]").should(
@@ -140,7 +138,6 @@ describe("Setup", () => {
     });
 
     it("with radio buttons", () => {
-      cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup");
       cy.contains("Welcome to MentorPal!");
@@ -165,7 +162,6 @@ describe("Setup", () => {
     });
 
     it("with query param i", () => {
-      cySetup(cy);
       cyMockDefault(cy, baseMock);
       cy.visit("/setup?i=0");
       cy.get("[data-cy=slide]").contains("Welcome to MentorPal!");
@@ -188,8 +184,19 @@ describe("Setup", () => {
     });
   });
 
+  it("config provides video for idle video setup", () => {
+    cyMockDefault(cy, {
+      config: { idleTipsVideoUrl: "https://youtu.be/xSu1BhuFt8A" },
+    });
+    cy.visit("/setup?i=5");
+    cy.get("[data-cy=video-player]").within(($within) => {
+      cy.get("iframe")
+        .should("have.attr", "src")
+        .should("include", "xSu1BhuFt8A");
+    });
+  });
+
   it("shows welcome slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, baseMock);
     cy.visit("/setup?i=0");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -201,7 +208,6 @@ describe("Setup", () => {
   });
 
   it("shows mentor slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
@@ -307,7 +313,6 @@ describe("Setup", () => {
   });
 
   it("shows mentor chat type", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null },
@@ -354,7 +359,6 @@ describe("Setup", () => {
   });
 
   it("shows select subjects slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
@@ -467,7 +471,6 @@ describe("Setup", () => {
   });
 
   it("shows introduction slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3],
@@ -481,7 +484,6 @@ describe("Setup", () => {
   });
 
   it("video mentor shows idle slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
@@ -526,7 +528,6 @@ describe("Setup", () => {
   });
 
   it("chat mentor does not show idle slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: MentorType.CHAT },
@@ -538,7 +539,6 @@ describe("Setup", () => {
   });
 
   it("shows required subject, repeat after me, questions slide", () => {
-    cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup6, setup6, setup8, setup8],
@@ -602,7 +602,6 @@ describe("Setup", () => {
 
   describe("shows build mentor slide after completing setup", () => {
     it("cannot build if previous steps are not complete", () => {
-      cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup7],
@@ -621,7 +620,6 @@ describe("Setup", () => {
     });
 
     it("builds mentor once setup is done", () => {
-      cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup8, setup9],
@@ -653,7 +651,6 @@ describe("Setup", () => {
     });
 
     it("fails to build mentor", () => {
-      cySetup(cy);
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup8, setup9],

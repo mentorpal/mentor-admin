@@ -17,6 +17,7 @@ import {
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
+import { getIdleTipsVideoUrl } from "config";
 
 export enum SetupStepType {
   WELCOME,
@@ -58,6 +59,7 @@ interface UseWithSetup {
   setupStatus: SetupStatus | undefined;
   setupStep: number;
   setupSteps: SetupStep[];
+  idleTipsVideoUrl: string;
   mentor: Mentor | undefined;
   isEdited: boolean;
   isLoading: boolean;
@@ -81,6 +83,7 @@ export function useWithSetup(
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
   const [error, setError] = useState<LoadingError>();
+  const [idleTipsVideoUrl, setIdleTipsVideoUrl] = useState<string>("");
   const {
     data: mentor,
     error: mentorError,
@@ -99,6 +102,16 @@ export function useWithSetup(
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
+
+  useEffect(() => {
+    getIdleTipsVideoUrl()
+      .then((url) => {
+        setIdleTipsVideoUrl(url);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
 
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading) {
@@ -242,6 +255,7 @@ export function useWithSetup(
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    idleTipsVideoUrl,
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
