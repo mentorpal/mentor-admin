@@ -4,14 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { Subject } from "types";
+import { fetchUsers, updateUserPermissions } from "api";
+import { User } from "types";
 import {
-  UseDataConnection,
   useWithDataConnection,
+  UseDataConnection,
 } from "./use-with-data-connection";
 
-export function useWithSubjects(): UseDataConnection<Subject> {
+export interface UseUserData extends UseDataConnection<User> {
+  onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+}
+
+export function useWithUsers(accessToken: string): UseUserData {
   const {
     data,
     isLoading,
@@ -24,17 +28,27 @@ export function useWithSubjects(): UseDataConnection<Subject> {
     filter,
     nextPage,
     prevPage,
-  } = useWithDataConnection<Subject>(fetch);
+  } = useWithDataConnection<User>(fetch);
 
   function fetch() {
-    return fetchSubjects(searchParams);
+    return fetchUsers(searchParams);
+  }
+
+  function onUpdateUserPermissions(userId: string, permissionLevel: string) {
+    updateUserPermissions(userId, permissionLevel, accessToken)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   return {
     data,
-    error,
     isLoading,
     searchParams,
+    error,
     reloadData,
     editData,
     saveData,
@@ -42,5 +56,6 @@ export function useWithSubjects(): UseDataConnection<Subject> {
     filter,
     nextPage,
     prevPage,
+    onUpdateUserPermissions,
   };
 }

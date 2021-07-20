@@ -19,7 +19,7 @@ import {
   VideoInfo,
   CancelJob,
   FollowUpQuestion,
-  UserRole,
+  User,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -157,6 +157,83 @@ export async function fetchSubjects(
     },
   });
   return result.data.data.subjects;
+}
+
+export async function fetchUsers(
+  searchParams?: SearchParams
+): Promise<Connection<User>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const { filter, limit, cursor, sortBy, sortAscending } = params;
+  const result = await graphqlRequest.post("", {
+    query: `
+      query FetchUsers($filter: String!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!) {
+        me {
+          users(
+            filter: $filter,
+            limit: $limit,
+            cursor: $cursor,
+            sortBy: $sortBy,
+            sortAscending: $sortAscending
+          ) {
+            edges {
+              cursor
+              node {
+                id
+                name
+                email
+                userRole
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }
+      }
+    `,
+    variables: {
+      filter: JSON.stringify(filter),
+      limit,
+      cursor,
+      sortBy,
+      sortAscending,
+    },
+  });
+  return result.data.data.me.users;
+}
+
+export async function updateUserPermissions(
+  userId: string,
+  permissionLevel: string,
+  accessToken: string
+): Promise<User> {
+  const headers = { Authorization: `bearer ${accessToken}` };
+  const result = await graphqlRequest.post(
+    "",
+    {
+      query: `
+      mutation UpdateUserPermissions($userId: String!, $permissionLevel: String!) {
+        me {
+          updateUserPermissions(
+            userId:$userId,
+            permissionLevel:$permissionLevel
+          ) {
+            id
+            name
+            email
+            userRole
+          }
+        }
+      }
+    `,
+      variables: { userId, permissionLevel },
+    },
+    { headers: headers }
+  );
+  return result.data.data.me.updateUserPermissions;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
@@ -765,26 +842,6 @@ export async function loginGoogle(
     variables: { accessToken },
   });
   return result.data.data.loginGoogle;
-}
-
-export async function fetchUsers(accessToken: string): Promise<UploadTask[]> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
-    {
-      query: `
-        query {
-          fetchUsers {
-            id
-            name
-            email
-            userRole
-          }
-        }`,
-    },
-    { headers: headers }
-  );
-  return result.data.data.fetchUsers;
 }
 
 export async function fetchUploadTasks(

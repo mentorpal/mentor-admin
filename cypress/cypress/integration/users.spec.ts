@@ -4,19 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
-import { users } from "../fixtures/users";
-
 describe("users screen", () => {
-  it("displays a list of users to an admin", () => {
-    //cymockdefault( admin )
-    //check that list exists
-  });
-
-  it("displays a list of users to a content manager", () => {
-    //cymockdefault( content_manager )
-    //check that list exists
-  });
-
   it("an admin can change the role of a user", () => {});
 });

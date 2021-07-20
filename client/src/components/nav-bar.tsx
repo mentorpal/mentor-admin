@@ -137,6 +137,7 @@ function NavItem(props: {
 }): JSX.Element {
   return (
     <ListItem
+      data-cy={`${props.text}-menu-button`}
       button
       selected={location.pathname === props.link}
       onClick={() => {
@@ -155,15 +156,14 @@ function NavItem(props: {
 
 function NavMenu(props: {
   mentorId: string | undefined;
-  userRole: UserRole | undefined;
   classes: Record<string, string>;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
   const context = useContext(Context);
-  const usersView =
-    props.userRole === UserRole.ADMIN ||
-    props.userRole == UserRole.CONTENT_MANAGER;
+  const editUsersPermission =
+    context.user?.userRole === UserRole.ADMIN ||
+    context.user?.userRole == UserRole.CONTENT_MANAGER;
 
   async function openChat() {
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
@@ -231,7 +231,7 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
-      {usersView ? (
+      {editUsersPermission ? (
         <NavItem
           text={"Users"}
           link={"/users"}
@@ -254,7 +254,6 @@ function NavMenu(props: {
 
 export function NavBar(props: {
   mentorId: string | undefined;
-  userRole: UserRole | undefined;
   title: string;
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;
@@ -349,12 +348,7 @@ export function NavBar(props: {
         onOpen={() => toggleDrawer(true)}
       >
         <Toolbar />
-        <NavMenu
-          classes={classes}
-          mentorId={props.mentorId}
-          onNav={onNav}
-          userRole={props.userRole}
-        />
+        <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
       </SwipeableDrawer>
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>

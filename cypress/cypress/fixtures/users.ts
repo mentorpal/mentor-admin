@@ -7,30 +7,37 @@ The full terms of this copyright and license should always be found in the root 
 import { UserRole } from "../support/types";
 
 export const users = {
-  users: [
+  edges: [
     {
+      cursor: "cursor 1",
       node: {
-        id: "user1",
-        name: "Jane Doe",
-        email: "janedoe@gmail.com",
+        id: "admin",
+        name: "Admin",
+        email: "admin@opentutor.org",
         userRole: UserRole.ADMIN,
       },
     },
     {
+      cursor: "cursor 2",
       node: {
-        id: "user2",
-        name: "John Deer",
-        email: "johndeer@gmail.com",
+        id: "contentmanager",
+        name: "Content Manager",
+        email: "contentmanager@opentutor.org",
         userRole: UserRole.CONTENT_MANAGER,
       },
     },
     {
+      cursor: "cursor 2",
       node: {
-        id: "user3",
-        name: "Aaron Shiel",
-        email: "aaronshiel@gmail.com",
+        id: "user",
+        name: "User",
+        email: "user@opentutor.org",
         userRole: UserRole.USER,
       },
     },
   ],
+  pageInfo: {
+    hasNextPage: false,
+    endCursor: "cursor 2",
+  },
 };

@@ -19,7 +19,7 @@ const initialState: LoadingState = {
   error: undefined,
 };
 
-interface UpdateFunc<T> {
+export interface UpdateFunc<T> {
   action: (data: T) => Promise<void>;
 }
 
