@@ -52,6 +52,7 @@ interface MockGraphQLQuery {
   data: any | any[];
   me: boolean;
   params?: { statusCode: number };
+  returnAsIs: boolean;
 }
 
 function staticResponse(s: StaticResponse): StaticResponse {
@@ -94,13 +95,16 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
     let handled = false;
     for (const mock of mocks) {
       if (
+        queryBody.match(new RegExp(`^(mutation|query) ${mock.query}[{(\\s]`)) ||
         queryBody.indexOf(`{ ${mock.query}(`) !== -1 ||
         queryBody.indexOf(`{ ${mock.query} {`) !== -1
       ) {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
-        const body = {};
-        if (mock.me) {
+        let body = {};
+        if (mock.returnAsIs) {
+          body = val;
+        } else if (mock.me) {
           const _inner = {};
           _inner[mock.query] = val;
           body["me"] = _inner;
@@ -133,13 +137,15 @@ export function mockGQL(
   query: string,
   data: any | any[],
   me = false,
-  params?: { statusCode: number }
+  params?: { statusCode: number },
+  returnAsIs = false
 ): MockGraphQLQuery {
   return {
     query,
     data,
     me,
     params,
+    returnAsIs,
   };
 }
 
