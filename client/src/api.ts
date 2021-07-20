@@ -772,7 +772,7 @@ export async function fetchUploadTasks(
     "",
     {
       query: `
-        query {
+        query FetchUploadTasks {
           me {
             uploadTasks {
               question {

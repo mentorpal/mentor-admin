@@ -196,7 +196,7 @@ const videoMentor: Mentor = completeMentor({
   ],
 });
 
-describe("Record", () => {
+describe.only("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cyMockDefault(cy, { mentor: chatMentor });
@@ -725,12 +725,15 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        // mockGQL("updateAnswer", true, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        // mockGQL("updateQuestion", true, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -747,7 +750,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -764,9 +768,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
-          ],
-          true
+            ]}},
+          ]
+        ,false, true
         ),
       ],
     });
@@ -787,12 +791,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -826,8 +831,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
-            [
+            ]}},
+            { me: { uploadTasks: 
+              [
               {
                 question: {
                   _id: videoMentor.answers[0].question._id,
@@ -860,9 +866,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -885,12 +891,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -937,7 +944,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -984,9 +992,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1006,10 +1014,10 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [[]], true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] }}], false, true),
       ],
     });
     cy.visit("/record");
@@ -1035,12 +1043,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1072,9 +1081,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1090,12 +1099,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1142,9 +1152,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1163,12 +1173,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1200,9 +1211,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}}
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1220,10 +1231,10 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [[]], true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] }} ], false, true),
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
@@ -1243,12 +1254,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1280,9 +1292,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1303,12 +1315,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1355,7 +1368,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1402,9 +1416,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1441,12 +1455,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1493,9 +1508,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1508,10 +1523,10 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [[]], true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] }} ], false, true),
       ],
     });
     cy.visit("/record");
@@ -1522,10 +1537,10 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
-        mockGQL("uploadTasks", [[]], true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] }} ], false, true),
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
@@ -1553,13 +1568,16 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
-            [],
+            { me: { uploadTasks: 
+            []
+            }},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1576,9 +1594,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1593,12 +1611,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1645,7 +1664,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ] }},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1692,9 +1712,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1714,12 +1734,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1766,7 +1787,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1813,9 +1835,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1835,12 +1857,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1857,7 +1880,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1874,7 +1898,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1891,7 +1916,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1908,9 +1934,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1940,12 +1966,13 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
-          "uploadTasks",
+          "FetchUploadTasks",
           [
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1962,7 +1989,8 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
+            { me: { uploadTasks: 
             [
               {
                 question: {
@@ -1979,9 +2007,9 @@ describe("Record", () => {
                   },
                 ],
               },
-            ],
+            ]}},
           ],
-          true
+          false, true
         ),
       ],
     });
@@ -1995,9 +2023,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2064,9 +2092,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2083,9 +2111,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2222,9 +2250,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2284,9 +2312,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2299,9 +2327,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2321,9 +2349,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2358,9 +2386,9 @@ describe("Record", () => {
         }),
       ],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2400,9 +2428,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2541,9 +2569,9 @@ describe("Record", () => {
         }),
       ],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2583,9 +2611,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2609,9 +2637,9 @@ describe("Record", () => {
         }),
       ],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL("uploadTasks", [[]], true),
       ],
     });
@@ -2656,9 +2684,9 @@ describe("Record", () => {
         }),
       ],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [
@@ -2727,9 +2755,9 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
-        mockGQL("uploadTaskDelete", true, true),
-        mockGQL("updateAnswer", true, true),
-        mockGQL("updateQuestion", true, true),
+        mockGQL("UploadTaskDelete", {me: { uploadTaskDelete: true }}, false, true),
+        mockGQL("UpdateAnswer", { me: { updateAnswer:true}}, false, true),
+        mockGQL("UpdateQuestion", { me: { updateQuestion:true}}, false, true),
         mockGQL(
           "uploadTasks",
           [

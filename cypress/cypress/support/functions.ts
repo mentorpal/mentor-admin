@@ -137,8 +137,8 @@ export function mockGQL(
   query: string,
   data: any | any[],
   me = false,
-  params?: { statusCode: number },
-  returnAsIs = false
+  returnAsIs = false,
+  params?: { statusCode: number }
 ): MockGraphQLQuery {
   return {
     query,

@@ -342,7 +342,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -407,7 +407,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -456,7 +456,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -531,7 +531,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -583,7 +583,7 @@ describe("Edit subject", () => {
             categories: [],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -627,7 +627,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -670,7 +670,7 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -699,7 +699,7 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -772,7 +772,7 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("updateSubject", {}, true)],
+        gqlQueries: [mockGQL("UpdateSubject", {me:{updateSubject:{}}}, true, true)],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
