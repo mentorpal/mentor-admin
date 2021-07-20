@@ -91,7 +91,7 @@ export async function fetchConfig(): Promise<Config> {
     "",
     {
       query: `
-      query {
+      query FetchConfig{
         config {
           googleClientId
         }
