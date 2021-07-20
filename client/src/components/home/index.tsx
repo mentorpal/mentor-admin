@@ -85,11 +85,6 @@ function HomePage(props: {
     launchMentor,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
-  const buildAction = () =>
-    mentor?.isDirty
-      ? startTraining(mentor?._id)
-      : launchMentor(mentor?._id || "");
-
   if (!mentor) {
     return (
       <div>
@@ -99,6 +94,9 @@ function HomePage(props: {
     );
   }
 
+  const continueAction = () =>
+    mentor.isDirty ? startTraining(mentor._id) : launchMentor(mentor._id);
+
   return (
     <div className={classes.root}>
       <div>
@@ -106,7 +104,7 @@ function HomePage(props: {
         <MyMentorCard
           mentor={mentor}
           accessToken={props.accessToken}
-          buildAction={buildAction}
+          continueAction={continueAction}
         />
         <Select
           data-cy="select-subject"
@@ -176,10 +174,10 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={buildAction}
+            onClick={continueAction}
             className={classes.fab}
           >
-            {mentor?.isDirty ? "Build Mentor" : "Preview Mentor"}
+            {mentor.isDirty ? "Build Mentor" : "Preview Mentor"}
           </Fab>
         </Toolbar>
       </AppBar>

@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
+import { urlBuild } from "helpers";
 import { useState } from "react";
 import {
   AccountBox,
@@ -47,16 +48,10 @@ interface Recommendation {
   skip: Conditions;
 }
 
-function urlBuild(base: string, params: Record<string, string>) {
-  const query = new URLSearchParams();
-  Object.keys(params).forEach((n) => query.append(n, params[n]));
-  return `${base}?${query.toString()}`;
-}
-
 function recommend(
   conditions: Conditions,
   mentor: Mentor,
-  buildAction: () => void
+  continueAction: () => void
 ): Recommendation {
   if (!conditions.hasThumbnail)
     return {
@@ -153,7 +148,7 @@ function recommend(
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <FiberManualRecord />,
       input: false,
-      action: buildAction,
+      action: continueAction,
       skip: { ...conditions, isDirty: false },
     };
   return {
@@ -216,12 +211,12 @@ function parseMentor(mentor: Mentor): Conditions {
   const totalAnswers = mentor?.answers.length || 0;
 
   return {
-    mentorId: mentor?._id,
+    mentorId: mentor._id,
     idle: idle,
     idleIncomplete: idleIncomplete,
     isVideo: isVideo,
     hasThumbnail: hasThumbnail,
-    isDirty: mentor?.isDirty,
+    isDirty: mentor.isDirty,
     categories: categories,
     incompleteRequirement: incompleteRequirement,
     firstIncomplete: firstIncomplete,
@@ -231,15 +226,15 @@ function parseMentor(mentor: Mentor): Conditions {
 }
 export function UseWithRecommendedAction(
   mentor: Mentor,
-  buildAction: () => void
+  continueAction: () => void
 ): [Recommendation, () => void] {
   const [recommendedAction, setRecommendedAction] = useState(
-    recommend(parseMentor(mentor), mentor, buildAction)
+    recommend(parseMentor(mentor), mentor, continueAction)
   );
 
   function skipRecommendation() {
     setRecommendedAction(
-      recommend(recommendedAction.skip, mentor, buildAction)
+      recommend(recommendedAction.skip, mentor, continueAction)
     );
   }
 

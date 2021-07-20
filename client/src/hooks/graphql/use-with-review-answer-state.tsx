@@ -18,7 +18,7 @@ import {
   Question,
   Mentor,
 } from "types";
-import { copyAndSet, equals } from "helpers";
+import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
@@ -314,7 +314,9 @@ export function useWithReviewAnswerState(
       });
   }
   function launchMentor(params: string) {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${params}`;
+    const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
+      mentor: params,
+    });
     window.location.href = path;
   }
 
