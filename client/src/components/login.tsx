@@ -5,16 +5,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   GoogleLogin,
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  Button,
+  CircularProgress,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { getClientId } from "config";
 import { login, googleLogin } from "store/slices/loginSlice";
+import { ConfigStatus, getConfig } from "store/slices/configSlice";
+import { RootState } from "store/store";
+// import withConfigOnly from "hooks/wrap-with-config-only";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -37,21 +45,10 @@ const useStyles = makeStyles((theme) => ({
 function LoginPage(): JSX.Element {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const [googleClientId, setClientId] = React.useState<string>("");
+  const configState = useSelector((state: RootState) => state.config);
 
   React.useEffect(() => {
-    let mounted = true;
-    getClientId()
-      .then((id: string) => {
-        if (!mounted) {
-          return;
-        }
-        setClientId(id);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
+    dispatch(getConfig());
   }, []);
 
   function onGoogleLogin(
@@ -64,10 +61,29 @@ function LoginPage(): JSX.Element {
     dispatch(googleLogin(loginResponse.accessToken));
   }
 
-  if (!googleClientId) {
-    return <div className={classes.root}>ERROR: Failed to load config</div>;
+  if (
+    configState.status === ConfigStatus.NONE ||
+    configState.status === ConfigStatus.IN_PROGRESS
+  ) {
+    // app never shows any component until config is loaded
+    return <CircularProgress />;
   }
-
+  if (configState.status === ConfigStatus.FAILED) {
+    // displays some error with retry option if config fails to load
+    return (
+      <div>
+        Failed to load config
+        <p />
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={() => dispatch(getConfig())}
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
@@ -90,7 +106,7 @@ function LoginPage(): JSX.Element {
         </Button>
       ) : (
         <GoogleLogin
-          clientId={googleClientId}
+          clientId={configState.config?.googleClientId || ""}
           onSuccess={onGoogleLogin}
           render={(renderProps) => (
             <Button
