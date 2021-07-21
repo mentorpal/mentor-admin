@@ -189,23 +189,31 @@ export function useWithSetup(
   }, [trainError]);
 
   function nextStep() {
-    if (!status || idx === steps.length - 1) {
+    if (!status) {
       return;
     }
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    setIdx(idx + 1);
+    if (idx === steps.length - 1) {
+      setIdx(0);
+    } else {
+      setIdx(idx + 1);
+    }
   }
 
   function prevStep() {
-    if (!status || idx === 0) {
+    if (!status) {
       return;
     }
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    setIdx(idx - 1);
+    if (idx === 0) {
+      setIdx(steps.length - 1);
+    } else {
+      setIdx(idx - 1);
+    }
   }
 
   function toStep(i: number) {
