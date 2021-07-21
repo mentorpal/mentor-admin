@@ -19,6 +19,7 @@ import {
   VideoInfo,
   CancelJob,
   FollowUpQuestion,
+  Config,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -51,10 +52,6 @@ function isValidObjectID(id: string) {
 interface GraphQLResponse<T> {
   errors?: { message: string }[];
   data?: T;
-}
-
-interface Config {
-  googleClientId: string;
 }
 
 const graphqlRequest = axios.create({

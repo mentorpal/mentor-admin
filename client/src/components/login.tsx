@@ -4,7 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext } from "react";
+import React from "react";
+import { useDispatch } from "react-redux";
 import {
   GoogleLogin,
   GoogleLoginResponse,
@@ -13,10 +14,7 @@ import {
 import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { getClientId } from "config";
-import { loginGoogle } from "api";
-import { UserAccessToken } from "types";
-import Context from "context";
-import "styles/layout.css";
+import { login, googleLogin } from "store/slices/loginSlice";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -38,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
+  const dispatch = useDispatch();
   const [googleClientId, setClientId] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -63,11 +61,7 @@ function LoginPage(): JSX.Element {
       return;
     }
     const loginResponse = response as GoogleLoginResponse;
-    loginGoogle(loginResponse.accessToken)
-      .then((token: UserAccessToken) => {
-        context.login(token.accessToken);
-      })
-      .catch((err) => console.error(err));
+    dispatch(googleLogin(loginResponse.accessToken));
   }
 
   if (!googleClientId) {
@@ -90,7 +84,7 @@ function LoginPage(): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.button}
-          onClick={() => context.login(process.env.ACCESS_TOKEN || "")}
+          onClick={() => dispatch(login(process.env.ACCESS_TOKEN || ""))}
         >
           Test Login
         </Button>

@@ -4,15 +4,17 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
+
 import LoginPage from "components/login";
 import HomePage from "components/home";
-import Context from "context";
 import { LoginStatus } from "types";
+import { RootState } from "store/store";
 
 function IndexPage(): JSX.Element {
-  const context = useContext(Context);
-  if (context.loginStatus === LoginStatus.AUTHENTICATED) {
+  const loginState = useSelector((state: RootState) => state.login);
+  if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
     return <HomePage />;
   } else {
     return <LoginPage />;

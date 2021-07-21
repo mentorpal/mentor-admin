@@ -5,7 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   AppBar,
   Button,
@@ -35,12 +36,13 @@ import {
   QuestionAnswer as QuestionAnswerIcon,
   RateReview as RateReviewIcon,
   Subject as SubjectIcon,
+  PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { CLIENT_ENDPOINT } from "api";
-import Context from "context";
+import { logout } from "store/slices/loginSlice";
+import { RootState } from "store/store";
 import withLocation from "wrap-with-location";
-import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -79,7 +81,8 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
     EventTarget & HTMLButtonElement
   >();
   const open = Boolean(anchorEl);
-  const context = useContext(Context);
+  const loginState = useSelector((state: RootState) => state.login);
+  const dispatch = useDispatch();
 
   function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
@@ -90,7 +93,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    context.logout();
+    dispatch(logout());
     navigate("/");
   }
 
@@ -102,7 +105,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
       >
-        {context.user?.name || ""}
+        {loginState.user?.name || ""}
       </Button>
       <Menu
         data-cy="login-menu"
@@ -157,7 +160,7 @@ function NavMenu(props: {
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
+  const dispatch = useDispatch();
 
   async function openChat() {
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
@@ -165,7 +168,7 @@ function NavMenu(props: {
   }
 
   function onLogout(): void {
-    context.logout();
+    dispatch(logout());
     navigate("/");
   }
 

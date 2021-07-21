@@ -4,36 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { navigate } from "gatsby";
-import React from "react";
-import { useSelector } from "react-redux";
-import { CircularProgress } from "@material-ui/core";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "./store";
 
-import { LoginStatus } from "types";
-import NavBar from "components/nav-bar";
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const withAuthorizationOnly = (Component) => (props) => {
-  const loginState = useSelector((state) => state.login);
-
-  if (loginState.loginStatus === LoginStatus.NONE && !loginState.accessToken) {
-    if (typeof window !== "undefined") {
-      navigate("/");
-    }
-    return <div />;
-  }
-  return loginState.loginStatus === LoginStatus.AUTHENTICATED ? (
-    <Component
-      {...props}
-      accessToken={loginState.accessToken}
-      user={loginState.user}
-    />
-  ) : (
-    <div>
-      <NavBar title="Mentor Studio" />
-      <CircularProgress />
-    </div>
-  );
-};
-
-export default withAuthorizationOnly;
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
