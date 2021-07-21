@@ -94,7 +94,6 @@ interface LeaveConfirmation {
   message: string;
   callback: () => void;
 }
-
 function RecordPage(props: {
   accessToken: string;
   search: {

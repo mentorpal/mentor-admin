@@ -11,7 +11,7 @@ export const users = {
     {
       cursor: "cursor 1",
       node: {
-        id: "admin",
+        _id: "admin",
         name: "Admin",
         email: "admin@opentutor.org",
         userRole: UserRole.ADMIN,
@@ -20,7 +20,7 @@ export const users = {
     {
       cursor: "cursor 2",
       node: {
-        id: "contentmanager",
+        _id: "contentmanager",
         name: "Content Manager",
         email: "contentmanager@opentutor.org",
         userRole: UserRole.CONTENT_MANAGER,
@@ -29,7 +29,7 @@ export const users = {
     {
       cursor: "cursor 2",
       node: {
-        id: "user",
+        _id: "user",
         name: "User",
         email: "user@opentutor.org",
         userRole: UserRole.USER,

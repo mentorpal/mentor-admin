@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import {
   CircularProgress,
+  IconButton,
   makeStyles,
   MenuItem,
   Paper,
@@ -15,7 +16,10 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  Tooltip,
 } from "@material-ui/core";
+import LaunchIcon from "@material-ui/icons/Launch";
+import CreateIcon from "@material-ui/icons/Create";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
@@ -23,6 +27,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import React from "react";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
+import { CLIENT_ENDPOINT, fetchMentorIdByUserId } from "api";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,6 +54,14 @@ const useStyles = makeStyles((theme) => ({
   dropdown: {
     width: 170,
   },
+  actionItem: {
+    margin: 10,
+  },
+  normalButton: {
+    "&:hover": {
+      color: theme.palette.primary.main,
+    },
+  },
 }));
 
 const columns: ColumnDef[] = [
@@ -73,14 +86,21 @@ const columns: ColumnDef[] = [
     align: "left",
     sortable: true,
   },
+  {
+    id: "actions",
+    label: "",
+    minWidth: 0,
+    align: "left",
+    sortable: false,
+  },
 ];
 
 function UserItem(props: {
-  row: Edge<User>;
+  edge: Edge<User>;
   i: number;
   userPagin: UseUserData;
 }): JSX.Element {
-  const { row, i } = props;
+  const { edge, i } = props;
   const styles = useStyles();
 
   function handleRoleChange(user: string, permission: string) {
@@ -91,22 +111,33 @@ function UserItem(props: {
     }
   }
 
+  function handleLaunchMentor(userId: string) {
+    fetchMentorIdByUserId(userId)
+      .then((mentorId) => {
+        const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
+        window.location.href = path;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
-        {row.node.name}
+        {edge.node.name}
       </TableCell>
       <TableCell data-cy="email" align="left">
-        {row.node.email}
+        {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
         <Select
           data-cy="select-role"
-          value={row.node.userRole}
+          value={edge.node.userRole}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => {
-            handleRoleChange(row.node._id, event.target.value as string);
+            handleRoleChange(edge.node._id, event.target.value as string);
           }}
           className={styles.dropdown}
         >
@@ -114,7 +145,7 @@ function UserItem(props: {
             data-cy={`role-dropdown-${UserRole.USER}`}
             value={UserRole.USER}
           >
-            Author
+            User
           </MenuItem>
           <MenuItem
             data-cy={`role-dropdown-${UserRole.CONTENT_MANAGER}`}
@@ -130,6 +161,28 @@ function UserItem(props: {
           </MenuItem>
         </Select>
       </TableCell>
+      <TableCell>
+        <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
+          <IconButton
+            data-cy="launch-default-mentor"
+            onClick={() => {
+              handleLaunchMentor(edge.node._id);
+            }}
+            className={styles.normalButton}
+          >
+            <LaunchIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Edit Mentor" arrow>
+          <IconButton
+            data-cy="edit-default-mentor"
+            //onClick={handleLaunchMentor}
+            className={styles.normalButton}
+          >
+            <CreateIcon />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
     </TableRow>
   );
 }
@@ -140,7 +193,7 @@ function UsersTable(props: {
 }): JSX.Element {
   const styles = useStyles();
   //const [users, setUsers] = React.useState<Connection<User>>();
-  const users = props.userData.edges;
+  const edges = props.userData.edges;
 
   return (
     <div className={styles.root}>
@@ -154,10 +207,10 @@ function UsersTable(props: {
               onSort={props.userPagin.sortBy}
             />
             <TableBody data-cy="users">
-              {users.map((row, i) => (
+              {edges.map((edge, i) => (
                 <UserItem
-                  key={row.node._id}
-                  row={row}
+                  key={i}
+                  edge={edge}
                   i={i}
                   userPagin={props.userPagin}
                 />

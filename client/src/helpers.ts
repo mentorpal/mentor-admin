@@ -26,3 +26,9 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
+
+export function urlBuild(base: string, params: Record<string, string>): string {
+  const query = new URLSearchParams();
+  Object.keys(params).forEach((n) => query.append(n, params[n]));
+  return `${base}?${query.toString()}`;
+}

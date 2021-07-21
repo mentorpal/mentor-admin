@@ -166,34 +166,22 @@ export async function fetchUsers(
   const { filter, limit, cursor, sortBy, sortAscending } = params;
   const result = await graphqlRequest.post("", {
     query: `
-      query FetchUsers($filter: String!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!) {
-        me {
-          users(
-            filter: $filter,
-            limit: $limit,
-            cursor: $cursor,
-            sortBy: $sortBy,
-            sortAscending: $sortAscending
-          ) {
-            edges {
-              cursor
-              node {
-                id
-                name
-                email
-                userRole
-              }
-            }
-            pageInfo {
-              startCursor
-              endCursor
-              hasPreviousPage
-              hasNextPage
-            }
+    query FetchUsers($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+      fetchUsers (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+        edges {
+          node {
+            _id
+            name
+            email
+            userRole
           }
         }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
       }
-    `,
+    }`,
     variables: {
       filter: JSON.stringify(filter),
       limit,
@@ -202,7 +190,7 @@ export async function fetchUsers(
       sortAscending,
     },
   });
-  return result.data.data.me.users;
+  return result.data.data.fetchUsers;
 }
 
 export async function updateUserPermissions(
@@ -214,21 +202,13 @@ export async function updateUserPermissions(
   const result = await graphqlRequest.post(
     "",
     {
-      query: `
-      mutation UpdateUserPermissions($userId: String!, $permissionLevel: String!) {
+      query: `mutation UpdateUserPermissions($userId: String!, $permissionLevel: String!){
         me {
-          updateUserPermissions(
-            userId:$userId,
-            permissionLevel:$permissionLevel
-          ) {
-            id
-            name
-            email
+          updateUserPermissions(userId: $userId, permissionLevel: $permissionLevel) {
             userRole
           }
         }
-      }
-    `,
+      }`,
       variables: { userId, permissionLevel },
     },
     { headers: headers }
@@ -451,6 +431,21 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
     { headers: headers }
   );
   return result.data.data.me.mentor;
+}
+
+export async function fetchMentorIdByUserId(userId: string): Promise<string> {
+  const result = await graphqlRequest.post("", {
+    query: `
+      query FindMentorByUserId($user: String!){
+        findMentorByUserId(user: $user) {
+          _id
+        }
+      }`,
+    variables: {
+      user: userId,
+    },
+  });
+  return result.data.data.findMentorByUserId._id;
 }
 
 export async function fetchMentor(

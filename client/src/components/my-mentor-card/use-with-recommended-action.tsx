@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
+import { urlBuild } from "helpers";
 
 interface Category {
   subjectName: string;
@@ -35,12 +36,6 @@ interface Recommendation {
   action: () => void;
   skippable: boolean;
   skip: Conditions;
-}
-
-function urlBuild(base: string, params: Record<string, string>) {
-  const query = new URLSearchParams();
-  Object.keys(params).forEach((n) => query.append(n, params[n]));
-  return `${base}?${query.toString()}`;
 }
 
 function recommend(conditions: Conditions): Recommendation {
