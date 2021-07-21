@@ -188,6 +188,17 @@ export function useWithSetup(
     }
   }, [trainError]);
 
+  function addToIdx(delta = 1): void {
+    // we have to add steps.length below because stupid js
+    // returns negative mods, e.g.
+    //    (0 - 1) % 10 == -1 // should be 9
+    setIdx(
+      !isNaN(Number(idx))
+        ? Number(idx) + ((delta + steps.length) % steps.length)
+        : 0
+    );
+  }
+
   function nextStep() {
     if (!status) {
       return;
@@ -195,11 +206,7 @@ export function useWithSetup(
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    if (idx === steps.length - 1) {
-      setIdx(0);
-    } else {
-      setIdx(idx + 1);
-    }
+    addToIdx(1);
   }
 
   function prevStep() {
@@ -209,11 +216,7 @@ export function useWithSetup(
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    if (idx === 0) {
-      setIdx(steps.length - 1);
-    } else {
-      setIdx(idx - 1);
-    }
+    addToIdx(-1);
   }
 
   function toStep(i: number) {
