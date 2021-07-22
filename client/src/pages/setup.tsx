@@ -100,8 +100,6 @@ function SetupPage(props: {
     error,
     editMentor,
     startTraining,
-    nextStep,
-    prevStep,
     toStep,
   } = useWithSetup(props.accessToken, props.search);
 
@@ -184,13 +182,17 @@ function SetupPage(props: {
     <div className={classes.root}>
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
-        animation="fade"
+        animation="slide"
         index={idx}
         autoPlay={false}
         navButtonsAlwaysVisible={true}
         className={classes.carousel}
-        next={() => nextStep()}
-        prev={() => prevStep()}
+        timeout={{
+          appear: 300,
+          enter: 300,
+          exit: 100,
+        }}
+        onChange={(idx: number) => toStep(idx)}
         NavButton={({ onClick, style, next, prev }) => {
           return (
             <IconButton
@@ -206,7 +208,6 @@ function SetupPage(props: {
             </IconButton>
           );
         }}
-        onChange={(idx: number) => toStep(idx)}
         IndicatorIcon={
           <FiberManualRecordIcon data-cy="radio" fontSize="small" />
         }
