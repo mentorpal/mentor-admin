@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import {
+  AppBar,
   CircularProgress,
   IconButton,
   makeStyles,
@@ -16,10 +17,10 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  Toolbar,
   Tooltip,
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
-import CreateIcon from "@material-ui/icons/Create";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
@@ -27,7 +28,9 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import React from "react";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import { CLIENT_ENDPOINT, fetchMentorIdByUserId } from "api";
+import { CLIENT_ENDPOINT } from "api";
+import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,8 +51,8 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
   },
   paging: {
-    position: "absolute",
-    right: theme.spacing(1),
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   dropdown: {
     width: 170,
@@ -95,31 +98,50 @@ const columns: ColumnDef[] = [
   },
 ];
 
+function TableFooter(props: {
+  hasNext: boolean;
+  hasPrev: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+}): JSX.Element {
+  const styles = useStyles();
+  const { hasNext, hasPrev, onNext, onPrev } = props;
+  return (
+    <AppBar position="sticky" color="default" className={styles.appBar}>
+      <Toolbar>
+        <div className={styles.paging}>
+          <IconButton data-cy="prev-page" disabled={!hasPrev} onClick={onPrev}>
+            <KeyboardArrowLeftIcon />
+          </IconButton>
+          <IconButton data-cy="next-page" disabled={!hasNext} onClick={onNext}>
+            <KeyboardArrowRightIcon />
+          </IconButton>
+        </div>
+      </Toolbar>
+    </AppBar>
+  );
+}
+
 function UserItem(props: {
   edge: Edge<User>;
   i: number;
   userPagin: UseUserData;
+  userRole: UserRole;
 }): JSX.Element {
   const { edge, i } = props;
   const styles = useStyles();
+  const noEditPermission =
+    props.userRole === UserRole.USER ||
+    (edge.node.userRole === UserRole.ADMIN &&
+      props.userRole !== UserRole.ADMIN);
 
   function handleRoleChange(user: string, permission: string) {
-    try {
-      props.userPagin.onUpdateUserPermissions(user, permission);
-    } catch (err) {
-      console.error(err);
-    }
+    props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
-  function handleLaunchMentor(userId: string) {
-    fetchMentorIdByUserId(userId)
-      .then((mentorId) => {
-        const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
-        window.location.href = path;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+  function handleLaunchMentor(mentorId: string) {
+    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
+    window.location.href = path;
   }
 
   return (
@@ -131,55 +153,51 @@ function UserItem(props: {
         {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
-        <Select
-          data-cy="select-role"
-          value={edge.node.userRole}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => {
-            handleRoleChange(edge.node._id, event.target.value as string);
-          }}
-          className={styles.dropdown}
-        >
-          <MenuItem
-            data-cy={`role-dropdown-${UserRole.USER}`}
-            value={UserRole.USER}
+        {noEditPermission ? (
+          edge.node.userRole
+        ) : (
+          <Select
+            data-cy="select-role"
+            value={edge.node.userRole}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              handleRoleChange(edge.node._id, event.target.value as string);
+            }}
+            className={styles.dropdown}
           >
-            User
-          </MenuItem>
-          <MenuItem
-            data-cy={`role-dropdown-${UserRole.CONTENT_MANAGER}`}
-            value={UserRole.CONTENT_MANAGER}
-          >
-            Content Manager
-          </MenuItem>
-          <MenuItem
-            data-cy={`role-dropdown-${UserRole.ADMIN}`}
-            value={UserRole.ADMIN}
-          >
-            Admin
-          </MenuItem>
-        </Select>
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.USER}`}
+              value={UserRole.USER}
+            >
+              User
+            </MenuItem>
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.CONTENT_MANAGER}`}
+              value={UserRole.CONTENT_MANAGER}
+            >
+              Content Manager
+            </MenuItem>
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.ADMIN}`}
+              value={UserRole.ADMIN}
+            >
+              Admin
+            </MenuItem>
+          </Select>
+        )}
       </TableCell>
       <TableCell>
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
           <IconButton
             data-cy="launch-default-mentor"
             onClick={() => {
-              handleLaunchMentor(edge.node._id);
+              if (edge.node.defaultMentor._id)
+                handleLaunchMentor(edge.node.defaultMentor._id);
             }}
             className={styles.normalButton}
           >
             <LaunchIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Edit Mentor" arrow>
-          <IconButton
-            data-cy="edit-default-mentor"
-            //onClick={handleLaunchMentor}
-            className={styles.normalButton}
-          >
-            <CreateIcon />
           </IconButton>
         </Tooltip>
       </TableCell>
@@ -190,9 +208,9 @@ function UserItem(props: {
 function UsersTable(props: {
   userData: Connection<User>;
   userPagin: UseUserData;
+  userRole: UserRole;
 }): JSX.Element {
   const styles = useStyles();
-  //const [users, setUsers] = React.useState<Connection<User>>();
   const edges = props.userData.edges;
 
   return (
@@ -213,12 +231,19 @@ function UsersTable(props: {
                   edge={edge}
                   i={i}
                   userPagin={props.userPagin}
+                  userRole={props.userRole}
                 />
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Paper>
+      <TableFooter
+        hasNext={props.userPagin.data?.pageInfo.hasNextPage || false}
+        hasPrev={props.userPagin.data?.pageInfo.hasPreviousPage || false}
+        onNext={props.userPagin.nextPage}
+        onPrev={props.userPagin.prevPage}
+      />
     </div>
   );
 }
@@ -245,7 +270,11 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   return (
     <div>
       <NavBar title="Manage Users" />
-      <UsersTable userData={userPagin.data} userPagin={userPagin} />
+      <UsersTable
+        userRole={props.user.userRole}
+        userData={userPagin.data}
+        userPagin={userPagin}
+      />
     </div>
   );
 }

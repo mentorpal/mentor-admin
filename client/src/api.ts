@@ -167,18 +167,23 @@ export async function fetchUsers(
   const result = await graphqlRequest.post("", {
     query: `
     query FetchUsers($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
-      fetchUsers (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+      fetchUsers(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
         edges {
           node {
             _id
             name
             email
             userRole
+            defaultMentor{
+              _id
+            }
           }
         }
         pageInfo {
-          hasNextPage
+          startCursor
           endCursor
+          hasPreviousPage
+          hasNextPage
         }
       }
     }`,
@@ -431,21 +436,6 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
     { headers: headers }
   );
   return result.data.data.me.mentor;
-}
-
-export async function fetchMentorIdByUserId(userId: string): Promise<string> {
-  const result = await graphqlRequest.post("", {
-    query: `
-      query FindMentorByUserId($user: String!){
-        findMentorByUserId(user: $user) {
-          _id
-        }
-      }`,
-    variables: {
-      user: userId,
-    },
-  });
-  return result.data.data.findMentorByUserId._id;
 }
 
 export async function fetchMentor(

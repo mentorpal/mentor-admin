@@ -27,6 +27,7 @@ export interface User {
   name: string;
   email: string;
   userRole: UserRole;
+  defaultMentor: Mentor;
 }
 
 export interface UserAccessToken {

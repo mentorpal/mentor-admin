@@ -15,6 +15,7 @@ export const users = {
         name: "Admin",
         email: "admin@opentutor.org",
         userRole: UserRole.ADMIN,
+        defaultMentor: "clintanderson",
       },
     },
     {
@@ -24,6 +25,7 @@ export const users = {
         name: "Content Manager",
         email: "contentmanager@opentutor.org",
         userRole: UserRole.CONTENT_MANAGER,
+        defaultMentor: "clintanderson",
       },
     },
     {
@@ -33,6 +35,7 @@ export const users = {
         name: "User",
         email: "user@opentutor.org",
         userRole: UserRole.USER,
+        defaultMentor: "clintanderson",
       },
     },
   ],

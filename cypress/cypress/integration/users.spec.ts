@@ -4,6 +4,58 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { cyMockDefault, mockGQL } from "../support/functions";
+import newMentor from "../fixtures/mentor/clint_new";
+import clint from "../fixtures/mentor/clint_home";
+import { login as loginDefault } from "../fixtures/login";
+import { UserRole } from "../support/types";
+import { users } from "../fixtures/users";
 describe("users screen", () => {
-  it("an admin can change the role of a user", () => {});
+  it("admins can edit all users roles", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [mockGQL("fetchUsers", users, false)],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-1]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-2]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+  });
+
+  it("content managers cannot edit admins, but can edit others", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+      },
+      gqlQueries: [mockGQL("fetchUsers", users, false)],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=select-role]").should("not.exist");
+    });
+    cy.get("[data-cy=user-1]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-2]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+  });
 });

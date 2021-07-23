@@ -38,24 +38,45 @@ describe("Index page", () => {
     cy.get("[data-cy=select-subject]").should("exist");
   });
 
-  it("an admin can navigate to users page from hamburger menu", () => {
+  it('admins see the "Users" option in hamburger menu', () => {
     cyMockDefault(cy, {
       mentor: [clint],
       login: {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
-      gqlQueries: [
-        mockGQL("users", users, true),
-        mockGQL("updateUserPermissions", {}, true),
-      ],
     });
     cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/");
-    });
     cy.get("[data-cy=select-subject]").should("exist");
     cy.get("[data-cy=menu-button]").trigger("mouseover").click();
-    cy.get("[data-cy=Users-menu-button]").trigger("mouseover").click();
+    cy.get("[data-cy=Users-menu-button]").should("exist");
+  });
+
+  it('content managers can see the "Users" option in hamburger menu', () => {
+    cyMockDefault(cy, {
+      mentor: [clint],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=select-subject]").should("exist");
+    cy.get("[data-cy=menu-button]").trigger("mouseover").click();
+    cy.get("[data-cy=Users-menu-button]").should("exist");
+  });
+
+  it('users cannot see the "Users" option in hamburger menu', () => {
+    cyMockDefault(cy, {
+      mentor: [clint],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.USER },
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=select-subject]").should("exist");
+    cy.get("[data-cy=menu-button]").trigger("mouseover").click();
+    cy.get("[data-cy=Users-menu-button]").should("not.exist");
   });
 });
