@@ -72,8 +72,12 @@ function LoginPage(): JSX.Element {
     // displays some error with retry option if config fails to load
     return (
       <div>
-        Failed to load config
-        <p />
+        <AppBar position="fixed">
+          <Toolbar>
+            <Typography variant="h6">Mentor Studio</Typography>
+          </Toolbar>
+        </AppBar>
+        <Typography>Failed to load config</Typography>
         <Button
           color="primary"
           variant="contained"
@@ -101,6 +105,7 @@ function LoginPage(): JSX.Element {
           color="primary"
           className={classes.button}
           onClick={() => dispatch(login(process.env.ACCESS_TOKEN || ""))}
+          data-cy="login-btn"
         >
           Test Login
         </Button>
@@ -115,6 +120,7 @@ function LoginPage(): JSX.Element {
               onClick={renderProps.onClick}
               className={classes.button}
               disabled={renderProps.disabled}
+              data-cy="login-btn"
             >
               Sign in with Google
             </Button>

@@ -57,7 +57,8 @@ export const login = createAsyncThunk(
 );
 
 export const logout =
-  () => (dispatch: (arg0: { payload: undefined; type: string }) => void) => {
+  () =>
+  (dispatch: (arg0: { payload: undefined; type: string }) => void): void => {
     accessTokenClear();
     dispatch(onLogout());
   };
