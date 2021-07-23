@@ -246,8 +246,7 @@ export enum LoginStatus {
 }
 
 export interface MentorExportJson {
-  _id: string;
   subjects: Subject[];
-  questions: SubjectQuestion[];
+  questions: Question[];
   answers: Answer[];
 }

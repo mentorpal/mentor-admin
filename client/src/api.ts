@@ -916,7 +916,6 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
     query: `
       query ExportMentor($mentor: ID!) {
         exportMentor(mentor: $mentor) {
-          _id
           subjects {
             _id
             name
@@ -952,7 +951,6 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
             }
           }
           answers {
-            _id
             transcript
             status
             question {

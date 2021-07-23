@@ -2,38 +2,6 @@
   "_id": "clintanderson",
   "subjects": [
     {
-      "_id": "background",
-      "name": "Background",
-      "description": "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      "categories": [
-        { "id": "category", "name": "Category", "description": "A category" }
-      ],
-      "topics": [],
-      "questions": [
-        {
-          "question": {
-            "_id": "A1_1_1",
-            "question": "Who are you and what do you do?",
-            "type": "QUESTION",
-            "name": null,
-            "paraphrases": []
-          },
-          "topics": [],
-          "category": { "id": "category" }
-        },
-        {
-          "question": {
-            "_id": "A2_1_1",
-            "question": "How old are you now?",
-            "type": "QUESTION",
-            "name": null,
-            "paraphrases": []
-          },
-          "topics": []
-        }
-      ]
-    },
-    {
       "_id": "repeat_after_me",
       "name": "Repeat After Me",
       "isRequired": true,
@@ -43,9 +11,20 @@
           "id": "category2",
           "name": "Category2",
           "description": "Another category"
+        },
+        {
+          "id": "category3",
+          "name": "Category3",
+          "description": "A new category"
         }
       ],
-      "topics": [],
+      "topics": [
+        {
+          "id": "topic",
+          "name": "Topic",
+          "description": "A new topic"
+        }
+      ],
       "questions": [
         {
           "question": {
@@ -77,34 +56,46 @@
             "name": "_OFF_TOPIC_",
             "paraphrases": []
           },
+          "topics": [
+            {
+              "id": "topic",
+              "name": "Topic",
+              "description": "A new topic"
+            }
+          ],
+          "category": {
+            "id": "category2",
+            "name": "Category2",
+            "description": "Another category"
+          }
+        },
+        {
+          "question": {
+            "_id": "A6_1_1",
+            "question": "A new question being added",
+            "type": "UTTERANCE",
+            "name": "_OFF_TOPIC_",
+            "paraphrases": []
+          },
           "topics": [],
-          "category": { "id": "category2" }
+          "category": {
+            "id": "category3",
+            "name": "Category3",
+            "description": "A new category"
+          }
         }
       ]
+    },
+    {
+      "_id": "new_subject",
+      "name": "New subject",
+      "isRequired": false,
+      "description": "A new subject",
+      "categories": [],
+      "questions": []
     }
   ],
   "questions": [
-    {
-      "question": {
-        "_id": "A1_1_1",
-        "question": "Who are you and what do you do?",
-        "type": "QUESTION",
-        "name": null,
-        "paraphrases": []
-      },
-      "topics": [],
-      "category": { "id": "category" }
-    },
-    {
-      "question": {
-        "_id": "A2_1_1",
-        "question": "How old are you now?",
-        "type": "QUESTION",
-        "name": null,
-        "paraphrases": []
-      },
-      "topics": []
-    },
     {
       "question": {
         "_id": "A3_1_1",
@@ -135,33 +126,43 @@
         "name": "_OFF_TOPIC_",
         "paraphrases": []
       },
+      "topics": [
+        {
+          "id": "topic"
+        }
+      ],
+      "category": {
+        "id": "category2"
+      }
+    },
+    {
+      "question": {
+        "_id": "A6_1_1",
+        "question": "A new question being added",
+        "type": "UTTERANCE",
+        "name": "_OFF_TOPIC_",
+        "paraphrases": []
+      },
       "topics": [],
-      "category": { "id": "category2" }
+      "category": {
+        "id": "category3"
+      }
     }
   ],
   "answers": [
-    {
-      "_id": "A1_1_1",
-      "question": {
-        "_id": "A1_1_1",
-        "question": "Who are you and what do you do?"
-      },
-      "transcript": "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-      "status": "COMPLETE"
-    },
-    {
-      "_id": "A2_1_1",
-      "question": { "_id": "A2_1_1", "question": "How old are you now?" },
-      "transcript": "I'm 37 years old",
-      "status": "COMPLETE"
-    },
     {
       "_id": "A3_1_1",
       "question": {
         "_id": "A3_1_1",
         "question": "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
       },
-      "media": [{ "url": "video.mp4", "tag": "idle", "type": "video" }],
+      "media": [
+        {
+          "url": "video.mp4",
+          "tag": "idle",
+          "type": "video"
+        }
+      ],
       "transcript": "",
       "status": "COMPLETE"
     },
@@ -181,7 +182,7 @@
         "question": "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
       },
       "transcript": "",
-      "status": "INCOMPLETE"
+      "status": "COMPLETE"
     }
   ]
 }
