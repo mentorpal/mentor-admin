@@ -84,7 +84,7 @@ export interface Question {
   _id: string;
   question: string;
   type: QuestionType;
-  name: string;
+  name: UtteranceName;
   paraphrases: string[];
   mentor?: string;
   mentorType?: string;
@@ -161,6 +161,7 @@ export enum QuestionType {
 }
 
 export enum UtteranceName {
+  NONE = "NONE",
   IDLE = "_IDLE_",
   INTRO = "_INTRO_",
   OFF_TOPIC = "_OFF_TOPIC_",

@@ -269,7 +269,7 @@ describe("Edit subject", () => {
       "cy-value",
       "UTTERANCE"
     );
-    cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "");
+    cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "NONE");
     cy.get("[data-cy=select-name]").trigger("mouseover").click();
     cy.get("[data-cy=IDLE-name]").trigger("mouseover").click();
     cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "_IDLE_");

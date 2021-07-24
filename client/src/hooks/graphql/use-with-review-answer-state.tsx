@@ -17,6 +17,7 @@ import {
   QuestionType,
   Question,
   Mentor,
+  UtteranceName,
 } from "types";
 import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
@@ -221,7 +222,7 @@ export function useWithReviewAnswerState(
         question: "",
         paraphrases: [],
         type: QuestionType.QUESTION,
-        name: "",
+        name: UtteranceName.NONE,
         mentor: editedMentor._id,
       },
       category: category,

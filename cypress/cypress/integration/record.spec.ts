@@ -193,6 +193,24 @@ const videoMentor: Mentor = completeMentor({
       ],
       status: Status.COMPLETE,
     },
+    {
+      _id: "A4_1_1",
+      question: completeQuestion({
+        _id: "A4_1_1",
+        question: "Record an idle video",
+        mentor: "clintanderson",
+        name: "_IDLE_",
+      }),
+      transcript: "",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A3_1_1.mp4",
+        },
+      ],
+      status: Status.COMPLETE,
+    },
   ],
 });
 
@@ -2883,5 +2901,121 @@ describe("Record", () => {
         .get("p")
         .should("have.text", "Failed to process file: UPLOAD_FAILED");
     });
+  });
+  it("warns user of empty transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  uploadStatus: "UPLOAD_IN_PROGRESS",
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  uploadStatus: "DONE",
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=warn-empty-transcript]").should("exist");
+  });
+
+  it("does not warn user of empty transcript if idle video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+                  uploadStatus: "UPLOAD_IN_PROGRESS",
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+                  uploadStatus: "DONE",
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=warn-empty-transcript]").should("not.exist");
   });
 });

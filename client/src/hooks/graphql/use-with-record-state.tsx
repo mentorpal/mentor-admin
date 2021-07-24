@@ -23,6 +23,7 @@ import { RecordPageState } from "types";
 export interface AnswerState {
   answer: Answer;
   editedAnswer: Answer;
+  needsAttention: boolean;
   recordedVideo?: File;
   minVideoLength?: number;
 }
@@ -107,6 +108,7 @@ export function useWithRecordState(
         editedAnswer: a,
         recordedVideo: undefined,
         minVideoLength: a.question?.minVideoLength,
+        needsAttention: doesAnswerNeedAttention(a),
       }))
     );
     setRecordPageState(RecordPageState.RECORDING_ANSWERS);
@@ -158,7 +160,23 @@ export function useWithRecordState(
     edits: Partial<AnswerState>,
     idx: number = answerIdx
   ) {
-    setAnswers(copyAndSet(answers, idx, { ...answers[idx], ...edits }));
+    const updatedAnswer = { ...answers[idx], ...edits };
+    setAnswers(
+      copyAndSet(answers, idx, {
+        ...updatedAnswer,
+        needsAttention: doesAnswerNeedAttention(updatedAnswer.editedAnswer),
+      })
+    );
+  }
+
+  function doesAnswerNeedAttention(answer: Answer): boolean {
+    if (
+      answer.transcript.length === 0 &&
+      answer.question.name !== UtteranceName.IDLE
+    ) {
+      return true;
+    }
+    return false;
   }
 
   function onAnswerUploaded(upload: UploadTask) {

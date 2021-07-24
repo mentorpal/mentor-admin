@@ -125,6 +125,10 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor =
     curAnswer?.editedAnswer.question?.mentor === mentor?._id;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
+  const warnEmptyTranscript =
+    curAnswer?.videoSrc &&
+    curAnswer.editedAnswer.transcript.length <= 0 &&
+    curAnswer.answer.question.name !== UtteranceName.IDLE;
 
   function onBack() {
     if (props.search.back) {
@@ -296,7 +300,16 @@ function RecordPage(props: {
           ) : (
             <div data-cy="transcript" className={classes.block}>
               <Typography className={classes.title}>
-                Answer Transcript:
+                Answer Transcript:{" "}
+                {warnEmptyTranscript ? (
+                  <text
+                    data-cy="warn-empty-transcript"
+                    style={{ fontWeight: "normal" }}
+                  >
+                    No video transcript available. Would you like to manually
+                    enter a transcript?
+                  </text>
+                ) : undefined}
               </Typography>
               <FormControl className={classes.inputField} variant="outlined">
                 <OutlinedInput
