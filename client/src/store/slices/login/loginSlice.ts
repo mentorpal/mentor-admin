@@ -6,7 +6,17 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "api";
-import { LoginStatus, User } from "types";
+import { User } from "types";
+
+/** Store */
+
+export enum LoginStatus {
+  NONE = 0,
+  NOT_LOGGED_IN = 1,
+  IN_PROGRESS = 2,
+  AUTHENTICATED = 3,
+  FAILED = 4,
+}
 
 export interface LoginState {
   accessToken: string | undefined;
@@ -15,44 +25,36 @@ export interface LoginState {
 }
 
 const initialState: LoginState = {
-  accessToken: accessTokenGet(),
+  accessToken: undefined,
   loginStatus: LoginStatus.NONE,
   user: undefined,
 };
 
-const ACCESS_TOKEN_KEY = "accessToken";
-function accessTokenGet(): string {
-  if (typeof window === "undefined") {
-    return "";
-  }
-  return localStorage.getItem(ACCESS_TOKEN_KEY) || "";
-}
-function accessTokenStore(accessToken: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-}
-function accessTokenClear(): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-}
+/** Actions */
 
 export const googleLogin = createAsyncThunk(
   "login/googleLogin",
-  async (accessToken: string) => {
-    const googleToken = await api.loginGoogle(accessToken);
-    return await api.login(googleToken.accessToken);
+  async (accessToken: string, { rejectWithValue }) => {
+    try {
+      const googleToken = await api.loginGoogle(accessToken);
+      return await api.login(googleToken.accessToken);
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 
 export const login = createAsyncThunk(
   "login/login",
-  async (accessToken: string) => {
-    accessTokenStore(accessToken);
-    return await api.login(accessToken);
+  async (accessToken: string, { rejectWithValue }) => {
+    try {
+      accessTokenStore(accessToken);
+      return await api.login(accessToken);
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 
@@ -63,6 +65,8 @@ export const logout =
     dispatch(onLogout());
   };
 
+/** Reducer */
+
 export const loginSlice = createSlice({
   name: "login",
   initialState,
@@ -70,7 +74,7 @@ export const loginSlice = createSlice({
     onLogout: (state) => {
       state.user = undefined;
       state.accessToken = undefined;
-      state.loginStatus = LoginStatus.NONE;
+      state.loginStatus = LoginStatus.NOT_LOGGED_IN;
     },
   },
   extraReducers: (builder) => {
@@ -103,6 +107,32 @@ export const loginSlice = createSlice({
       });
   },
 });
+
 const { onLogout } = loginSlice.actions;
 
 export default loginSlice.reducer;
+
+/** Helpers */
+
+const ACCESS_TOKEN_KEY = "accessToken";
+
+export function accessTokenGet(): string {
+  if (typeof window === "undefined") {
+    return "";
+  }
+  return localStorage.getItem(ACCESS_TOKEN_KEY) || "";
+}
+
+function accessTokenStore(accessToken: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+}
+
+function accessTokenClear(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+}

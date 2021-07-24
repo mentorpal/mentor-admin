@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   AppBar,
   Button,
@@ -38,10 +37,10 @@ import {
   Subject as SubjectIcon,
   PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+
 import { CLIENT_ENDPOINT } from "api";
-import { logout } from "store/slices/loginSlice";
-import { RootState } from "store/store";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
@@ -81,8 +80,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
     EventTarget & HTMLButtonElement
   >();
   const open = Boolean(anchorEl);
-  const loginState = useSelector((state: RootState) => state.login);
-  const dispatch = useDispatch();
+  const { state: loginState, logout } = useWithLogin();
 
   function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
@@ -93,7 +91,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    dispatch(logout());
+    logout();
     navigate("/");
   }
 
@@ -160,7 +158,7 @@ function NavMenu(props: {
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
-  const dispatch = useDispatch();
+  const { logout } = useWithLogin();
 
   async function openChat() {
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
@@ -168,7 +166,7 @@ function NavMenu(props: {
   }
 
   function onLogout(): void {
-    dispatch(logout());
+    logout();
     navigate("/");
   }
 

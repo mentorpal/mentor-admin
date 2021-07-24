@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   GoogleLogin,
   GoogleLoginResponse,
@@ -19,10 +18,10 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { login, googleLogin } from "store/slices/loginSlice";
-import { ConfigStatus, getConfig } from "store/slices/configSlice";
-import { RootState } from "store/store";
-// import withConfigOnly from "hooks/wrap-with-config-only";
+
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import { ConfigStatus } from "store/slices/config/configSlice";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -44,12 +43,8 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const configState = useSelector((state: RootState) => state.config);
-
-  React.useEffect(() => {
-    dispatch(getConfig());
-  }, []);
+  const { state: configState, loadConfig } = useWithConfig();
+  const { loginWithGoogle, login } = useWithLogin();
 
   function onGoogleLogin(
     response: GoogleLoginResponse | GoogleLoginResponseOffline
@@ -58,7 +53,7 @@ function LoginPage(): JSX.Element {
       return;
     }
     const loginResponse = response as GoogleLoginResponse;
-    dispatch(googleLogin(loginResponse.accessToken));
+    loginWithGoogle(loginResponse.accessToken);
   }
 
   if (
@@ -68,7 +63,7 @@ function LoginPage(): JSX.Element {
     // app never shows any component until config is loaded
     return <CircularProgress />;
   }
-  if (configState.status === ConfigStatus.FAILED) {
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
     // displays some error with retry option if config fails to load
     return (
       <div>
@@ -78,11 +73,7 @@ function LoginPage(): JSX.Element {
           </Toolbar>
         </AppBar>
         <Typography>Failed to load config</Typography>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={() => dispatch(getConfig())}
-        >
+        <Button color="primary" variant="contained" onClick={loadConfig}>
           Retry
         </Button>
       </div>
@@ -104,14 +95,14 @@ function LoginPage(): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.button}
-          onClick={() => dispatch(login(process.env.ACCESS_TOKEN || ""))}
+          onClick={() => login(process.env.ACCESS_TOKEN || "")}
           data-cy="login-btn"
         >
           Test Login
         </Button>
       ) : (
         <GoogleLogin
-          clientId={configState.config?.googleClientId || ""}
+          clientId={configState.config.googleClientId}
           onSuccess={onGoogleLogin}
           render={(renderProps) => (
             <Button

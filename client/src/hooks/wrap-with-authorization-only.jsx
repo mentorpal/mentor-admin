@@ -6,17 +6,31 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { useSelector } from "react-redux";
 import { CircularProgress } from "@material-ui/core";
 
-import { LoginStatus } from "types";
 import NavBar from "components/nav-bar";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { LoginStatus } from "store/slices/login/loginSlice";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
-  const loginState = useSelector((state) => state.login);
+  const { state: loginState } = useWithLogin();
 
-  if (loginState.loginStatus === LoginStatus.NONE && !loginState.accessToken) {
+  if (
+    loginState.loginStatus === LoginStatus.NONE ||
+    loginState.loginStatus === LoginStatus.IN_PROGRESS
+  ) {
+    return (
+      <div>
+        <NavBar title="Mentor Studio" />
+        <CircularProgress />
+      </div>
+    );
+  }
+  if (
+    loginState.loginStatus === LoginStatus.NOT_LOGGED_IN &&
+    !loginState.accessToken
+  ) {
     if (typeof window !== "undefined") {
       navigate("/");
     }

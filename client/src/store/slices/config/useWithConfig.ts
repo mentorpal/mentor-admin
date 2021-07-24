@@ -4,18 +4,35 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { configureStore } from "@reduxjs/toolkit";
-import loginReducer from "./slices/login/loginSlice";
-import configReducer from "./slices/config/configSlice";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "store/hooks";
+import * as config from "./configSlice";
 
-export const store = configureStore({
-  reducer: {
-    login: loginReducer,
-    config: configReducer,
-  },
-});
+interface UseWithConfig {
+  state: config.ConfigState;
+  loadConfig: () => void;
+}
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof store.dispatch;
+export function useWithConfig(): UseWithConfig {
+  const dispatch = useDispatch();
+  const state = useAppSelector((state) => state.config);
+
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  function loadConfig() {
+    if (
+      state.status === config.ConfigStatus.NONE ||
+      state.status === config.ConfigStatus.FAILED
+    ) {
+      dispatch(config.getConfig());
+    }
+  }
+
+  return {
+    state,
+    loadConfig,
+  };
+}
