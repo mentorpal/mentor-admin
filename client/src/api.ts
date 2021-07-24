@@ -19,6 +19,7 @@ import {
   VideoInfo,
   CancelJob,
   FollowUpQuestion,
+  UtteranceName,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -685,9 +686,17 @@ export async function uploadVideo(
   trim?: { start: number; end: number }
 ): Promise<AsyncJob> {
   const data = new FormData();
+  console.log(question.name);
+  console.log(UtteranceName.IDLE);
+  console.log(question.name === UtteranceName.IDLE);
   data.append(
     "body",
-    JSON.stringify({ mentor: mentorId, question: question._id, trim })
+    JSON.stringify({
+      mentor: mentorId,
+      question: question._id,
+      is_idle_video: question.name === UtteranceName.IDLE,
+      trim,
+    })
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
