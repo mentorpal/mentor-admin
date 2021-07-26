@@ -15,10 +15,12 @@ import {
   UtteranceName,
 } from "types";
 import { copyAndSet, equals } from "helpers";
-import { useWithMentor } from "./use-with-mentor";
+
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { MentorStatus } from "store/slices/mentor/mentorSlice";
 
 export interface AnswerState {
   answer: Answer;
@@ -54,12 +56,8 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const {
-    data: mentor,
-    reloadData: reloadMentor,
-    error: mentorError,
-    isLoading: isMentorLoading,
-  } = useWithMentor(accessToken);
+  const { state: state, getMentor: reloadMentor } = useWithMentor(accessToken);
+
   const {
     uploads,
     isUploading,
@@ -73,8 +71,12 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
+  const mentorError = state.error;
+  const mentor = state.data;
+  const isMentorLoading = state.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
+    const mentor = state.data;
     if (!mentor) {
       return;
     }

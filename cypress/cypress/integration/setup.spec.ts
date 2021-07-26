@@ -217,7 +217,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getAttached("[data-cy=first-name]").type("Clint");
+    cy.get("[data-cy=first-name]").type("Clint");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
