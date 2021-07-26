@@ -52,8 +52,7 @@ const useStyles = makeStyles(() => ({
 
 function ProfilePage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const { state, getMentor, saveMentor, saveMentorSubjects, editMentor } =
-    useWithMentor(props.accessToken);
+  const { state, saveMentor, editMentor } = useWithMentor(props.accessToken);
 
   if (!state.editedData) {
     return <div />;
@@ -140,11 +139,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           variant="contained"
           color="primary"
           disabled={!state.isEdited}
-          onClick={() => {
-            if (state.editedData) {
-              saveMentor(state.editedData);
-            }
-          }}
+          onClick={saveMentor}
         >
           Save Changes
         </Button>

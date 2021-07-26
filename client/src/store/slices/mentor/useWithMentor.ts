@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { equals } from "helpers";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
@@ -13,7 +14,7 @@ import * as mentorActions from "./mentorSlice";
 interface UseWithMentor {
   state: mentorActions.MentorState;
   getMentor: () => void;
-  saveMentor: (editedData: Mentor) => void;
+  saveMentor: () => void;
   saveMentorSubjects: (editedData: Mentor) => void;
   editMentor: (edits: Partial<Mentor>) => void;
 }
@@ -45,13 +46,15 @@ export const useWithMentor = (accessToken: string): UseWithMentor => {
     }
   };
 
-  const saveMentor = (editedData: Mentor) => {
-    dispatch(
-      mentorActions.saveMentor({
-        accessToken: state.accessToken,
-        editedData: editedData,
-      })
-    );
+  const saveMentor = () => {
+    if (!equals(state.data, state.editedData)) {
+      dispatch(
+        mentorActions.saveMentor({
+          accessToken: state.accessToken,
+          editedData: state.editedData,
+        })
+      );
+    }
   };
 
   const saveMentorSubjects = (editedData: Mentor) => {
