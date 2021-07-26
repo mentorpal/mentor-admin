@@ -92,7 +92,7 @@ export async function fetchConfig(): Promise<Config> {
     "",
     {
       query: `
-      query {
+      query FetchConfig{
         config {
           googleClientId
         }
@@ -195,7 +195,7 @@ export async function fetchUsers(
       sortAscending,
     },
   });
-  return result.data.data.fetchUsers;
+  return result.data.data;
 }
 
 export async function updateUserPermissions(
@@ -461,6 +461,7 @@ export async function fetchMentor(
             mentorType
             thumbnail
             lastTrainedAt
+            isDirty
             defaultSubject {
               _id
             }
@@ -837,7 +838,7 @@ export async function fetchUploadTasks(
     "",
     {
       query: `
-        query {
+        query FetchUploadTasks {
           me {
             uploadTasks {
               question {

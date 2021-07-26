@@ -30,7 +30,9 @@ describe("Profile", () => {
           title: "Nuclear Electrician's Mate",
         },
       ],
-      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cy.visit("/profile");
     cy.contains("My Profile");

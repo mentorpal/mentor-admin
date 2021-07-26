@@ -84,6 +84,7 @@ function HomePage(props: {
     selectSubject,
     saveChanges,
     startTraining,
+    launchMentor,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
   if (!mentor) {
@@ -95,6 +96,9 @@ function HomePage(props: {
     );
   }
 
+  const continueAction = () =>
+    mentor.isDirty ? startTraining(mentor._id) : launchMentor(mentor._id);
+
   return (
     <div className={classes.root}>
       <div>
@@ -103,7 +107,11 @@ function HomePage(props: {
           mentorId={mentor?._id}
           userRole={props.user.userRole}
         />
-        <MyMentorCard mentor={mentor} accessToken={props.accessToken} />
+        <MyMentorCard
+          mentor={mentor}
+          accessToken={props.accessToken}
+          continueAction={continueAction}
+        />
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}
@@ -172,10 +180,10 @@ function HomePage(props: {
             variant="extended"
             color="primary"
             disabled={!mentor || isTraining || isLoading || isSaving}
-            onClick={() => startTraining(mentor._id)}
+            onClick={continueAction}
             className={classes.fab}
           >
-            Build Mentor
+            {mentor.isDirty ? "Build Mentor" : "Preview Mentor"}
           </Fab>
         </Toolbar>
       </AppBar>

@@ -197,7 +197,9 @@ describe("Setup", () => {
         setup3,
         { ...setup3, email: "clint@anderson.com" },
       ],
-      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cy.visit("/setup?i=1");
     // empty mentor slide
@@ -215,7 +217,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getAttached("[data-cy=first-name]").type("Clint");
+    cy.getSettled("[data-cy=first-name]", { retries: 2 }).type("Clint");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -234,7 +236,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.getAttached("[data-cy=name]").type("Clinton Anderson");
+    cy.getSettled("[data-cy=name]", { retries: 2 }).type("Clinton Anderson");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -253,7 +255,9 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.getAttached("[data-cy=mentor-title]").type("Nuclear Electrician's Mate");
+    cy.getSettled("[data-cy=mentor-title]", { retries: 2 }).type(
+      "Nuclear Electrician's Mate"
+    );
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -272,7 +276,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
-    cy.getAttached("[data-cy=email]").type("clint@anderson.com");
+    cy.getSettled("[data-cy=email]", { retries: 2 }).type("clint@anderson.com");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -297,13 +301,17 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null },
-      gqlQueries: [mockGQL("updateMentorDetails", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cy.visit("/setup?i=2");
     cy.contains("Pick a mentor type");
     // select chat type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+        .trigger("mouseover")
+        .click();
     });
     cy.get("[data-cy=video]").should("exist");
     cy.get("[data-cy=chat]").trigger("mouseover").click();
@@ -320,7 +328,9 @@ describe("Setup", () => {
     cy.get("[data-cy=radio]").should("have.length", 7);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=select-chat-type]").trigger("mouseover").click();
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+        .trigger("mouseover")
+        .click();
     });
     cy.get("[data-cy=chat]").should("exist");
     cy.get("[data-cy=video]").trigger("mouseover").click();
@@ -365,7 +375,9 @@ describe("Setup", () => {
         },
       ],
       subjects: [allSubjects],
-      gqlQueries: [mockGQL("updateMentorSubjects", true, true)],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      ],
     });
     cy.visit("/setup?i=3");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -381,7 +393,9 @@ describe("Setup", () => {
     cy.contains("Pick the ones you feel qualified to mentor in!");
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=button]").trigger("mouseover").click();
+      cy.getSettled("[data-cy=button]", { retries: 2 })
+        .trigger("mouseover")
+        .click();
     });
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/subjects")
@@ -471,7 +485,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=5");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -483,7 +497,9 @@ describe("Setup", () => {
     });
     cy.contains("Idle");
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.get("[data-cy=record-btn]").trigger("mouseover").click();
+      cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+        .trigger("mouseover")
+        .click();
     });
     // go to record idle
     cy.location("pathname").then(($el) =>
@@ -529,7 +545,7 @@ describe("Setup", () => {
       ...baseMock,
       mentor: [setup6, setup6, setup8, setup8],
       subject: repeatAfterMe,
-      gqlQueries: [mockGQL("updateAnswer", true, true)],
+      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
     cy.visit("/setup?i=6");
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -538,7 +554,9 @@ describe("Setup", () => {
       cy.contains("1 / 3");
     });
     cy.contains("Repeat After Me questions");
-    cy.get("[data-cy=record-btn]").trigger("mouseover").click();
+    cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+      .trigger("mouseover")
+      .click();
     // go to record
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/record")
@@ -622,7 +640,9 @@ describe("Setup", () => {
         cy.contains("Click the build button to start building your mentor.");
         cy.contains("Once its complete, click preview to see your mentor.");
         cy.get("[data-cy=train-btn]").contains("Build");
-        cy.get("[data-cy=train-btn]").trigger("mouseover").click();
+        cy.getSettled("[data-cy=train-btn]", { retries: 2 })
+          .trigger("mouseover")
+          .click();
       });
       cy.contains("Building your mentor...");
       cy.contains("Your brand-new mentor is ready!");
@@ -653,7 +673,9 @@ describe("Setup", () => {
         cy.contains("Click the build button to start building your mentor.");
         cy.contains("Once its complete, click preview to see your mentor.");
         cy.get("[data-cy=train-btn]").contains("Build");
-        cy.get("[data-cy=train-btn]").trigger("mouseover").click();
+        cy.getSettled("[data-cy=train-btn]", { retries: 2 })
+          .trigger("mouseover")
+          .click();
       });
       cy.contains("Building your mentor...");
       cy.contains("Oops, training failed. Please try again.");

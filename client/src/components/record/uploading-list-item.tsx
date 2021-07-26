@@ -88,7 +88,7 @@ function UploadingListItem(props: {
           ) : jobStatus == UploadStatus.TRIM_IN_PROGRESS ? (
             "Trimming video"
           ) : jobStatus !== UploadStatus.DONE ? (
-            "Processing"
+            `Processing${".".repeat(recordState.pollStatusCount % 4)}`
           ) : (
             "Tap to preview"
           )

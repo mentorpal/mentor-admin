@@ -5,20 +5,29 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Button, Typography } from "@material-ui/core";
-import { DoubleArrow, PlayCircleFilled } from "@material-ui/icons";
+import { DoubleArrow } from "@material-ui/icons";
 import React from "react";
 import { Mentor } from "types";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
+  continueAction: () => void;
   mentor: Mentor;
 }): JSX.Element {
   const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(
-    props.mentor
+    props.mentor,
+    props.continueAction
   );
 
   return (
     <div>
+      <Typography
+        variant="body1"
+        color="textPrimary"
+        data-cy="recommended-action"
+      >
+        {recommendedAction.text}
+      </Typography>
       {recommendedAction.input ? (
         <div>
           <input
@@ -41,53 +50,43 @@ export default function RecommendedActionButton(props: {
               variant="contained"
               component="span"
               data-cy="recommended-action-thumbnail"
-              startIcon={<PlayCircleFilled />}
+              startIcon={recommendedAction.icon}
             >
-              {recommendedAction.text}
+              Go
             </Button>
           </label>
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            data-cy="recommended-action-reason"
-          >
-            {recommendedAction.reason}
-          </Typography>
         </div>
       ) : (
-        <div color="green">
-          <Button
-            size="large"
-            fullWidth
-            color="primary"
-            variant="contained"
-            data-cy="recommended-action-button"
-            onClick={recommendedAction.action}
-            startIcon={<PlayCircleFilled />}
-          >
-            {recommendedAction.text}
-          </Button>
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            data-cy="recommended-action-reason"
-          >
-            {recommendedAction.reason}
-          </Typography>
-        </div>
-      )}
-      {recommendedAction.skippable && (
         <Button
+          size="large"
           fullWidth
-          data-cy="skip-action-button"
-          onClick={skipRecommendation}
+          color="primary"
+          variant="contained"
+          data-cy="recommended-action-button"
+          onClick={recommendedAction.action}
+          startIcon={recommendedAction.icon}
         >
-          <Typography variant="caption" color="textPrimary">
-            skip
-          </Typography>
-          <DoubleArrow />
+          Go
         </Button>
       )}
+      <Typography
+        variant="caption"
+        color="textSecondary"
+        data-cy="recommended-action-reason"
+      >
+        {recommendedAction.reason}
+      </Typography>
+
+      <Button
+        fullWidth
+        data-cy="skip-action-button"
+        onClick={skipRecommendation}
+      >
+        <Typography variant="caption" color="textPrimary">
+          skip
+        </Typography>
+        <DoubleArrow />
+      </Button>
     </div>
   );
 }

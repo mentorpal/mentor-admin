@@ -50,6 +50,7 @@ export function useWithUploadStatus(
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
+  const [pollStatusCount, setPollStatusCount] = useState<number>(0);
   const CancelToken = axios.CancelToken;
 
   useEffect(() => {
@@ -81,7 +82,6 @@ export function useWithUploadStatus(
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
-  //we start polling because we added an upload to our state when pressed
   useInterval(
     (isCancelled) => {
       fetchUploadTasks(accessToken)
@@ -89,6 +89,7 @@ export function useWithUploadStatus(
           if (isCancelled()) {
             return;
           }
+          setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
             const findUpload = uploads.find(
               (up) => up.question._id === u.question._id
@@ -120,7 +121,6 @@ export function useWithUploadStatus(
     },
     isPolling ? pollingInterval : null
   );
-
   function removeCompletedTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question._id === task.question._id);
     if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
@@ -130,7 +130,6 @@ export function useWithUploadStatus(
       setUploads(newArray);
     }
   }
-
   function isTaskDoneOrFailed(task: UploadTask) {
     return (
       task.uploadStatus === UploadStatus.CANCELLED ||
@@ -158,17 +157,10 @@ export function useWithUploadStatus(
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
-      //TODO: current workaround since copyAndSet isn't working properly
-      for (let i = 0; i < uploads.length; i++) {
-        if (uploads[i].question._id == task.question._id) {
-          uploads[i] = task;
-        }
-      }
       setUploads(copyAndSet(uploads, idx, task));
     }
   }
 
-  //this is the upload function being used
   function upload(
     mentorId: string,
     question: Question,
@@ -242,6 +234,7 @@ export function useWithUploadStatus(
   // function deleteUpload() {}
 
   return {
+    pollStatusCount,
     uploads,
     isUploading,
     upload,
@@ -252,6 +245,7 @@ export function useWithUploadStatus(
 }
 
 export interface UseWithUploadStatus {
+  pollStatusCount: number;
   uploads: UploadTask[];
   isUploading: boolean;
   upload: (

@@ -4,10 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import React from "react";
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
 import { urlBuild } from "helpers";
+import {
+  AccountBox,
+  CheckCircleOutlined,
+  FiberManualRecord,
+  Image,
+  NoteAdd,
+} from "@material-ui/icons";
 
 interface Category {
   subjectName: string;
@@ -19,10 +27,12 @@ interface Category {
 }
 
 interface Conditions {
+  mentorId: string;
   idle: Answer | undefined;
   idleIncomplete: boolean;
   isVideo: boolean;
   hasThumbnail: boolean;
+  isDirty: boolean;
   categories: Category[];
   incompleteRequirement: Category | undefined;
   firstIncomplete: Category | undefined;
@@ -32,26 +42,32 @@ interface Conditions {
 interface Recommendation {
   text: string;
   reason: string;
+  icon: JSX.Element;
   input: boolean;
   action: () => void;
-  skippable: boolean;
   skip: Conditions;
 }
 
-function recommend(conditions: Conditions): Recommendation {
+function recommend(
+  conditions: Conditions,
+  mentor: Mentor,
+  continueAction: () => void
+): Recommendation {
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
       reason: "A thumbnail helps a user identify your mentor",
+      icon: <Image />,
       input: true,
       action: () => undefined,
-      skippable: true,
+
       skip: { ...conditions, hasThumbnail: true },
     };
   if (conditions.idleIncomplete && conditions.isVideo)
     return {
       text: "Record an Idle Video",
       reason: "Users see your idle video while typing a question",
+      icon: <AccountBox />,
       input: false,
       action: () => {
         if (conditions.idle)
@@ -62,7 +78,7 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, idleIncomplete: false },
     };
   if (conditions.incompleteRequirement)
@@ -71,6 +87,7 @@ function recommend(conditions: Conditions): Recommendation {
       reason:
         "You can't build your mentor until you record all required subjects.",
       input: false,
+      icon: <CheckCircleOutlined />,
       action: () => {
         if (conditions.incompleteRequirement)
           navigate(
@@ -81,7 +98,7 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, incompleteRequirement: undefined },
     };
   if (conditions.completedAnswers < 5)
@@ -89,6 +106,7 @@ function recommend(conditions: Conditions): Recommendation {
       text:
         conditions.totalAnswers < 5 ? "Add a Subject" : "Answer More Questions",
       reason: "You can't build your mentor until you have at least 5 questions",
+      icon: conditions.totalAnswers < 5 ? <NoteAdd /> : <FiberManualRecord />,
       input: false,
       action: () => {
         conditions.totalAnswers < 5
@@ -101,13 +119,14 @@ function recommend(conditions: Conditions): Recommendation {
               })
             );
       },
-      skippable: true,
+
       skip: { ...conditions, completedAnswers: 5 },
     };
   if (conditions.firstIncomplete)
     return {
       text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
       reason: `You have unanswered questions in the ${conditions.firstIncomplete?.subjectName} subject`,
+      icon: <FiberManualRecord />,
       input: false,
       action: () => {
         if (conditions.firstIncomplete)
@@ -119,22 +138,29 @@ function recommend(conditions: Conditions): Recommendation {
             })
           );
       },
-      skippable: true,
+
       skip: { ...conditions, firstIncomplete: undefined },
+    };
+  if (conditions.isDirty)
+    return {
+      text: "Build Your Mentor",
+      reason:
+        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
+      icon: <FiberManualRecord />,
+      input: false,
+      action: continueAction,
+      skip: { ...conditions, isDirty: false },
     };
   return {
     text: "Add a Subject",
     reason: "Add a subject to answer more questions",
+    icon: <NoteAdd />,
     input: false,
     action: () => navigate("/subjects"),
-    skippable: false,
-    skip: conditions,
+    skip: parseMentor(mentor),
   };
 }
-
-export function UseWithRecommendedAction(
-  mentor: Mentor
-): [Recommendation, () => void] {
+function parseMentor(mentor: Mentor): Conditions {
   const idle = mentor?.answers.find(
     (a) => a.question.name === UtteranceName.IDLE
   );
@@ -184,22 +210,32 @@ export function UseWithRecommendedAction(
     mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
   const totalAnswers = mentor?.answers.length || 0;
 
+  return {
+    mentorId: mentor._id,
+    idle: idle,
+    idleIncomplete: idleIncomplete,
+    isVideo: isVideo,
+    hasThumbnail: hasThumbnail,
+    isDirty: mentor.isDirty,
+    categories: categories,
+    incompleteRequirement: incompleteRequirement,
+    firstIncomplete: firstIncomplete,
+    completedAnswers: completedAnswers,
+    totalAnswers: totalAnswers,
+  };
+}
+export function UseWithRecommendedAction(
+  mentor: Mentor,
+  continueAction: () => void
+): [Recommendation, () => void] {
   const [recommendedAction, setRecommendedAction] = useState(
-    recommend({
-      idle: idle,
-      idleIncomplete: idleIncomplete,
-      isVideo: isVideo,
-      hasThumbnail: hasThumbnail,
-      categories: categories,
-      incompleteRequirement: incompleteRequirement,
-      firstIncomplete: firstIncomplete,
-      completedAnswers: completedAnswers,
-      totalAnswers: totalAnswers,
-    })
+    recommend(parseMentor(mentor), mentor, continueAction)
   );
 
   function skipRecommendation() {
-    setRecommendedAction(recommend(recommendedAction.skip));
+    setRecommendedAction(
+      recommend(recommendedAction.skip, mentor, continueAction)
+    );
   }
 
   return [recommendedAction, skipRecommendation];

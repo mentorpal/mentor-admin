@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-import { updateSubject } from "api";
+import { updateSubject, CLIENT_ENDPOINT } from "api";
 import {
   Status,
   Answer,
@@ -18,7 +18,7 @@ import {
   Question,
   Mentor,
 } from "types";
-import { copyAndSet, equals } from "helpers";
+import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
@@ -313,6 +313,12 @@ export function useWithReviewAnswerState(
         setIsSaving(false);
       });
   }
+  function launchMentor(params: string) {
+    const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
+      mentor: params,
+    });
+    window.location.href = path;
+  }
 
   return {
     mentor,
@@ -328,6 +334,7 @@ export function useWithReviewAnswerState(
     selectSubject,
     saveChanges,
     startTraining,
+    launchMentor,
   };
 }
 
@@ -345,4 +352,5 @@ interface UseWithReviewAnswerState {
   selectSubject: (sId: string | undefined) => void;
   saveChanges: () => void;
   startTraining: (params: string) => void;
+  launchMentor: (params: string) => void;
 }
