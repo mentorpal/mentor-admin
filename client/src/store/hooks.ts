@@ -4,20 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "./store";
 
-import LoginPage from "components/login";
-import HomePage from "components/home";
-import { useWithLogin } from "store/slices/login/useWithLogin";
-import { LoginStatus } from "store/slices/login/loginSlice";
-
-function IndexPage(): JSX.Element {
-  const { state: loginState } = useWithLogin();
-  if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
-    return <HomePage />;
-  } else {
-    return <LoginPage />;
-  }
-}
-
-export default IndexPage;
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch = (): AppDispatch => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

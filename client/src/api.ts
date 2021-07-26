@@ -19,6 +19,7 @@ import {
   VideoInfo,
   CancelJob,
   FollowUpQuestion,
+  Config,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -53,13 +54,9 @@ interface GraphQLResponse<T> {
   data?: T;
 }
 
-interface Config {
-  googleClientId: string;
-}
-
 const graphqlRequest = axios.create({
   baseURL: GRAPHQL_ENDPOINT,
-  timeout: 5000,
+  timeout: 30000,
 });
 
 graphqlRequest.interceptors.response.use(
