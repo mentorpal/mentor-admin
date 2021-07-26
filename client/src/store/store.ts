@@ -7,11 +7,13 @@ The full terms of this copyright and license should always be found in the root 
 import { configureStore } from "@reduxjs/toolkit";
 import loginReducer from "./slices/login/loginSlice";
 import configReducer from "./slices/config/configSlice";
+import mentorReducer from "./slices/mentor/mentorSlice";
 
 export const store = configureStore({
   reducer: {
     login: loginReducer,
     config: configReducer,
+    mentor: mentorReducer,
   },
 });
 
