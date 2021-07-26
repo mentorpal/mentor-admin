@@ -26,11 +26,11 @@ export function useWithMentor(accessToken: string): UseMentorData {
     reloadData,
   } = useWithData<Mentor>(fetch);
 
-  function fetch() {
+  async function fetch(): Promise<Mentor> {
     return fetchMentor(accessToken);
   }
 
-  async function saveMentorDetails() {
+  async function saveMentorDetails(): Promise<void> {
     await saveData({
       action: async (editedData: Mentor) => {
         await updateMentorDetails(editedData, accessToken);
@@ -38,7 +38,7 @@ export function useWithMentor(accessToken: string): UseMentorData {
     });
   }
 
-  async function saveMentorSubjects() {
+  async function saveMentorSubjects(): Promise<void> {
     await saveData({
       action: async (editedData: Mentor) => {
         await updateMentorSubjects(editedData, accessToken);
