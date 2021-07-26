@@ -12,13 +12,13 @@ import * as mentorActions from "./mentorSlice";
 
 interface UseWithMentor {
   state: mentorActions.MentorState;
-  getMentor: (headers: mentorActions.Headers) => void;
-  saveMentor: (headers: mentorActions.Headers) => void;
-  saveMentorSubjects: (headers: mentorActions.Headers) => void;
+  getMentor: () => void;
+  saveMentor: (editedData: Mentor) => void;
+  saveMentorSubjects: (editedData: Mentor) => void;
   editMentor: (edits: Partial<Mentor>) => void;
 }
 
-export function useWithMentor(accessToken: string): UseWithMentor {
+export const useWithMentor = (accessToken: string): UseWithMentor => {
   const dispatch = useDispatch();
   const state = useAppSelector((state) => state.mentor);
 
@@ -27,42 +27,47 @@ export function useWithMentor(accessToken: string): UseWithMentor {
       return;
     }
     if (accessToken) {
-      getMentor({ accessToken: accessToken, editedData: undefined });
+      getMentor();
     }
   }, []);
 
-  function getMentor(headers: mentorActions.Headers) {
+  const getMentor = () => {
     if (
       state.mentorStatus === mentorActions.MentorStatus.NONE ||
       state.mentorStatus === mentorActions.MentorStatus.FAILED
     ) {
-      dispatch(mentorActions.getMentor(headers));
+      dispatch(
+        mentorActions.getMentor({
+          accessToken: state.accessToken,
+          editedData: undefined,
+        })
+      );
     }
-  }
+  };
 
-  function saveMentor(headers: mentorActions.Headers) {
-    if (
-      state.mentorStatus === mentorActions.MentorStatus.NONE ||
-      state.mentorStatus === mentorActions.MentorStatus.FAILED
-    ) {
-      dispatch(mentorActions.saveMentor(headers));
-    }
-  }
+  const saveMentor = (editedData: Mentor) => {
+    dispatch(
+      mentorActions.saveMentor({
+        accessToken: state.accessToken,
+        editedData: editedData,
+      })
+    );
+  };
 
-  function saveMentorSubjects(headers: mentorActions.Headers) {
-    if (
-      state.mentorStatus === mentorActions.MentorStatus.NONE ||
-      state.mentorStatus === mentorActions.MentorStatus.FAILED
-    ) {
-      dispatch(mentorActions.saveMentorSubjects(headers));
-    }
-  }
-  function editMentor(edits: Partial<Mentor>) {
+  const saveMentorSubjects = (editedData: Mentor) => {
+    dispatch(
+      mentorActions.saveMentorSubjects({
+        accessToken: state.accessToken,
+        editedData: editedData,
+      })
+    );
+  };
+  const editMentor = (edits: Partial<Mentor>) => {
     if (state.mentorStatus === mentorActions.MentorStatus.LOADING) {
       return;
     }
     dispatch(mentorActions.mentorSlice.actions.editMentor(edits));
-  }
+  };
 
   return {
     state,
@@ -71,4 +76,4 @@ export function useWithMentor(accessToken: string): UseWithMentor {
     saveMentorSubjects,
     editMentor,
   };
-}
+};

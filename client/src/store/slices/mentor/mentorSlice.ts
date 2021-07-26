@@ -25,6 +25,7 @@ export interface MentorState {
   isEdited: boolean;
   mentorStatus: MentorStatus;
   error: LoadingError | undefined;
+  accessToken: string;
 }
 
 export interface Headers {
@@ -38,6 +39,7 @@ const initialState: MentorState = {
   isEdited: false,
   mentorStatus: MentorStatus.NONE,
   error: undefined,
+  accessToken: "",
 };
 
 /** Actions */
@@ -107,7 +109,7 @@ export const mentorSlice = createSlice({
       })
       .addCase(getMentor.fulfilled, (state, action) => {
         state.data = action.payload;
-        state.editedData = undefined;
+        state.editedData = action.payload;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(getMentor.rejected, (state) => {
@@ -120,31 +122,33 @@ export const mentorSlice = createSlice({
       })
       .addCase(saveMentor.pending, (state) => {
         state.mentorStatus = MentorStatus.LOADING;
+        state.isEdited = false;
       })
       .addCase(saveMentor.fulfilled, (state) => {
         state.data = state.editedData;
-        state.editedData = undefined;
-        state.isEdited = false;
+
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentor.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
+        state.isEdited = true;
         state.error = {
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
       })
-      .addCase(saveMentor.pending, (state) => {
+      .addCase(saveMentorSubjects.pending, (state) => {
         state.mentorStatus = MentorStatus.LOADING;
+        state.isEdited = false;
       })
       .addCase(saveMentorSubjects.fulfilled, (state) => {
         state.data = state.editedData;
-        state.editedData = undefined;
         state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentorSubjects.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
+        state.isEdited = true;
         state.error = {
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,
