@@ -2256,7 +2256,10 @@ describe("Record", () => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
-        .should("have.text", videoMentor.answers[0].question.question);
+        .should(
+          "contain",
+          videoMentor.answers[0].question.question.substr(0, 25)
+        );
       cy.get("[data-cy=card-answer-title]")
         .get("p")
         .should("have.text", "Trimming video");
@@ -2589,7 +2592,10 @@ describe("Record", () => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
-        .should("have.text", videoMentor.answers[0].question.question);
+        .should(
+          "contain",
+          videoMentor.answers[0].question.question.substr(0, 25)
+        );
       cy.get("[data-cy=progress-bar]")
         .invoke("attr", "aria-valuenow")
         .should("eq", "0");
@@ -2598,7 +2604,10 @@ describe("Record", () => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
-        .should("have.text", videoMentor.answers[0].question.question);
+        .should(
+          "contain",
+          videoMentor.answers[0].question.question.substr(0, 25)
+        );
       cy.get("[data-cy=progress-bar]")
         .invoke("attr", "aria-valuenow")
         .should("eq", "50");
@@ -2607,7 +2616,10 @@ describe("Record", () => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
-        .should("have.text", videoMentor.answers[0].question.question);
+        .should(
+          "contain",
+          videoMentor.answers[0].question.question.substr(0, 25)
+        );
       cy.get("[data-cy=progress-bar]")
         .invoke("attr", "aria-valuenow")
         .should("eq", "100");
@@ -2957,6 +2969,9 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=warn-empty-transcript]").should("exist");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
+      cy.get("p").should("have.text", "Needs Attention");
+    });
   });
 
   it("does not warn user of empty transcript if idle video", () => {

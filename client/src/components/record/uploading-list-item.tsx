@@ -13,7 +13,12 @@ import {
   ListItemText,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { PublishRounded, CancelRounded, CheckCircle } from "@material-ui/icons";
+import {
+  PublishRounded,
+  CancelRounded,
+  CheckCircle,
+  WarningRounded,
+} from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 
@@ -40,6 +45,12 @@ function UploadingListItem(props: {
     jobStatus === UploadStatus.TRANSCRIBE_FAILED;
   const cancelling = upload.isCancelling;
   const classes = useStyles();
+  const answer = recordState.answers.find(
+    (a) => a.answer.question._id === upload.question._id
+  );
+  const needsAttention = answer
+    ? upload.uploadStatus === UploadStatus.DONE && answer.needsAttention
+    : false;
 
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
@@ -47,10 +58,18 @@ function UploadingListItem(props: {
         style={{
           minWidth: 0,
           paddingRight: 15,
-          color: jobFailed ? "#ff0000" : jobDone ? "green" : "black",
+          color: jobFailed
+            ? "#ff0000"
+            : needsAttention
+            ? "#CCCC00"
+            : jobDone
+            ? "green"
+            : "black",
         }}
       >
-        {jobDone ? (
+        {needsAttention ? (
+          <WarningRounded />
+        ) : jobDone ? (
           <CheckCircle />
         ) : jobFailed ? (
           <CancelRounded />
@@ -69,8 +88,8 @@ function UploadingListItem(props: {
           secondary: classes.secondaryListItemText,
         }}
         primary={
-          jobTitle && jobTitle.length > 35
-            ? jobTitle.substring(0, 35) + "..."
+          jobTitle && jobTitle.length > 25
+            ? jobTitle.substring(0, 25) + "..."
             : jobTitle
         }
         secondary={
@@ -79,16 +98,18 @@ function UploadingListItem(props: {
           ) : jobFailed ? (
             upload.errorMessage
           ) : jobStatus === UploadStatus.PENDING ||
-            jobStatus == UploadStatus.UPLOAD_IN_PROGRESS ? (
+            jobStatus === UploadStatus.UPLOAD_IN_PROGRESS ? (
             <LinearProgress
               data-cy="progress-bar"
               variant={"determinate"}
               value={upload.uploadProgress}
             />
-          ) : jobStatus == UploadStatus.TRIM_IN_PROGRESS ? (
+          ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
             "Trimming video"
           ) : jobStatus !== UploadStatus.DONE ? (
             `Processing${".".repeat(recordState.pollStatusCount % 4)}`
+          ) : needsAttention ? (
+            "Needs Attention"
           ) : (
             "Tap to preview"
           )
