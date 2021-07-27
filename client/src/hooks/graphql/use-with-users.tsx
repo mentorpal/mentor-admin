@@ -5,7 +5,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { fetchUsers, updateUserPermissions } from "api";
+import { useState } from "react";
 import { User } from "types";
+import { LoadingError } from "./loading-reducer";
 import {
   useWithDataConnection,
   UseDataConnection,
@@ -13,9 +15,11 @@ import {
 
 export interface UseUserData extends UseDataConnection<User> {
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+  userDataError: LoadingError | undefined;
 }
 
 export function useWithUsers(accessToken: string): UseUserData {
+  const [userDataError, setUserDataError] = useState<LoadingError>();
   const {
     data,
     isLoading,
@@ -40,7 +44,10 @@ export function useWithUsers(accessToken: string): UseUserData {
         reloadData();
       })
       .catch((err) => {
-        console.error(err);
+        setUserDataError({
+          message: "Failed to update user permissions",
+          error: `${err}`,
+        });
       });
   }
 
@@ -49,6 +56,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     isLoading,
     searchParams,
     error,
+    userDataError,
     reloadData,
     editData,
     saveData,

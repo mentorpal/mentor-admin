@@ -35,6 +35,32 @@ describe("users screen", () => {
     });
   });
 
+  it("failed to update user permissions error display", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("FetchUsers", users),
+        mockGQL("UpdateUserPermissions", undefined),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=select-role]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=role-dropdown-USER]").invoke("mouseover").click();
+    cy.get("[data-cy=error-dialog]").within(($within) => {
+      cy.get("[data-cy=error-dialog-title]").should(
+        "have.text",
+        "Failed to update user permissions"
+      );
+    });
+  });
+
   it("content managers cannot edit admins, but can edit others", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],

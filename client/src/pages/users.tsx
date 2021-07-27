@@ -31,6 +31,7 @@ import withLocation from "wrap-with-location";
 import { CLIENT_ENDPOINT } from "api";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+import { ErrorDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -275,6 +276,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         userData={userPagin.data}
         userPagin={userPagin}
       />
+      <ErrorDialog error={userPagin.userDataError} />
     </div>
   );
 }

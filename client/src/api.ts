@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import axios, { CancelTokenSource } from "axios";
+import axios, { CancelTokenSource, AxiosResponse } from "axios";
 import {
   UserAccessToken,
   Mentor,
@@ -82,6 +82,28 @@ graphqlRequest.interceptors.response.use(
   }
 );
 
+interface GQLResponse<T> {
+  errors?: { message: string }[];
+  data?: T | { me: T };
+}
+function getGqlReponseData<T>(res: AxiosResponse<GQLResponse<T>>): T {
+  if (res.status !== 200) {
+    throw new Error(
+      `GQL HTTP request failed with status ${res.status}: ${res.statusText}`
+    );
+  }
+  if (res.data.errors) {
+    throw new Error(
+      `errors in GQL response: ${JSON.stringify(res.data.errors)}`
+    );
+  }
+  if (!res.data.data) {
+    throw new Error(`no data in response: ${JSON.stringify(res.data)}`);
+  }
+  if ("me" in res.data.data) return res.data.data.me;
+  return res.data.data;
+}
+
 const uploadRequest = axios.create({
   withCredentials: true,
   baseURL: UPLOAD_ENTRYPOINT,
@@ -100,20 +122,7 @@ export async function fetchConfig(): Promise<Config> {
     `,
     }
   );
-  if (gqlRes.status !== 200) {
-    throw new Error(`config load failed: ${gqlRes.statusText}}`);
-  }
-  if (gqlRes.data.errors) {
-    throw new Error(
-      `errors reponse to config query: ${JSON.stringify(gqlRes.data.errors)}`
-    );
-  }
-  if (!gqlRes.data.data) {
-    throw new Error(
-      `no data in non-error reponse: ${JSON.stringify(gqlRes.data)}`
-    );
-  }
-  return gqlRes.data.data.config;
+  return getGqlReponseData<{ config: Config }>(gqlRes).config;
 }
 
 export async function fetchSubjects(
@@ -156,9 +165,8 @@ export async function fetchSubjects(
       sortAscending: params.sortAscending,
     },
   });
-  return result.data.data.subjects;
+  return getGqlReponseData<{ subjects: Connection<Subject> }>(result).subjects;
 }
-
 export async function fetchUsers(
   searchParams?: SearchParams
 ): Promise<Connection<User>> {
@@ -195,9 +203,8 @@ export async function fetchUsers(
       sortAscending,
     },
   });
-  return result.data.data;
+  return getGqlReponseData<Connection<User>>(result);
 }
-
 export async function updateUserPermissions(
   userId: string,
   permissionLevel: string,
@@ -218,7 +225,8 @@ export async function updateUserPermissions(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateUserPermissions;
+  return getGqlReponseData<{ updateUserPermissions: User }>(result)
+    .updateUserPermissions;
 }
 
 export async function fetchSubject(id: string): Promise<Subject> {
@@ -266,7 +274,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
     `,
     variables: { id },
   });
-  return result.data.data.subject;
+  return getGqlReponseData<{ subject: Subject }>(result).subject;
 }
 
 export async function updateSubject(
@@ -299,7 +307,7 @@ export async function updateSubject(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateSubject;
+  return getGqlReponseData<{ updateSubject: Subject }>(result).updateSubject;
 }
 
 export async function fetchUserQuestions(
@@ -358,7 +366,7 @@ export async function fetchUserQuestions(
       }
     `,
   });
-  return result.data.data.userQuestions;
+  return getGqlReponseData<Connection<UserQuestion>>(result);
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
@@ -398,7 +406,7 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
     `,
     variables: { id },
   });
-  return result.data.data.userQuestion;
+  return getGqlReponseData<{ userQuestion: UserQuestion }>(result).userQuestion;
 }
 
 export async function updateUserQuestion(
@@ -415,7 +423,8 @@ export async function updateUserQuestion(
     `,
     variables: { id: feedbackId, answer: answerId },
   });
-  return result.data.data.userQuestionSetAnswer;
+  return getGqlReponseData<{ userQuestionSetAnswer: UserQuestion }>(result)
+    .userQuestionSetAnswer;
 }
 
 export async function fetchMentorId(accessToken: string): Promise<Mentor> {
@@ -435,7 +444,7 @@ export async function fetchMentorId(accessToken: string): Promise<Mentor> {
     },
     { headers: headers }
   );
-  return result.data.data.me.mentor;
+  return getGqlReponseData<{ mentor: Mentor }>(result).mentor;
 }
 
 export async function fetchMentor(
@@ -540,7 +549,7 @@ export async function fetchMentor(
     },
     { headers: headers }
   );
-  return result.data.data.me.mentor;
+  return getGqlReponseData<{ mentor: Mentor }>(result).mentor;
 }
 
 export async function updateMentorDetails(
@@ -571,7 +580,8 @@ export async function updateMentorDetails(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateMentorDetails;
+  return getGqlReponseData<{ updateMentorDetails: boolean }>(result)
+    .updateMentorDetails;
 }
 
 export async function updateMentorSubjects(
@@ -598,7 +608,8 @@ export async function updateMentorSubjects(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateMentorSubjects;
+  return getGqlReponseData<{ updateMentorSubjects: boolean }>(result)
+    .updateMentorSubjects;
 }
 
 export async function updateQuestion(
@@ -622,7 +633,7 @@ export async function updateQuestion(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateQuestion;
+  return getGqlReponseData<{ updateQuestion: boolean }>(result).updateQuestion;
 }
 
 export async function updateAnswer(
@@ -650,7 +661,7 @@ export async function updateAnswer(
     },
     { headers: headers }
   );
-  return result.data.data.me.updateAnswer;
+  return getGqlReponseData<{ updateAnswer: boolean }>(result).updateAnswer;
 }
 
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
@@ -683,8 +694,9 @@ export async function fetchFollowUpQuestions(
     null,
     { headers: headers }
   );
-  return result.data.data.followups;
+  return getGqlReponseData<{ followups: FollowUpQuestion[] }>(result).followups;
 }
+
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {
@@ -737,7 +749,7 @@ export async function fetchThumbnail(accessToken: string): Promise<string> {
     },
     { headers: headers }
   );
-  return result.data.data.me.mentor.thumbnail;
+  return getGqlReponseData<{ thumbnail: string }>(result).thumbnail;
 }
 export async function uploadVideo(
   mentorId: string,
@@ -806,7 +818,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
     `,
     variables: { accessToken },
   });
-  return result.data.data.login;
+  return getGqlReponseData<{ login: UserAccessToken }>(result).login;
 }
 
 export async function loginGoogle(
@@ -827,7 +839,8 @@ export async function loginGoogle(
     `,
     variables: { accessToken },
   });
-  return result.data.data.loginGoogle;
+  return getGqlReponseData<{ loginGoogle: UserAccessToken }>(result)
+    .loginGoogle;
 }
 
 export async function fetchUploadTasks(
@@ -859,7 +872,7 @@ export async function fetchUploadTasks(
     },
     { headers: headers }
   );
-  return result.data.data.me.uploadTasks;
+  return getGqlReponseData<{ uploadTasks: UploadTask[] }>(result).uploadTasks;
 }
 
 export async function deleteUploadTask(
@@ -881,5 +894,6 @@ export async function deleteUploadTask(
     },
     { headers: headers }
   );
-  return result.data.data.me.uploadTaskDelete;
+  return getGqlReponseData<{ uploadTaskDelete: boolean }>(result)
+    .uploadTaskDelete;
 }
