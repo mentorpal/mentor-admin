@@ -30,7 +30,7 @@ import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import { ErrorDialog } from "components/dialog";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { launchMentor } from "../helpers";
 
 const useStyles = makeStyles((theme) => ({
@@ -272,6 +272,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         userPagin={userPagin}
       />
       <ErrorDialog error={userPagin.userDataError} />
+      <LoadingDialog title={userPagin.isLoading ? "Loading..." : ""} />
     </div>
   );
 }
