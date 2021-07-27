@@ -174,12 +174,14 @@ function UserItem(props: {
             >
               Content Manager
             </MenuItem>
-            <MenuItem
-              data-cy={`role-dropdown-${UserRole.ADMIN}`}
-              value={UserRole.ADMIN}
-            >
-              Admin
-            </MenuItem>
+            {props.userRole === UserRole.ADMIN ? (
+              <MenuItem
+                data-cy={`role-dropdown-${UserRole.ADMIN}`}
+                value={UserRole.ADMIN}
+              >
+                Admin
+              </MenuItem>
+            ) : undefined}
           </Select>
         )}
       </TableCell>
