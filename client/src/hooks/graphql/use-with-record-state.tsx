@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
 import {
   Answer,
+  AnswerAttentionNeeded,
   MediaTag,
   MediaType,
   Mentor,
@@ -23,7 +24,7 @@ import { RecordPageState } from "types";
 export interface AnswerState {
   answer: Answer;
   editedAnswer: Answer;
-  needsAttention: boolean;
+  attentionNeeded: AnswerAttentionNeeded;
   recordedVideo?: File;
   minVideoLength?: number;
 }
@@ -108,7 +109,7 @@ export function useWithRecordState(
         editedAnswer: a,
         recordedVideo: undefined,
         minVideoLength: a.question?.minVideoLength,
-        needsAttention: doesAnswerNeedAttention(a),
+        attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
     setRecordPageState(RecordPageState.RECORDING_ANSWERS);
@@ -164,19 +165,20 @@ export function useWithRecordState(
     setAnswers(
       copyAndSet(answers, idx, {
         ...updatedAnswer,
-        needsAttention: doesAnswerNeedAttention(updatedAnswer.editedAnswer),
+        attentionNeeded: doesAnswerNeedAttention(updatedAnswer.editedAnswer),
       })
     );
   }
 
-  function doesAnswerNeedAttention(answer: Answer): boolean {
+  function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
     if (
+      answer.media &&
       answer.transcript.length === 0 &&
       answer.question.name !== UtteranceName.IDLE
     ) {
-      return true;
+      return AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
     }
-    return false;
+    return AnswerAttentionNeeded.NONE;
   }
 
   function onAnswerUploaded(upload: UploadTask) {

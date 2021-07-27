@@ -21,6 +21,7 @@ import {
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
+import { AnswerAttentionNeeded } from "types";
 
 function UploadingListItem(props: {
   upload: UploadTask;
@@ -48,9 +49,7 @@ function UploadingListItem(props: {
   const answer = recordState.answers.find(
     (a) => a.answer.question._id === upload.question._id
   );
-  const needsAttention = answer
-    ? upload.uploadStatus === UploadStatus.DONE && answer.needsAttention
-    : false;
+  const needsAttention = answer?.attentionNeeded !== AnswerAttentionNeeded.NONE;
 
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>

@@ -28,7 +28,13 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status, UtteranceName, RecordPageState } from "types";
+import {
+  MentorType,
+  Status,
+  UtteranceName,
+  RecordPageState,
+  AnswerAttentionNeeded,
+} from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -126,9 +132,7 @@ function RecordPage(props: {
     curAnswer?.editedAnswer.question?.mentor === mentor?._id;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
-    curAnswer?.videoSrc &&
-    curAnswer.editedAnswer.transcript.length <= 0 &&
-    curAnswer.answer.question.name !== UtteranceName.IDLE;
+    curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function onBack() {
     if (props.search.back) {

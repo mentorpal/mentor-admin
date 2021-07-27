@@ -114,6 +114,11 @@ export interface Answer {
   media?: Media[];
 }
 
+export enum AnswerAttentionNeeded {
+  NONE = "NONE",
+  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
+}
+
 export interface UserQuestion {
   _id: string;
   question: string;
