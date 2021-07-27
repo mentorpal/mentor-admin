@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext } from "react";
+import React from "react";
 import {
   AppBar,
   Button,
@@ -36,12 +36,13 @@ import {
   QuestionAnswer as QuestionAnswerIcon,
   RateReview as RateReviewIcon,
   Subject as SubjectIcon,
+  PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+
 import { CLIENT_ENDPOINT } from "api";
-import Context from "context";
+import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
-import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
 import { UserRole } from "types";
 
 const useStyles = makeStyles((theme) => ({
@@ -81,7 +82,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
     EventTarget & HTMLButtonElement
   >();
   const open = Boolean(anchorEl);
-  const context = useContext(Context);
+  const { state: loginState, logout } = useWithLogin();
 
   function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
@@ -92,7 +93,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    context.logout();
+    logout();
     navigate("/");
   }
 
@@ -104,7 +105,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
       >
-        {context.user?.name || ""}
+        {loginState.user?.name || ""}
       </Button>
       <Menu
         data-cy="login-menu"
@@ -160,10 +161,10 @@ function NavMenu(props: {
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
+  const { logout, state } = useWithLogin();
   const editUsersPermission =
-    context.user?.userRole === UserRole.ADMIN ||
-    context.user?.userRole == UserRole.CONTENT_MANAGER;
+    state.user?.userRole === UserRole.ADMIN ||
+    state.user?.userRole == UserRole.CONTENT_MANAGER;
 
   async function openChat() {
     const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
@@ -171,7 +172,7 @@ function NavMenu(props: {
   }
 
   function onLogout(): void {
-    context.logout();
+    logout();
     navigate("/");
   }
 

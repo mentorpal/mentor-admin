@@ -1,6 +1,7 @@
 import React from "react";
-import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
-import { Provider } from "./src/context";
+import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import { Provider } from "react-redux";
+import { store } from "store/store";
 
 import "video.js/dist/video-js.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -11,8 +12,9 @@ import RecordRTC from "recordrtc";
 import "videojs-record/dist/css/videojs.record.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Record from "videojs-record/dist/videojs.record.js";
+import "styles/layout.css";
 
-const theme = createMuiTheme({
+const theme = createTheme({
   palette: {
     primary: {
       main: "#1b6a9c",
@@ -23,6 +25,6 @@ const theme = createMuiTheme({
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const wrapRootElement = ({ element }) => (
   <MuiThemeProvider theme={theme}>
-    <Provider>{element}</Provider>
+    <Provider store={store}>{element}</Provider>
   </MuiThemeProvider>
 );

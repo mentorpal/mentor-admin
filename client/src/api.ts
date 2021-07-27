@@ -20,6 +20,7 @@ import {
   CancelJob,
   FollowUpQuestion,
   User,
+  Config,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -54,13 +55,9 @@ interface GraphQLResponse<T> {
   data?: T;
 }
 
-interface Config {
-  googleClientId: string;
-}
-
 const graphqlRequest = axios.create({
   baseURL: GRAPHQL_ENDPOINT,
-  timeout: 5000,
+  timeout: 30000,
 });
 
 graphqlRequest.interceptors.response.use(
@@ -174,8 +171,8 @@ export async function fetchUsers(
   const { filter, limit, cursor, sortBy, sortAscending } = params;
   const result = await graphqlRequest.post("", {
     query: `
-    query FetchUsers($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
-      fetchUsers(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+    query Users($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+      users (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
         edges {
           node {
             _id
@@ -203,7 +200,7 @@ export async function fetchUsers(
       sortAscending,
     },
   });
-  return getGqlReponseData<Connection<User>>(result);
+  return getGqlReponseData<{ users: Connection<User> }>(result).users;
 }
 export async function updateUserPermissions(
   userId: string,
@@ -366,7 +363,8 @@ export async function fetchUserQuestions(
       }
     `,
   });
-  return getGqlReponseData<Connection<UserQuestion>>(result);
+  return getGqlReponseData<{ userQuestions: Connection<UserQuestion> }>(result)
+    .userQuestions;
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {

@@ -18,7 +18,7 @@ describe("users screen", () => {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
-      gqlQueries: [mockGQL("FetchUsers", users)],
+      gqlQueries: [mockGQL("Users", { users })],
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {
@@ -43,7 +43,7 @@ describe("users screen", () => {
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
       gqlQueries: [
-        mockGQL("FetchUsers", users),
+        mockGQL("Users", { users }),
         mockGQL("UpdateUserPermissions", undefined),
       ],
     });
@@ -68,7 +68,7 @@ describe("users screen", () => {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
       },
-      gqlQueries: [mockGQL("FetchUsers", users)],
+      gqlQueries: [mockGQL("Users", { users })],
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {

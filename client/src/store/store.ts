@@ -4,20 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import { configureStore } from "@reduxjs/toolkit";
+import loginReducer from "./slices/login/loginSlice";
+import configReducer from "./slices/config/configSlice";
 
-import LoginPage from "components/login";
-import HomePage from "components/home";
-import { useWithLogin } from "store/slices/login/useWithLogin";
-import { LoginStatus } from "store/slices/login/loginSlice";
+export const store = configureStore({
+  reducer: {
+    login: loginReducer,
+    config: configReducer,
+  },
+});
 
-function IndexPage(): JSX.Element {
-  const { state: loginState } = useWithLogin();
-  if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
-    return <HomePage />;
-  } else {
-    return <LoginPage />;
-  }
-}
-
-export default IndexPage;
+// Infer the `RootState` and `AppDispatch` types from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export type AppDispatch = typeof store.dispatch;
