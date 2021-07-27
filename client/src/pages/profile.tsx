@@ -23,7 +23,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
 import { MentorStatus } from "store/slices/mentor/mentorSlice";
 
@@ -50,9 +50,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function ProfilePage(props: { accessToken: string }): JSX.Element {
+function ProfilePage(): JSX.Element {
   const classes = useStyles();
-  const { state, saveMentor, editMentor } = useWithMentor(props.accessToken);
+  const { state, saveMentor, editMentor } = useActiveMentor();
 
   if (!state.editedData) {
     return <div />;
@@ -92,7 +92,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-name"
           label="Full Name"
           variant="outlined"
-          value={state.editedData?.name || ""}
+          value={state.editedData.name}
           onChange={(e) => editMentor({ name: e.target.value })}
           className={classes.inputField}
         />
@@ -100,7 +100,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
-          value={state.editedData?.firstName || ""}
+          value={state.editedData.firstName}
           onChange={(e) => editMentor({ firstName: e.target.value })}
           className={classes.inputField}
         />
@@ -108,7 +108,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
-          value={state.editedData?.title || ""}
+          value={state.editedData.title}
           onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
@@ -117,14 +117,14 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           label="Email"
           type="email"
           variant="outlined"
-          value={state.editedData?.email || ""}
+          value={state.editedData.email}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.editedData?.allowContact}
+              checked={state.editedData.allowContact}
               onChange={() =>
                 editMentor({ allowContact: !state.editedData?.allowContact })
               }

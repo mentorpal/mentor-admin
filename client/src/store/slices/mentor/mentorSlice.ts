@@ -25,12 +25,6 @@ export interface MentorState {
   isEdited: boolean;
   mentorStatus: MentorStatus;
   error: LoadingError | undefined;
-  accessToken: string;
-}
-
-export interface Headers {
-  accessToken: string;
-  editedData: Mentor | undefined;
 }
 
 const initialState: MentorState = {
@@ -39,47 +33,44 @@ const initialState: MentorState = {
   isEdited: false,
   mentorStatus: MentorStatus.NONE,
   error: undefined,
-  accessToken: "",
 };
 
 /** Actions */
 
-export const getMentor = createAsyncThunk(
-  "mentor/getMentor",
-  async (headers: Headers) => {
-    return await api.fetchMentor(headers.accessToken);
+export const loadMentor = createAsyncThunk(
+  "mentor/loadMentor",
+  async (accessToken: string) => {
+    return api.fetchMentor(accessToken);
   }
 );
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (headers: Headers, { rejectWithValue }) => {
-    if (headers.editedData)
-      try {
-        return await api.updateMentorDetails(
-          headers.editedData,
-          headers.accessToken
-        );
-      } catch (err) {
-        console.error(err.response.data);
-        return rejectWithValue(err.response.data);
-      }
+  async (
+    headers: { accessToken: string; editedData: Mentor },
+    { rejectWithValue }
+  ) => {
+    try {
+      return api.updateMentorDetails(headers.editedData, headers.accessToken);
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
-  async (headers: Headers, { rejectWithValue }) => {
-    if (headers.editedData)
-      try {
-        return await api.updateMentorSubjects(
-          headers.editedData,
-          headers.accessToken
-        );
-      } catch (err) {
-        console.error(err.response.data);
-        return rejectWithValue(err.response.data);
-      }
+  async (
+    headers: { accessToken: string; editedData: Mentor },
+    { rejectWithValue }
+  ) => {
+    try {
+      return api.updateMentorSubjects(headers.editedData, headers.accessToken);
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
   }
 );
 
@@ -102,21 +93,21 @@ export const mentorSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getMentor.pending, (state) => {
+      .addCase(loadMentor.pending, (state) => {
         state.data = undefined;
 
         state.mentorStatus = MentorStatus.LOADING;
       })
-      .addCase(getMentor.fulfilled, (state, action) => {
+      .addCase(loadMentor.fulfilled, (state, action) => {
         state.data = action.payload;
         state.editedData = action.payload;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
-      .addCase(getMentor.rejected, (state) => {
+      .addCase(loadMentor.rejected, (state) => {
         state.data = undefined;
         state.error = {
           message: "failed to load mentor",
-          error: getMentor.rejected.name,
+          error: loadMentor.rejected.name,
         };
         state.mentorStatus = MentorStatus.FAILED;
       })

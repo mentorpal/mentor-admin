@@ -11,59 +11,63 @@ import { useAppSelector } from "store/hooks";
 import { Mentor } from "types";
 import * as mentorActions from "./mentorSlice";
 
-interface UseWithMentor {
+interface UseActiveMentor {
   state: mentorActions.MentorState;
-  getMentor: () => void;
+  loadMentor: () => void;
   saveMentor: () => void;
   saveMentorSubjects: (editedData: Mentor) => void;
   editMentor: (edits: Partial<Mentor>) => void;
 }
 
-export const useWithMentor = (accessToken: string): UseWithMentor => {
+export const useActiveMentor = (): UseActiveMentor => {
   const dispatch = useDispatch();
   const state = useAppSelector((state) => state.mentor);
+  const loginState = useAppSelector((state) => state.login);
 
   useEffect(() => {
     if (state.data) {
       return;
     }
-    if (accessToken) {
-      getMentor();
+    if (loginState.accessToken) {
+      loadMentor();
     }
   }, []);
 
-  const getMentor = () => {
+  const loadMentor = () => {
     if (
       state.mentorStatus === mentorActions.MentorStatus.NONE ||
       state.mentorStatus === mentorActions.MentorStatus.FAILED
     ) {
-      dispatch(
-        mentorActions.getMentor({
-          accessToken: state.accessToken,
-          editedData: undefined,
-        })
-      );
+      if (loginState.accessToken) {
+        dispatch(mentorActions.loadMentor(loginState.accessToken));
+      }
     }
   };
 
   const saveMentor = () => {
-    if (!equals(state.data, state.editedData)) {
+    if (
+      loginState.accessToken &&
+      state.editedData &&
+      !equals(state.data, state.editedData)
+    ) {
       dispatch(
         mentorActions.saveMentor({
-          accessToken: state.accessToken,
+          accessToken: loginState.accessToken,
           editedData: state.editedData,
         })
       );
     }
   };
 
-  const saveMentorSubjects = (editedData: Mentor) => {
-    dispatch(
-      mentorActions.saveMentorSubjects({
-        accessToken: state.accessToken,
-        editedData: editedData,
-      })
-    );
+  const saveMentorSubjects = () => {
+    if (loginState.accessToken && state.editedData) {
+      dispatch(
+        mentorActions.saveMentorSubjects({
+          accessToken: loginState.accessToken,
+          editedData: state.editedData,
+        })
+      );
+    }
   };
   const editMentor = (edits: Partial<Mentor>) => {
     if (state.mentorStatus === mentorActions.MentorStatus.LOADING) {
@@ -74,7 +78,7 @@ export const useWithMentor = (accessToken: string): UseWithMentor => {
 
   return {
     state,
-    getMentor,
+    loadMentor,
     saveMentor,
     saveMentorSubjects,
     editMentor,

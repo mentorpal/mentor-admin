@@ -19,7 +19,7 @@ import { copyAndSet, equals } from "helpers";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { MentorStatus } from "store/slices/mentor/mentorSlice";
 
 export interface AnswerState {
@@ -56,7 +56,7 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { state: state, getMentor: reloadMentor } = useWithMentor(accessToken);
+  const { state, loadMentor } = useActiveMentor();
 
   const {
     uploads,
@@ -230,7 +230,7 @@ export function useWithRecordState(
 
   function reloadMentorData() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    reloadMentor();
+    loadMentor();
   }
 
   function prevAnswer() {
