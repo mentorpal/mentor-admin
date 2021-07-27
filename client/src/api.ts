@@ -78,10 +78,12 @@ graphqlRequest.interceptors.response.use(
     return error;
   }
 );
-
+interface Me<T> {
+  me: T;
+}
 interface GQLResponse<T> {
   errors?: { message: string }[];
-  data?: T | { me: T };
+  data?: T | Me<T>;
 }
 function getGqlReponseData<T>(res: AxiosResponse<GQLResponse<T>>): T {
   if (res.status !== 200) {

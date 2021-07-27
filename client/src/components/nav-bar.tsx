@@ -39,11 +39,11 @@ import {
   PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
 
-import { CLIENT_ENDPOINT } from "api";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
 import { UserRole } from "types";
+import { launchMentor } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -156,7 +156,7 @@ function NavItem(props: {
 }
 
 function NavMenu(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   classes: Record<string, string>;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
@@ -164,12 +164,7 @@ function NavMenu(props: {
   const { logout, state } = useWithLogin();
   const editUsersPermission =
     state.user?.userRole === UserRole.ADMIN ||
-    state.user?.userRole == UserRole.CONTENT_MANAGER;
-
-  async function openChat() {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
-    window.location.href = path;
-  }
+    state.user?.userRole === UserRole.CONTENT_MANAGER;
 
   function onLogout(): void {
     logout();
@@ -217,7 +212,13 @@ function NavMenu(props: {
         icon={<RateReviewIcon />}
         onNav={props.onNav}
       />
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+      <ListItem
+        button
+        disabled={!props.mentorId}
+        onClick={() => {
+          launchMentor(props.mentorId);
+        }}
+      >
         <ListItemIcon>
           <QuestionAnswerIcon />
         </ListItemIcon>
@@ -254,7 +255,7 @@ function NavMenu(props: {
 }
 
 export function NavBar(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   title: string;
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;

@@ -25,6 +25,7 @@ import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-s
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import { User } from "types";
+import { launchMentor } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -84,7 +85,6 @@ function HomePage(props: {
     selectSubject,
     saveChanges,
     startTraining,
-    launchMentor,
   } = useWithReviewAnswerState(props.accessToken, props.search);
 
   if (!mentor) {

@@ -28,10 +28,10 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import React from "react";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import { CLIENT_ENDPOINT } from "api";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { ErrorDialog } from "components/dialog";
+import { launchMentor } from "../helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,11 +140,6 @@ function UserItem(props: {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
-  function handleLaunchMentor(mentorId: string) {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentorId}`;
-    window.location.href = path;
-  }
-
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
@@ -194,7 +189,7 @@ function UserItem(props: {
             data-cy="launch-default-mentor"
             onClick={() => {
               if (edge.node.defaultMentor._id)
-                handleLaunchMentor(edge.node.defaultMentor._id);
+                launchMentor(edge.node.defaultMentor._id);
             }}
             className={styles.normalButton}
           >

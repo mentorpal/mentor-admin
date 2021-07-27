@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchUsers, updateUserPermissions } from "api";
 import { useState } from "react";
-import { User } from "types";
+import { Connection, User } from "types";
 import { LoadingError } from "./loading-reducer";
 import {
   useWithDataConnection,
@@ -34,11 +34,14 @@ export function useWithUsers(accessToken: string): UseUserData {
     prevPage,
   } = useWithDataConnection<User>(fetch);
 
-  function fetch() {
+  function fetch(): Promise<Connection<User>> {
     return fetchUsers(searchParams);
   }
 
-  function onUpdateUserPermissions(userId: string, permissionLevel: string) {
+  function onUpdateUserPermissions(
+    userId: string,
+    permissionLevel: string
+  ): void {
     updateUserPermissions(userId, permissionLevel, accessToken)
       .then(() => {
         reloadData();
