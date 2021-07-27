@@ -27,7 +27,7 @@ import {
 import { Subject } from "types";
 import { equals } from "helpers";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -42,11 +42,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  list: {},
 }));
 
 export function ChangeIcon(props: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   i: any | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   e: any | undefined;
 }): JSX.Element {
   const { i, e } = props;
@@ -105,12 +106,7 @@ export default function SubjectImport(props: {
         style={{ width: "100%" }}
       >
         <ListSubheader>Categories</ListSubheader>
-        <List
-          data-cy="subject-categories"
-          dense
-          disablePadding
-          className={classes.list}
-        >
+        <List data-cy="subject-categories" dense disablePadding>
           {subject?.categories?.map((c, i) => {
             const curCategory = curSubject?.categories?.find(
               (cat) => cat.id === c.id
@@ -147,12 +143,7 @@ export default function SubjectImport(props: {
         </List>
         <Divider />
         <ListSubheader>Topics</ListSubheader>
-        <List
-          data-cy="subject-topics"
-          dense
-          disablePadding
-          className={classes.list}
-        >
+        <List data-cy="subject-topics" dense disablePadding>
           {subject?.topics?.map((t, i) => {
             const curTopic = curSubject?.topics?.find((top) => top.id === t.id);
             return (
@@ -185,12 +176,7 @@ export default function SubjectImport(props: {
         </List>
         <Divider />
         <ListSubheader>Questions</ListSubheader>
-        <List
-          data-cy="subject-questions"
-          dense
-          disablePadding
-          className={classes.list}
-        >
+        <List data-cy="subject-questions" dense disablePadding>
           {subject?.questions?.map((q, i) => {
             const curQuestion = curSubject?.questions?.find(
               (que) => que.question._id === q.question._id

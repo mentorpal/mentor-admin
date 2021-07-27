@@ -22,7 +22,7 @@ import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
 import { Answer } from "types";
 import { ChangeIcon } from "./import-subject";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",

@@ -14,7 +14,6 @@ import {
   List,
   ListSubheader,
   makeStyles,
-  Slide,
   Toolbar,
   Typography,
 } from "@material-ui/core";
@@ -39,10 +38,6 @@ const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
 }));
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
 export default function ImportView(props: {
   exportedJson?: MentorExportJson;
   importedJson?: MentorExportJson;
@@ -56,12 +51,7 @@ export default function ImportView(props: {
     return <div />;
   }
   return (
-    <Dialog
-      fullScreen
-      open={Boolean(importedJson)}
-      onClose={cancelImport}
-      TransitionComponent={Transition}
-    >
+    <Dialog fullScreen open={Boolean(importedJson)} onClose={cancelImport}>
       <AppBar>
         <Toolbar>
           <IconButton

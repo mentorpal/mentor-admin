@@ -8,12 +8,12 @@ import React from "react";
 import { Button } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { NavBar } from "components/nav-bar";
+import NavBar from "components/nav-bar";
 import ImportView from "components/import-export/import-view";
 import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     width: "100%",
     height: "100%",

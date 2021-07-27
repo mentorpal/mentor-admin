@@ -6,13 +6,23 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import { MentorExportJson } from "types";
+import { Mentor, MentorExportJson } from "types";
 import { useWithMentor } from "./use-with-mentor";
 
-export function useWithImportExport(accessToken: string) {
+interface UseWithImportExport {
+  mentor: Mentor | undefined;
+  exportedJson: MentorExportJson | undefined;
+  importedJson: MentorExportJson | undefined;
+  exportMentor: () => void;
+  importMentor: (file: File) => void;
+  confirmImport: () => void;
+  cancelImport: () => void;
+}
+
+export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [exportedJson, setExportJson] = useState<MentorExportJson>();
   const [importedJson, setImportJson] = useState<MentorExportJson>();
-  const [editedJson, setEditJson] = useState<MentorExportJson>();
+  // const [editedJson, setEditJson] = useState<MentorExportJson>();
 
   const { editedData: mentor, editData: editMentor } =
     useWithMentor(accessToken);
