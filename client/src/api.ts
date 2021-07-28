@@ -101,13 +101,13 @@ interface HttpRequestConfig {
   axiosMiddleware?: AxiosMiddleware; // used (for example) to extract accessToken from response headers
   /**
    * When set, will use this prop (or array of props) to extract return data from a json response, e.g.
-   * 
+   *
    * dataPath: ["foo", "bar"]
-   * 
+   *
    * // will extract "barvalue" for the return
    * { "foo": { "bar": "barvalue" } }
    */
-  dataPath?: string | string[];  
+  dataPath?: string | string[];
 }
 
 const uploadRequest = axios.create({
@@ -723,7 +723,9 @@ export async function updateAnswer(
 
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
-    data: { mentor: mentorId },
+    axiosConfig: {
+      data: { mentor: mentorId },
+    },
   });
 }
 
