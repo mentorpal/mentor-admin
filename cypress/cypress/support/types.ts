@@ -34,6 +34,7 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  activeMentorId?: string;
 }
 
 export interface UserAccessToken {
