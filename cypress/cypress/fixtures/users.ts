@@ -4,43 +4,43 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { Subject } from "types";
-import {
-  UseDataConnection,
-  useWithDataConnection,
-} from "./use-with-data-connection";
+import { UserRole } from "../support/types";
 
-export function useWithSubjects(): UseDataConnection<Subject> {
-  const {
-    data,
-    isLoading,
-    searchParams,
-    error,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  } = useWithDataConnection<Subject>(fetch);
-
-  function fetch() {
-    return fetchSubjects(searchParams);
-  }
-
-  return {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  };
-}
+export const users = {
+  edges: [
+    {
+      cursor: "cursor 1",
+      node: {
+        _id: "admin",
+        name: "Admin",
+        email: "admin@opentutor.org",
+        userRole: UserRole.ADMIN,
+        defaultMentor: "clintanderson",
+      },
+    },
+    {
+      cursor: "cursor 2",
+      node: {
+        _id: "contentmanager",
+        name: "Content Manager",
+        email: "contentmanager@opentutor.org",
+        userRole: UserRole.CONTENT_MANAGER,
+        defaultMentor: "clintanderson",
+      },
+    },
+    {
+      cursor: "cursor 2",
+      node: {
+        _id: "user",
+        name: "User",
+        email: "user@opentutor.org",
+        userRole: UserRole.USER,
+        defaultMentor: "clintanderson",
+      },
+    },
+  ],
+  pageInfo: {
+    hasNextPage: false,
+    endCursor: "cursor 2",
+  },
+};

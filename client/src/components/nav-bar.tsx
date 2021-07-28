@@ -30,6 +30,7 @@ import {
   Close as CloseIcon,
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
+  Group,
   Menu as MenuIcon,
   Mic as MicIcon,
   QuestionAnswer as QuestionAnswerIcon,
@@ -38,10 +39,11 @@ import {
   PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
 
-import { CLIENT_ENDPOINT } from "api";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
+import { UserRole } from "types";
+import { launchMentor } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -136,6 +138,7 @@ function NavItem(props: {
 }): JSX.Element {
   return (
     <ListItem
+      data-cy={`${props.text}-menu-button`}
       button
       selected={location.pathname === props.link}
       onClick={() => {
@@ -153,17 +156,15 @@ function NavItem(props: {
 }
 
 function NavMenu(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   classes: Record<string, string>;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
-  const { logout } = useWithLogin();
-
-  async function openChat() {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
-    window.location.href = path;
-  }
+  const { logout, state } = useWithLogin();
+  const editUsersPermission =
+    state.user?.userRole === UserRole.ADMIN ||
+    state.user?.userRole === UserRole.CONTENT_MANAGER;
 
   function onLogout(): void {
     logout();
@@ -211,7 +212,13 @@ function NavMenu(props: {
         icon={<RateReviewIcon />}
         onNav={props.onNav}
       />
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+      <ListItem
+        button
+        disabled={!props.mentorId}
+        onClick={() => {
+          launchMentor(props.mentorId);
+        }}
+      >
         <ListItemIcon>
           <QuestionAnswerIcon />
         </ListItemIcon>
@@ -226,6 +233,14 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
+      {editUsersPermission ? (
+        <NavItem
+          text={"Users"}
+          link={"/users"}
+          icon={<Group />}
+          onNav={props.onNav}
+        />
+      ) : undefined}
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
@@ -240,7 +255,7 @@ function NavMenu(props: {
 }
 
 export function NavBar(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   title: string;
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;
