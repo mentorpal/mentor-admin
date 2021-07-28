@@ -35,7 +35,7 @@ const initialState: MentorState = {
 
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
-  async (accessToken: string) => {
+  async (accessToken: string): Promise<Mentor> => {
     return api.fetchMentor(accessToken);
   }
 );
@@ -45,9 +45,12 @@ export const saveMentor = createAsyncThunk(
   async (
     headers: { accessToken: string; editedData: Mentor },
     { rejectWithValue }
-  ) => {
+  ): Promise<boolean | unknown> => {
     try {
-      return api.updateMentorDetails(headers.editedData, headers.accessToken);
+      return await api.updateMentorDetails(
+        headers.editedData,
+        headers.accessToken
+      );
     } catch (err) {
       console.error(err.response.data);
       return rejectWithValue(err.response.data);
@@ -57,9 +60,15 @@ export const saveMentor = createAsyncThunk(
 
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
-  async (headers: { accessToken: string; editedData: Mentor }) => {
+  async (headers: {
+    accessToken: string;
+    editedData: Mentor;
+  }): Promise<boolean | unknown> => {
     try {
-      return api.updateMentorSubjects(headers.editedData, headers.accessToken);
+      return await api.updateMentorSubjects(
+        headers.editedData,
+        headers.accessToken
+      );
     } catch (err) {
       return err.response.data;
     }

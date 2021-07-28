@@ -38,7 +38,12 @@ export const useActiveMentor = (): UseActiveMentor => {
       mentorState.mentorStatus === mentorActions.MentorStatus.NONE ||
       mentorState.mentorStatus === mentorActions.MentorStatus.FAILED
     ) {
-      if (loginState.accessToken) {
+      if (!loginState.accessToken) {
+        dispatch({
+          type: mentorActions.MentorStatus.FAILED,
+          payload: "Cannot load mentor if unauthenticated.",
+        });
+      } else {
         dispatch(mentorActions.loadMentor(loginState.accessToken));
       }
     }
