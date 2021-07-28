@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
-import * as config from "./configSlice";
+import * as config from ".";
 
 interface UseWithConfig {
   state: config.ConfigState;

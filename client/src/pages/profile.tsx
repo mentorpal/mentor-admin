@@ -25,7 +25,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
-import { MentorStatus } from "store/slices/mentor/mentorSlice";
+import { MentorStatus } from "store/slices/mentor";
 
 const useStyles = makeStyles(() => ({
   root: {

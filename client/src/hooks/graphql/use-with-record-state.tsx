@@ -20,7 +20,7 @@ import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor/mentorSlice";
+import { MentorStatus } from "store/slices/mentor";
 
 export interface AnswerState {
   answer: Answer;

@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
 import { Mentor } from "types";
-import * as mentorActions from "./mentorSlice";
+import * as mentorActions from ".";
 
 interface UseActiveMentor {
   mentorState: mentorActions.MentorState;
