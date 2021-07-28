@@ -42,18 +42,17 @@ export const loadMentor = createAsyncThunk(
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (
-    headers: { accessToken: string; editedData: Mentor },
-    { rejectWithValue }
-  ): Promise<boolean | unknown> => {
+  async (headers: {
+    accessToken: string;
+    editedData: Mentor;
+  }): Promise<boolean | unknown> => {
     try {
       return await api.updateMentorDetails(
         headers.editedData,
         headers.accessToken
       );
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      return err.response.data;
     }
   }
 );
