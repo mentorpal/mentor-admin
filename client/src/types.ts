@@ -5,6 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface Config {
+  googleClientId: string;
+  urlVideoIdleTips: string;
+}
+
 export interface Connection<T> {
   edges: Edge<T>[];
   pageInfo: PageInfo;
@@ -44,6 +49,7 @@ export interface Mentor {
   thumbnail: string;
   mentorType: MentorType;
   lastTrainedAt: string;
+  isDirty: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];
@@ -216,11 +222,4 @@ export interface VideoInfo {
   videoId: string;
   video: File;
   transcript: string;
-}
-
-export enum LoginStatus {
-  NONE = 0,
-  IN_PROGRESS = 1,
-  AUTHENTICATED = 2,
-  FAILED = 3,
 }

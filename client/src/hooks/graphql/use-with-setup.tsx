@@ -17,7 +17,7 @@ import {
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
-import { getIdleTipsVideoUrl } from "config";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export enum SetupStepType {
   WELCOME,
@@ -83,7 +83,6 @@ export function useWithSetup(
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
   const [error, setError] = useState<LoadingError>();
-  const [idleTipsVideoUrl, setIdleTipsVideoUrl] = useState<string>("");
   const {
     data: mentor,
     error: mentorError,
@@ -102,16 +101,7 @@ export function useWithSetup(
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-
-  useEffect(() => {
-    getIdleTipsVideoUrl()
-      .then((url) => {
-        setIdleTipsVideoUrl(url);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
+  const config = useWithConfig();
 
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading) {
@@ -203,24 +193,35 @@ export function useWithSetup(
     }
   }, [trainError]);
 
+  function addToIdx(delta = 1): void {
+    // we have to add steps.length below because stupid js
+    // returns negative mods, e.g.
+    //    (0 - 1) % 10 == -1 // should be 9
+    setIdx(
+      !isNaN(Number(idx))
+        ? Number(idx) + ((delta + steps.length) % steps.length)
+        : 0
+    );
+  }
+
   function nextStep() {
-    if (!status || idx === steps.length - 1) {
+    if (!status) {
       return;
     }
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    setIdx(idx + 1);
+    addToIdx(1);
   }
 
   function prevStep() {
-    if (!status || idx === 0) {
+    if (!status) {
       return;
     }
     if (isMentorEdited) {
       saveMentorDetails();
     }
-    setIdx(idx - 1);
+    addToIdx(-1);
   }
 
   function toStep(i: number) {
@@ -255,7 +256,9 @@ export function useWithSetup(
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
-    idleTipsVideoUrl,
+    idleTipsVideoUrl: config.state.config
+      ? config.state.config.urlVideoIdleTips
+      : "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,

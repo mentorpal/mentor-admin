@@ -5,28 +5,42 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext } from "react";
+import React from "react";
 import { CircularProgress } from "@material-ui/core";
 
-import Context from "context";
-import { LoginStatus } from "types";
 import NavBar from "components/nav-bar";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { LoginStatus } from "store/slices/login/loginSlice";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
-  const context = useContext(Context);
+  const { state: loginState } = useWithLogin();
 
-  if (context.loginStatus === LoginStatus.NONE && !context.accessToken) {
+  if (
+    loginState.loginStatus === LoginStatus.NONE ||
+    loginState.loginStatus === LoginStatus.IN_PROGRESS
+  ) {
+    return (
+      <div>
+        <NavBar title="Mentor Studio" />
+        <CircularProgress />
+      </div>
+    );
+  }
+  if (
+    loginState.loginStatus === LoginStatus.NOT_LOGGED_IN &&
+    !loginState.accessToken
+  ) {
     if (typeof window !== "undefined") {
       navigate("/");
     }
     return <div />;
   }
-  return context.loginStatus === LoginStatus.AUTHENTICATED ? (
+  return loginState.loginStatus === LoginStatus.AUTHENTICATED ? (
     <Component
       {...props}
-      accessToken={context.accessToken}
-      user={context.user}
+      accessToken={loginState.accessToken}
+      user={loginState.user}
     />
   ) : (
     <div>

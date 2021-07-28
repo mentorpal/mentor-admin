@@ -20,6 +20,7 @@ export const mentor: Mentor = {
   title: "Nuclear Electrician's Mate",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: "Today",
+  isDirty: false,
   questions: [],
   subjects: [
     {

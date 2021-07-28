@@ -124,6 +124,7 @@ describe("My Mentor Page", () => {
       cySetup(cy);
       cyMockDefault(cy, { mentor: { ...clint, thumbnail: "" } });
       cy.visit("/");
+      cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
       cy.get("[data-cy=recommended-action-thumbnail]").should("exist");
       cy.get("[data-cy=recommended-action-upload]").should("be.hidden");
     });
@@ -144,9 +145,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=recommended-action-button]").contains(
-        "Record an Idle Video"
-      );
+      cy.get("[data-cy=recommended-action]").contains("Record an Idle Video");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -171,7 +170,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=recommended-action-button]").contains(
+      cy.get("[data-cy=recommended-action]").contains(
         "Finish Required Questions"
       );
       cy.get("[data-cy=recommended-action-button]")
@@ -194,9 +193,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=recommended-action-button]").contains(
-        "Answer More Questions"
-      );
+      cy.get("[data-cy=recommended-action]").contains("Answer More Questions");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -253,20 +250,19 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=recommended-action-button]").contains(
-        "Answer extra Questions"
-      );
+      cy.get("[data-cy=recommended-action]").contains("Answer extra Questions");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
       cy.url().should("include", "/record");
     });
 
-    it("If user has completed previous suggestions, ask to add a subject", () => {
+    it("If user has added questions since last build, recommend building mentor.", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
           ...clint,
+          isDirty: true,
           answers: clint.answers.map((a) => {
             a.status = Status.COMPLETE;
             return a;
@@ -274,7 +270,23 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=recommended-action-button]").contains("Add a Subject");
+      cy.get("[data-cy=recommended-action]").contains("Build Your Mentor");
+    });
+
+    it("If user has completed previous suggestions, ask to add a subject", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: {
+          ...clint,
+          isDirty: false,
+          answers: clint.answers.map((a) => {
+            a.status = Status.COMPLETE;
+            return a;
+          }),
+        },
+      });
+      cy.visit("/");
+      cy.get("[data-cy=recommended-action]").contains("Add a Subject");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -297,28 +309,10 @@ describe("My Mentor Page", () => {
           },
         });
         cy.visit("/");
-        cy.get("[data-cy=recommended-action-button]").contains(
-          "Record an Idle Video"
-        );
+        cy.get("[data-cy=recommended-action]").contains("Record an Idle Video");
         cy.get("[data-cy=skip-action-button]").should("exist");
         cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
-        cy.get("[data-cy=recommended-action-button]").contains("Questions");
-      });
-
-      it("Skip button is hidden at final recommendation.", () => {
-        cySetup(cy);
-        cyMockDefault(cy, {
-          mentor: {
-            ...clint,
-            answers: clint.answers.map((a) => {
-              a.status = Status.COMPLETE;
-              return a;
-            }),
-          },
-        });
-        cy.visit("/");
-        cy.get("[data-cy=recommended-action-button]").contains("Add a Subject");
-        cy.get("[data-cy=skip-action-button]").should("not.exist");
+        cy.get("[data-cy=recommended-action]").contains("Questions");
       });
     });
   });

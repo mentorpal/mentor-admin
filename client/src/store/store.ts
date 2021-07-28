@@ -4,25 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchConfig } from "api";
+import { configureStore } from "@reduxjs/toolkit";
+import loginReducer from "./slices/login/loginSlice";
+import configReducer from "./slices/config/configSlice";
 
-export async function getClientId(): Promise<string> {
-  if (process.env.GOOGLE_CLIENT_ID) {
-    return process.env.GOOGLE_CLIENT_ID;
-  }
-  try {
-    return (await fetchConfig()).googleClientId;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+export const store = configureStore({
+  reducer: {
+    login: loginReducer,
+    config: configReducer,
+  },
+});
 
-export async function getIdleTipsVideoUrl(): Promise<string> {
-  try {
-    return (await fetchConfig()).idleTipsVideoUrl;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-}
+// Infer the `RootState` and `AppDispatch` types from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export type AppDispatch = typeof store.dispatch;
