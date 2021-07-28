@@ -4,7 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import axios, { CancelTokenSource, AxiosResponse } from "axios";
+import axios, {
+  CancelTokenSource,
+  AxiosResponse,
+  Method,
+  AxiosRequestConfig,
+} from "axios";
 import {
   UserAccessToken,
   Mentor,
@@ -86,27 +91,9 @@ interface GQLQueryOptions {
   dataPath?: string | string[];
 }
 
-interface GQLResponse<T> {
-  errors?: { message: string }[];
-  data?: T;
-}
-function getGqlReponseData<T>(res: AxiosResponse<GQLResponse<T>>): T {
-  if (res.status !== 200) {
-    throw new Error(
-      `GQL HTTP request failed with status ${res.status}: ${res.statusText}`
-    );
-  }
-  if (res.data.errors) {
-    throw new Error(
-      `errors in GQL response: ${JSON.stringify(res.data.errors)}`
-    );
-  }
-  if (!res.data.data) {
-    throw new Error(`no data in response: ${JSON.stringify(res.data)}`);
-  }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if ("me" in res.data.data) return (res.data.data as any).me;
-  return res.data.data;
+interface AxiosOptions extends AxiosRequestConfig {
+  accessToken?: string;
+  dataPath?: string | string[];
 }
 
 const uploadRequest = axios.create({
@@ -124,36 +111,71 @@ async function execGql<T>(query: GQLQuery, opts?: GQLQueryOptions): Promise<T> {
         : {}),
     },
   });
+  return getDataFromAxiosResponse(res, optsEffective.dataPath || []);
+}
+
+async function execAxios<T>(
+  method: Method,
+  query: string,
+  opts?: AxiosOptions
+): Promise<T> {
+  const optsEffective = opts || {};
+  const result = await axios({
+    url: query,
+    method: method,
+    data: optsEffective.data || {},
+    headers: {
+      ...(optsEffective.headers || {}), // if any headers passed in opts, include them
+      ...(optsEffective && optsEffective.accessToken // if accessToken passed in opts, add auth to headers
+        ? { Authorization: `bearer ${optsEffective.accessToken}` }
+        : {}),
+    },
+  });
+  return getDataFromAxiosResponse(result, optsEffective.dataPath || []);
+}
+
+function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (res.status !== 200) {
-    throw new Error(
-      `GQL HTTP request failed with status ${res.status}: ${res.statusText}`
-    );
+    throw new Error(`http request failed: ${res.statusText}}`);
   }
   if (res.data.errors) {
-    throw new Error(
-      `errors in GQL response: ${JSON.stringify(res.data.errors)}`
-    );
+    throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
   }
+}
+
+function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
+  throwErrorsInAxiosResponse(res);
   let data = res.data.data;
   if (!data) {
-    throw new Error(`no data in response: ${JSON.stringify(res.data)}`);
+    throw new Error(`no data in reponse: ${JSON.stringify(res.data)}`);
   }
-  const dataPath = Array.isArray(optsEffective.dataPath)
-    ? optsEffective.dataPath
-    : typeof optsEffective.dataPath === "string"
-    ? [optsEffective.dataPath]
+  const dataPath = Array.isArray(path)
+    ? path
+    : typeof path === "string"
+    ? [path]
     : [];
   dataPath.forEach((pathPart) => {
     if (!data) {
       throw new Error(
-        `unexpected response data shape for and dataPath ${JSON.stringify(
+        `unexpected response data shape for dataPath ${JSON.stringify(
           dataPath
-        )} and query ${query} : ${res.data}`
+        )} and request ${res.request} : ${res.data}`
       );
     }
     data = data[pathPart];
   });
   return data;
+}
+
+export async function fetchFollowUpQuestions(
+  categoryId: string,
+  accessToken: string
+): Promise<FollowUpQuestion[]> {
+  return execAxios<FollowUpQuestion[]>(
+    "POST",
+    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
+    { accessToken, dataPath: "followups" }
+  );
 }
 
 export async function fetchConfig(): Promise<Config> {
@@ -360,8 +382,9 @@ export async function fetchUserQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<UserQuestion>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const result = await graphqlRequest.post("", {
-    query: `
+  return execGql<Connection<UserQuestion>>(
+    {
+      query: `
       query {
         userQuestions(
           filter:${stringifyObject(params.filter)},
@@ -411,14 +434,15 @@ export async function fetchUserQuestions(
         }
       }
     `,
-  });
-  return getGqlReponseData<{ userQuestions: Connection<UserQuestion> }>(result)
-    .userQuestions;
+    },
+    { dataPath: "userQuestions" }
+  );
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
-  const result = await graphqlRequest.post("", {
-    query: `
+  return execGql<UserQuestion>(
+    {
+      query: `
       query UserQuestion($id: ID!) {
         userQuestion(id: $id) {
           _id
@@ -451,47 +475,29 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
         }
       }
     `,
-    variables: { id },
-  });
-  return getGqlReponseData<{ userQuestion: UserQuestion }>(result).userQuestion;
+      variables: { id },
+    },
+    { dataPath: "userQuestion" }
+  );
 }
 
 export async function updateUserQuestion(
   feedbackId: string,
   answerId: string
 ): Promise<UserQuestion> {
-  const result = await graphqlRequest.post("", {
-    query: `
+  return execGql<UserQuestion>(
+    {
+      query: `
       mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
         userQuestionSetAnswer(id: $id, answer: $answer) {
           _id
         }
       }
     `,
-    variables: { id: feedbackId, answer: answerId },
-  });
-  return getGqlReponseData<{ userQuestionSetAnswer: UserQuestion }>(result)
-    .userQuestionSetAnswer;
-}
-
-export async function fetchMentorId(accessToken: string): Promise<Mentor> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
-    {
-      query: `
-      query {
-        me {
-          mentor {
-            _id
-          }
-        }
-      }
-    `,
+      variables: { id: feedbackId, answer: answerId },
     },
-    { headers: headers }
+    { dataPath: "userQuestionSetAnswer" }
   );
-  return getGqlReponseData<{ mentor: Mentor }>(result).mentor;
 }
 
 export async function fetchMentor(
@@ -500,9 +506,7 @@ export async function fetchMentor(
   topic?: string,
   status?: string
 ): Promise<Mentor> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<Mentor>(
     {
       query: `
       query Mentor($subject: ID!, $topic: ID!, $status: String!) {
@@ -594,18 +598,15 @@ export async function fetchMentor(
         status: status || "",
       },
     },
-    { headers: headers }
+    { dataPath: ["me", "mentor"], accessToken }
   );
-  return getGqlReponseData<{ mentor: Mentor }>(result).mentor;
 }
 
 export async function updateMentorDetails(
   mentor: Mentor,
   accessToken: string
 ): Promise<boolean> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<boolean>(
     {
       query: `
       mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
@@ -625,19 +626,15 @@ export async function updateMentorDetails(
         },
       },
     },
-    { headers: headers }
+    { dataPath: ["me", "updateMentorDetails"], accessToken }
   );
-  return getGqlReponseData<{ updateMentorDetails: boolean }>(result)
-    .updateMentorDetails;
 }
 
 export async function updateMentorSubjects(
   mentor: Mentor,
   accessToken: string
 ): Promise<boolean> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<boolean>(
     {
       query: `
       mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
@@ -653,19 +650,15 @@ export async function updateMentorSubjects(
         },
       },
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "updateMentorSubjects"] }
   );
-  return getGqlReponseData<{ updateMentorSubjects: boolean }>(result)
-    .updateMentorSubjects;
 }
 
 export async function updateQuestion(
   updateQuestion: Question,
   accessToken: string
 ): Promise<boolean> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<boolean>(
     {
       query: `
         mutation UpdateQuestion($question: QuestionUpdateInputType!) {
@@ -678,18 +671,15 @@ export async function updateQuestion(
       `,
       variables: { question: updateQuestion },
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "updateQuestion"] }
   );
-  return getGqlReponseData<{ updateQuestion: boolean }>(result).updateQuestion;
 }
 
 export async function updateAnswer(
   answer: Answer,
   accessToken: string
 ): Promise<boolean> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<boolean>(
     {
       query: `
       mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
@@ -706,65 +696,22 @@ export async function updateAnswer(
         },
       },
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "updateAnswer"] }
   );
-  return getGqlReponseData<{ updateAnswer: boolean }>(result).updateAnswer;
 }
 
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
-  const result = await axios.post(urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
-    mentor: mentorId,
+  return execAxios("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
+    data: { mentor: mentorId },
   });
-  if (result.status !== 200) {
-    throw new Error(`training failed: ${result.statusText}}`);
-  }
-  if (result.data.errors) {
-    throw new Error(
-      `errors response to training: ${JSON.stringify(result.data.errors)}`
-    );
-  }
-  if (!result.data.data) {
-    throw new Error(
-      `no data in non-error reponse: ${JSON.stringify(result.data)}`
-    );
-  }
-  return result.data.data;
-}
-
-export async function fetchFollowUpQuestions(
-  categoryId: string,
-  accessToken: string
-): Promise<FollowUpQuestion[]> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await axios.post(
-    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
-    null,
-    { headers: headers }
-  );
-  return getGqlReponseData<{ followups: FollowUpQuestion[] }>(result).followups;
 }
 
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {
-  const result = await axios.get(statusUrl);
-  if (result.status !== 200) {
-    throw new Error(`fetch training status failed: ${result.statusText}}`);
-  }
-  if (result.data.errors) {
-    throw new Error(
-      `errors response to fetch training status: ${JSON.stringify(
-        result.data.errors
-      )}`
-    );
-  }
-  if (!result.data.data) {
-    throw new Error(
-      `no data in non-error response: ${JSON.stringify(result.data)}`
-    );
-  }
-  return result.data.data;
+  return execAxios("GET", statusUrl);
 }
+
 export async function uploadThumbnail(
   mentorId: string,
   thumbnail: File
@@ -777,12 +724,10 @@ export async function uploadThumbnail(
       "Content-Type": "multipart/form-data",
     },
   });
-  return result.data.data;
+  return getDataFromAxiosResponse(result, []);
 }
 export async function fetchThumbnail(accessToken: string): Promise<string> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<string>(
     {
       query: `
       query {
@@ -794,9 +739,8 @@ export async function fetchThumbnail(accessToken: string): Promise<string> {
       }
     `,
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "thumbnail"] }
   );
-  return getGqlReponseData<{ thumbnail: string }>(result).thumbnail;
 }
 export async function uploadVideo(
   mentorId: string,
@@ -826,7 +770,7 @@ export async function uploadVideo(
     },
     cancelToken: tokenSource.token,
   });
-  return result.data.data;
+  return getDataFromAxiosResponse(result, []);
 }
 
 export async function cancelUploadVideo(
@@ -839,19 +783,19 @@ export async function cancelUploadVideo(
     question: question._id,
     task: taskId,
   });
-  return result.data.data;
+  return getDataFromAxiosResponse(result, []);
 }
 
 export async function fetchUploadVideoStatus(
   statusUrl: string
 ): Promise<TaskStatus<VideoInfo>> {
-  const result = await axios.get(statusUrl);
-  return result.data.data;
+  return execAxios("GET", statusUrl);
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  const result = await graphqlRequest.post("", {
-    query: `
+  return execGql<UserAccessToken>(
+    {
+      query: `
       mutation Login($accessToken: String!) {
         login(accessToken: $accessToken) {
           user {
@@ -863,16 +807,18 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
         }
       }
     `,
-    variables: { accessToken },
-  });
-  return getGqlReponseData<{ login: UserAccessToken }>(result).login;
+      variables: { accessToken },
+    },
+    { dataPath: "login" }
+  );
 }
 
 export async function loginGoogle(
   accessToken: string
 ): Promise<UserAccessToken> {
-  const result = await graphqlRequest.post("", {
-    query: `
+  return execGql<UserAccessToken>(
+    {
+      query: `
       mutation LoginGoogle($accessToken: String!) {
         loginGoogle(accessToken: $accessToken) {
           user {
@@ -884,18 +830,16 @@ export async function loginGoogle(
         }
       }
     `,
-    variables: { accessToken },
-  });
-  return getGqlReponseData<{ loginGoogle: UserAccessToken }>(result)
-    .loginGoogle;
+      variables: { accessToken },
+    },
+    { dataPath: "loginGoogle" }
+  );
 }
 
 export async function fetchUploadTasks(
   accessToken: string
 ): Promise<UploadTask[]> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<UploadTask[]>(
     {
       query: `
         query FetchUploadTasks {
@@ -917,18 +861,15 @@ export async function fetchUploadTasks(
           }
         }`,
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "uploadTasks"] }
   );
-  return getGqlReponseData<{ uploadTasks: UploadTask[] }>(result).uploadTasks;
 }
 
 export async function deleteUploadTask(
   question: string,
   accessToken: string
 ): Promise<boolean> {
-  const headers = { Authorization: `bearer ${accessToken}` };
-  const result = await graphqlRequest.post(
-    "",
+  return execGql<boolean>(
     {
       query: `
         mutation UploadTaskDelete($questionId: ID!) {
@@ -939,8 +880,6 @@ export async function deleteUploadTask(
       `,
       variables: { questionId: question },
     },
-    { headers: headers }
+    { accessToken, dataPath: ["me", "uploadTaskDelete"] }
   );
-  return getGqlReponseData<{ uploadTaskDelete: boolean }>(result)
-    .uploadTaskDelete;
 }

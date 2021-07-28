@@ -15,7 +15,7 @@ import {
 
 export interface UseUserData extends UseDataConnection<User> {
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
-  userDataError: LoadingError | undefined;
+  userDataError?: LoadingError;
 }
 
 export function useWithUsers(accessToken: string): UseUserData {
