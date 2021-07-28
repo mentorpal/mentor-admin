@@ -9,6 +9,7 @@ import React from "react";
 import { Typography, Button } from "@material-ui/core";
 import { Answer, Status } from "types";
 import { Slide } from "./slide";
+import { urlBuild } from "helpers";
 
 export function RecordIdleSlide(props: {
   classes: Record<string, string>;
@@ -20,7 +21,10 @@ export function RecordIdleSlide(props: {
 
   function onRecord() {
     navigate(
-      `/record?videoId=${idle.question._id}&back=${encodeURI(`/setup?i=${i}`)}`
+      urlBuild("/record", {
+        videoId: idle.question._id,
+        back: encodeURI(`/setup?i=${i}`),
+      })
     );
   }
 

@@ -187,17 +187,21 @@ export function useWithReviewAnswerState(
 
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
-      `/record?back=${encodeURI(
-        `/?subject=${selectedSubject}`
-      )}&status=${status}&subject=${subject}&category=${category}`
+      urlBuild("/record", {
+        status: status,
+        subject: subject,
+        category: category,
+        back: encodeURI(`/?subject=${selectedSubject}`),
+      })
     );
   }
 
   function recordAnswer(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
-        answer.question._id
-      }`
+      urlBuild("/record", {
+        videoId: answer.question._id,
+        back: encodeURI(`/?subject=${selectedSubject}`),
+      })
     );
   }
 
