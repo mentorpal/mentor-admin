@@ -2256,9 +2256,9 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]")
         .get("span")
         .should("have.text", videoMentor.answers[1].question.question);
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Failed to process file: UPLOAD_FAILED");
+      cy.get("[data-cy=card-answer-title]").contains(
+        "Failed to process file: UPLOAD_FAILED"
+      );
     });
     cy.get("[data-cy=upload-card-2]").should("exist");
     cy.get("[data-cy=upload-card-2]").within(($within) => {
