@@ -56,20 +56,6 @@ export const login = createAsyncThunk(
   }
 );
 
-export const switchMentor = createAsyncThunk(
-  "login/switchMentor",
-  async (headers: {
-    accessToken: string;
-    mentorId?: string;
-  }): Promise<string | unknown> => {
-    try {
-      return await api.switchMentor(headers.accessToken, headers.mentorId);
-    } catch (err) {
-      return err.response.data;
-    }
-  }
-);
-
 export const logout =
   () =>
   (dispatch: (arg0: { payload: undefined; type: string }) => void): void => {
