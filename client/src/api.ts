@@ -762,28 +762,6 @@ export async function loginGoogle(
   return result.data.data.loginGoogle;
 }
 
-export async function switchMentor(
-  accessToken: string,
-  mentorId?: string
-): Promise<string> {
-  const result = await graphqlRequest.post("", {
-    query: `
-      mutation SwitchMentor($accessToken: String!, $mentorId?: String) {
-        login(activeMentorId: $mentorId) {
-          user {
-            _id
-            name
-            activeMentorId
-          }
-          accessToken
-        }
-      }
-    `,
-    variables: { accessToken },
-  });
-  return result.data.data.login.user.activeMentorId;
-}
-
 export async function fetchUploadTasks(
   accessToken: string
 ): Promise<UploadTask[]> {
