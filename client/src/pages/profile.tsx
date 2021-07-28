@@ -60,7 +60,7 @@ function ProfilePage(): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="My Profile" mentorId={mentorState.editedData?._id} />
+      <NavBar title="My Profile" mentorId={mentorState.editedData._id} />
       <Paper className={classes.paper}>
         <div className={classes.inputField}>
           <FormControl>
