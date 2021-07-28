@@ -56,7 +56,7 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { state, loadMentor } = useActiveMentor();
+  const { mentorState, loadMentor } = useActiveMentor();
 
   const {
     uploads,
@@ -71,12 +71,12 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const mentorError = state.error;
-  const mentor = state.data;
-  const isMentorLoading = state.mentorStatus === MentorStatus.LOADING;
+  const mentorError = mentorState.error;
+  const mentor = mentorState.data;
+  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
-    const mentor = state.data;
+    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }

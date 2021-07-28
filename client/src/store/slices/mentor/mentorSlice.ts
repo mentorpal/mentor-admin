@@ -20,19 +20,15 @@ export enum MentorStatus {
 }
 
 export interface MentorState {
-  data: Mentor | undefined;
-  editedData: Mentor | undefined;
-  isEdited: boolean;
+  data?: Mentor;
+  editedData?: Mentor;
+  isEdited?: boolean;
   mentorStatus: MentorStatus;
-  error: LoadingError | undefined;
+  error?: LoadingError;
 }
 
 const initialState: MentorState = {
-  data: undefined,
-  editedData: undefined,
-  isEdited: false,
   mentorStatus: MentorStatus.NONE,
-  error: undefined,
 };
 
 /** Actions */
@@ -61,15 +57,11 @@ export const saveMentor = createAsyncThunk(
 
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
-  async (
-    headers: { accessToken: string; editedData: Mentor },
-    { rejectWithValue }
-  ) => {
+  async (headers: { accessToken: string; editedData: Mentor }) => {
     try {
       return api.updateMentorSubjects(headers.editedData, headers.accessToken);
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      return err.response.data;
     }
   }
 );
@@ -94,7 +86,7 @@ export const mentorSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loadMentor.pending, (state) => {
-        state.data = undefined;
+        delete state.data;
 
         state.mentorStatus = MentorStatus.LOADING;
       })
@@ -104,7 +96,7 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(loadMentor.rejected, (state) => {
-        state.data = undefined;
+        delete state.data;
         state.error = {
           message: "failed to load mentor",
           error: loadMentor.rejected.name,

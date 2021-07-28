@@ -52,15 +52,15 @@ const useStyles = makeStyles(() => ({
 
 function ProfilePage(): JSX.Element {
   const classes = useStyles();
-  const { state, saveMentor, editMentor } = useActiveMentor();
+  const { mentorState, saveMentor, editMentor } = useActiveMentor();
 
-  if (!state.editedData) {
+  if (!mentorState.editedData) {
     return <div />;
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="My Profile" mentorId={state.editedData?._id} />
+      <NavBar title="My Profile" mentorId={mentorState.editedData?._id} />
       <Paper className={classes.paper}>
         <div className={classes.inputField}>
           <FormControl>
@@ -68,7 +68,7 @@ function ProfilePage(): JSX.Element {
             <Select
               data-cy="select-chat-type"
               label="Mentor Type"
-              value={state.editedData?.mentorType}
+              value={mentorState.editedData.mentorType}
               style={{ width: 200 }}
               onChange={(
                 event: React.ChangeEvent<{
@@ -92,7 +92,7 @@ function ProfilePage(): JSX.Element {
           data-cy="mentor-name"
           label="Full Name"
           variant="outlined"
-          value={state.editedData.name}
+          value={mentorState.editedData.name}
           onChange={(e) => editMentor({ name: e.target.value })}
           className={classes.inputField}
         />
@@ -100,7 +100,7 @@ function ProfilePage(): JSX.Element {
           data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
-          value={state.editedData.firstName}
+          value={mentorState.editedData.firstName}
           onChange={(e) => editMentor({ firstName: e.target.value })}
           className={classes.inputField}
         />
@@ -108,7 +108,7 @@ function ProfilePage(): JSX.Element {
           data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
-          value={state.editedData.title}
+          value={mentorState.editedData.title}
           onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
@@ -117,16 +117,18 @@ function ProfilePage(): JSX.Element {
           label="Email"
           type="email"
           variant="outlined"
-          value={state.editedData.email}
+          value={mentorState.editedData.email}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
         <FormControlLabel
           control={
             <Checkbox
-              checked={state.editedData.allowContact}
+              checked={mentorState.editedData.allowContact}
               onChange={() =>
-                editMentor({ allowContact: !state.editedData?.allowContact })
+                editMentor({
+                  allowContact: !mentorState.editedData?.allowContact,
+                })
               }
               color="secondary"
             />
@@ -138,7 +140,7 @@ function ProfilePage(): JSX.Element {
           data-cy="update-btn"
           variant="contained"
           color="primary"
-          disabled={!state.isEdited}
+          disabled={!mentorState.isEdited}
           onClick={saveMentor}
         >
           Save Changes
@@ -146,14 +148,14 @@ function ProfilePage(): JSX.Element {
       </Paper>
       <LoadingDialog
         title={
-          state.mentorStatus === MentorStatus.LOADING
+          mentorState.mentorStatus === MentorStatus.LOADING
             ? "Loading"
-            : state.mentorStatus === MentorStatus.SAVING
+            : mentorState.mentorStatus === MentorStatus.SAVING
             ? "Saving"
             : ""
         }
       />
-      <ErrorDialog error={state.error} />
+      <ErrorDialog error={mentorState.error} />
     </div>
   );
 }

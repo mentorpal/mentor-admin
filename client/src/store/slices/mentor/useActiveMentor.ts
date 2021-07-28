@@ -12,7 +12,7 @@ import { Mentor } from "types";
 import * as mentorActions from "./mentorSlice";
 
 interface UseActiveMentor {
-  state: mentorActions.MentorState;
+  mentorState: mentorActions.MentorState;
   loadMentor: () => void;
   saveMentor: () => void;
   saveMentorSubjects: (editedData: Mentor) => void;
@@ -21,22 +21,22 @@ interface UseActiveMentor {
 
 export const useActiveMentor = (): UseActiveMentor => {
   const dispatch = useDispatch();
-  const state = useAppSelector((state) => state.mentor);
+  const mentorState = useAppSelector((state) => state.mentor);
   const loginState = useAppSelector((state) => state.login);
 
   useEffect(() => {
-    if (state.data) {
+    if (mentorState.data) {
       return;
     }
     if (loginState.accessToken) {
       loadMentor();
     }
-  }, []);
+  }, [loginState]);
 
   const loadMentor = () => {
     if (
-      state.mentorStatus === mentorActions.MentorStatus.NONE ||
-      state.mentorStatus === mentorActions.MentorStatus.FAILED
+      mentorState.mentorStatus === mentorActions.MentorStatus.NONE ||
+      mentorState.mentorStatus === mentorActions.MentorStatus.FAILED
     ) {
       if (loginState.accessToken) {
         dispatch(mentorActions.loadMentor(loginState.accessToken));
@@ -47,37 +47,37 @@ export const useActiveMentor = (): UseActiveMentor => {
   const saveMentor = () => {
     if (
       loginState.accessToken &&
-      state.editedData &&
-      !equals(state.data, state.editedData)
+      mentorState.editedData &&
+      !equals(mentorState.data, mentorState.editedData)
     ) {
       dispatch(
         mentorActions.saveMentor({
           accessToken: loginState.accessToken,
-          editedData: state.editedData,
+          editedData: mentorState.editedData,
         })
       );
     }
   };
 
   const saveMentorSubjects = () => {
-    if (loginState.accessToken && state.editedData) {
+    if (loginState.accessToken && mentorState.editedData) {
       dispatch(
         mentorActions.saveMentorSubjects({
           accessToken: loginState.accessToken,
-          editedData: state.editedData,
+          editedData: mentorState.editedData,
         })
       );
     }
   };
   const editMentor = (edits: Partial<Mentor>) => {
-    if (state.mentorStatus === mentorActions.MentorStatus.LOADING) {
+    if (mentorState.mentorStatus === mentorActions.MentorStatus.LOADING) {
       return;
     }
     dispatch(mentorActions.mentorSlice.actions.editMentor(edits));
   };
 
   return {
-    state,
+    mentorState,
     loadMentor,
     saveMentor,
     saveMentorSubjects,
