@@ -250,12 +250,15 @@ function VideoPlayer(props: {
             onClick={() => {
               if (isUploading) {
                 recordState.cancelUpload(upload!);
-              } else if (isTrimming) {
-                const trimStart = (trim[0] / 100) * videoLength;
-                const trimEnd = (trim[1] / 100) * videoLength;
-                recordState.uploadVideo({ start: trimStart, end: trimEnd });
               } else {
-                recordState.uploadVideo();
+                recordState.uploadVideo(
+                  isTrimming
+                    ? {
+                        start: (trim[0] / 100) * videoLength,
+                        end: (trim[1] / 100) * videoLength,
+                      }
+                    : undefined
+                );
               }
             }}
             style={{ marginRight: 15 }}

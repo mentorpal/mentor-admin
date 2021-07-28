@@ -203,11 +203,11 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function selectSubject(sId: string | undefined) {
-    setSelectedSubject(sId);
+  function selectSubject(sId?: string) {
+    setSelectedSubject(sId || "");
   }
 
-  function addNewQuestion(subject: Subject, category: Category | undefined) {
+  function addNewQuestion(subject: Subject, category?: Category) {
     if (!editedMentor || isMentorLoading || isSaving) {
       return;
     }
@@ -335,17 +335,17 @@ export function useWithReviewAnswerState(
 }
 
 interface UseWithReviewAnswerState {
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   isMentorEdited: boolean;
   blocks: RecordingBlock[];
   progress: Progress;
-  selectedSubject: string | undefined;
+  selectedSubject?: string;
   isLoading: boolean;
   isSaving: boolean;
   isTraining: boolean;
-  error: LoadingError | undefined;
+  error?: LoadingError;
   clearError: () => void;
-  selectSubject: (sId: string | undefined) => void;
+  selectSubject: (sId?: string) => void;
   saveChanges: () => void;
   startTraining: (params: string) => void;
 }

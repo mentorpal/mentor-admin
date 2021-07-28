@@ -33,7 +33,7 @@ export interface CurAnswerState extends AnswerState {
   isEdited: boolean;
   isValid: boolean;
   isUploading: boolean;
-  videoSrc: string | undefined;
+  videoSrc?: string;
 }
 
 export function useWithRecordState(
@@ -397,11 +397,11 @@ export function useWithRecordState(
 }
 
 export interface UseWithRecordState {
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   answers: AnswerState[];
   answerIdx: number;
   recordPageState: RecordPageState;
-  curAnswer: CurAnswerState | undefined;
+  curAnswer?: CurAnswerState;
   uploads: UploadTask[];
   pollStatusCount: number;
   followUpQuestions: string[];
@@ -417,19 +417,12 @@ export interface UseWithRecordState {
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;
-  uploadVideo: (
-    trim?:
-      | {
-          start: number;
-          end: number;
-        }
-      | undefined
-  ) => void;
+  uploadVideo: (trim?: { start: number; end: number }) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
-  error: RecordingError | undefined;
+  error?: RecordingError;
   clearError: () => void;
 }
