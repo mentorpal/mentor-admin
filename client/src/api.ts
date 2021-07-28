@@ -8,6 +8,7 @@ import axios, {
   CancelTokenSource,
   AxiosResponse,
   Method,
+  AxiosInstance,
   AxiosRequestConfig,
 } from "axios";
 import {
@@ -55,45 +56,58 @@ function isValidObjectID(id: string) {
   return id.match(/^[0-9a-fA-F]{24}$/);
 }
 
-const graphqlRequest = axios.create({
-  baseURL: GRAPHQL_ENDPOINT,
-  timeout: 30000,
-});
+const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
 
-graphqlRequest.interceptors.response.use(
-  function (response) {
-    if (
-      response.data.extensions &&
-      response.data.extensions.newToken &&
-      response.data.extensions.newToken.accessToken
-    ) {
-      localStorage.setItem(
-        "accessToken",
-        response.data.extensions.newToken.accessToken
-      );
+/**
+ * Middleware function takes some action on an axios instance
+ */
+interface AxiosMiddleware {
+  (axiosInstance: AxiosInstance): void;
+}
+
+/**
+ * Captures accessToken from response and writes it to local storage.
+ * HIGHLY SUSPICIOUS OF THIS!!!!
+ * Should we not be keeping the accessToken ONLY in memory?
+ * Shouldn't the only stored version of accessToken/refreshToken be in HTTPS-only cookies?
+ */
+const extractAndStoreAccessToken: AxiosMiddleware = (
+  axiosInstance: AxiosInstance
+) => {
+  axiosInstance.interceptors.response.use(
+    function (response) {
+      if (response?.data?.extensions?.newToken?.accessToken) {
+        localStorage.setItem(
+          "accessToken",
+          response.data.extensions.newToken.accessToken
+        );
+      }
+      return response;
+    },
+    function (error) {
+      return error;
     }
-    return response;
-  },
-  function (error) {
-    return error;
-  }
-);
+  );
+};
 
 interface GQLQuery {
-  query: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  variables?: Record<string, any>;
+  query: string; // the query string passed to graphql, which should be a static query
+  variables?: Record<string, unknown>; // variables (if any) for the static query
 }
 
-interface GQLQueryOptions {
-  accessToken?: string;
-  headers?: Record<string, string>;
-  dataPath?: string | string[];
-}
-
-interface AxiosOptions extends AxiosRequestConfig {
-  accessToken?: string;
-  dataPath?: string | string[];
+interface HttpRequestConfig {
+  accessToken?: string; // bearer-token http auth
+  axiosConfig?: AxiosRequestConfig; // any axios config for the request
+  axiosMiddleware?: AxiosMiddleware; // used (for example) to extract accessToken from response headers
+  /**
+   * When set, will use this prop (or array of props) to extract return data from a json response, e.g.
+   * 
+   * dataPath: ["foo", "bar"]
+   * 
+   * // will extract "barvalue" for the return
+   * { "foo": { "bar": "barvalue" } }
+   */
+  dataPath?: string | string[];  
 }
 
 const uploadRequest = axios.create({
@@ -101,31 +115,38 @@ const uploadRequest = axios.create({
   baseURL: UPLOAD_ENTRYPOINT,
 });
 
-async function execGql<T>(query: GQLQuery, opts?: GQLQueryOptions): Promise<T> {
-  const optsEffective = opts || {};
-  const res = await graphqlRequest.post("", query, {
-    headers: {
-      ...(optsEffective.headers || {}), // if any headers passed in opts, include them
-      ...(optsEffective && optsEffective.accessToken // if accessToken passed in opts, add auth to headers
-        ? { Authorization: `bearer ${optsEffective.accessToken}` }
-        : {}),
+async function execGql<T>(
+  query: GQLQuery,
+  opts?: HttpRequestConfig
+): Promise<T> {
+  return execHttp<T>("POST", GRAPHQL_ENDPOINT, {
+    axiosMiddleware: extractAndStoreAccessToken,
+    ...(opts || {}),
+    axiosConfig: {
+      timeout: REQUEST_TIMEOUT_GRAPHQL_DEFAULT, // default timeout can be overriden by passed-in config
+      ...(opts?.axiosConfig || {}),
+      data: query,
     },
   });
-  return getDataFromAxiosResponse(res, optsEffective.dataPath || []);
 }
 
-async function execAxios<T>(
+async function execHttp<T>(
   method: Method,
   query: string,
-  opts?: AxiosOptions
+  opts?: HttpRequestConfig
 ): Promise<T> {
-  const optsEffective = opts || {};
-  const result = await axios({
+  const optsEffective: HttpRequestConfig = opts || {};
+  const axiosConfig = opts?.axiosConfig || {};
+  const axiosInst = axios.create();
+  if (optsEffective.axiosMiddleware) {
+    optsEffective.axiosMiddleware(axiosInst);
+  }
+  const result = await axiosInst.request({
     url: query,
     method: method,
-    data: optsEffective.data || {},
+    ...axiosConfig,
     headers: {
-      ...(optsEffective.headers || {}), // if any headers passed in opts, include them
+      ...(axiosConfig.headers || {}), // if any headers passed in opts, include them
       ...(optsEffective && optsEffective.accessToken // if accessToken passed in opts, add auth to headers
         ? { Authorization: `bearer ${optsEffective.accessToken}` }
         : {}),
@@ -171,7 +192,7 @@ export async function fetchFollowUpQuestions(
   categoryId: string,
   accessToken: string
 ): Promise<FollowUpQuestion[]> {
-  return execAxios<FollowUpQuestion[]>(
+  return execHttp<FollowUpQuestion[]>(
     "POST",
     urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
     { accessToken, dataPath: "followups" }
@@ -701,7 +722,7 @@ export async function updateAnswer(
 }
 
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
-  return execAxios("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
+  return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     data: { mentor: mentorId },
   });
 }
@@ -709,7 +730,7 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {
-  return execAxios("GET", statusUrl);
+  return execHttp("GET", statusUrl);
 }
 
 export async function uploadThumbnail(
@@ -789,7 +810,7 @@ export async function cancelUploadVideo(
 export async function fetchUploadVideoStatus(
   statusUrl: string
 ): Promise<TaskStatus<VideoInfo>> {
-  return execAxios("GET", statusUrl);
+  return execHttp("GET", statusUrl);
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
