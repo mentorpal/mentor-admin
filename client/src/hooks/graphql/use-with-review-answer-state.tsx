@@ -20,8 +20,9 @@ import {
 } from "types";
 import { copyAndSet, equals } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { MentorStatus } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
@@ -50,14 +51,15 @@ export function useWithReviewAnswerState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<LoadingError>();
   const {
-    data: mentor,
-    error: mentorError,
-    editedData: editedMentor,
-    isLoading: isMentorLoading,
-    isEdited: isMentorEdited,
-    editData: editMentor,
-    reloadData: reloadMentor,
-  } = useWithMentor(accessToken);
+    mentorState,
+    editMentor,
+    loadMentor: reloadMentor,
+    saveMentor,
+  } = useActiveMentor();
+  const mentorError = mentorState.error;
+  const mentor = mentorState.data;
+  const editedMentor = mentorState.editedData;
+  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -286,7 +288,7 @@ export function useWithReviewAnswerState(
     if (
       !mentor ||
       !editedMentor ||
-      !isMentorEdited ||
+      !mentorState.isEdited ||
       isMentorLoading ||
       isSaving
     ) {
@@ -304,6 +306,7 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
+        saveMentor();
         reloadMentor();
         setIsSaving(false);
       })
@@ -316,7 +319,7 @@ export function useWithReviewAnswerState(
 
   return {
     mentor,
-    isMentorEdited,
+    isMentorEdited: Boolean(mentorState.isEdited),
     blocks,
     progress,
     selectedSubject,
