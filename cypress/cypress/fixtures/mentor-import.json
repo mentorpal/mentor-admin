@@ -1,87 +1,50 @@
 {
-  "_id": "clintanderson",
   "subjects": [
     {
       "_id": "repeat_after_me",
       "name": "Repeat After Me",
-      "isRequired": true,
       "description": "These are miscellaneous phrases you'll be asked to repeat.",
       "categories": [
         {
-          "id": "category2",
-          "name": "Category2",
-          "description": "Another category"
+          "id": "c",
+          "name": "Category",
+          "description": "A category"
         },
         {
-          "id": "category3",
-          "name": "Category3",
-          "description": "A new category"
+          "id": "nc",
+          "name": "New Category",
+          "description": "A new category added to the subject"
         }
       ],
       "topics": [
         {
-          "id": "topic",
+          "id": "t",
           "name": "Topic",
-          "description": "A new topic"
+          "description": "A topic"
+        },
+        {
+          "id": "nt",
+          "name": "New Topic",
+          "description": "A new topic added to the subject"
         }
       ],
       "questions": [
         {
           "question": {
-            "_id": "A3_1_1",
-            "question": "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-            "type": "UTTERANCE",
-            "name": "_IDLE_",
-            "paraphrases": [],
-            "mentorType": "VIDEO",
-            "minVideoLength": 10
-          },
-          "topics": []
-        },
-        {
-          "question": {
-            "_id": "A4_1_1",
-            "question": "Please give a short introduction of yourself, which includes your name, current job, and title.",
-            "type": "UTTERANCE",
-            "name": "_INTRO_",
-            "paraphrases": []
-          },
-          "topics": []
-        },
-        {
-          "question": {
-            "_id": "A5_1_1",
-            "question": "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-            "type": "UTTERANCE",
-            "name": "_OFF_TOPIC_",
-            "paraphrases": []
-          },
-          "topics": [
-            {
-              "id": "topic",
-              "name": "Topic",
-              "description": "A new topic"
-            }
-          ],
-          "category": {
-            "id": "category2",
-            "name": "Category2",
-            "description": "Another category"
+            "_id": "q1",
+            "question": "Question 1"
           }
         },
         {
           "question": {
-            "_id": "A6_1_1",
-            "question": "A new question being added",
-            "type": "UTTERANCE",
-            "name": "_OFF_TOPIC_",
-            "paraphrases": []
-          },
-          "topics": [],
-          "category": {
-            "id": "category3",
-            "name": "Category3",
-            "description": "A new category"
+            "_id": "q2",
+            "question": "Edited Question 2"
+          }
+        },
+        {
+          "question": {
+            "_id": "qn",
+            "question": "A new question being created"
           }
         }
       ]
@@ -89,100 +52,79 @@
     {
       "_id": "new_subject",
       "name": "New subject",
-      "isRequired": false,
       "description": "A new subject",
       "categories": [],
-      "questions": []
+      "questions": [
+        {
+          "question": {
+            "_id": "q4",
+            "question": "Added Question 4"
+          }
+        }
+      ]
+    },
+    {
+      "_id": "leadership",
+      "name": "Leadership",
+      "description": "These questions will ask about being in a leadership role.",
+      "categories": [],
+      "topics": [],
+      "questions": [
+        {
+          "question": {
+            "_id": "q4",
+            "question": "Added Question 4"
+          }
+        }
+      ]
     }
   ],
   "questions": [
     {
-      "question": {
-        "_id": "A3_1_1",
-        "question": "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-        "type": "UTTERANCE",
-        "name": "_IDLE_",
-        "paraphrases": [],
-        "mentorType": "VIDEO",
-        "minVideoLength": 10
-      },
-      "topics": []
+      "_id": "q1",
+      "question": "Question 1"
     },
     {
-      "question": {
-        "_id": "A4_1_1",
-        "question": "Please give a short introduction of yourself, which includes your name, current job, and title.",
-        "type": "UTTERANCE",
-        "name": "_INTRO_",
-        "paraphrases": []
-      },
-      "topics": []
+      "_id": "q2",
+      "question": "Edited Question 2"
     },
     {
-      "question": {
-        "_id": "A5_1_1",
-        "question": "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-        "type": "UTTERANCE",
-        "name": "_OFF_TOPIC_",
-        "paraphrases": []
-      },
-      "topics": [
-        {
-          "id": "topic"
-        }
-      ],
-      "category": {
-        "id": "category2"
-      }
+      "_id": "q3",
+      "question": "Question 3"
     },
     {
-      "question": {
-        "_id": "A6_1_1",
-        "question": "A new question being added",
-        "type": "UTTERANCE",
-        "name": "_OFF_TOPIC_",
-        "paraphrases": []
-      },
-      "topics": [],
-      "category": {
-        "id": "category3"
-      }
+      "_id": "qn",
+      "question": "A new question being created"
+    },
+    {
+      "_id": "q4",
+      "question": "Added Question 4"
     }
   ],
   "answers": [
     {
-      "_id": "A3_1_1",
+      "transcript": "Answer 1",
+      "status": "COMPLETE",
       "question": {
-        "_id": "A3_1_1",
-        "question": "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      },
-      "media": [
-        {
-          "url": "video.mp4",
-          "tag": "idle",
-          "type": "video"
-        }
-      ],
-      "transcript": "",
-      "status": "COMPLETE"
+        "_id": "q1",
+        "question": "Question 1"
+      }
     },
     {
-      "_id": "A4_1_1",
+      "transcript": "Edited Answer 2",
+      "status": "COMPLETE",
       "question": {
-        "_id": "A4_1_1",
-        "question": "Please give a short introduction of yourself, which includes your name, current job, and title."
-      },
-      "transcript": "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
-      "status": "COMPLETE"
+        "_id": "q2",
+        "question": "Edited Question 2"
+      }
     },
     {
-      "_id": "A5_1_1",
+      "transcript": "A new answer",
+      "status": "COMPLETE",
       "question": {
-        "_id": "A5_1_1",
-        "question": "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
-      },
-      "transcript": "",
-      "status": "COMPLETE"
+        "_id": "qn",
+        "question": "A new question being created"
+      }
     }
   ]
 }

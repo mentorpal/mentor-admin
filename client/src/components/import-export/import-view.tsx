@@ -18,8 +18,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import { MentorExportJson } from "types";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { useWithQuestions } from "hooks/graphql/use-with-questions";
+import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
 import SubjectImport from "./import-subject";
+import QuestionImport from "./import-question";
 import AnswerImport from "./import-answer";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,19 +42,26 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ImportView(props: {
-  exportedJson?: MentorExportJson;
-  importedJson?: MentorExportJson;
-  cancelImport: () => void;
-  confirmImport: () => void;
+  useImportExport: UseWithImportExport;
 }): JSX.Element {
   const classes = useStyles();
-  const { exportedJson, importedJson, cancelImport, confirmImport } = props;
+  const {
+    importedJson,
+    importPreview,
+    cancelImport,
+    confirmImport,
+    mapSubject,
+    mapQuestion,
+  } = props.useImportExport;
+  const { data: subjects } = useWithSubjects();
+  const { data: questions } = useWithQuestions();
 
-  if (importedJson === undefined) {
+  if (importedJson === undefined || importPreview === undefined) {
     return <div />;
   }
+
   return (
-    <Dialog fullScreen open={Boolean(importedJson)} onClose={cancelImport}>
+    <Dialog fullScreen open={Boolean(importPreview)} onClose={cancelImport}>
       <AppBar>
         <Toolbar>
           <IconButton
@@ -87,32 +97,33 @@ export default function ImportView(props: {
           className={classes.list}
           subheader={<ListSubheader>My Subjects</ListSubheader>}
         >
-          {importedJson?.subjects?.map((s, i) => {
-            const curSubject = exportedJson?.subjects?.find(
-              (sub) => s._id === sub._id
-            );
+          {importPreview?.subjects?.map((s, i) => {
             return (
               <SubjectImport
                 key={`subject-${i}`}
-                subject={s}
-                curSubject={curSubject}
+                preview={s}
+                subjects={subjects?.edges.map((e) => e.node) || []}
+                mapSubject={mapSubject}
               />
             );
           })}
-          {exportedJson?.subjects
-            ?.filter(
-              (ss) =>
-                !importedJson?.subjects?.map((s) => s._id).includes(ss._id)
-            )
-            .map((s, i) => {
-              return (
-                <SubjectImport
-                  key={`subject-${i}`}
-                  subject={undefined}
-                  curSubject={s}
-                />
-              );
-            })}
+        </List>
+        <p />
+        <List
+          data-cy="questions"
+          className={classes.list}
+          subheader={<ListSubheader>My Questions</ListSubheader>}
+        >
+          {importPreview?.questions?.map((q, i) => {
+            return (
+              <QuestionImport
+                key={`question-${i}`}
+                preview={q}
+                questions={questions?.edges.map((e) => e.node) || []}
+                mapQuestion={mapQuestion}
+              />
+            );
+          })}
         </List>
         <p />
         <List
@@ -120,17 +131,8 @@ export default function ImportView(props: {
           className={classes.list}
           subheader={<ListSubheader>My Answers</ListSubheader>}
         >
-          {importedJson?.answers?.map((a, i) => {
-            const curAnswer = exportedJson?.answers?.find(
-              (ans) => a._id === ans._id
-            );
-            return (
-              <AnswerImport
-                key={`answer-${i}`}
-                answer={a}
-                curAnswer={curAnswer}
-              />
-            );
+          {importPreview?.answers?.map((a, i) => {
+            return <AnswerImport key={`answer-${i}`} preview={a} />;
           })}
         </List>
       </DialogContent>

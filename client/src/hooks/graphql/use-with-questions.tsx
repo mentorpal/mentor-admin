@@ -4,19 +4,40 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { configureStore } from "@reduxjs/toolkit";
-import loginReducer from "./slices/login";
-import configReducer from "./slices/config";
-import mentorReducer from "./slices/mentor";
 
-export const store = configureStore({
-  reducer: {
-    config: configReducer,
-    mentor: mentorReducer,
-  },
-});
+import { fetchQuestions } from "api";
+import { Question } from "types";
+import {
+  UseDataConnection,
+  useWithDataConnection,
+} from "./use-with-data-connection";
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof store.dispatch;
+export function useWithQuestions(): UseDataConnection<Question> {
+  const {
+    data,
+    isLoading,
+    searchParams,
+    error,
+    reloadData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
+  } = useWithDataConnection<Question>(fetch);
+
+  function fetch() {
+    return fetchQuestions();
+  }
+
+  return {
+    data,
+    error,
+    isLoading,
+    searchParams,
+    reloadData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
+  };
+}

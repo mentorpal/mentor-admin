@@ -7,38 +7,99 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import clintNew from "../fixtures/mentor/clint_new";
+import allSubjects from "../fixtures/subjects/all-subjects";
+import exportJson from "../fixtures/imports/export";
+import importJson from "../fixtures/imports/import";
+import importPreview from "../fixtures/imports/import-preview";
+import { Connection, Question } from "../support/types";
+
+const questions: Connection<Partial<Question>> = {
+  edges: [
+    {
+      cursor: "",
+      node: {
+        _id: "q1",
+        question: "Question 1",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q2",
+        question: "Question 2",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q3",
+        question: "Question 3",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q4",
+        question: "Added Question 4",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q5",
+        question: "Removed Question 5",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q6",
+        question: "Pick me!",
+      },
+    },
+  ],
+  pageInfo: {
+    startCursor: null,
+    endCursor: null,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
+};
 
 describe("Import", () => {
-  it("exports mentor", () => {
-    // cySetup(cy);
-    // cy.fixture("mentor-export.json").then((json) => {
-    //   cyMockDefault(cy, {
-    //     mentor: [clint],
-    //     gqlQueries: [mockGQL("exportMentor", json, false)],
-    //   });
-    //   cy.visit("/importexport");
-    //   cy.get("[data-cy=download-mentor]").trigger("mouseover").click();
-    // });
+  it("exports mentor and downloads file", () => {
+    cy.exec("rm cypress/downloads/*", { log: true, failOnNonZeroExit: false });
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [clint],
+      gqlQueries: [mockGQL("MentorExport", { mentorExport: exportJson })],
+    });
+    cy.visit("/importexport");
+    cy.get("[data-cy=download-mentor]").trigger("mouseover").click();
+    cy.task("isExistFile", "mentor.json").should("equal", true);
   });
 
-  it("imports a mentor", () => {
-    // cySetup(cy);
-    // cy.fixture("mentor-export.json").then((exportJson) => {
-    //   cyMockDefault(cy, {
-    //     mentor: [clintNew],
-    //     gqlQueries: [
-    //       mockGQL("exportMentor", exportJson, false),
-    //       mockGQL("importMentor", clint, true),
-    //     ],
-    //   });
-    //   cy.visit("/importexport");
-    //   cy.fixture("mentor-import.json").then((fileContent) => {
-    //     cy.get("[data-cy=upload-mentor]").attachFile({
-    //       fileContent: fileContent.toString(),
-    //       fileName: "mentor-import.json",
-    //       mimeType: "text/json",
-    //     });
-    //   });
-    // });
+  it("uploads import json and views import preview", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("MentorExport", { mentorExport: exportJson }),
+        mockGQL("MentorImport", { me: { mentorImport: clint } }),
+        mockGQL("MentorImportPreview", {
+          mentorImportPreview: importPreview,
+        }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.fixture("mentor-import.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent.toString(),
+        fileName: "mentor-import.json",
+        mimeType: "text/json",
+      });
+    });
   });
 });

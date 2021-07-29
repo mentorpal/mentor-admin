@@ -16,16 +16,23 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
+  TextField,
   Typography,
 } from "@material-ui/core";
 import {
-  Add as AddIcon,
-  ChangeHistory as ChangeHistoryIcon,
   ExpandMore as ExpandMoreIcon,
-  Remove as RemoveIcon,
+  FindReplace as FindReplaceIcon,
 } from "@material-ui/icons";
-import { Subject } from "types";
-import { equals } from "helpers";
+import {
+  Category,
+  EditType,
+  ImportPreview,
+  Question,
+  Subject,
+  Topic,
+} from "types";
+import { Autocomplete } from "@material-ui/lab";
+import { ChangeIcon } from "./icons";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -35,6 +42,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: "flex-start",
     padding: 10,
     margin: 10,
+    minHeight: 40,
   },
   row: {
     display: "flex",
@@ -44,60 +52,150 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-export function ChangeIcon(props: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  i: any | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  e: any | undefined;
-}): JSX.Element {
-  const { i, e } = props;
-  if (!e && !i) {
-    return (
-      <ChangeHistoryIcon style={{ visibility: "hidden", marginRight: 5 }} />
-    );
-  }
-  if (!e) {
-    return <AddIcon style={{ color: "green", marginRight: 5 }} />;
-  }
-  if (!i) {
-    return <RemoveIcon style={{ color: "red", marginRight: 5 }} />;
-  }
-  if (!equals(i, e)) {
-    return <ChangeHistoryIcon style={{ color: "orange", marginRight: 5 }} />;
-  }
-  return <ChangeHistoryIcon style={{ visibility: "hidden", marginRight: 5 }} />;
-}
-
 export default function SubjectImport(props: {
-  subject: Subject | undefined;
-  curSubject: Subject | undefined;
+  preview: ImportPreview<Subject>;
+  subjects: Subject[];
+  mapSubject: (curSubject: Subject, newSubject: Subject) => void;
 }): JSX.Element {
   const classes = useStyles();
-  const { subject, curSubject } = props;
   const [isExpanded, setIsExpanded] = useState(false);
+  const [subjectSearch, setSubjectSearch] = useState<Subject>();
+  const { preview, subjects, mapSubject } = props;
+  const { editType, importData: subject, curData: curSubject } = preview;
 
   if (subject === undefined && curSubject === undefined) {
     return <div />;
   }
+
+  const categories: ImportPreview<Category>[] = [];
+  subject?.categories?.forEach((c) => {
+    const curCategory = curSubject?.categories?.find((cc) => cc.id === c.id);
+    categories.push({
+      editType: !curCategory ? EditType.ADDED : EditType.NONE,
+      importData: c,
+      curData: curCategory,
+    });
+  });
+  curSubject?.categories
+    ?.filter((cc) => !subject?.categories?.find((c) => c.id === cc.id))
+    .forEach((c) => {
+      categories.push({
+        editType:
+          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+        importData: undefined,
+        curData: c,
+      });
+    });
+  const topics: ImportPreview<Topic>[] = [];
+  subject?.topics?.forEach((t) => {
+    const curTopic = curSubject?.topics?.find((tt) => tt.id === t.id);
+    topics.push({
+      editType: !curTopic ? EditType.ADDED : EditType.NONE,
+      importData: t,
+      curData: curTopic,
+    });
+  });
+  curSubject?.topics
+    ?.filter((tt) => !subject?.topics?.find((t) => t.id === tt.id))
+    .forEach((t) => {
+      topics.push({
+        editType:
+          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+        importData: undefined,
+        curData: t,
+      });
+    });
+  const questions: ImportPreview<Question>[] = [];
+  subject?.questions?.forEach((q) => {
+    const curQuestion = curSubject?.questions?.find(
+      (qq) => qq.question?._id === q.question?._id
+    );
+    questions.push({
+      editType: !curQuestion ? EditType.ADDED : EditType.NONE,
+      importData: q.question,
+      curData: curQuestion?.question,
+    });
+  });
+  curSubject?.questions
+    ?.filter(
+      (qq) =>
+        !subject?.questions?.find((q) => q.question?._id === qq.question?._id)
+    )
+    .forEach((q) => {
+      questions.push({
+        editType:
+          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+        importData: undefined,
+        curData: q.question,
+      });
+    });
+
   return (
     <Card className={classes.root}>
       <div className={classes.row}>
-        <ChangeIcon i={subject} e={curSubject} />
-        <Typography variant="body2">
-          {subject?.name || curSubject?.name}
-        </Typography>
-        <IconButton
-          data-cy="toggle"
-          size="small"
-          aria-expanded={isExpanded}
-          onClick={() => setIsExpanded(!isExpanded)}
+        <ChangeIcon preview={preview} />
+        <div style={{ marginRight: 10 }}>
+          <Typography align="left" variant="body1">
+            {subject?.name || curSubject?.name}
+          </Typography>
+          <Typography align="left" variant="caption">
+            {subject?.description || curSubject?.description}
+          </Typography>
+        </div>
+        <div
+          className={classes.row}
+          style={{ position: "absolute", right: 20 }}
         >
-          <ExpandMoreIcon
-            style={{
-              transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
-            }}
-          />
-        </IconButton>
+          {editType === EditType.CREATED ? (
+            <Autocomplete
+              data-cy="subject-input"
+              options={subjects}
+              getOptionLabel={(option: Subject) => option.name}
+              onChange={(e, v) => {
+                setSubjectSearch(v || undefined);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  style={{ width: 300 }}
+                  variant="outlined"
+                  placeholder="Remap to existing subject?"
+                />
+              )}
+              renderOption={(option) => (
+                <ListItemText
+                  primary={option.name}
+                  secondary={option.description}
+                />
+              )}
+            />
+          ) : undefined}
+          {editType === EditType.CREATED ? (
+            <IconButton
+              data-cy="replace"
+              size="small"
+              onClick={() => {
+                if (subject && subjectSearch) {
+                  mapSubject(subject, subjectSearch);
+                }
+              }}
+            >
+              <FindReplaceIcon />
+            </IconButton>
+          ) : undefined}
+          <IconButton
+            data-cy="toggle"
+            size="small"
+            aria-expanded={isExpanded}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            <ExpandMoreIcon
+              style={{
+                transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+              }}
+            />
+          </IconButton>
+        </div>
       </div>
       <Collapse
         in={isExpanded}
@@ -107,115 +205,65 @@ export default function SubjectImport(props: {
       >
         <ListSubheader>Categories</ListSubheader>
         <List data-cy="subject-categories" dense disablePadding>
-          {subject?.categories?.map((c, i) => {
-            const curCategory = curSubject?.categories?.find(
-              (cat) => cat.id === c.id
-            );
+          {categories.map((c, i) => {
             return (
               <ListItem
                 key={`subject-category-${i}`}
                 data-cy={`subject-category-${i}`}
               >
                 <ListItemIcon>
-                  <ChangeIcon i={c} e={curCategory} />
+                  <ChangeIcon preview={c} />
                 </ListItemIcon>
-                <ListItemText primary={c.name} secondary={c.description} />
+                <ListItemText
+                  primary={c.importData?.name || c.curData?.name}
+                  secondary={
+                    c.importData?.description || c.curData?.description
+                  }
+                />
               </ListItem>
             );
           })}
-          {curSubject?.categories
-            ?.filter(
-              (cc) => !subject?.categories?.map((c) => c.id).includes(cc.id)
-            )
-            .map((c, i) => {
-              return (
-                <ListItem
-                  key={`subject-removed-category-${i}`}
-                  data-cy={`subject-removed-category-${i}`}
-                >
-                  <ListItemIcon>
-                    <ChangeIcon i={undefined} e={c} />
-                  </ListItemIcon>
-                  <ListItemText primary={c.name} secondary={c.description} />
-                </ListItem>
-              );
-            })}
         </List>
         <Divider />
         <ListSubheader>Topics</ListSubheader>
         <List data-cy="subject-topics" dense disablePadding>
-          {subject?.topics?.map((t, i) => {
-            const curTopic = curSubject?.topics?.find((top) => top.id === t.id);
+          {topics.map((t, i) => {
             return (
               <ListItem
                 key={`subject-topic-${i}`}
                 data-cy={`subject-topic-${i}`}
               >
                 <ListItemIcon>
-                  <ChangeIcon i={t} e={curTopic} />
-                </ListItemIcon>
-                <ListItemText primary={t.name} secondary={t.description} />
-              </ListItem>
-            );
-          })}
-          {curSubject?.topics
-            ?.filter((tt) => !subject?.topics?.map((t) => t.id).includes(tt.id))
-            .map((t, i) => {
-              return (
-                <ListItem
-                  key={`subject-removed-topic-${i}`}
-                  data-cy={`subject-removed-topic-${i}`}
-                >
-                  <ListItemIcon>
-                    <ChangeIcon i={undefined} e={t} />
-                  </ListItemIcon>
-                  <ListItemText primary={t.name} secondary={t.description} />
-                </ListItem>
-              );
-            })}
-        </List>
-        <Divider />
-        <ListSubheader>Questions</ListSubheader>
-        <List data-cy="subject-questions" dense disablePadding>
-          {subject?.questions?.map((q, i) => {
-            const curQuestion = curSubject?.questions?.find(
-              (que) => que.question._id === q.question._id
-            );
-            return (
-              <ListItem key={`subject-question-${i}`}>
-                <ListItemIcon>
-                  <ChangeIcon i={q} e={curQuestion} />
+                  <ChangeIcon preview={t} />
                 </ListItemIcon>
                 <ListItemText
-                  primary={q.question.question}
-                  secondary={q.topics?.map((t) => t.name).join(", ")}
+                  primary={t.importData?.name || t.curData?.name}
+                  secondary={
+                    t.importData?.description || t.curData?.description
+                  }
                 />
               </ListItem>
             );
           })}
-          {curSubject?.questions
-            ?.filter(
-              (qq) =>
-                !subject?.questions
-                  ?.map((q) => q.question._id)
-                  .includes(qq.question._id)
-            )
-            .map((q, i) => {
-              return (
-                <ListItem
-                  key={`subject-removed-question-${i}`}
-                  data-cy={`subject-removed-question-${i}`}
-                >
-                  <ListItemIcon>
-                    <ChangeIcon i={q} e={q} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={q.question.question}
-                    secondary={q.topics?.map((t) => t.name).join(", ")}
-                  />
-                </ListItem>
-              );
-            })}
+        </List>
+        <Divider />
+        <ListSubheader>Questions</ListSubheader>
+        <List data-cy="subject-questions" dense disablePadding>
+          {questions.map((q, i) => {
+            return (
+              <ListItem
+                key={`subject-question-${i}`}
+                data-cy={`subject-question-${i}`}
+              >
+                <ListItemIcon>
+                  <ChangeIcon preview={q} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={q.importData?.question || q.curData?.question}
+                />
+              </ListItem>
+            );
+          })}
         </List>
       </Collapse>
     </Card>

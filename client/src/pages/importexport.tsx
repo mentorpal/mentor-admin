@@ -22,35 +22,22 @@ const useStyles = makeStyles(() => ({
 
 function ImportPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
-  const {
-    mentor,
-    exportedJson,
-    importedJson,
-    exportMentor,
-    importMentor,
-    cancelImport,
-    confirmImport,
-  } = useWithImportExport(props.accessToken);
+  const useImportExport = useWithImportExport(props.accessToken);
 
-  if (!mentor) {
+  if (!useImportExport.mentor) {
     return <div />;
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="Export Mentor" mentorId={mentor?._id} />
-      <ImportView
-        exportedJson={exportedJson}
-        importedJson={importedJson}
-        cancelImport={cancelImport}
-        confirmImport={confirmImport}
-      />
+      <NavBar title="Export Mentor" mentorId={useImportExport.mentor._id} />
+      <ImportView useImportExport={useImportExport} />
       <div style={{ padding: 10 }}>
         <Button
           data-cy="download-mentor"
           color="primary"
           variant="contained"
-          onClick={exportMentor}
+          onClick={useImportExport.exportMentor}
           style={{ marginRight: 10 }}
         >
           Export
@@ -64,7 +51,7 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             hidden
             onChange={(e) => {
               e.target.files instanceof FileList
-                ? importMentor(e.target.files[0])
+                ? useImportExport.importMentor(e.target.files[0])
                 : undefined;
             }}
           />

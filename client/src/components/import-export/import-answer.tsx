@@ -10,17 +10,13 @@ import {
   Collapse,
   IconButton,
   List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   ListSubheader,
   makeStyles,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
-import { Answer } from "types";
-import { ChangeIcon } from "./import-subject";
+import { Answer, ImportPreview } from "types";
+import { ChangeIcon } from "./icons";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -30,6 +26,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: "flex-start",
     padding: 10,
     margin: 10,
+    minHeight: 40,
   },
   row: {
     display: "flex",
@@ -40,18 +37,28 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function AnswerImport(props: {
-  answer: Answer;
-  curAnswer: Answer | undefined;
+  preview: ImportPreview<Answer>;
 }): JSX.Element {
   const classes = useStyles();
-  const { answer, curAnswer } = props;
   const [isExpanded, setIsExpanded] = useState(false);
+  const { preview } = props;
+  const { importData: answer, curData: curAnswer } = preview;
+  const transcript = answer?.transcript || curAnswer?.transcript || "";
 
   return (
     <Card className={classes.root}>
       <div className={classes.row}>
-        <ChangeIcon i={answer} e={curAnswer} />
-        <Typography variant="body2">{answer?.question?.question}</Typography>
+        <ChangeIcon preview={preview} />
+        <div style={{ marginRight: 10 }}>
+          <Typography align="left" variant="body1">
+            {answer?.question?.question || curAnswer?.question?.question}
+          </Typography>
+          <Typography align="left" variant="caption">
+            {`${transcript.substring(0, 100)}${
+              transcript.length > 100 ? "..." : ""
+            }`}
+          </Typography>
+        </div>
         <IconButton
           data-cy="toggle"
           size="small"
@@ -71,76 +78,8 @@ export default function AnswerImport(props: {
         unmountOnExit
         style={{ width: "100%" }}
       >
-        <div className={classes.row} style={{ marginLeft: 20 }}>
-          <ChangeIcon i={answer?.transcript} e={curAnswer?.transcript} />
-          <TextField
-            data-cy="transcript"
-            variant="outlined"
-            label="Transcript"
-            fullWidth
-            multiline
-            disabled
-            value={answer?.transcript}
-            style={{ marginTop: 20, marginBottom: 20 }}
-            InputLabelProps={{ shrink: true }}
-          />
-        </div>
-        <div className={classes.row} style={{ marginLeft: 20 }}>
-          <ChangeIcon i={answer?.status} e={curAnswer?.status} />
-          <TextField
-            data-cy="status"
-            variant="outlined"
-            label="Status"
-            fullWidth
-            multiline
-            disabled
-            value={answer?.status}
-            style={{ marginTop: 20, marginBottom: 20 }}
-            InputLabelProps={{ shrink: true }}
-          />
-        </div>
         <ListSubheader>Media</ListSubheader>
-        <List data-cy="answer-media" dense disablePadding>
-          {answer?.media?.map((m, i) => {
-            const curMedia = curAnswer?.media?.find(
-              (mm) => mm.tag === m.tag && mm.type === m.type
-            );
-            return (
-              <ListItem key={`answer-media-${i}`} data-cy={`answer-media-${i}`}>
-                <ListItemIcon>
-                  <ChangeIcon i={m} e={curMedia} />
-                </ListItemIcon>
-                <ListItemText
-                  primary={`${m.type} ${m.tag}`}
-                  secondary={m.url}
-                />
-              </ListItem>
-            );
-          })}
-          {curAnswer?.media
-            ?.filter(
-              (mm) =>
-                !answer?.media?.find(
-                  (m) => m.tag === mm.tag && m.type === mm.type
-                )
-            )
-            .map((m, i) => {
-              return (
-                <ListItem
-                  key={`removed-answer-media-${i}`}
-                  data-cy={`removed-answer-media-${i}`}
-                >
-                  <ListItemIcon>
-                    <ChangeIcon i={undefined} e={m} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={`${m.tag} ${m.type}`}
-                    secondary={m.url}
-                  />
-                </ListItem>
-              );
-            })}
-        </List>
+        <List data-cy="answer-media" dense disablePadding></List>
       </Collapse>
     </Card>
   );

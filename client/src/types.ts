@@ -250,3 +250,22 @@ export interface MentorExportJson {
   questions: Question[];
   answers: Answer[];
 }
+
+export enum EditType {
+  NONE = "NONE",
+  ADDED = "ADDED",
+  REMOVED = "REMOVED",
+  CREATED = "CREATED",
+}
+
+export interface ImportPreview<T> {
+  importData: T | undefined;
+  curData: T | undefined;
+  editType: EditType;
+}
+
+export interface MentorImportPreview {
+  subjects: ImportPreview<Subject>[];
+  questions: ImportPreview<Question>[];
+  answers: ImportPreview<Answer>[];
+}

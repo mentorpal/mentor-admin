@@ -6,26 +6,31 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import { Mentor, MentorExportJson } from "types";
+import {
+  Mentor,
+  MentorExportJson,
+  MentorImportPreview,
+  Question,
+  Subject,
+} from "types";
 import { useWithMentor } from "./use-with-mentor";
 
-interface UseWithImportExport {
+export interface UseWithImportExport {
   mentor: Mentor | undefined;
-  exportedJson: MentorExportJson | undefined;
   importedJson: MentorExportJson | undefined;
+  importPreview: MentorImportPreview | undefined;
   exportMentor: () => void;
   importMentor: (file: File) => void;
   confirmImport: () => void;
   cancelImport: () => void;
+  mapSubject: (curSubject: Subject, newSubject: Subject) => void;
+  mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
 
 export function useWithImportExport(accessToken: string): UseWithImportExport {
-  const [exportedJson, setExportJson] = useState<MentorExportJson>();
   const [importedJson, setImportJson] = useState<MentorExportJson>();
-  // const [editedJson, setEditJson] = useState<MentorExportJson>();
-
-  const { editedData: mentor, editData: editMentor } =
-    useWithMentor(accessToken);
+  const [importPreview, setImportPreview] = useState<MentorImportPreview>();
+  const { data: mentor } = useWithMentor(accessToken);
 
   function exportMentor() {
     if (!mentor) {
@@ -42,7 +47,6 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
       document.body.appendChild(element);
       element.click();
       document.body.removeChild(element);
-      setExportJson(m);
     });
   }
 
@@ -50,16 +54,14 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     if (!mentor) {
       return;
     }
-    if (!exportedJson) {
-      api.exportMentor(mentor._id).then((m) => {
-        setExportJson(m);
-      });
-    }
     const reader = new FileReader();
     reader.onload = function (e) {
       if (typeof e.target?.result === "string") {
-        const result = JSON.parse(e.target?.result);
-        setImportJson(result);
+        const json = JSON.parse(e.target?.result);
+        setImportJson(json);
+        api.importMentorPreview(mentor._id, json).then((p) => {
+          setImportPreview(p);
+        });
       }
     };
     reader.readAsText(file);
@@ -69,24 +71,84 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     if (!importedJson || !mentor) {
       return;
     }
-    api.importMentor(mentor._id, importedJson, accessToken).then((m) => {
-      editMentor(m);
-      setExportJson(undefined);
+    api.importMentor(mentor._id, importedJson, accessToken).then(() => {
       setImportJson(undefined);
+      setImportPreview(undefined);
     });
   }
 
   function cancelImport() {
     setImportJson(undefined);
+    setImportPreview(undefined);
+  }
+
+  function mapSubject(subject: Subject, replacement: Subject) {
+    if (!importedJson || !importPreview || !mentor) {
+      return;
+    }
+    const json = { ...importedJson };
+    // if the replacement subject is already referenced elsewhere in the import, remove it so we don't include it twice
+    const rIdx = json.subjects.findIndex((s) => s._id === replacement._id);
+    ~rIdx && json.subjects.splice(rIdx, 1);
+    // find and replace the "new" subject in import with the replacement subject
+    // is there a case where we want to some changes from import instead of over-writing with replacement?
+    const idx = json.subjects.findIndex((s) => s._id === subject._id);
+    ~idx && json.subjects.splice(idx, 1, replacement);
+    // TODO: if the subject that was replaced had some questions that were overwritten by the replacement
+    // we might need to remap them in imported questions and answers list
+    setImportJson(json);
+    api.importMentorPreview(mentor._id, json).then((p) => {
+      setImportPreview(p);
+    });
+  }
+
+  function mapQuestion(question: Question, replacement: Question) {
+    if (!importedJson || !importPreview || !mentor) {
+      return;
+    }
+    const json = { ...importedJson };
+    // if the replacement question is already referenced elsewhere in the import, remove it so we don't include it twice
+    let rIdx = json.questions.findIndex((q) => q._id === replacement._id);
+    ~rIdx && json.questions.splice(rIdx, 1);
+    // find and replace the "new" question in import with the replacement question
+    // is there a case where we want to some changes from import instead of over-writing with replacement?
+    let idx = json.questions.findIndex((q) => q._id === question._id);
+    ~idx && json.questions.splice(idx, 1, replacement);
+    // replace the question in subjects that use it
+    for (const s of json.subjects) {
+      rIdx = s.questions.findIndex((q) => q.question._id === replacement._id);
+      ~rIdx && s.questions.splice(rIdx, 1);
+      idx = s.questions.findIndex((q) => q.question._id === question._id);
+      ~idx &&
+        s.questions.splice(idx, 1, {
+          ...s.questions[idx],
+          question: replacement,
+        });
+    }
+    // replace the question in answers that use it
+    rIdx = json.answers.findIndex((a) => a.question._id === replacement._id);
+    ~rIdx && json.answers.splice(rIdx, 1);
+    idx = json.answers.findIndex((a) => a.question._id === question._id);
+    ~idx &&
+      json.answers.splice(idx, 1, {
+        ...json.answers[idx],
+        question: replacement,
+      });
+    setImportJson(json);
+    api.importMentorPreview(mentor._id, json).then((p) => {
+      setImportPreview(p);
+    });
   }
 
   return {
     mentor,
-    exportedJson,
     importedJson,
+    importPreview,
     exportMentor,
     importMentor,
     confirmImport,
     cancelImport,
+    mapSubject,
+    mapQuestion,
   };
 }

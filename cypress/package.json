@@ -16,6 +16,7 @@
     "cy:verify": "npx cypress verify"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.9.9",
     "cypress-file-upload": "^5.0.8",
     "cypress-localstorage-commands": "^1.4.5"
   }

@@ -28,6 +28,7 @@ import {
   User,
   Config,
   MentorExportJson,
+  MentorImportPreview,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -238,6 +239,38 @@ export async function fetchSubjects(
               name
               description
               isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
             }
           }
           pageInfo {
@@ -399,6 +432,53 @@ export async function updateSubject(
     },
     { dataPath: ["me", "updateSubject"], accessToken }
   );
+}
+
+export async function fetchQuestions(
+  searchParams?: SearchParams
+): Promise<Connection<Question>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const result = await graphqlRequest.post("", {
+    query: `
+      query Questions($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        questions(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+    variables: {
+      filter: stringifyObject(params.filter),
+      limit: params.limit,
+      cursor: params.cursor,
+      sortBy: params.sortBy,
+      sortAscending: params.sortAscending,
+    },
+  });
+  return result.data.data.questions;
 }
 
 export async function fetchUserQuestions(
@@ -914,8 +994,8 @@ export async function deleteUploadTask(
 export async function exportMentor(mentor: string): Promise<MentorExportJson> {
   const result = await graphqlRequest.post("", {
     query: `
-      query ExportMentor($mentor: ID!) {
-        exportMentor(mentor: $mentor) {
+      query MentorExport($mentor: ID!) {
+        mentorExport(mentor: $mentor) {
           subjects {
             _id
             name
@@ -944,11 +1024,25 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
               }
               category {
                 id
+                name
+                description
               }
               topics {
                 id
+                name
+                description
               }
             }
+          }
+          questions {
+            _id
+            question
+            type
+            name
+            paraphrases
+            mentor
+            mentorType
+            minVideoLength
           }
           answers {
             transcript
@@ -956,11 +1050,12 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
             question {
               _id
               question
-            }
-            media {
-              tag
               type
-              url
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength
             }
           }
         }
@@ -968,7 +1063,156 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
     `,
     variables: { mentor },
   });
-  return result.data.data.exportMentor;
+  return result.data.data.mentorExport;
+}
+
+export async function importMentorPreview(
+  mentor: string,
+  json: MentorExportJson
+): Promise<MentorImportPreview> {
+  const result = await graphqlRequest.post("", {
+    query: `
+      query MentorImportPreview($mentor: ID!, $json: MentorImportJsonType!) {
+        mentorImportPreview(mentor: $mentor, json: $json) {
+          subjects {
+            editType
+            importData {
+              _id
+              name
+              description
+              isRequired
+              topics {
+                id
+                name
+                description
+              }
+              categories {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+            curData {
+              _id
+              name
+              description
+              isRequired
+              topics {
+                id
+                name
+                description
+              }
+              categories {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+          }
+          questions {
+            editType
+            importData {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength  
+            }
+            curData {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength  
+            }
+          }
+          answers {
+            editType
+            importData {
+              transcript
+              status
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }  
+            }
+            curData {
+              transcript
+              status
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }  
+            }
+          }
+        }
+      }
+    `,
+    variables: { mentor, json },
+  });
+  return result.data.data.mentorImportPreview;
 }
 
 export async function importMentor(
@@ -981,9 +1225,9 @@ export async function importMentor(
     "",
     {
       query: `
-      mutation ImportMentor($mentor: ID!, $json: MentorImportJsonType!) {
+      mutation MentorImport($mentor: ID!, $json: MentorImportJsonType!) {
         me {
-          importMentor(mentor: $mentor, json: $json) {
+          mentorImport(mentor: $mentor, json: $json) {
             _id
           }
         }
@@ -993,5 +1237,5 @@ export async function importMentor(
     },
     { headers: headers }
   );
-  return result.data.data.me.importMentor;
+  return result.data.data.me.mentorImport;
 }
