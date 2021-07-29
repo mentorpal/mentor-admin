@@ -209,7 +209,6 @@ export async function fetchConfig(): Promise<Config> {
           urlVideoIdleTips
         }
       }
-    }
   `,
     },
     { dataPath: "config" }
