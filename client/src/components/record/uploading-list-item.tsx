@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import {
   LinearProgress,
   ListItem,
@@ -20,17 +19,25 @@ import {
   WarningRounded,
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
-import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
-import { AnswerAttentionNeeded } from "types";
+import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
+import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 
 function UploadingListItem(props: {
-  upload: UploadTask;
-  jobTitle: string;
-  setAnswerIdx: (id: number) => void;
-  answerIdx: number;
-  recordState: UseWithRecordState;
+  useWithUploadListItem: UseWithUploadListItem;
+  jumpToAnswer: () => void;
 }): JSX.Element {
-  const { upload, jobTitle, setAnswerIdx, answerIdx, recordState } = props;
+  const {
+    upload,
+    jobStatus,
+    ellipsesCount,
+    cancelling,
+    jobTitle,
+    jobFailed,
+    jobDone,
+    onClose,
+    needsAttention,
+  } = props.useWithUploadListItem;
+  const jumpToAnswer = props.jumpToAnswer;
   const useStyles = makeStyles(() => ({
     primaryListItemText: {
       fontSize: "0.9em",
@@ -39,17 +46,27 @@ function UploadingListItem(props: {
       fontSize: "0.7em",
     },
   }));
-  const jobStatus = upload.uploadStatus;
-  const jobDone = jobStatus == UploadStatus.DONE;
-  const jobFailed =
-    jobStatus === UploadStatus.UPLOAD_FAILED ||
-    jobStatus === UploadStatus.TRANSCRIBE_FAILED;
-  const cancelling = upload.isCancelling;
   const classes = useStyles();
-  const answer = recordState.answers.find(
-    (a) => a.answer.question._id === upload.question._id
+  const progressTitle = cancelling ? (
+    "Cancelling"
+  ) : jobFailed ? (
+    upload.errorMessage || ""
+  ) : jobStatus === UploadStatus.PENDING ||
+    jobStatus === UploadStatus.UPLOAD_IN_PROGRESS ? (
+    <LinearProgress
+      data-cy="progress-bar"
+      variant={"determinate"}
+      value={upload.uploadProgress}
+    />
+  ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
+    "Trimming video"
+  ) : jobStatus !== UploadStatus.DONE ? (
+    `Processing${".".repeat(ellipsesCount)}`
+  ) : needsAttention ? (
+    "Needs Attention"
+  ) : (
+    "Tap to preview"
   );
-  const needsAttention = answer?.attentionNeeded !== AnswerAttentionNeeded.NONE;
 
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
@@ -79,9 +96,7 @@ function UploadingListItem(props: {
       <ListItemText
         style={{ cursor: "pointer" }}
         data-cy="card-answer-title"
-        onClick={() => {
-          setAnswerIdx(answerIdx);
-        }}
+        onClick={jumpToAnswer}
         classes={{
           primary: classes.primaryListItemText,
           secondary: classes.secondaryListItemText,
@@ -91,28 +106,7 @@ function UploadingListItem(props: {
             ? jobTitle.substring(0, 25) + "..."
             : jobTitle
         }
-        secondary={
-          cancelling ? (
-            "Cancelling"
-          ) : jobFailed ? (
-            upload.errorMessage
-          ) : jobStatus === UploadStatus.PENDING ||
-            jobStatus === UploadStatus.UPLOAD_IN_PROGRESS ? (
-            <LinearProgress
-              data-cy="progress-bar"
-              variant={"determinate"}
-              value={upload.uploadProgress}
-            />
-          ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
-            "Trimming video"
-          ) : jobStatus !== UploadStatus.DONE ? (
-            `Processing${".".repeat(recordState.pollStatusCount % 4)}`
-          ) : needsAttention ? (
-            "Needs Attention"
-          ) : (
-            "Tap to preview"
-          )
-        }
+        secondary={progressTitle}
       />
       <ListItemIcon
         style={{
@@ -122,13 +116,7 @@ function UploadingListItem(props: {
         data-cy="cancel-upload"
       >
         <CloseIcon
-          onClick={() => {
-            if (jobDone) {
-              recordState.removeCompletedTask(upload);
-            } else {
-              recordState.cancelUpload(upload);
-            }
-          }}
+          onClick={onClose}
           style={{ cursor: "pointer", paddingRight: 5 }}
         />
       </ListItemIcon>

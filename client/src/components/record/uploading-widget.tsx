@@ -12,6 +12,7 @@ import { UploadStatus } from "hooks/graphql/use-with-upload-status";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
+import { useWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -64,11 +65,13 @@ function UploadingView(props: {
               }
             >
               <ListItem
-                recordState={recordState}
-                upload={upload}
-                setAnswerIdx={setAnswerIdx}
-                answerIdx={retrieveAnswerIdx(upload.question._id)}
-                jobTitle={upload.question.question}
+                useWithUploadListItem={useWithUploadListItem(
+                  recordState,
+                  upload
+                )}
+                jumpToAnswer={() => {
+                  setAnswerIdx(retrieveAnswerIdx(upload.question._id));
+                }}
               />
             </div>
           );
