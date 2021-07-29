@@ -28,7 +28,7 @@ import TopicsList from "components/author/question-topics-list";
 
 export function QuestionEditCard(props: {
   classes: Record<string, string>;
-  question: SubjectQuestion | undefined;
+  question?: SubjectQuestion;
   topics: Topic[];
   updateQuestion: (val: SubjectQuestion) => void;
   onDeselect: () => void;

@@ -19,8 +19,8 @@ export interface SearchParams {
 }
 
 export interface UseDataConnection<T> {
-  data: Connection<T> | undefined;
-  error: LoadingError | undefined;
+  data?: Connection<T>;
+  error?: LoadingError;
   isLoading: boolean;
   searchParams: SearchParams;
   editData: (edits: Partial<T>) => void;
