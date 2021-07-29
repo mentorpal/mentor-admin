@@ -341,7 +341,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=undefined&status=COMPLETE&subject=background&category="
+      "?status=COMPLETE&subject=background&category=&back=%2F%3Fsubject%3D"
     );
   });
 
@@ -363,7 +363,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=undefined&status=INCOMPLETE&subject=repeat_after_me&category=category2"
+      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F%3Fsubject%3D"
     );
   });
 
@@ -394,7 +394,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=undefined&videoId=A1_1_1"
+      "?videoId=A1_1_1&back=%2F%3Fsubject%3D"
     );
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
@@ -448,7 +448,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=background&status=COMPLETE&subject=background&category=category"
+      "?status=COMPLETE&subject=background&category=category&back=%2F%3Fsubject%3Dbackground"
     );
   });
 
@@ -470,7 +470,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=repeat_after_me&status=INCOMPLETE&subject=repeat_after_me&category=category2"
+      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F%3Fsubject%3Drepeat_after_me"
     );
   });
 
@@ -501,7 +501,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?back=/?subject=background&videoId=A1_1_1"
+      "?videoId=A1_1_1&back=%2F%3Fsubject%3Dbackground"
     );
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
