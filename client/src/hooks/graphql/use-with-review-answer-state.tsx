@@ -54,6 +54,7 @@ export function useWithReviewAnswerState(
     mentorState,
     editMentor,
     loadMentor: reloadMentor,
+    saveMentor,
   } = useActiveMentor();
   const mentorError = mentorState.error;
   const mentor = mentorState.data;
@@ -305,6 +306,7 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
+        saveMentor();
         reloadMentor();
         setIsSaving(false);
       })

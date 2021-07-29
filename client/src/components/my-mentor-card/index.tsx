@@ -12,6 +12,13 @@ import {
   Tooltip,
   Avatar,
   Grid,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,9 +26,12 @@ import { HelpOutline } from "@material-ui/icons";
 import { Mentor } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
-import { toTitleCase } from "helpers";
 import StageProgress from "./stage-progress";
 import parseMentor from "./mentor-info";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { MentorType } from "types";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { MentorStatus } from "store/slices/mentor";
 
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
@@ -31,6 +41,13 @@ const useStyles = makeStyles(() => ({
   siteThumbnail: {
     width: 180,
     height: 135,
+  },
+  title: {
+    fontWeight: "bold",
+  },
+  inputField: {
+    width: "100%",
+    margin: 10,
   },
 }));
 
@@ -46,6 +63,11 @@ export default function MyMentorCard(props: {
     props.accessToken,
     props.mentor?.thumbnail || ""
   );
+  const { mentorState, editMentor } = useActiveMentor();
+
+  if (!mentorState.editedData) {
+    return <div />;
+  }
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
@@ -59,22 +81,20 @@ export default function MyMentorCard(props: {
               xs={12}
               md={4}
             >
-              <Typography
-                variant="h4"
-                color="textSecondary"
-                data-cy="mentor-card-name"
-                display="block"
-              >
-                {mentorInfo.name}
-              </Typography>
-              <Typography
-                variant="h5"
-                color="textSecondary"
-                data-cy="mentor-card-info"
-                display="block"
-              >
-                Title: {mentorInfo.title}
-              </Typography>
+              <TextField
+                data-cy="mentor-name"
+                label="Full Name"
+                value={mentorState.editedData.name}
+                onChange={(e) => editMentor({ name: e.target.value })}
+                className={classes.inputField}
+              />
+              <TextField
+                data-cy="mentor-job-title"
+                label="Job Title"
+                value={mentorState.editedData.title}
+                onChange={(e) => editMentor({ title: e.target.value })}
+                className={classes.inputField}
+              />
               <Grid
                 justify="center"
                 alignItems="center"
@@ -109,41 +129,64 @@ export default function MyMentorCard(props: {
               />
             </Grid>
             <Grid item alignItems="center" xs={12} md={3}>
-              <Typography
-                variant="h6"
-                color="textSecondary"
-                align="left"
-                data-cy="mentor-card-scope"
-              >
-                Scope: {mentorInfo.currentStage.name}
-              </Typography>
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                align="left"
-                data-cy="mentor-card-scope-description"
-              >
-                {mentorInfo.currentStage.description}
-              </Typography>
-              {mentorInfo.type ? (
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  align="left"
-                  data-cy="mentor-card-type"
-                >
-                  {toTitleCase(mentorInfo.type)} Mentor
-                </Typography>
-              ) : (
-                <Typography
-                  variant="h6"
-                  color="textSecondary"
-                  align="left"
-                  data-cy="mentor-card-type"
-                >
-                  Invalid Mentor
-                </Typography>
-              )}
+              <TextField
+                data-cy="mentor-first-name"
+                label="First Name"
+                value={mentorState.editedData.firstName}
+                onChange={(e) => editMentor({ firstName: e.target.value })}
+                className={classes.inputField}
+              />
+              <TextField
+                data-cy="mentor-email"
+                label="Email"
+                type="email"
+                value={mentorState.editedData.email}
+                onChange={(e) => editMentor({ email: e.target.value })}
+                className={classes.inputField}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={mentorState.editedData.allowContact}
+                    onChange={() =>
+                      editMentor({
+                        allowContact: !mentorState.editedData?.allowContact,
+                      })
+                    }
+                    color="secondary"
+                  />
+                }
+                label="Allow people to contact me"
+                style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
+              />
+              <div className={classes.inputField}>
+                <FormControl>
+                  <InputLabel>Mentor Type</InputLabel>
+                  <Select
+                    data-cy="select-chat-type"
+                    label="Mentor Type"
+                    value={mentorState.editedData.mentorType}
+                    style={{ width: 200 }}
+                    onChange={(
+                      event: React.ChangeEvent<{
+                        name?: string | undefined;
+                        value: unknown;
+                      }>
+                    ) => {
+                      editMentor({
+                        mentorType: event.target.value as MentorType,
+                      });
+                    }}
+                  >
+                    <MenuItem data-cy="chat" value={MentorType.CHAT}>
+                      Chat
+                    </MenuItem>
+                    <MenuItem data-cy="video" value={MentorType.VIDEO}>
+                      Video
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
 
               <Typography
                 variant="body1"
@@ -155,6 +198,28 @@ export default function MyMentorCard(props: {
               </Typography>
             </Grid>
             <Grid item alignItems="center" xs={12} md={3}>
+              <Typography
+                variant="h6"
+                color="textSecondary"
+                data-cy="mentor-card-scope"
+              >
+                Scope: {mentorInfo.currentStage.name}
+              </Typography>
+              <Typography
+                variant="body1"
+                color="textSecondary"
+                data-cy="mentor-card-scope-description"
+              >
+                {mentorInfo.currentStage.description}
+              </Typography>
+
+              {mentorInfo.currentStage.floor != 1000 && (
+                <StageProgress
+                  value={mentorInfo.value}
+                  max={mentorInfo.currentStage.max || 0}
+                  percent={mentorInfo.currentStage.percent || 0}
+                />
+              )}
               <Typography
                 variant="body1"
                 color="textSecondary"
@@ -183,14 +248,6 @@ export default function MyMentorCard(props: {
                   <HelpOutline fontSize="small" />
                 </Tooltip>
               </Typography>
-
-              {mentorInfo.currentStage.floor != 1000 && (
-                <StageProgress
-                  value={mentorInfo.value}
-                  max={mentorInfo.currentStage.max || 0}
-                  percent={mentorInfo.currentStage.percent || 0}
-                />
-              )}
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
@@ -207,6 +264,16 @@ export default function MyMentorCard(props: {
         floor={mentorInfo.currentStage.floor}
         name={mentorInfo.currentStage.name}
       />
+      <LoadingDialog
+        title={
+          mentorState.mentorStatus === MentorStatus.LOADING
+            ? "Loading"
+            : mentorState.mentorStatus === MentorStatus.SAVING
+            ? "Saving"
+            : ""
+        }
+      />
+      <ErrorDialog error={mentorState.error} />
     </div>
   );
 }
