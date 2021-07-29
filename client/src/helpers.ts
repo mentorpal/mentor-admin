@@ -5,6 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import { CLIENT_ENDPOINT } from "api";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function equals<T>(val1: T, val2: T): boolean {
   return JSON.stringify(val1) === JSON.stringify(val2);
@@ -31,4 +33,11 @@ export function urlBuild(base: string, params: Record<string, string>): string {
   const query = new URLSearchParams();
   Object.keys(params).forEach((n) => query.append(n, params[n]));
   return `${base}?${query.toString()}`;
+}
+
+export function launchMentor(mentorId: string): void {
+  const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
+    mentor: mentorId,
+  });
+  window.location.href = path;
 }

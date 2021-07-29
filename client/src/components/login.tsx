@@ -4,19 +4,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useContext } from "react";
+import React from "react";
 import {
   GoogleLogin,
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { AppBar, Button, Toolbar, Typography } from "@material-ui/core";
+import {
+  AppBar,
+  Button,
+  CircularProgress,
+  Toolbar,
+  Typography,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { getClientId } from "config";
-import { loginGoogle } from "api";
-import { UserAccessToken } from "types";
-import Context from "context";
-import "styles/layout.css";
+
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import { ConfigStatus } from "store/slices/config";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -38,23 +43,8 @@ const useStyles = makeStyles((theme) => ({
 
 function LoginPage(): JSX.Element {
   const classes = useStyles();
-  const context = useContext(Context);
-  const [googleClientId, setClientId] = React.useState<string>("");
-
-  React.useEffect(() => {
-    let mounted = true;
-    getClientId()
-      .then((id: string) => {
-        if (!mounted) {
-          return;
-        }
-        setClientId(id);
-      })
-      .catch((err) => console.error(err));
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const { state: configState, loadConfig } = useWithConfig();
+  const { loginWithGoogle, login } = useWithLogin();
 
   function onGoogleLogin(
     response: GoogleLoginResponse | GoogleLoginResponseOffline
@@ -63,17 +53,32 @@ function LoginPage(): JSX.Element {
       return;
     }
     const loginResponse = response as GoogleLoginResponse;
-    loginGoogle(loginResponse.accessToken)
-      .then((token: UserAccessToken) => {
-        context.login(token.accessToken);
-      })
-      .catch((err) => console.error(err));
+    loginWithGoogle(loginResponse.accessToken);
   }
 
-  if (!googleClientId) {
-    return <div className={classes.root}>ERROR: Failed to load config</div>;
+  if (
+    configState.status === ConfigStatus.NONE ||
+    configState.status === ConfigStatus.IN_PROGRESS
+  ) {
+    // app never shows any component until config is loaded
+    return <CircularProgress />;
   }
-
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
+    // displays some error with retry option if config fails to load
+    return (
+      <div>
+        <AppBar position="fixed">
+          <Toolbar>
+            <Typography variant="h6">Mentor Studio</Typography>
+          </Toolbar>
+        </AppBar>
+        <Typography>Failed to load config</Typography>
+        <Button color="primary" variant="contained" onClick={loadConfig}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
@@ -90,13 +95,14 @@ function LoginPage(): JSX.Element {
           variant="contained"
           color="primary"
           className={classes.button}
-          onClick={() => context.login(process.env.ACCESS_TOKEN || "")}
+          onClick={() => login(process.env.ACCESS_TOKEN || "")}
+          data-cy="login-btn"
         >
           Test Login
         </Button>
       ) : (
         <GoogleLogin
-          clientId={googleClientId}
+          clientId={configState.config.googleClientId}
           onSuccess={onGoogleLogin}
           render={(renderProps) => (
             <Button
@@ -105,6 +111,7 @@ function LoginPage(): JSX.Element {
               onClick={renderProps.onClick}
               className={classes.button}
               disabled={renderProps.disabled}
+              data-cy="login-btn"
             >
               Sign in with Google
             </Button>

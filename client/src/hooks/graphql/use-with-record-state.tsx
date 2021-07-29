@@ -16,10 +16,12 @@ import {
   UtteranceName,
 } from "types";
 import { copyAndSet, equals } from "helpers";
-import { useWithMentor } from "./use-with-mentor";
+
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { MentorStatus } from "store/slices/mentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -33,7 +35,7 @@ export interface CurAnswerState extends AnswerState {
   isEdited: boolean;
   isValid: boolean;
   isUploading: boolean;
-  videoSrc: string | undefined;
+  videoSrc?: string;
 }
 
 export function useWithRecordState(
@@ -56,12 +58,8 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const {
-    data: mentor,
-    reloadData: reloadMentor,
-    error: mentorError,
-    isLoading: isMentorLoading,
-  } = useWithMentor(accessToken);
+  const { mentorState, loadMentor } = useActiveMentor();
+
   const {
     uploads,
     isUploading,
@@ -75,8 +73,12 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
+  const mentorError = mentorState.error;
+  const mentor = mentorState.data;
+  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
+    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }
@@ -248,7 +250,7 @@ export function useWithRecordState(
 
   function reloadMentorData() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    reloadMentor();
+    loadMentor();
   }
 
   function prevAnswer() {
@@ -415,11 +417,11 @@ export function useWithRecordState(
 }
 
 export interface UseWithRecordState {
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   answers: AnswerState[];
   answerIdx: number;
   recordPageState: RecordPageState;
-  curAnswer: CurAnswerState | undefined;
+  curAnswer?: CurAnswerState;
   uploads: UploadTask[];
   pollStatusCount: number;
   followUpQuestions: string[];
@@ -435,19 +437,12 @@ export interface UseWithRecordState {
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;
-  uploadVideo: (
-    trim?:
-      | {
-          start: number;
-          end: number;
-        }
-      | undefined
-  ) => void;
+  uploadVideo: (trim?: { start: number; end: number }) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
-  error: RecordingError | undefined;
+  error?: RecordingError;
   clearError: () => void;
 }

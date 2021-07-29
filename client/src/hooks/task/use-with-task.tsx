@@ -22,9 +22,9 @@ const initialState: TaskState = {
 
 export interface Task<T, U> {
   isPolling: boolean;
-  error: TaskError | undefined;
-  status: TaskStatus<T> | undefined;
-  statusUrl: string | undefined;
+  error?: TaskError;
+  status?: TaskStatus<T>;
+  statusUrl?: string;
   startTask: (params: U) => void;
   clearError: () => void;
 }

@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useContext } from "react";
+import React from "react";
 import {
   AppBar,
   Button,
@@ -26,21 +26,23 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   AccountCircle,
   Build as BuildIcon,
-  Chat as ChatIcon,
   Close as CloseIcon,
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
+  Group,
   Menu as MenuIcon,
   Mic as MicIcon,
   QuestionAnswer as QuestionAnswerIcon,
   RateReview as RateReviewIcon,
   Subject as SubjectIcon,
+  PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
+
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
-import { CLIENT_ENDPOINT } from "api";
-import Context from "context";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
-import PublishRoundedIcon from "@material-ui/icons/PublishRounded";
+import { UserRole } from "types";
+import { launchMentor } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -79,7 +81,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
     EventTarget & HTMLButtonElement
   >();
   const open = Boolean(anchorEl);
-  const context = useContext(Context);
+  const { state: loginState, logout } = useWithLogin();
 
   function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
@@ -90,7 +92,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   }
 
   function onLogout(): void {
-    context.logout();
+    logout();
     navigate("/");
   }
 
@@ -102,7 +104,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
       >
-        {context.user?.name || ""}
+        {loginState.user?.name || ""}
       </Button>
       <Menu
         data-cy="login-menu"
@@ -135,6 +137,7 @@ function NavItem(props: {
 }): JSX.Element {
   return (
     <ListItem
+      data-cy={`${props.text}-menu-button`}
       button
       selected={location.pathname === props.link}
       onClick={() => {
@@ -152,29 +155,29 @@ function NavItem(props: {
 }
 
 function NavMenu(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   classes: Record<string, string>;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
   const { classes } = props;
-  const context = useContext(Context);
-
-  async function openChat() {
-    const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${props.mentorId}`;
-    window.location.href = path;
-  }
+  const { logout, state } = useWithLogin();
+  const editUsersPermission =
+    state.user?.userRole === UserRole.ADMIN ||
+    state.user?.userRole === UserRole.CONTENT_MANAGER;
 
   function onLogout(): void {
-    context.logout();
+    logout();
     navigate("/");
   }
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>
+        Mentor Studio
+      </ListSubheader>
       <NavItem
-        text={"Profile"}
-        link={"/profile"}
+        text={"My Mentor"}
+        link={"/"}
         icon={<AccountCircle />}
         onNav={props.onNav}
       />
@@ -184,12 +187,7 @@ function NavMenu(props: {
         icon={<SubjectIcon />}
         onNav={props.onNav}
       />
-      <NavItem
-        text={"Review Answers"}
-        link={"/"}
-        icon={<ChatIcon />}
-        onNav={props.onNav}
-      />
+
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <NavItem
@@ -210,7 +208,13 @@ function NavMenu(props: {
         icon={<RateReviewIcon />}
         onNav={props.onNav}
       />
-      <ListItem button disabled={!props.mentorId} onClick={openChat}>
+      <ListItem
+        button
+        disabled={!props.mentorId}
+        onClick={() => {
+          launchMentor(props.mentorId);
+        }}
+      >
         <ListItemIcon>
           <QuestionAnswerIcon />
         </ListItemIcon>
@@ -225,6 +229,14 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
+      {editUsersPermission ? (
+        <NavItem
+          text={"Users"}
+          link={"/users"}
+          icon={<Group />}
+          onNav={props.onNav}
+        />
+      ) : undefined}
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
@@ -239,7 +251,7 @@ function NavMenu(props: {
 }
 
 export function NavBar(props: {
-  mentorId: string | undefined;
+  mentorId: string;
   title: string;
   uploads: UploadTask[];
   uploadsButtonVisible: boolean;

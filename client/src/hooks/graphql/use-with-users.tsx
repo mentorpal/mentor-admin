@@ -4,14 +4,22 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { Subject } from "types";
+import { fetchUsers, updateUserPermissions } from "api";
+import { useState } from "react";
+import { Connection, User } from "types";
+import { LoadingError } from "./loading-reducer";
 import {
-  UseDataConnection,
   useWithDataConnection,
+  UseDataConnection,
 } from "./use-with-data-connection";
 
-export function useWithSubjects(): UseDataConnection<Subject> {
+export interface UseUserData extends UseDataConnection<User> {
+  onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+  userDataError?: LoadingError;
+}
+
+export function useWithUsers(accessToken: string): UseUserData {
+  const [userDataError, setUserDataError] = useState<LoadingError>();
   const {
     data,
     isLoading,
@@ -24,17 +32,34 @@ export function useWithSubjects(): UseDataConnection<Subject> {
     filter,
     nextPage,
     prevPage,
-  } = useWithDataConnection<Subject>(fetch);
+  } = useWithDataConnection<User>(fetch);
 
-  function fetch() {
-    return fetchSubjects(searchParams);
+  function fetch(): Promise<Connection<User>> {
+    return fetchUsers(searchParams);
+  }
+
+  function onUpdateUserPermissions(
+    userId: string,
+    permissionLevel: string
+  ): void {
+    updateUserPermissions(userId, permissionLevel, accessToken)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update user permissions",
+          error: `${err}`,
+        });
+      });
   }
 
   return {
     data,
-    error,
     isLoading,
     searchParams,
+    error,
+    userDataError,
     reloadData,
     editData,
     saveData,
@@ -42,5 +67,6 @@ export function useWithSubjects(): UseDataConnection<Subject> {
     filter,
     nextPage,
     prevPage,
+    onUpdateUserPermissions,
   };
 }

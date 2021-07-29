@@ -5,6 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+export interface Config {
+  googleClientId: string;
+}
+
 export interface Connection<T> {
   edges: Edge<T>[];
   pageInfo: PageInfo;
@@ -26,6 +30,8 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  userRole: UserRole;
+  defaultMentor: Mentor;
 }
 
 export interface UserAccessToken {
@@ -203,6 +209,12 @@ export enum RecordPageState {
   RELOADING_MENTOR = "RELOADING_MENTOR",
 }
 
+export enum UserRole {
+  ADMIN = "ADMIN",
+  CONTENT_MANAGER = "CONTENT_MANAGER",
+  USER = "USER",
+}
+
 export interface TaskStatus<T> {
   state: JobState;
   status?: string;
@@ -223,11 +235,4 @@ export interface VideoInfo {
   videoId: string;
   video: File;
   transcript: string;
-}
-
-export enum LoginStatus {
-  NONE = 0,
-  IN_PROGRESS = 1,
-  AUTHENTICATED = 2,
-  FAILED = 3,
 }

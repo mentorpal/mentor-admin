@@ -4,43 +4,35 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { Subject } from "types";
-import {
-  UseDataConnection,
-  useWithDataConnection,
-} from "./use-with-data-connection";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "store/hooks";
+import * as config from ".";
 
-export function useWithSubjects(): UseDataConnection<Subject> {
-  const {
-    data,
-    isLoading,
-    searchParams,
-    error,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  } = useWithDataConnection<Subject>(fetch);
+interface UseWithConfig {
+  state: config.ConfigState;
+  loadConfig: () => void;
+}
 
-  function fetch() {
-    return fetchSubjects(searchParams);
+export function useWithConfig(): UseWithConfig {
+  const dispatch = useDispatch();
+  const state = useAppSelector((state) => state.config);
+
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  function loadConfig() {
+    if (
+      state.status === config.ConfigStatus.NONE ||
+      state.status === config.ConfigStatus.FAILED
+    ) {
+      dispatch(config.getConfig());
+    }
   }
 
   return {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
+    state,
+    loadConfig,
   };
 }

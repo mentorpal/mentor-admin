@@ -13,12 +13,12 @@ export interface RecordingError {
 export interface RecordingState {
   isSaving: boolean;
   isRecording: boolean;
-  error: RecordingError | undefined;
+  error?: RecordingError;
 }
 
 export interface RecordingAction {
   type: RecordingActionType;
-  payload: boolean | RecordingError | undefined;
+  payload?: boolean | RecordingError;
 }
 
 export enum RecordingActionType {

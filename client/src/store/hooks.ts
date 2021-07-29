@@ -4,43 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { Subject } from "types";
-import {
-  UseDataConnection,
-  useWithDataConnection,
-} from "./use-with-data-connection";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "./store";
 
-export function useWithSubjects(): UseDataConnection<Subject> {
-  const {
-    data,
-    isLoading,
-    searchParams,
-    error,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  } = useWithDataConnection<Subject>(fetch);
-
-  function fetch() {
-    return fetchSubjects(searchParams);
-  }
-
-  return {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    reloadData,
-    editData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  };
-}
+// Use throughout your app instead of plain `useDispatch` and `useSelector`
+export const useAppDispatch = (): AppDispatch => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

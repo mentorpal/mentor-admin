@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-import { updateSubject, CLIENT_ENDPOINT } from "api";
+import { updateSubject } from "api";
 import {
   Status,
   Answer,
@@ -19,10 +19,11 @@ import {
   Mentor,
   UtteranceName,
 } from "types";
-import { copyAndSet, equals, urlBuild } from "helpers";
+import { copyAndSet, equals } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { MentorStatus } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
@@ -51,14 +52,15 @@ export function useWithReviewAnswerState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<LoadingError>();
   const {
-    data: mentor,
-    error: mentorError,
-    editedData: editedMentor,
-    isLoading: isMentorLoading,
-    isEdited: isMentorEdited,
-    editData: editMentor,
-    reloadData: reloadMentor,
-  } = useWithMentor(accessToken);
+    mentorState,
+    editMentor,
+    loadMentor: reloadMentor,
+    saveMentor,
+  } = useActiveMentor();
+  const mentorError = mentorState.error;
+  const mentor = mentorState.data;
+  const editedMentor = mentorState.editedData;
+  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -202,11 +204,11 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function selectSubject(sId: string | undefined) {
-    setSelectedSubject(sId);
+  function selectSubject(sId?: string) {
+    setSelectedSubject(sId || "");
   }
 
-  function addNewQuestion(subject: Subject, category: Category | undefined) {
+  function addNewQuestion(subject: Subject, category?: Category) {
     if (!editedMentor || isMentorLoading || isSaving) {
       return;
     }
@@ -287,7 +289,7 @@ export function useWithReviewAnswerState(
     if (
       !mentor ||
       !editedMentor ||
-      !isMentorEdited ||
+      !mentorState.isEdited ||
       isMentorLoading ||
       isSaving
     ) {
@@ -305,6 +307,7 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
+        saveMentor();
         reloadMentor();
         setIsSaving(false);
       })
@@ -314,16 +317,10 @@ export function useWithReviewAnswerState(
         setIsSaving(false);
       });
   }
-  function launchMentor(params: string) {
-    const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
-      mentor: params,
-    });
-    window.location.href = path;
-  }
 
   return {
     mentor,
-    isMentorEdited,
+    isMentorEdited: Boolean(mentorState.isEdited),
     blocks,
     progress,
     selectedSubject,
@@ -335,23 +332,21 @@ export function useWithReviewAnswerState(
     selectSubject,
     saveChanges,
     startTraining,
-    launchMentor,
   };
 }
 
 interface UseWithReviewAnswerState {
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   isMentorEdited: boolean;
   blocks: RecordingBlock[];
   progress: Progress;
-  selectedSubject: string | undefined;
+  selectedSubject?: string;
   isLoading: boolean;
   isSaving: boolean;
   isTraining: boolean;
-  error: LoadingError | undefined;
+  error?: LoadingError;
   clearError: () => void;
-  selectSubject: (sId: string | undefined) => void;
+  selectSubject: (sId?: string) => void;
   saveChanges: () => void;
   startTraining: (params: string) => void;
-  launchMentor: (params: string) => void;
 }
