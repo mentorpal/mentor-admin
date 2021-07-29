@@ -20,9 +20,12 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
+
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+
+import { MentorStatus } from "store/slices/mentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -47,25 +50,17 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function ProfilePage(props: { accessToken: string }): JSX.Element {
+function ProfilePage(): JSX.Element {
   const classes = useStyles();
-  const {
-    editedData: editedMentor,
-    error: mentorError,
-    isLoading: isMentorLoading,
-    isSaving: isMentorSaving,
-    isEdited: isMentorEdited,
-    editData: editMentor,
-    saveMentorDetails,
-  } = useWithMentor(props.accessToken);
+  const { mentorState, saveMentor, editMentor } = useActiveMentor();
 
-  if (!editedMentor) {
+  if (!mentorState.editedData) {
     return <div />;
   }
 
   return (
     <div className={classes.root}>
-      <NavBar title="My Profile" mentorId={editedMentor?._id} />
+      <NavBar title="My Profile" mentorId={mentorState.editedData._id} />
       <Paper className={classes.paper}>
         <div className={classes.inputField}>
           <FormControl>
@@ -73,7 +68,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
             <Select
               data-cy="select-chat-type"
               label="Mentor Type"
-              value={editedMentor?.mentorType}
+              value={mentorState.editedData.mentorType}
               style={{ width: 200 }}
               onChange={(
                 event: React.ChangeEvent<{
@@ -97,7 +92,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-name"
           label="Full Name"
           variant="outlined"
-          value={editedMentor?.name || ""}
+          value={mentorState.editedData.name}
           onChange={(e) => editMentor({ name: e.target.value })}
           className={classes.inputField}
         />
@@ -105,7 +100,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-first-name"
           label="First Name"
           variant="outlined"
-          value={editedMentor?.firstName || ""}
+          value={mentorState.editedData.firstName}
           onChange={(e) => editMentor({ firstName: e.target.value })}
           className={classes.inputField}
         />
@@ -113,7 +108,7 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="mentor-job-title"
           label="Job Title"
           variant="outlined"
-          value={editedMentor?.title || ""}
+          value={mentorState.editedData.title}
           onChange={(e) => editMentor({ title: e.target.value })}
           className={classes.inputField}
         />
@@ -122,16 +117,18 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           label="Email"
           type="email"
           variant="outlined"
-          value={editedMentor?.email || ""}
+          value={mentorState.editedData.email}
           onChange={(e) => editMentor({ email: e.target.value })}
           className={classes.inputField}
         />
         <FormControlLabel
           control={
             <Checkbox
-              checked={editedMentor?.allowContact}
+              checked={mentorState.editedData.allowContact}
               onChange={() =>
-                editMentor({ allowContact: !editedMentor?.allowContact })
+                editMentor({
+                  allowContact: !mentorState.editedData?.allowContact,
+                })
               }
               color="secondary"
             />
@@ -143,16 +140,22 @@ function ProfilePage(props: { accessToken: string }): JSX.Element {
           data-cy="update-btn"
           variant="contained"
           color="primary"
-          disabled={!isMentorEdited}
-          onClick={saveMentorDetails}
+          disabled={!mentorState.isEdited}
+          onClick={saveMentor}
         >
           Save Changes
         </Button>
       </Paper>
       <LoadingDialog
-        title={isMentorLoading ? "Loading" : isMentorSaving ? "Saving" : ""}
+        title={
+          mentorState.mentorStatus === MentorStatus.LOADING
+            ? "Loading"
+            : mentorState.mentorStatus === MentorStatus.SAVING
+            ? "Saving"
+            : ""
+        }
       />
-      <ErrorDialog error={mentorError} />
+      <ErrorDialog error={mentorState.error} />
     </div>
   );
 }

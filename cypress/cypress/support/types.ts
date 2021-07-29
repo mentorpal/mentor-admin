@@ -34,6 +34,13 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  userRole: UserRole;
+}
+
+export enum UserRole {
+  ADMIN = "ADMIN",
+  CONTENT_MANAGER = "CONTENT_MANAGER",
+  USER = "USER",
 }
 
 export interface UserAccessToken {

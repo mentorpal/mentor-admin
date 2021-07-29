@@ -9,7 +9,7 @@ import React from "react";
 import LoginPage from "components/login";
 import HomePage from "components/home";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { LoginStatus } from "store/slices/login/loginSlice";
+import { LoginStatus } from "store/slices/login";
 
 function IndexPage(): JSX.Element {
   const { state: loginState } = useWithLogin();

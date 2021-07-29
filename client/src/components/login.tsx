@@ -20,7 +20,7 @@ import {
 import { makeStyles } from "@material-ui/core/styles";
 
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import { ConfigStatus } from "store/slices/config/configSlice";
+import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({

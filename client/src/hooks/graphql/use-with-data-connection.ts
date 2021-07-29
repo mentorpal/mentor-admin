@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { Connection } from "types";
 import { LoadingError } from "./loading-reducer";
-import { useWithData } from "./use-with-data";
+import { UpdateFunc, useWithData } from "./use-with-data";
 
 export interface SearchParams {
   limit: number;
@@ -23,6 +23,8 @@ export interface UseDataConnection<T> {
   error: LoadingError | undefined;
   isLoading: boolean;
   searchParams: SearchParams;
+  editData: (edits: Partial<T>) => void;
+  saveData: (action: UpdateFunc<Connection<T>>) => Promise<void>;
   reloadData: () => void;
   nextPage: () => void;
   prevPage: () => void;
@@ -44,7 +46,7 @@ export function useWithDataConnection<T>(
 ): UseDataConnection<T> {
   const [searchParams, setSearchParams] =
     useState<SearchParams>(defaultSearchParams);
-  const { data, isLoading, error, reloadData } =
+  const { data, isLoading, error, editData, saveData, reloadData } =
     useWithData<Connection<T>>(fetch);
 
   useEffect(() => {
@@ -90,6 +92,8 @@ export function useWithDataConnection<T>(
     error,
     isLoading,
     searchParams,
+    editData,
+    saveData,
     reloadData,
     sortBy,
     filter,

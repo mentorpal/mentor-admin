@@ -32,7 +32,7 @@ export function ErrorDialog(props: {
       open={error !== undefined && open}
       onClose={clearError}
     >
-      <DialogTitle>{error?.message}</DialogTitle>
+      <DialogTitle data-cy="error-dialog-title">{error?.message}</DialogTitle>
       <DialogContent>
         <DialogContentText>{error?.error}</DialogContentText>
       </DialogContent>

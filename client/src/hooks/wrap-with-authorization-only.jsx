@@ -10,7 +10,7 @@ import { CircularProgress } from "@material-ui/core";
 
 import NavBar from "components/nav-bar";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { LoginStatus } from "store/slices/login/loginSlice";
+import { LoginStatus } from "store/slices/login";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
