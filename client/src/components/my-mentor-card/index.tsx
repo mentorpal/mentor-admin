@@ -23,7 +23,6 @@ import {
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
-import { Mentor } from "types";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 import StageProgress from "./stage-progress";
@@ -53,21 +52,21 @@ const useStyles = makeStyles(() => ({
 
 export default function MyMentorCard(props: {
   accessToken: string;
-  mentor: Mentor;
   continueAction: () => void;
 }): JSX.Element {
-  const mentorInfo = parseMentor(props.mentor);
-  const classes = useStyles();
-  const [thumbnail, updateThumbnail] = useWithThumbnail(
-    props.mentor?._id,
-    props.accessToken,
-    props.mentor?.thumbnail || ""
-  );
   const { mentorState, editMentor } = useActiveMentor();
 
-  if (!mentorState.editedData) {
+  if (!mentorState.data || !mentorState.editedData) {
     return <div />;
   }
+  const mentorInfo = parseMentor(mentorState.data);
+  const classes = useStyles();
+  const [thumbnail, updateThumbnail] = useWithThumbnail(
+    mentorState.data._id,
+    props.accessToken,
+    mentorState.data.thumbnail || ""
+  );
+
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
@@ -251,7 +250,7 @@ export default function MyMentorCard(props: {
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
-                mentor={props.mentor}
+                mentor={mentorState.data}
                 setThumbnail={updateThumbnail}
                 continueAction={props.continueAction}
               />
