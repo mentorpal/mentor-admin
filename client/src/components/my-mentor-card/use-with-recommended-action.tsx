@@ -28,14 +28,14 @@ interface Category {
 
 interface Conditions {
   mentorId: string;
-  idle: Answer | undefined;
+  idle?: Answer;
   idleIncomplete: boolean;
   isVideo: boolean;
   hasThumbnail: boolean;
   isDirty: boolean;
   categories: Category[];
-  incompleteRequirement: Category | undefined;
-  firstIncomplete: Category | undefined;
+  incompleteRequirement?: Category;
+  firstIncomplete?: Category;
   completedAnswers: number;
   totalAnswers: number;
 }

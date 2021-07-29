@@ -43,11 +43,7 @@ export function QuestionsList(props: {
   addQuestion: () => void;
   editQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
-  moveQuestion: (
-    toMove: string,
-    moveTo: string | undefined,
-    category: string | undefined
-  ) => void;
+  moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
 }): JSX.Element {
   const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
   const [selectedQuestion, setSelectedQuestion] = useState<string>();

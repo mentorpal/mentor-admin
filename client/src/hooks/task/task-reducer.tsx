@@ -12,12 +12,12 @@ export interface TaskError {
 
 export interface TaskState {
   isPolling: boolean;
-  error: TaskError | undefined;
+  error?: TaskError;
 }
 
 export interface TaskAction {
   type: TaskActionType;
-  payload: boolean | TaskError | undefined;
+  payload?: boolean | TaskError;
 }
 
 export enum TaskActionType {

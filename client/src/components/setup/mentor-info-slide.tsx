@@ -11,7 +11,7 @@ import { Slide } from "./slide";
 
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {

@@ -39,12 +39,10 @@ interface SetupStep {
 interface SetupStatus {
   isMentorInfoDone: boolean;
   isMentorTypeChosen: boolean;
-  idle:
-    | {
-        idle: Answer;
-        complete: boolean;
-      }
-    | undefined;
+  idle?: {
+    idle: Answer;
+    complete: boolean;
+  };
   requiredSubjects: {
     subject: Subject;
     answers: Answer[];
@@ -56,16 +54,16 @@ interface SetupStatus {
 }
 
 interface UseWithSetup {
-  setupStatus: SetupStatus | undefined;
+  setupStatus?: SetupStatus;
   setupStep: number;
   setupSteps: SetupStep[];
   idleTipsVideoUrl: string;
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   isEdited: boolean;
   isLoading: boolean;
   isSaving: boolean;
   isTraining: boolean;
-  error: LoadingError | undefined;
+  error?: LoadingError;
   editMentor: (d: Partial<Mentor>) => void;
   saveMentor: () => void;
   startTraining: () => void;

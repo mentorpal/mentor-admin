@@ -26,7 +26,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   AccountCircle,
   Build as BuildIcon,
-  Chat as ChatIcon,
   Close as CloseIcon,
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
@@ -173,10 +172,12 @@ function NavMenu(props: {
 
   return (
     <List dense className={classes.menu}>
-      <ListSubheader className={classes.menuHeader}>My Mentor</ListSubheader>
+      <ListSubheader className={classes.menuHeader}>
+        Mentor Studio
+      </ListSubheader>
       <NavItem
-        text={"Profile"}
-        link={"/profile"}
+        text={"My Mentor"}
+        link={"/"}
         icon={<AccountCircle />}
         onNav={props.onNav}
       />
@@ -186,12 +187,7 @@ function NavMenu(props: {
         icon={<SubjectIcon />}
         onNav={props.onNav}
       />
-      <NavItem
-        text={"Review Answers"}
-        link={"/"}
-        icon={<ChatIcon />}
-        onNav={props.onNav}
-      />
+
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <NavItem

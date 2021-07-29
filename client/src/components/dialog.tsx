@@ -16,7 +16,7 @@ import {
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export function ErrorDialog(props: {
-  error: LoadingError | undefined;
+  error?: LoadingError;
   clearError?: () => void;
 }): JSX.Element {
   const { error, clearError } = props;

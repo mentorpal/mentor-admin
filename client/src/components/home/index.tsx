@@ -108,7 +108,6 @@ function HomePage(props: {
           userRole={props.user.userRole}
         />
         <MyMentorCard
-          mentor={mentor}
           accessToken={props.accessToken}
           continueAction={continueAction}
         />

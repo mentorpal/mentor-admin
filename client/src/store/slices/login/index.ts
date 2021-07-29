@@ -19,15 +19,14 @@ export enum LoginStatus {
 }
 
 export interface LoginState {
-  accessToken: string | undefined;
+  accessToken?: string;
   loginStatus: LoginStatus;
-  user: User | undefined;
+  user?: User;
 }
 
 const initialState: LoginState = {
   accessToken: undefined,
   loginStatus: LoginStatus.NONE,
-  user: undefined,
 };
 
 /** Actions */
