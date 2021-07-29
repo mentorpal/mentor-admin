@@ -23,7 +23,7 @@ export function RecordIdleSlide(props: {
     navigate(
       urlBuild("/record", {
         videoId: idle.question._id,
-        back: encodeURI(`/setup?i=${i}`),
+        back: encodeURI(urlBuild("/setup", { i: String(i) })),
       })
     );
   }

@@ -191,7 +191,9 @@ export function useWithReviewAnswerState(
         status: status,
         subject: subject,
         category: category,
-        back: encodeURI(`/?subject=${selectedSubject || ""}`),
+        back: encodeURI(
+          urlBuild("/", selectedSubject ? { subject: selectedSubject } : {})
+        ),
       })
     );
   }
@@ -200,7 +202,9 @@ export function useWithReviewAnswerState(
     navigate(
       urlBuild("/record", {
         videoId: answer.question._id,
-        back: encodeURI(`/?subject=${selectedSubject || ""}`),
+        back: encodeURI(
+          urlBuild("/", selectedSubject ? { subject: selectedSubject } : {})
+        ),
       })
     );
   }
