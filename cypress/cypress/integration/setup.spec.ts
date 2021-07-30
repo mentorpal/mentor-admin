@@ -400,7 +400,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/subjects")
     );
-    cy.location("search").should("contain", "?back=/setup?i=3");
+    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D3");
     cy.get("[data-cy=subjects]").children().should("have.length", 3);
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -505,7 +505,10 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/record")
     );
-    cy.location("search").should("contain", "?videoId=A3_1_1&back=/setup?i=5");
+    cy.location("search").should(
+      "contain",
+      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D5"
+    );
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should(
@@ -563,7 +566,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=repeat_after_me&back=/setup?i=6"
+      "?subject=repeat_after_me&back=%2Fsetup%3Fi%3D6"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {

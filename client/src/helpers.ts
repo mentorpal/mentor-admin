@@ -4,9 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import { CLIENT_ENDPOINT } from "api";
 
+interface UrlBuildOpts {
+  includeEmptyParams?: boolean;
+}
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function equals<T>(val1: T, val2: T): boolean {
   return JSON.stringify(val1) === JSON.stringify(val2);
@@ -29,10 +31,26 @@ export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
 
-export function urlBuild(base: string, params: Record<string, string>): string {
+export function urlBuild(
+  base: string,
+  params: Record<string, string>,
+  opts?: UrlBuildOpts
+): string {
   const query = new URLSearchParams();
-  Object.keys(params).forEach((n) => query.append(n, params[n]));
-  return `${base}?${query.toString()}`;
+  Object.keys(params).forEach((n) => {
+    /**
+     * we have to distinguish between params where the value is `undefined` or `null`
+     * (which we generally want to exclude) vs. params where the value is falsy but meaningful (e.g. `0`)
+     */
+    const pval =
+      params[n] !== null && typeof params[n] !== "undefined" ? params[n] : "";
+    if (!(pval || opts?.includeEmptyParams)) {
+      return;
+    }
+    query.append(n, encodeURI(pval));
+  });
+  const qs = query.toString();
+  return qs ? `${base}?${qs}` : base; // don't put ? if no query string
 }
 
 export function launchMentor(mentorId: string): void {

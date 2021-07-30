@@ -18,7 +18,7 @@ import {
   Question,
   Mentor,
 } from "types";
-import { copyAndSet, equals } from "helpers";
+import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -189,17 +189,27 @@ export function useWithReviewAnswerState(
 
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
-      `/record?back=${encodeURI(
-        `/?subject=${selectedSubject}`
-      )}&status=${status}&subject=${subject}&category=${category}`
+      urlBuild("/record", {
+        status: status,
+        subject: subject,
+        category: category,
+        back: urlBuild(
+          "/",
+          selectedSubject ? { subject: selectedSubject } : {}
+        ),
+      })
     );
   }
 
   function recordAnswer(answer: Answer) {
     navigate(
-      `/record?back=${encodeURI(`/?subject=${selectedSubject}`)}&videoId=${
-        answer.question._id
-      }`
+      urlBuild("/record", {
+        videoId: answer.question._id,
+        back: urlBuild(
+          "/",
+          selectedSubject ? { subject: selectedSubject } : {}
+        ),
+      })
     );
   }
 

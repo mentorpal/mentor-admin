@@ -8,6 +8,7 @@ import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
 import { Slide } from "./slide";
+import { urlBuild } from "helpers";
 
 export function SelectSubjectsSlide(props: {
   classes: Record<string, string>;
@@ -16,7 +17,11 @@ export function SelectSubjectsSlide(props: {
   const { classes, i } = props;
 
   function onClick() {
-    navigate(`/subjects?back=${encodeURI(`/setup?i=${i}`)}`);
+    navigate(
+      urlBuild("/subjects", {
+        back: urlBuild("/setup", { i: String(i) }),
+      })
+    );
   }
 
   return (
