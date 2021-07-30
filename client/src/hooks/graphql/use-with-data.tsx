@@ -19,17 +19,17 @@ const initialState: LoadingState = {
   error: undefined,
 };
 
-interface UpdateFunc<T> {
+export interface UpdateFunc<T> {
   action: (data: T) => Promise<void>;
 }
 
 export interface UseData<T> {
-  data: T | undefined;
-  editedData: T | undefined;
+  data?: T;
+  editedData?: T;
   isEdited: boolean;
   isLoading: boolean;
   isSaving: boolean;
-  error: LoadingError | undefined;
+  error?: LoadingError;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
   saveData: (action: UpdateFunc<T>) => Promise<void>;

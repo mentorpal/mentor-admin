@@ -16,7 +16,7 @@ import {
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export function ErrorDialog(props: {
-  error: LoadingError | undefined;
+  error?: LoadingError;
   clearError?: () => void;
 }): JSX.Element {
   const { error, clearError } = props;
@@ -32,7 +32,7 @@ export function ErrorDialog(props: {
       open={error !== undefined && open}
       onClose={clearError}
     >
-      <DialogTitle>{error?.message}</DialogTitle>
+      <DialogTitle data-cy="error-dialog-title">{error?.message}</DialogTitle>
       <DialogContent>
         <DialogContentText>{error?.error}</DialogContentText>
       </DialogContent>

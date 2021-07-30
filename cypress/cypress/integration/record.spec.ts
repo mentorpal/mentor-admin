@@ -588,6 +588,13 @@ describe("Record", () => {
     it("displays a list of followup questions", () => {
       cyMockDefault(cy, {
         mentor: [chatMentor],
+        gqlQueries: [
+          mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+          mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+          mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+          mockGQL("Subject", [{ subject: [] }]),
+        ],
       });
       cyMockFollowUpQuestions(cy, {
         errors: null,

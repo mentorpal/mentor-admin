@@ -29,11 +29,7 @@ interface UseWithSubject extends UseData<Subject> {
   addQuestion: (q?: NewQuestionArgs) => void;
   updateQuestion: (val: SubjectQuestion) => void;
   removeQuestion: (val: SubjectQuestion) => void;
-  moveQuestion: (
-    toMove: string,
-    moveTo: string | undefined,
-    category: string | undefined
-  ) => void;
+  moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
 }
 
 export function useWithSubject(
@@ -218,11 +214,7 @@ export function useWithSubject(
     }
   }
 
-  function moveQuestion(
-    toMove: string,
-    moveTo: string | undefined,
-    category: string | undefined
-  ) {
+  function moveQuestion(toMove: string, moveTo?: string, category?: string) {
     if (!editedData) {
       return;
     }

@@ -121,13 +121,13 @@ const columnHeaders: ColumnDef[] = [
 
 function FeedbackItem(props: {
   feedback: UserQuestion;
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentor, onUpdated } = props;
 
   // TODO: MOVE THIS TO A HOOK
-  async function onUpdateAnswer(answerId: string | undefined) {
+  async function onUpdateAnswer(answerId?: string) {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
