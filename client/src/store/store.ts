@@ -11,6 +11,7 @@ import mentorReducer from "./slices/mentor";
 
 export const store = configureStore({
   reducer: {
+    login: loginReducer,
     config: configReducer,
     mentor: mentorReducer,
   },

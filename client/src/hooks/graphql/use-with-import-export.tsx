@@ -13,7 +13,7 @@ import {
   Question,
   Subject,
 } from "types";
-import { useWithMentor } from "./use-with-mentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
 export interface UseWithImportExport {
   mentor: Mentor | undefined;
@@ -30,7 +30,8 @@ export interface UseWithImportExport {
 export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
-  const { data: mentor } = useWithMentor(accessToken);
+  const { mentorState } = useActiveMentor();
+  const mentor = mentorState.data;
 
   function exportMentor() {
     if (!mentor) {
@@ -58,13 +59,21 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     reader.onload = function (e) {
       if (typeof e.target?.result === "string") {
         const json = JSON.parse(e.target?.result);
-        setImportJson(json);
-        api.importMentorPreview(mentor._id, json).then((p) => {
-          setImportPreview(p);
-        });
+        updateImport(json);
       }
     };
     reader.readAsText(file);
+  }
+
+  function updateImport(json: MentorExportJson) {
+    if (!mentor) {
+      return;
+    }
+    setImportJson(json);
+    api.importMentorPreview(mentor._id, json).then((p) => {
+      console.log(JSON.stringify(p, null, " "));
+      setImportPreview(p);
+    });
   }
 
   function confirmImport() {
@@ -96,10 +105,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     ~idx && json.subjects.splice(idx, 1, replacement);
     // TODO: if the subject that was replaced had some questions that were overwritten by the replacement
     // we might need to remap them in imported questions and answers list
-    setImportJson(json);
-    api.importMentorPreview(mentor._id, json).then((p) => {
-      setImportPreview(p);
-    });
+    updateImport(json);
   }
 
   function mapQuestion(question: Question, replacement: Question) {
@@ -134,10 +140,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
         ...json.answers[idx],
         question: replacement,
       });
-    setImportJson(json);
-    api.importMentorPreview(mentor._id, json).then((p) => {
-      setImportPreview(p);
-    });
+    updateImport(json);
   }
 
   return {

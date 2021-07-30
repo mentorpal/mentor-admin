@@ -49,7 +49,7 @@ export default function AnswerImport(props: {
     <Card className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
-        <div style={{ marginRight: 10 }}>
+        <div style={{ marginRight: 10, width: "100%" }}>
           <Typography align="left" variant="body1">
             {answer?.question?.question || curAnswer?.question?.question}
           </Typography>
