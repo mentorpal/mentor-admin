@@ -60,7 +60,7 @@ export const switchMentor = createAsyncThunk(
   "login/switchMentor",
   async (headers: {
     accessToken: string;
-    mentorId?: string;
+    mentorId: string;
   }): Promise<string | unknown> => {
     try {
       return await api.switchMentor(headers.accessToken, headers.mentorId);
@@ -116,7 +116,12 @@ export const loginSlice = createSlice({
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
-      });
+      })
+      .addCase(switchMentor.pending, (state) => {})
+      .addCase(switchMentor.fulfilled, (state, action) => {
+        //state.user.activeMentor = action.payload.activeMentor;
+      })
+      .addCase(switchMentor.rejected, (state) => {});
   },
 });
 

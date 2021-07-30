@@ -35,6 +35,8 @@ export interface User {
   name: string;
   email: string;
   userRole: UserRole;
+  defaultMentor: Mentor;
+  activeMentor: string;
 }
 
 export enum UserRole {

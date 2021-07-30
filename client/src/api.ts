@@ -825,6 +825,10 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
+            defaultMentor {
+              _id
+            }
+            activeMentor
           }
           accessToken
         }
@@ -848,6 +852,10 @@ export async function loginGoogle(
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
+            activeMentor
           }
           accessToken
         }
@@ -861,24 +869,20 @@ export async function loginGoogle(
 
 export async function switchMentor(
   accessToken: string,
-  mentorId?: string
+  mentorId: string
 ): Promise<string> {
-  const result = await graphqlRequest.post("", {
-    query: `
-      mutation SwitchMentor($accessToken: String!, $mentorId?: String) {
-        login(activeMentorId: $mentorId) {
-          user {
-            _id
-            name
-            activeMentorId
-          }
-          accessToken
+  return execGql<string>(
+    {
+      query: `
+      mutation SwitchMentor($accessToken: String!, $mentorId: String!) {
+        user {
+          activeMentor: $mentorId
         }
-      }
-    `,
-    variables: { accessToken },
-  });
-  return result.data.data.login.user.activeMentorId;
+        `,
+      variables: { accessToken, mentorId },
+    },
+    { dataPath: ["user", "activeMentor"] }
+  );
 }
 
 export async function fetchUploadTasks(
