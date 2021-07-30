@@ -82,6 +82,11 @@ const useStyles = makeStyles(() => ({
   navButton: {
     top: "calc(50% - 20px) !important",
   },
+  progress: {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+  },
 }));
 
 function SetupPage(props: {
@@ -98,6 +103,7 @@ function SetupPage(props: {
     mentor,
     isLoading,
     isSaving,
+    readyToDisplay,
     isTraining,
     error,
     editMentor,
@@ -189,6 +195,7 @@ function SetupPage(props: {
 
   return (
     <div className={classes.root}>
+      <LoadingDialog title={!readyToDisplay ? "Loading..." : ""} />
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         animation="slide"
