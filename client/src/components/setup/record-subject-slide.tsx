@@ -25,7 +25,7 @@ export function RecordSubjectSlide(props: {
     navigate(
       urlBuild("/record", {
         subject: subject._id,
-        back: encodeURI(urlBuild("/setup", { i: String(i) })),
+        back: urlBuild("/setup", { i: String(i) }),
       })
     );
   }

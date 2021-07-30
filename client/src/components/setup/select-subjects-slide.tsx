@@ -19,7 +19,7 @@ export function SelectSubjectsSlide(props: {
   function onClick() {
     navigate(
       urlBuild("/subjects", {
-        back: encodeURI(urlBuild("/setup", { i: String(i) })),
+        back: urlBuild("/setup", { i: String(i) }),
       })
     );
   }

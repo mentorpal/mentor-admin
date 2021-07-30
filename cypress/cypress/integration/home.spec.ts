@@ -341,7 +341,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=COMPLETE&subject=background&category=&back=%2F%3Fsubject%3D"
+      "?status=COMPLETE&subject=background&back=%2F"
     );
   });
 
@@ -363,7 +363,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F%3Fsubject%3D"
+      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F"
     );
   });
 
@@ -392,10 +392,7 @@ describe("My Mentor Page", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/record")
     );
-    cy.location("search").should(
-      "equal",
-      "?videoId=A1_1_1&back=%2F%3Fsubject%3D"
-    );
+    cy.location("search").should("equal", "?videoId=A1_1_1&back=%2F");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
       cy.get("textarea").should("have.attr", "disabled");

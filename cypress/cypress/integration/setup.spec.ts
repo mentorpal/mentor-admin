@@ -542,7 +542,7 @@ describe("Setup", () => {
     });
   });
 
-  it.only("shows required subject, repeat after me, questions slide", () => {
+  it("shows required subject, repeat after me, questions slide", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       ...baseMock,
