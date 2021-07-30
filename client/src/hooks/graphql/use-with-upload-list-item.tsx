@@ -28,7 +28,7 @@ export function useWithUploadListItem(
     );
   }
 
-  const needsAttention = answer?.attentionNeeded ? true : false;
+  const needsAttention = Boolean(answer?.attentionNeeded);
   function onClose() {
     if (isJobDone()) {
       recordState.removeCompletedTask(upload);
@@ -45,7 +45,7 @@ export function useWithUploadListItem(
     cancelling,
     needsAttention,
     jobTitle: upload.question.question,
-    gqlPollCount: recordState.pollStatusCount,
+    pollStatusCount: recordState.pollStatusCount,
     onClose,
   };
 }
@@ -58,6 +58,6 @@ export interface UseWithUploadListItem {
   cancelling: boolean;
   needsAttention: boolean;
   jobTitle: string;
-  gqlPollCount: number;
+  pollStatusCount: number;
   onClose: () => void;
 }

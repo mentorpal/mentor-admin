@@ -29,7 +29,7 @@ function UploadingListItem(props: {
   const {
     upload,
     jobStatus,
-    gqlPollCount,
+    pollStatusCount,
     cancelling,
     jobTitle,
     isJobFailed,
@@ -61,7 +61,7 @@ function UploadingListItem(props: {
   ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
     "Trimming video"
   ) : jobStatus !== UploadStatus.DONE ? (
-    `Processing${".".repeat(gqlPollCount % 4)}`
+    `Processing${".".repeat(pollStatusCount % 4)}`
   ) : needsAttention ? (
     "Needs Attention"
   ) : (
