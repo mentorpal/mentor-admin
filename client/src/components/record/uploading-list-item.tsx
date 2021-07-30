@@ -29,11 +29,11 @@ function UploadingListItem(props: {
   const {
     upload,
     jobStatus,
-    ellipsesCount,
+    gqlPollCount,
     cancelling,
     jobTitle,
-    jobFailed,
-    jobDone,
+    isJobFailed,
+    isJobDone,
     onClose,
     needsAttention,
   } = props.useWithUploadListItem;
@@ -49,7 +49,7 @@ function UploadingListItem(props: {
   const classes = useStyles();
   const progressTitle = cancelling ? (
     "Cancelling"
-  ) : jobFailed ? (
+  ) : isJobFailed() ? (
     upload.errorMessage || ""
   ) : jobStatus === UploadStatus.PENDING ||
     jobStatus === UploadStatus.UPLOAD_IN_PROGRESS ? (
@@ -61,7 +61,7 @@ function UploadingListItem(props: {
   ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
     "Trimming video"
   ) : jobStatus !== UploadStatus.DONE ? (
-    `Processing${".".repeat(ellipsesCount)}`
+    `Processing${".".repeat(gqlPollCount % 4)}`
   ) : needsAttention ? (
     "Needs Attention"
   ) : (
@@ -74,20 +74,20 @@ function UploadingListItem(props: {
         style={{
           minWidth: 0,
           paddingRight: 15,
-          color: jobFailed
+          color: isJobFailed()
             ? "#ff0000"
             : needsAttention
             ? "#CCCC00"
-            : jobDone
+            : isJobDone()
             ? "green"
             : "black",
         }}
       >
         {needsAttention ? (
           <WarningRounded />
-        ) : jobDone ? (
+        ) : isJobDone() ? (
           <CheckCircle />
-        ) : jobFailed ? (
+        ) : isJobFailed() ? (
           <CancelRounded />
         ) : (
           <PublishRounded />
@@ -111,7 +111,7 @@ function UploadingListItem(props: {
       <ListItemIcon
         style={{
           minWidth: 0,
-          visibility: jobFailed ? "hidden" : "visible",
+          visibility: isJobFailed() ? "hidden" : "visible",
         }}
         data-cy="cancel-upload"
       >

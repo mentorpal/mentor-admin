@@ -175,7 +175,7 @@ export function useWithRecordState(
   function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
     if (
       answer.media &&
-      answer.transcript.length === 0 &&
+      !answer.transcript &&
       answer.question.name !== UtteranceName.IDLE
     ) {
       return AnswerAttentionNeeded.NEEDS_TRANSCRIPT;

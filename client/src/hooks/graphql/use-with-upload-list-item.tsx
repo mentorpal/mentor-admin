@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { AnswerAttentionNeeded } from "types";
 import { UseWithRecordState } from "./use-with-record-state";
 import { UploadStatus, UploadTask } from "./use-with-upload-status";
 
@@ -13,17 +12,25 @@ export function useWithUploadListItem(
   upload: UploadTask
 ): UseWithUploadListItem {
   const jobStatus = upload.uploadStatus;
-  const jobDone = jobStatus == UploadStatus.DONE;
-  const jobFailed =
-    jobStatus === UploadStatus.UPLOAD_FAILED ||
-    jobStatus === UploadStatus.TRANSCRIBE_FAILED;
   const cancelling = upload.isCancelling || false;
   const answer = recordState.answers.find(
     (a) => a.answer.question._id === upload.question._id
   );
-  const needsAttention = answer?.attentionNeeded !== AnswerAttentionNeeded.NONE;
+
+  function isJobDone(): boolean {
+    return jobStatus === UploadStatus.DONE;
+  }
+
+  function isJobFailed(): boolean {
+    return (
+      jobStatus === UploadStatus.UPLOAD_FAILED ||
+      jobStatus === UploadStatus.TRANSCRIBE_FAILED
+    );
+  }
+
+  const needsAttention = answer?.attentionNeeded ? true : false;
   function onClose() {
-    if (jobDone) {
+    if (isJobDone()) {
       recordState.removeCompletedTask(upload);
     } else {
       recordState.cancelUpload(upload);
@@ -33,12 +40,12 @@ export function useWithUploadListItem(
   return {
     upload,
     jobStatus,
-    jobDone,
-    jobFailed,
+    isJobDone,
+    isJobFailed,
     cancelling,
     needsAttention,
     jobTitle: upload.question.question,
-    ellipsesCount: recordState.pollStatusCount % 4,
+    gqlPollCount: recordState.pollStatusCount,
     onClose,
   };
 }
@@ -46,11 +53,11 @@ export function useWithUploadListItem(
 export interface UseWithUploadListItem {
   upload: UploadTask;
   jobStatus: UploadStatus;
-  jobDone: boolean;
-  jobFailed: boolean;
+  isJobDone: () => boolean;
+  isJobFailed: () => boolean;
   cancelling: boolean;
   needsAttention: boolean;
   jobTitle: string;
-  ellipsesCount: number;
+  gqlPollCount: number;
   onClose: () => void;
 }

@@ -121,7 +121,7 @@ export interface Answer {
 }
 
 export enum AnswerAttentionNeeded {
-  NONE = "NONE",
+  NONE = "",
   NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
 }
 
@@ -172,7 +172,7 @@ export enum QuestionType {
 }
 
 export enum UtteranceName {
-  NONE = "NONE",
+  NONE = "",
   IDLE = "_IDLE_",
   INTRO = "_INTRO_",
   OFF_TOPIC = "_OFF_TOPIC_",
