@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { CLIENT_ENDPOINT } from "api";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -50,4 +51,11 @@ export function urlBuild(
   });
   const qs = query.toString();
   return qs ? `${base}?${qs}` : base; // don't put ? if no query string
+}
+
+export function launchMentor(mentorId: string): void {
+  const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
+    mentor: mentorId,
+  });
+  window.location.href = path;
 }

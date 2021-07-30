@@ -30,6 +30,8 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  userRole: UserRole;
+  defaultMentor: Mentor;
 }
 
 export interface UserAccessToken {
@@ -199,6 +201,12 @@ export enum RecordPageState {
   FETCHING_FOLLOW_UPS = "FETCHING_FOLLOW_UPS",
   REVIEWING_FOLLOW_UPS = "REVIEWING_FOLLOW_UPS",
   RELOADING_MENTOR = "RELOADING_MENTOR",
+}
+
+export enum UserRole {
+  ADMIN = "ADMIN",
+  CONTENT_MANAGER = "CONTENT_MANAGER",
+  USER = "USER",
 }
 
 export interface TaskStatus<T> {

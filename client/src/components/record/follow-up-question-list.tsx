@@ -19,7 +19,7 @@ function FollowUpQuestionsWidget(props: {
   mentorId: string;
   addQuestion: (q: NewQuestionArgs) => void;
   removeQuestion: (val: SubjectQuestion) => void;
-  editedData: Subject | undefined;
+  editedData?: Subject;
   toRecordFollowUpQs: (b: boolean) => void;
 }): JSX.Element {
   const [seeAll, setSeeAll] = useState(false);

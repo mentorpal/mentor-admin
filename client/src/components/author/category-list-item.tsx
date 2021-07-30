@@ -25,7 +25,7 @@ import QuestionListItem from "./question-list-item";
 export function CategoryListItem(props: {
   category: Category;
   questions: SubjectQuestion[];
-  selectedQuestion: string | undefined;
+  selectedQuestion?: string;
   removeCategory: (val: Category) => void;
   updateCategory: (newVal: Category) => void;
   updateQuestion: (newVal: SubjectQuestion) => void;

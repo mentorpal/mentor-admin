@@ -9,17 +9,6 @@ import mentor from "../fixtures/mentor/clint_new";
 
 describe("Login", () => {
   describe("redirects to login page if the user is not logged in", () => {
-    it("from profile page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { noAccessTokenStored: true });
-      cy.visit("/profile");
-      cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/");
-      });
-      cy.contains("Please sign in to access the Mentor Studio portal");
-      cy.get("[data-cy=nav-bar]").should("not.exist");
-    });
-
     it("from setup page", () => {
       cySetup(cy);
       cyMockDefault(cy, { noAccessTokenStored: true });

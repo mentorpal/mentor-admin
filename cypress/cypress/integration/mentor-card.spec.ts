@@ -4,33 +4,109 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault } from "../support/functions";
+import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import { Status, QuestionType, UtteranceName } from "../support/types";
+
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
-    it("mentor card contains correct data", () => {
-      cySetup(cy);
-      cyMockDefault(cy, { mentor: clint });
-      cy.visit("/");
-      cy.get("[data-cy=my-mentor-card]").contains("Clinton Anderson");
-      cy.get("[data-cy=my-mentor-card]").contains("Video Mentor");
-      cy.get("[data-cy=my-mentor-card]").contains(
-        "Title: Nuclear Electrician's Mate"
-      );
-      cy.get("[data-cy=my-mentor-card]").contains("Last Trained: Today");
-      cy.get("[data-cy=my-mentor-card]").contains("Scope: Incomplete");
-      cy.get("[data-cy=my-mentor-card]").contains(
-        "This Mentor can't be built yet."
-      );
-      cy.get("[data-cy=stage-progress]").should("exist");
-      cy.get("[data-cy=my-mentor-card]")
-        .find("[data-cy=next-stage-info]")
-        .trigger("mouseover");
-      cy.contains("This Mentor can select questions from a list");
-      cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
-      cy.get("[data-cy=upload-file]").should("exist");
-      cy.get("[data-cy=recommended-action-button]").should("exist");
+    describe("Shows correct mentor info and allows editing.", () => {
+      it("views, saves, and updates profile data", () => {
+        cySetup(cy);
+        cyMockDefault(cy, {
+          mentor: [
+            { ...clint, name: "", firstName: "", title: "" },
+            { ...clint, name: "Clinton Anderson", firstName: "", title: "" },
+            {
+              ...clint,
+              name: "Clinton Anderson",
+              firstName: "Clint",
+              title: "",
+            },
+            {
+              ...clint,
+              name: "Clinton Anderson",
+              firstName: "Clint",
+              title: "Nuclear Electrician's Mate",
+            },
+          ],
+          gqlQueries: [
+            mockGQL("UpdateMentorDetails", {
+              me: { updateMentorDetails: true },
+            }),
+          ],
+        });
+        cy.visit("/");
+
+        cy.get("[data-cy=mentor-name]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+        cy.get("[data-cy=mentor-first-name]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+        cy.get("[data-cy=mentor-job-title]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+        cy.get("[data-cy=save-button]").should("be.disabled");
+
+        // fill out full name and save
+        cy.get("[data-cy=mentor-name]").type("Clinton Anderson");
+        cy.get("[data-cy=save-button]").should("not.be.disabled");
+        cy.get("[data-cy=save-button]").trigger("mouseover").click();
+        cy.get("[data-cy=save-button]").should("be.disabled");
+        cy.get("[data-cy=mentor-name]").within(($input) => {
+          cy.get("input").should("have.value", "Clinton Anderson");
+        });
+        cy.get("[data-cy=mentor-first-name]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+        cy.get("[data-cy=mentor-job-title]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+
+        // fill out first name and save
+        cy.get("[data-cy=mentor-first-name]").type("Clint");
+        cy.get("[data-cy=save-button]").should("not.be.disabled");
+        cy.get("[data-cy=save-button]").trigger("mouseover").click();
+        cy.get("[data-cy=save-button]").should("be.disabled");
+        cy.get("[data-cy=mentor-name]").within(($input) => {
+          cy.get("input").should("have.value", "Clinton Anderson");
+        });
+        cy.get("[data-cy=mentor-first-name]").within(($input) => {
+          cy.get("input").should("have.value", "Clint");
+        });
+        cy.get("[data-cy=mentor-job-title]").within(($input) => {
+          cy.get("input").should("have.value", "");
+        });
+
+        // fill out title and save
+        cy.get("[data-cy=mentor-job-title]").type("Nuclear Electrician's Mate");
+        cy.get("[data-cy=save-button]").should("not.be.disabled");
+        cy.get("[data-cy=save-button]").trigger("mouseover").click();
+        cy.get("[data-cy=save-button]").should("be.disabled");
+        cy.get("[data-cy=mentor-name]").within(($input) => {
+          cy.get("input").should("have.value", "Clinton Anderson");
+        });
+        cy.get("[data-cy=mentor-first-name]").within(($input) => {
+          cy.get("input").should("have.value", "Clint");
+        });
+        cy.get("[data-cy=mentor-job-title]").within(($input) => {
+          cy.get("input").should("have.value", "Nuclear Electrician's Mate");
+        });
+        cy.get("[data-cy=my-mentor-card]").contains("Last Trained: Today");
+        cy.get("[data-cy=my-mentor-card]").contains("Scope: Incomplete");
+        cy.get("[data-cy=my-mentor-card]").contains(
+          "This Mentor can't be built yet."
+        );
+        cy.get("[data-cy=stage-progress]").should("exist");
+        cy.get("[data-cy=my-mentor-card]")
+          .find("[data-cy=next-stage-info]")
+          .trigger("mouseover");
+        cy.contains("This Mentor can select questions from a list");
+        cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
+        cy.get("[data-cy=upload-file]").should("exist");
+        cy.get("[data-cy=recommended-action-button]").should("exist");
+      });
     });
 
     it("shows placeholder when no thumbnail", () => {

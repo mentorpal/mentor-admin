@@ -11,7 +11,7 @@ import { Slide } from "./slide";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
-  mentor: Mentor | undefined;
+  mentor?: Mentor;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
@@ -33,7 +33,7 @@ export function MentorTypeSlide(props: {
             style={{ width: 100, marginRight: 20 }}
             onChange={(
               event: React.ChangeEvent<{
-                name?: string | undefined;
+                name?: string;
                 value: unknown;
               }>
             ) => {

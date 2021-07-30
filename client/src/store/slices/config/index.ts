@@ -16,12 +16,11 @@ export enum ConfigStatus {
 }
 
 export interface ConfigState {
-  config: Config | undefined;
+  config?: Config;
   status: ConfigStatus;
 }
 
 const initialState: ConfigState = {
-  config: undefined,
   status: ConfigStatus.NONE,
 };
 
