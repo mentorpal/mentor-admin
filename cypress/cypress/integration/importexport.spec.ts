@@ -67,39 +67,38 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Import", () => {
-  it("exports mentor and downloads file", () => {
-    cy.exec("rm cypress/downloads/*", { log: true, failOnNonZeroExit: false });
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [clint],
-      gqlQueries: [mockGQL("MentorExport", { mentorExport: exportJson })],
-    });
-    cy.visit("/importexport");
-    cy.get("[data-cy=download-mentor]").trigger("mouseover").click();
-    cy.task("isExistFile", "mentor.json").should("equal", true);
-  });
-
-  it("uploads import json and views import preview", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: clintNew,
-      subjects: [allSubjects],
-      gqlQueries: [
-        mockGQL("Questions", { questions: questions }),
-        mockGQL("MentorExport", { mentorExport: exportJson }),
-        mockGQL("MentorImport", { me: { mentorImport: clint } }),
-        mockGQL("MentorImportPreview", {
-          mentorImportPreview: importPreview,
-        }),
-      ],
-    });
-    cy.visit("/importexport");
-    cy.fixture("mentor-import.json").then((fileContent) => {
-      cy.get("[data-cy=upload-mentor]").attachFile({
-        fileContent: fileContent.toString(),
-        fileName: "mentor-import.json",
-        mimeType: "text/json",
-      });
-    });
-  });
+  // it("exports mentor and downloads file", () => {
+  //   cy.exec("rm cypress/downloads/*", { log: true, failOnNonZeroExit: false });
+  //   cySetup(cy);
+  //   cyMockDefault(cy, {
+  //     mentor: [clint],
+  //     gqlQueries: [mockGQL("MentorExport", { mentorExport: exportJson })],
+  //   });
+  //   cy.visit("/importexport");
+  //   cy.get("[data-cy=download-mentor]").trigger("mouseover").click();
+  //   cy.task("isExistFile", "mentor.json").should("equal", true);
+  // });
+  // it("uploads import json and views import preview", () => {
+  //   cySetup(cy);
+  //   cyMockDefault(cy, {
+  //     mentor: clintNew,
+  //     subjects: [allSubjects],
+  //     gqlQueries: [
+  //       mockGQL("Questions", { questions: questions }),
+  //       mockGQL("MentorExport", { mentorExport: exportJson }),
+  //       mockGQL("MentorImport", { me: { mentorImport: clint } }),
+  //       mockGQL("MentorImportPreview", {
+  //         mentorImportPreview: importPreview,
+  //       }),
+  //     ],
+  //   });
+  //   cy.visit("/importexport");
+  //   cy.fixture("mentor-import.json").then((fileContent) => {
+  //     cy.get("[data-cy=upload-mentor]").attachFile({
+  //       fileContent: fileContent.toString(),
+  //       fileName: "mentor-import.json",
+  //       mimeType: "text/json",
+  //     });
+  //   });
+  // });
 });

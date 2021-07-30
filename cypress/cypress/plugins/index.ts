@@ -26,55 +26,55 @@ const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
 
-const path = require("path");
-const fs = require("fs");
-const downloadDirectory = path.join(__dirname, "..", "downloads");
-const findFile = (filename) => {
-  const FileName = `${downloadDirectory}/${filename}`;
-  const contents = fs.existsSync(FileName);
-  return contents;
-};
-const hasFile = (filename, ms) => {
-  const delay = 10;
-  return new Promise((resolve, reject) => {
-    if (ms < 0) {
-      return reject(
-        new Error(`Could not find ${downloadDirectory}/${filename}`)
-      );
-    }
-    const found = findFile(filename);
-    if (found) {
-      return resolve(true);
-    }
-    setTimeout(() => {
-      hasFile(filename, ms - delay).then(resolve, reject);
-    }, 10);
-  });
-};
+// const path = require("path");
+// const fs = require("fs");
+// const downloadDirectory = path.join(__dirname, "..", "downloads");
+// const findFile = (filename) => {
+//   const FileName = `${downloadDirectory}/${filename}`;
+//   const contents = fs.existsSync(FileName);
+//   return contents;
+// };
+// const hasFile = (filename, ms) => {
+//   const delay = 10;
+//   return new Promise((resolve, reject) => {
+//     if (ms < 0) {
+//       return reject(
+//         new Error(`Could not find ${downloadDirectory}/${filename}`)
+//       );
+//     }
+//     const found = findFile(filename);
+//     if (found) {
+//       return resolve(true);
+//     }
+//     setTimeout(() => {
+//       hasFile(filename, ms - delay).then(resolve, reject);
+//     }, 10);
+//   });
+// };
 
 module.exports = (on, config) => {
   addMatchImageSnapshotPlugin(on, config);
-  require("@cypress/code-coverage/task")(on, config);
-  on("before:browser:launch", (browser, options) => {
-    if (browser.family === "chromium") {
-      options.preferences.default["download"] = {
-        default_directory: downloadDirectory,
-      };
-      return options;
-    }
-    if (browser.family === "firefox") {
-      options.preferences["browser.download.dir"] = downloadDirectory;
-      options.preferences["browser.download.folderList"] = 2;
-      options.preferences["browser.helperApps.neverAsk.saveToDisk"] =
-        "text/csv";
-      return options;
-    }
-  });
-  on("task", {
-    isExistFile(filename, ms = 4000) {
-      console.log(`looking for file in ${downloadDirectory}`, filename, ms);
-      return hasFile(filename, ms);
-    },
-  });
-  return config;
+  // require("@cypress/code-coverage/task")(on, config);
+  // on("before:browser:launch", (browser, options) => {
+  //   if (browser.family === "chromium") {
+  //     options.preferences.default["download"] = {
+  //       default_directory: downloadDirectory,
+  //     };
+  //     return options;
+  //   }
+  //   if (browser.family === "firefox") {
+  //     options.preferences["browser.download.dir"] = downloadDirectory;
+  //     options.preferences["browser.download.folderList"] = 2;
+  //     options.preferences["browser.helperApps.neverAsk.saveToDisk"] =
+  //       "text/csv";
+  //     return options;
+  //   }
+  // });
+  // on("task", {
+  //   isExistFile(filename, ms = 4000) {
+  //     console.log(`looking for file in ${downloadDirectory}`, filename, ms);
+  //     return hasFile(filename, ms);
+  //   },
+  // });
+  // return config;
 };
