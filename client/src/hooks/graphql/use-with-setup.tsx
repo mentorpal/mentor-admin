@@ -103,7 +103,7 @@ export function useWithSetup(
   } = useWithTraining();
   const config = useWithConfig();
 
-  function isConfigLoaded(): boolean{
+  function isConfigLoaded(): boolean {
     return config.state.status === ConfigStatus.SUCCEEDED;
   }
   useEffect(() => {
