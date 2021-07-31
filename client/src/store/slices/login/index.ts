@@ -25,7 +25,6 @@ export interface LoginState {
 }
 
 const initialState: LoginState = {
-  accessToken: undefined,
   loginStatus: LoginStatus.NONE,
 };
 
@@ -71,15 +70,15 @@ export const loginSlice = createSlice({
   initialState,
   reducers: {
     onLogout: (state) => {
-      state.user = undefined;
-      state.accessToken = undefined;
+      delete state.user;
+      delete state.accessToken;
       state.loginStatus = LoginStatus.NOT_LOGGED_IN;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
-        state.user = undefined;
+        delete state.user;
         state.loginStatus = LoginStatus.IN_PROGRESS;
       })
       .addCase(login.fulfilled, (state, action) => {
@@ -88,11 +87,11 @@ export const loginSlice = createSlice({
         state.loginStatus = LoginStatus.AUTHENTICATED;
       })
       .addCase(login.rejected, (state) => {
-        state.user = undefined;
+        delete state.user;
         state.loginStatus = LoginStatus.FAILED;
       })
       .addCase(googleLogin.pending, (state) => {
-        state.user = undefined;
+        delete state.user;
         state.loginStatus = LoginStatus.IN_PROGRESS;
       })
       .addCase(googleLogin.fulfilled, (state, action) => {
@@ -101,7 +100,7 @@ export const loginSlice = createSlice({
         state.loginStatus = LoginStatus.AUTHENTICATED;
       })
       .addCase(googleLogin.rejected, (state) => {
-        state.user = undefined;
+        delete state.user;
         state.loginStatus = LoginStatus.FAILED;
       });
   },

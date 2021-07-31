@@ -7,7 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
-import { Category, QuestionType, Subject, SubjectQuestion, Topic } from "types";
+import {
+  Category,
+  QuestionType,
+  Subject,
+  SubjectQuestion,
+  Topic,
+  UtteranceName,
+} from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
 
@@ -178,7 +185,7 @@ export function useWithSubject(
             question: q?.question || "",
             paraphrases: [],
             type: QuestionType.QUESTION,
-            name: "",
+            name: UtteranceName.NONE,
             mentor: q?.mentorId || undefined,
           },
           category: q?.categoryId

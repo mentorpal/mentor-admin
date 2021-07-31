@@ -9,6 +9,7 @@ import React from "react";
 import { Typography, Button } from "@material-ui/core";
 import { Status, Subject, Answer } from "types";
 import { Slide } from "./slide";
+import { urlBuild } from "helpers";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
@@ -22,7 +23,10 @@ export function RecordSubjectSlide(props: {
 
   function onRecord() {
     navigate(
-      `/record?subject=${subject._id}&back=${encodeURI(`/setup?i=${i}`)}`
+      urlBuild("/record", {
+        subject: subject._id,
+        back: urlBuild("/setup", { i: String(i) }),
+      })
     );
   }
 
