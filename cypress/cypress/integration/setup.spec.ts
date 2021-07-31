@@ -538,7 +538,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D5"
+      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D6"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -595,7 +595,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=repeat_after_me&back=%2Fsetup%3Fi%3D6"
+      "?subject=repeat_after_me&back=%2Fsetup%3Fi%3D7"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
