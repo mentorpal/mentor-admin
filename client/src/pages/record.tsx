@@ -28,7 +28,13 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { MentorType, Status, UtteranceName, RecordPageState } from "types";
+import {
+  MentorType,
+  Status,
+  UtteranceName,
+  RecordPageState,
+  AnswerAttentionNeeded,
+} from "types";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import VideoPlayer from "components/record/video-player";
@@ -124,6 +130,8 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor =
     curAnswer?.editedAnswer.question?.mentor === mentor?._id;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
+  const warnEmptyTranscript =
+    curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function onBack() {
     if (props.search.back) {
@@ -295,7 +303,16 @@ function RecordPage(props: {
           ) : (
             <div data-cy="transcript" className={classes.block}>
               <Typography className={classes.title}>
-                Answer Transcript:
+                Answer Transcript:{" "}
+                {warnEmptyTranscript ? (
+                  <text
+                    data-cy="warn-empty-transcript"
+                    style={{ fontWeight: "normal" }}
+                  >
+                    No video transcript available. Would you like to manually
+                    enter a transcript?
+                  </text>
+                ) : undefined}
               </Typography>
               <FormControl className={classes.inputField} variant="outlined">
                 <OutlinedInput

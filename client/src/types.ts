@@ -90,7 +90,7 @@ export interface Question {
   _id: string;
   question: string;
   type: QuestionType;
-  name: string;
+  name: UtteranceName;
   paraphrases: string[];
   mentor?: string;
   mentorType?: string;
@@ -118,6 +118,11 @@ export interface Answer {
   transcript: string;
   status: Status;
   media?: Media[];
+}
+
+export enum AnswerAttentionNeeded {
+  NONE = "",
+  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
 }
 
 export interface UserQuestion {
@@ -167,6 +172,7 @@ export enum QuestionType {
 }
 
 export enum UtteranceName {
+  NONE = "",
   IDLE = "_IDLE_",
   INTRO = "_INTRO_",
   OFF_TOPIC = "_OFF_TOPIC_",
