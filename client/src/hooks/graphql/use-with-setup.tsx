@@ -17,6 +17,8 @@ import {
 import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "./use-with-mentor";
 import { LoadingError } from "./loading-reducer";
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import { ConfigStatus } from "store/slices/config";
 
 export enum SetupStepType {
   WELCOME,
@@ -24,6 +26,7 @@ export enum SetupStepType {
   MENTOR_TYPE,
   INTRODUCTION,
   SELECT_SUBJECTS,
+  IDLE_TIPS,
   IDLE,
   REQUIRED_SUBJECT,
   BUILD,
@@ -55,11 +58,13 @@ interface UseWithSetup {
   setupStatus?: SetupStatus;
   setupStep: number;
   setupSteps: SetupStep[];
+  idleTipsVideoUrl: string;
   mentor?: Mentor;
   isEdited: boolean;
   isLoading: boolean;
   isSaving: boolean;
   isTraining: boolean;
+  readyToDisplay: boolean;
   error?: LoadingError;
   editMentor: (d: Partial<Mentor>) => void;
   saveMentor: () => void;
@@ -96,9 +101,13 @@ export function useWithSetup(
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
+  const config = useWithConfig();
 
+  function isConfigLoaded(): boolean {
+    return config.state.status === ConfigStatus.SUCCEEDED;
+  }
   useEffect(() => {
-    if (!mentor || isMentorSaving || isMentorLoading) {
+    if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
       return;
     }
     const isMentorInfoDone = Boolean(
@@ -152,6 +161,7 @@ export function useWithSetup(
       { type: SetupStepType.INTRODUCTION, complete: true },
     ];
     if (idle) {
+      status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
       status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
     requiredSubjects.forEach((s) => {
@@ -162,7 +172,7 @@ export function useWithSetup(
     });
     status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
     setSteps(status);
-  }, [mentor]);
+  }, [mentor, config.state.config]);
 
   useEffect(() => {
     if (mentorError) {
@@ -249,11 +259,13 @@ export function useWithSetup(
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    idleTipsVideoUrl: config.state.config?.urlVideoIdleTips || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
     isTraining,
+    readyToDisplay: isConfigLoaded(),
     error,
     editMentor,
     saveMentor: saveMentorDetails,

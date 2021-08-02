@@ -203,11 +203,12 @@ export async function fetchConfig(): Promise<Config> {
   return execGql<Config>(
     {
       query: `
-    query FetchConfig{
-      config {
-        googleClientId
+      query FetchConfig{
+        config {
+          googleClientId
+          urlVideoIdleTips
+        }
       }
-    }
   `,
     },
     { dataPath: "config" }

@@ -21,6 +21,7 @@ import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
 import { RecordIdleSlide } from "components/setup/record-idle-slide";
+import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { BuildMentorSlide } from "components/setup/build-mentor-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -81,6 +82,11 @@ const useStyles = makeStyles(() => ({
   navButton: {
     top: "calc(50% - 20px) !important",
   },
+  progress: {
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+  },
 }));
 
 function SetupPage(props: {
@@ -93,9 +99,11 @@ function SetupPage(props: {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    idleTipsVideoUrl,
     mentor,
     isLoading,
     isSaving,
+    readyToDisplay,
     isTraining,
     error,
     editMentor,
@@ -141,6 +149,13 @@ function SetupPage(props: {
         return <IntroductionSlide key="introduction" classes={classes} />;
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
+      case SetupStepType.IDLE_TIPS:
+        return (
+          <IdleTipsSlide
+            classes={classes}
+            idleTipsVideoUrl={idleTipsVideoUrl}
+          />
+        );
       case SetupStepType.IDLE:
         return (
           <RecordIdleSlide
@@ -180,6 +195,7 @@ function SetupPage(props: {
 
   return (
     <div className={classes.root}>
+      <LoadingDialog title={!readyToDisplay ? "Loading..." : ""} />
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         animation="slide"
