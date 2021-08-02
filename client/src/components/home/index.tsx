@@ -13,6 +13,7 @@ import {
   ListItem,
   MenuItem,
   Select,
+  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
@@ -26,6 +27,8 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import { User } from "types";
 import { launchMentor } from "helpers";
+import { useState } from "react";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -86,6 +89,8 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
+  const { switchMentor } = useWithLogin();
+  const [mentorId, setMentorId] = useState(props.user.activeMentor);
 
   if (!mentor) {
     return (
@@ -137,6 +142,18 @@ function HomePage(props: {
             </MenuItem>
           ))}
         </Select>
+        <TextField
+          data-cy="switch-mentor-id"
+          label="Full Name"
+          value={mentorId}
+          onChange={(e) => setMentorId(e.target.value)}
+        />
+        <Fab
+          data-cy="switch-mentor-button"
+          onClick={() => switchMentor(mentorId)}
+        >
+          Switch Mentor
+        </Fab>
       </div>
       <List
         data-cy="recording-blocks"

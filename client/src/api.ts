@@ -523,6 +523,7 @@ export async function updateUserQuestion(
 
 export async function fetchMentor(
   accessToken: string,
+  mentorId: string,
   subject?: string,
   topic?: string,
   status?: string
@@ -530,8 +531,7 @@ export async function fetchMentor(
   return execGql<Mentor>(
     {
       query: `
-      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
-        me {
+      query Mentor($mentor: ID! $subject: ID!, $topic: ID!, $status: String!) {
           mentor {
             _id
             name
@@ -611,15 +611,15 @@ export async function fetchMentor(
             }
           }  
         }
-      }
     `,
       variables: {
+        mentorId: mentorId,
         subject: subject || "",
         topic: topic || "",
         status: status || "",
       },
     },
-    { dataPath: ["me", "mentor"], accessToken }
+    { dataPath: ["mentor"], accessToken }
   );
 }
 

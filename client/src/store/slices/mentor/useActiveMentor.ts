@@ -28,7 +28,7 @@ export const useActiveMentor = (): UseActiveMentor => {
     if (mentorState.data) {
       return;
     }
-    if (loginState.accessToken) {
+    if (loginState.accessToken && loginState.user) {
       loadMentor();
     }
   }, [loginState]);
@@ -38,13 +38,18 @@ export const useActiveMentor = (): UseActiveMentor => {
       mentorState.mentorStatus === mentorActions.MentorStatus.NONE ||
       mentorState.mentorStatus === mentorActions.MentorStatus.FAILED
     ) {
-      if (!loginState.accessToken) {
+      if (loginState.accessToken && loginState.user) {
+        dispatch(
+          mentorActions.loadMentor({
+            accessToken: loginState.accessToken,
+            mentorId: loginState.user.activeMentor,
+          })
+        );
+      } else {
         dispatch({
           type: mentorActions.MentorStatus.FAILED,
           payload: "Cannot load mentor if unauthenticated.",
         });
-      } else {
-        dispatch(mentorActions.loadMentor(loginState.accessToken));
       }
     }
   };

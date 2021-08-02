@@ -14,6 +14,7 @@ interface UseWithLogin {
   login: (accessToken: string) => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
+  switchMentor: (mentorId: string) => void;
 }
 
 export function useWithLogin(): UseWithLogin {
@@ -58,10 +59,22 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
+  function switchMentor(mentorId: string) {
+    if (
+      state.loginStatus === loginActions.LoginStatus.AUTHENTICATED &&
+      state.accessToken
+    ) {
+      dispatch(
+        loginActions.switchMentor({ accessToken: state.accessToken, mentorId })
+      );
+    }
+  }
+
   return {
     state,
     login,
     loginWithGoogle,
     logout,
+    switchMentor,
   };
 }

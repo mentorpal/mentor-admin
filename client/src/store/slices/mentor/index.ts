@@ -35,8 +35,11 @@ const initialState: MentorState = {
 
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
-  async (accessToken: string): Promise<Mentor> => {
-    return api.fetchMentor(accessToken);
+  async (headers: {
+    accessToken: string;
+    mentorId: string;
+  }): Promise<Mentor> => {
+    return api.fetchMentor(headers.accessToken, headers.mentorId);
   }
 );
 

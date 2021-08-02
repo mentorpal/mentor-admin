@@ -117,11 +117,24 @@ export const loginSlice = createSlice({
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
       })
-      .addCase(switchMentor.pending, (state) => {})
-      .addCase(switchMentor.fulfilled, (state, action) => {
-        //state.user.activeMentor = action.payload.activeMentor;
+      .addCase(switchMentor.pending, (state) => {
+        if (state.user) {
+          state.user.activeMentor = state.user.defaultMentor._id;
+          state.loginStatus = LoginStatus.IN_PROGRESS;
+        } else state.loginStatus = LoginStatus.FAILED;
       })
-      .addCase(switchMentor.rejected, (state) => {});
+      .addCase(switchMentor.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.activeMentor = String(action.payload);
+          state.loginStatus = LoginStatus.AUTHENTICATED;
+        } else state.loginStatus = LoginStatus.FAILED;
+      })
+      .addCase(switchMentor.rejected, (state) => {
+        if (state.user) {
+          state.user.activeMentor = state.user.defaultMentor._id;
+        }
+        state.loginStatus = LoginStatus.FAILED;
+      });
   },
 });
 
