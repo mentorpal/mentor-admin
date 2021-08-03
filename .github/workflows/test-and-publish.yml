@@ -48,14 +48,14 @@ jobs:
           git commit -m "gha, adding new snapshots"
           git push
       - name: If Cypress failed, retrieve image diffs
-        run: make test-e2e-image-snapshots-copy && mkdir -p client/cypress/snapshots/snapshot_failed_diffs
+        run: make test-e2e-image-snapshots-copy && mkdir -p cypress/cypress/snapshots/snapshot_failed_diffs
         if: ${{ failure() }}
       - name: If Cypress failed, upload image-diff artifacts
         uses: actions/upload-artifact@v1
         if: ${{ failure() }}
         with:
           name: snapshot_failed_diffs
-          path: client/cypress/snapshots
+          path: cypress/cypress/snapshots
   publish-check:
     name: publish check
     needs:
@@ -97,4 +97,3 @@ jobs:
         run: docker tag "uscictdocker/mentor-admin:${{ steps.tag.outputs.image_tag }}" "uscictdocker/mentor-admin:latest"
       - name: Docker push
         run: docker push --all-tags uscictdocker/mentor-admin
-        
