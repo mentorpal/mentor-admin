@@ -55,7 +55,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: snapshot_failed_diffs
-          path: cypress/cypress/snapshots/**/__dif_output__/
+          path: cypress/cypress/snapshots/**/__diff_output__/
   publish-check:
     name: publish check
     needs:
