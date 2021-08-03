@@ -5,6 +5,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
+import { equals } from "helpers";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
@@ -103,9 +104,6 @@ export const mentorSlice = createSlice({
     updateMentor: (state, action: PayloadAction<Mentor>) => {
       state.data = action.payload;
     },
-    setStatus: (state, action: PayloadAction<MentorStatus>) => {
-      state.mentorStatus = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -155,6 +153,6 @@ export const mentorSlice = createSlice({
   },
 });
 
-export const { clearError, updateMentor, setStatus } = mentorSlice.actions;
+export const { clearError, updateMentor } = mentorSlice.actions;
 
 export default mentorSlice.reducer;
