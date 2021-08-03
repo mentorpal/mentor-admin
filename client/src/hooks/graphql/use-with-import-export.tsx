@@ -14,45 +14,56 @@ import {
   Subject,
 } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { copyAndRemove, copyAndSet } from "helpers";
 
 export interface UseWithImportExport {
   mentor: Mentor | undefined;
   importedJson: MentorExportJson | undefined;
   importPreview: MentorImportPreview | undefined;
-  exportMentor: () => void;
-  importMentor: (file: File) => void;
-  confirmImport: () => void;
-  cancelImport: () => void;
-  mapSubject: (curSubject: Subject, newSubject: Subject) => void;
-  mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  onMentorExported: () => void;
+  onImportUploaded: (file: File) => void;
+  onConfirmImport: () => void;
+  onCancelImport: () => void;
+  onMapSubject: (curSubject: Subject, newSubject: Subject) => void;
+  onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
 
 export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
+  const [isUpdating, setIsUpdating] = useState(false);
   const { mentorState } = useActiveMentor();
   const mentor = mentorState.data;
 
-  function exportMentor() {
-    if (!mentor) {
+  function onMentorExported(): void {
+    if (!mentor || isUpdating) {
       return;
     }
-    api.exportMentor(mentor._id).then((m) => {
-      const element = document.createElement("a");
-      element.setAttribute(
-        "href",
-        "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(m))
-      );
-      element.setAttribute("download", "mentor.json");
-      element.style.display = "none";
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    });
+    setIsUpdating(true);
+    api
+      .exportMentor(mentor._id)
+      .then((m) => {
+        const element = document.createElement("a");
+        element.setAttribute(
+          "href",
+          "data:text/json;charset=utf-8," +
+            encodeURIComponent(JSON.stringify(m))
+        );
+        element.setAttribute("download", "mentor.json");
+        element.style.display = "none";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+        setIsUpdating(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsUpdating(false);
+      });
   }
 
-  function importMentor(file: File) {
-    if (!mentor) {
+  function onImportUploaded(file: File): void {
+    if (!mentor || isUpdating) {
       return;
     }
     const reader = new FileReader();
@@ -65,93 +76,130 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     reader.readAsText(file);
   }
 
-  function updateImport(json: MentorExportJson) {
-    if (!mentor) {
+  async function updateImport(json: MentorExportJson) {
+    if (!mentor || isUpdating) {
       return;
     }
+    setIsUpdating(true);
+    const preview = await api.importMentorPreview(mentor._id, json);
     setImportJson(json);
-    api.importMentorPreview(mentor._id, json).then((p) => {
-      console.log(JSON.stringify(p, null, " "));
-      setImportPreview(p);
-    });
+    setImportPreview(preview);
+    setIsUpdating(false);
   }
 
-  function confirmImport() {
-    if (!importedJson || !mentor) {
+  function onConfirmImport(): void {
+    if (!importedJson || !mentor || isUpdating) {
       return;
     }
+    setIsUpdating(true);
     api.importMentor(mentor._id, importedJson, accessToken).then(() => {
       setImportJson(undefined);
       setImportPreview(undefined);
+      setIsUpdating(true);
     });
   }
 
-  function cancelImport() {
+  function onCancelImport(): void {
+    if (isUpdating) {
+      return;
+    }
     setImportJson(undefined);
     setImportPreview(undefined);
   }
 
-  function mapSubject(subject: Subject, replacement: Subject) {
-    if (!importedJson || !importPreview || !mentor) {
+  function onMapSubject(subject: Subject, replacement: Subject): void {
+    if (!importedJson || !importPreview || !mentor || isUpdating) {
       return;
     }
-    const json = { ...importedJson };
+    let subjects = importedJson.subjects;
     // if the replacement subject is already referenced elsewhere in the import, remove it so we don't include it twice
-    const rIdx = json.subjects.findIndex((s) => s._id === replacement._id);
-    ~rIdx && json.subjects.splice(rIdx, 1);
+    const rIdx = subjects.findIndex((s) => s._id === replacement._id);
+    if (rIdx !== -1) {
+      subjects = copyAndRemove(subjects, rIdx);
+    }
     // find and replace the "new" subject in import with the replacement subject
-    // is there a case where we want to some changes from import instead of over-writing with replacement?
-    const idx = json.subjects.findIndex((s) => s._id === subject._id);
-    ~idx && json.subjects.splice(idx, 1, replacement);
+    const idx = subjects.findIndex((s) => s._id === subject._id);
+    if (idx !== -1) {
+      subjects = copyAndSet(subjects, idx, replacement);
+    }
     // TODO: if the subject that was replaced had some questions that were overwritten by the replacement
     // we might need to remap them in imported questions and answers list
-    updateImport(json);
+    updateImport({
+      ...importedJson,
+      subjects,
+    });
   }
 
-  function mapQuestion(question: Question, replacement: Question) {
-    if (!importedJson || !importPreview || !mentor) {
+  function onMapQuestion(question: Question, replacement: Question): void {
+    if (!importedJson || !importPreview || !mentor || isUpdating) {
       return;
     }
-    const json = { ...importedJson };
+    let questions = importedJson.questions;
+    let subjects = importedJson.subjects;
+    let answers = importedJson.answers;
     // if the replacement question is already referenced elsewhere in the import, remove it so we don't include it twice
-    let rIdx = json.questions.findIndex((q) => q._id === replacement._id);
-    ~rIdx && json.questions.splice(rIdx, 1);
+    let rIdx = questions.findIndex((q) => q._id === replacement._id);
+    if (rIdx !== -1) {
+      questions = copyAndRemove(questions, rIdx);
+    }
     // find and replace the "new" question in import with the replacement question
-    // is there a case where we want to some changes from import instead of over-writing with replacement?
-    let idx = json.questions.findIndex((q) => q._id === question._id);
-    ~idx && json.questions.splice(idx, 1, replacement);
+    let idx = questions.findIndex((q) => q._id === question._id);
+    if (idx === -1) {
+      questions = copyAndSet(questions, idx, replacement);
+    }
     // replace the question in subjects that use it
-    for (const s of json.subjects) {
+    for (const e of subjects.entries()) {
+      const i = e[0];
+      let s = e[1];
       rIdx = s.questions.findIndex((q) => q.question._id === replacement._id);
-      ~rIdx && s.questions.splice(rIdx, 1);
+      if (rIdx === -1) {
+        s = {
+          ...s,
+          questions: copyAndRemove(s.questions, rIdx),
+        };
+        subjects = copyAndSet(subjects, i, s);
+      }
       idx = s.questions.findIndex((q) => q.question._id === question._id);
-      ~idx &&
-        s.questions.splice(idx, 1, {
-          ...s.questions[idx],
-          question: replacement,
-        });
+      if (idx !== -1) {
+        s = {
+          ...s,
+          questions: copyAndSet(s.questions, idx, {
+            ...s.questions[idx],
+            question: replacement,
+          }),
+        };
+        subjects = copyAndSet(subjects, i, s);
+      }
     }
     // replace the question in answers that use it
-    rIdx = json.answers.findIndex((a) => a.question._id === replacement._id);
-    ~rIdx && json.answers.splice(rIdx, 1);
-    idx = json.answers.findIndex((a) => a.question._id === question._id);
-    ~idx &&
-      json.answers.splice(idx, 1, {
-        ...json.answers[idx],
+    rIdx = answers.findIndex((a) => a.question._id === replacement._id);
+    if (rIdx === -1) {
+      answers = copyAndRemove(answers, rIdx);
+    }
+    idx = answers.findIndex((a) => a.question._id === question._id);
+    if (idx === -1) {
+      answers = copyAndSet(answers, idx, {
+        ...answers[idx],
         question: replacement,
       });
-    updateImport(json);
+    }
+    updateImport({
+      ...importedJson,
+      subjects,
+      questions,
+      answers,
+    });
   }
 
   return {
     mentor,
     importedJson,
     importPreview,
-    exportMentor,
-    importMentor,
-    confirmImport,
-    cancelImport,
-    mapSubject,
-    mapQuestion,
+    onMentorExported,
+    onImportUploaded,
+    onConfirmImport,
+    onCancelImport,
+    onMapSubject,
+    onMapQuestion,
   };
 }

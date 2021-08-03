@@ -48,15 +48,15 @@ export default function ImportView(props: {
   const {
     importedJson,
     importPreview,
-    cancelImport,
-    confirmImport,
-    mapSubject,
-    mapQuestion,
+    onCancelImport: cancelImport,
+    onConfirmImport: confirmImport,
+    onMapSubject: mapSubject,
+    onMapQuestion: mapQuestion,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
   const { data: questions } = useWithQuestions();
 
-  if (importedJson === undefined || importPreview === undefined) {
+  if (!importedJson || !importPreview) {
     return <div />;
   }
 

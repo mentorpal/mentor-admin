@@ -63,7 +63,7 @@ export default function SubjectImport(props: {
   const { preview, subjects, mapSubject } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
 
-  if (subject === undefined && curSubject === undefined) {
+  if (!subject && !curSubject) {
     return <div />;
   }
 

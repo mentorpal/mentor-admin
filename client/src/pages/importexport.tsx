@@ -37,7 +37,7 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
           data-cy="download-mentor"
           color="primary"
           variant="contained"
-          onClick={useImportExport.exportMentor}
+          onClick={useImportExport.onMentorExported}
           style={{ marginRight: 10 }}
         >
           Export
@@ -51,7 +51,7 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             hidden
             onChange={(e) => {
               e.target.files instanceof FileList
-                ? useImportExport.importMentor(e.target.files[0])
+                ? useImportExport.onImportUploaded(e.target.files[0])
                 : undefined;
             }}
           />
