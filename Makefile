@@ -88,7 +88,7 @@ test-e2e-build:
 
 .PHONY: test-e2e-exec
 test-e2e-exec:
-	$(TEST_E2E_DOCKER_COMPOSE) exec -T cypress npx cypress run --env updateSnapshots=true
+	$(TEST_E2E_DOCKER_COMPOSE) exec -T cypress npx cypress run
 
 .PHONY: test-e2e-image-snapshots-clean
 test-e2e-image-snapshots-clean:
