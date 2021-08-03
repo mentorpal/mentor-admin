@@ -46,7 +46,7 @@ export default function AnswerImport(props: {
   const transcript = answer?.transcript || curAnswer?.transcript || "";
 
   return (
-    <Card className={classes.root}>
+    <Card data-cy="answer" className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <div style={{ marginRight: 10, width: "100%" }}>

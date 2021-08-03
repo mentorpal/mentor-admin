@@ -31,15 +31,32 @@ export function ChangeIcon<T>(props: {
 
   if (editType === EditType.CREATED) {
     return (
-      <NewReleasesIcon className={classes.icon} style={{ color: "green" }} />
+      <NewReleasesIcon
+        data-cy="new-icon"
+        className={classes.icon}
+        style={{ color: "green" }}
+      />
     );
   } else if (editType === EditType.ADDED) {
-    return <AddIcon className={classes.icon} style={{ color: "green" }} />;
+    return (
+      <AddIcon
+        data-cy="add-icon"
+        className={classes.icon}
+        style={{ color: "green" }}
+      />
+    );
   } else if (editType === EditType.REMOVED) {
-    return <RemoveIcon className={classes.icon} style={{ color: "red" }} />;
+    return (
+      <RemoveIcon
+        data-cy="remove-icon"
+        className={classes.icon}
+        style={{ color: "red" }}
+      />
+    );
   } else {
     return (
       <ChangeHistoryIcon
+        data-cy="change-icon"
         className={classes.icon}
         style={{
           color: "orange",

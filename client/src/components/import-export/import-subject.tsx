@@ -131,7 +131,7 @@ export default function SubjectImport(props: {
     });
 
   return (
-    <Card className={classes.root}>
+    <Card data-cy="subject" className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <div style={{ marginRight: 10 }}>

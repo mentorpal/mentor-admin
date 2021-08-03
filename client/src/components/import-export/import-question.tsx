@@ -46,7 +46,7 @@ export default function QuestionImport(props: {
   const { editType, importData: question, curData: curQuestion } = preview;
 
   return (
-    <Card className={classes.root}>
+    <Card data-cy="question" className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <Typography align="left" variant="body1" style={{ marginRight: 10 }}>

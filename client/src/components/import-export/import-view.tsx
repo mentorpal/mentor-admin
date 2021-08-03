@@ -127,7 +127,7 @@ export default function ImportView(props: {
         </List>
         <p />
         <List
-          data-cy="answer"
+          data-cy="answers"
           className={classes.list}
           subheader={<ListSubheader>My Answers</ListSubheader>}
         >
