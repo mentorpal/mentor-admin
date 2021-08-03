@@ -36,7 +36,6 @@ jobs:
       - name: Copy generated snapshots
         run: make test-e2e-image-snapshots-clean && make test-e2e-image-snapshots-copy
         if: ${{ success() }}
-        #TODO: moved the id to below name, shouldn't cause issues, but keep in mind
       - name: Check for new generated snapshots
         id: set-has-new-snapshots
         run: if [[ $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots -A) ]]; then echo ::set-output name=has_new_snapshots::true; else echo ::set-output name=has_new_snapshots::false; fi
