@@ -1,0 +1,130 @@
+{
+  "subjects": [
+    {
+      "_id": "repeat_after_me",
+      "name": "Repeat After Me",
+      "description": "These are miscellaneous phrases you'll be asked to repeat.",
+      "categories": [
+        {
+          "id": "c",
+          "name": "Category",
+          "description": "A category"
+        },
+        {
+          "id": "nc",
+          "name": "New Category",
+          "description": "A new category added to the subject"
+        }
+      ],
+      "topics": [
+        {
+          "id": "t",
+          "name": "Topic",
+          "description": "A topic"
+        },
+        {
+          "id": "nt",
+          "name": "New Topic",
+          "description": "A new topic added to the subject"
+        }
+      ],
+      "questions": [
+        {
+          "question": {
+            "_id": "q1",
+            "question": "Question 1"
+          }
+        },
+        {
+          "question": {
+            "_id": "q2",
+            "question": "Edited Question 2"
+          }
+        },
+        {
+          "question": {
+            "_id": "qn",
+            "question": "A new question being created"
+          }
+        }
+      ]
+    },
+    {
+      "_id": "new_subject",
+      "name": "New subject",
+      "description": "A new subject",
+      "categories": [],
+      "questions": [
+        {
+          "question": {
+            "_id": "q4",
+            "question": "Added Question 4"
+          }
+        }
+      ]
+    },
+    {
+      "_id": "leadership",
+      "name": "Leadership",
+      "description": "These questions will ask about being in a leadership role.",
+      "categories": [],
+      "topics": [],
+      "questions": [
+        {
+          "question": {
+            "_id": "q4",
+            "question": "Added Question 4"
+          }
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "_id": "q1",
+      "question": "Question 1"
+    },
+    {
+      "_id": "q2",
+      "question": "Edited Question 2"
+    },
+    {
+      "_id": "q3",
+      "question": "Question 3"
+    },
+    {
+      "_id": "qn",
+      "question": "A new question being created"
+    },
+    {
+      "_id": "q4",
+      "question": "Added Question 4"
+    }
+  ],
+  "answers": [
+    {
+      "transcript": "Answer 1",
+      "status": "COMPLETE",
+      "question": {
+        "_id": "q1",
+        "question": "Question 1"
+      }
+    },
+    {
+      "transcript": "Edited Answer 2",
+      "status": "COMPLETE",
+      "question": {
+        "_id": "q2",
+        "question": "Edited Question 2"
+      }
+    },
+    {
+      "transcript": "A new answer",
+      "status": "COMPLETE",
+      "question": {
+        "_id": "qn",
+        "question": "A new question being created"
+      }
+    }
+  ]
+}

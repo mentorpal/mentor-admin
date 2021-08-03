@@ -237,3 +237,35 @@ export interface VideoInfo {
   video: File;
   transcript: string;
 }
+
+export enum LoginStatus {
+  NONE = 0,
+  IN_PROGRESS = 1,
+  AUTHENTICATED = 2,
+  FAILED = 3,
+}
+
+export interface MentorExportJson {
+  subjects: Subject[];
+  questions: Question[];
+  answers: Answer[];
+}
+
+export enum EditType {
+  NONE = "NONE",
+  ADDED = "ADDED",
+  REMOVED = "REMOVED",
+  CREATED = "CREATED",
+}
+
+export interface ImportPreview<T> {
+  importData: T | undefined;
+  curData: T | undefined;
+  editType: EditType;
+}
+
+export interface MentorImportPreview {
+  subjects: ImportPreview<Subject>[];
+  questions: ImportPreview<Question>[];
+  answers: ImportPreview<Answer>[];
+}

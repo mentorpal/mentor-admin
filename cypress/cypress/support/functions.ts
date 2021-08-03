@@ -102,7 +102,6 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
         let body = val;
-
         req.alias = mock.query;
         req.reply(
           staticResponse({

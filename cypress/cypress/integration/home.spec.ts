@@ -11,7 +11,7 @@ import {
   cyMockTrainStatus,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import { JobState, Status, QuestionType } from "../support/types";
+import { JobState, Status } from "../support/types";
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
@@ -160,6 +160,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=answer-0]").first().should("exist");
     cy.get("[data-cy=answer-0]").first().should("be.visible");
   });
+
   it("dropdown should expand when question is added", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });

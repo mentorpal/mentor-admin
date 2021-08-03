@@ -27,6 +27,8 @@ import {
   FollowUpQuestion,
   User,
   Config,
+  MentorExportJson,
+  MentorImportPreview,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
@@ -237,6 +239,38 @@ export async function fetchSubjects(
               name
               description
               isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
             }
           }
           pageInfo {
@@ -397,6 +431,55 @@ export async function updateSubject(
       },
     },
     { dataPath: ["me", "updateSubject"], accessToken }
+  );
+}
+
+export async function fetchQuestions(
+  searchParams?: SearchParams
+): Promise<Connection<Question>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return execGql<Connection<Question>>(
+    {
+      query: `
+        query Questions($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+          questions(
+            filter:$filter,
+            cursor:$cursor,
+            limit:$limit,
+            sortBy:$sortBy,
+            sortAscending:$sortAscending
+          ) {
+            edges {
+              cursor
+              node {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "questions" }
   );
 }
 
@@ -750,6 +833,7 @@ export async function uploadThumbnail(
   });
   return getDataFromAxiosResponse(result, []);
 }
+
 export async function fetchThumbnail(accessToken: string): Promise<string> {
   return execGql<string>(
     {
@@ -766,6 +850,7 @@ export async function fetchThumbnail(accessToken: string): Promise<string> {
     { accessToken, dataPath: ["me", "thumbnail"] }
   );
 }
+
 export async function uploadVideo(
   mentorId: string,
   video: File,
@@ -905,5 +990,255 @@ export async function deleteUploadTask(
       variables: { questionId: question },
     },
     { accessToken, dataPath: ["me", "uploadTaskDelete"] }
+  );
+}
+
+export async function exportMentor(mentor: string): Promise<MentorExportJson> {
+  return execGql<MentorExportJson>(
+    {
+      query: `
+        query MentorExport($mentor: ID!) {
+          mentorExport(mentor: $mentor) {
+            subjects {
+              _id
+              name
+              description
+              isRequired
+              topics {
+                id
+                name
+                description
+              }
+              categories {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+            questions {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength
+            }
+            answers {
+              transcript
+              status
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+            }
+          }
+        }
+      `,
+      variables: { mentor },
+    },
+    { dataPath: ["mentorExport"] }
+  );
+}
+
+export async function importMentorPreview(
+  mentor: string,
+  json: MentorExportJson
+): Promise<MentorImportPreview> {
+  return execGql<MentorImportPreview>(
+    {
+      query: `
+        query MentorImportPreview($mentor: ID!, $json: MentorImportJsonType!) {
+          mentorImportPreview(mentor: $mentor, json: $json) {
+            subjects {
+              editType
+              importData {
+                _id
+                name
+                description
+                isRequired
+                topics {
+                  id
+                  name
+                  description
+                }
+                categories {
+                  id
+                  name
+                  description
+                }
+                questions {
+                  question {
+                    _id
+                    question
+                    type
+                    name
+                    paraphrases
+                    mentor
+                    mentorType
+                    minVideoLength
+                  }
+                  category {
+                    id
+                    name
+                    description
+                  }
+                  topics {
+                    id
+                    name
+                    description
+                  }
+                }
+              }
+              curData {
+                _id
+                name
+                description
+                isRequired
+                topics {
+                  id
+                  name
+                  description
+                }
+                categories {
+                  id
+                  name
+                  description
+                }
+                questions {
+                  question {
+                    _id
+                    question
+                    type
+                    name
+                    paraphrases
+                    mentor
+                    mentorType
+                    minVideoLength
+                  }
+                  category {
+                    id
+                    name
+                    description
+                  }
+                  topics {
+                    id
+                    name
+                    description
+                  }
+                }
+              }
+            }
+            questions {
+              editType
+              importData {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength  
+              }
+              curData {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength  
+              }
+            }
+            answers {
+              editType
+              importData {
+                transcript
+                status
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }  
+              }
+              curData {
+                transcript
+                status
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }  
+              }
+            }
+          }
+        }
+      `,
+      variables: { mentor, json },
+    },
+    { dataPath: ["mentorImportPreview"] }
+  );
+}
+
+export async function importMentor(
+  mentor: string,
+  json: MentorExportJson,
+  accessToken: string
+): Promise<Mentor> {
+  return execGql<Mentor>(
+    {
+      query: `
+        mutation MentorImport($mentor: ID!, $json: MentorImportJsonType!) {
+          me {
+            mentorImport(mentor: $mentor, json: $json) {
+              _id
+            }
+          }
+        }
+      `,
+      variables: { mentor, json },
+    },
+    { accessToken, dataPath: ["me", "mentorImport"] }
   );
 }
