@@ -64,6 +64,7 @@ export default function AnswerImport(props: {
           size="small"
           aria-expanded={isExpanded}
           onClick={() => setIsExpanded(!isExpanded)}
+          style={{ position: "absolute", right: 20 }}
         >
           <ExpandMoreIcon
             style={{

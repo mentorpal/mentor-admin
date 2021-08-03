@@ -52,7 +52,10 @@ export default function QuestionImport(props: {
         <Typography align="left" variant="body1" style={{ marginRight: 10 }}>
           {question?.question || curQuestion?.question}
         </Typography>
-        <div className={classes.row}>
+        <div
+          className={classes.row}
+          style={{ position: "absolute", right: 20 }}
+        >
           {editType === EditType.CREATED ? (
             <Autocomplete
               data-cy="question-input"

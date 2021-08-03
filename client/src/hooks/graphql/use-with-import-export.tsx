@@ -134,61 +134,40 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     if (!importedJson || !importPreview || !mentor || isUpdating) {
       return;
     }
-    let questions = importedJson.questions;
-    let subjects = importedJson.subjects;
-    let answers = importedJson.answers;
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
     // if the replacement question is already referenced elsewhere in the import, remove it so we don't include it twice
-    let rIdx = questions.findIndex((q) => q._id === replacement._id);
-    if (rIdx !== -1) {
-      questions = copyAndRemove(questions, rIdx);
-    }
+    let rIdx = json.questions.findIndex((q) => q._id === replacement._id);
+    ~rIdx && json.questions.splice(rIdx, 1);
     // find and replace the "new" question in import with the replacement question
-    let idx = questions.findIndex((q) => q._id === question._id);
-    if (idx === -1) {
-      questions = copyAndSet(questions, idx, replacement);
-    }
+    // is there a case where we want to some changes from import instead of over-writing with replacement?
+    let idx = json.questions.findIndex((q) => q._id === question._id);
+    ~idx && json.questions.splice(idx, 1, replacement);
     // replace the question in subjects that use it
-    for (const e of subjects.entries()) {
-      const i = e[0];
-      let s = e[1];
+    for (const s of json.subjects) {
       rIdx = s.questions.findIndex((q) => q.question._id === replacement._id);
-      if (rIdx === -1) {
-        s = {
-          ...s,
-          questions: copyAndRemove(s.questions, rIdx),
-        };
-        subjects = copyAndSet(subjects, i, s);
-      }
+      ~rIdx && s.questions.splice(rIdx, 1);
       idx = s.questions.findIndex((q) => q.question._id === question._id);
-      if (idx !== -1) {
-        s = {
-          ...s,
-          questions: copyAndSet(s.questions, idx, {
-            ...s.questions[idx],
-            question: replacement,
-          }),
-        };
-        subjects = copyAndSet(subjects, i, s);
-      }
+      ~idx &&
+        s.questions.splice(idx, 1, {
+          ...s.questions[idx],
+          question: replacement,
+        });
     }
     // replace the question in answers that use it
-    rIdx = answers.findIndex((a) => a.question._id === replacement._id);
-    if (rIdx === -1) {
-      answers = copyAndRemove(answers, rIdx);
-    }
-    idx = answers.findIndex((a) => a.question._id === question._id);
-    if (idx === -1) {
-      answers = copyAndSet(answers, idx, {
-        ...answers[idx],
+    rIdx = json.answers.findIndex((a) => a.question._id === replacement._id);
+    ~rIdx && json.answers.splice(rIdx, 1);
+    idx = json.answers.findIndex((a) => a.question._id === question._id);
+    ~idx &&
+      json.answers.splice(idx, 1, {
+        ...json.answers[idx],
         question: replacement,
       });
-    }
-    updateImport({
-      ...importedJson,
-      subjects,
-      questions,
-      answers,
-    });
+    updateImport(json);
   }
 
   return {
