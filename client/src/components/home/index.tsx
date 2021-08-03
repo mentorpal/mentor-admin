@@ -89,8 +89,8 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
-  const { switchMentor } = useWithLogin();
-  const [mentorId, setMentorId] = useState(props.user.activeMentor);
+
+  const [mentorId, setMentorId] = useState("");
 
   if (!mentor) {
     return (
@@ -150,7 +150,9 @@ function HomePage(props: {
         />
         <Fab
           data-cy="switch-mentor-button"
-          onClick={() => switchMentor(mentorId)}
+          onClick={() => {
+            undefined;
+          }}
         >
           Switch Mentor
         </Fab>

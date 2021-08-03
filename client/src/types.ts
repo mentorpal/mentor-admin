@@ -32,7 +32,6 @@ export interface User {
   email: string;
   userRole: UserRole;
   defaultMentor: Mentor;
-  activeMentor: string;
 }
 
 export interface UserAccessToken {

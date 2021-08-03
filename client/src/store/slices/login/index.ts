@@ -56,20 +56,6 @@ export const login = createAsyncThunk(
   }
 );
 
-export const switchMentor = createAsyncThunk(
-  "login/switchMentor",
-  async (headers: {
-    accessToken: string;
-    mentorId: string;
-  }): Promise<string | unknown> => {
-    try {
-      return await api.switchMentor(headers.accessToken, headers.mentorId);
-    } catch (err) {
-      return err.response.data;
-    }
-  }
-);
-
 export const logout =
   () =>
   (dispatch: (arg0: { payload: undefined; type: string }) => void): void => {
@@ -115,24 +101,6 @@ export const loginSlice = createSlice({
       })
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;
-        state.loginStatus = LoginStatus.FAILED;
-      })
-      .addCase(switchMentor.pending, (state) => {
-        if (state.user) {
-          state.user.activeMentor = state.user.defaultMentor._id;
-          state.loginStatus = LoginStatus.IN_PROGRESS;
-        } else state.loginStatus = LoginStatus.FAILED;
-      })
-      .addCase(switchMentor.fulfilled, (state, action) => {
-        if (state.user) {
-          state.user.activeMentor = String(action.payload);
-          state.loginStatus = LoginStatus.AUTHENTICATED;
-        } else state.loginStatus = LoginStatus.FAILED;
-      })
-      .addCase(switchMentor.rejected, (state) => {
-        if (state.user) {
-          state.user.activeMentor = state.user.defaultMentor._id;
-        }
         state.loginStatus = LoginStatus.FAILED;
       });
   },

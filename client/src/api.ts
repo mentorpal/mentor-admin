@@ -523,6 +523,107 @@ export async function updateUserQuestion(
 
 export async function fetchMentor(
   accessToken: string,
+  subject?: string,
+  topic?: string,
+  status?: string
+): Promise<Mentor> {
+  return execGql<Mentor>(
+    {
+      query: `
+      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
+          me {
+            mentor {
+            _id
+            name
+            firstName
+            title
+            email
+            allowContact
+            mentorType
+            thumbnail
+            lastTrainedAt
+            isDirty
+            defaultSubject {
+              _id
+            }
+            subjects {
+              _id
+              name
+              description
+              isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+            topics(subject: $subject) {
+              id
+              name
+              description
+            }
+            answers(subject: $subject, topic: $topic, status: $status) {
+              _id
+              question {
+                _id
+                question
+                paraphrases
+                type
+                name
+                mentor
+                mentorType
+                minVideoLength
+              }
+              transcript
+              status
+              media {
+                type
+                tag
+                url
+              }
+            }
+          }  
+        }
+      }
+    `,
+      variables: {
+        subject: subject || "",
+        topic: topic || "",
+        status: status || "",
+      },
+    },
+    { dataPath: ["mentor"], accessToken }
+  );
+}
+export async function fetchMentorById(
+  accessToken: string,
   mentorId: string,
   subject?: string,
   topic?: string,
@@ -613,7 +714,7 @@ export async function fetchMentor(
         }
     `,
       variables: {
-        mentorId: mentorId,
+        mentor: mentorId,
         subject: subject || "",
         topic: topic || "",
         status: status || "",
@@ -864,24 +965,6 @@ export async function loginGoogle(
       variables: { accessToken },
     },
     { dataPath: "loginGoogle" }
-  );
-}
-
-export async function switchMentor(
-  accessToken: string,
-  mentorId: string
-): Promise<string> {
-  return execGql<string>(
-    {
-      query: `
-      mutation SwitchMentor($accessToken: String!, $mentorId: String!) {
-        user {
-          activeMentor: $mentorId
-        }
-        `,
-      variables: { accessToken, mentorId },
-    },
-    { dataPath: ["user", "activeMentor"] }
   );
 }
 
