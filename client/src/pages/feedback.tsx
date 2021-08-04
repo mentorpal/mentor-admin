@@ -214,13 +214,13 @@ function FeedbackItem(props: {
   );
 }
 
-function FeedbackPage(props: { accessToken: string }): JSX.Element {
+function FeedbackPage(): JSX.Element {
   const classes = useStyles();
   const {
     data: mentor,
     error: mentorError,
     isLoading: isMentorLoading,
-  } = useWithMentor(props.accessToken);
+  } = useWithMentor();
   const {
     data: feedback,
     isLoading: isFeedbackLoading,

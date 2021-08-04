@@ -95,13 +95,13 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
   );
 }
 
-function SubjectsPage(props: { accessToken: string }): JSX.Element {
+function SubjectsPage(): JSX.Element {
   const classes = useStyles();
   const {
     data: mentor,
     isLoading: isMentorLoading,
     error: mentorError,
-  } = useWithMentor(props.accessToken);
+  } = useWithMentor();
   const {
     data: subjects,
     error: subjectsError,

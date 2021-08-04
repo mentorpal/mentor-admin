@@ -75,9 +75,7 @@ function SubjectPage(props: {
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
 
-  const { data: mentor, isLoading: isMentorLoading } = useWithMentor(
-    props.accessToken
-  );
+  const { data: mentor, isLoading: isMentorLoading } = useWithMentor();
   const {
     editedData: editedSubject,
     error: subjectError,

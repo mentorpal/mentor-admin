@@ -109,7 +109,7 @@ function SetupPage(props: {
     editMentor,
     startTraining,
     toStep,
-  } = useWithSetup(props.accessToken, props.search);
+  } = useWithSetup(props.search);
 
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
