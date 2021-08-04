@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -119,7 +119,7 @@ function RecordPage(props: {
     recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
-  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
+  const [followUpQs, setFollowUpQs] = useState<string[]>([]);
   const curSubject = mentor?.subjects.find(
     (s) => s._id == props.search.subject
   );
@@ -132,6 +132,26 @@ function RecordPage(props: {
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+  useEffect(() => {
+    if (!mentor) return;
+    if (
+      !recordState.isMentorLoading && followUpQs.length > 0
+    ) {
+      //if mentor reloaded and there are follow up q's, then
+      if (followUpQs.length > 0) {
+        let questionIds: string[] = recordState.allAnswers.filter((a) => followUpQs.includes(a.question.question))
+          .map((a) => a.question._id);
+        recordState.editAnswerFilter({videoId: questionIds, status: "INCOMPLETE"});
+        setFollowUpQs([]);
+        setRecordPageState(RecordPageState.RECORDING_FOLLOW_UPS);
+      }
+    }
+  }, [recordState.allAnswers.length]);
+
+  function handleLoadFollowupQs() {
+    setRecordPageState(RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS);
+    saveSubject().then(() => recordState.reloadDataForFollowups());
+  }
 
   function onBack() {
     if (props.search.back) {
@@ -167,10 +187,6 @@ function RecordPage(props: {
     confirmLeave.callback();
     setConfirmLeave(undefined);
   }
-  function handleSaveSubject() {
-    setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    saveSubject().then(() => recordState.reloadMentorData());
-  }
 
   if (!mentor || !curAnswer) {
     return (
@@ -192,7 +208,7 @@ function RecordPage(props: {
 
   const displayRecordingPage = !(
     recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
-    recordPageState === RecordPageState.RELOADING_MENTOR
+    recordPageState === RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS
   );
   return (
     <div className={classes.root}>
@@ -380,7 +396,7 @@ function RecordPage(props: {
               categoryId={props.search.category || ""}
               questions={recordState.followUpQuestions}
               mentorId={mentor._id || ""}
-              toRecordFollowUpQs={setRecordFollowUpQs}
+              setFollowUpQs={setFollowUpQs}
               addQuestion={addQuestion}
               removeQuestion={removeQuestion}
               editedData={editedData}
@@ -428,14 +444,16 @@ function RecordPage(props: {
                 <ArrowForwardIcon fontSize="large" />
               </IconButton>
             )
-          ) : toRecordFollowUpQs ? (
+          ) : followUpQs.length > 0 ? (
             <Button
               data-cy="record-follow-up-qs-btn"
               variant="contained"
               color="primary"
               disableElevation
-              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
-              onClick={() => handleSaveSubject()}
+              disabled={
+                recordPageState === RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS
+              }
+              onClick={() => handleLoadFollowupQs()}
               className={classes.nextBtn}
             >
               Record

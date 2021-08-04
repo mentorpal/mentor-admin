@@ -22,6 +22,7 @@ import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { MentorStatus } from "store/slices/mentor";
+import { navigate } from "gatsby";
 
 export interface AnswerState {
   answer: Answer;
@@ -38,16 +39,19 @@ export interface CurAnswerState extends AnswerState {
   videoSrc?: string;
 }
 
+export interface AnswerFilters {
+  videoId?: string[] | string;
+  subject?: string;
+  status?: string;
+  category?: string;
+  poll?: string;
+}
+
 export function useWithRecordState(
   accessToken: string,
-  filter: {
-    videoId?: string[] | string;
-    subject?: string;
-    status?: string;
-    category?: string;
-    poll?: string;
-  }
+  filter: AnswerFilters
 ): UseWithRecordState {
+  const [allAnswers, setAllAnswers] = useState<Answer[]>([]);
   const [answers, setAnswers] = useState<AnswerState[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -55,11 +59,11 @@ export function useWithRecordState(
   const [recordPageState, setRecordPageState] = useState<RecordPageState>(
     RecordPageState.INITIALIZING
   );
+  const [answerFilters, setAnswerFilters] = useState<AnswerFilters>(filter);
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const pollingInterval = parseInt(filter.poll || "");
-  const { mentorState, loadMentor } = useActiveMentor();
-
+  const pollingInterval = parseInt(answerFilters.poll || "");
+  const { mentorState, reloadMentor } = useActiveMentor();
   const {
     uploads,
     isUploading,
@@ -82,8 +86,9 @@ export function useWithRecordState(
     if (!mentor) {
       return;
     }
-    const { videoId, subject, category, status } = filter;
+    const { videoId, subject, category, status } = answerFilters;
     let answers = mentor.answers;
+    setAllAnswers(answers);
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       answers = answers.filter((a) => ids.includes(a.question._id));
@@ -114,8 +119,10 @@ export function useWithRecordState(
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
-    setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-  }, [mentor]);
+    if(answers.length === 0){
+      navigate("/");
+    }
+  }, [mentor, answerFilters.videoId]);
 
   useEffect(() => {
     setIsRecording(false);
@@ -127,29 +134,21 @@ export function useWithRecordState(
     }
   }, [mentorError]);
 
-  useEffect(() => {
-    if (!mentor) return;
-    if (
-      recordPageState === RecordPageState.RELOADING_MENTOR &&
-      !isMentorLoading
-    ) {
-      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length) {
-        nextAnswer();
-      }
-    }
-  }, [isMentorLoading]);
+  function editAnswerFilter(edits: Partial<AnswerFilters>) {
+    setAnswerIdx(0);
+    setAnswerFilters({...answerFilters, ...edits});
+  }
 
   function fetchFollowUpQs() {
     if (!mentor) return;
-    if (!filter.category) {
+    if (!answerFilters.category) {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
-    fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      const followUps = data
+    fetchFollowUpQuestions(answerFilters.category, accessToken).then((data) => {
+      let followUps = data
         ? data.map((d) => {
             return d.question;
           })
@@ -248,9 +247,8 @@ export function useWithRecordState(
     return false;
   }
 
-  function reloadMentorData() {
-    setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    loadMentor();
+  function reloadDataForFollowups() {
+    reloadMentor();
   }
 
   function prevAnswer() {
@@ -374,6 +372,8 @@ export function useWithRecordState(
 
   return {
     mentor,
+    allAnswers,
+    isMentorLoading,
     answers,
     answerIdx,
     recordPageState,
@@ -401,8 +401,9 @@ export function useWithRecordState(
     saveAnswer,
     removeCompletedTask,
     fetchFollowUpQs,
+    editAnswerFilter,
     rerecord,
-    reloadMentorData,
+    reloadDataForFollowups,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -418,6 +419,8 @@ export function useWithRecordState(
 
 export interface UseWithRecordState {
   mentor?: Mentor;
+  allAnswers: Answer[];
+  isMentorLoading: boolean;
   answers: AnswerState[];
   answerIdx: number;
   recordPageState: RecordPageState;
@@ -426,8 +429,9 @@ export interface UseWithRecordState {
   pollStatusCount: number;
   followUpQuestions: string[];
   fetchFollowUpQs: () => void;
+  editAnswerFilter: (edits: Partial<AnswerFilters>) => void;
   prevAnswer: () => void;
-  reloadMentorData: () => void;
+  reloadDataForFollowups: () => void;
   nextAnswer: () => void;
   setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;

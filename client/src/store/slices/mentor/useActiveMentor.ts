@@ -14,6 +14,7 @@ import * as mentorActions from ".";
 interface UseActiveMentor {
   mentorState: mentorActions.MentorState;
   loadMentor: () => void;
+  reloadMentor: () => void;
   saveMentor: () => void;
   saveMentorSubjects: (editedData: Mentor) => void;
   editMentor: (edits: Partial<Mentor>) => void;
@@ -48,6 +49,17 @@ export const useActiveMentor = (): UseActiveMentor => {
       }
     }
   };
+
+  const reloadMentor = () =>{
+    if (!loginState.accessToken) {
+      dispatch({
+        type: mentorActions.MentorStatus.FAILED,
+        payload: "Cannot reload mentor if unauthenticated.",
+      });
+    } else{
+      dispatch(mentorActions.loadMentor(loginState.accessToken));
+    }
+  }
 
   const saveMentor = () => {
     if (
@@ -84,6 +96,7 @@ export const useActiveMentor = (): UseActiveMentor => {
   return {
     mentorState,
     loadMentor,
+    reloadMentor,
     saveMentor,
     saveMentorSubjects,
     editMentor,

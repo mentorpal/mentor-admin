@@ -20,29 +20,19 @@ function FollowUpQuestionsWidget(props: {
   addQuestion: (q: NewQuestionArgs) => void;
   removeQuestion: (val: SubjectQuestion) => void;
   editedData?: Subject;
-  toRecordFollowUpQs: (b: boolean) => void;
+  setFollowUpQs: (qs: string[]) => void;
 }): JSX.Element {
   const [seeAll, setSeeAll] = useState(false);
   const [questionList, setQuestionList] = useState<question[]>([]);
   const {
     questions,
     categoryId,
-    toRecordFollowUpQs,
+    setFollowUpQs,
     addQuestion,
     removeQuestion,
     editedData,
     mentorId,
   } = props;
-
-  useEffect(() => {
-    for (let i = 0; i < questionList.length; i++) {
-      if (questionList[i].checked) {
-        toRecordFollowUpQs(true);
-        return;
-      }
-    }
-    toRecordFollowUpQs(false);
-  }, [questionList]);
 
   interface question {
     question: string;
@@ -69,12 +59,12 @@ function FollowUpQuestionsWidget(props: {
         removeQuestion(questionObject);
       }
     }
-    setQuestionList(
-      copyAndSet(questionList, i, {
-        question: question,
-        checked: newCheckValue,
-      })
-    );
+    const newQuestionList = copyAndSet(questionList, i, {
+      question: question,
+      checked: newCheckValue,
+    })
+    setQuestionList(newQuestionList);
+    setFollowUpQs(newQuestionList.filter((q) => q.checked).map((q) => q.question));
   }
 
   if (questionList.length !== questions.length) {
@@ -101,7 +91,7 @@ function FollowUpQuestionsWidget(props: {
       </div>
       <List
         style={{
-          maxHeight: seeAll ? "450px" : "160px",
+          maxHeight: seeAll ? "100%" : "450px",
           overflow: "scroll",
           overflowX: "hidden",
         }}
@@ -125,14 +115,16 @@ function FollowUpQuestionsWidget(props: {
           );
         })}
       </List>
-      <Button
-        onClick={() => {
-          !seeAll ? setSeeAll(true) : setSeeAll(false);
-        }}
-        style={{ textTransform: "none" }}
-      >
-        {!seeAll ? "See All" : "See Less"}
-      </Button>
+      {questionList.length >= 6 ? (
+        <Button
+          onClick={() => {
+            !seeAll ? setSeeAll(true) : setSeeAll(false);
+          }}
+          style={{ textTransform: "none" }}
+        >
+          {!seeAll ? "See All" : "See Less"}
+        </Button>
+      ) : undefined}
     </Card>
   );
 }
