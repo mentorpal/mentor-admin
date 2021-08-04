@@ -32,6 +32,12 @@ export const useActiveMentor = (): UseActiveMentor => {
   }, [loginState]);
 
   const loadMentor = () => {
+    if (
+      mentorState.mentorStatus == mentorActions.MentorStatus.LOADING ||
+      mentorState.mentorStatus == mentorActions.MentorStatus.SAVING
+    ) {
+      return;
+    }
     if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
