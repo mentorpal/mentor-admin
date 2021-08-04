@@ -105,7 +105,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
       return;
     }
-    console.log(`n=${mentor.name} fn=${mentor.firstName} t=${mentor.title}`);
     const isMentorInfoDone = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
