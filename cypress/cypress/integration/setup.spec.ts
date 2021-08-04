@@ -512,7 +512,7 @@ describe("Setup", () => {
     });
   });
 
-  it.only("video mentor shows idle slide", () => {
+  it("video mentor shows idle slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup3, setup3, setup4, setup4],
@@ -604,10 +604,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
+    cy.get("[data-cy=transcript-input]").should("not.exist");
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
