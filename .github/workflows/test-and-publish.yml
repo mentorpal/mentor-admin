@@ -48,14 +48,16 @@ jobs:
           git commit -m "gha, adding new snapshots"
           git push
       - name: If Cypress failed, retrieve image diffs
-        run: make test-e2e-image-snapshots-clean && make test-e2e-image-snapshots-copy
+        run: make test-e2e-image-snapshots-clean && make test-e2e-image-snapshots-copy && sync
         if: ${{ failure() }}
       - name: If Cypress failed, upload image-diff artifacts
         uses: actions/upload-artifact@v1
         if: ${{ failure() }}
         with:
           name: snapshot_failed_diffs
-          path: cypress/cypress/snapshots/
+          path: |
+          cypress/cypress/snapshots/
+          !cypress/cypress/snapshots/**/*.snap.png
   publish-check:
     name: publish check
     needs:
