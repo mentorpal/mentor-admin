@@ -63,7 +63,7 @@ export const saveMentorSubjects = createAsyncThunk(
   }): Promise<Mentor | unknown> => {
     try {
       await api.updateMentorSubjects(headers.editedData, headers.accessToken);
-      return headers.editedData;
+      return await api.fetchMentor(headers.accessToken); // might have added answers so need to reload them
     } catch (err) {
       return err.response.data;
     }

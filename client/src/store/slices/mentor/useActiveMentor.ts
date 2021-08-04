@@ -16,6 +16,7 @@ interface UseActiveMentor {
   saveMentor: () => void;
   saveMentorSubjects: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
+  clearError: () => void;
 }
 
 export const useActiveMentor = (): UseActiveMentor => {
@@ -95,11 +96,16 @@ export const useActiveMentor = (): UseActiveMentor => {
     dispatch(mentorActions.mentorSlice.actions.editMentor(edits));
   };
 
+  const clearError = () => {
+    dispatch(mentorActions.mentorSlice.actions.clearError());
+  };
+
   return {
     mentorState,
     loadMentor,
     saveMentor,
     saveMentorSubjects,
     editMentor,
+    clearError,
   };
 };

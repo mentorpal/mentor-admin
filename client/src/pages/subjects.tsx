@@ -90,7 +90,6 @@ const columns: ColumnDef[] = [
 ];
 
 function SubjectsPage(props: {
-  accessToken: string;
   search: {
     back?: string;
   };
@@ -104,7 +103,7 @@ function SubjectsPage(props: {
     error: mentorError,
     editData: editMentor,
     saveMentorSubjects,
-  } = useWithMentor(props.accessToken);
+  } = useWithMentor();
   const {
     data: subjects,
     isLoading: isSubjectsLoading,

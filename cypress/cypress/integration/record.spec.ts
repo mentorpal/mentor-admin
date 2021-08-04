@@ -2269,7 +2269,19 @@ describe("Record", () => {
         );
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Trimming video");
+        .should("have.text", "Processing");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Trimming");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Transcribing");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Uploading");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Upload Failed");
     });
     cy.get("[data-cy=upload-card-1]").should("exist");
     cy.get("[data-cy=upload-card-1]").within(($within) => {

@@ -68,6 +68,28 @@ function UploadingListItem(props: {
     "Tap to preview"
   );
 
+  let status = "";
+  if (cancelling) {
+    status = "Cancelling";
+  } else if (
+    jobStatus === UploadStatus.PENDING ||
+    jobStatus === UploadStatus.POLLING
+  ) {
+    status = "Processing";
+  } else if (jobStatus === UploadStatus.TRIM_IN_PROGRESS) {
+    status = "Trimming";
+  } else if (jobStatus === UploadStatus.TRANSCRIBE_IN_PROGRESS) {
+    status = "Transcribing";
+  } else if (jobStatus === UploadStatus.UPLOAD_IN_PROGRESS) {
+    status = "Uploading";
+  } else if (jobStatus === UploadStatus.TRANSCRIBE_FAILED) {
+    status = "Transcribe Failed";
+  } else if (jobStatus === UploadStatus.UPLOAD_FAILED) {
+    status = "Upload Failed";
+  } else if (jobStatus === UploadStatus.DONE) {
+    status = "Tap to preview";
+  }
+
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
       <ListItemIcon

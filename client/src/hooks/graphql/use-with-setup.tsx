@@ -75,10 +75,7 @@ interface UseWithSetup {
   clearError: () => void;
 }
 
-export function useWithSetup(
-  accessToken: string,
-  search?: { i?: string }
-): UseWithSetup {
+export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
@@ -93,7 +90,7 @@ export function useWithSetup(
     editData: editMentor,
     reloadData: reloadMentor,
     saveMentorDetails,
-  } = useWithMentor(accessToken);
+  } = useWithMentor();
   const {
     isPolling: isTraining,
     error: trainError,

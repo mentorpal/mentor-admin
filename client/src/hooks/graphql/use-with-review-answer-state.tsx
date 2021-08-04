@@ -44,20 +44,19 @@ export function useWithReviewAnswerState(
   accessToken: string,
   search: { subject?: string }
 ): UseWithReviewAnswerState {
+  const [saveError, setSaveError] = useState<LoadingError>();
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(
     search.subject
   );
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [error, setError] = useState<LoadingError>();
   const {
     mentorState,
     editMentor,
-    loadMentor: reloadMentor,
     saveMentor,
+    clearError: clearMentorError,
   } = useActiveMentor();
-  const mentorError = mentorState.error;
   const mentor = mentorState.data;
   const editedMentor = mentorState.editedData;
   const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
@@ -175,18 +174,11 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }, [editedMentor, selectedSubject]);
 
-  useEffect(() => {
-    if (mentorError) {
-      setError(mentorError);
-    }
-  }, [mentorError]);
-
-  useEffect(() => {
-    if (trainError) {
-      setError(trainError);
-      clearTrainingError(); //here
-    }
-  }, [trainError]);
+  function clearError() {
+    clearMentorError();
+    clearTrainingError();
+    setSaveError(undefined);
+  }
 
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
@@ -318,12 +310,11 @@ export function useWithReviewAnswerState(
     )
       .then(() => {
         saveMentor();
-        reloadMentor();
         setIsSaving(false);
       })
       .catch((err) => {
         console.error(err);
-        setError({ message: "Failed to save", error: err.message });
+        setSaveError({ message: "Failed to save", error: err.message });
         setIsSaving(false);
       });
   }
@@ -337,8 +328,8 @@ export function useWithReviewAnswerState(
     isLoading: isMentorLoading,
     isSaving,
     isTraining,
-    error,
-    clearError: () => setError(undefined),
+    error: mentorState.error || trainError || saveError,
+    clearError,
     selectSubject,
     saveChanges,
     startTraining,
