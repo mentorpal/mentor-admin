@@ -157,7 +157,7 @@ function VideoRecorder({ classes, height, width, recordState }) {
         data-cy="instruction"
         style={{
           textAlign: "center",
-          visibility: isCameraOn ? "visible" : "hidden",
+          visibility: isCameraOn ? "inherit" : "hidden",
         }}
       >
         Please get into position by facing forward and lining up with the

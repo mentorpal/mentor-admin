@@ -115,8 +115,13 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor, setRecordPageState, recordPageState } =
-    recordState;
+  const {
+    curAnswer,
+    mentor,
+    setRecordPageState,
+    recordPageState,
+    reloadMentorData,
+  } = recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
@@ -134,6 +139,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function onBack() {
+    reloadMentorData();
     if (props.search.back) {
       navigate(decodeURI(props.search.back));
     } else {
