@@ -146,6 +146,8 @@ export const mentor: Mentor = {
         type: QuestionType.UTTERANCE,
         name: UtteranceName.IDLE,
         paraphrases: [],
+        mentorType: MentorType.VIDEO,
+        minVideoLength: 10,
       },
       transcript: "",
       status: Status.INCOMPLETE,
