@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { equals } from "helpers";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
@@ -15,7 +14,7 @@ interface UseActiveMentor {
   mentorState: mentorActions.MentorState;
   loadMentor: () => void;
   saveMentor: () => void;
-  saveMentorSubjects: (editedData: Mentor) => void;
+  saveMentorSubjects: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
 }
 
@@ -25,36 +24,36 @@ export const useActiveMentor = (): UseActiveMentor => {
   const loginState = useAppSelector((state) => state.login);
 
   useEffect(() => {
-    if (mentorState.data) {
+    if (mentorState.data || !loginState.accessToken) {
       return;
     }
-    if (loginState.accessToken) {
-      loadMentor();
-    }
+    loadMentor();
   }, [loginState]);
 
   const loadMentor = () => {
-    if (
-      mentorState.mentorStatus === mentorActions.MentorStatus.NONE ||
-      mentorState.mentorStatus === mentorActions.MentorStatus.FAILED
-    ) {
-      if (!loginState.accessToken) {
-        dispatch({
-          type: mentorActions.MentorStatus.FAILED,
-          payload: "Cannot load mentor if unauthenticated.",
-        });
-      } else {
-        dispatch(mentorActions.loadMentor(loginState.accessToken));
-      }
+    if (!loginState.accessToken) {
+      dispatch({
+        type: mentorActions.MentorStatus.FAILED,
+        payload: "Cannot load mentor if unauthenticated.",
+      });
+    } else {
+      dispatch(mentorActions.loadMentor(loginState.accessToken));
     }
   };
 
   const saveMentor = () => {
     if (
-      loginState.accessToken &&
-      mentorState.editedData &&
-      !equals(mentorState.data, mentorState.editedData)
+      mentorState.mentorStatus === mentorActions.MentorStatus.LOADING ||
+      mentorState.mentorStatus === mentorActions.MentorStatus.SAVING
     ) {
+      return;
+    }
+    if (!loginState.accessToken) {
+      dispatch({
+        type: mentorActions.MentorStatus.FAILED,
+        payload: "Cannot save mentor if unauthenticated.",
+      });
+    } else if (mentorState.editedData && mentorState.isEdited) {
       dispatch(
         mentorActions.saveMentor({
           accessToken: loginState.accessToken,
@@ -65,7 +64,18 @@ export const useActiveMentor = (): UseActiveMentor => {
   };
 
   const saveMentorSubjects = () => {
-    if (loginState.accessToken && mentorState.editedData) {
+    if (
+      mentorState.mentorStatus === mentorActions.MentorStatus.LOADING ||
+      mentorState.mentorStatus === mentorActions.MentorStatus.SAVING
+    ) {
+      return;
+    }
+    if (!loginState.accessToken) {
+      dispatch({
+        type: mentorActions.MentorStatus.FAILED,
+        payload: "Cannot save mentor if unauthenticated.",
+      });
+    } else if (mentorState.editedData && mentorState.isEdited) {
       dispatch(
         mentorActions.saveMentorSubjects({
           accessToken: loginState.accessToken,
@@ -74,8 +84,12 @@ export const useActiveMentor = (): UseActiveMentor => {
       );
     }
   };
+
   const editMentor = (edits: Partial<Mentor>) => {
-    if (mentorState.mentorStatus === mentorActions.MentorStatus.LOADING) {
+    if (
+      mentorState.mentorStatus === mentorActions.MentorStatus.LOADING ||
+      mentorState.mentorStatus === mentorActions.MentorStatus.SAVING
+    ) {
       return;
     }
     dispatch(mentorActions.mentorSlice.actions.editMentor(edits));

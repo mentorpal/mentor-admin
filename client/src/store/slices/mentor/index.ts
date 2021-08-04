@@ -1,11 +1,11 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
+import { equals } from "helpers";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { Mentor } from "types";
 
@@ -45,12 +45,10 @@ export const saveMentor = createAsyncThunk(
   async (headers: {
     accessToken: string;
     editedData: Mentor;
-  }): Promise<boolean | unknown> => {
+  }): Promise<Mentor | unknown> => {
     try {
-      return await api.updateMentorDetails(
-        headers.editedData,
-        headers.accessToken
-      );
+      await api.updateMentorDetails(headers.editedData, headers.accessToken);
+      return headers.editedData;
     } catch (err) {
       return err.response.data;
     }
@@ -62,12 +60,10 @@ export const saveMentorSubjects = createAsyncThunk(
   async (headers: {
     accessToken: string;
     editedData: Mentor;
-  }): Promise<boolean | unknown> => {
+  }): Promise<Mentor | unknown> => {
     try {
-      return await api.updateMentorSubjects(
-        headers.editedData,
-        headers.accessToken
-      );
+      await api.updateMentorSubjects(headers.editedData, headers.accessToken);
+      return headers.editedData;
     } catch (err) {
       return err.response.data;
     }
@@ -80,6 +76,9 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
+    clearError: (state) => {
+      delete state.error;
+    },
     editMentor: (state, action: PayloadAction<Partial<Mentor>>) => {
       if (state.data) {
         state.editedData = {
@@ -87,7 +86,7 @@ export const mentorSlice = createSlice({
           ...(state.editedData || {}),
           ...action.payload,
         };
-        state.isEdited = true;
+        state.isEdited = !equals(state.data, state.editedData);
       }
     },
   },
@@ -95,12 +94,12 @@ export const mentorSlice = createSlice({
     builder
       .addCase(loadMentor.pending, (state) => {
         delete state.data;
-
         state.mentorStatus = MentorStatus.LOADING;
       })
       .addCase(loadMentor.fulfilled, (state, action) => {
         state.data = action.payload;
         state.editedData = action.payload;
+        state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(loadMentor.rejected, (state) => {
@@ -112,34 +111,30 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.FAILED;
       })
       .addCase(saveMentor.pending, (state) => {
-        state.mentorStatus = MentorStatus.LOADING;
-        state.isEdited = false;
+        state.mentorStatus = MentorStatus.SAVING;
       })
-      .addCase(saveMentor.fulfilled, (state) => {
-        state.data = state.editedData;
-
+      .addCase(saveMentor.fulfilled, (state, action) => {
+        state.data = action.payload as Mentor;
+        state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentor.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
-        state.isEdited = true;
         state.error = {
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
       })
       .addCase(saveMentorSubjects.pending, (state) => {
-        state.mentorStatus = MentorStatus.LOADING;
-        state.isEdited = false;
+        state.mentorStatus = MentorStatus.SAVING;
       })
-      .addCase(saveMentorSubjects.fulfilled, (state) => {
-        state.data = state.editedData;
+      .addCase(saveMentorSubjects.fulfilled, (state, action) => {
+        state.data = action.payload as Mentor;
         state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentorSubjects.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
-        state.isEdited = true;
         state.error = {
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,
@@ -147,5 +142,7 @@ export const mentorSlice = createSlice({
       });
   },
 });
+
+export const { clearError, editMentor } = mentorSlice.actions;
 
 export default mentorSlice.reducer;

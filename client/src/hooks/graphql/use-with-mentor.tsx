@@ -4,59 +4,43 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchMentor, updateMentorDetails, updateMentorSubjects } from "api";
 import { Mentor } from "types";
-import { UseData, useWithData } from "./use-with-data";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { MentorStatus } from "store/slices/mentor";
+import { LoadingError } from "./loading-reducer";
 
-interface UseMentorData extends UseData<Mentor> {
+interface UseMentorData {
+  data?: Mentor;
+  editedData?: Mentor;
+  isEdited: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  error?: LoadingError;
+  reloadData: () => void;
+  editData: (d: Partial<Mentor>) => void;
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
 }
 
-export function useWithMentor(accessToken: string): UseMentorData {
+export function useWithMentor(): UseMentorData {
   const {
-    data,
-    editedData,
-    isEdited,
-    isLoading,
-    isSaving,
-    error,
-    editData,
-    saveData,
-    reloadData,
-  } = useWithData<Mentor>(fetch);
-
-  async function fetch(): Promise<Mentor> {
-    return fetchMentor(accessToken);
-  }
-
-  async function saveMentorDetails(): Promise<void> {
-    await saveData({
-      action: async (editedData: Mentor) => {
-        await updateMentorDetails(editedData, accessToken);
-      },
-    });
-  }
-
-  async function saveMentorSubjects(): Promise<void> {
-    await saveData({
-      action: async (editedData: Mentor) => {
-        await updateMentorSubjects(editedData, accessToken);
-      },
-    });
-  }
+    mentorState,
+    editMentor,
+    loadMentor,
+    saveMentor,
+    saveMentorSubjects,
+  } = useActiveMentor();
 
   return {
-    data,
-    editedData,
-    error,
-    isEdited,
-    isLoading,
-    isSaving,
-    reloadData,
-    editData,
-    saveData,
-    saveMentorDetails,
+    data: mentorState.data,
+    editedData: mentorState.editedData,
+    error: mentorState.error,
+    isEdited: Boolean(mentorState.isEdited),
+    isLoading: mentorState.mentorStatus === MentorStatus.LOADING,
+    isSaving: mentorState.mentorStatus === MentorStatus.SAVING,
+    reloadData: loadMentor,
+    editData: editMentor,
+    saveMentorDetails: saveMentor,
     saveMentorSubjects,
   };
 }
