@@ -122,8 +122,9 @@ function VideoPlayer(props: {
           style={{
             textAlign: "center",
             visibility:
-              videoLength < (recordState.curAnswer?.minVideoLength || 0)
-                ? "visible"
+              Math.round(videoLength) <
+              (recordState.curAnswer?.minVideoLength || 0)
+                ? "inherit"
                 : "hidden",
           }}
         >
