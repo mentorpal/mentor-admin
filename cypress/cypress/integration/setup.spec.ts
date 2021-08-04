@@ -548,10 +548,9 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
+    cy.get("[data-cy=transcript-input]").should("not.exist");
+    cy.get("[data-cy=idle]").should("exist");
+    cy.get("[data-cy=idle-duration]").contains("10 seconds");
     cy.get("[data-cy=done-btn]").trigger("mouseover").click();
     // back to setup
     cy.location("pathname").then(($el) =>
@@ -605,10 +604,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
-    });
+    cy.get("[data-cy=transcript-input]").should("not.exist");
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
