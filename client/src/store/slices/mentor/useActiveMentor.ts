@@ -15,6 +15,7 @@ interface UseActiveMentor {
   mentorState: mentorActions.MentorState;
   loadMentor: () => void;
   saveMentor: () => void;
+  saveThumbnail: (file: File) => void;
   saveMentorSubjects: (editedData: Mentor) => void;
   editMentor: (edits: Partial<Mentor>) => void;
 }
@@ -64,6 +65,18 @@ export const useActiveMentor = (): UseActiveMentor => {
     }
   };
 
+  const saveThumbnail = (file: File) => {
+    if (loginState.accessToken && mentorState.data) {
+      dispatch(
+        mentorActions.saveThumbnail({
+          accessToken: loginState.accessToken,
+          mentorId: mentorState.data._id,
+          file,
+        })
+      );
+    }
+  };
+
   const saveMentorSubjects = () => {
     if (loginState.accessToken && mentorState.editedData) {
       dispatch(
@@ -85,6 +98,7 @@ export const useActiveMentor = (): UseActiveMentor => {
     mentorState,
     loadMentor,
     saveMentor,
+    saveThumbnail,
     saveMentorSubjects,
     editMentor,
   };

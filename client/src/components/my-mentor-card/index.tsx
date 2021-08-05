@@ -23,7 +23,6 @@ import {
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
-import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 import StageProgress from "./stage-progress";
 import parseMentor from "./mentor-info";
@@ -54,18 +53,13 @@ export default function MyMentorCard(props: {
   accessToken: string;
   continueAction: () => void;
 }): JSX.Element {
-  const { mentorState, editMentor } = useActiveMentor();
+  const { mentorState, editMentor, saveThumbnail } = useActiveMentor();
 
   if (!mentorState.data || !mentorState.editedData) {
     return <div />;
   }
   const mentorInfo = parseMentor(mentorState.data);
   const classes = useStyles();
-  const [thumbnail, updateThumbnail] = useWithThumbnail(
-    mentorState.data._id,
-    props.accessToken,
-    mentorState.data.thumbnail || ""
-  );
 
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
@@ -101,12 +95,12 @@ export default function MyMentorCard(props: {
                 item
                 xs={10}
               >
-                {thumbnail ? (
+                {mentorState.data.thumbnail ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
                     variant="rounded"
                     className={classes.homeThumbnail}
-                    src={thumbnail}
+                    src={mentorState.data.thumbnail}
                   />
                 ) : (
                   <Avatar
@@ -122,7 +116,7 @@ export default function MyMentorCard(props: {
                 accept="image/*"
                 onChange={(e) => {
                   e.target.files instanceof FileList
-                    ? updateThumbnail(e.target.files[0])
+                    ? saveThumbnail(e.target.files[0])
                     : undefined;
                 }}
               />
@@ -251,7 +245,7 @@ export default function MyMentorCard(props: {
             <Grid xs={12} md={2}>
               <RecommendedActionButton
                 mentor={mentorState.data}
-                setThumbnail={updateThumbnail}
+                setThumbnail={saveThumbnail}
                 continueAction={props.continueAction}
               />
             </Grid>

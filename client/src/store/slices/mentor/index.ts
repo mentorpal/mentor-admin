@@ -57,6 +57,25 @@ export const saveMentor = createAsyncThunk(
   }
 );
 
+export const saveThumbnail = createAsyncThunk(
+  "mentor/saveThumbnail",
+  async (headers: {
+    accessToken: string;
+    mentorId: string;
+    file: File;
+  }): Promise<string | unknown> => {
+    try {
+      return await api
+        .uploadThumbnail(headers.mentorId, headers.file)
+        .then(() => {
+          api.fetchThumbnail(headers.accessToken);
+        });
+    } catch (err) {
+      return err.response.data;
+    }
+  }
+);
+
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
   async (headers: {
@@ -123,6 +142,22 @@ export const mentorSlice = createSlice({
       .addCase(saveMentor.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
         state.isEdited = true;
+        state.error = {
+          message: "failed to save mentor",
+          error: saveMentor.rejected.name,
+        };
+      })
+      .addCase(saveThumbnail.pending, (state) => {
+        state.mentorStatus = MentorStatus.SAVING;
+      })
+      .addCase(saveThumbnail.fulfilled, (state, action) => {
+        if (state.data) {
+          state.data.thumbnail = String(action.payload);
+        }
+        state.mentorStatus = MentorStatus.SUCCEEDED;
+      })
+      .addCase(saveThumbnail.rejected, (state) => {
+        state.mentorStatus = MentorStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
