@@ -22,7 +22,6 @@ import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { MentorStatus } from "store/slices/mentor";
-import { GpsFixed } from "@material-ui/icons";
 
 export interface AnswerState {
   answer: Answer;
@@ -135,7 +134,7 @@ export function useWithRecordState(
       !isMentorLoading
     ) {
       setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length) {
+      if (answerIdx < answers.length - 1) {
         nextAnswer();
       }
     }
@@ -155,7 +154,11 @@ export function useWithRecordState(
             return d.question;
           })
         : [];
-      followUps = followUps.filter(followUp=>mentor.answers.findIndex(a => a.question.question === followUp) === -1);
+      followUps = followUps.filter(
+        (followUp) =>
+          mentor.answers.findIndex((a) => a.question.question === followUp) ===
+          -1
+      );
       setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });

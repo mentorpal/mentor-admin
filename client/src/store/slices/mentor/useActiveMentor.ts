@@ -50,7 +50,7 @@ export const useActiveMentor = (): UseActiveMentor => {
     }
   };
 
-  const reloadMentor = () =>{
+  const reloadMentor = () => {
     if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
@@ -59,7 +59,7 @@ export const useActiveMentor = (): UseActiveMentor => {
     } else {
       dispatch(mentorActions.loadMentor(loginState.accessToken));
     }
-  }
+  };
 
   const saveMentor = () => {
     if (
