@@ -117,7 +117,7 @@ export function useWithRecordState(
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
-  }, [mentor, answerFilters.videoId]);
+  }, [mentor, answerFilters]);
 
   useEffect(() => {
     setIsRecording(false);
