@@ -57,9 +57,9 @@ export function useWithRecordState(
   const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
-    useWithMentor();
-  const {
+  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } = useWithMentor();
+
+    const {
     uploads,
     isUploading,
     pollStatusCount,
@@ -131,18 +131,19 @@ export function useWithRecordState(
 
   function fetchFollowUpQs() {
     if (!mentor) return;
-    if (!filter.category) {
+    if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      const followUps = data
+      let followUps = data
         ? data.map((d) => {
             return d.question;
           })
         : [];
+      followUps = followUps.filter(followUp=>mentor.answers.findIndex(a => a.question.question === followUp) === -1);
       setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
