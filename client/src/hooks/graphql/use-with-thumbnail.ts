@@ -4,22 +4,23 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { uploadThumbnail, fetchThumbnail } from "api";
-import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { saveThumbnail } from "store/slices/mentor";
+import { selectActiveMentor } from "store/slices/mentor/useWithMentor";
+import { RootState } from "store/store";
 
-export function useWithThumbnail(
-  mentorId: string,
-  accessToken: string,
-  current: string
-): [string, (file: File) => void] {
-  const [thumbnail, setThumbnail] = useState(current);
+export function useWithThumbnail(): [string, (file: File) => void] {
+  const thumbnail = useSelector<RootState, string>((s: RootState) => {
+    return selectActiveMentor(s).data?.thumbnail || "";
+  });
+  const dispatch = useDispatch();
 
-  function updateThumbnail(file: File): Promise<void> {
-    return uploadThumbnail(mentorId, file).then(() => {
-      fetchThumbnail(accessToken).then((src: string) => {
-        setThumbnail(src);
-      });
-    });
+  function updateThumbnail(file: File) {
+    dispatch(
+      saveThumbnail({
+        file,
+      })
+    );
   }
 
   return [thumbnail, updateThumbnail];

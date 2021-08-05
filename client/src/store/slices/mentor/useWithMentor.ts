@@ -11,6 +11,7 @@ import { Mentor } from "types";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { useAppSelector } from "store/hooks";
 import * as mentorActions from ".";
+import { RootState } from "store/store";
 
 export interface UseWithMentor {
   mentor?: Mentor;
@@ -25,6 +26,12 @@ export interface UseWithMentor {
   saveMentorSubjects: () => void;
   clearMentorError: () => void;
   onMentorUpdated: (mentor: Mentor) => void;
+}
+
+export function selectActiveMentor(
+  state: RootState
+): mentorActions.MentorState {
+  return state.mentor;
 }
 
 export const useWithMentor = (): UseWithMentor => {

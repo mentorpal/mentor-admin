@@ -4,7 +4,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
+import {
+  cySetup,
+  cyMockDefault,
+  mockGQL,
+  cyMockUploadThumbnail,
+  cyAttachUpload,
+  cyAttachInputFile,
+} from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import { Status, QuestionType, UtteranceName } from "../support/types";
 
@@ -121,7 +128,7 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=placeholder-thumbnail]").should("exist");
     });
 
-    it("switches to new image when uploaded", () => {
+    it("displays mentor's thumbnail when configured", () => {
       cySetup(cy);
 
       cyMockDefault(cy, {
@@ -131,8 +138,32 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-
       cy.get("[data-cy=uploaded-thumbnail]").should("exist");
+    });
+
+    it("displays new thumbnail after upload", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: {
+          ...clint,
+          thumbnail: "https://new.url/test.png",
+        },
+      });
+      cyMockUploadThumbnail(cy, {
+        thumbnail: "/thumbnails/afterupdate.png",
+      });
+      cy.visit("/");
+      cy.get("[data-cy=my-mentor-card]").within(($uploadForm) => {
+        cyAttachInputFile(cy, { fileName: "image-thumbnail-uploaded.png" });
+        cy.wait("@uploadThumbnail");
+        cy.get("[data-cy=uploaded-thumbnail").within(($x) => {
+          cy.get("img").should(
+            "have.attr",
+            "src",
+            "/thumbnails/afterupdate.png"
+          );
+        });
+      });
     });
 
     it("does not show toast on incomplete level", () => {
