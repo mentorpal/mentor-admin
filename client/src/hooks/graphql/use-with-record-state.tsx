@@ -117,6 +117,9 @@ export function useWithRecordState(
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
+    if (answers.length === 0) {
+      navigate("/");
+    }
   }, [mentor, answerFilters]);
 
   useEffect(() => {
