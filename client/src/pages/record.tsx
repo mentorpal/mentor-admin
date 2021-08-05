@@ -136,6 +136,7 @@ function RecordPage(props: {
   useEffect(() => {
     if (!mentor) return;
     if (followUpQs.length > 0) {
+      //get question IDs for selected follow up q's
       const questionIds: string[] = mentor.answers
         .filter((a) => followUpQs.includes(a.question.question))
         .map((a) => a.question._id);
@@ -144,9 +145,9 @@ function RecordPage(props: {
         status: "INCOMPLETE",
       });
       setFollowUpQs([]);
-      setRecordPageState(RecordPageState.RECORDING_FOLLOW_UPS);
+      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
     }
-  }, [mentor?.answers.length]);
+  }, [mentor?.answers.length]); // new questions === follow up q's received
 
   function handleLoadFollowupQs() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
