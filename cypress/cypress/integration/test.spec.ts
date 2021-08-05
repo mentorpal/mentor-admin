@@ -160,16 +160,16 @@ const mentor2 = {
   ],
 };
 
-describe.only("Test broken redux", () => {
-  it("can change and save subjects", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [mentor, mentor, mentor2],
-      subjects: [allSubjects],
-      gqlQueries: [
-        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
-      ],
-    });
-    cy.visit("/");
-  });
-});
+// describe("Test broken redux", () => {
+//   it("can change and save subjects", () => {
+//     cySetup(cy);
+//     cyMockDefault(cy, {
+//       mentor: [mentor, mentor, mentor2],
+//       subjects: [allSubjects],
+//       gqlQueries: [
+//         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+//       ],
+//     });
+//     cy.visit("/");
+//   });
+// });
