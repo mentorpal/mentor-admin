@@ -62,9 +62,11 @@ function FollowUpQuestionsWidget(props: {
     const newQuestionList = copyAndSet(questionList, i, {
       question: question,
       checked: newCheckValue,
-    })
+    });
     setQuestionList(newQuestionList);
-    setFollowUpQs(newQuestionList.filter((q) => q.checked).map((q) => q.question));
+    setFollowUpQs(
+      newQuestionList.filter((q) => q.checked).map((q) => q.question)
+    );
   }
 
   if (questionList.length !== questions.length) {

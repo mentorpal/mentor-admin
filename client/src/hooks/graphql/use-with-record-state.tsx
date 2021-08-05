@@ -131,7 +131,7 @@ export function useWithRecordState(
 
   function editAnswerFilter(edits: Partial<AnswerFilters>) {
     setAnswerIdx(0);
-    setAnswerFilters({...answerFilters, ...edits});
+    setAnswerFilters({ ...answerFilters, ...edits });
   }
 
   function fetchFollowUpQs() {
@@ -148,7 +148,11 @@ export function useWithRecordState(
             return d.question;
           })
         : [];
-      followUps = followUps.filter(followUp=>mentor.answers.findIndex(a => a.question.question === followUp) === -1);
+      followUps = followUps.filter(
+        (followUp) =>
+          mentor.answers.findIndex((a) => a.question.question === followUp) ===
+          -1
+      );
       setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });

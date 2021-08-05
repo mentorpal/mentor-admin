@@ -50,16 +50,16 @@ export const useActiveMentor = (): UseActiveMentor => {
     }
   };
 
-  const reloadMentor = () =>{
+  const reloadMentor = () => {
     if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
         payload: "Cannot reload mentor if unauthenticated.",
       });
-    } else{
+    } else {
       dispatch(mentorActions.loadMentor(loginState.accessToken));
     }
-  }
+  };
 
   const saveMentor = () => {
     if (

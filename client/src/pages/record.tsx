@@ -133,15 +133,16 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-
   useEffect(() => {
     if (!mentor) return;
-    if (
-      followUpQs.length > 0
-    ) {
-      const questionIds: string[] = mentor.answers.filter((a) => followUpQs.includes(a.question.question))
+    if (followUpQs.length > 0) {
+      const questionIds: string[] = mentor.answers
+        .filter((a) => followUpQs.includes(a.question.question))
         .map((a) => a.question._id);
-      recordState.editAnswerFilter({videoId: questionIds, status: "INCOMPLETE"});
+      recordState.editAnswerFilter({
+        videoId: questionIds,
+        status: "INCOMPLETE",
+      });
       setFollowUpQs([]);
       setRecordPageState(RecordPageState.RECORDING_FOLLOW_UPS);
     }
@@ -449,9 +450,7 @@ function RecordPage(props: {
               variant="contained"
               color="primary"
               disableElevation
-              disabled={
-                recordPageState === RecordPageState.RELOADING_MENTOR
-              }
+              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
               onClick={() => handleLoadFollowupQs()}
               className={classes.nextBtn}
             >
