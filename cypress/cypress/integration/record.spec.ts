@@ -714,7 +714,7 @@ describe("Record", () => {
       );
     });
 
-    it.only("displays a list of followup questions", () => {
+    it("displays a list of followup questions", () => {
       cyMockDefault(cy, {
         mentor: [chatMentor],
         gqlQueries: [
