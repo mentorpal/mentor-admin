@@ -93,7 +93,7 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
   const { mentor, isMentorEdited } = useMentor;
-  const { setupStatus } = useWithSetup();
+  const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(false);
 
   React.useEffect(() => {
@@ -233,26 +233,7 @@ function HomePage(props: {
           </DialogContentText>
         </DialogContent>
         <DialogContent>
-          <Button
-            data-cy="setup-yes"
-            onClick={() => {
-              if (!setupStatus.isMentorInfoDone) {
-                navigate("/setup?i=1");
-              } else if (!setupStatus.isMentorTypeChosen) {
-                navigate("/setup?i=2");
-              } else if (setupStatus.idle && !setupStatus.idle.complete) {
-                navigate("/setup?i=6");
-              } else {
-                for (const [i, s] of setupStatus.requiredSubjects.entries()) {
-                  if (!s.complete) {
-                    navigate(`/setup?i=${setupStatus.idle ? 7 : 6 + i}`);
-                    return;
-                  }
-                }
-                navigate("/setup");
-              }
-            }}
-          >
+          <Button data-cy="setup-yes" onClick={navigateToMissingSetup}>
             Yes
           </Button>
           <Button

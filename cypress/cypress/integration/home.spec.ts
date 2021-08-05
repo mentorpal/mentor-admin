@@ -11,7 +11,7 @@ import {
   cyMockTrainStatus,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import { JobState, MentorType, Status } from "../support/types";
+import { JobState, Status } from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 
 describe("My Mentor Page", () => {
@@ -639,62 +639,64 @@ describe("My Mentor Page", () => {
     cy.url().should("include", "preview");
   });
 
-  it("redirects to setup if mentor info is not filled out", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [setup0],
+  describe("if setup is not complete", () => {
+    it("redirects to setup if mentor info is not filled out", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup0],
+      });
+      cy.visit("/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.contains("Mentor Setup");
     });
-    cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup");
-    });
-    cy.contains("Mentor Setup");
-  });
 
-  it("offers to continue setup if not complete", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [setup3],
+    it("offers to continue setup if other steps not complete", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup3],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
     });
-    cy.visit("/");
-    cy.get("[data-cy=setup-dialog]").contains(
-      "You have not finished setting up your mentor. Would you like to continue it?"
-    );
-    cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup");
-    });
-  });
 
-  it("if idle not complete, setup goes to finish it", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [setup3],
+    it("if idle not complete, setup goes to finish it", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup3],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.location("search").should("contain", "?i=6");
     });
-    cy.visit("/");
-    cy.get("[data-cy=setup-dialog]").contains(
-      "You have not finished setting up your mentor. Would you like to continue it?"
-    );
-    cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup");
-    });
-    cy.location("search").should("contain", "?i=6");
-  });
 
-  it("if required subject not complete, setup goes to finish it", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [setup4],
+    it("if required subject not complete, setup goes to finish it", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup4],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.location("search").should("contain", "?i=7");
     });
-    cy.visit("/");
-    cy.get("[data-cy=setup-dialog]").contains(
-      "You have not finished setting up your mentor. Would you like to continue it?"
-    );
-    cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/setup");
-    });
-    cy.location("search").should("contain", "?i=7");
   });
 });
