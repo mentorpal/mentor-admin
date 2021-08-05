@@ -22,6 +22,7 @@ import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { MentorStatus } from "store/slices/mentor";
+import { GpsFixed } from "@material-ui/icons";
 
 export interface AnswerState {
   answer: Answer;
@@ -58,7 +59,7 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentorState, loadMentor } = useActiveMentor();
+  const { mentorState, reloadMentor } = useActiveMentor();
 
   const {
     uploads,
@@ -142,18 +143,19 @@ export function useWithRecordState(
 
   function fetchFollowUpQs() {
     if (!mentor) return;
-    if (!filter.category) {
+    if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      const followUps = data
+      let followUps = data
         ? data.map((d) => {
             return d.question;
           })
         : [];
+      followUps = followUps.filter(followUp=>mentor.answers.findIndex(a => a.question.question === followUp) === -1);
       setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
@@ -250,7 +252,7 @@ export function useWithRecordState(
 
   function reloadMentorData() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    loadMentor();
+    reloadMentor();
   }
 
   function prevAnswer() {
