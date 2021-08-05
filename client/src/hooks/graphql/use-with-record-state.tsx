@@ -51,7 +51,6 @@ export function useWithRecordState(
   accessToken: string,
   filter: AnswerFilters
 ): UseWithRecordState {
-  const [allAnswers, setAllAnswers] = useState<Answer[]>([]);
   const [answers, setAnswers] = useState<AnswerState[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -88,7 +87,6 @@ export function useWithRecordState(
     }
     const { videoId, subject, category, status } = answerFilters;
     let answers = mentor.answers;
-    setAllAnswers(answers);
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       answers = answers.filter((a) => ids.includes(a.question._id));
@@ -119,9 +117,6 @@ export function useWithRecordState(
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
-    if(answers.length === 0){
-      navigate("/");
-    }
   }, [mentor, answerFilters.videoId]);
 
   useEffect(() => {
@@ -153,6 +148,7 @@ export function useWithRecordState(
             return d.question;
           })
         : [];
+      followUps = followUps.filter(followUp=>mentor.answers.findIndex(a => a.question.question === followUp) === -1);
       setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
@@ -372,7 +368,6 @@ export function useWithRecordState(
 
   return {
     mentor,
-    allAnswers,
     isMentorLoading,
     answers,
     answerIdx,
@@ -419,7 +414,6 @@ export function useWithRecordState(
 
 export interface UseWithRecordState {
   mentor?: Mentor;
-  allAnswers: Answer[];
   isMentorLoading: boolean;
   answers: AnswerState[];
   answerIdx: number;

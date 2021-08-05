@@ -132,21 +132,20 @@ function RecordPage(props: {
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+    
+
   useEffect(() => {
     if (!mentor) return;
     if (
-      !recordState.isMentorLoading && followUpQs.length > 0
+      followUpQs.length > 0
     ) {
-      //if mentor reloaded and there are follow up q's, then
-      if (followUpQs.length > 0) {
-        let questionIds: string[] = recordState.allAnswers.filter((a) => followUpQs.includes(a.question.question))
-          .map((a) => a.question._id);
-        recordState.editAnswerFilter({videoId: questionIds, status: "INCOMPLETE"});
-        setFollowUpQs([]);
-        setRecordPageState(RecordPageState.RECORDING_FOLLOW_UPS);
-      }
+      const questionIds: string[] = mentor.answers.filter((a) => followUpQs.includes(a.question.question))
+        .map((a) => a.question._id);
+      recordState.editAnswerFilter({videoId: questionIds, status: "INCOMPLETE"});
+      setFollowUpQs([]);
+      setRecordPageState(RecordPageState.RECORDING_FOLLOW_UPS);
     }
-  }, [recordState.allAnswers.length]);
+  }, [mentor?.answers.length]);
 
   function handleLoadFollowupQs() {
     setRecordPageState(RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS);
