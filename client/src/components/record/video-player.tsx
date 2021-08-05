@@ -91,7 +91,6 @@ function VideoPlayer(props: {
       setTrim(newTrimValues);
     }
   }
-
   return (
     <div
       className={classes.block}
@@ -249,8 +248,8 @@ function VideoPlayer(props: {
             }
             className={classes.button}
             onClick={() => {
-              if (isUploading) {
-                recordState.cancelUpload(upload!);
+              if (isUploading && upload) {
+                recordState.cancelUpload(upload);
               } else {
                 recordState.uploadVideo(
                   isTrimming
