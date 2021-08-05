@@ -17,11 +17,10 @@ import {
 } from "types";
 import { copyAndSet, equals } from "helpers";
 
+import { RecordPageState } from "types";
+import { useWithMentor } from "./use-with-mentor";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { RecordingError } from "./recording-reducer";
-import { RecordPageState } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -58,7 +57,12 @@ export function useWithRecordState(
   const [error, setError] = useState<RecordingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentorState, loadMentor } = useActiveMentor();
+  const {
+    data: mentor,
+    error: mentorError,
+    isLoading: isMentorLoading,
+    reloadData: loadMentor,
+  } = useWithMentor(accessToken);
 
   const {
     uploads,
@@ -73,12 +77,8 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const mentorError = mentorState.error;
-  const mentor = mentorState.data;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
-    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }

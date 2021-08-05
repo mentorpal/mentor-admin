@@ -8,7 +8,7 @@ import { fetchMentor, updateMentorDetails, updateMentorSubjects } from "api";
 import { Mentor } from "types";
 import { UseData, useWithData } from "./use-with-data";
 
-interface UseMentorData extends UseData<Mentor> {
+export interface UseMentorData extends UseData<Mentor> {
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
 }
