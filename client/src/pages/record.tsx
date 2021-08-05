@@ -132,7 +132,7 @@ function RecordPage(props: {
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
-    
+
 
   useEffect(() => {
     if (!mentor) return;
@@ -148,8 +148,8 @@ function RecordPage(props: {
   }, [mentor?.answers.length]);
 
   function handleLoadFollowupQs() {
-    setRecordPageState(RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS);
-    saveSubject().then(() => recordState.reloadDataForFollowups());
+    setRecordPageState(RecordPageState.RELOADING_MENTOR);
+    saveSubject().then(() => recordState.reloadMentorData());
   }
 
   function onBack() {
@@ -207,7 +207,7 @@ function RecordPage(props: {
 
   const displayRecordingPage = !(
     recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
-    recordPageState === RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS
+    recordPageState === RecordPageState.RELOADING_MENTOR
   );
   return (
     <div className={classes.root}>
@@ -450,7 +450,7 @@ function RecordPage(props: {
               color="primary"
               disableElevation
               disabled={
-                recordPageState === RecordPageState.RELOADING_DATA_FOR_FOLLOWUPS
+                recordPageState === RecordPageState.RELOADING_MENTOR
               }
               onClick={() => handleLoadFollowupQs()}
               className={classes.nextBtn}

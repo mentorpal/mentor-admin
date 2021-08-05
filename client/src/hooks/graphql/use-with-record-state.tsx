@@ -243,7 +243,7 @@ export function useWithRecordState(
     return false;
   }
 
-  function reloadDataForFollowups() {
+  function reloadMentorData() {
     reloadMentor();
   }
 
@@ -398,7 +398,7 @@ export function useWithRecordState(
     fetchFollowUpQs,
     editAnswerFilter,
     rerecord,
-    reloadDataForFollowups,
+    reloadMentorData,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -425,7 +425,7 @@ export interface UseWithRecordState {
   fetchFollowUpQs: () => void;
   editAnswerFilter: (edits: Partial<AnswerFilters>) => void;
   prevAnswer: () => void;
-  reloadDataForFollowups: () => void;
+  reloadMentorData: () => void;
   nextAnswer: () => void;
   setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;
