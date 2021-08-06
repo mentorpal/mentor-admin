@@ -25,7 +25,6 @@ import {
   UseWithMentor,
   useWithMentor,
 } from "store/slices/mentor/useWithMentor";
-import { loadMentor } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
