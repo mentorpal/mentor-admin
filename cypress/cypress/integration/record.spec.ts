@@ -2144,7 +2144,7 @@ describe("Record", () => {
     );
   });
 
-  it.skip("displays status info for each job: Uploading, Completed, Failed", () => {
+  it("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -2258,7 +2258,22 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=upload-card-2]").within(($within) => {
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("span")
+        .should("have.text", videoMentor.answers[2].question.question);
+      cy.get("[data-cy=card-answer-title]").contains("Tap to preview");
+    });
+    cy.get("[data-cy=upload-card-1]").within(($within) => {
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("span")
+        .should("have.text", videoMentor.answers[1].question.question);
+      cy.get("[data-cy=card-answer-title]").contains(
+        "Failed to process file: UPLOAD_FAILED"
+      );
+    });
     cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
@@ -2269,36 +2284,7 @@ describe("Record", () => {
         );
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Processing");
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Trimming");
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Transcribing");
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Uploading");
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Upload Failed");
-    });
-    cy.get("[data-cy=upload-card-1]").should("exist");
-    cy.get("[data-cy=upload-card-1]").within(($within) => {
-      //ListItems secondary text is under <p>
-      cy.get("[data-cy=card-answer-title]")
-        .get("span")
-        .should("have.text", videoMentor.answers[1].question.question);
-      cy.get("[data-cy=card-answer-title]").contains(
-        "Failed to process file: UPLOAD_FAILED"
-      );
-    });
-    cy.get("[data-cy=upload-card-2]").should("exist");
-    cy.get("[data-cy=upload-card-2]").within(($within) => {
-      //ListItems secondary text is under <p>
-      cy.get("[data-cy=card-answer-title]")
-        .get("span")
-        .should("have.text", videoMentor.answers[2].question.question);
+        .should("have.text", "Trimming video");
     });
   });
 
