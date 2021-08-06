@@ -8,6 +8,7 @@ import { equals } from "helpers";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
+import { RootState } from "store/store";
 import { Mentor } from "types";
 import * as mentorActions from ".";
 
@@ -20,9 +21,15 @@ interface UseActiveMentor {
   editMentor: (edits: Partial<Mentor>) => void;
 }
 
+export function selectActiveMentor(
+  state: RootState
+): mentorActions.MentorState {
+  return state.mentor;
+}
+
 export const useActiveMentor = (): UseActiveMentor => {
   const dispatch = useDispatch();
-  const mentorState = useAppSelector((state) => state.mentor);
+  const mentorState = useAppSelector(selectActiveMentor);
   const loginState = useAppSelector((state) => state.login);
 
   useEffect(() => {
