@@ -33,13 +33,24 @@ export const useWithMentor = (): UseWithMentor => {
     data: mentor,
     error: mentorError,
     mentorStatus,
+    userLoadedBy,
   } = useAppSelector((state) => state.mentor);
-  const { accessToken } = useAppSelector((state) => state.login);
+  const loginState = useAppSelector((state) => state.login);
   const [editedMentor, setEditedMentor] = useState<Mentor>();
 
   const isMentorEdited = !equals(mentor, editedMentor);
   const isMentorLoading = mentorStatus === mentorActions.MentorStatus.LOADING;
   const isMentorSaving = mentorStatus === mentorActions.MentorStatus.SAVING;
+
+  useEffect(() => {
+    if (!loginState.accessToken) {
+      return;
+    }
+    if (mentor && userLoadedBy === loginState.user?._id) {
+      return;
+    }
+    loadMentor();
+  }, [loginState.user?._id]);
 
   useEffect(() => {
     setEditedMentor(mentor);
@@ -49,13 +60,13 @@ export const useWithMentor = (): UseWithMentor => {
     if (isMentorLoading || isMentorSaving) {
       return;
     }
-    if (!accessToken) {
+    if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
         payload: "Cannot load mentor if unauthenticated.",
       });
     } else {
-      dispatch(mentorActions.loadMentor(accessToken));
+      dispatch(mentorActions.loadMentor(loginState));
     }
   };
 
@@ -70,7 +81,7 @@ export const useWithMentor = (): UseWithMentor => {
     if (isMentorLoading || isMentorSaving || !isMentorEdited || !editedMentor) {
       return;
     }
-    if (!accessToken) {
+    if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
         payload: "Cannot save mentor if unauthenticated.",
@@ -78,7 +89,7 @@ export const useWithMentor = (): UseWithMentor => {
     } else {
       dispatch(
         mentorActions.saveMentor({
-          accessToken: accessToken,
+          accessToken: loginState.accessToken,
           editedData: editedMentor,
         })
       );
@@ -89,7 +100,7 @@ export const useWithMentor = (): UseWithMentor => {
     if (isMentorLoading || isMentorSaving || !isMentorEdited || !editedMentor) {
       return;
     }
-    if (!accessToken) {
+    if (!loginState.accessToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
         payload: "Cannot save mentor if unauthenticated.",
@@ -97,7 +108,7 @@ export const useWithMentor = (): UseWithMentor => {
     } else {
       dispatch(
         mentorActions.saveMentorSubjects({
-          accessToken: accessToken,
+          accessToken: loginState.accessToken,
           editedData: editedMentor,
         })
       );

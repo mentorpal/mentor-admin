@@ -25,7 +25,6 @@ import {
   UseWithMentor,
   useWithMentor,
 } from "store/slices/mentor/useWithMentor";
-import { loadMentor } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
@@ -62,7 +61,6 @@ export function useWithReviewAnswerState(
     isMentorLoading,
     onMentorUpdated,
     editMentor,
-    loadMentor,
     saveMentorDetails,
     clearMentorError,
   } = useMentor;
@@ -72,12 +70,6 @@ export function useWithReviewAnswerState(
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-
-  useEffect(() => {
-    if (!mentor && !isMentorLoading) {
-      loadMentor();
-    }
-  }, [mentor]);
 
   useEffect(() => {
     if (!editedMentor || isMentorLoading || isSaving) {
