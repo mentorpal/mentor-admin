@@ -30,7 +30,7 @@ describe("Select Subjects", () => {
   it("lists subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: mentor,
+      mentor: [mentor],
       subjects: [allSubjects],
       gqlQueries: [
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),

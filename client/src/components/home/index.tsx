@@ -73,9 +73,8 @@ function HomePage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
-    mentor,
+    useMentor,
     isLoading,
-    isMentorEdited,
     selectedSubject,
     blocks,
     progress,
@@ -86,6 +85,7 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
+  const { mentor, isMentorEdited } = useMentor;
 
   if (!mentor) {
     return (
@@ -110,6 +110,7 @@ function HomePage(props: {
         <MyMentorCard
           accessToken={props.accessToken}
           continueAction={continueAction}
+          useMentor={useMentor}
         />
         <Select
           data-cy="select-subject"

@@ -16,14 +16,15 @@ import {
   SubjectQuestion,
   QuestionType,
   Question,
-  Mentor,
   UtteranceName,
 } from "types";
 import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
+import {
+  UseWithMentor,
+  useWithMentor,
+} from "store/slices/mentor/useWithMentor";
 
 interface Progress {
   complete: number;
@@ -44,23 +45,25 @@ export function useWithReviewAnswerState(
   accessToken: string,
   search: { subject?: string }
 ): UseWithReviewAnswerState {
+  const [saveError, setSaveError] = useState<LoadingError>();
   const [selectedSubject, setSelectedSubject] = useState<string | undefined>(
     search.subject
   );
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [error, setError] = useState<LoadingError>();
+  const useMentor = useWithMentor();
   const {
-    mentorState,
+    mentor,
+    editedMentor,
+    mentorError,
+    isMentorEdited,
+    isMentorLoading,
+    onMentorUpdated,
     editMentor,
-    loadMentor: reloadMentor,
-    saveMentor,
-  } = useActiveMentor();
-  const mentorError = mentorState.error;
-  const mentor = mentorState.data;
-  const editedMentor = mentorState.editedData;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
+    saveMentorDetails,
+    clearMentorError,
+  } = useMentor;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -175,18 +178,11 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }, [editedMentor, selectedSubject]);
 
-  useEffect(() => {
-    if (mentorError) {
-      setError(mentorError);
-    }
-  }, [mentorError]);
-
-  useEffect(() => {
-    if (trainError) {
-      setError(trainError);
-      clearTrainingError(); //here
-    }
-  }, [trainError]);
+  function clearError() {
+    clearMentorError();
+    clearTrainingError();
+    setSaveError(undefined);
+  }
 
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
@@ -299,7 +295,7 @@ export function useWithReviewAnswerState(
     if (
       !mentor ||
       !editedMentor ||
-      !mentorState.isEdited ||
+      !isMentorEdited ||
       isMentorLoading ||
       isSaving
     ) {
@@ -317,28 +313,27 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
-        saveMentor();
-        reloadMentor();
+        onMentorUpdated(editedMentor); // update with the added/edited mentor questions
+        saveMentorDetails();
         setIsSaving(false);
       })
       .catch((err) => {
         console.error(err);
-        setError({ message: "Failed to save", error: err.message });
+        setSaveError({ message: "Failed to save", error: err.message });
         setIsSaving(false);
       });
   }
 
   return {
-    mentor,
-    isMentorEdited: Boolean(mentorState.isEdited),
+    useMentor,
     blocks,
     progress,
     selectedSubject,
     isLoading: isMentorLoading,
     isSaving,
     isTraining,
-    error,
-    clearError: () => setError(undefined),
+    error: mentorError || trainError || saveError,
+    clearError,
     selectSubject,
     saveChanges,
     startTraining,
@@ -346,8 +341,7 @@ export function useWithReviewAnswerState(
 }
 
 interface UseWithReviewAnswerState {
-  mentor?: Mentor;
-  isMentorEdited: boolean;
+  useMentor: UseWithMentor;
   blocks: RecordingBlock[];
   progress: Progress;
   selectedSubject?: string;

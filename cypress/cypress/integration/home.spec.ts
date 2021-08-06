@@ -588,7 +588,7 @@ describe("My Mentor Page", () => {
     cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
     cy.visit("/");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
-    cy.contains("Failed job");
+    cy.contains("Oops, training failed. Please try again.");
   });
 
   it("can train mentor if it's dirty", () => {
@@ -602,8 +602,12 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=train-button]").contains("Build Mentor");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Building...");
-    cy.get("[data-cy=select-subject]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]").should("not.exist");
+    cy.getSettled("[data-cy=select-subject]", { retries: 2 })
+      .trigger("mouseover")
+      .click();
   });
+
   it("offers to preview mentor if it's not dirty", () => {
     cySetup(cy);
     cyMockDefault(cy, {

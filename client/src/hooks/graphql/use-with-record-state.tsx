@@ -17,11 +17,10 @@ import {
 } from "types";
 import { copyAndSet, equals } from "helpers";
 
-import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
-import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
+import { LoadingError } from "./loading-reducer";
+import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -55,11 +54,11 @@ export function useWithRecordState(
   const [recordPageState, setRecordPageState] = useState<RecordPageState>(
     RecordPageState.INITIALIZING
   );
-  const [error, setError] = useState<RecordingError>();
+  const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentorState, reloadMentor } = useActiveMentor();
-
+  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
+    useWithMentor();
   const {
     uploads,
     isUploading,
@@ -73,12 +72,8 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const mentorError = mentorState.error;
-  const mentor = mentorState.data;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
-    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }
@@ -120,12 +115,6 @@ export function useWithRecordState(
   useEffect(() => {
     setIsRecording(false);
   }, [answerIdx]);
-
-  useEffect(() => {
-    if (mentorError) {
-      setError({ message: "Failed to load", error: mentorError?.error });
-    }
-  }, [mentorError]);
 
   useEffect(() => {
     if (!mentor) return;
@@ -220,7 +209,8 @@ export function useWithRecordState(
   }
 
   function clearError() {
-    setError(undefined);
+    clearMentorError();
+    setSaveError(undefined);
   }
 
   function getVideoSrc() {
@@ -256,7 +246,7 @@ export function useWithRecordState(
 
   function reloadMentorData() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    reloadMentor();
+    loadMentor();
   }
 
   function prevAnswer() {
@@ -323,7 +313,7 @@ export function useWithRecordState(
               })
               .catch((err) => {
                 setIsSaving(false);
-                setError({
+                setSaveError({
                   message: "Failed to save answer",
                   error: err.message,
                 });
@@ -335,7 +325,7 @@ export function useWithRecordState(
         })
         .catch((err) => {
           setIsSaving(false);
-          setError({
+          setSaveError({
             message: "Failed to save question",
             error: err.message,
           });
@@ -355,7 +345,7 @@ export function useWithRecordState(
         })
         .catch((err) => {
           setIsSaving(false);
-          setError({
+          setSaveError({
             message: "Failed to save answer",
             error: err.message,
           });
@@ -417,7 +407,7 @@ export function useWithRecordState(
     isUploading,
     isRecording,
     isSaving,
-    error,
+    error: mentorError || saveError,
     clearError,
   };
 }
@@ -449,6 +439,6 @@ export interface UseWithRecordState {
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
-  error?: RecordingError;
+  error?: LoadingError;
   clearError: () => void;
 }
