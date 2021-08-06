@@ -6,7 +6,9 @@ The full terms of this copyright and license should always be found in the root 
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
 import { LoadingError } from "hooks/graphql/loading-reducer";
-import { Mentor } from "types";
+import { RootState } from "store/store";
+import { LoginStatus, Mentor } from "types";
+import { LoginState } from "../login";
 
 /** Store */
 
@@ -22,6 +24,12 @@ export interface MentorState {
   data?: Mentor;
   mentorStatus: MentorStatus;
   error?: LoadingError;
+  userLoadedBy?: string;
+}
+
+interface CancellabeResult<T> {
+  result?: T;
+  isCancelled?: boolean;
 }
 
 const initialState: MentorState = {
@@ -32,8 +40,20 @@ const initialState: MentorState = {
 
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
-  async (accessToken: string): Promise<Mentor> => {
-    return api.fetchMentor(accessToken);
+  async (login: LoginState, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+    const state = thunkAPI.getState() as RootState;
+    if (
+      state.mentor.mentorStatus == MentorStatus.LOADING ||
+      state.mentor.mentorStatus == MentorStatus.SAVING
+    ) {
+      return { isCancelled: true };
+    }
+    thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
+    console.log(`inside load mentor: `, state);
+    if (!login.accessToken) {
+      return Promise.reject("no access token");
+    }
+    return { result: await api.fetchMentor(login.accessToken) };
   }
 );
 
@@ -74,6 +94,10 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
+    loadingInProgress: (state, action: PayloadAction<LoginState>) => {
+      state.mentorStatus = MentorStatus.LOADING;
+      state.userLoadedBy = action.payload.user?._id;
+    },
     clearError: (state) => {
       delete state.error;
     },
@@ -86,12 +110,11 @@ export const mentorSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loadMentor.pending, (state) => {
-        delete state.data;
-        state.mentorStatus = MentorStatus.LOADING;
-      })
       .addCase(loadMentor.fulfilled, (state, action) => {
-        state.data = action.payload;
+        if (action.payload.isCancelled || !action.payload.result) {
+          return;
+        }
+        state.data = action.payload.result;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(loadMentor.rejected, (state) => {
