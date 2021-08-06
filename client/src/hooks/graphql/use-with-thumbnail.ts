@@ -5,13 +5,32 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 // import { uploadThumbnail, fetchThumbnail } from "api";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { saveThumbnail } from "store/slices/mentor";
 import { selectActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { RootState } from "store/store";
 
-export function useWithThumbnail(): [string] {
+export function useWithThumbnail(): [string, (file: File) => void] {
   const thumbnail = useSelector<RootState, string>((s) => {
     return selectActiveMentor(s).data?.thumbnail || "";
   });
-  return [thumbnail];
+  function updateThumbnail(file: File) {
+    const dispatch = useDispatch();
+    const mentorId = useSelector<RootState, string>((s) => {
+      return selectActiveMentor(s).data?._id || "";
+    });
+
+    if (mentorId) {
+      dispatch(
+        saveThumbnail({
+          mentorId: mentorId,
+          file,
+        })
+      );
+    }
+
+    return;
+  }
+
+  return [thumbnail, updateThumbnail];
 }

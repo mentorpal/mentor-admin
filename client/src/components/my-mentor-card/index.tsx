@@ -1,7 +1,6 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
@@ -23,6 +22,7 @@ import {
 import StageToast from "./stage-toast";
 import { makeStyles } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
+import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 import StageProgress from "./stage-progress";
 import parseMentor from "./mentor-info";
@@ -53,13 +53,14 @@ export default function MyMentorCard(props: {
   accessToken: string;
   continueAction: () => void;
 }): JSX.Element {
-  const { mentorState, editMentor, saveThumbnail } = useActiveMentor();
+  const { mentorState, editMentor } = useActiveMentor();
 
   if (!mentorState.data || !mentorState.editedData) {
     return <div />;
   }
   const mentorInfo = parseMentor(mentorState.data);
   const classes = useStyles();
+  const [thumbnail, updateThumbnail] = useWithThumbnail();
 
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
@@ -95,12 +96,12 @@ export default function MyMentorCard(props: {
                 item
                 xs={10}
               >
-                {mentorState.data.thumbnail ? (
+                {thumbnail ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
                     variant="rounded"
                     className={classes.homeThumbnail}
-                    src={mentorState.data.thumbnail}
+                    src={thumbnail}
                   />
                 ) : (
                   <Avatar
@@ -116,7 +117,7 @@ export default function MyMentorCard(props: {
                 accept="image/*"
                 onChange={(e) => {
                   e.target.files instanceof FileList
-                    ? saveThumbnail(e.target.files[0])
+                    ? updateThumbnail(e.target.files[0])
                     : undefined;
                 }}
               />
@@ -245,7 +246,7 @@ export default function MyMentorCard(props: {
             <Grid xs={12} md={2}>
               <RecommendedActionButton
                 mentor={mentorState.data}
-                setThumbnail={saveThumbnail}
+                setThumbnail={updateThumbnail}
                 continueAction={props.continueAction}
               />
             </Grid>

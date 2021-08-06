@@ -60,16 +60,11 @@ export const saveMentor = createAsyncThunk(
 export const saveThumbnail = createAsyncThunk(
   "mentor/saveThumbnail",
   async (headers: {
-    accessToken: string;
     mentorId: string;
     file: File;
   }): Promise<string | unknown> => {
     try {
-      return await api
-        .uploadThumbnail(headers.mentorId, headers.file)
-        .then(() => {
-          api.fetchThumbnail(headers.accessToken);
-        });
+      return await api.uploadThumbnail(headers.mentorId, headers.file);
     } catch (err) {
       return err.response.data;
     }
