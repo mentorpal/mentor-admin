@@ -131,19 +131,25 @@ export function useWithRecordState(
 
   function fetchFollowUpQs() {
     if (!mentor) return;
-    if (!filter.category) {
+    if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      const followUps = data
-        ? data.map((d) => {
+      setFollowUpQuestions(
+        (data || [])
+          .map((d) => {
             return d.question;
           })
-        : [];
-      setFollowUpQuestions(followUps);
+          .filter(
+            (followUp) =>
+              mentor.answers.findIndex(
+                (a) => a.question.question === followUp
+              ) === -1
+          )
+      );
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
   }
