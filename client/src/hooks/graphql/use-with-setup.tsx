@@ -85,6 +85,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isMentorEdited,
     isMentorLoading,
     isMentorSaving,
+    loadMentor,
     clearMentorError,
     editMentor,
     saveMentorDetails,
@@ -100,6 +101,12 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   function isConfigLoaded(): boolean {
     return config.state.status === ConfigStatus.SUCCEEDED;
   }
+
+  useEffect(() => {
+    if (!mentor && !isMentorLoading) {
+      loadMentor();
+    }
+  }, [mentor]);
 
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {

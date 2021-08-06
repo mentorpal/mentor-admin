@@ -96,11 +96,13 @@ function SubjectsPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
+    mentor,
     editedMentor,
     isMentorLoading,
     isMentorSaving,
     isMentorEdited,
     mentorError,
+    loadMentor,
     editMentor,
     saveMentorSubjects,
   } = useWithMentor();
@@ -139,6 +141,10 @@ function SubjectsPage(props: {
       defaultSubject:
         editedMentor.defaultSubject?._id === subject._id ? undefined : subject,
     });
+  }
+
+  if (!mentor && !isMentorLoading) {
+    loadMentor();
   }
 
   return (

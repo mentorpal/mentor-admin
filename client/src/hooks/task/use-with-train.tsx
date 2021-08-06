@@ -33,7 +33,12 @@ export function useWithTraining(
 
   return {
     isPolling,
-    error,
+    error: error
+      ? {
+          message: "Oops, training failed. Please try again.",
+          error: error?.error,
+        }
+      : error,
     status,
     statusUrl,
     startTask,

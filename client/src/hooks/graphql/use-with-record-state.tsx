@@ -57,15 +57,8 @@ export function useWithRecordState(
   const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
-  const {
-    mentor,
-    mentorError,
-    isMentorLoading,
-    loadMentor,
-    onAnswerUpdated,
-    onQuestionUpdated,
-    clearMentorError,
-  } = useWithMentor();
+  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
+    useWithMentor();
   const {
     uploads,
     isUploading,
@@ -82,6 +75,9 @@ export function useWithRecordState(
 
   useEffect(() => {
     if (!mentor) {
+      if (!isMentorLoading) {
+        loadMentor();
+      }
       return;
     }
     const { videoId, subject, category, status } = filter;
@@ -302,7 +298,6 @@ export function useWithRecordState(
             setIsSaving(false);
             return;
           }
-          onQuestionUpdated(editedAnswer.question);
           if (!equals(answer, editedAnswer)) {
             updateAnswer(editedAnswer, accessToken)
               .then((didUpdate) => {
@@ -311,7 +306,6 @@ export function useWithRecordState(
                   return;
                 }
                 updateAnswerState({ answer: editedAnswer });
-                onAnswerUpdated(editedAnswer);
                 setIsSaving(false);
               })
               .catch((err) => {
@@ -323,7 +317,6 @@ export function useWithRecordState(
               });
           } else {
             updateAnswerState({ answer: editedAnswer });
-            onAnswerUpdated(editedAnswer);
             setIsSaving(false);
           }
         })
@@ -345,7 +338,6 @@ export function useWithRecordState(
             return;
           }
           updateAnswerState({ answer: editedAnswer });
-          onAnswerUpdated(editedAnswer);
           setIsSaving(false);
         })
         .catch((err) => {

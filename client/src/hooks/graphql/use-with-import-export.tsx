@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as api from "api";
 import {
   Mentor,
@@ -32,7 +32,13 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { mentor, loadMentor } = useWithMentor();
+  const { mentor, isMentorLoading, loadMentor } = useWithMentor();
+
+  useEffect(() => {
+    if (!mentor && !isMentorLoading) {
+      loadMentor();
+    }
+  }, [mentor]);
 
   function onMentorExported(): void {
     if (!mentor || isUpdating) {
