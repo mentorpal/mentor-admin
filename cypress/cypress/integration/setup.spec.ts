@@ -574,7 +574,7 @@ describe("Setup", () => {
   it("shows required subject, repeat after me, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup6, setup8, setup8],
+      mentor: [setup6, setup8],
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });

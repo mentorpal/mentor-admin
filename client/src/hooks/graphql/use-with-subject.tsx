@@ -17,6 +17,7 @@ import {
 } from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 
 export interface NewQuestionArgs {
   question: string;
@@ -43,6 +44,7 @@ export function useWithSubject(
   subjectId: string,
   accessToken: string
 ): UseWithSubject {
+  const { loadMentor } = useWithMentor();
   const {
     data,
     editedData,
@@ -76,6 +78,12 @@ export function useWithSubject(
     await saveData({
       action: async (editedData: Subject) => {
         await updateSubject(editedData, accessToken);
+        // we need to reload the mentor after updating a subject because
+        // the subjects and questions and answers might have changed
+        // would be better to edit in place but for now do the easy (but more expensive) way and
+        // change this later if needed
+        // this doesn't happen very often anyway
+        loadMentor();
       },
     });
   }

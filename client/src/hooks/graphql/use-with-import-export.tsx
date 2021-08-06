@@ -13,8 +13,8 @@ import {
   Question,
   Subject,
 } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { copyAndRemove, copyAndSet } from "helpers";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 
 export interface UseWithImportExport {
   mentor: Mentor | undefined;
@@ -32,8 +32,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { mentorState } = useActiveMentor();
-  const mentor = mentorState.data;
+  const { mentor, loadMentor } = useWithMentor();
 
   function onMentorExported(): void {
     if (!mentor || isUpdating) {
@@ -96,6 +95,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
       setImportJson(undefined);
       setImportPreview(undefined);
       setIsUpdating(true);
+      loadMentor();
     });
   }
 
