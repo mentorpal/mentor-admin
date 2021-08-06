@@ -101,6 +101,7 @@ export default function MyMentorCard(props: {
                 justify="center"
                 alignItems="center"
                 data-cy="thumbnail-wrapper"
+                thumbnail-src={thumbnail}
                 item
                 xs={10}
               >

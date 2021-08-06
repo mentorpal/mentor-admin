@@ -831,7 +831,7 @@ export async function uploadThumbnail(
       "Content-Type": "multipart/form-data",
     },
   });
-  return getDataFromAxiosResponse(result, []);
+  return getDataFromAxiosResponse(result, ["thumbnail"]);
 }
 
 export async function uploadVideo(

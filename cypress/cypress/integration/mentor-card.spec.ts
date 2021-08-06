@@ -9,7 +9,6 @@ import {
   cyMockDefault,
   mockGQL,
   cyMockUploadThumbnail,
-  cyAttachUpload,
   cyAttachInputFile,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
@@ -146,23 +145,26 @@ describe("My Mentor Page", () => {
       cyMockDefault(cy, {
         mentor: {
           ...clint,
-          thumbnail: "https://new.url/test.png",
+          thumbnail: "/thumbnails/beforeupdate.png",
         },
       });
       cyMockUploadThumbnail(cy, {
         thumbnail: "/thumbnails/afterupdate.png",
       });
       cy.visit("/");
+      cy.get("[data-cy=thumbnail-wrapper]").should(
+        "have.attr",
+        "thumbnail-src",
+        "/thumbnails/beforeupdate.png"
+      );
       cy.get("[data-cy=my-mentor-card]").within(($uploadForm) => {
         cyAttachInputFile(cy, { fileName: "image-thumbnail-uploaded.png" });
         cy.wait("@uploadThumbnail");
-        cy.get("[data-cy=uploaded-thumbnail").within(($x) => {
-          cy.get("img").should(
-            "have.attr",
-            "src",
-            "/thumbnails/afterupdate.png"
-          );
-        });
+        cy.get("[data-cy=thumbnail-wrapper]").should(
+          "have.attr",
+          "thumbnail-src",
+          "/thumbnails/afterupdate.png"
+        );
       });
     });
 
