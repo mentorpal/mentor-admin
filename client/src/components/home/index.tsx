@@ -94,10 +94,10 @@ function HomePage(props: {
   } = useWithReviewAnswerState(props.accessToken, props.search);
   const { mentor, isMentorEdited } = useMentor;
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
-  const [showSetupAlert, setShowSetupAlert] = useState(false);
+  const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   React.useEffect(() => {
-    if (!setupStatus) {
+    if (!setupStatus || !showSetupAlert) {
       return;
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
@@ -222,7 +222,7 @@ function HomePage(props: {
         data-cy="setup-dialog"
         maxWidth="sm"
         fullWidth={true}
-        open={showSetupAlert}
+        open={setupStatus && showSetupAlert}
         onClose={() => setShowSetupAlert(false)}
       >
         <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>
