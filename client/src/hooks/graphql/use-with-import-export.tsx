@@ -32,13 +32,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { mentor, isMentorLoading, loadMentor } = useWithMentor();
-
-  useEffect(() => {
-    if (!mentor && !isMentorLoading) {
-      loadMentor();
-    }
-  }, [mentor]);
+  const { mentor, loadMentor } = useWithMentor();
 
   function onMentorExported(): void {
     if (!mentor || isUpdating) {

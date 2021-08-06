@@ -75,9 +75,6 @@ export function useWithRecordState(
 
   useEffect(() => {
     if (!mentor) {
-      if (!isMentorLoading) {
-        loadMentor();
-      }
       return;
     }
     const { videoId, subject, category, status } = filter;

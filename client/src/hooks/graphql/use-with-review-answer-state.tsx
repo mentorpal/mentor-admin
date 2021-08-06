@@ -62,7 +62,6 @@ export function useWithReviewAnswerState(
     isMentorLoading,
     onMentorUpdated,
     editMentor,
-    loadMentor,
     saveMentorDetails,
     clearMentorError,
   } = useMentor;
@@ -72,12 +71,6 @@ export function useWithReviewAnswerState(
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-
-  useEffect(() => {
-    if (!mentor && !isMentorLoading) {
-      loadMentor();
-    }
-  }, [mentor]);
 
   useEffect(() => {
     if (!editedMentor || isMentorLoading || isSaving) {

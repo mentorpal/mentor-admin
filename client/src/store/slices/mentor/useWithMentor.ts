@@ -49,9 +49,6 @@ export const useWithMentor = (): UseWithMentor => {
     if (mentor && userLoadedBy === loginState.user?._id) {
       return;
     }
-    console.log(
-      `in use effect we will load mentor loginState.user?._id='${loginState.user?._id}' and userLoadedBy='${userLoadedBy}'`
-    );
     loadMentor();
   }, [loginState.user?._id]);
 

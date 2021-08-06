@@ -49,7 +49,6 @@ export const loadMentor = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
-    console.log(`inside load mentor: `, state);
     if (!login.accessToken) {
       return Promise.reject("no access token");
     }
