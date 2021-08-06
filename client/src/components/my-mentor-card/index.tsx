@@ -29,8 +29,7 @@ import StageProgress from "./stage-progress";
 import parseMentor from "./mentor-info";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
+import { UseWithMentor } from "store/slices/mentor/useWithMentor";
 
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
@@ -53,18 +52,26 @@ const useStyles = makeStyles(() => ({
 export default function MyMentorCard(props: {
   accessToken: string;
   continueAction: () => void;
+  useMentor: UseWithMentor;
 }): JSX.Element {
-  const { mentorState, editMentor } = useActiveMentor();
+  const {
+    mentor,
+    isMentorLoading,
+    isMentorSaving,
+    mentorError,
+    editedMentor,
+    editMentor,
+  } = props.useMentor;
 
-  if (!mentorState.data || !mentorState.editedData) {
+  if (!mentor || !editedMentor) {
     return <div />;
   }
-  const mentorInfo = parseMentor(mentorState.data);
+  const mentorInfo = parseMentor(mentor);
   const classes = useStyles();
   const [thumbnail, updateThumbnail] = useWithThumbnail(
-    mentorState.data._id,
+    mentor._id,
     props.accessToken,
-    mentorState.data.thumbnail || ""
+    mentor.thumbnail || ""
   );
 
   return (
@@ -83,14 +90,14 @@ export default function MyMentorCard(props: {
               <TextField
                 data-cy="mentor-name"
                 label="Full Name"
-                value={mentorState.editedData.name}
+                value={editedMentor.name}
                 onChange={(e) => editMentor({ name: e.target.value })}
                 className={classes.inputField}
               />
               <TextField
                 data-cy="mentor-job-title"
                 label="Job Title"
-                value={mentorState.editedData.title}
+                value={editedMentor.title}
                 onChange={(e) => editMentor({ title: e.target.value })}
                 className={classes.inputField}
               />
@@ -131,7 +138,7 @@ export default function MyMentorCard(props: {
               <TextField
                 data-cy="mentor-first-name"
                 label="First Name"
-                value={mentorState.editedData.firstName}
+                value={editedMentor.firstName}
                 onChange={(e) => editMentor({ firstName: e.target.value })}
                 className={classes.inputField}
               />
@@ -139,17 +146,17 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-email"
                 label="Email"
                 type="email"
-                value={mentorState.editedData.email}
+                value={editedMentor.email}
                 onChange={(e) => editMentor({ email: e.target.value })}
                 className={classes.inputField}
               />
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={mentorState.editedData.allowContact}
+                    checked={editedMentor.allowContact}
                     onChange={() =>
                       editMentor({
-                        allowContact: !mentorState.editedData?.allowContact,
+                        allowContact: !editedMentor.allowContact,
                       })
                     }
                     color="secondary"
@@ -164,7 +171,7 @@ export default function MyMentorCard(props: {
                   <Select
                     data-cy="select-chat-type"
                     label="Mentor Type"
-                    value={mentorState.editedData.mentorType}
+                    value={editedMentor.mentorType}
                     style={{ width: 200 }}
                     onChange={(
                       event: React.ChangeEvent<{
@@ -250,7 +257,7 @@ export default function MyMentorCard(props: {
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
-                mentor={mentorState.data}
+                mentor={mentor}
                 setThumbnail={updateThumbnail}
                 continueAction={props.continueAction}
               />
@@ -264,15 +271,9 @@ export default function MyMentorCard(props: {
         name={mentorInfo.currentStage.name}
       />
       <LoadingDialog
-        title={
-          mentorState.mentorStatus === MentorStatus.LOADING
-            ? "Loading"
-            : mentorState.mentorStatus === MentorStatus.SAVING
-            ? "Saving"
-            : ""
-        }
+        title={isMentorLoading ? "Loading" : isMentorSaving ? "Saving" : ""}
       />
-      <ErrorDialog error={mentorState.error} />
+      <ErrorDialog error={mentorError} />
     </div>
   );
 }

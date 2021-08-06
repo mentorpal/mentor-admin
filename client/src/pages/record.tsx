@@ -163,6 +163,7 @@ function RecordPage(props: {
       onNav();
     }
   }
+
   function confirm() {
     if (!confirmLeave) {
       return;
@@ -173,6 +174,7 @@ function RecordPage(props: {
     confirmLeave.callback();
     setConfirmLeave(undefined);
   }
+
   function handleSaveSubject() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
     saveSubject().then(() => recordState.reloadMentorData());

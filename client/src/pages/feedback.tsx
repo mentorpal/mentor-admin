@@ -41,7 +41,7 @@ import {
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
@@ -216,11 +216,7 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const {
-    data: mentor,
-    error: mentorError,
-    isLoading: isMentorLoading,
-  } = useWithMentor();
+  const { mentor, mentorError, isMentorLoading } = useWithMentor();
   const {
     data: feedback,
     isLoading: isFeedbackLoading,

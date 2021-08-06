@@ -5,7 +5,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { fetchTrainingStatus, trainMentor } from "api";
-import { TrainingInfo } from "types";
+import { useEffect } from "react";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { JobState, TrainingInfo } from "types";
 import { Task, useWithTask } from "./use-with-task";
 
 export function useWithTraining(
@@ -13,6 +15,13 @@ export function useWithTraining(
 ): Task<TrainingInfo, string> {
   const { status, statusUrl, error, isPolling, startTask, clearError } =
     useWithTask<TrainingInfo, string>(train, poll, pollingInterval);
+  const { loadMentor } = useWithMentor();
+
+  useEffect(() => {
+    if (status?.state === JobState.SUCCESS) {
+      loadMentor();
+    }
+  }, [status]);
 
   function train(mentorId: string) {
     return trainMentor(mentorId);
@@ -23,11 +32,11 @@ export function useWithTraining(
   }
 
   return {
-    isPolling: isPolling,
-    error: error,
-    status: status,
-    statusUrl: statusUrl,
-    startTask: startTask,
-    clearError: clearError,
+    isPolling,
+    error,
+    status,
+    statusUrl,
+    startTask,
+    clearError,
   };
 }

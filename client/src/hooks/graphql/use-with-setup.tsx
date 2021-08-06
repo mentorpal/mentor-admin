@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import {
   Answer,
-  JobState,
   Mentor,
   MentorType,
   Status,
@@ -15,7 +14,7 @@ import {
   UtteranceName,
 } from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "./use-with-mentor";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
@@ -79,22 +78,20 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
-  const [error, setError] = useState<LoadingError>();
   const {
-    data: mentor,
-    error: mentorError,
-    editedData: editedMentor,
-    isEdited: isMentorEdited,
-    isLoading: isMentorLoading,
-    isSaving: isMentorSaving,
-    editData: editMentor,
-    reloadData: reloadMentor,
+    mentor,
+    mentorError,
+    editedMentor,
+    isMentorEdited,
+    isMentorLoading,
+    isMentorSaving,
+    clearMentorError,
+    editMentor,
     saveMentorDetails,
   } = useWithMentor();
   const {
     isPolling: isTraining,
     error: trainError,
-    status: trainStatus,
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
@@ -103,6 +100,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   function isConfigLoaded(): boolean {
     return config.state.status === ConfigStatus.SUCCEEDED;
   }
+
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
       return;
@@ -171,28 +169,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setSteps(status);
   }, [mentor, config.state.config]);
 
-  useEffect(() => {
-    if (mentorError) {
-      setError(mentorError);
-    }
-  }, [mentorError]);
-
-  useEffect(() => {
-    if (trainStatus?.state === JobState.SUCCESS) {
-      reloadMentor();
-    }
-  }, [trainStatus]);
-
-  useEffect(() => {
-    if (trainError) {
-      setError({
-        message: "Oops, training failed. Please try again.",
-        error: trainError.error,
-      });
-      clearTrainingError();
-    }
-  }, [trainError]);
-
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js
     // returns negative mods, e.g.
@@ -249,7 +225,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   }
 
   function clearError() {
-    setError(undefined);
+    clearTrainingError();
+    clearMentorError();
   }
 
   return {
@@ -263,7 +240,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isSaving: isMentorSaving,
     isTraining,
     readyToDisplay: isConfigLoaded(),
-    error,
+    error: mentorError || trainError,
     editMentor,
     saveMentor: saveMentorDetails,
     startTraining: train,

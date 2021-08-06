@@ -5,7 +5,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
-import { equals } from "helpers";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { Mentor } from "types";
 
@@ -21,8 +20,6 @@ export enum MentorStatus {
 
 export interface MentorState {
   data?: Mentor;
-  editedData?: Mentor;
-  isEdited?: boolean;
   mentorStatus: MentorStatus;
   error?: LoadingError;
 }
@@ -63,7 +60,8 @@ export const saveMentorSubjects = createAsyncThunk(
   }): Promise<Mentor | unknown> => {
     try {
       await api.updateMentorSubjects(headers.editedData, headers.accessToken);
-      return await api.fetchMentor(headers.accessToken); // might have added answers so need to reload them
+      // need to fetch the updated mentor because the questions/answers might have changed
+      return await api.fetchMentor(headers.accessToken);
     } catch (err) {
       return err.response.data;
     }
@@ -79,15 +77,11 @@ export const mentorSlice = createSlice({
     clearError: (state) => {
       delete state.error;
     },
-    editMentor: (state, action: PayloadAction<Partial<Mentor>>) => {
-      if (state.data) {
-        state.editedData = {
-          ...state.data,
-          ...(state.editedData || {}),
-          ...action.payload,
-        };
-        state.isEdited = !equals(state.data, state.editedData);
-      }
+    updateMentor: (state, action: PayloadAction<Mentor>) => {
+      state.data = action.payload;
+    },
+    setStatus: (state, action: PayloadAction<MentorStatus>) => {
+      state.mentorStatus = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -98,8 +92,6 @@ export const mentorSlice = createSlice({
       })
       .addCase(loadMentor.fulfilled, (state, action) => {
         state.data = action.payload;
-        state.editedData = action.payload;
-        state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(loadMentor.rejected, (state) => {
@@ -115,7 +107,6 @@ export const mentorSlice = createSlice({
       })
       .addCase(saveMentor.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
-        state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentor.rejected, (state) => {
@@ -130,7 +121,6 @@ export const mentorSlice = createSlice({
       })
       .addCase(saveMentorSubjects.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
-        state.isEdited = false;
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentorSubjects.rejected, (state) => {
@@ -143,6 +133,6 @@ export const mentorSlice = createSlice({
   },
 });
 
-export const { clearError, editMentor } = mentorSlice.actions;
+export const { clearError, updateMentor, setStatus } = mentorSlice.actions;
 
 export default mentorSlice.reducer;

@@ -214,7 +214,7 @@ const videoMentor: Mentor = completeMentor({
   ],
 });
 
-describe.only("Record", () => {
+describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
       cyMockDefault(cy, { mentor: chatMentor });

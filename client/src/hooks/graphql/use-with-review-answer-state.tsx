@@ -16,14 +16,15 @@ import {
   SubjectQuestion,
   QuestionType,
   Question,
-  Mentor,
   UtteranceName,
 } from "types";
 import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
+import {
+  UseWithMentor,
+  useWithMentor,
+} from "store/slices/mentor/useWithMentor";
 
 interface Progress {
   complete: number;
@@ -51,15 +52,18 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const useMentor = useWithMentor();
   const {
-    mentorState,
+    mentor,
+    editedMentor,
+    mentorError,
+    isMentorEdited,
+    isMentorLoading,
+    onMentorUpdated,
     editMentor,
-    saveMentor,
-    clearError: clearMentorError,
-  } = useActiveMentor();
-  const mentor = mentorState.data;
-  const editedMentor = mentorState.editedData;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
+    saveMentorDetails,
+    clearMentorError,
+  } = useMentor;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -291,7 +295,7 @@ export function useWithReviewAnswerState(
     if (
       !mentor ||
       !editedMentor ||
-      !mentorState.isEdited ||
+      !isMentorEdited ||
       isMentorLoading ||
       isSaving
     ) {
@@ -309,7 +313,8 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
-        saveMentor();
+        onMentorUpdated(editedMentor); // update with the added/edited mentor questions
+        saveMentorDetails();
         setIsSaving(false);
       })
       .catch((err) => {
@@ -320,15 +325,14 @@ export function useWithReviewAnswerState(
   }
 
   return {
-    mentor,
-    isMentorEdited: Boolean(mentorState.isEdited),
+    useMentor,
     blocks,
     progress,
     selectedSubject,
     isLoading: isMentorLoading,
     isSaving,
     isTraining,
-    error: mentorState.error || trainError || saveError,
+    error: mentorError || trainError || saveError,
     clearError,
     selectSubject,
     saveChanges,
@@ -337,8 +341,7 @@ export function useWithReviewAnswerState(
 }
 
 interface UseWithReviewAnswerState {
-  mentor?: Mentor;
-  isMentorEdited: boolean;
+  useMentor: UseWithMentor;
   blocks: RecordingBlock[];
   progress: Progress;
   selectedSubject?: string;

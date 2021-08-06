@@ -27,7 +27,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
@@ -96,12 +96,12 @@ function SubjectsPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
-    editedData: editedMentor,
-    isLoading: isMentorLoading,
-    isSaving: isMentorSaving,
-    isEdited: isMentorEdited,
-    error: mentorError,
-    editData: editMentor,
+    editedMentor,
+    isMentorLoading,
+    isMentorSaving,
+    isMentorEdited,
+    mentorError,
+    editMentor,
     saveMentorSubjects,
   } = useWithMentor();
   const {

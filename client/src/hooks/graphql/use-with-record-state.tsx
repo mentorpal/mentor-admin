@@ -18,10 +18,9 @@ import {
 import { copyAndSet, equals } from "helpers";
 
 import { RecordPageState } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
 import { LoadingError } from "./loading-reducer";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -59,10 +58,14 @@ export function useWithRecordState(
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const pollingInterval = parseInt(filter.poll || "");
   const {
-    mentorState,
+    mentor,
+    mentorError,
+    isMentorLoading,
     loadMentor,
-    clearError: clearMentorError,
-  } = useActiveMentor();
+    onAnswerUpdated,
+    onQuestionUpdated,
+    clearMentorError,
+  } = useWithMentor();
   const {
     uploads,
     isUploading,
@@ -76,11 +79,8 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const { data: mentor } = mentorState;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
 
   useEffect(() => {
-    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }
@@ -302,6 +302,7 @@ export function useWithRecordState(
             setIsSaving(false);
             return;
           }
+          onQuestionUpdated(editedAnswer.question);
           if (!equals(answer, editedAnswer)) {
             updateAnswer(editedAnswer, accessToken)
               .then((didUpdate) => {
@@ -310,8 +311,8 @@ export function useWithRecordState(
                   return;
                 }
                 updateAnswerState({ answer: editedAnswer });
+                onAnswerUpdated(editedAnswer);
                 setIsSaving(false);
-                loadMentor();
               })
               .catch((err) => {
                 setIsSaving(false);
@@ -322,8 +323,8 @@ export function useWithRecordState(
               });
           } else {
             updateAnswerState({ answer: editedAnswer });
+            onAnswerUpdated(editedAnswer);
             setIsSaving(false);
-            loadMentor();
           }
         })
         .catch((err) => {
@@ -344,8 +345,8 @@ export function useWithRecordState(
             return;
           }
           updateAnswerState({ answer: editedAnswer });
+          onAnswerUpdated(editedAnswer);
           setIsSaving(false);
-          loadMentor();
         })
         .catch((err) => {
           setIsSaving(false);
@@ -411,7 +412,7 @@ export function useWithRecordState(
     isUploading,
     isRecording,
     isSaving,
-    error: mentorState.error || saveError,
+    error: mentorError || saveError,
     clearError,
   };
 }

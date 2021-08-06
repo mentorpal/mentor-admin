@@ -222,7 +222,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
 
-  it("shows mentor slide", () => {
+  it.only("shows mentor slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
