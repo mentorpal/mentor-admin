@@ -7,7 +7,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
-import { LoginStatus, Mentor } from "types";
+import { Mentor } from "types";
 import { LoginState } from "../login";
 
 /** Store */
