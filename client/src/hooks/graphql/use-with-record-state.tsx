@@ -134,7 +134,7 @@ export function useWithRecordState(
       !isMentorLoading
     ) {
       setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length - 1) {
+      if (answerIdx < answers.length) {
         nextAnswer();
       }
     }
@@ -149,17 +149,18 @@ export function useWithRecordState(
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      let followUps = data
-        ? data.map((d) => {
+      setFollowUpQuestions(
+        (data || [])
+          .map((d) => {
             return d.question;
           })
-        : [];
-      followUps = followUps.filter(
-        (followUp) =>
-          mentor.answers.findIndex((a) => a.question.question === followUp) ===
-          -1
+          .filter(
+            (followUp) =>
+              mentor.answers.findIndex(
+                (a) => a.question.question === followUp
+              ) === -1
+          )
       );
-      setFollowUpQuestions(followUps);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
   }
