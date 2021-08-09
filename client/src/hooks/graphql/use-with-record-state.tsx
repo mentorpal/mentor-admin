@@ -56,6 +56,7 @@ export function useWithRecordState(
   );
   const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
   const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
     useWithMentor();
@@ -72,6 +73,7 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
+  const idxChanged = curAnswer?.answer._id !== answers[answerIdx]?.answer._id;
 
   useEffect(() => {
     if (!mentor) {
@@ -128,6 +130,22 @@ export function useWithRecordState(
       }
     }
   }, [isMentorLoading]);
+
+  useEffect(() => {
+    if (!mentor || !answers[answerIdx]) return;
+    setCurAnswer({
+      ...answers[answerIdx],
+      isEdited: !equals(
+        answers[answerIdx].answer,
+        answers[answerIdx].editedAnswer
+      ),
+      isValid: isAnswerValid(),
+      isUploading: isAnswerUploading(answers[answerIdx].editedAnswer),
+      videoSrc: idxChanged
+        ? getVideoSrc()
+        : curAnswer?.videoSrc || getVideoSrc(),
+    });
+  }, [answers[answerIdx], uploads]);
 
   function fetchFollowUpQs() {
     if (!mentor) return;
@@ -265,6 +283,11 @@ export function useWithRecordState(
 
   function rerecord() {
     const answer = answers[answerIdx];
+    if (!curAnswer) return;
+    setCurAnswer({
+      ...curAnswer,
+      videoSrc: "",
+    });
     updateAnswerState({
       recordedVideo: undefined,
       editedAnswer: { ...answer.editedAnswer, media: [] },
@@ -373,20 +396,8 @@ export function useWithRecordState(
     answers,
     answerIdx,
     recordPageState,
-    curAnswer:
-      answers.length >= answerIdx + 1
-        ? {
-            ...answers[answerIdx],
-            isEdited: !equals(
-              answers[answerIdx].answer,
-              answers[answerIdx].editedAnswer
-            ),
-            isValid: isAnswerValid(),
-            isUploading: isAnswerUploading(answers[answerIdx].editedAnswer),
-            videoSrc: getVideoSrc(),
-          }
-        : undefined,
-    uploads: uploads,
+    curAnswer,
+    uploads,
     pollStatusCount,
     followUpQuestions,
     prevAnswer,
