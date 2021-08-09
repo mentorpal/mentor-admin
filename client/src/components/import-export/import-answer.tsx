@@ -10,12 +10,18 @@ import {
   Collapse,
   IconButton,
   List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   ListSubheader,
   makeStyles,
   Typography,
 } from "@material-ui/core";
-import { ExpandMore as ExpandMoreIcon } from "@material-ui/icons";
-import { Answer, ImportPreview } from "types";
+import {
+  ExpandMore as ExpandMoreIcon,
+  ErrorOutline as ErrorOutlineIcon,
+} from "@material-ui/icons";
+import { Answer, EditType, ImportPreview, Media } from "types";
 import { ChangeIcon } from "./icons";
 
 const useStyles = makeStyles(() => ({
@@ -42,8 +48,37 @@ export default function AnswerImport(props: {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const { preview } = props;
-  const { importData: answer, curData: curAnswer } = preview;
+  const { editType, importData: answer, curData: curAnswer } = preview;
   const transcript = answer?.transcript || curAnswer?.transcript || "";
+
+  if (answer === undefined && curAnswer === undefined) {
+    return <div />;
+  }
+
+  const media: ImportPreview<Media>[] = [];
+  answer?.media?.forEach((m) => {
+    const curMedia = curAnswer?.media?.find(
+      (mm) => mm.tag === m.tag && mm.type === m.type
+    );
+    media.push({
+      editType: !curMedia ? EditType.ADDED : EditType.NONE,
+      importData: m,
+      curData: curMedia,
+    });
+  });
+  curAnswer?.media
+    ?.filter(
+      (mm) =>
+        !answer?.media?.find((m) => m.type === mm.type && m.tag === mm.tag)
+    )
+    .forEach((m) => {
+      media.push({
+        editType:
+          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+        importData: undefined,
+        curData: m,
+      });
+    });
 
   return (
     <Card data-cy="answer" className={classes.root}>
@@ -80,7 +115,32 @@ export default function AnswerImport(props: {
         style={{ width: "100%" }}
       >
         <ListSubheader>Media</ListSubheader>
-        <List data-cy="answer-media" dense disablePadding></List>
+        {media?.filter((m) => m.importData?.needsTransfer).length} needs
+        transferring
+        <List data-cy="answer-media" dense disablePadding>
+          {media.map((m, i) => {
+            return (
+              <ListItem key={`media-${i}`} data-cy={`media-${i}`}>
+                <ListItemIcon>
+                  <ChangeIcon preview={m} />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    m.importData
+                      ? `${m.importData.type} ${m.importData.tag}`
+                      : `${m.curData?.type} ${m.curData?.tag}`
+                  }
+                  secondary={m.importData?.url || m.curData?.url}
+                />
+                {m.importData?.needsTransfer ? (
+                  <ListItemIcon>
+                    <ErrorOutlineIcon />
+                  </ListItemIcon>
+                ) : undefined}
+              </ListItem>
+            );
+          })}
+        </List>
       </Collapse>
     </Card>
   );

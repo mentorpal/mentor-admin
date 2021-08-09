@@ -32,7 +32,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { mentor, loadMentor } = useWithMentor();
+  const { mentor, onMentorUpdated } = useWithMentor();
 
   function onMentorExported(): void {
     if (!mentor || isUpdating) {
@@ -91,11 +91,11 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
       return;
     }
     setIsUpdating(true);
-    api.importMentor(mentor._id, importedJson, accessToken).then(() => {
+    api.importMentor(mentor._id, importedJson, accessToken).then((m) => {
       setImportJson(undefined);
       setImportPreview(undefined);
       setIsUpdating(true);
-      loadMentor();
+      onMentorUpdated(m);
     });
   }
 
