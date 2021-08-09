@@ -822,7 +822,7 @@ export async function fetchTrainingStatus(
 export async function uploadThumbnail(
   mentorId: string,
   thumbnail: File
-): Promise<AsyncJob> {
+): Promise<string> {
   const data = new FormData();
   data.append("body", JSON.stringify({ mentor: mentorId }));
   data.append("thumbnail", thumbnail);
@@ -831,24 +831,7 @@ export async function uploadThumbnail(
       "Content-Type": "multipart/form-data",
     },
   });
-  return getDataFromAxiosResponse(result, []);
-}
-
-export async function fetchThumbnail(accessToken: string): Promise<string> {
-  return execGql<string>(
-    {
-      query: `
-      query {
-        me {
-          mentor {
-            thumbnail
-          }
-        }
-      }
-    `,
-    },
-    { accessToken, dataPath: ["me", "thumbnail"] }
-  );
+  return getDataFromAxiosResponse(result, ["thumbnail"]);
 }
 
 export async function uploadVideo(

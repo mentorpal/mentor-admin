@@ -9,6 +9,7 @@ import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
+import { selectActiveMentor } from "./useWithMentor";
 
 /** Store */
 
@@ -65,6 +66,27 @@ export const saveMentor = createAsyncThunk(
     try {
       await api.updateMentorDetails(headers.editedData, headers.accessToken);
       return headers.editedData;
+    } catch (err) {
+      return err.response.data;
+    }
+  }
+);
+
+export const saveThumbnail = createAsyncThunk(
+  "mentor/saveThumbnail",
+  async (
+    headers: {
+      file: File;
+    },
+    thunkAPI
+  ): Promise<string | unknown> => {
+    try {
+      const state = thunkAPI.getState() as RootState;
+      const mentorId = selectActiveMentor(state).data?._id || "";
+      if (!mentorId) {
+        return Promise.reject("upload api called with no active mentor");
+      }
+      return await api.uploadThumbnail(mentorId, headers.file);
     } catch (err) {
       return err.response.data;
     }
@@ -129,6 +151,22 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.SUCCEEDED;
       })
       .addCase(saveMentor.rejected, (state) => {
+        state.mentorStatus = MentorStatus.FAILED;
+        state.error = {
+          message: "failed to save mentor",
+          error: saveMentor.rejected.name,
+        };
+      })
+      .addCase(saveThumbnail.pending, (state) => {
+        state.mentorStatus = MentorStatus.SAVING;
+      })
+      .addCase(saveThumbnail.fulfilled, (state, action) => {
+        if (state.data) {
+          state.data.thumbnail = String(action.payload);
+        }
+        state.mentorStatus = MentorStatus.SUCCEEDED;
+      })
+      .addCase(saveThumbnail.rejected, (state) => {
         state.mentorStatus = MentorStatus.FAILED;
         state.error = {
           message: "failed to save mentor",

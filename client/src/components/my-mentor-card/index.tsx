@@ -68,11 +68,7 @@ export default function MyMentorCard(props: {
   }
   const mentorInfo = parseMentor(mentor);
   const classes = useStyles();
-  const [thumbnail, updateThumbnail] = useWithThumbnail(
-    mentor._id,
-    props.accessToken,
-    mentor.thumbnail || ""
-  );
+  const [thumbnail, updateThumbnail] = useWithThumbnail();
 
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
@@ -105,6 +101,7 @@ export default function MyMentorCard(props: {
                 justify="center"
                 alignItems="center"
                 data-cy="thumbnail-wrapper"
+                thumbnail-src={thumbnail}
                 item
                 xs={10}
               >
