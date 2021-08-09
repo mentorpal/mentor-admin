@@ -17,6 +17,8 @@ import {
   CancelRounded,
   CheckCircle,
   WarningRounded,
+  AccessTimeRounded,
+  Clear,
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
@@ -34,6 +36,7 @@ function UploadingListItem(props: {
     jobTitle,
     isJobFailed,
     isJobDone,
+    isJobQueued,
     onClose,
     needsAttention,
   } = props.useWithUploadListItem;
@@ -58,6 +61,8 @@ function UploadingListItem(props: {
       variant={"determinate"}
       value={upload.uploadProgress}
     />
+  ) : isJobQueued() ? (
+    "Queued"
   ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
     "Trimming video"
   ) : jobStatus !== UploadStatus.DONE ? (
@@ -76,19 +81,23 @@ function UploadingListItem(props: {
           paddingRight: 15,
           color: isJobFailed()
             ? "#ff0000"
-            : needsAttention
-            ? "#CCCC00"
             : isJobDone()
             ? "green"
+            : needsAttention
+            ? "#CCCC00"
             : "black",
         }}
       >
-        {needsAttention ? (
-          <WarningRounded />
+        {cancelling ? (
+          <Clear />
         ) : isJobDone() ? (
           <CheckCircle />
         ) : isJobFailed() ? (
           <CancelRounded />
+        ) : isJobQueued() ? (
+          <AccessTimeRounded />
+        ) : needsAttention ? (
+          <WarningRounded />
         ) : (
           <PublishRounded />
         )}
@@ -111,7 +120,7 @@ function UploadingListItem(props: {
       <ListItemIcon
         style={{
           minWidth: 0,
-          visibility: isJobFailed() ? "hidden" : "visible",
+          visibility: isJobFailed() || cancelling ? "hidden" : "visible",
         }}
         data-cy="cancel-upload"
       >

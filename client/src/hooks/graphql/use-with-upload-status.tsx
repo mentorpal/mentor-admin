@@ -24,6 +24,7 @@ export enum UploadStatus {
   TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
+  QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
   CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
   CANCEL_FAILED = "CANCEL_FAILED",
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload

@@ -17,6 +17,12 @@ export function useWithUploadListItem(
     (a) => a.answer.question._id === upload.question._id
   );
 
+  function isJobQueued(): boolean {
+    return (
+      jobStatus === UploadStatus.QUEUING || jobStatus === UploadStatus.POLLING
+    );
+  }
+
   function isJobDone(): boolean {
     return jobStatus === UploadStatus.DONE;
   }
@@ -42,6 +48,7 @@ export function useWithUploadListItem(
     jobStatus,
     isJobDone,
     isJobFailed,
+    isJobQueued,
     cancelling,
     needsAttention,
     jobTitle: upload.question.question,
@@ -55,6 +62,7 @@ export interface UseWithUploadListItem {
   jobStatus: UploadStatus;
   isJobDone: () => boolean;
   isJobFailed: () => boolean;
+  isJobQueued: () => boolean;
   cancelling: boolean;
   needsAttention: boolean;
   jobTitle: string;
