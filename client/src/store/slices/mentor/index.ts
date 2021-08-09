@@ -103,9 +103,6 @@ export const mentorSlice = createSlice({
     updateMentor: (state, action: PayloadAction<Mentor>) => {
       state.data = action.payload;
     },
-    setStatus: (state, action: PayloadAction<MentorStatus>) => {
-      state.mentorStatus = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -155,6 +152,6 @@ export const mentorSlice = createSlice({
   },
 });
 
-export const { clearError, updateMentor, setStatus } = mentorSlice.actions;
+export const { clearError, updateMentor } = mentorSlice.actions;
 
 export default mentorSlice.reducer;

@@ -12,12 +12,14 @@ import {
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import { JobState, Status } from "../support/types";
+import { setup0, setup3, setup4 } from "../fixtures/mentor";
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 4);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -155,6 +157,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=answer-0]").should("not.exist");
     cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
     cy.get("[data-cy=answer-0]").first().should("exist");
@@ -165,6 +168,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=answer-0]").should("not.exist");
     cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
     cy.get("[data-cy=answer-0]").first().should("exist");
@@ -187,6 +191,7 @@ describe("My Mentor Page", () => {
       },
     });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=select-subject]").trigger("mouseover").click();
     cy.get("[data-cy=select-background]").trigger("mouseover").click();
@@ -259,6 +264,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=background");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -328,6 +334,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
@@ -350,6 +357,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-3]").within(($block) => {
@@ -372,6 +380,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -404,6 +413,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -432,6 +442,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=background");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -454,6 +465,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=repeat_after_me");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -476,6 +488,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=background");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -511,6 +524,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=repeat_after_me");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -546,6 +560,7 @@ describe("My Mentor Page", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=repeat_after_me");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
     cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -587,6 +602,7 @@ describe("My Mentor Page", () => {
     cyMockTrain(cy);
     cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Oops, training failed. Please try again.");
   });
@@ -599,6 +615,7 @@ describe("My Mentor Page", () => {
     cyMockTrain(cy);
     cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=train-button]").contains("Build Mentor");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.contains("Building...");
@@ -616,8 +633,70 @@ describe("My Mentor Page", () => {
     cyMockTrain(cy);
     cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=train-button]").contains("Preview Mentor");
     cy.get("[data-cy=train-button]").trigger("mouseover").click();
     cy.url().should("include", "preview");
+  });
+
+  describe("if setup is not complete", () => {
+    it("redirects to setup if mentor info is not filled out", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup0],
+      });
+      cy.visit("/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.contains("Mentor Setup");
+    });
+
+    it("offers to continue setup if other steps not complete", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup3],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+    });
+
+    it("if idle not complete, setup goes to finish it", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup3],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.location("search").should("contain", "?i=6");
+    });
+
+    it("if required subject not complete, setup goes to finish it", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [setup4],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-dialog]").contains(
+        "You have not finished setting up your mentor. Would you like to continue it?"
+      );
+      cy.get("[data-cy=setup-yes]").trigger("mouseover").click();
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/setup");
+      });
+      cy.location("search").should("contain", "?i=7");
+    });
   });
 });

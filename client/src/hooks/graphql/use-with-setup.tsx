@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { navigate } from "gatsby";
 import { useEffect, useState } from "react";
 import {
   Answer,
@@ -18,17 +19,18 @@ import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
+import { urlBuild } from "helpers";
 
 export enum SetupStepType {
-  WELCOME,
-  MENTOR_INFO,
-  MENTOR_TYPE,
-  INTRODUCTION,
-  SELECT_SUBJECTS,
-  IDLE_TIPS,
-  IDLE,
-  REQUIRED_SUBJECT,
-  BUILD,
+  WELCOME = 0,
+  MENTOR_INFO = 1,
+  MENTOR_TYPE = 2,
+  INTRODUCTION = 3,
+  SELECT_SUBJECTS = 4,
+  IDLE_TIPS = 5,
+  IDLE = 6,
+  REQUIRED_SUBJECT = 7,
+  BUILD = 8,
 }
 
 interface SetupStep {
@@ -72,6 +74,7 @@ interface UseWithSetup {
   prevStep: () => void;
   toStep: (i: number) => void;
   clearError: () => void;
+  navigateToMissingSetup: () => void;
 }
 
 export function useWithSetup(search?: { i?: string }): UseWithSetup {
@@ -180,7 +183,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     );
   }
 
-  function nextStep() {
+  function nextStep(): void {
     if (!status) {
       return;
     }
@@ -190,7 +193,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     addToIdx(1);
   }
 
-  function prevStep() {
+  function prevStep(): void {
     if (!status) {
       return;
     }
@@ -200,7 +203,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     addToIdx(-1);
   }
 
-  function toStep(i: number) {
+  function toStep(i: number): void {
     if (!status || i < 0 || i >= steps.length) {
       return;
     }
@@ -210,7 +213,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setIdx(i);
   }
 
-  function train() {
+  function train(): void {
     if (
       !mentor ||
       isTraining ||
@@ -227,6 +230,30 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   function clearError() {
     clearTrainingError();
     clearMentorError();
+  }
+
+  function navigateToMissingSetup(): void {
+    if (!status) {
+      return;
+    }
+    if (!status.isMentorInfoDone) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_INFO) }));
+    } else if (!status.isMentorTypeChosen) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_TYPE) }));
+    } else if (status.idle && !status.idle.complete) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.IDLE) }));
+    } else {
+      for (const [i, s] of status.requiredSubjects.entries()) {
+        if (!s.complete) {
+          const idx = status.idle
+            ? SetupStepType.REQUIRED_SUBJECT
+            : SetupStepType.IDLE_TIPS;
+          navigate(urlBuild("/setup", { i: String(idx + i) }));
+          return;
+        }
+      }
+      navigate("/setup");
+    }
   }
 
   return {
@@ -248,5 +275,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     prevStep,
     toStep,
     clearError,
+    navigateToMissingSetup,
   };
 }
