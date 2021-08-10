@@ -706,6 +706,107 @@ export async function fetchMentor(
     { dataPath: ["me", "mentor"], accessToken }
   );
 }
+export async function fetchMentorById(
+  accessToken: string,
+  mentorId: string,
+  subject?: string,
+  topic?: string,
+  status?: string
+): Promise<Mentor> {
+  return execGql<Mentor>(
+    {
+      query: `
+      query Mentor($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
+          mentor {
+            _id
+            name
+            firstName
+            title
+            email
+            allowContact
+            mentorType
+            thumbnail
+            lastTrainedAt
+            isDirty
+            defaultSubject {
+              _id
+            }
+            subjects {
+              _id
+              name
+              description
+              isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+            topics(subject: $subject) {
+              id
+              name
+              description
+            }
+            answers(subject: $subject, topic: $topic, status: $status) {
+              _id
+              question {
+                _id
+                question
+                paraphrases
+                type
+                name
+                mentor
+                mentorType
+                minVideoLength
+              }
+              transcript
+              status
+              media {
+                type
+                tag
+                url
+            }
+          }  
+        }
+      }
+    `,
+      variables: {
+        mentor: mentorId,
+        subject: subject || "",
+        topic: topic || "",
+        status: status || "",
+      },
+    },
+    { dataPath: ["mentor"], accessToken }
+  );
+}
 
 export async function updateMentorDetails(
   mentor: Mentor,

@@ -21,7 +21,7 @@ export interface UseWithMentor {
   isMentorLoading: boolean;
   isMentorSaving: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
-  loadMentor: () => void;
+  loadMentor: (mentorId?: string) => void;
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
   clearMentorError: () => void;
@@ -63,7 +63,7 @@ export const useWithMentor = (): UseWithMentor => {
     setEditedMentor(mentor);
   }, [mentor]);
 
-  const loadMentor = () => {
+  const loadMentor = (mentorId?: string) => {
     if (isMentorLoading || isMentorSaving) {
       return;
     }
@@ -73,7 +73,9 @@ export const useWithMentor = (): UseWithMentor => {
         payload: "Cannot load mentor if unauthenticated.",
       });
     } else {
-      dispatch(mentorActions.loadMentor(loginState));
+      mentorId
+        ? dispatch(mentorActions.loadMentorById(mentorId))
+        : dispatch(mentorActions.loadMentor());
     }
   };
 

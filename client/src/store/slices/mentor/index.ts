@@ -41,7 +41,7 @@ const initialState: MentorState = {
 
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
-  async (login: LoginState, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+  async (none: undefined, thunkAPI): Promise<CancellabeResult<Mentor>> => {
     const state = thunkAPI.getState() as RootState;
     if (
       state.mentor.mentorStatus == MentorStatus.LOADING ||
@@ -50,10 +50,30 @@ export const loadMentor = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
-    if (!login.accessToken) {
+    if (!state.login.accessToken) {
       return Promise.reject("no access token");
     }
-    return { result: await api.fetchMentor(login.accessToken) };
+    return { result: await api.fetchMentor(state.login.accessToken) };
+  }
+);
+
+export const loadMentorById = createAsyncThunk(
+  "mentor/loadMentor",
+  async (mentorId: string, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+    const state = thunkAPI.getState() as RootState;
+    if (
+      state.mentor.mentorStatus == MentorStatus.LOADING ||
+      state.mentor.mentorStatus == MentorStatus.SAVING
+    ) {
+      return { isCancelled: true };
+    }
+    thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
+    if (!state.login.accessToken) {
+      return Promise.reject("no access token");
+    }
+    return {
+      result: await api.fetchMentorById(state.login.accessToken, mentorId),
+    };
   }
 );
 
