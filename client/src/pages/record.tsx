@@ -148,18 +148,14 @@ function RecordPage(props: {
   }
 
   function switchAnswer(onNav: () => void) {
-    if (curAnswer?.isEdited) {
-      if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
-        setConfirmLeave({
-          message:
-            "You have not uploaded your recorded video yet. Would you like to move on anyway?",
-          callback: onNav,
-        });
-      } else {
-        recordState.saveAnswer();
-        onNav();
-      }
+    if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
+      setConfirmLeave({
+        message:
+          "You have not uploaded your recorded video yet. Would you like to move on anyway?",
+        callback: onNav,
+      });
     } else {
+      if (curAnswer?.isEdited) recordState.saveAnswer();
       onNav();
     }
   }
