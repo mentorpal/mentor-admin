@@ -79,7 +79,6 @@ function HomePage(props: {
   search: { subject?: string };
   user: User;
 }): JSX.Element {
-  const classes = useStyles();
   const {
     useMentor,
     isLoading,
@@ -98,6 +97,8 @@ function HomePage(props: {
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
+  const mentorOwnership = defaultMentor === mentor?._id;
+  const classes = useStyles();
 
   React.useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -122,7 +123,11 @@ function HomePage(props: {
     mentor.isDirty ? startTraining(mentor._id) : launchMentor(mentor._id);
 
   return (
-    <div className={classes.root}>
+    <div
+      data-cy="my-mentor-wrapper"
+      className={classes.root}
+      style={{ background: mentorOwnership ? "white" : "black" }}
+    >
       <div>
         <NavBar
           title="My Mentor"

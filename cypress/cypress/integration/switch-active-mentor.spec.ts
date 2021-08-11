@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 
-describe.only("Switch Active Mentor", () => {
+describe("Switch Active Mentor", () => {
   describe("Shows default mentor and can switch to other mentors.", () => {
     it("views, saves, and updates profile data", () => {
       cySetup(cy);
@@ -25,6 +25,11 @@ describe.only("Switch Active Mentor", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=my-mentor-wrapper]").should(
+        "have.css",
+        "background-color",
+        "rgb(255, 255, 255)"
+      );
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Clinton Anderson");
       });
@@ -36,6 +41,11 @@ describe.only("Switch Active Mentor", () => {
       });
       cy.get("[data-cy=switch-mentor-id]").type("nega-clint");
       cy.get("[data-cy=switch-mentor-button]").trigger("mouseover").click();
+      cy.get("[data-cy=my-mentor-wrapper]").should(
+        "have.css",
+        "background-color",
+        "rgb(0, 0, 0)"
+      );
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Nega Clint");
       });
@@ -49,6 +59,11 @@ describe.only("Switch Active Mentor", () => {
       cy.get("[data-cy=mentor-job-title]").within(($input) => {
         cy.get("input").should("have.value", "Nuclear Electrician's Mate");
       });
+      cy.get("[data-cy=my-mentor-wrapper]").should(
+        "have.css",
+        "background-color",
+        "rgb(255, 255, 255)"
+      );
     });
   });
 });
