@@ -73,8 +73,8 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const idxChanged = curAnswer?.answer._id !== answers[answerIdx]?.answer._id;
-
+  const idxChanged =
+    curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
   useEffect(() => {
     if (!mentor) {
       return;
@@ -187,7 +187,7 @@ export function useWithRecordState(
 
   function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
     if (
-      answer.media &&
+      answer.media?.length &&
       !answer.transcript &&
       answer.question.name !== UtteranceName.IDLE
     ) {
