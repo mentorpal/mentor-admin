@@ -1302,12 +1302,12 @@ export async function importMentor(
                   }
                 }
               }
-              topics(subject: $subject) {
+              topics {
                 id
                 name
                 description
               }
-              answers(subject: $subject, topic: $topic, status: $status) {
+              answers {
                 _id
                 question {
                   _id
