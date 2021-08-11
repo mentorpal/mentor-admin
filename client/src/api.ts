@@ -687,10 +687,12 @@ export async function fetchMentor(
               }
               transcript
               status
+              hasUntransferredMedia
               media {
                 type
                 tag
                 url
+                needsTransfer
               }
             }
           }  
@@ -832,6 +834,17 @@ export async function uploadThumbnail(
     },
   });
   return getDataFromAxiosResponse(result, ["thumbnail"]);
+}
+
+export async function transferMedia(
+  mentorId: string,
+  questionId: string
+): Promise<AsyncJob> {
+  const result = await uploadRequest.post("/transfer", {
+    mentor: mentorId,
+    question: questionId,
+  });
+  return getDataFromAxiosResponse(result, []);
 }
 
 export async function uploadVideo(
@@ -982,6 +995,7 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
       query: `
         query MentorExport($mentor: ID!) {
           mentorExport(mentor: $mentor) {
+            _id
             subjects {
               _id
               name
@@ -1033,6 +1047,13 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
             answers {
               transcript
               status
+              hasUntransferredMedia
+              media {
+                type
+                tag
+                url
+                needsTransfer
+              }
               question {
                 _id
                 question
@@ -1062,6 +1083,7 @@ export async function importMentorPreview(
       query: `
         query MentorImportPreview($mentor: ID!, $json: MentorImportJsonType!) {
           mentorImportPreview(mentor: $mentor, json: $json) {
+            _id
             subjects {
               editType
               importData {
@@ -1169,6 +1191,13 @@ export async function importMentorPreview(
               importData {
                 transcript
                 status
+                hasUntransferredMedia
+                media {
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
                 question {
                   _id
                   question
@@ -1183,6 +1212,13 @@ export async function importMentorPreview(
               curData {
                 transcript
                 status
+                hasUntransferredMedia
+                media {
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
                 question {
                   _id
                   question
@@ -1192,7 +1228,7 @@ export async function importMentorPreview(
                   mentor
                   mentorType
                   minVideoLength
-                }  
+                }
               }
             }
           }
@@ -1216,6 +1252,83 @@ export async function importMentor(
           me {
             mentorImport(mentor: $mentor, json: $json) {
               _id
+              name
+              firstName
+              title
+              email
+              allowContact
+              mentorType
+              thumbnail
+              lastTrainedAt
+              isDirty
+              defaultSubject {
+                _id
+              }
+              subjects {
+                _id
+                name
+                description
+                isRequired
+                categories {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+                questions {
+                  question {
+                    _id
+                    question
+                    type
+                    name
+                    paraphrases
+                    mentor
+                    mentorType
+                    minVideoLength
+                  }
+                  category {
+                    id
+                    name
+                    description
+                  }
+                  topics {
+                    id
+                    name
+                    description
+                  }
+                }
+              }
+              topics {
+                id
+                name
+                description
+              }
+              answers {
+                _id
+                question {
+                  _id
+                  question
+                  paraphrases
+                  type
+                  name
+                  mentor
+                  mentorType
+                  minVideoLength
+                }
+                transcript
+                status
+                hasUntransferredMedia
+                media {
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
+              }
             }
           }
         }
