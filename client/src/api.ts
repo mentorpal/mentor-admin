@@ -995,6 +995,9 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
           }
           accessToken
         }
