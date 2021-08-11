@@ -31,7 +31,7 @@ import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
-import ButtonDropdown from "components/DropdownButton";
+import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -225,7 +225,7 @@ function SubjectsPage(props: {
               <KeyboardArrowRightIcon />
             </IconButton>
           </Toolbar>
-          <ButtonDropdown
+          <ButtonGroupDropdown
             styles={{ position: "absolute", top: "25%", right: 10 }}
             dropdownItems={[
               {

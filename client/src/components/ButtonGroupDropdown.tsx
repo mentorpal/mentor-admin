@@ -22,7 +22,7 @@ export interface ButtonDropdownItem {
   disabled?: boolean;
 }
 
-export default function ButtonDropdown(props: {
+export default function ButtonGroupDropdown(props: {
   dropdownItems: ButtonDropdownItem[];
   styles?: React.CSSProperties;
 }): JSX.Element {
