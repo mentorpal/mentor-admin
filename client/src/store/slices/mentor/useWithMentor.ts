@@ -73,9 +73,7 @@ export const useWithMentor = (): UseWithMentor => {
         payload: "Cannot load mentor if unauthenticated.",
       });
     } else {
-      mentorId
-        ? dispatch(mentorActions.loadMentorById(mentorId))
-        : dispatch(mentorActions.loadMentor());
+      dispatch(mentorActions.loadMentor({ mentorId }));
     }
   };
 

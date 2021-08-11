@@ -19,6 +19,7 @@ import {
   ListItem,
   MenuItem,
   Select,
+  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
@@ -92,9 +93,11 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
-  const { mentor, isMentorEdited } = useMentor;
+  const defaultMentor = props.user.defaultMentor._id;
+  const { mentor, isMentorEdited, loadMentor } = useMentor;
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
+  const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
 
   React.useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -131,6 +134,34 @@ function HomePage(props: {
           continueAction={continueAction}
           useMentor={useMentor}
         />
+        <TextField
+          data-cy="switch-mentor-id"
+          label="Active Mentor Id"
+          value={activeMentorId}
+          onChange={(e) => setActiveMentorId(e.target.value)}
+        />
+        <Fab
+          data-cy="switch-mentor-button"
+          variant="extended"
+          color="secondary"
+          onClick={() => loadMentor(activeMentorId)}
+          className={classes.fab}
+        >
+          Switch Mentor
+        </Fab>
+        <Fab
+          data-cy="default-mentor-button"
+          variant="extended"
+          color="primary"
+          onClick={() => {
+            setActiveMentorId(defaultMentor);
+            loadMentor();
+          }}
+          className={classes.fab}
+        >
+          Default Mentor
+        </Fab>
+
         <Select
           data-cy="select-subject"
           value={mentor?.subjects.find((s) => s._id === selectedSubject)}

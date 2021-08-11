@@ -804,7 +804,7 @@ export async function fetchMentorById(
         status: status || "",
       },
     },
-    { dataPath: ["mentor"], accessToken }
+    { dataPath: ["me", "mentor"], accessToken }
   );
 }
 

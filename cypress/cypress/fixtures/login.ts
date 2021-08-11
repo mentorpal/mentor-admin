@@ -12,6 +12,7 @@ export const login: UserAccessToken = {
     name: "Clinton Anderson",
     email: "clint@anderson.com",
     userRole: UserRole.USER,
+    defaultMentor: { _id: "clintanderson" },
   },
   accessToken: "accessToken",
   expirationDate: "",

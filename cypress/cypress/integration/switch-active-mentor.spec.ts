@@ -31,6 +31,9 @@ describe.only("Switch Active Mentor", () => {
       cy.get("[data-cy=mentor-job-title]").within(($input) => {
         cy.get("input").should("have.value", "Nuclear Electrician's Mate");
       });
+      cy.get("[data-cy=switch-mentor-id]").within(($input) => {
+        cy.get("input").clear();
+      });
       cy.get("[data-cy=switch-mentor-id]").type("nega-clint");
       cy.get("[data-cy=switch-mentor-button]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
