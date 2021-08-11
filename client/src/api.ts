@@ -836,6 +836,17 @@ export async function uploadThumbnail(
   return getDataFromAxiosResponse(result, ["thumbnail"]);
 }
 
+export async function transferMedia(
+  mentorId: string,
+  questionId: string
+): Promise<AsyncJob> {
+  const result = await uploadRequest.post("/transfer", {
+    mentor: mentorId,
+    question: questionId,
+  });
+  return getDataFromAxiosResponse(result, []);
+}
+
 export async function uploadVideo(
   mentorId: string,
   video: File,

@@ -21,9 +21,10 @@ export interface UseWithImportExport {
   importedJson: MentorExportJson | undefined;
   importPreview: MentorImportPreview | undefined;
   onMentorExported: () => void;
-  onImportUploaded: (file: File) => void;
+  onMentorUploaded: (file: File) => void;
   onConfirmImport: () => void;
   onCancelImport: () => void;
+  onTransferMedia: () => void;
   onMapSubject: (curSubject: Subject, newSubject: Subject) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
@@ -107,6 +108,18 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     setImportPreview(undefined);
   }
 
+  function onTransferMedia(): void {
+    if (!mentor || isUpdating) {
+      return;
+    }
+    for (const answer of mentor.answers) {
+      if (!answer.hasUntransferredMedia) {
+        continue;
+      }
+      api.transferMedia(mentor._id, answer.question._id);
+    }
+  }
+
   function onMapSubject(subject: Subject, replacement: Subject): void {
     if (!importedJson || !importPreview || !mentor || isUpdating) {
       return;
@@ -175,9 +188,10 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     importedJson,
     importPreview,
     onMentorExported,
-    onImportUploaded,
+    onMentorUploaded: onImportUploaded,
     onConfirmImport,
     onCancelImport,
+    onTransferMedia,
     onMapSubject,
     onMapQuestion,
   };

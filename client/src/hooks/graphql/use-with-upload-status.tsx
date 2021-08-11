@@ -24,6 +24,8 @@ export enum UploadStatus {
   TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
+  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
+  TRANSFER_FAILED = "TRANSFER_FAILED",
   CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
   CANCEL_FAILED = "CANCEL_FAILED",
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload
