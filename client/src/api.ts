@@ -716,7 +716,7 @@ export async function fetchMentorById(
   return execGql<Mentor>(
     {
       query: `
-      query Mentor($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
+      query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
           mentor {
             _id
             name
@@ -804,7 +804,7 @@ export async function fetchMentorById(
         status: status || "",
       },
     },
-    { dataPath: ["me", "mentor"], accessToken }
+    { dataPath: ["mentor"], accessToken }
   );
 }
 
