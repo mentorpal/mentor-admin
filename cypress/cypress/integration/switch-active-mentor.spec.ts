@@ -6,10 +6,25 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyMockDefault } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
+import { login as loginDefault } from "../fixtures/login";
+import { UserRole } from "../support/types";
 
 describe("Switch Active Mentor", () => {
   describe("Shows default mentor and can switch to other mentors.", () => {
-    it("views, saves, and updates profile data", () => {
+    it("Regular users can't see mentor selection tools", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [{ ...clint }],
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.USER },
+        },
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=mentor-select]").should("not.exist");
+    });
+    it("views, saves, and updates profile data if user is admin", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [
@@ -22,9 +37,14 @@ describe("Switch Active Mentor", () => {
           },
           { ...clint },
         ],
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=mentor-select]").should("exist");
       cy.get("[data-cy=my-mentor-wrapper]").should(
         "have.css",
         "background-color",

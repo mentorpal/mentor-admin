@@ -31,7 +31,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
-import { User } from "types";
+import { User, UserRole } from "types";
 import { launchMentor } from "helpers";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 
@@ -139,33 +139,37 @@ function HomePage(props: {
           continueAction={continueAction}
           useMentor={useMentor}
         />
-        <TextField
-          data-cy="switch-mentor-id"
-          label="Active Mentor Id"
-          value={activeMentorId}
-          onChange={(e) => setActiveMentorId(e.target.value)}
-        />
-        <Fab
-          data-cy="switch-mentor-button"
-          variant="extended"
-          color="secondary"
-          onClick={() => loadMentor(activeMentorId)}
-          className={classes.fab}
-        >
-          Switch Mentor
-        </Fab>
-        <Fab
-          data-cy="default-mentor-button"
-          variant="extended"
-          color="primary"
-          onClick={() => {
-            setActiveMentorId(defaultMentor);
-            loadMentor();
-          }}
-          className={classes.fab}
-        >
-          Default Mentor
-        </Fab>
+        {props.user.userRole === UserRole.ADMIN && (
+          <div data-cy="mentor-select">
+            <TextField
+              data-cy="switch-mentor-id"
+              label="Active Mentor Id"
+              value={activeMentorId}
+              onChange={(e) => setActiveMentorId(e.target.value)}
+            />
+            <Fab
+              data-cy="switch-mentor-button"
+              variant="extended"
+              color="secondary"
+              onClick={() => loadMentor(activeMentorId)}
+              className={classes.fab}
+            >
+              Switch Mentor
+            </Fab>
+            <Fab
+              data-cy="default-mentor-button"
+              variant="extended"
+              color="primary"
+              onClick={() => {
+                setActiveMentorId(defaultMentor);
+                loadMentor();
+              }}
+              className={classes.fab}
+            >
+              Default Mentor
+            </Fab>
+          </div>
+        )}
 
         <Select
           data-cy="select-subject"
