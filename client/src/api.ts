@@ -717,7 +717,7 @@ export async function fetchMentorById(
     {
       query: `
       query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
-          mentor {
+          mentor (id: $mentor){
             _id
             name
             firstName
