@@ -115,8 +115,13 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor, setRecordPageState, recordPageState } =
-    recordState;
+  const {
+    curAnswer,
+    mentor,
+    setRecordPageState,
+    recordPageState,
+    reloadMentorData,
+  } = recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
@@ -134,6 +139,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function onBack() {
+    reloadMentorData();
     if (props.search.back) {
       navigate(decodeURI(props.search.back));
     } else {
@@ -142,21 +148,18 @@ function RecordPage(props: {
   }
 
   function switchAnswer(onNav: () => void) {
-    if (curAnswer?.isEdited) {
-      if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
-        setConfirmLeave({
-          message:
-            "You have not uploaded your recorded video yet. Would you like to move on anyway?",
-          callback: onNav,
-        });
-      } else {
-        recordState.saveAnswer();
-        onNav();
-      }
+    if (curAnswer?.recordedVideo && !curAnswer?.isUploading) {
+      setConfirmLeave({
+        message:
+          "You have not uploaded your recorded video yet. Would you like to move on anyway?",
+        callback: onNav,
+      });
     } else {
+      if (curAnswer?.isEdited) recordState.saveAnswer();
       onNav();
     }
   }
+
   function confirm() {
     if (!confirmLeave) {
       return;
@@ -167,6 +170,7 @@ function RecordPage(props: {
     confirmLeave.callback();
     setConfirmLeave(undefined);
   }
+
   function handleSaveSubject() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
     saveSubject().then(() => recordState.reloadMentorData());

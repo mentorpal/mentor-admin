@@ -25,6 +25,8 @@ export enum UploadStatus {
   UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
   UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
   QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
+  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
+  TRANSFER_FAILED = "TRANSFER_FAILED",
   CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
   CANCEL_FAILED = "CANCEL_FAILED",
   CANCELLED = "CANCELLED", // api has successfully cancelled the upload

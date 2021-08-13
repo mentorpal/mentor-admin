@@ -27,6 +27,9 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
   if (!useImportExport.mentor) {
     return <div />;
   }
+  const needsTransfer =
+    useImportExport.mentor.answers.filter((a) => a.hasUntransferredMedia)
+      ?.length || 0;
 
   return (
     <div className={classes.root}>
@@ -51,11 +54,21 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             hidden
             onChange={(e) => {
               e.target.files instanceof FileList
-                ? useImportExport.onImportUploaded(e.target.files[0])
+                ? useImportExport.onMentorUploaded(e.target.files[0])
                 : undefined;
             }}
           />
         </Button>
+        {needsTransfer > 0 ? (
+          <Button
+            data-cy="transfer-media"
+            variant="contained"
+            onClick={useImportExport.onTransferMedia}
+            style={{ marginLeft: 10 }}
+          >
+            Transfer {needsTransfer} Answers
+          </Button>
+        ) : undefined}
       </div>
     </div>
   );

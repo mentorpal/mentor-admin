@@ -4,10 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { navigate } from "gatsby";
 import { useEffect, useState } from "react";
 import {
   Answer,
-  JobState,
   Mentor,
   MentorType,
   Status,
@@ -15,21 +15,22 @@ import {
   UtteranceName,
 } from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "./use-with-mentor";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
+import { urlBuild } from "helpers";
 
 export enum SetupStepType {
-  WELCOME,
-  MENTOR_INFO,
-  MENTOR_TYPE,
-  INTRODUCTION,
-  SELECT_SUBJECTS,
-  IDLE_TIPS,
-  IDLE,
-  REQUIRED_SUBJECT,
-  BUILD,
+  WELCOME = 0,
+  MENTOR_INFO = 1,
+  MENTOR_TYPE = 2,
+  INTRODUCTION = 3,
+  SELECT_SUBJECTS = 4,
+  IDLE_TIPS = 5,
+  IDLE = 6,
+  REQUIRED_SUBJECT = 7,
+  BUILD = 8,
 }
 
 interface SetupStep {
@@ -73,31 +74,27 @@ interface UseWithSetup {
   prevStep: () => void;
   toStep: (i: number) => void;
   clearError: () => void;
+  navigateToMissingSetup: () => void;
 }
 
-export function useWithSetup(
-  accessToken: string,
-  search?: { i?: string }
-): UseWithSetup {
+export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
-  const [error, setError] = useState<LoadingError>();
   const {
-    data: mentor,
-    error: mentorError,
-    editedData: editedMentor,
-    isEdited: isMentorEdited,
-    isLoading: isMentorLoading,
-    isSaving: isMentorSaving,
-    editData: editMentor,
-    reloadData: reloadMentor,
+    mentor,
+    mentorError,
+    editedMentor,
+    isMentorEdited,
+    isMentorLoading,
+    isMentorSaving,
+    clearMentorError,
+    editMentor,
     saveMentorDetails,
-  } = useWithMentor(accessToken);
+  } = useWithMentor();
   const {
     isPolling: isTraining,
     error: trainError,
-    status: trainStatus,
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
@@ -106,6 +103,7 @@ export function useWithSetup(
   function isConfigLoaded(): boolean {
     return config.state.status === ConfigStatus.SUCCEEDED;
   }
+
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
       return;
@@ -174,28 +172,6 @@ export function useWithSetup(
     setSteps(status);
   }, [mentor, config.state.config]);
 
-  useEffect(() => {
-    if (mentorError) {
-      setError(mentorError);
-    }
-  }, [mentorError]);
-
-  useEffect(() => {
-    if (trainStatus?.state === JobState.SUCCESS) {
-      reloadMentor();
-    }
-  }, [trainStatus]);
-
-  useEffect(() => {
-    if (trainError) {
-      setError({
-        message: "Oops, training failed. Please try again.",
-        error: trainError.error,
-      });
-      clearTrainingError();
-    }
-  }, [trainError]);
-
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js
     // returns negative mods, e.g.
@@ -207,7 +183,7 @@ export function useWithSetup(
     );
   }
 
-  function nextStep() {
+  function nextStep(): void {
     if (!status) {
       return;
     }
@@ -217,7 +193,7 @@ export function useWithSetup(
     addToIdx(1);
   }
 
-  function prevStep() {
+  function prevStep(): void {
     if (!status) {
       return;
     }
@@ -227,7 +203,7 @@ export function useWithSetup(
     addToIdx(-1);
   }
 
-  function toStep(i: number) {
+  function toStep(i: number): void {
     if (!status || i < 0 || i >= steps.length) {
       return;
     }
@@ -237,7 +213,7 @@ export function useWithSetup(
     setIdx(i);
   }
 
-  function train() {
+  function train(): void {
     if (
       !mentor ||
       isTraining ||
@@ -252,7 +228,32 @@ export function useWithSetup(
   }
 
   function clearError() {
-    setError(undefined);
+    clearTrainingError();
+    clearMentorError();
+  }
+
+  function navigateToMissingSetup(): void {
+    if (!status) {
+      return;
+    }
+    if (!status.isMentorInfoDone) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_INFO) }));
+    } else if (!status.isMentorTypeChosen) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_TYPE) }));
+    } else if (status.idle && !status.idle.complete) {
+      navigate(urlBuild("/setup", { i: String(SetupStepType.IDLE) }));
+    } else {
+      for (const [i, s] of status.requiredSubjects.entries()) {
+        if (!s.complete) {
+          const idx = status.idle
+            ? SetupStepType.REQUIRED_SUBJECT
+            : SetupStepType.IDLE_TIPS;
+          navigate(urlBuild("/setup", { i: String(idx + i) }));
+          return;
+        }
+      }
+      navigate("/setup");
+    }
   }
 
   return {
@@ -266,7 +267,7 @@ export function useWithSetup(
     isSaving: isMentorSaving,
     isTraining,
     readyToDisplay: isConfigLoaded(),
-    error,
+    error: mentorError || trainError,
     editMentor,
     saveMentor: saveMentorDetails,
     startTraining: train,
@@ -274,5 +275,6 @@ export function useWithSetup(
     prevStep,
     toStep,
     clearError,
+    navigateToMissingSetup,
   };
 }

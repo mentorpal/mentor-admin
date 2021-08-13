@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import {
-  cySetup,
   cyMockDefault,
   mockGQL,
   cyMockTrain,
@@ -574,7 +573,7 @@ describe("Setup", () => {
   it("shows required subject, repeat after me, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup6, setup8, setup8],
+      mentor: [setup6, setup8],
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });

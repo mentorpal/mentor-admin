@@ -17,11 +17,10 @@ import {
 } from "types";
 import { copyAndSet, equals } from "helpers";
 
-import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
-import { RecordingError } from "./recording-reducer";
 import { RecordPageState } from "types";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { MentorStatus } from "store/slices/mentor";
+import { LoadingError } from "./loading-reducer";
+import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -55,11 +54,12 @@ export function useWithRecordState(
   const [recordPageState, setRecordPageState] = useState<RecordPageState>(
     RecordPageState.INITIALIZING
   );
-  const [error, setError] = useState<RecordingError>();
+  const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
+  const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentorState, loadMentor } = useActiveMentor();
-
+  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
+    useWithMentor();
   const {
     uploads,
     isUploading,
@@ -73,12 +73,9 @@ export function useWithRecordState(
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
-  const mentorError = mentorState.error;
-  const mentor = mentorState.data;
-  const isMentorLoading = mentorState.mentorStatus === MentorStatus.LOADING;
-
+  const idxChanged =
+    curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
   useEffect(() => {
-    const mentor = mentorState.data;
     if (!mentor) {
       return;
     }
@@ -122,12 +119,6 @@ export function useWithRecordState(
   }, [answerIdx]);
 
   useEffect(() => {
-    if (mentorError) {
-      setError({ message: "Failed to load", error: mentorError?.error });
-    }
-  }, [mentorError]);
-
-  useEffect(() => {
     if (!mentor) return;
     if (
       recordPageState === RecordPageState.RELOADING_MENTOR &&
@@ -140,21 +131,43 @@ export function useWithRecordState(
     }
   }, [isMentorLoading]);
 
+  useEffect(() => {
+    if (!mentor || !answers[answerIdx]) return;
+    setCurAnswer({
+      ...answers[answerIdx],
+      isEdited: !equals(
+        answers[answerIdx].answer,
+        answers[answerIdx].editedAnswer
+      ),
+      isValid: isAnswerValid(),
+      isUploading: isAnswerUploading(answers[answerIdx].editedAnswer),
+      videoSrc: idxChanged
+        ? getVideoSrc()
+        : curAnswer?.videoSrc || getVideoSrc(),
+    });
+  }, [answers[answerIdx], uploads]);
+
   function fetchFollowUpQs() {
     if (!mentor) return;
-    if (!filter.category) {
+    if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
       return;
     }
     setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
     fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      const followUps = data
-        ? data.map((d) => {
+      setFollowUpQuestions(
+        (data || [])
+          .map((d) => {
             return d.question;
           })
-        : [];
-      setFollowUpQuestions(followUps);
+          .filter(
+            (followUp) =>
+              mentor.answers.findIndex(
+                (a) => a.question.question === followUp
+              ) === -1
+          )
+      );
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
     });
   }
@@ -174,7 +187,7 @@ export function useWithRecordState(
 
   function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
     if (
-      answer.media &&
+      answer.media?.length &&
       !answer.transcript &&
       answer.question.name !== UtteranceName.IDLE
     ) {
@@ -214,7 +227,8 @@ export function useWithRecordState(
   }
 
   function clearError() {
-    setError(undefined);
+    clearMentorError();
+    setSaveError(undefined);
   }
 
   function getVideoSrc() {
@@ -269,6 +283,11 @@ export function useWithRecordState(
 
   function rerecord() {
     const answer = answers[answerIdx];
+    if (!curAnswer) return;
+    setCurAnswer({
+      ...curAnswer,
+      videoSrc: "",
+    });
     updateAnswerState({
       recordedVideo: undefined,
       editedAnswer: { ...answer.editedAnswer, media: [] },
@@ -317,7 +336,7 @@ export function useWithRecordState(
               })
               .catch((err) => {
                 setIsSaving(false);
-                setError({
+                setSaveError({
                   message: "Failed to save answer",
                   error: err.message,
                 });
@@ -329,7 +348,7 @@ export function useWithRecordState(
         })
         .catch((err) => {
           setIsSaving(false);
-          setError({
+          setSaveError({
             message: "Failed to save question",
             error: err.message,
           });
@@ -349,7 +368,7 @@ export function useWithRecordState(
         })
         .catch((err) => {
           setIsSaving(false);
-          setError({
+          setSaveError({
             message: "Failed to save answer",
             error: err.message,
           });
@@ -377,20 +396,8 @@ export function useWithRecordState(
     answers,
     answerIdx,
     recordPageState,
-    curAnswer:
-      answers.length >= answerIdx + 1
-        ? {
-            ...answers[answerIdx],
-            isEdited: !equals(
-              answers[answerIdx].answer,
-              answers[answerIdx].editedAnswer
-            ),
-            isValid: isAnswerValid(),
-            isUploading: isAnswerUploading(answers[answerIdx].editedAnswer),
-            videoSrc: getVideoSrc(),
-          }
-        : undefined,
-    uploads: uploads,
+    curAnswer,
+    uploads,
     pollStatusCount,
     followUpQuestions,
     prevAnswer,
@@ -411,7 +418,7 @@ export function useWithRecordState(
     isUploading,
     isRecording,
     isSaving,
-    error,
+    error: mentorError || saveError,
     clearError,
   };
 }
@@ -443,6 +450,6 @@ export interface UseWithRecordState {
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
-  error?: RecordingError;
+  error?: LoadingError;
   clearError: () => void;
 }

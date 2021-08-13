@@ -28,7 +28,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
-import { useWithMentor } from "hooks/graphql/use-with-mentor";
+import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -95,13 +95,9 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
   );
 }
 
-function SubjectsPage(props: { accessToken: string }): JSX.Element {
+function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const {
-    data: mentor,
-    isLoading: isMentorLoading,
-    error: mentorError,
-  } = useWithMentor(props.accessToken);
+  const { mentor, isMentorLoading, mentorError } = useWithMentor();
   const {
     data: subjects,
     error: subjectsError,

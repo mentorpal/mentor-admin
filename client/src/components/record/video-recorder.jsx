@@ -31,7 +31,7 @@ const videoJsOptions = {
       audio: true,
       video: true,
       debug: true,
-      maxLength: 60,
+      maxLength: 300,
     },
   },
 };

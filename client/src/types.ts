@@ -102,6 +102,7 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  needsTransfer: boolean;
 }
 
 export enum MediaType {
@@ -118,6 +119,7 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
+  hasUntransferredMedia: boolean;
   media?: Media[];
 }
 
@@ -265,6 +267,7 @@ export interface ImportPreview<T> {
 }
 
 export interface MentorImportPreview {
+  _id: string;
   subjects: ImportPreview<Subject>[];
   questions: ImportPreview<Question>[];
   answers: ImportPreview<Answer>[];
