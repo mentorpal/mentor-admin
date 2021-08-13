@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
+import { updateAnswer, updateQuestion} from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
@@ -16,11 +16,10 @@ import {
   UtteranceName,
 } from "types";
 import { copyAndSet, equals } from "helpers";
-
-import { RecordPageState } from "types";
 import { LoadingError } from "./loading-reducer";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { navigate } from "gatsby";
 
 export interface AnswerState {
   answer: Answer;
@@ -51,14 +50,10 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [recordPageState, setRecordPageState] = useState<RecordPageState>(
-    RecordPageState.INITIALIZING
-  );
   const [saveError, setSaveError] = useState<LoadingError>();
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
+  const { mentor, mentorError, clearMentorError, loadMentor } =
     useWithMentor();
   const {
     uploads,
@@ -102,6 +97,10 @@ export function useWithRecordState(
       (a) =>
         !a.question?.mentorType || a.question?.mentorType === mentor.mentorType
     );
+    //if after filtering through the answers we end up with none, then go back to My Mentor page
+    if(!answers.length){
+      navigate("/")
+    }
     setAnswers(
       answers.map((a) => ({
         answer: a,
@@ -111,25 +110,11 @@ export function useWithRecordState(
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
-    setRecordPageState(RecordPageState.RECORDING_ANSWERS);
   }, [mentor]);
 
   useEffect(() => {
     setIsRecording(false);
   }, [answerIdx]);
-
-  useEffect(() => {
-    if (!mentor) return;
-    if (
-      recordPageState === RecordPageState.RELOADING_MENTOR &&
-      !isMentorLoading
-    ) {
-      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length) {
-        nextAnswer();
-      }
-    }
-  }, [isMentorLoading]);
 
   useEffect(() => {
     if (!mentor || !answers[answerIdx]) return;
@@ -146,31 +131,6 @@ export function useWithRecordState(
         : curAnswer?.videoSrc || getVideoSrc(),
     });
   }, [answers[answerIdx], uploads]);
-
-  function fetchFollowUpQs() {
-    if (!mentor) return;
-    if (!filter.category || filter.status === "COMPLETE") {
-      setFollowUpQuestions([]);
-      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
-      return;
-    }
-    setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
-    fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      setFollowUpQuestions(
-        (data || [])
-          .map((d) => {
-            return d.question;
-          })
-          .filter(
-            (followUp) =>
-              mentor.answers.findIndex(
-                (a) => a.question.question === followUp
-              ) === -1
-          )
-      );
-      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
-    });
-  }
 
   function updateAnswerState(
     edits: Partial<AnswerState>,
@@ -260,11 +220,6 @@ export function useWithRecordState(
       );
     }
     return false;
-  }
-
-  function reloadMentorData() {
-    setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    loadMentor();
   }
 
   function prevAnswer() {
@@ -395,21 +350,17 @@ export function useWithRecordState(
     mentor,
     answers,
     answerIdx,
-    recordPageState,
     curAnswer,
     uploads,
     pollStatusCount,
-    followUpQuestions,
+    reloadMentorData: loadMentor,
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
-    setRecordPageState,
     editAnswer,
     saveAnswer,
     removeCompletedTask,
-    fetchFollowUpQs,
     rerecord,
-    reloadMentorData,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -427,16 +378,12 @@ export interface UseWithRecordState {
   mentor?: Mentor;
   answers: AnswerState[];
   answerIdx: number;
-  recordPageState: RecordPageState;
   curAnswer?: CurAnswerState;
   uploads: UploadTask[];
   pollStatusCount: number;
-  followUpQuestions: string[];
-  fetchFollowUpQs: () => void;
-  prevAnswer: () => void;
   reloadMentorData: () => void;
+  prevAnswer: () => void;
   nextAnswer: () => void;
-  setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;

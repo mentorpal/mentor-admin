@@ -8,7 +8,6 @@ import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
   AppBar,
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -32,7 +31,6 @@ import {
   MentorType,
   Status,
   UtteranceName,
-  RecordPageState,
   AnswerAttentionNeeded,
 } from "types";
 import NavBar from "components/nav-bar";
@@ -43,8 +41,6 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
-import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
-import { useWithSubject } from "hooks/graphql/use-with-subject";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -118,20 +114,14 @@ function RecordPage(props: {
   const {
     curAnswer,
     mentor,
-    setRecordPageState,
-    recordPageState,
     reloadMentorData,
   } = recordState;
-  const { addQuestion, removeQuestion, editedData, saveSubject } =
-    useWithSubject(props.search.subject || "", props.accessToken);
-  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const curSubject = mentor?.subjects.find(
     (s) => s._id == props.search.subject
   );
   const subjectTitle = curSubject?.name || "";
-  const categoryTitle =
-    curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
-    "";
+  const curCategory = curSubject?.categories.find((c) => c.id == props.search.category)
+  const categoryTitle = curCategory?.name || "";
   const curAnswerBelongsToMentor =
     curAnswer?.editedAnswer.question?.mentor === mentor?._id;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
@@ -171,11 +161,6 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  function handleSaveSubject() {
-    setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    saveSubject().then(() => recordState.reloadMentorData());
-  }
-
   if (!mentor || !curAnswer) {
     return (
       <div className={classes.root}>
@@ -186,18 +171,6 @@ function RecordPage(props: {
     );
   }
 
-  if (
-    recordPageState == RecordPageState.REVIEWING_FOLLOW_UPS &&
-    recordState.followUpQuestions.length === 0
-  ) {
-    //default leave page method
-    onBack();
-  }
-
-  const displayRecordingPage = !(
-    recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
-    recordPageState === RecordPageState.RELOADING_MENTOR
-  );
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -221,7 +194,6 @@ function RecordPage(props: {
         onBack={() => switchAnswer(onBack)}
       />
 
-      {displayRecordingPage ? (
         <div>
           <div data-cy="progress" className={classes.block}>
             <Typography
@@ -377,21 +349,6 @@ function RecordPage(props: {
             </Select>
           </div>
         </div>
-      ) : (
-        <div>
-          <Box height="100%" width="100%">
-            <FollowUpQuestionsWidget
-              categoryId={props.search.category || ""}
-              questions={recordState.followUpQuestions}
-              mentorId={mentor._id || ""}
-              toRecordFollowUpQs={setRecordFollowUpQs}
-              addQuestion={addQuestion}
-              removeQuestion={removeQuestion}
-              editedData={editedData}
-            />
-          </Box>
-        </div>
-      )}
       <div className={classes.toolbar} />
 
       <AppBar position="fixed" className={classes.footer}>
@@ -404,23 +361,7 @@ function RecordPage(props: {
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
-          {displayRecordingPage ? (
-            recordState.answerIdx === recordState.answers.length - 1 ? (
-              <Button
-                data-cy="done-btn"
-                variant="contained"
-                color="primary"
-                disabled={
-                  recordState.recordPageState ===
-                  RecordPageState.FETCHING_FOLLOW_UPS
-                }
-                disableElevation
-                onClick={() => switchAnswer(recordState.fetchFollowUpQs)}
-                className={classes.nextBtn}
-              >
-                Next
-              </Button>
-            ) : (
+            {recordState.answerIdx !== recordState.answers.length - 1 ? (
               <IconButton
                 data-cy="next-btn"
                 className={classes.nextBtn}
@@ -431,30 +372,28 @@ function RecordPage(props: {
               >
                 <ArrowForwardIcon fontSize="large" />
               </IconButton>
-            )
-          ) : toRecordFollowUpQs ? (
-            <Button
-              data-cy="record-follow-up-qs-btn"
-              variant="contained"
-              color="primary"
-              disableElevation
-              disabled={recordPageState === RecordPageState.RELOADING_MENTOR}
-              onClick={() => handleSaveSubject()}
-              className={classes.nextBtn}
-            >
-              Record
-            </Button>
-          ) : (
+            ) : curSubject && curCategory ? (
             <Button
               data-cy="done-btn"
               variant="contained"
               color="primary"
               disableElevation
-              onClick={() => switchAnswer(onBack)}
+              onClick={() => switchAnswer(()=>{navigate(`/followups?category=${curCategory.id}&subject=${curSubject._id}`)})}
               className={classes.nextBtn}
             >
-              Done
+              Next
             </Button>
+          ) : (
+            <Button
+            data-cy="done-btn"
+            variant="contained"
+            color="primary"
+            disableElevation
+            onClick={() => switchAnswer(onBack)}
+            className={classes.nextBtn}
+          >
+            Done
+          </Button>
           )}
         </Toolbar>
       </AppBar>

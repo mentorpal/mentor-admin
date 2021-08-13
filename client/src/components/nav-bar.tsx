@@ -259,9 +259,9 @@ function NavMenu(props: {
 export function NavBar(props: {
   mentorId: string;
   title: string;
-  uploads: UploadTask[];
-  uploadsButtonVisible: boolean;
-  toggleUploadsButtonVisibility: (b: boolean) => void;
+  uploads?: UploadTask[];
+  uploadsButtonVisible?: boolean;
+  toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
 }): JSX.Element {
@@ -277,10 +277,10 @@ export function NavBar(props: {
     (upload) =>
       upload.uploadStatus !== UploadStatus.DONE &&
       upload.uploadStatus !== UploadStatus.CANCELLED
-  ).length;
+  ).length || 0;
   const numUploadsComplete = uploads?.filter(
     (upload) => upload.uploadStatus == UploadStatus.DONE
-  ).length;
+  ).length || 0;
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
@@ -317,11 +317,12 @@ export function NavBar(props: {
           <Typography data-cy="title" variant="h5" className={classes.title}>
             {props.title}
           </Typography>
+          {toggleUploadsButtonVisibility && uploads ?
           <Button
             variant="outlined"
             disabled={disableUploadsButton}
             onClick={() => {
-              toggleUploadsButtonVisibility(!uploadsButtonVisible);
+              toggleUploadsButtonVisibility(!uploadsButtonVisible)
             }}
             data-cy="header-uploads-button"
             className={classes.uploadsButton}
@@ -340,6 +341,7 @@ export function NavBar(props: {
                   numUploadsInProgress + numUploadsComplete
                 } Uploads Complete`}
           </Button>
+          : undefined}
 
           <Login classes={classes} />
         </Toolbar>
