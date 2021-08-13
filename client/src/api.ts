@@ -995,7 +995,7 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
       query: `
         query MentorExport($mentor: ID!) {
           mentorExport(mentor: $mentor) {
-            _id
+            id
             subjects {
               _id
               name
@@ -1083,7 +1083,7 @@ export async function importMentorPreview(
       query: `
         query MentorImportPreview($mentor: ID!, $json: MentorImportJsonType!) {
           mentorImportPreview(mentor: $mentor, json: $json) {
-            _id
+            id
             subjects {
               editType
               importData {
