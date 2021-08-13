@@ -48,6 +48,7 @@ export function useWithLogin(): UseWithLogin {
       state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
       state.loginStatus === loginActions.LoginStatus.FAILED
     ) {
+      console.log(googleAccessToken);
       dispatch(loginActions.googleLogin(googleAccessToken));
     }
   }

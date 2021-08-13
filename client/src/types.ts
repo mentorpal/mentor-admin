@@ -8,6 +8,7 @@ The full terms of this copyright and license should always be found in the root 
 export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
+  videoRecorderMaxLength: number;
 }
 
 export interface Connection<T> {

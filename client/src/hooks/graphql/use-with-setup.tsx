@@ -18,7 +18,6 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import { ConfigStatus } from "store/slices/config";
 import { urlBuild } from "helpers";
 
 export enum SetupStepType {
@@ -98,11 +97,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-  const config = useWithConfig();
-
-  function isConfigLoaded(): boolean {
-    return config.state.status === ConfigStatus.SUCCEEDED;
-  }
+  const { state: configState, isConfigLoaded } = useWithConfig();
 
   useEffect(() => {
     if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
@@ -170,7 +165,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     });
     status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
     setSteps(status);
-  }, [mentor, config.state.config]);
+  }, [mentor, configState.config]);
 
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js
@@ -260,7 +255,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
-    idleTipsVideoUrl: config.state.config?.urlVideoIdleTips || "",
+    idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,

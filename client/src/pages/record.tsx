@@ -45,6 +45,8 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
+import { ConfigStatus } from "store/slices/config";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -124,6 +126,7 @@ function RecordPage(props: {
   } = recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
+  const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const curSubject = mentor?.subjects.find(
     (s) => s._id == props.search.subject
@@ -155,7 +158,9 @@ function RecordPage(props: {
         callback: onNav,
       });
     } else {
-      if (curAnswer?.isEdited) recordState.saveAnswer();
+      if (curAnswer?.isEdited) {
+        recordState.saveAnswer();
+      }
       onNav();
     }
   }
@@ -176,12 +181,24 @@ function RecordPage(props: {
     saveSubject().then(() => recordState.reloadMentorData());
   }
 
-  if (!mentor || !curAnswer) {
+  if (!mentor || !curAnswer || !isConfigLoaded()) {
     return (
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
         <ErrorDialog error={recordState.error} />
+      </div>
+    );
+  }
+
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
+    return (
+      <div>
+        <NavBar title="Recording: " mentorId={undefined} />
+        <Typography>Failed to load config</Typography>
+        <Button color="primary" variant="contained" onClick={loadConfig}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -198,6 +215,7 @@ function RecordPage(props: {
     recordPageState === RecordPageState.REVIEWING_FOLLOW_UPS ||
     recordPageState === RecordPageState.RELOADING_MENTOR
   );
+
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -238,7 +256,11 @@ function RecordPage(props: {
             />
           </div>
           {mentor.mentorType === MentorType.VIDEO ? (
-            <VideoPlayer classes={classes} recordState={recordState} />
+            <VideoPlayer
+              classes={classes}
+              recordState={recordState}
+              videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
+            />
           ) : undefined}
           <div data-cy="question" className={classes.block}>
             <Typography className={classes.title}>Question:</Typography>

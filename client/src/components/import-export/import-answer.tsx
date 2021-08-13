@@ -51,7 +51,7 @@ export default function AnswerImport(props: {
   const { editType, importData: answer, curData: curAnswer } = preview;
   const transcript = answer?.transcript || curAnswer?.transcript || "";
 
-  if (answer === undefined && curAnswer === undefined) {
+  if (!(answer || curAnswer)) {
     return <div />;
   }
 
@@ -115,7 +115,7 @@ export default function AnswerImport(props: {
         style={{ width: "100%" }}
       >
         <ListSubheader>Media</ListSubheader>
-        {media?.filter((m) => m.importData?.needsTransfer).length} needs
+        {media?.filter((m) => m.importData?.needsTransfer)?.length || 0} needs
         transferring
         <List data-cy="answer-media" dense disablePadding>
           {media.map((m, i) => {

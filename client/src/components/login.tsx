@@ -53,6 +53,7 @@ function LoginPage(): JSX.Element {
       return;
     }
     const loginResponse = response as GoogleLoginResponse;
+    console.log(loginResponse);
     loginWithGoogle(loginResponse.accessToken);
   }
 
@@ -79,6 +80,7 @@ function LoginPage(): JSX.Element {
       </div>
     );
   }
+  console.log(configState.config.googleClientId);
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
