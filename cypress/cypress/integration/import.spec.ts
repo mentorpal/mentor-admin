@@ -88,6 +88,18 @@ describe("Import", () => {
     cy.get("[data-cy=upload-mentor]");
   });
 
+  it("generates valid import json given json data in v1 mentor format", async () => {
+    
+    cy.visit("/importexport");
+     cy.fixture("mentor-json-from-v1.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent,
+        fileName: "mentor-json-from-v1",
+        mimeType: "application/json",
+      });
+    });
+  });
+
   it("uploads import json and views import preview", () => {
     cySetup(cy);
     cyMockDefault(cy, {

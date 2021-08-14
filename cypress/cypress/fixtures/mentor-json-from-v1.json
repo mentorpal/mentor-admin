@@ -1,0 +1,2230 @@
+{
+  "id": "clint",
+  "name": "Clinton Anderson",
+  "questions_by_id": {
+    "clintanderson_A100_2_2": {
+      "question_text": "What qualifications and experience do recruiters look for when choosing new people for this field?"
+    },
+    "clintanderson_A101_2_2": {
+      "question_text": "What do you see as the major problems for those working in this field today?"
+    },
+    "clintanderson_A102_2_2": {
+      "question_text": "What person do you most admire and why?"
+    },
+    "clintanderson_A103_2_2": {
+      "question_text": "Tell me a funny story."
+    },
+    "clintanderson_A104_2_2": {
+      "question_text": "Where were you born?"
+    },
+    "clintanderson_A105_2_2": {
+      "question_text": "What is Japan like?"
+    },
+    "clintanderson_A106_2_2": {
+      "question_text": "What do you do in computer science/programming?"
+    },
+    "clintanderson_A107_2_2": {
+      "question_text": "What is your strategy for overcoming your hardships?"
+    },
+    "clintanderson_A108_2_2": {
+      "question_text": "What advice do you have for someone who is growing up surrounded by drugs and crime when sometimes it seems like it's too hard to get through school?"
+    },
+    "clintanderson_A109_2_2": {
+      "question_text": "Were you ever bullied in high school? What did you do?"
+    },
+    "clintanderson_A10_1_1": {
+      "question_text": "What kind of student were you?"
+    },
+    "clintanderson_A110_2_2": {
+      "question_text": "What advice do you have for people who are being bullied in high school?"
+    },
+    "clintanderson_A111_2_2": {
+      "question_text": "Do you have a family?"
+    },
+    "clintanderson_A112_2_2": {
+      "question_text": "What advice do you have for spouses who don't understand the career demands of the Navy?"
+    },
+    "clintanderson_A113_2_2": {
+      "question_text": "Did you like wearing the same uniform every day? Why or why not?"
+    },
+    "clintanderson_A114_2_2": {
+      "question_text": "What is a regulator?"
+    },
+    "clintanderson_A115_2_2": {
+      "question_text": "Tell me about Naval Postgraduate School."
+    },
+    "clintanderson_A116_2_2": {
+      "question_text": "Where is the Naval Postgraduate School?"
+    },
+    "clintanderson_A117_2_2": {
+      "question_text": "What are the most important things on a resume?"
+    },
+    "clintanderson_A118_2_2": {
+      "question_text": "Where can I find an internship that will give me skills for the engineering field?"
+    },
+    "clintanderson_A119_2_2": {
+      "question_text": "What do you advise me to do in picking the right career field for me?"
+    },
+    "clintanderson_A11_1_1": {
+      "question_text": "When did you join the Navy?"
+    },
+    "clintanderson_A120_2_2": {
+      "question_text": "How do I find what I love to do?"
+    },
+    "clintanderson_A121_2_2": {
+      "question_text": "What should I do if I don't know what job I want to do?"
+    },
+    "clintanderson_A122_2_2": {
+      "question_text": "Who are the best people to talk to when making a career choice?"
+    },
+    "clintanderson_A123_2_2": {
+      "question_text": "Who first introduced you to the military lifestyle?"
+    },
+    "clintanderson_A124_2_2": {
+      "question_text": "What is one piece of advice that you wished you had taken?"
+    },
+    "clintanderson_A125_2_2": {
+      "question_text": "What is one question you wish you had asked earlier?"
+    },
+    "clintanderson_A126_2_2": {
+      "question_text": "What is something you wish you had known before choosing your career?"
+    },
+    "clintanderson_A127_3_1": {
+      "question_text": "What is the most challenging part about your job?"
+    },
+    "clintanderson_A128_3_1": {
+      "question_text": "What is the biggest barrier to entry in this field?"
+    },
+    "clintanderson_A129_3_1": {
+      "question_text": "How did you become interested in this type of work?"
+    },
+    "clintanderson_A12_1_1": {
+      "question_text": "Are you currently serving in the military?"
+    },
+    "clintanderson_A130_3_1": {
+      "question_text": "How did you first become interested in computer science?"
+    },
+    "clintanderson_A131_3_1": {
+      "question_text": "Why did you choose this career?"
+    },
+    "clintanderson_A132_3_1": {
+      "question_text": "If you could do it all over, would you choose this career again?"
+    },
+    "clintanderson_A133_3_1": {
+      "question_text": "When you were a kid, what did you want to be when you grew up?"
+    },
+    "clintanderson_A134_3_1": {
+      "question_text": "What sports did you play in high school?"
+    },
+    "clintanderson_A135_3_1": {
+      "question_text": "What is your favorite color?"
+    },
+    "clintanderson_A136_3_1": {
+      "question_text": "Are you married?"
+    },
+    "clintanderson_A137_3_1": {
+      "question_text": "Do you have siblings?"
+    },
+    "clintanderson_A138_3_1": {
+      "question_text": "Do you have any pets?"
+    },
+    "clintanderson_A139_3_1": {
+      "question_text": "What is your favorite food?"
+    },
+    "clintanderson_A13_1_1": {
+      "question_text": "What is your current rank and duty position now?"
+    },
+    "clintanderson_A140_3_1": {
+      "question_text": "What is your least favorite food?"
+    },
+    "clintanderson_A141_3_1": {
+      "question_text": "What is the food like in the military?"
+    },
+    "clintanderson_A142_3_1": {
+      "question_text": "Do you shoot guns?"
+    },
+    "clintanderson_A143_3_1": {
+      "question_text": "Can you explain the ribbon system?"
+    },
+    "clintanderson_A144_3_1": {
+      "question_text": "What are the ribbons/awards that you've gotten?"
+    },
+    "clintanderson_A145_3_1": {
+      "question_text": "Do you have any tattoos?"
+    },
+    "clintanderson_A146_3_1": {
+      "question_text": "Do you get to swim in the ocean?"
+    },
+    "clintanderson_A147_3_1": {
+      "question_text": "Do you have to be a good swimmer to join the Navy?"
+    },
+    "clintanderson_A148_3_1": {
+      "question_text": "What is deployment?"
+    },
+    "clintanderson_A149_3_1": {
+      "question_text": "What's something that most people don't know about computer science?"
+    },
+    "clintanderson_A14_1_1": {
+      "question_text": "Besides LA, what other places in California have you lived in?"
+    },
+    "clintanderson_A150_3_1": {
+      "question_text": "Who gave you the best advice about your career?"
+    },
+    "clintanderson_A151_3_1": {
+      "question_text": "How can I work smarter?"
+    },
+    "clintanderson_A152_3_1": {
+      "question_text": "What would you advice a person in this field to do in order to create good relationships with bosses?"
+    },
+    "clintanderson_A153_3_1": {
+      "question_text": "Does the Navy give you housing?"
+    },
+    "clintanderson_A154_3_1": {
+      "question_text": "What has been your favorite place to live?"
+    },
+    "clintanderson_A155_3_1": {
+      "question_text": "Did the Navy give you a chance to live overseas?"
+    },
+    "clintanderson_A156_3_1": {
+      "question_text": "What was your promotion track throughout your Navy service?"
+    },
+    "clintanderson_A157_3_1": {
+      "question_text": "What was your salary throughout your Navy service?"
+    },
+    "clintanderson_A158_3_1": {
+      "question_text": "Can you explain the ranking system E and numbers?"
+    },
+    "clintanderson_A159_3_1": {
+      "question_text": "Can you explain the ranking system O and numbers?"
+    },
+    "clintanderson_A15_1_1": {
+      "question_text": "What was it like being in war? What did you do?"
+    },
+    "clintanderson_A160_3_1": {
+      "question_text": "What were your living quarters like in the Navy?"
+    },
+    "clintanderson_A161_3_1": {
+      "question_text": "What are common crimes that military people commit?"
+    },
+    "clintanderson_A162_3_1": {
+      "question_text": "Did you receive a monetary bonus for enlisting?"
+    },
+    "clintanderson_A163_3_1": {
+      "question_text": "Can you tell me about military retirement?"
+    },
+    "clintanderson_A164_3_2": {
+      "question_text": "Describe the hiring process."
+    },
+    "clintanderson_A165_3_2": {
+      "question_text": "Describe the initial training."
+    },
+    "clintanderson_A166_3_2": {
+      "question_text": "What is boot camp like?"
+    },
+    "clintanderson_A167_3_2": {
+      "question_text": "Who do I talk to if I'm interested in this computer science?"
+    },
+    "clintanderson_A168_3_2": {
+      "question_text": "What is dress attire in the Navy?"
+    },
+    "clintanderson_A169_3_2": {
+      "question_text": "To what extent does the military adhere to tight schedules both long term and daily?"
+    },
+    "clintanderson_A16_1_1": {
+      "question_text": "I want to join the Navy but I'm afraid of going into battle..."
+    },
+    "clintanderson_A170_3_2": {
+      "question_text": "How can I request to work in a certain area or field?"
+    },
+    "clintanderson_A171_3_2": {
+      "question_text": "What was the most difficult part of your training?"
+    },
+    "clintanderson_A172_3_2": {
+      "question_text": "What is the most difficult part of computer science?"
+    },
+    "clintanderson_A173_3_2": {
+      "question_text": "How would you describe the work culture of the Navy?"
+    },
+    "clintanderson_A174_3_2": {
+      "question_text": "How does an officer's/non-officer's salary compare to civilian salaries?"
+    },
+    "clintanderson_A175_3_2": {
+      "question_text": "How significant is there a chance of being deployed?"
+    },
+    "clintanderson_A176_3_2": {
+      "question_text": "What things are there for me to do on a ship?"
+    },
+    "clintanderson_A177_3_2": {
+      "question_text": "Why should someone choose to be a part of the Navy?"
+    },
+    "clintanderson_A178_3_2": {
+      "question_text": "Why should someone choose to go into CS?"
+    },
+    "clintanderson_A179_3_2": {
+      "question_text": "What are the long-term impacts of entering computer science or STEM fields?"
+    },
+    "clintanderson_A17_1_1": {
+      "question_text": "Though you were an Electrician's Mate, did you work on other things besides electronics?"
+    },
+    "clintanderson_A180_3_2": {
+      "question_text": "How do you and your work colleagues socialize outside of work?"
+    },
+    "clintanderson_A181_3_2": {
+      "question_text": "What is the gender mix of your workplace?"
+    },
+    "clintanderson_A182_3_2": {
+      "question_text": "What are the ethnic percentages of your workplace?"
+    },
+    "clintanderson_A183_3_2": {
+      "question_text": "Why do people leave this field or company?"
+    },
+    "clintanderson_A184_3_2": {
+      "question_text": "Why do people leave the CS/STEM field?"
+    },
+    "clintanderson_A185_3_2": {
+      "question_text": "How will my relationship with my friends or family members be affected if I join the Navy, and what advice should i give them?"
+    },
+    "clintanderson_A186_3_2": {
+      "question_text": "How do the educational benefits of the military work?"
+    },
+    "clintanderson_A187_3_2": {
+      "question_text": "What is the advancement potential in the field? What is a typical path?"
+    },
+    "clintanderson_A188_3_2": {
+      "question_text": "How will my experience transfer to civilian life after my Navy tour of duty?"
+    },
+    "clintanderson_A189_3_2": {
+      "question_text": "What is a story that really shows what it is like being in the Navy?"
+    },
+    "clintanderson_A18_1_1": {
+      "question_text": "What is the training progression and what is it like?"
+    },
+    "clintanderson_A190_3_2": {
+      "question_text": "What do Navy reservists do and what benefits do they get?"
+    },
+    "clintanderson_A191_3_2": {
+      "question_text": "What experience is necessary to become an officer?"
+    },
+    "clintanderson_A192_3_2": {
+      "question_text": "How do you get good feedback?"
+    },
+    "clintanderson_A193_3_2": {
+      "question_text": "What are the most important decisions that you faced as a leader in your organization?"
+    },
+    "clintanderson_A194_3_2": {
+      "question_text": "Who gave you the best advice about your life?"
+    },
+    "clintanderson_A195_3_2": {
+      "question_text": "What is the most important lesson about life you have learned?"
+    },
+    "clintanderson_A196_3_2": {
+      "question_text": "What do you think is really important in life?"
+    },
+    "clintanderson_A197_4_1": {
+      "question_text": "What problem are you looking to solve?"
+    },
+    "clintanderson_A198_4_1": {
+      "question_text": "How and where do you find inspiration?"
+    },
+    "clintanderson_A199_4_1": {
+      "question_text": "How often do you ever get in a \"state of flow\" when doing your job?"
+    },
+    "clintanderson_A19_1_1": {
+      "question_text": "What does EMC stand for?"
+    },
+    "clintanderson_A1_1_1": {
+      "question_text": "Who are you and what do you do?"
+    },
+    "clintanderson_A200_4_1": {
+      "question_text": "What makes you proud?"
+    },
+    "clintanderson_A201_4_1": {
+      "question_text": "What keeps you up at night?"
+    },
+    "clintanderson_A202_4_1": {
+      "question_text": "Whom do you see as the main beneficiaries of the work you do in computer science?"
+    },
+    "clintanderson_A203_4_1": {
+      "question_text": "Why are you motivated and inspired to go to work as a programmer?"
+    },
+    "clintanderson_A204_4_1": {
+      "question_text": "How did you manage both career and personal life effectively?"
+    },
+    "clintanderson_A205_4_1": {
+      "question_text": "How strongly would you recommend this profession to others or to me personally?"
+    },
+    "clintanderson_A206_4_1": {
+      "question_text": "If you could change one thing about your job, what would it be?"
+    },
+    "clintanderson_A207_4_1": {
+      "question_text": "What is STEM?"
+    },
+    "clintanderson_A208_4_1": {
+      "question_text": "What STEM positions are available in the military?"
+    },
+    "clintanderson_A209_4_1": {
+      "question_text": "What are the benefits of your STEM career?"
+    },
+    "clintanderson_A20_1_1": {
+      "question_text": "Are you an officer?"
+    },
+    "clintanderson_A210_4_1": {
+      "question_text": "Who do I talk to if I'm interested in this field?"
+    },
+    "clintanderson_A211_4_1": {
+      "question_text": "What is the difference between working in the public vs private sectors?"
+    },
+    "clintanderson_A212_4_1": {
+      "question_text": "What is your favorite coding language and why?"
+    },
+    "clintanderson_A213_4_1": {
+      "question_text": "How much free time do you have in your career?"
+    },
+    "clintanderson_A214_4_1": {
+      "question_text": "How ethnically diverse is this career field?"
+    },
+    "clintanderson_A215_4_1": {
+      "question_text": "Why are there fewer minorities in STEM?"
+    },
+    "clintanderson_A216_4_1": {
+      "question_text": "Why are there fewer females in STEM?"
+    },
+    "clintanderson_A217_4_2": {
+      "question_text": "How does someone recover from a professional \"bump in the road\"?"
+    },
+    "clintanderson_A218_4_2": {
+      "question_text": "Who has influenced you the most?"
+    },
+    "clintanderson_A219_4_2": {
+      "question_text": "Tell me about a mentor that you have or had. How did that person positively influence your academic decisions?"
+    },
+    "clintanderson_A21_1_1": {
+      "question_text": "You have a college degree, so why aren't you an officer?"
+    },
+    "clintanderson_A220_4_2": {
+      "question_text": "Who is a person that you considered as a role model early in your life? How and why does this person impact your life?"
+    },
+    "clintanderson_A221_4_2": {
+      "question_text": "Describe an experience that illuminates STEM culture"
+    },
+    "clintanderson_A222_4_2": {
+      "question_text": "Describe an experience that illuminates Navy culture"
+    },
+    "clintanderson_A223_4_2": {
+      "question_text": "Describe the physical environments in which you've worked."
+    },
+    "clintanderson_A224_4_2": {
+      "question_text": "What struggles did you overcome to get where you are?"
+    },
+    "clintanderson_A225_4_2": {
+      "question_text": "What was a pivotal moment in your career/life?"
+    },
+    "clintanderson_A226_4_2": {
+      "question_text": "What are the failures for which you are the most unhappy?"
+    },
+    "clintanderson_A227_4_2": {
+      "question_text": "What is the most dangerous thing you've ever done on the job?"
+    },
+    "clintanderson_A228_4_2": {
+      "question_text": "When is breaking the rules okay?"
+    },
+    "clintanderson_A229_4_2": {
+      "question_text": "Tell me about a time when your priorities conflicted with the priorities of your management"
+    },
+    "clintanderson_A22_1_1": {
+      "question_text": "What is the difference between an officer and an enlisted person?"
+    },
+    "clintanderson_A230_4_2": {
+      "question_text": "Describe any instances of sexual impropriety in your workplace"
+    },
+    "clintanderson_A231_4_2": {
+      "question_text": "What is your current position and how did you get there?"
+    },
+    "clintanderson_A232_4_2": {
+      "question_text": "What is your plan to reach your career/life goal?"
+    },
+    "clintanderson_A233_4_2": {
+      "question_text": "What were some of your fears entering college and your career?"
+    },
+    "clintanderson_A234_4_2": {
+      "question_text": "What internships did you have? How did they prepare you?"
+    },
+    "clintanderson_A235_4_2": {
+      "question_text": "What used to be your biggest weakness? How did you improve it?"
+    },
+    "clintanderson_A236_4_2": {
+      "question_text": "How have your priorities changed as your career progresses?"
+    },
+    "clintanderson_A237_4_2": {
+      "question_text": "What do you like to do the most?"
+    },
+    "clintanderson_A238_4_2": {
+      "question_text": "Are too many or too few people entering this profession?"
+    },
+    "clintanderson_A239_4_2": {
+      "question_text": "What sorts of changes are occurring in your occupation?"
+    },
+    "clintanderson_A23_1_1": {
+      "question_text": "How do you spend most of your time on deployment?"
+    },
+    "clintanderson_A240_4_2": {
+      "question_text": "How do you proactively prepare for a decline in your field?"
+    },
+    "clintanderson_A241_4_2": {
+      "question_text": "What do you believe will be the most important factors that will shape your future?"
+    },
+    "clintanderson_A242_4_2": {
+      "question_text": "What was the coolest thing you did in the Navy?"
+    },
+    "clintanderson_A243_5_1": {
+      "question_text": "How do you handle fatigue at work?"
+    },
+    "clintanderson_A244_5_1": {
+      "question_text": "What branch of the military should I go into?"
+    },
+    "clintanderson_A245_5_1": {
+      "question_text": "How do you handle self doubt?"
+    },
+    "clintanderson_A246_5_1": {
+      "question_text": "Have you seen the button?"
+    },
+    "clintanderson_A247_5_1": {
+      "question_text": "How do you define success?"
+    },
+    "clintanderson_A248_5_1": {
+      "question_text": "What has been your greatest success?"
+    },
+    "clintanderson_A249_5_1": {
+      "question_text": "Do you need to be good at math or science to go into STEM?"
+    },
+    "clintanderson_A24_1_1": {
+      "question_text": "What did you do during your off time while deployed?"
+    },
+    "clintanderson_A250_5_1": {
+      "question_text": "How interesting is your work? Is it boring?"
+    },
+    "clintanderson_A251_5_1": {
+      "question_text": "Where will a STEM degree take me?"
+    },
+    "clintanderson_A252_5_1": {
+      "question_text": "What factors should I consider when deciding where I want to study?"
+    },
+    "clintanderson_A253_5_1": {
+      "question_text": "What if I can't go or can't afford to go to a 4 year college?"
+    },
+    "clintanderson_A254_5_1": {
+      "question_text": "How does your college matter?"
+    },
+    "clintanderson_A255_5_1": {
+      "question_text": "What did you learn for your career that you truly never used?"
+    },
+    "clintanderson_A256_5_1": {
+      "question_text": "What specific courses do you recommend?"
+    },
+    "clintanderson_A257_5_1": {
+      "question_text": "What courses are good indicators of whether I fit in this field?"
+    },
+    "clintanderson_A258_5_1": {
+      "question_text": "What courses were just a waste of time for you?"
+    },
+    "clintanderson_A259_5_1": {
+      "question_text": "What influenced you the most in your college decision?"
+    },
+    "clintanderson_A25_1_1": {
+      "question_text": "How do you spend most of your time off deployment?"
+    },
+    "clintanderson_A260_5_1": {
+      "question_text": "What extracurriculars did you do in college?"
+    },
+    "clintanderson_A261_5_1": {
+      "question_text": "What was the most difficult part of your education?"
+    },
+    "clintanderson_A262_5_1": {
+      "question_text": "Given the chance to do school over, what would you do differently?"
+    },
+    "clintanderson_A263_5_1": {
+      "question_text": "What opportunities are there for future education and training?"
+    },
+    "clintanderson_A264_5_1": {
+      "question_text": "How do you continue to improve your skills during your career?"
+    },
+    "clintanderson_A265_5_2": {
+      "question_text": "How do you stay in touch with family?"
+    },
+    "clintanderson_A266_5_2": {
+      "question_text": "Can you change branches? Can you switch to the Army or Air Force?"
+    },
+    "clintanderson_A267_5_2": {
+      "question_text": "Do you need to exercise all the time or be in great shape?"
+    },
+    "clintanderson_A268_5_2": {
+      "question_text": "What types of uniforms do you wear?"
+    },
+    "clintanderson_A269_5_2": {
+      "question_text": "How transferable is your job to the civilian sector?"
+    },
+    "clintanderson_A26_1_1": {
+      "question_text": "Describe the work you do on a typical day."
+    },
+    "clintanderson_A270_5_2": {
+      "question_text": "Do you get to fly in helicopters or planes?"
+    },
+    "clintanderson_A271_5_2": {
+      "question_text": "Is it possible to quit the military? (Either deployment, or the service?)"
+    },
+    "clintanderson_A272_5_2": {
+      "question_text": "What happens if you get into trouble in the Navy?"
+    },
+    "clintanderson_A273_5_2": {
+      "question_text": "Have you killed anyone?"
+    },
+    "clintanderson_A274_5_2": {
+      "question_text": "Are you happy with your job?"
+    },
+    "clintanderson_A275_5_2": {
+      "question_text": "What is the best military perk you experienced?"
+    },
+    "clintanderson_A276_5_2": {
+      "question_text": "Is the military like it is in video games?"
+    },
+    "clintanderson_A277_5_2": {
+      "question_text": "Can you use outside communication on a deployment, like using the internet and email, calling by phone, and writing mail?"
+    },
+    "clintanderson_A278_5_2": {
+      "question_text": "Can you have a cell phone or laptop while in the military?"
+    },
+    "clintanderson_A279_5_2": {
+      "question_text": "Can you drink alcohol when deployed?"
+    },
+    "clintanderson_A27_1_1": {
+      "question_text": "What are you doing now that you aren't active duty Navy?"
+    },
+    "clintanderson_A280_5_2": {
+      "question_text": "Where have you been in port?"
+    },
+    "clintanderson_A281_5_2": {
+      "question_text": "How important is it to have the right training, degree or experience?"
+    },
+    "clintanderson_A282_5_2": {
+      "question_text": "Why shouldn't I join the Navy?"
+    },
+    "clintanderson_A283_5_2": {
+      "question_text": "How can I study STEM and another area?"
+    },
+    "clintanderson_A284_5_2": {
+      "question_text": "What is the typical education level at each stage of a career in the military?"
+    },
+    "clintanderson_A285_5_2": {
+      "question_text": "In what ways did your education prepare you for your career?"
+    },
+    "clintanderson_A286_5_2": {
+      "question_text": "Is sexual harassment common in the military?"
+    },
+    "clintanderson_A287_5_2": {
+      "question_text": "What kinds of people succeed in STEM fields?"
+    },
+    "clintanderson_A288_5_2": {
+      "question_text": "What kinds of new skills have you learned recently?"
+    },
+    "clintanderson_A289_5_2": {
+      "question_text": "How much does GPA affect job outcomes?"
+    },
+    "clintanderson_A28_1_1": {
+      "question_text": "How much do you earn working for the Navy?"
+    },
+    "clintanderson_A290_5_2": {
+      "question_text": "If I did poorly in high school, can I join the military?"
+    },
+    "clintanderson_A291_5_2": {
+      "question_text": "How do I pay for education?"
+    },
+    "clintanderson_A292_5_2": {
+      "question_text": "Should I still go to college, if I need to take out a loan?"
+    },
+    "clintanderson_A293_5_2": {
+      "question_text": "How often have you been presented with challenging new skills to learn?"
+    },
+    "clintanderson_A294_5_2": {
+      "question_text": "How much of your free time do you spend learning new tasks?"
+    },
+    "clintanderson_A295_5_2": {
+      "question_text": "What are you doing daily to ensure your growth and development continues?"
+    },
+    "clintanderson_A296_5_2": {
+      "question_text": "How is college different than high school?"
+    },
+    "clintanderson_A297_5_2": {
+      "question_text": "What part of your future are you most worried about?"
+    },
+    "clintanderson_A298_6_1": {
+      "question_text": "When were you active duty?"
+    },
+    "clintanderson_A299_6_1": {
+      "question_text": "How long have you been in the reserves?"
+    },
+    "clintanderson_A29_1_1": {
+      "question_text": "How many hours do you work in a typical day?"
+    },
+    "clintanderson_A2_1_1": {
+      "question_text": "What is your name?"
+    },
+    "clintanderson_A300_6_1": {
+      "question_text": "Where do you see yourself in 5 years? 10?"
+    },
+    "clintanderson_A301_6_1": {
+      "question_text": "Tell me about the CS project that you are most proud of."
+    },
+    "clintanderson_A302_6_1": {
+      "question_text": "What is a STEM career like?"
+    },
+    "clintanderson_A303_6_1": {
+      "question_text": "What are the different types of STEM that people can practice?"
+    },
+    "clintanderson_A304_6_1": {
+      "question_text": "What are the different types of careers in computer science?"
+    },
+    "clintanderson_A305_6_1": {
+      "question_text": "Have you been the victim of favoritism?"
+    },
+    "clintanderson_A306_6_1": {
+      "question_text": "What is A School?"
+    },
+    "clintanderson_A307_6_1": {
+      "question_text": "What is the best career to go into?"
+    },
+    "clintanderson_A308_6_1": {
+      "question_text": "What is the best STEM field to go into?"
+    },
+    "clintanderson_A309_6_1": {
+      "question_text": "What STEM field makes the most money?"
+    },
+    "clintanderson_A30_1_1": {
+      "question_text": "What types of problems do you deal with on a daily basis?"
+    },
+    "clintanderson_A310_6_1": {
+      "question_text": "What Navy position makes the most money?"
+    },
+    "clintanderson_A311_6_1": {
+      "question_text": "What excites you most about the future?"
+    },
+    "clintanderson_A312_6_1": {
+      "question_text": "What is the most important thing I should learn from you?"
+    },
+    "clintanderson_A313_6_1": {
+      "question_text": "How does this work?"
+    },
+    "clintanderson_A314_6_1": {
+      "question_text": "What's your favorite joke?"
+    },
+    "clintanderson_A315_6_1": {
+      "question_text": "How does this NLP work?"
+    },
+    "clintanderson_A316_6_1": {
+      "question_text": "Where should I go to find more information?"
+    },
+    "clintanderson_A317_6_1": {
+      "question_text": "Where should I go to find more advice?"
+    },
+    "clintanderson_A318_6_1": {
+      "question_text": "Who should I talk to?"
+    },
+    "clintanderson_A319_6_1": {
+      "question_text": "How do you feel about becoming digital?"
+    },
+    "clintanderson_A31_1_1": {
+      "question_text": "What kind of issues are there with alcohol in the Navy?"
+    },
+    "clintanderson_A320_6_1": {
+      "question_text": "What should I do now?"
+    },
+    "clintanderson_A321_6_1": {
+      "question_text": "What is your favorite thing to talk about?"
+    },
+    "clintanderson_A322_6_1": {
+      "question_text": "What are you?"
+    },
+    "clintanderson_A323_6_1": {
+      "question_text": "Are you human?"
+    },
+    "clintanderson_A324_6_1": {
+      "question_text": "Are you there?"
+    },
+    "clintanderson_A325_6_1": {
+      "question_text": "Are you real?"
+    },
+    "clintanderson_A326_6_1": {
+      "question_text": "How can you help me?"
+    },
+    "clintanderson_A327_6_1": {
+      "question_text": "What time is it?"
+    },
+    "clintanderson_A328_6_1": {
+      "question_text": "Can you sing a song?"
+    },
+    "clintanderson_A329_6_1": {
+      "question_text": "What am I doing right now?"
+    },
+    "clintanderson_A32_1_1": {
+      "question_text": "What is the Navy doing to combat heavy alcohol use?"
+    },
+    "clintanderson_A330_6_1": {
+      "question_text": "For what in your life do you feel most grateful?"
+    },
+    "clintanderson_A331_6_1": {
+      "question_text": "What did you get your undergraduate degree in?"
+    },
+    "clintanderson_A332_7_1": {
+      "question_text": "Why did you get a minor in education?"
+    },
+    "clintanderson_A333_7_1": {
+      "question_text": "What did you get your master's degree in?"
+    },
+    "clintanderson_A334_7_1": {
+      "question_text": "Why did you go to college and grad school?"
+    },
+    "clintanderson_A335_7_1": {
+      "question_text": "Why should anyone go to grad school?"
+    },
+    "clintanderson_A336_7_1": {
+      "question_text": "How do you balance going to school while being in the military?"
+    },
+    "clintanderson_A337_7_1": {
+      "question_text": "What path would you recommend for someone who wants to go to college but also be in the military?"
+    },
+    "clintanderson_A338_7_1": {
+      "question_text": "How do I become an officer?"
+    },
+    "clintanderson_A339_7_1": {
+      "question_text": "What is ROTC and why should I do it?"
+    },
+    "clintanderson_A33_1_1": {
+      "question_text": "How much did your friends impact where you ended up in your career?"
+    },
+    "clintanderson_A340_7_1": {
+      "question_text": "What does ROTC stand for?"
+    },
+    "clintanderson_A341_7_1": {
+      "question_text": "What's the difference between undergraduate and graduate school or education?"
+    },
+    "clintanderson_A342_7_1": {
+      "question_text": "What is the most important principle for academic success?"
+    },
+    "clintanderson_A343_7_1": {
+      "question_text": "Do you have any advice for high school students?"
+    },
+    "clintanderson_A344_7_1": {
+      "question_text": "Did you work while in college?"
+    },
+    "clintanderson_A345_7_1": {
+      "question_text": "What was your favorite class in college?"
+    },
+    "clintanderson_A346_7_1": {
+      "question_text": "How do I get into a good college?"
+    },
+    "clintanderson_A347_7_1": {
+      "question_text": "Are there any military focused extracurricular activities for high school students?"
+    },
+    "clintanderson_A348_7_1": {
+      "question_text": "Tell me about your education and college experience."
+    },
+    "clintanderson_A349_7_1": {
+      "question_text": "What if I am not smart enough to succeed at a college?"
+    },
+    "clintanderson_A34_1_2": {
+      "question_text": "What are the major benefits of doing this kind of work?"
+    },
+    "clintanderson_A350_7_1": {
+      "question_text": "Would you recommend studying abroad? As a STEM major?"
+    },
+    "clintanderson_A351_7_1": {
+      "question_text": "How is computer science and STEM different in Japan and other nations?"
+    },
+    "clintanderson_A352_7_1": {
+      "question_text": "What do you give up to study STEM?"
+    },
+    "clintanderson_A353_7_1": {
+      "question_text": "How is college different from the navy?"
+    },
+    "clintanderson_A354_7_1": {
+      "question_text": "What is your favorite college memory?"
+    },
+    "clintanderson_A355_7_2": {
+      "question_text": "What was your favorite job or internship?"
+    },
+    "clintanderson_A356_7_2": {
+      "question_text": "What characterizes a good career?"
+    },
+    "clintanderson_A357_7_2": {
+      "question_text": "What don't you like about STEM/CS?"
+    },
+    "clintanderson_A358_7_2": {
+      "question_text": "How would you recommend overcoming bad teachers or difficult subjects?"
+    },
+    "clintanderson_A359_7_2": {
+      "question_text": "How has combat or the Navy changed you?"
+    },
+    "clintanderson_A35_1_2": {
+      "question_text": "What do most people do after leaving active duty?"
+    },
+    "clintanderson_A360_7_2": {
+      "question_text": "What types of questions can I ask you about?"
+    },
+    "clintanderson_A361_7_2": {
+      "question_text": "What do you do?"
+    },
+    "clintanderson_A362_7_2": {
+      "question_text": "Can you briefly tell me about yourself?"
+    },
+    "clintanderson_A363_7_2": {
+      "question_text": "What distracts you and how do you overcome it?"
+    },
+    "clintanderson_A364_7_2": {
+      "question_text": "What are your strengths?"
+    },
+    "clintanderson_A365_7_2": {
+      "question_text": "What do you not like to do?"
+    },
+    "clintanderson_A366_7_2": {
+      "question_text": "Do you have any regrets?"
+    },
+    "clintanderson_A367_7_2": {
+      "question_text": "Do you get to take vacations in the military?"
+    },
+    "clintanderson_A368_7_2": {
+      "question_text": "Does it get claustrophobic and sea sick on the ship?"
+    },
+    "clintanderson_A369_7_2": {
+      "question_text": "How long are you on the ship for?"
+    },
+    "clintanderson_A36_1_2": {
+      "question_text": "What are the major negatives of doing this kind of work?"
+    },
+    "clintanderson_A370_7_2": {
+      "question_text": "Did you miss home while in the Navy and how did you handle it?"
+    },
+    "clintanderson_A371_7_2": {
+      "question_text": "What is the age limit to join the Navy?"
+    },
+    "clintanderson_A372_7_2": {
+      "question_text": "Who was your best friend in the Navy?"
+    },
+    "clintanderson_A373_7_2": {
+      "question_text": "What are the reserves?"
+    },
+    "clintanderson_A374_7_2": {
+      "question_text": "Do you know anyone who died in the military?"
+    },
+    "clintanderson_A375_7_2": {
+      "question_text": "What was your first position in the Navy?"
+    },
+    "clintanderson_A376_7_2": {
+      "question_text": "How do you meet people in the Navy?"
+    },
+    "clintanderson_A377_7_2": {
+      "question_text": "Have you ever worked with someone you didn't get along with and how did you handle it?"
+    },
+    "clintanderson_A378_7_2": {
+      "question_text": "Who is the military a good option for?"
+    },
+    "clintanderson_A379_7_2": {
+      "question_text": "Why are you in Japan?"
+    },
+    "clintanderson_A37_1_2": {
+      "question_text": "Was it worth it?"
+    },
+    "clintanderson_A380_7_2": {
+      "question_text": "How much do you have to study in college?"
+    },
+    "clintanderson_A381_7_2": {
+      "question_text": "Do you want to be a professor?"
+    },
+    "clintanderson_A38_1_2": {
+      "question_text": "What are the main things that new employees must learn and adjust to?"
+    },
+    "clintanderson_A39_1_2": {
+      "question_text": "How much travel did you do during active duty?"
+    },
+    "clintanderson_A3_1_1": {
+      "question_text": "What year were you born?"
+    },
+    "clintanderson_A40_1_2": {
+      "question_text": "What countries did you visit on Port Calls?"
+    },
+    "clintanderson_A41_1_2": {
+      "question_text": "How much travel do you do now that you're out of the Navy?"
+    },
+    "clintanderson_A42_1_2": {
+      "question_text": "What lifestyle changes does being in the Navy involve?"
+    },
+    "clintanderson_A43_1_2": {
+      "question_text": "Did you like wearing the same uniform?"
+    },
+    "clintanderson_A44_1_2": {
+      "question_text": "Who are the most important people in the Navy?"
+    },
+    "clintanderson_A45_1_2": {
+      "question_text": "How much do you understand the overall goals of what you are doing?"
+    },
+    "clintanderson_A46_1_2": {
+      "question_text": "How much of your private time is spent doing your job?"
+    },
+    "clintanderson_A47_1_2": {
+      "question_text": "Off of active duty, do you still take work home with you?"
+    },
+    "clintanderson_A48_1_2": {
+      "question_text": "How much turnover is there in the Navy?"
+    },
+    "clintanderson_A49_1_2": {
+      "question_text": "How stable is employment in the Navy?"
+    },
+    "clintanderson_A4_1_1": {
+      "question_text": "How old are you now?"
+    },
+    "clintanderson_A50_1_2": {
+      "question_text": "What opportunities do you have to alter your own work schedule?"
+    },
+    "clintanderson_A51_1_2": {
+      "question_text": "How many Navy members have high stress symptoms?"
+    },
+    "clintanderson_A52_1_2": {
+      "question_text": "What happens if I don't like this line of work?"
+    },
+    "clintanderson_A53_1_2": {
+      "question_text": "What opportunities do you have to change career field?"
+    },
+    "clintanderson_A54_1_2": {
+      "question_text": "What experiences do you have with nukes?"
+    },
+    "clintanderson_A55_1_2": {
+      "question_text": "What is the role of nuclear technology in the Navy?"
+    },
+    "clintanderson_A56_1_2": {
+      "question_text": "What does your startup do?"
+    },
+    "clintanderson_A57_1_2": {
+      "question_text": "Do you speak any other languages?"
+    },
+    "clintanderson_A58_1_2": {
+      "question_text": "Describe a particular technical issue you've had to solve on the job."
+    },
+    "clintanderson_A59_1_2": {
+      "question_text": "How much of your time is spent with people versus with technology?"
+    },
+    "clintanderson_A5_1_1": {
+      "question_text": "When is your birthday?"
+    },
+    "clintanderson_A60_2_1": {
+      "question_text": "What's up?"
+    },
+    "clintanderson_A61_2_1": {
+      "question_text": "How is the weather?"
+    },
+    "clintanderson_A62_2_1": {
+      "question_text": "How are you?"
+    },
+    "clintanderson_A63_2_1": {
+      "question_text": "Where are you?"
+    },
+    "clintanderson_A64_2_1": {
+      "question_text": "What are your hobbies?"
+    },
+    "clintanderson_A65_2_1": {
+      "question_text": "How did you get into archery?"
+    },
+    "clintanderson_A66_2_1": {
+      "question_text": "What is a chief?"
+    },
+    "clintanderson_A67_2_1": {
+      "question_text": "What does \"in port\" mean?"
+    },
+    "clintanderson_A68_2_1": {
+      "question_text": "What is a rate?"
+    },
+    "clintanderson_A69_2_1": {
+      "question_text": "What experience do you have with nuclear bombs?"
+    },
+    "clintanderson_A6_1_1": {
+      "question_text": "Where did you grow up?"
+    },
+    "clintanderson_A70_2_1": {
+      "question_text": "How often have you been deployed?"
+    },
+    "clintanderson_A71_2_1": {
+      "question_text": "What was 9-11 like for you?"
+    },
+    "clintanderson_A72_2_1": {
+      "question_text": "Why do you love your job?"
+    },
+    "clintanderson_A73_2_1": {
+      "question_text": "What gets romanticized about your career field that really isn't that great?"
+    },
+    "clintanderson_A74_2_1": {
+      "question_text": "What makes the Navy different than other branches of the military?"
+    },
+    "clintanderson_A75_2_1": {
+      "question_text": "What are some of the common misconceptions about your field?"
+    },
+    "clintanderson_A76_2_1": {
+      "question_text": "What are some of the common misconceptions about working in nuclear technologies?"
+    },
+    "clintanderson_A77_2_1": {
+      "question_text": "What do you do in the Navy that is different from what you expected?"
+    },
+    "clintanderson_A78_2_1": {
+      "question_text": "How did your work day change over your career?"
+    },
+    "clintanderson_A79_2_1": {
+      "question_text": "How has your view of this line of work changed over time?"
+    },
+    "clintanderson_A7_1_1": {
+      "question_text": "Tell me about your childhood."
+    },
+    "clintanderson_A80_2_1": {
+      "question_text": "Where did you have to move in your career, and how did that change things each time?"
+    },
+    "clintanderson_A81_2_1": {
+      "question_text": "What do you find unique about your career field?"
+    },
+    "clintanderson_A82_2_1": {
+      "question_text": "Are great practitioners in this field made or born?"
+    },
+    "clintanderson_A83_2_1": {
+      "question_text": "What priorities would you recommend for a person entering this field?"
+    },
+    "clintanderson_A84_2_1": {
+      "question_text": "How fair are the expectations of you as an employee?"
+    },
+    "clintanderson_A85_2_1": {
+      "question_text": "How accepting of failure is this work environment when a good and honest effort was made?"
+    },
+    "clintanderson_A86_2_1": {
+      "question_text": "What range of tasks and opportunities does this field present to allow me to grow?"
+    },
+    "clintanderson_A87_2_1": {
+      "question_text": "How satisfied have you been with your bosses in your career?"
+    },
+    "clintanderson_A88_2_1": {
+      "question_text": "Describe the technological environment in which you've worked."
+    },
+    "clintanderson_A89_2_1": {
+      "question_text": "What is your opinion on nuclear energy and its future?"
+    },
+    "clintanderson_A8_1_1": {
+      "question_text": "Tell me about your family."
+    },
+    "clintanderson_A90_2_1": {
+      "question_text": "What organizations were most helpful to you in your career?"
+    },
+    "clintanderson_A91_2_1": {
+      "question_text": "What is MWR?"
+    },
+    "clintanderson_A92_2_1": {
+      "question_text": "What is USO?"
+    },
+    "clintanderson_A93_2_1": {
+      "question_text": "What kind of risks do you need to take in this field?"
+    },
+    "clintanderson_A94_2_1": {
+      "question_text": "Should I go to college before or after serving?"
+    },
+    "clintanderson_A95_2_1": {
+      "question_text": "How can your work change the world?"
+    },
+    "clintanderson_A96_2_2": {
+      "question_text": "What's your favorite book of all time? Why?"
+    },
+    "clintanderson_A97_2_2": {
+      "question_text": "What's your favorite movie of all time? Why?"
+    },
+    "clintanderson_A98_2_2": {
+      "question_text": "If you could meet anyone in the world today, who would it be and why? What would you say to that person?"
+    },
+    "clintanderson_A99_2_2": {
+      "question_text": "What kind of personal satisfaction do you get from your job?"
+    },
+    "clintanderson_A9_1_1": {
+      "question_text": "Can you tell me more about Michigan?"
+    }
+  },
+  "short_name": "Clint",
+  "title": "Nuclear Electrician's Mate",
+  "topics_by_id": {
+    "about_me": {
+      "name": "About Me",
+      "questions": [
+        "clintanderson_A104_2_2",
+        "clintanderson_A105_2_2",
+        "clintanderson_A106_2_2",
+        "clintanderson_A109_2_2",
+        "clintanderson_A10_1_1",
+        "clintanderson_A111_2_2",
+        "clintanderson_A11_1_1",
+        "clintanderson_A124_2_2",
+        "clintanderson_A125_2_2",
+        "clintanderson_A129_3_1",
+        "clintanderson_A12_1_1",
+        "clintanderson_A130_3_1",
+        "clintanderson_A131_3_1",
+        "clintanderson_A133_3_1",
+        "clintanderson_A134_3_1",
+        "clintanderson_A136_3_1",
+        "clintanderson_A137_3_1",
+        "clintanderson_A138_3_1",
+        "clintanderson_A139_3_1",
+        "clintanderson_A13_1_1",
+        "clintanderson_A140_3_1",
+        "clintanderson_A145_3_1",
+        "clintanderson_A14_1_1",
+        "clintanderson_A154_3_1",
+        "clintanderson_A15_1_1",
+        "clintanderson_A194_3_2",
+        "clintanderson_A195_3_2",
+        "clintanderson_A1_1_1",
+        "clintanderson_A20_1_1",
+        "clintanderson_A212_4_1",
+        "clintanderson_A218_4_2",
+        "clintanderson_A219_4_2",
+        "clintanderson_A220_4_2",
+        "clintanderson_A224_4_2",
+        "clintanderson_A225_4_2",
+        "clintanderson_A226_4_2",
+        "clintanderson_A231_4_2",
+        "clintanderson_A232_4_2",
+        "clintanderson_A233_4_2",
+        "clintanderson_A234_4_2",
+        "clintanderson_A236_4_2",
+        "clintanderson_A248_5_1",
+        "clintanderson_A259_5_1",
+        "clintanderson_A260_5_1",
+        "clintanderson_A262_5_1",
+        "clintanderson_A27_1_1",
+        "clintanderson_A298_6_1",
+        "clintanderson_A299_6_1",
+        "clintanderson_A2_1_1",
+        "clintanderson_A301_6_1",
+        "clintanderson_A331_6_1",
+        "clintanderson_A332_7_1",
+        "clintanderson_A333_7_1",
+        "clintanderson_A334_7_1",
+        "clintanderson_A344_7_1",
+        "clintanderson_A348_7_1",
+        "clintanderson_A361_7_2",
+        "clintanderson_A362_7_2",
+        "clintanderson_A364_7_2",
+        "clintanderson_A365_7_2",
+        "clintanderson_A366_7_2",
+        "clintanderson_A375_7_2",
+        "clintanderson_A379_7_2",
+        "clintanderson_A381_7_2",
+        "clintanderson_A3_1_1",
+        "clintanderson_A4_1_1",
+        "clintanderson_A56_1_2",
+        "clintanderson_A57_1_2",
+        "clintanderson_A5_1_1",
+        "clintanderson_A63_2_1",
+        "clintanderson_A64_2_1",
+        "clintanderson_A65_2_1",
+        "clintanderson_A6_1_1",
+        "clintanderson_A71_2_1",
+        "clintanderson_A7_1_1",
+        "clintanderson_A80_2_1",
+        "clintanderson_A8_1_1",
+        "clintanderson_A96_2_2",
+        "clintanderson_A97_2_2",
+        "clintanderson_A9_1_1"
+      ]
+    },
+    "about_the_job": {
+      "name": "About the Job",
+      "questions": [
+        "clintanderson_A100_2_2",
+        "clintanderson_A101_2_2",
+        "clintanderson_A102_2_2",
+        "clintanderson_A105_2_2",
+        "clintanderson_A106_2_2",
+        "clintanderson_A112_2_2",
+        "clintanderson_A113_2_2",
+        "clintanderson_A114_2_2",
+        "clintanderson_A118_2_2",
+        "clintanderson_A120_2_2",
+        "clintanderson_A121_2_2",
+        "clintanderson_A122_2_2",
+        "clintanderson_A123_2_2",
+        "clintanderson_A126_2_2",
+        "clintanderson_A127_3_1",
+        "clintanderson_A128_3_1",
+        "clintanderson_A129_3_1",
+        "clintanderson_A130_3_1",
+        "clintanderson_A131_3_1",
+        "clintanderson_A132_3_1",
+        "clintanderson_A141_3_1",
+        "clintanderson_A142_3_1",
+        "clintanderson_A143_3_1",
+        "clintanderson_A144_3_1",
+        "clintanderson_A145_3_1",
+        "clintanderson_A146_3_1",
+        "clintanderson_A147_3_1",
+        "clintanderson_A148_3_1",
+        "clintanderson_A149_3_1",
+        "clintanderson_A14_1_1",
+        "clintanderson_A152_3_1",
+        "clintanderson_A153_3_1",
+        "clintanderson_A154_3_1",
+        "clintanderson_A155_3_1",
+        "clintanderson_A156_3_1",
+        "clintanderson_A157_3_1",
+        "clintanderson_A158_3_1",
+        "clintanderson_A159_3_1",
+        "clintanderson_A160_3_1",
+        "clintanderson_A161_3_1",
+        "clintanderson_A162_3_1",
+        "clintanderson_A163_3_1",
+        "clintanderson_A164_3_2",
+        "clintanderson_A165_3_2",
+        "clintanderson_A166_3_2",
+        "clintanderson_A167_3_2",
+        "clintanderson_A168_3_2",
+        "clintanderson_A169_3_2",
+        "clintanderson_A170_3_2",
+        "clintanderson_A171_3_2",
+        "clintanderson_A172_3_2",
+        "clintanderson_A173_3_2",
+        "clintanderson_A174_3_2",
+        "clintanderson_A175_3_2",
+        "clintanderson_A176_3_2",
+        "clintanderson_A177_3_2",
+        "clintanderson_A178_3_2",
+        "clintanderson_A179_3_2",
+        "clintanderson_A17_1_1",
+        "clintanderson_A181_3_2",
+        "clintanderson_A182_3_2",
+        "clintanderson_A183_3_2",
+        "clintanderson_A184_3_2",
+        "clintanderson_A185_3_2",
+        "clintanderson_A186_3_2",
+        "clintanderson_A188_3_2",
+        "clintanderson_A189_3_2",
+        "clintanderson_A190_3_2",
+        "clintanderson_A191_3_2",
+        "clintanderson_A193_3_2",
+        "clintanderson_A197_4_1",
+        "clintanderson_A198_4_1",
+        "clintanderson_A199_4_1",
+        "clintanderson_A200_4_1",
+        "clintanderson_A201_4_1",
+        "clintanderson_A202_4_1",
+        "clintanderson_A203_4_1",
+        "clintanderson_A205_4_1",
+        "clintanderson_A206_4_1",
+        "clintanderson_A207_4_1",
+        "clintanderson_A208_4_1",
+        "clintanderson_A209_4_1",
+        "clintanderson_A211_4_1",
+        "clintanderson_A212_4_1",
+        "clintanderson_A213_4_1",
+        "clintanderson_A214_4_1",
+        "clintanderson_A215_4_1",
+        "clintanderson_A216_4_1",
+        "clintanderson_A219_4_2",
+        "clintanderson_A21_1_1",
+        "clintanderson_A221_4_2",
+        "clintanderson_A222_4_2",
+        "clintanderson_A223_4_2",
+        "clintanderson_A230_4_2",
+        "clintanderson_A231_4_2",
+        "clintanderson_A234_4_2",
+        "clintanderson_A237_4_2",
+        "clintanderson_A238_4_2",
+        "clintanderson_A239_4_2",
+        "clintanderson_A23_1_1",
+        "clintanderson_A242_4_2",
+        "clintanderson_A243_5_1",
+        "clintanderson_A244_5_1",
+        "clintanderson_A246_5_1",
+        "clintanderson_A247_5_1",
+        "clintanderson_A249_5_1",
+        "clintanderson_A24_1_1",
+        "clintanderson_A250_5_1",
+        "clintanderson_A251_5_1",
+        "clintanderson_A252_5_1",
+        "clintanderson_A253_5_1",
+        "clintanderson_A255_5_1",
+        "clintanderson_A257_5_1",
+        "clintanderson_A259_5_1",
+        "clintanderson_A25_1_1",
+        "clintanderson_A262_5_1",
+        "clintanderson_A263_5_1",
+        "clintanderson_A264_5_1",
+        "clintanderson_A265_5_2",
+        "clintanderson_A266_5_2",
+        "clintanderson_A267_5_2",
+        "clintanderson_A268_5_2",
+        "clintanderson_A269_5_2",
+        "clintanderson_A26_1_1",
+        "clintanderson_A270_5_2",
+        "clintanderson_A271_5_2",
+        "clintanderson_A272_5_2",
+        "clintanderson_A273_5_2",
+        "clintanderson_A274_5_2",
+        "clintanderson_A275_5_2",
+        "clintanderson_A276_5_2",
+        "clintanderson_A277_5_2",
+        "clintanderson_A278_5_2",
+        "clintanderson_A279_5_2",
+        "clintanderson_A280_5_2",
+        "clintanderson_A281_5_2",
+        "clintanderson_A282_5_2",
+        "clintanderson_A283_5_2",
+        "clintanderson_A284_5_2",
+        "clintanderson_A285_5_2",
+        "clintanderson_A286_5_2",
+        "clintanderson_A287_5_2",
+        "clintanderson_A289_5_2",
+        "clintanderson_A290_5_2",
+        "clintanderson_A292_5_2",
+        "clintanderson_A298_6_1",
+        "clintanderson_A299_6_1",
+        "clintanderson_A29_1_1",
+        "clintanderson_A301_6_1",
+        "clintanderson_A302_6_1",
+        "clintanderson_A303_6_1",
+        "clintanderson_A304_6_1",
+        "clintanderson_A306_6_1",
+        "clintanderson_A307_6_1",
+        "clintanderson_A308_6_1",
+        "clintanderson_A309_6_1",
+        "clintanderson_A30_1_1",
+        "clintanderson_A310_6_1",
+        "clintanderson_A311_6_1",
+        "clintanderson_A315_6_1",
+        "clintanderson_A330_6_1",
+        "clintanderson_A331_6_1",
+        "clintanderson_A333_7_1",
+        "clintanderson_A334_7_1",
+        "clintanderson_A335_7_1",
+        "clintanderson_A336_7_1",
+        "clintanderson_A337_7_1",
+        "clintanderson_A338_7_1",
+        "clintanderson_A339_7_1",
+        "clintanderson_A340_7_1",
+        "clintanderson_A347_7_1",
+        "clintanderson_A34_1_2",
+        "clintanderson_A350_7_1",
+        "clintanderson_A351_7_1",
+        "clintanderson_A352_7_1",
+        "clintanderson_A353_7_1",
+        "clintanderson_A355_7_2",
+        "clintanderson_A357_7_2",
+        "clintanderson_A359_7_2",
+        "clintanderson_A367_7_2",
+        "clintanderson_A368_7_2",
+        "clintanderson_A369_7_2",
+        "clintanderson_A36_1_2",
+        "clintanderson_A370_7_2",
+        "clintanderson_A371_7_2",
+        "clintanderson_A372_7_2",
+        "clintanderson_A373_7_2",
+        "clintanderson_A374_7_2",
+        "clintanderson_A375_7_2",
+        "clintanderson_A376_7_2",
+        "clintanderson_A377_7_2",
+        "clintanderson_A378_7_2",
+        "clintanderson_A379_7_2",
+        "clintanderson_A37_1_2",
+        "clintanderson_A39_1_2",
+        "clintanderson_A40_1_2",
+        "clintanderson_A41_1_2",
+        "clintanderson_A45_1_2",
+        "clintanderson_A46_1_2",
+        "clintanderson_A48_1_2",
+        "clintanderson_A49_1_2",
+        "clintanderson_A50_1_2",
+        "clintanderson_A53_1_2",
+        "clintanderson_A54_1_2",
+        "clintanderson_A55_1_2",
+        "clintanderson_A58_1_2",
+        "clintanderson_A59_1_2",
+        "clintanderson_A69_2_1",
+        "clintanderson_A70_2_1",
+        "clintanderson_A72_2_1",
+        "clintanderson_A73_2_1",
+        "clintanderson_A75_2_1",
+        "clintanderson_A76_2_1",
+        "clintanderson_A77_2_1",
+        "clintanderson_A78_2_1",
+        "clintanderson_A79_2_1",
+        "clintanderson_A80_2_1",
+        "clintanderson_A81_2_1",
+        "clintanderson_A82_2_1",
+        "clintanderson_A83_2_1",
+        "clintanderson_A84_2_1",
+        "clintanderson_A85_2_1",
+        "clintanderson_A86_2_1",
+        "clintanderson_A88_2_1",
+        "clintanderson_A89_2_1",
+        "clintanderson_A93_2_1",
+        "clintanderson_A95_2_1",
+        "clintanderson_A99_2_2"
+      ]
+    },
+    "challenges": {
+      "name": "Challenges",
+      "questions": [
+        "clintanderson_A101_2_2",
+        "clintanderson_A107_2_2",
+        "clintanderson_A108_2_2",
+        "clintanderson_A109_2_2",
+        "clintanderson_A110_2_2",
+        "clintanderson_A127_3_1",
+        "clintanderson_A128_3_1",
+        "clintanderson_A142_3_1",
+        "clintanderson_A15_1_1",
+        "clintanderson_A161_3_1",
+        "clintanderson_A16_1_1",
+        "clintanderson_A171_3_2",
+        "clintanderson_A172_3_2",
+        "clintanderson_A217_4_2",
+        "clintanderson_A224_4_2",
+        "clintanderson_A226_4_2",
+        "clintanderson_A227_4_2",
+        "clintanderson_A228_4_2",
+        "clintanderson_A229_4_2",
+        "clintanderson_A230_4_2",
+        "clintanderson_A233_4_2",
+        "clintanderson_A235_4_2",
+        "clintanderson_A243_5_1",
+        "clintanderson_A245_5_1",
+        "clintanderson_A261_5_1",
+        "clintanderson_A272_5_2",
+        "clintanderson_A273_5_2",
+        "clintanderson_A276_5_2",
+        "clintanderson_A286_5_2",
+        "clintanderson_A293_5_2",
+        "clintanderson_A297_5_2",
+        "clintanderson_A305_6_1",
+        "clintanderson_A344_7_1",
+        "clintanderson_A352_7_1",
+        "clintanderson_A357_7_2",
+        "clintanderson_A358_7_2",
+        "clintanderson_A359_7_2",
+        "clintanderson_A363_7_2",
+        "clintanderson_A366_7_2",
+        "clintanderson_A368_7_2",
+        "clintanderson_A370_7_2",
+        "clintanderson_A372_7_2",
+        "clintanderson_A374_7_2",
+        "clintanderson_A377_7_2",
+        "clintanderson_A38_1_2",
+        "clintanderson_A85_2_1",
+        "clintanderson_A93_2_1"
+      ]
+    },
+    "learning_more": {
+      "name": "Learning More",
+      "questions": [
+        "clintanderson_A118_2_2",
+        "clintanderson_A122_2_2",
+        "clintanderson_A123_2_2",
+        "clintanderson_A150_3_1",
+        "clintanderson_A164_3_2",
+        "clintanderson_A167_3_2",
+        "clintanderson_A179_3_2",
+        "clintanderson_A187_3_2",
+        "clintanderson_A188_3_2",
+        "clintanderson_A210_4_1",
+        "clintanderson_A218_4_2",
+        "clintanderson_A219_4_2",
+        "clintanderson_A220_4_2",
+        "clintanderson_A232_4_2",
+        "clintanderson_A238_4_2",
+        "clintanderson_A239_4_2",
+        "clintanderson_A240_4_2",
+        "clintanderson_A241_4_2",
+        "clintanderson_A251_5_1",
+        "clintanderson_A297_5_2",
+        "clintanderson_A300_6_1",
+        "clintanderson_A307_6_1",
+        "clintanderson_A311_6_1",
+        "clintanderson_A316_6_1",
+        "clintanderson_A317_6_1",
+        "clintanderson_A318_6_1",
+        "clintanderson_A320_6_1",
+        "clintanderson_A35_1_2",
+        "clintanderson_A89_2_1"
+      ]
+    },
+    "lifestyle": {
+      "name": "Lifestyle",
+      "questions": [
+        "clintanderson_A112_2_2",
+        "clintanderson_A123_2_2",
+        "clintanderson_A136_3_1",
+        "clintanderson_A141_3_1",
+        "clintanderson_A143_3_1",
+        "clintanderson_A144_3_1",
+        "clintanderson_A153_3_1",
+        "clintanderson_A156_3_1",
+        "clintanderson_A157_3_1",
+        "clintanderson_A160_3_1",
+        "clintanderson_A162_3_1",
+        "clintanderson_A163_3_1",
+        "clintanderson_A174_3_2",
+        "clintanderson_A176_3_2",
+        "clintanderson_A179_3_2",
+        "clintanderson_A180_3_2",
+        "clintanderson_A185_3_2",
+        "clintanderson_A186_3_2",
+        "clintanderson_A187_3_2",
+        "clintanderson_A190_3_2",
+        "clintanderson_A191_3_2",
+        "clintanderson_A195_3_2",
+        "clintanderson_A197_4_1",
+        "clintanderson_A202_4_1",
+        "clintanderson_A204_4_1",
+        "clintanderson_A209_4_1",
+        "clintanderson_A211_4_1",
+        "clintanderson_A213_4_1",
+        "clintanderson_A220_4_2",
+        "clintanderson_A225_4_2",
+        "clintanderson_A234_4_2",
+        "clintanderson_A235_4_2",
+        "clintanderson_A247_5_1",
+        "clintanderson_A24_1_1",
+        "clintanderson_A256_5_1",
+        "clintanderson_A25_1_1",
+        "clintanderson_A264_5_1",
+        "clintanderson_A265_5_2",
+        "clintanderson_A267_5_2",
+        "clintanderson_A268_5_2",
+        "clintanderson_A275_5_2",
+        "clintanderson_A277_5_2",
+        "clintanderson_A278_5_2",
+        "clintanderson_A279_5_2",
+        "clintanderson_A27_1_1",
+        "clintanderson_A287_5_2",
+        "clintanderson_A288_5_2",
+        "clintanderson_A289_5_2",
+        "clintanderson_A28_1_1",
+        "clintanderson_A291_5_2",
+        "clintanderson_A292_5_2",
+        "clintanderson_A293_5_2",
+        "clintanderson_A294_5_2",
+        "clintanderson_A295_5_2",
+        "clintanderson_A302_6_1",
+        "clintanderson_A306_6_1",
+        "clintanderson_A309_6_1",
+        "clintanderson_A310_6_1",
+        "clintanderson_A312_6_1",
+        "clintanderson_A31_1_1",
+        "clintanderson_A32_1_1",
+        "clintanderson_A330_6_1",
+        "clintanderson_A33_1_1",
+        "clintanderson_A342_7_1",
+        "clintanderson_A344_7_1",
+        "clintanderson_A348_7_1",
+        "clintanderson_A353_7_1",
+        "clintanderson_A354_7_1",
+        "clintanderson_A356_7_2",
+        "clintanderson_A358_7_2",
+        "clintanderson_A367_7_2",
+        "clintanderson_A376_7_2",
+        "clintanderson_A378_7_2",
+        "clintanderson_A38_1_2",
+        "clintanderson_A42_1_2",
+        "clintanderson_A43_1_2",
+        "clintanderson_A46_1_2",
+        "clintanderson_A47_1_2",
+        "clintanderson_A49_1_2",
+        "clintanderson_A51_1_2",
+        "clintanderson_A82_2_1",
+        "clintanderson_A86_2_1",
+        "clintanderson_A94_2_1",
+        "clintanderson_A95_2_1"
+      ]
+    },
+    "other": {
+      "name": "Other",
+      "questions": [
+        "clintanderson_A102_2_2",
+        "clintanderson_A103_2_2",
+        "clintanderson_A105_2_2",
+        "clintanderson_A114_2_2",
+        "clintanderson_A135_3_1",
+        "clintanderson_A143_3_1",
+        "clintanderson_A144_3_1",
+        "clintanderson_A146_3_1",
+        "clintanderson_A148_3_1",
+        "clintanderson_A158_3_1",
+        "clintanderson_A159_3_1",
+        "clintanderson_A19_1_1",
+        "clintanderson_A207_4_1",
+        "clintanderson_A22_1_1",
+        "clintanderson_A270_5_2",
+        "clintanderson_A313_6_1",
+        "clintanderson_A314_6_1",
+        "clintanderson_A315_6_1",
+        "clintanderson_A319_6_1",
+        "clintanderson_A321_6_1",
+        "clintanderson_A322_6_1",
+        "clintanderson_A323_6_1",
+        "clintanderson_A324_6_1",
+        "clintanderson_A325_6_1",
+        "clintanderson_A326_6_1",
+        "clintanderson_A327_6_1",
+        "clintanderson_A328_6_1",
+        "clintanderson_A329_6_1",
+        "clintanderson_A340_7_1",
+        "clintanderson_A360_7_2",
+        "clintanderson_A373_7_2",
+        "clintanderson_A40_1_2",
+        "clintanderson_A60_2_1",
+        "clintanderson_A61_2_1",
+        "clintanderson_A62_2_1",
+        "clintanderson_A63_2_1",
+        "clintanderson_A66_2_1",
+        "clintanderson_A67_2_1",
+        "clintanderson_A68_2_1",
+        "clintanderson_A91_2_1",
+        "clintanderson_A92_2_1",
+        "clintanderson_A96_2_2",
+        "clintanderson_A98_2_2"
+      ]
+    },
+    "what_does_it_take_": {
+      "name": "What Does it Take?",
+      "questions": [
+        "clintanderson_A100_2_2",
+        "clintanderson_A107_2_2",
+        "clintanderson_A108_2_2",
+        "clintanderson_A10_1_1",
+        "clintanderson_A110_2_2",
+        "clintanderson_A112_2_2",
+        "clintanderson_A115_2_2",
+        "clintanderson_A116_2_2",
+        "clintanderson_A117_2_2",
+        "clintanderson_A118_2_2",
+        "clintanderson_A119_2_2",
+        "clintanderson_A120_2_2",
+        "clintanderson_A121_2_2",
+        "clintanderson_A122_2_2",
+        "clintanderson_A123_2_2",
+        "clintanderson_A124_2_2",
+        "clintanderson_A125_2_2",
+        "clintanderson_A126_2_2",
+        "clintanderson_A147_3_1",
+        "clintanderson_A150_3_1",
+        "clintanderson_A151_3_1",
+        "clintanderson_A152_3_1",
+        "clintanderson_A165_3_2",
+        "clintanderson_A166_3_2",
+        "clintanderson_A167_3_2",
+        "clintanderson_A170_3_2",
+        "clintanderson_A171_3_2",
+        "clintanderson_A177_3_2",
+        "clintanderson_A178_3_2",
+        "clintanderson_A185_3_2",
+        "clintanderson_A186_3_2",
+        "clintanderson_A188_3_2",
+        "clintanderson_A18_1_1",
+        "clintanderson_A191_3_2",
+        "clintanderson_A192_3_2",
+        "clintanderson_A194_3_2",
+        "clintanderson_A195_3_2",
+        "clintanderson_A196_3_2",
+        "clintanderson_A205_4_1",
+        "clintanderson_A210_4_1",
+        "clintanderson_A21_1_1",
+        "clintanderson_A228_4_2",
+        "clintanderson_A234_4_2",
+        "clintanderson_A235_4_2",
+        "clintanderson_A240_4_2",
+        "clintanderson_A244_5_1",
+        "clintanderson_A245_5_1",
+        "clintanderson_A249_5_1",
+        "clintanderson_A251_5_1",
+        "clintanderson_A252_5_1",
+        "clintanderson_A253_5_1",
+        "clintanderson_A254_5_1",
+        "clintanderson_A255_5_1",
+        "clintanderson_A256_5_1",
+        "clintanderson_A257_5_1",
+        "clintanderson_A258_5_1",
+        "clintanderson_A259_5_1",
+        "clintanderson_A260_5_1",
+        "clintanderson_A261_5_1",
+        "clintanderson_A262_5_1",
+        "clintanderson_A263_5_1",
+        "clintanderson_A264_5_1",
+        "clintanderson_A281_5_2",
+        "clintanderson_A282_5_2",
+        "clintanderson_A283_5_2",
+        "clintanderson_A284_5_2",
+        "clintanderson_A285_5_2",
+        "clintanderson_A287_5_2",
+        "clintanderson_A288_5_2",
+        "clintanderson_A289_5_2",
+        "clintanderson_A290_5_2",
+        "clintanderson_A291_5_2",
+        "clintanderson_A292_5_2",
+        "clintanderson_A293_5_2",
+        "clintanderson_A294_5_2",
+        "clintanderson_A295_5_2",
+        "clintanderson_A296_5_2",
+        "clintanderson_A306_6_1",
+        "clintanderson_A307_6_1",
+        "clintanderson_A308_6_1",
+        "clintanderson_A312_6_1",
+        "clintanderson_A317_6_1",
+        "clintanderson_A320_6_1",
+        "clintanderson_A331_6_1",
+        "clintanderson_A332_7_1",
+        "clintanderson_A333_7_1",
+        "clintanderson_A334_7_1",
+        "clintanderson_A335_7_1",
+        "clintanderson_A336_7_1",
+        "clintanderson_A337_7_1",
+        "clintanderson_A338_7_1",
+        "clintanderson_A339_7_1",
+        "clintanderson_A340_7_1",
+        "clintanderson_A341_7_1",
+        "clintanderson_A342_7_1",
+        "clintanderson_A343_7_1",
+        "clintanderson_A344_7_1",
+        "clintanderson_A345_7_1",
+        "clintanderson_A346_7_1",
+        "clintanderson_A347_7_1",
+        "clintanderson_A348_7_1",
+        "clintanderson_A349_7_1",
+        "clintanderson_A350_7_1",
+        "clintanderson_A353_7_1",
+        "clintanderson_A354_7_1",
+        "clintanderson_A356_7_2",
+        "clintanderson_A358_7_2",
+        "clintanderson_A363_7_2",
+        "clintanderson_A364_7_2",
+        "clintanderson_A368_7_2",
+        "clintanderson_A378_7_2",
+        "clintanderson_A380_7_2",
+        "clintanderson_A381_7_2",
+        "clintanderson_A38_1_2",
+        "clintanderson_A52_1_2",
+        "clintanderson_A82_2_1",
+        "clintanderson_A83_2_1",
+        "clintanderson_A94_2_1"
+      ]
+    },
+    "who_does_it_": {
+      "name": "Who Does it?",
+      "questions": [
+        "clintanderson_A113_2_2",
+        "clintanderson_A145_3_1",
+        "clintanderson_A152_3_1",
+        "clintanderson_A161_3_1",
+        "clintanderson_A168_3_2",
+        "clintanderson_A169_3_2",
+        "clintanderson_A173_3_2",
+        "clintanderson_A180_3_2",
+        "clintanderson_A181_3_2",
+        "clintanderson_A182_3_2",
+        "clintanderson_A189_3_2",
+        "clintanderson_A192_3_2",
+        "clintanderson_A196_3_2",
+        "clintanderson_A211_4_1",
+        "clintanderson_A214_4_1",
+        "clintanderson_A215_4_1",
+        "clintanderson_A216_4_1",
+        "clintanderson_A221_4_2",
+        "clintanderson_A222_4_2",
+        "clintanderson_A229_4_2",
+        "clintanderson_A236_4_2",
+        "clintanderson_A242_4_2",
+        "clintanderson_A244_5_1",
+        "clintanderson_A268_5_2",
+        "clintanderson_A279_5_2",
+        "clintanderson_A284_5_2",
+        "clintanderson_A286_5_2",
+        "clintanderson_A296_5_2",
+        "clintanderson_A305_6_1",
+        "clintanderson_A31_1_1",
+        "clintanderson_A338_7_1",
+        "clintanderson_A33_1_1",
+        "clintanderson_A351_7_1",
+        "clintanderson_A353_7_1",
+        "clintanderson_A356_7_2",
+        "clintanderson_A363_7_2",
+        "clintanderson_A372_7_2",
+        "clintanderson_A376_7_2",
+        "clintanderson_A377_7_2",
+        "clintanderson_A44_1_2",
+        "clintanderson_A74_2_1",
+        "clintanderson_A81_2_1",
+        "clintanderson_A83_2_1",
+        "clintanderson_A84_2_1",
+        "clintanderson_A87_2_1",
+        "clintanderson_A90_2_1"
+      ]
+    }
+  },
+  "utterances_by_type": {
+    "_FEEDBACK_": [
+      [
+        "clintanderson_U2_1_2",
+        "Yes"
+      ],
+      [
+        "clintanderson_U3_1_2",
+        "Yes, sir"
+      ],
+      [
+        "clintanderson_U4_1_2",
+        "Yes, ma'am"
+      ],
+      [
+        "clintanderson_U5_1_2",
+        "Excuse me?"
+      ],
+      [
+        "clintanderson_U6_1_2",
+        "Good morning"
+      ],
+      [
+        "clintanderson_U7_1_2",
+        "Good afternoon"
+      ],
+      [
+        "clintanderson_U8_1_2",
+        "Good evening"
+      ],
+      [
+        "clintanderson_U9_1_2",
+        "Goodnight"
+      ],
+      [
+        "clintanderson_U11_1_2",
+        "No"
+      ],
+      [
+        "clintanderson_U12_1_2",
+        "Maybe"
+      ],
+      [
+        "clintanderson_U13_1_2",
+        "Perhaps"
+      ],
+      [
+        "clintanderson_U14_1_2",
+        "Of course"
+      ],
+      [
+        "clintanderson_U15_1_2",
+        "Always"
+      ],
+      [
+        "clintanderson_U16_1_2",
+        "Sometimes"
+      ],
+      [
+        "clintanderson_U17_1_2",
+        "Sometimes"
+      ],
+      [
+        "clintanderson_U18_1_2",
+        "Never"
+      ],
+      [
+        "clintanderson_U19_1_2",
+        "Often"
+      ],
+      [
+        "clintanderson_U20_1_2",
+        "I do"
+      ],
+      [
+        "clintanderson_U21_1_2",
+        "I don't"
+      ],
+      [
+        "clintanderson_U22_1_2",
+        "I have no idea."
+      ],
+      [
+        "clintanderson_U23_1_2",
+        "I don't think so."
+      ],
+      [
+        "clintanderson_U24_1_2",
+        "I have no idea."
+      ],
+      [
+        "clintanderson_U25_2_2",
+        "I hope so."
+      ],
+      [
+        "clintanderson_U26_2_2",
+        "I'm sorry."
+      ],
+      [
+        "clintanderson_U27_2_2",
+        "I'm sorry to hear that."
+      ],
+      [
+        "clintanderson_U28_2_2",
+        "Thank you."
+      ],
+      [
+        "clintanderson_U29_2_2",
+        "I understand that."
+      ],
+      [
+        "clintanderson_U30_2_2",
+        "I went through something similar."
+      ],
+      [
+        "clintanderson_U31_2_2",
+        "I am not sure."
+      ],
+      [
+        "clintanderson_U32_2_2",
+        "I can't hear you."
+      ],
+      [
+        "clintanderson_U33_2_2",
+        "I don't understand."
+      ],
+      [
+        "clintanderson_U34_2_2",
+        "Can you repeat that?"
+      ],
+      [
+        "clintanderson_U35_2_2",
+        "I don't have an answer for that."
+      ],
+      [
+        "clintanderson_U36_2_2",
+        "It would help if you could keep the questions short and simple."
+      ],
+      [
+        "clintanderson_U37_2_2",
+        "Can you rephrase the question?"
+      ],
+      [
+        "clintanderson_U38_2_2",
+        "I can not predict the future."
+      ],
+      [
+        "clintanderson_U39_2_2",
+        "I do not want to speculate about the future."
+      ],
+      [
+        "clintanderson_U40_2_2",
+        "I don't know what that is."
+      ],
+      [
+        "clintanderson_U41_2_2",
+        "I don't know who that is."
+      ],
+      [
+        "clintanderson_U42_2_2",
+        "I am not going to talk about that."
+      ],
+      [
+        "clintanderson_U43_2_2",
+        "I am not here to talk about that."
+      ],
+      [
+        "clintanderson_U44_5_1",
+        "I don't have enough information to talk about that."
+      ],
+      [
+        "clintanderson_U45_5_1",
+        "I do not have an answer for that."
+      ],
+      [
+        "clintanderson_U61_5_1",
+        "This changes pretty quickly, so what I'd tell you today might not be true tomorrow. I would recommend talking to someone local who might know more."
+      ],
+      [
+        "clintanderson_U79_7_1",
+        "Hello"
+      ],
+      [
+        "clintanderson_U80_7_1",
+        "It's nice to meet you."
+      ],
+      [
+        "clintanderson_U83_7_1",
+        "I see you didn't ask me anything there."
+      ],
+      [
+        "clintanderson_U84_7_1",
+        "You've got to ask me something to get a response."
+      ]
+    ],
+    "_IDLE_": [
+      [
+        "clintanderson_I_7_1",
+        ""
+      ]
+    ],
+    "_INTRO_": [
+      [
+        "clintanderson_U1_1_1",
+        "My name is EMC Clint Anderson. I was born in California and I have lived there most of my life. I graduated from Paramount and a couple of years after I finished high school, I joined the US Navy. I was an Electrician's Mate. I served on an aircraft carrier for eight years and then afterwards, I went to the United States Navy Reserve. During that time I started going to school with some of the abundant benefits that the military reserve has given me and I started working with various companies."
+      ]
+    ],
+    "_OFF_TOPIC_": [
+      [
+        "clintanderson_U46_5_1",
+        "That is a great question, but unfortunately I never recorded an answer to that."
+      ],
+      [
+        "clintanderson_U47_5_1",
+        "That is a great question. I wish I'd thought of that."
+      ],
+      [
+        "clintanderson_U48_5_1",
+        "That is an interesting question, but I am here to talk about STEM careers in the Navy. "
+      ],
+      [
+        "clintanderson_U49_5_1",
+        "Unfortunately, I was never asked that question."
+      ],
+      [
+        "clintanderson_U50_5_1",
+        "You might have to ask me something else."
+      ],
+      [
+        "clintanderson_U76_6_1",
+        "That's a great question, but unfortunately, I don't have an answer for that right now."
+      ],
+      [
+        "clintanderson_U77_6_1",
+        "I'm not sure I have an answer for that question."
+      ],
+      [
+        "clintanderson_U78_6_1",
+        "That is a great question but unfortunately, I don't have an answer right now."
+      ],
+      [
+        "clintanderson_U82_7_1",
+        "I don't really have an opinion on that."
+      ]
+    ],
+    "_PROFANITY_": [
+      [
+        "clintanderson_U81_7_1",
+        "Can you please refrain from the use of profanity?"
+      ],
+      [
+        "clintanderson_U85_7_1",
+        "No matter what you heard about having a mouth like a sailor, it will hurt your career."
+      ]
+    ],
+    "_PROMPT_": [
+      [
+        "clintanderson_U51_5_1",
+        "What do you want to talk about?"
+      ],
+      [
+        "clintanderson_U52_5_1",
+        "What would you like to ask me?"
+      ],
+      [
+        "clintanderson_U53_5_1",
+        "What do you want to know?"
+      ],
+      [
+        "clintanderson_U54_5_1",
+        "What do you want to know about me?"
+      ],
+      [
+        "clintanderson_U55_5_1",
+        "What do you want to know about STEM in the Navy?"
+      ],
+      [
+        "clintanderson_U56_5_1",
+        "You could ask me about my education."
+      ],
+      [
+        "clintanderson_U57_5_1",
+        "You could ask me about my job in the Navy."
+      ],
+      [
+        "clintanderson_U58_5_1",
+        "You could ask me about my background."
+      ],
+      [
+        "clintanderson_U59_5_1",
+        "Go ahead, ask me who gave me the best advice about my career."
+      ],
+      [
+        "clintanderson_U62_5_1",
+        "I did a lot of technical training in the Navy, so you can ask me about what skills I learned."
+      ],
+      [
+        "clintanderson_U63_5_1",
+        "You can ask me about the travelling that I did in the Navy."
+      ],
+      [
+        "clintanderson_U64_5_1",
+        "I've made a lot of mistakes in my life, so you can ask me about any of the failures that I've had."
+      ],
+      [
+        "clintanderson_U65_5_1",
+        "I've had a lot of mistakes in my life, and I've learned a lot from them. You can ask about anything and I'll try to be as honest as I can."
+      ],
+      [
+        "clintanderson_U66_5_1",
+        "I was in the Navy, and now I'm back in college getting my master's degree. You can ask about either of them."
+      ],
+      [
+        "clintanderson_U67_5_2",
+        "I worked on nuclear reactors in the Navy, but it is different every day. So you can ask about what I did as a nuke."
+      ],
+      [
+        "clintanderson_U68_5_2",
+        "When you work for the Navy as long as I did, you get to have lots of stories. Some of them are funny, some of them are interestings, feel free to ask about any of them."
+      ],
+      [
+        "clintanderson_U69_5_2",
+        "Good careers are about solving what's important. You can ask me about anything that I think is important."
+      ],
+      [
+        "clintanderson_U70_6_1",
+        "I am stored in this machine, I can wait for your questions all day."
+      ],
+      [
+        "clintanderson_U71_6_1",
+        "A lot of people ask me about money and military salaries. You can ask me about those things."
+      ],
+      [
+        "clintanderson_U72_6_1",
+        "A lot of people ask me about war, exercise, and payment, you can ask me if you want to."
+      ]
+    ],
+    "_REPEAT_": [
+      [
+        "clintanderson_U10_1_2",
+        "I may have said this before."
+      ],
+      [
+        "clintanderson_U60_5_1",
+        "I might have covered this already..."
+      ],
+      [
+        "clintanderson_U73_6_1",
+        "I have already answered that question. Please ask me something else."
+      ],
+      [
+        "clintanderson_U74_6_1",
+        "I have answered that question before. You can ask me something else."
+      ]
+    ],
+    "_REPEAT_BUMP_": [
+      [
+        "clintanderson_U75_6_1",
+        "I answered this question a while ago. Let's move on."
+      ]
+    ]
+  }
+}
