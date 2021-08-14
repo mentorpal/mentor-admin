@@ -1867,205 +1867,68 @@
   },
   "utterances_by_type": {
     "_FEEDBACK_": [
-      [
-        "clintanderson_U2_1_2",
-        "Yes"
-      ],
-      [
-        "clintanderson_U3_1_2",
-        "Yes, sir"
-      ],
-      [
-        "clintanderson_U4_1_2",
-        "Yes, ma'am"
-      ],
-      [
-        "clintanderson_U5_1_2",
-        "Excuse me?"
-      ],
-      [
-        "clintanderson_U6_1_2",
-        "Good morning"
-      ],
-      [
-        "clintanderson_U7_1_2",
-        "Good afternoon"
-      ],
-      [
-        "clintanderson_U8_1_2",
-        "Good evening"
-      ],
-      [
-        "clintanderson_U9_1_2",
-        "Goodnight"
-      ],
-      [
-        "clintanderson_U11_1_2",
-        "No"
-      ],
-      [
-        "clintanderson_U12_1_2",
-        "Maybe"
-      ],
-      [
-        "clintanderson_U13_1_2",
-        "Perhaps"
-      ],
-      [
-        "clintanderson_U14_1_2",
-        "Of course"
-      ],
-      [
-        "clintanderson_U15_1_2",
-        "Always"
-      ],
-      [
-        "clintanderson_U16_1_2",
-        "Sometimes"
-      ],
-      [
-        "clintanderson_U17_1_2",
-        "Sometimes"
-      ],
-      [
-        "clintanderson_U18_1_2",
-        "Never"
-      ],
-      [
-        "clintanderson_U19_1_2",
-        "Often"
-      ],
-      [
-        "clintanderson_U20_1_2",
-        "I do"
-      ],
-      [
-        "clintanderson_U21_1_2",
-        "I don't"
-      ],
-      [
-        "clintanderson_U22_1_2",
-        "I have no idea."
-      ],
-      [
-        "clintanderson_U23_1_2",
-        "I don't think so."
-      ],
-      [
-        "clintanderson_U24_1_2",
-        "I have no idea."
-      ],
-      [
-        "clintanderson_U25_2_2",
-        "I hope so."
-      ],
-      [
-        "clintanderson_U26_2_2",
-        "I'm sorry."
-      ],
-      [
-        "clintanderson_U27_2_2",
-        "I'm sorry to hear that."
-      ],
-      [
-        "clintanderson_U28_2_2",
-        "Thank you."
-      ],
-      [
-        "clintanderson_U29_2_2",
-        "I understand that."
-      ],
-      [
-        "clintanderson_U30_2_2",
-        "I went through something similar."
-      ],
-      [
-        "clintanderson_U31_2_2",
-        "I am not sure."
-      ],
-      [
-        "clintanderson_U32_2_2",
-        "I can't hear you."
-      ],
-      [
-        "clintanderson_U33_2_2",
-        "I don't understand."
-      ],
-      [
-        "clintanderson_U34_2_2",
-        "Can you repeat that?"
-      ],
-      [
-        "clintanderson_U35_2_2",
-        "I don't have an answer for that."
-      ],
+      ["clintanderson_U2_1_2", "Yes"],
+      ["clintanderson_U3_1_2", "Yes, sir"],
+      ["clintanderson_U4_1_2", "Yes, ma'am"],
+      ["clintanderson_U5_1_2", "Excuse me?"],
+      ["clintanderson_U6_1_2", "Good morning"],
+      ["clintanderson_U7_1_2", "Good afternoon"],
+      ["clintanderson_U8_1_2", "Good evening"],
+      ["clintanderson_U9_1_2", "Goodnight"],
+      ["clintanderson_U11_1_2", "No"],
+      ["clintanderson_U12_1_2", "Maybe"],
+      ["clintanderson_U13_1_2", "Perhaps"],
+      ["clintanderson_U14_1_2", "Of course"],
+      ["clintanderson_U15_1_2", "Always"],
+      ["clintanderson_U16_1_2", "Sometimes"],
+      ["clintanderson_U17_1_2", "Sometimes"],
+      ["clintanderson_U18_1_2", "Never"],
+      ["clintanderson_U19_1_2", "Often"],
+      ["clintanderson_U20_1_2", "I do"],
+      ["clintanderson_U21_1_2", "I don't"],
+      ["clintanderson_U22_1_2", "I have no idea."],
+      ["clintanderson_U23_1_2", "I don't think so."],
+      ["clintanderson_U24_1_2", "I have no idea."],
+      ["clintanderson_U25_2_2", "I hope so."],
+      ["clintanderson_U26_2_2", "I'm sorry."],
+      ["clintanderson_U27_2_2", "I'm sorry to hear that."],
+      ["clintanderson_U28_2_2", "Thank you."],
+      ["clintanderson_U29_2_2", "I understand that."],
+      ["clintanderson_U30_2_2", "I went through something similar."],
+      ["clintanderson_U31_2_2", "I am not sure."],
+      ["clintanderson_U32_2_2", "I can't hear you."],
+      ["clintanderson_U33_2_2", "I don't understand."],
+      ["clintanderson_U34_2_2", "Can you repeat that?"],
+      ["clintanderson_U35_2_2", "I don't have an answer for that."],
       [
         "clintanderson_U36_2_2",
         "It would help if you could keep the questions short and simple."
       ],
-      [
-        "clintanderson_U37_2_2",
-        "Can you rephrase the question?"
-      ],
-      [
-        "clintanderson_U38_2_2",
-        "I can not predict the future."
-      ],
-      [
-        "clintanderson_U39_2_2",
-        "I do not want to speculate about the future."
-      ],
-      [
-        "clintanderson_U40_2_2",
-        "I don't know what that is."
-      ],
-      [
-        "clintanderson_U41_2_2",
-        "I don't know who that is."
-      ],
-      [
-        "clintanderson_U42_2_2",
-        "I am not going to talk about that."
-      ],
-      [
-        "clintanderson_U43_2_2",
-        "I am not here to talk about that."
-      ],
+      ["clintanderson_U37_2_2", "Can you rephrase the question?"],
+      ["clintanderson_U38_2_2", "I can not predict the future."],
+      ["clintanderson_U39_2_2", "I do not want to speculate about the future."],
+      ["clintanderson_U40_2_2", "I don't know what that is."],
+      ["clintanderson_U41_2_2", "I don't know who that is."],
+      ["clintanderson_U42_2_2", "I am not going to talk about that."],
+      ["clintanderson_U43_2_2", "I am not here to talk about that."],
       [
         "clintanderson_U44_5_1",
         "I don't have enough information to talk about that."
       ],
-      [
-        "clintanderson_U45_5_1",
-        "I do not have an answer for that."
-      ],
+      ["clintanderson_U45_5_1", "I do not have an answer for that."],
       [
         "clintanderson_U61_5_1",
         "This changes pretty quickly, so what I'd tell you today might not be true tomorrow. I would recommend talking to someone local who might know more."
       ],
-      [
-        "clintanderson_U79_7_1",
-        "Hello"
-      ],
-      [
-        "clintanderson_U80_7_1",
-        "It's nice to meet you."
-      ],
-      [
-        "clintanderson_U83_7_1",
-        "I see you didn't ask me anything there."
-      ],
+      ["clintanderson_U79_7_1", "Hello"],
+      ["clintanderson_U80_7_1", "It's nice to meet you."],
+      ["clintanderson_U83_7_1", "I see you didn't ask me anything there."],
       [
         "clintanderson_U84_7_1",
         "You've got to ask me something to get a response."
       ]
     ],
-    "_IDLE_": [
-      [
-        "clintanderson_I_7_1",
-        ""
-      ]
-    ],
+    "_IDLE_": [["clintanderson_I_7_1", ""]],
     "_INTRO_": [
       [
         "clintanderson_U1_1_1",
@@ -2089,10 +1952,7 @@
         "clintanderson_U49_5_1",
         "Unfortunately, I was never asked that question."
       ],
-      [
-        "clintanderson_U50_5_1",
-        "You might have to ask me something else."
-      ],
+      ["clintanderson_U50_5_1", "You might have to ask me something else."],
       [
         "clintanderson_U76_6_1",
         "That's a great question, but unfortunately, I don't have an answer for that right now."
@@ -2105,10 +1965,7 @@
         "clintanderson_U78_6_1",
         "That is a great question but unfortunately, I don't have an answer right now."
       ],
-      [
-        "clintanderson_U82_7_1",
-        "I don't really have an opinion on that."
-      ]
+      ["clintanderson_U82_7_1", "I don't really have an opinion on that."]
     ],
     "_PROFANITY_": [
       [
@@ -2121,38 +1978,17 @@
       ]
     ],
     "_PROMPT_": [
-      [
-        "clintanderson_U51_5_1",
-        "What do you want to talk about?"
-      ],
-      [
-        "clintanderson_U52_5_1",
-        "What would you like to ask me?"
-      ],
-      [
-        "clintanderson_U53_5_1",
-        "What do you want to know?"
-      ],
-      [
-        "clintanderson_U54_5_1",
-        "What do you want to know about me?"
-      ],
+      ["clintanderson_U51_5_1", "What do you want to talk about?"],
+      ["clintanderson_U52_5_1", "What would you like to ask me?"],
+      ["clintanderson_U53_5_1", "What do you want to know?"],
+      ["clintanderson_U54_5_1", "What do you want to know about me?"],
       [
         "clintanderson_U55_5_1",
         "What do you want to know about STEM in the Navy?"
       ],
-      [
-        "clintanderson_U56_5_1",
-        "You could ask me about my education."
-      ],
-      [
-        "clintanderson_U57_5_1",
-        "You could ask me about my job in the Navy."
-      ],
-      [
-        "clintanderson_U58_5_1",
-        "You could ask me about my background."
-      ],
+      ["clintanderson_U56_5_1", "You could ask me about my education."],
+      ["clintanderson_U57_5_1", "You could ask me about my job in the Navy."],
+      ["clintanderson_U58_5_1", "You could ask me about my background."],
       [
         "clintanderson_U59_5_1",
         "Go ahead, ask me who gave me the best advice about my career."
@@ -2203,14 +2039,8 @@
       ]
     ],
     "_REPEAT_": [
-      [
-        "clintanderson_U10_1_2",
-        "I may have said this before."
-      ],
-      [
-        "clintanderson_U60_5_1",
-        "I might have covered this already..."
-      ],
+      ["clintanderson_U10_1_2", "I may have said this before."],
+      ["clintanderson_U60_5_1", "I might have covered this already..."],
       [
         "clintanderson_U73_6_1",
         "I have already answered that question. Please ask me something else."
