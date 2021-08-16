@@ -27,10 +27,9 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
   if (!useImportExport.mentor) {
     return <div />;
   }
-  const needsTransfer =
-    useImportExport.mentor.answers.filter((a) => a.hasUntransferredMedia)
-      ?.length || 0;
-
+  const needsTransfer = useImportExport.mentor.answers.some(
+    (a) => a.hasUntransferredMedia
+  );
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={useImportExport.mentor._id} />
@@ -59,14 +58,14 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             }}
           />
         </Button>
-        {needsTransfer > 0 ? (
+        {needsTransfer ? (
           <Button
             data-cy="transfer-media"
             variant="contained"
             onClick={useImportExport.onTransferMedia}
             style={{ marginLeft: 10 }}
           >
-            Transfer {needsTransfer} Answers
+            Transfer Answers
           </Button>
         ) : undefined}
       </div>

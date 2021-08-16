@@ -222,7 +222,7 @@ function HomePage(props: {
         data-cy="setup-dialog"
         maxWidth="sm"
         fullWidth={true}
-        open={setupStatus && showSetupAlert}
+        open={setupStatus && !setupStatus.isSetupComplete && showSetupAlert}
         onClose={() => setShowSetupAlert(false)}
       >
         <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>
