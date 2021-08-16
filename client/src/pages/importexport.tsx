@@ -30,7 +30,6 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
   const needsTransfer = useImportExport.mentor.answers.some(
     (a) => a.hasUntransferredMedia
   );
-
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={useImportExport.mentor._id} />
