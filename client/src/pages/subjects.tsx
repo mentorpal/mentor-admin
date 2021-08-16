@@ -32,6 +32,10 @@ import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+} from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,15 +99,12 @@ function SubjectsPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const {
-    editedMentor,
-    isMentorLoading,
-    isMentorSaving,
-    isMentorEdited,
-    mentorError,
-    editMentor,
-    saveMentorSubjects,
-  } = useMentorEdits();
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
+
+  const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
+    useMentorEdits();
   const {
     data: subjects,
     isLoading: isSubjectsLoading,

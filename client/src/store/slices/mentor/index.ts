@@ -74,16 +74,47 @@ export const loadMentor = createAsyncThunk(
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (headers: {
-    accessToken: string;
-    editedData: Mentor;
-  }): Promise<Mentor | unknown> => {
-    try {
-      await api.updateMentorDetails(headers.editedData, headers.accessToken);
-      return headers.editedData;
-    } catch (err) {
-      return err.response.data;
+  async (editedData: Mentor, thunkAPI): Promise<CancellabeResult<boolean>> => {
+    const state = thunkAPI.getState() as RootState;
+    if (
+      state.mentor.mentorStatus == MentorStatus.LOADING ||
+      state.mentor.mentorStatus == MentorStatus.SAVING
+    ) {
+      return { isCancelled: true };
     }
+    thunkAPI.dispatch(mentorSlice.actions.savingInProgress());
+    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
+      return Promise.reject("no access token");
+    } else
+      return {
+        result: await api.updateMentorDetails(
+          editedData,
+          state.login.accessToken
+        ),
+      };
+  }
+);
+
+export const saveMentorSubjects = createAsyncThunk(
+  "mentor/saveMentorSubjects",
+  async (editedData: Mentor, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+    const state = thunkAPI.getState() as RootState;
+    if (
+      state.mentor.mentorStatus == MentorStatus.LOADING ||
+      state.mentor.mentorStatus == MentorStatus.SAVING
+    ) {
+      return { isCancelled: true };
+    }
+    thunkAPI.dispatch(mentorSlice.actions.savingInProgress());
+    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
+      return Promise.reject("no access token");
+    } else await api.updateMentorSubjects(editedData, state.login.accessToken);
+    return {
+      result: await api.fetchMentorById(
+        state.login.accessToken,
+        editedData._id
+      ),
+    };
   }
 );
 
@@ -108,28 +139,15 @@ export const saveThumbnail = createAsyncThunk(
   }
 );
 
-export const saveMentorSubjects = createAsyncThunk(
-  "mentor/saveMentorSubjects",
-  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
-    const state = thunkAPI.getState() as RootState;
-    if (state.login.accessToken) {
-      try {
-        await api.updateMentorSubjects(editedData, state.login.accessToken);
-        // need to fetch the updated mentor because the questions/answers might have changed
-        return api.fetchMentorById(state.login.accessToken, editedData._id);
-      } catch (err) {
-        return err.response.data;
-      }
-    }
-  }
-);
-
 /** Reducer */
 
 export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
+    savingInProgress: (state) => {
+      state.mentorStatus = MentorStatus.SAVING;
+    },
     loadingInProgress: (state, action: PayloadAction<LoginState>) => {
       state.mentorStatus = MentorStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
@@ -158,9 +176,6 @@ export const mentorSlice = createSlice({
         };
         state.mentorStatus = MentorStatus.FAILED;
       })
-      .addCase(saveMentor.pending, (state) => {
-        state.mentorStatus = MentorStatus.SAVING;
-      })
       .addCase(saveMentor.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
         state.mentorStatus = MentorStatus.SUCCEEDED;
@@ -187,9 +202,6 @@ export const mentorSlice = createSlice({
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
-      })
-      .addCase(saveMentorSubjects.pending, (state) => {
-        state.mentorStatus = MentorStatus.SAVING;
       })
       .addCase(saveMentorSubjects.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;

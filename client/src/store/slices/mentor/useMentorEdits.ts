@@ -7,32 +7,29 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { equals } from "helpers";
 import { Mentor } from "types";
-import { LoadingError } from "hooks/graphql/loading-reducer";
-import { useAppSelector } from "store/hooks";
 import * as mentorActions from ".";
-import { useActiveMentor } from "./useActiveMentor";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+  useActiveMentorActions,
+} from "./useActiveMentor";
 
 export interface UseMentorEdits {
-  mentor?: Mentor;
-  mentorError?: LoadingError;
   editedMentor?: Mentor;
   isMentorEdited: boolean;
-  isMentorLoading: boolean;
-  isMentorSaving: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
-  loadMentor: (mentorId?: string) => void;
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
-  clearMentorError: () => void;
   onMentorUpdated: (mentor: Mentor) => void;
 }
 
 export const useMentorEdits = (): UseMentorEdits => {
   const dispatch = useDispatch();
   const [editedMentor, setEditedMentor] = useState<Mentor>();
-  const loginState = useAppSelector((state) => state.login);
+  const mentor = useActiveMentor((state) => state.data);
   const isMentorEdited = !equals(mentor, editedMentor);
-  const isMentorSaving = mentorStatus === mentorActions.MentorStatus.SAVING;
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
 
   useEffect(() => {
     setEditedMentor(mentor);
@@ -46,40 +43,19 @@ export const useMentorEdits = (): UseMentorEdits => {
   }
 
   const saveMentorDetails = () => {
-    if (isMentorLoading || isMentorSaving || !isMentorEdited || !editedMentor) {
+    if (!isMentorEdited || !editedMentor) {
       return;
     }
-    if (!loginState.accessToken) {
-      dispatch({
-        type: mentorActions.MentorStatus.FAILED,
-        payload: "Cannot save mentor if unauthenticated.",
-      });
-    } else {
-      dispatch(
-        mentorActions.saveMentor({
-          accessToken: loginState.accessToken,
-          editedData: editedMentor,
-        })
-      );
-    }
+    const { saveMentorDetails } = useActiveMentorActions();
+    saveMentorDetails(editedMentor);
   };
 
   const saveMentorSubjects = () => {
-    if (isMentorLoading || isMentorSaving || !isMentorEdited || !editedMentor) {
+    if (!isMentorEdited || !editedMentor) {
       return;
     }
-    if (!loginState.accessToken) {
-      dispatch({
-        type: mentorActions.MentorStatus.FAILED,
-        payload: "Cannot save mentor if unauthenticated.",
-      });
-    } else {
-      dispatch(mentorActions.saveMentorSubjects(editedMentor));
-    }
-  };
-
-  const clearMentorError = () => {
-    dispatch(mentorActions.mentorSlice.actions.clearError());
+    const { saveMentorSubjects } = useActiveMentorActions();
+    saveMentorSubjects(editedMentor);
   };
 
   const onMentorUpdated = (mentor: Mentor) => {
@@ -90,17 +66,11 @@ export const useMentorEdits = (): UseMentorEdits => {
   };
 
   return {
-    mentor,
-    mentorError,
     editedMentor,
     isMentorEdited,
-    isMentorLoading,
-    isMentorSaving,
     editMentor,
-    loadMentor,
     saveMentorDetails,
     saveMentorSubjects,
-    clearMentorError,
     onMentorUpdated,
   };
 };

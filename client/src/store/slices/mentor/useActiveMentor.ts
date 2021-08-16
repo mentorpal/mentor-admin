@@ -7,8 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
-import * as mentorActions from ".";
 import { RootState } from "store/store";
+import { Mentor } from "types";
+import * as mentorActions from ".";
 
 export function selectActiveMentor(
   state: RootState
@@ -16,10 +17,16 @@ export function selectActiveMentor(
   return state.mentor;
 }
 
-export function isMentorLoading(
-  mentorState: mentorActions.MentorState
-): boolean {
-  return mentorState.mentorStatus === mentorActions.MentorStatus.LOADING;
+export function isActiveMentorLoading(): boolean {
+  return useActiveMentor(
+    (state) => state.mentorStatus === mentorActions.MentorStatus.LOADING
+  );
+}
+
+export function isActiveMentorSaving(): boolean {
+  return useActiveMentor(
+    (state) => state.mentorStatus === mentorActions.MentorStatus.SAVING
+  );
 }
 
 export interface SelectFromMentorStateFunc<T> {
@@ -27,23 +34,25 @@ export interface SelectFromMentorStateFunc<T> {
 }
 
 export interface ActiveMentorActions {
-  clearMentorError: () => void;
   loadMentor: (mentorId?: string) => void;
+  saveMentorDetails: (mentor: Mentor) => void;
+  saveMentorSubjects: (mentor: Mentor) => void;
+  clearMentorError: () => void;
 }
 
 export function useActiveMentorActions(): ActiveMentorActions {
   const dispatch = useDispatch();
-  const loginToken = useAppSelector((state) => state.login.accessToken);
 
   function loadMentor(mentorId?: string): void {
-    if (!loginToken) {
-      dispatch({
-        type: mentorActions.MentorStatus.FAILED,
-        payload: "Cannot load mentor if unauthenticated.",
-      });
-    } else {
-      dispatch(mentorActions.loadMentor({ mentorId }));
-    }
+    dispatch(mentorActions.loadMentor({ mentorId }));
+  }
+
+  function saveMentorDetails(data: Mentor): void {
+    dispatch(mentorActions.saveMentor(data));
+  }
+
+  function saveMentorSubjects(data: Mentor): void {
+    dispatch(mentorActions.saveMentorSubjects(data));
   }
 
   function clearMentorError(): void {
@@ -51,21 +60,24 @@ export function useActiveMentorActions(): ActiveMentorActions {
   }
 
   return {
-    clearMentorError,
     loadMentor,
+    saveMentorDetails,
+    saveMentorSubjects,
+    clearMentorError,
   };
 }
+
 export function useActiveMentor<T>(selector: SelectFromMentorStateFunc<T>): T {
   const loginUser = useAppSelector((state) => state.login.user);
   const data = useAppSelector((state) => {
     return selector(selectActiveMentor(state), state);
   });
   const { loadMentor } = useActiveMentorActions();
+  const mentor = useAppSelector((state) => state.mentor.data);
+  const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
 
   useEffect(() => {
-    const data = useAppSelector((state) => state.mentor.data);
-    const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
-    if (data && userLoadedBy === loginUser?._id) {
+    if (mentor && userLoadedBy === loginUser?._id) {
       return;
     }
     loadMentor();

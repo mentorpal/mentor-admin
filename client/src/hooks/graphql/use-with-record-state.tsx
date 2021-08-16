@@ -20,7 +20,11 @@ import { copyAndSet, equals } from "helpers";
 import { RecordPageState } from "types";
 import { LoadingError } from "./loading-reducer";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import {
+  isActiveMentorLoading,
+  useActiveMentor,
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -58,8 +62,12 @@ export function useWithRecordState(
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
-    useActiveMentor();
+
+  const mentor = useActiveMentor((state) => state.data);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+
+  const { loadMentor, clearMentorError } = useActiveMentorActions();
   const {
     uploads,
     isUploading,
@@ -75,6 +83,7 @@ export function useWithRecordState(
   );
   const idxChanged =
     curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
+
   useEffect(() => {
     if (!mentor) {
       return;

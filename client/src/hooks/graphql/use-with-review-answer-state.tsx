@@ -25,6 +25,10 @@ import {
   UseMentorEdits,
   useMentorEdits,
 } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 interface Progress {
   complete: number;
@@ -52,17 +56,19 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const mentor = useActiveMentor((state) => state.data);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+
+  const { clearMentorError } = useActiveMentorActions();
   const useMentor = useMentorEdits();
   const {
-    mentor,
     editedMentor,
-    mentorError,
     isMentorEdited,
-    isMentorLoading,
     onMentorUpdated,
     editMentor,
     saveMentorDetails,
-    clearMentorError,
   } = useMentor;
   const {
     isPolling: isTraining,
