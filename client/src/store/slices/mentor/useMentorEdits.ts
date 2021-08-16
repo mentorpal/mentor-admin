@@ -29,8 +29,6 @@ export interface UseMentorEdits {
 
 export const useMentorEdits = (): UseMentorEdits => {
   const dispatch = useDispatch();
-  const { mentor, mentorError, mentorStatus, isMentorLoading, loadMentor } =
-    useActiveMentor();
   const [editedMentor, setEditedMentor] = useState<Mentor>();
   const loginState = useAppSelector((state) => state.login);
   const isMentorEdited = !equals(mentor, editedMentor);

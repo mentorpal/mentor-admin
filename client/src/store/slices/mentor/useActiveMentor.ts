@@ -6,19 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { Mentor } from "types";
-import { LoadingError } from "hooks/graphql/loading-reducer";
 import { useAppSelector } from "store/hooks";
 import * as mentorActions from ".";
 import { RootState } from "store/store";
 
-export interface UseActiveMentor {
-  mentor?: Mentor;
-  mentorError?: LoadingError;
-  mentorStatus: mentorActions.MentorStatus;
-  isMentorLoading: boolean;
+export interface UseActiveMentor<T> {
+  mentorSelect: (select: SelectFromMentorStateFunc<T>) => T;
+  isMentorLoading: () => boolean;
   loadMentor: (mentorId?: string) => void;
-  onMentorUpdated: (mentor: Mentor) => void;
   clearMentorError: () => void;
 }
 
@@ -27,33 +22,32 @@ export function selectActiveMentor(
 ): mentorActions.MentorState {
   return state.mentor;
 }
+interface SelectFromMentorStateFunc<T> {
+  (mentorState: mentorActions.MentorState, rootState: RootState): T
+}
 
-export const useActiveMentor = (): UseActiveMentor => {
+export function useActiveMentor<T>(): UseActiveMentor<T> {
   const dispatch = useDispatch();
-  const {
-    data: mentor,
-    error: mentorError,
-    mentorStatus,
-    userLoadedBy,
-  } = useAppSelector((state) => state.mentor);
-  const loginState = useAppSelector((state) => state.login);
-  const isMentorLoading = mentorStatus === mentorActions.MentorStatus.LOADING;
+  const loginUser = useAppSelector((state) => state.login.user);
+  const loginToken = useAppSelector((state) => state.login.accessToken);
 
   useEffect(() => {
-    if (!loginState.accessToken) {
+    if (!loginToken) {
       return;
     }
-    if (mentor && userLoadedBy === loginState.user?._id) {
+    const data = useAppSelector((state) => state.mentor.data)
+    const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
+    if (data && userLoadedBy === loginUser?._id) {
       return;
     }
     loadMentor();
-  }, [loginState.user?._id]);
+  }, [loginUser?._id]);
 
-  const loadMentor = (mentorId?: string) => {
-    if (isMentorLoading) {
+  function loadMentor(mentorId?: string): void {
+    if (isMentorLoading()) {
       return;
     }
-    if (!loginState.accessToken) {
+    if (!loginToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
         payload: "Cannot load mentor if unauthenticated.",
@@ -63,24 +57,24 @@ export const useActiveMentor = (): UseActiveMentor => {
     }
   };
 
+  function mentorSelect<T>(select: SelectFromMentorStateFunc<T>): T {
+    return useAppSelector(state => {
+      return select(selectActiveMentor(state), state);
+    })
+  }
+
+  function isMentorLoading(): boolean {
+    return mentorSelect((mentor) => mentor.mentorStatus === mentorActions.MentorStatus.LOADING)
+  }
+
   const clearMentorError = () => {
     dispatch(mentorActions.mentorSlice.actions.clearError());
   };
 
-  const onMentorUpdated = (mentor: Mentor) => {
-    if (!mentor || isMentorLoading) {
-      return;
-    }
-    dispatch(mentorActions.updateMentor(mentor));
-  };
-
   return {
-    mentor,
-    mentorError,
-    mentorStatus,
+    mentorSelect,
     isMentorLoading,
     loadMentor,
     clearMentorError,
-    onMentorUpdated,
   };
 };
