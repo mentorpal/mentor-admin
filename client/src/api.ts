@@ -899,7 +899,6 @@ export async function fetchUploadVideoStatus(
 }
 
 export async function login(accessToken: string): Promise<UserAccessToken> {
-  console.log(accessToken);
   return execGql<UserAccessToken>(
     {
       query: `
@@ -923,7 +922,6 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
 export async function loginGoogle(
   accessToken: string
 ): Promise<UserAccessToken> {
-  console.log(accessToken);
   return execGql<UserAccessToken>(
     {
       query: `
