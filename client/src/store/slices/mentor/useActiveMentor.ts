@@ -10,43 +10,32 @@ import { useAppSelector } from "store/hooks";
 import * as mentorActions from ".";
 import { RootState } from "store/store";
 
-export interface UseActiveMentor<T> {
-  mentorSelect: (select: SelectFromMentorStateFunc<T>) => T;
-  isMentorLoading: () => boolean;
-  loadMentor: (mentorId?: string) => void;
-  clearMentorError: () => void;
-}
-
 export function selectActiveMentor(
   state: RootState
 ): mentorActions.MentorState {
   return state.mentor;
 }
-interface SelectFromMentorStateFunc<T> {
-  (mentorState: mentorActions.MentorState, rootState: RootState): T
+
+export function isMentorLoading(
+  mentorState: mentorActions.MentorState
+): boolean {
+  return mentorState.mentorStatus === mentorActions.MentorStatus.LOADING;
 }
 
-export function useActiveMentor<T>(): UseActiveMentor<T> {
+export interface SelectFromMentorStateFunc<T> {
+  (mentorState: mentorActions.MentorState, rootState: RootState): T;
+}
+
+export interface ActiveMentorActions {
+  clearMentorError: () => void;
+  loadMentor: (mentorId?: string) => void;
+}
+
+export function useActiveMentorActions(): ActiveMentorActions {
   const dispatch = useDispatch();
-  const loginUser = useAppSelector((state) => state.login.user);
   const loginToken = useAppSelector((state) => state.login.accessToken);
 
-  useEffect(() => {
-    if (!loginToken) {
-      return;
-    }
-    const data = useAppSelector((state) => state.mentor.data)
-    const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
-    if (data && userLoadedBy === loginUser?._id) {
-      return;
-    }
-    loadMentor();
-  }, [loginUser?._id]);
-
   function loadMentor(mentorId?: string): void {
-    if (isMentorLoading()) {
-      return;
-    }
     if (!loginToken) {
       dispatch({
         type: mentorActions.MentorStatus.FAILED,
@@ -55,26 +44,34 @@ export function useActiveMentor<T>(): UseActiveMentor<T> {
     } else {
       dispatch(mentorActions.loadMentor({ mentorId }));
     }
-  };
-
-  function mentorSelect<T>(select: SelectFromMentorStateFunc<T>): T {
-    return useAppSelector(state => {
-      return select(selectActiveMentor(state), state);
-    })
   }
 
-  function isMentorLoading(): boolean {
-    return mentorSelect((mentor) => mentor.mentorStatus === mentorActions.MentorStatus.LOADING)
-  }
-
-  const clearMentorError = () => {
+  function clearMentorError(): void {
     dispatch(mentorActions.mentorSlice.actions.clearError());
-  };
+  }
 
   return {
-    mentorSelect,
-    isMentorLoading,
-    loadMentor,
     clearMentorError,
+    loadMentor,
   };
-};
+}
+export function useActiveMentor<T>(selector: SelectFromMentorStateFunc<T>): T {
+  const loginUser = useAppSelector((state) => state.login.user);
+  const data = useAppSelector((state) => {
+    return selector(selectActiveMentor(state), state);
+  });
+  const { loadMentor } = useActiveMentorActions();
+
+  useEffect(() => {
+    const data = useAppSelector((state) => state.mentor.data);
+    const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
+    if (data && userLoadedBy === loginUser?._id) {
+      return;
+    }
+    loadMentor();
+  }, [loginUser?._id]);
+
+  return data;
+}
+
+export default useActiveMentor;
