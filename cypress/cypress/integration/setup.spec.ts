@@ -5,7 +5,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import {
-  cySetup,
   cyMockDefault,
   mockGQL,
   cyMockTrain,
@@ -488,8 +487,9 @@ describe("Setup", () => {
         cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
       });
     });
-    cy.get("[data-cy=save-button]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button]").should("be.disabled");
+    cy.get("[data-cy=dropdown-button-list]").should("not.be.disabled");
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
+    cy.get("[data-cy=dropdown-button-list]").trigger("mouseover").click();
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();
     });
@@ -574,7 +574,7 @@ describe("Setup", () => {
   it("shows required subject, repeat after me, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup6, setup8, setup8],
+      mentor: [setup6, setup8],
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });

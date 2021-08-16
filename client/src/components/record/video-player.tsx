@@ -21,6 +21,7 @@ import { equals } from "helpers";
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
+  videoRecorderMaxLength: number;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
@@ -91,7 +92,6 @@ function VideoPlayer(props: {
       setTrim(newTrimValues);
     }
   }
-
   return (
     <div
       className={classes.block}
@@ -107,6 +107,7 @@ function VideoPlayer(props: {
         height={height}
         width={width}
         recordState={recordState}
+        videoRecorderMaxLength={props.videoRecorderMaxLength}
       />
       <div
         style={{
@@ -249,8 +250,8 @@ function VideoPlayer(props: {
             }
             className={classes.button}
             onClick={() => {
-              if (isUploading) {
-                recordState.cancelUpload(upload!);
+              if (isUploading && upload) {
+                recordState.cancelUpload(upload);
               } else {
                 recordState.uploadVideo(
                   isTrimming

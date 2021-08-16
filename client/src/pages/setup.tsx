@@ -89,11 +89,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: {
-  user: User;
-  accessToken: string;
-  search: { i?: string };
-}): JSX.Element {
+function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
   const classes = useStyles();
   const {
     setupStatus: status,
@@ -109,7 +105,7 @@ function SetupPage(props: {
     editMentor,
     startTraining,
     toStep,
-  } = useWithSetup(props.accessToken, props.search);
+  } = useWithSetup(props.search);
 
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {

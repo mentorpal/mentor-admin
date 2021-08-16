@@ -67,7 +67,6 @@ function UploadingListItem(props: {
   ) : (
     "Tap to preview"
   );
-
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
       <ListItemIcon

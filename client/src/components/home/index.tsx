@@ -4,10 +4,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import { navigate } from "gatsby";
+import React, { useState } from "react";
 import {
   AppBar,
+  Button,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Fab,
   List,
   ListItem,
@@ -26,6 +32,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import { User } from "types";
 import { launchMentor } from "helpers";
+import { useWithSetup } from "hooks/graphql/use-with-setup";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -73,9 +80,8 @@ function HomePage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const {
-    mentor,
+    useMentor,
     isLoading,
-    isMentorEdited,
     selectedSubject,
     blocks,
     progress,
@@ -86,14 +92,27 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
+  const { mentor, isMentorEdited } = useMentor;
+  const { setupStatus, navigateToMissingSetup } = useWithSetup();
+  const [showSetupAlert, setShowSetupAlert] = useState(true);
 
-  if (!mentor) {
+  React.useEffect(() => {
+    if (!setupStatus || !showSetupAlert) {
+      return;
+    }
+    setShowSetupAlert(!setupStatus.isSetupComplete);
+  }, [setupStatus]);
+
+  if (!mentor || !setupStatus) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId={""} />
         <CircularProgress />
       </div>
     );
+  }
+  if (!setupStatus.isMentorInfoDone) {
+    navigate("/setup");
   }
 
   const continueAction = () =>
@@ -110,6 +129,7 @@ function HomePage(props: {
         <MyMentorCard
           accessToken={props.accessToken}
           continueAction={continueAction}
+          useMentor={useMentor}
         />
         <Select
           data-cy="select-subject"
@@ -198,6 +218,34 @@ function HomePage(props: {
         }
       />
       <ErrorDialog error={error} />
+      <Dialog
+        data-cy="setup-dialog"
+        maxWidth="sm"
+        fullWidth={true}
+        open={setupStatus && !setupStatus.isSetupComplete && showSetupAlert}
+        onClose={() => setShowSetupAlert(false)}
+      >
+        <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            You have not finished setting up your mentor. Would you like to
+            continue it?
+          </DialogContentText>
+        </DialogContent>
+        <DialogContent>
+          <Button data-cy="setup-yes" onClick={navigateToMissingSetup}>
+            Yes
+          </Button>
+          <Button
+            data-cy="setup-no"
+            onClick={() => {
+              setShowSetupAlert(false);
+            }}
+          >
+            No
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
