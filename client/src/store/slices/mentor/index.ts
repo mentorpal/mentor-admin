@@ -53,17 +53,22 @@ export const loadMentor = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
-    if (!state.login.accessToken) {
+    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
       return Promise.reject("no access token");
-    }
-    return headers.mentorId
-      ? {
-          result: await api.fetchMentorById(
-            state.login.accessToken,
-            headers.mentorId
-          ),
-        }
-      : { result: await api.fetchMentor(state.login.accessToken) };
+    } else
+      return headers.mentorId
+        ? {
+            result: await api.fetchMentorById(
+              state.login.accessToken,
+              headers.mentorId
+            ),
+          }
+        : {
+            result: await api.fetchMentorById(
+              state.login.accessToken,
+              state.login.user?.defaultMentor._id
+            ),
+          };
   }
 );
 
@@ -105,16 +110,16 @@ export const saveThumbnail = createAsyncThunk(
 
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
-  async (headers: {
-    accessToken: string;
-    editedData: Mentor;
-  }): Promise<Mentor | unknown> => {
-    try {
-      await api.updateMentorSubjects(headers.editedData, headers.accessToken);
-      // need to fetch the updated mentor because the questions/answers might have changed
-      return await api.fetchMentor(headers.accessToken);
-    } catch (err) {
-      return err.response.data;
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorSubjects(editedData, state.login.accessToken);
+        // need to fetch the updated mentor because the questions/answers might have changed
+        return api.fetchMentorById(state.login.accessToken, editedData._id);
+      } catch (err) {
+        return err.response.data;
+      }
     }
   }
 );

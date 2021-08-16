@@ -135,7 +135,7 @@ function HomePage(props: {
           userRole={props.user.userRole}
         />
         <MyMentorCard
-          accessToken={props.accessToken}
+          editDisabled={!mentorOwnership}
           continueAction={continueAction}
           useMentor={useMentor}
         />

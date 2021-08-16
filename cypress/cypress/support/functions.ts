@@ -165,18 +165,18 @@ export function cyMockDefault(
   if (args.mentor) {
     if (Array.isArray(args.mentor)) {
       args.mentor.forEach((mentor) => {
-        mentors.push({ me: { mentor: mentor } });
+        mentors.push({ mentor: mentor });
       });
     } else {
-      mentors.push({ me: { mentor: args.mentor } });
+      mentors.push({ mentor: args.mentor });
     }
   } else {
     if (Array.isArray(mentorDefault)) {
       mentorDefault.forEach((mentor) => {
-        mentors.push({ me: { mentor: mentor } });
+        mentors.push({ mentor: mentor });
       });
     } else {
-      mentors.push({ me: { mentor: mentorDefault } });
+      mentors.push({ mentor: mentorDefault });
     }
   }
 
@@ -208,7 +208,7 @@ export function cyMockDefault(
     // ...(args.mentor
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
-    ...[mockGQL("Mentor", mentors)],
+    ...[mockGQL("MentorFindOne", mentors)],
     ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
     ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
     ...gqlQueries,

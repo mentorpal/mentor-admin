@@ -113,12 +113,7 @@ export const useWithMentor = (): UseWithMentor => {
         payload: "Cannot save mentor if unauthenticated.",
       });
     } else {
-      dispatch(
-        mentorActions.saveMentorSubjects({
-          accessToken: loginState.accessToken,
-          editedData: editedMentor,
-        })
-      );
+      dispatch(mentorActions.saveMentorSubjects(editedMentor));
     }
   };
 

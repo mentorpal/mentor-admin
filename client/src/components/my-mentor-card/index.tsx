@@ -50,7 +50,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function MyMentorCard(props: {
-  accessToken: string;
+  editDisabled: boolean;
   continueAction: () => void;
   useMentor: UseWithMentor;
 }): JSX.Element {
@@ -89,6 +89,7 @@ export default function MyMentorCard(props: {
                 value={editedMentor.name}
                 onChange={(e) => editMentor({ name: e.target.value })}
                 className={classes.inputField}
+                disabled={props.editDisabled}
               />
               <TextField
                 data-cy="mentor-job-title"
@@ -96,6 +97,7 @@ export default function MyMentorCard(props: {
                 value={editedMentor.title}
                 onChange={(e) => editMentor({ title: e.target.value })}
                 className={classes.inputField}
+                disabled={props.editDisabled}
               />
               <Grid
                 justify="center"
@@ -138,6 +140,7 @@ export default function MyMentorCard(props: {
                 value={editedMentor.firstName}
                 onChange={(e) => editMentor({ firstName: e.target.value })}
                 className={classes.inputField}
+                disabled={props.editDisabled}
               />
               <TextField
                 data-cy="mentor-email"
@@ -146,6 +149,7 @@ export default function MyMentorCard(props: {
                 value={editedMentor.email}
                 onChange={(e) => editMentor({ email: e.target.value })}
                 className={classes.inputField}
+                disabled={props.editDisabled}
               />
               <FormControlLabel
                 control={
@@ -157,6 +161,7 @@ export default function MyMentorCard(props: {
                       })
                     }
                     color="secondary"
+                    disabled={props.editDisabled}
                   />
                 }
                 label="Allow people to contact me"
@@ -168,6 +173,7 @@ export default function MyMentorCard(props: {
                   <Select
                     data-cy="select-chat-type"
                     label="Mentor Type"
+                    disabled={props.editDisabled}
                     value={editedMentor.mentorType}
                     style={{ width: 200 }}
                     onChange={(
