@@ -12,31 +12,36 @@ import videojs from "video.js";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
-
+import { useWithConfig } from "store/slices/config/useWithConfig";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 
-const videoJsOptions = {
-  controls: true,
-  bigPlayButton: false,
-  controlBar: {
-    fullscreenToggle: false,
-    volumePanel: false,
-    recordToggle: false,
-  },
-  fluid: true,
-  aspectRatio: "16:9",
-  plugins: {
-    record: {
-      audio: true,
-      video: true,
-      debug: true,
-      maxLength: 60,
+function VideoRecorder({
+  classes,
+  height,
+  width,
+  recordState,
+  videoRecorderMaxLength,
+}) {
+  const videoJsOptions = {
+    controls: true,
+    bigPlayButton: false,
+    controlBar: {
+      fullscreenToggle: false,
+      volumePanel: false,
+      recordToggle: false,
     },
-  },
-};
-
-function VideoRecorder({ classes, height, width, recordState }) {
+    fluid: true,
+    aspectRatio: "16:9",
+    plugins: {
+      record: {
+        audio: true,
+        video: true,
+        debug: true,
+        maxLength: videoRecorderMaxLength,
+      },
+    },
+  };
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
@@ -157,7 +162,7 @@ function VideoRecorder({ classes, height, width, recordState }) {
         data-cy="instruction"
         style={{
           textAlign: "center",
-          visibility: isCameraOn ? "visible" : "hidden",
+          visibility: isCameraOn ? "inherit" : "hidden",
         }}
       >
         Please get into position by facing forward and lining up with the

@@ -4,12 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cyMockDefault, mockGQL } from "../support/functions";
+import { cyMockDefault } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
-import { users } from "../fixtures/users";
 
 describe("Index page", () => {
   it("if not logged in, show login page", () => {
@@ -47,6 +46,7 @@ describe("Index page", () => {
       },
     });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").should("exist");
     cy.get("[data-cy=menu-button]").trigger("mouseover").click();
     cy.get("[data-cy=Users-menu-button]").should("exist");
@@ -61,6 +61,7 @@ describe("Index page", () => {
       },
     });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").should("exist");
     cy.get("[data-cy=menu-button]").trigger("mouseover").click();
     cy.get("[data-cy=Users-menu-button]").should("exist");
@@ -75,6 +76,7 @@ describe("Index page", () => {
       },
     });
     cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").should("exist");
     cy.get("[data-cy=menu-button]").trigger("mouseover").click();
     cy.get("[data-cy=Users-menu-button]").should("not.exist");

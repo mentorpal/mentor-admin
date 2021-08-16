@@ -30,7 +30,7 @@ describe("Select Subjects", () => {
   it("lists subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: mentor,
+      mentor: [mentor],
       subjects: [allSubjects],
       gqlQueries: [
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
@@ -166,8 +166,9 @@ describe("Select Subjects", () => {
       });
     });
     // save changes
-    cy.get("[data-cy=save-button]").should("not.be.disabled");
-    cy.get("[data-cy=save-button]").trigger("mouseover").click();
+    cy.get("[data-cy=dropdown-button-list]").should("not.be.disabled");
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
+    cy.get("[data-cy=dropdown-button-list]").trigger("mouseover").click();
     // changes were saved
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -189,5 +190,65 @@ describe("Select Subjects", () => {
         cy.get('[data-cy=default] [type="checkbox"]').should("be.checked");
       });
     });
+  });
+});
+
+describe("Dropdown button list", () => {
+  it("Primary button set to Exit when there are no edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+  });
+
+  it("Primary button set to Save with edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-2]").within(($within) => {
+      cy.get("[data-cy=select]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
+  });
+
+  it("Save is disabled when there are no edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=dropdown-button-list]").within(($within) => {
+      cy.get("[data-cy=dropdown-button]").invoke("mouseover").click();
+      cy.get("[data-cy=dropdown-item-1]").should("have.text", "Save");
+      cy.get("[data-cy=dropdown-item-1]").should(
+        "have.attr",
+        "aria-disabled",
+        "true"
+      );
+    });
+  });
+
+  it("Revert primary button to Exit after saving", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      ],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-2]").within(($within) => {
+      cy.get("[data-cy=select]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
+    cy.get("[data-cy=dropdown-button-list]").invoke("mouseover").click();
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Exit");
   });
 });

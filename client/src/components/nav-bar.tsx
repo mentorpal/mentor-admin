@@ -30,6 +30,7 @@ import {
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
   Group,
+  GetApp as GetAppIcon,
   Menu as MenuIcon,
   Mic as MicIcon,
   QuestionAnswer as QuestionAnswerIcon,
@@ -187,7 +188,12 @@ function NavMenu(props: {
         icon={<SubjectIcon />}
         onNav={props.onNav}
       />
-
+      <NavItem
+        text={"Export/Import"}
+        link={"/importexport"}
+        icon={<GetAppIcon />}
+        onNav={props.onNav}
+      />
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Build Mentor</ListSubheader>
       <NavItem

@@ -4,23 +4,44 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { uploadThumbnail, fetchThumbnail } from "api";
-import { useState } from "react";
 
-export function useWithThumbnail(
-  mentorId: string,
-  accessToken: string,
-  current: string
-): [string, (file: File) => void] {
-  const [thumbnail, setThumbnail] = useState(current);
+import { fetchQuestions } from "api";
+import { Question } from "types";
+import {
+  UseDataConnection,
+  useWithDataConnection,
+} from "./use-with-data-connection";
 
-  function updateThumbnail(file: File): Promise<void> {
-    return uploadThumbnail(mentorId, file).then(() => {
-      fetchThumbnail(accessToken).then((src: string) => {
-        setThumbnail(src);
-      });
-    });
+export function useWithQuestions(): UseDataConnection<Question> {
+  const {
+    data,
+    isLoading,
+    searchParams,
+    error,
+    editData,
+    reloadData,
+    saveData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
+  } = useWithDataConnection<Question>(fetch);
+
+  function fetch() {
+    return fetchQuestions();
   }
 
-  return [thumbnail, updateThumbnail];
+  return {
+    data,
+    error,
+    isLoading,
+    searchParams,
+    editData,
+    reloadData,
+    saveData,
+    sortBy,
+    filter,
+    nextPage,
+    prevPage,
+  };
 }

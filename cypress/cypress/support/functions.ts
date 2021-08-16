@@ -73,11 +73,13 @@ export function cySetup(cy) {
 export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
+  videoRecorderMaxLength: number;
 }
 
 export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
   urlVideoIdleTips: "",
+  videoRecorderMaxLength: 300,
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -102,7 +104,6 @@ export function cyInterceptGraphQL(cy, mocks: MockGraphQLQuery[]): void {
         const data = Array.isArray(mock.data) ? mock.data : [mock.data];
         const val = data[Math.min(queryCalls[mock.query], data.length - 1)];
         let body = val;
-
         req.alias = mock.query;
         req.reply(
           staticResponse({
@@ -216,6 +217,23 @@ export function cyMockDefault(
   ]);
 }
 
+export function cyAttachInputFile(
+  cy,
+  args: {
+    fileName: string;
+    mimeType?: string;
+  }
+): Promise<void> {
+  const { fileName } = args;
+  return cy.fixture(fileName).then((fileContent) => {
+    cy.get('input[type="file"]').attachFile({
+      fileContent: fileContent.toString(),
+      fileName: fileName,
+      mimeType: "video/mp4",
+    });
+  });
+}
+
 export function cyAttachUpload(cy, fileName?: string): Promise<void> {
   cy.intercept("**/videos/mentors/*/*.mp4", {
     fixture: fileName || "video.mp4",
@@ -301,6 +319,31 @@ export function cyMockUpload(
             statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
           },
           errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockUploadThumbnail(
+  cy,
+  args: {
+    thumbnail: string;
+  }
+): void {
+  const { thumbnail } = args;
+  cy.intercept("/upload/thumbnail", (req) => {
+    req.alias = "uploadThumbnail";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            thumbnail,
+          },
         },
         headers: {
           "Content-Type": "application/json",

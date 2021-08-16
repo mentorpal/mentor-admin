@@ -34,6 +34,7 @@
     "react-material-ui-carousel": "^2.2.6",
     "react-player": "^2.9.0",
     "react-toastify": "^7.0.4",
+    "redux-logger": "^3.0.6",
     "styled-components": "^5.3.0",
     "url-join": "^4.0.1",
     "uuid": "^8.3.2",
@@ -42,6 +43,7 @@
   "devDependencies": {
     "@types/node": "^14.17.4",
     "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/redux-logger": "^3.0.9",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.28.1",
     "@typescript-eslint/parser": "^4.28.1",
@@ -50,7 +52,6 @@
     "eslint-plugin-react": "^7.24.0",
     "gatsby-plugin-env-variables": "^2.1.0",
     "gatsby-plugin-eslint": "^3.0.0",
-    "gatsby-plugin-manifest": "^3.8.0",
     "gatsby-plugin-material-ui": "^3.0.1",
     "gatsby-plugin-sitemap": "^4.4.0",
     "gatsby-plugin-typescript": "^3.8.0",

@@ -4,41 +4,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "store/hooks";
-import * as config from ".";
+import { useSelector, useDispatch } from "react-redux";
+import { saveThumbnail } from "store/slices/mentor";
+import { selectActiveMentor } from "store/slices/mentor/useWithMentor";
+import { RootState } from "store/store";
 
-interface UseWithConfig {
-  state: config.ConfigState;
-  loadConfig: () => void;
-  isConfigLoaded: () => boolean;
-}
-
-export function useWithConfig(): UseWithConfig {
+export function useWithThumbnail(): [string, (file: File) => void] {
+  const thumbnail = useSelector<RootState, string>((s: RootState) => {
+    return selectActiveMentor(s).data?.thumbnail || "";
+  });
   const dispatch = useDispatch();
-  const state = useAppSelector((state) => state.config);
 
-  useEffect(() => {
-    loadConfig();
-  }, []);
-
-  function isConfigLoaded(): boolean {
-    return state.status === config.ConfigStatus.SUCCEEDED;
+  function updateThumbnail(file: File) {
+    dispatch(
+      saveThumbnail({
+        file,
+      })
+    );
   }
 
-  function loadConfig() {
-    if (
-      state.status === config.ConfigStatus.NONE ||
-      state.status === config.ConfigStatus.FAILED
-    ) {
-      dispatch(config.getConfig());
-    }
-  }
-
-  return {
-    state,
-    loadConfig,
-    isConfigLoaded,
-  };
+  return [thumbnail, updateThumbnail];
 }
