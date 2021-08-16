@@ -9,7 +9,7 @@ import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
-import { selectActiveMentor } from "./useWithMentor";
+import { selectActiveMentor } from "./useActiveMentor";
 
 /** Store */
 

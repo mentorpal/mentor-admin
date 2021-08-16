@@ -22,9 +22,9 @@ import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import {
-  UseWithMentor,
-  useWithMentor,
-} from "store/slices/mentor/useWithMentor";
+  UseMentorEdits,
+  useMentorEdits,
+} from "store/slices/mentor/useMentorEdits";
 
 interface Progress {
   complete: number;
@@ -52,7 +52,7 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const useMentor = useWithMentor();
+  const useMentor = useMentorEdits();
   const {
     mentor,
     editedMentor,
@@ -341,7 +341,7 @@ export function useWithReviewAnswerState(
 }
 
 interface UseWithReviewAnswerState {
-  useMentor: UseWithMentor;
+  useMentor: UseMentorEdits;
   blocks: RecordingBlock[];
   progress: Progress;
   selectedSubject?: string;

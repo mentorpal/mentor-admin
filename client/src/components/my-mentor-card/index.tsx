@@ -29,7 +29,7 @@ import StageProgress from "./stage-progress";
 import parseMentor from "./mentor-info";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
-import { UseWithMentor } from "store/slices/mentor/useWithMentor";
+import { UseMentorEdits } from "store/slices/mentor/useMentorEdits";
 
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
@@ -52,7 +52,7 @@ const useStyles = makeStyles(() => ({
 export default function MyMentorCard(props: {
   editDisabled: boolean;
   continueAction: () => void;
-  useMentor: UseWithMentor;
+  useMentor: UseMentorEdits;
 }): JSX.Element {
   const {
     mentor,

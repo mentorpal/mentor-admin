@@ -14,7 +14,7 @@ import {
   Subject,
 } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
 export interface UseWithImportExport {
   mentor: Mentor | undefined;
@@ -32,7 +32,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { mentor, loadMentor } = useWithMentor();
+  const { mentor, loadMentor } = useActiveMentor();
 
   function onMentorExported(): void {
     if (!mentor || isUpdating) {

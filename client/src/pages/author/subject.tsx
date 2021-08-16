@@ -24,7 +24,7 @@ import TopicsList from "components/author/topics-list";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 
@@ -75,7 +75,7 @@ function SubjectPage(props: {
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
 
-  const { mentor, isMentorLoading } = useWithMentor();
+  const { mentor, isMentorLoading } = useActiveMentor();
   const {
     editedData: editedSubject,
     error: subjectError,

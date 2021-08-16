@@ -15,11 +15,11 @@ import {
   UtteranceName,
 } from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
 import { urlBuild } from "helpers";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 
 export enum SetupStepType {
   WELCOME = 0,
@@ -91,7 +91,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     clearMentorError,
     editMentor,
     saveMentorDetails,
-  } = useWithMentor();
+  } = useMentorEdits();
   const {
     isPolling: isTraining,
     error: trainError,

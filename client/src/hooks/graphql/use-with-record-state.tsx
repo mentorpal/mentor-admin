@@ -20,7 +20,7 @@ import { copyAndSet, equals } from "helpers";
 import { RecordPageState } from "types";
 import { LoadingError } from "./loading-reducer";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
 export interface AnswerState {
   answer: Answer;
@@ -59,7 +59,7 @@ export function useWithRecordState(
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
   const { mentor, mentorError, isMentorLoading, loadMentor, clearMentorError } =
-    useWithMentor();
+    useActiveMentor();
   const {
     uploads,
     isUploading,
