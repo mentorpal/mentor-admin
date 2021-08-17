@@ -119,3 +119,4 @@ test-e2e-image-snapshots-update:
 .PHONY: test-e2e-up
 test-e2e-up:
 	$(TEST_E2E_DOCKER_COMPOSE) up -d
+	

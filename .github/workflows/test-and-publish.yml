@@ -44,11 +44,11 @@ jobs:
         run: |
           git config user.name ${{ github.actor }}
           git config user.email github-actions@github.com
-          git add $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots)
+          git add $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots) # git add only files that are under snapshots and untracked in git
           git commit -m "gha, adding new snapshots"
           git push
       - name: If Cypress failed, retrieve image diffs
-        run:  make test-e2e-copy-failed_diffs
+        run: make test-e2e-copy-failed_diffs
         if: ${{ failure() }}
       - name: If Cypress failed, upload image-diff artifacts
         uses: actions/upload-artifact@v1
