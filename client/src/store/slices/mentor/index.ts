@@ -74,47 +74,32 @@ export const loadMentor = createAsyncThunk(
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (editedData: Mentor, thunkAPI): Promise<CancellabeResult<boolean>> => {
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
     const state = thunkAPI.getState() as RootState;
-    if (
-      state.mentor.mentorStatus == MentorStatus.LOADING ||
-      state.mentor.mentorStatus == MentorStatus.SAVING
-    ) {
-      return { isCancelled: true };
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorDetails(editedData, state.login.accessToken);
+        return editedData;
+      } catch (err) {
+        return err.response.data;
+      }
     }
-    thunkAPI.dispatch(mentorSlice.actions.savingInProgress());
-    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
-      return Promise.reject("no access token");
-    } else
-      return {
-        result: await api.updateMentorDetails(
-          editedData,
-          state.login.accessToken
-        ),
-      };
   }
 );
 
 export const saveMentorSubjects = createAsyncThunk(
   "mentor/saveMentorSubjects",
-  async (editedData: Mentor, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
     const state = thunkAPI.getState() as RootState;
-    if (
-      state.mentor.mentorStatus == MentorStatus.LOADING ||
-      state.mentor.mentorStatus == MentorStatus.SAVING
-    ) {
-      return { isCancelled: true };
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorSubjects(editedData, state.login.accessToken);
+        // need to fetch the updated mentor because the questions/answers might have changed
+        return api.fetchMentorById(state.login.accessToken, editedData._id);
+      } catch (err) {
+        return err.response.data;
+      }
     }
-    thunkAPI.dispatch(mentorSlice.actions.savingInProgress());
-    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
-      return Promise.reject("no access token");
-    } else await api.updateMentorSubjects(editedData, state.login.accessToken);
-    return {
-      result: await api.fetchMentorById(
-        state.login.accessToken,
-        editedData._id
-      ),
-    };
   }
 );
 
@@ -145,9 +130,6 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
-    savingInProgress: (state) => {
-      state.mentorStatus = MentorStatus.SAVING;
-    },
     loadingInProgress: (state, action: PayloadAction<LoginState>) => {
       state.mentorStatus = MentorStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
@@ -176,6 +158,9 @@ export const mentorSlice = createSlice({
         };
         state.mentorStatus = MentorStatus.FAILED;
       })
+      .addCase(saveMentor.pending, (state) => {
+        state.mentorStatus = MentorStatus.SAVING;
+      })
       .addCase(saveMentor.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
         state.mentorStatus = MentorStatus.SUCCEEDED;
@@ -200,8 +185,11 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
-          error: saveMentor.rejected.name,
+          error: saveThumbnail.rejected.name,
         };
+      })
+      .addCase(saveMentorSubjects.pending, (state) => {
+        state.mentorStatus = MentorStatus.SAVING;
       })
       .addCase(saveMentorSubjects.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;

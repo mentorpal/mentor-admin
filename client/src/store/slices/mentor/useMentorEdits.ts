@@ -30,6 +30,8 @@ export const useMentorEdits = (): UseMentorEdits => {
   const isMentorEdited = !equals(mentor, editedMentor);
   const isMentorLoading = isActiveMentorLoading();
   const isMentorSaving = isActiveMentorSaving();
+  const { saveMentorDetails: saveDetails, saveMentorSubjects: saveSubjects } =
+    useActiveMentorActions();
 
   useEffect(() => {
     setEditedMentor(mentor);
@@ -43,19 +45,29 @@ export const useMentorEdits = (): UseMentorEdits => {
   }
 
   const saveMentorDetails = () => {
-    if (!isMentorEdited || !editedMentor) {
+    if (
+      !mentor ||
+      isMentorLoading ||
+      isMentorSaving ||
+      !isMentorEdited ||
+      !editedMentor
+    ) {
       return;
     }
-    const { saveMentorDetails } = useActiveMentorActions();
-    saveMentorDetails(editedMentor);
+    saveDetails(editedMentor);
   };
 
   const saveMentorSubjects = () => {
-    if (!isMentorEdited || !editedMentor) {
+    if (
+      !mentor ||
+      isMentorLoading ||
+      isMentorSaving ||
+      !isMentorEdited ||
+      !editedMentor
+    ) {
       return;
     }
-    const { saveMentorSubjects } = useActiveMentorActions();
-    saveMentorSubjects(editedMentor);
+    saveSubjects(editedMentor);
   };
 
   const onMentorUpdated = (mentor: Mentor) => {
