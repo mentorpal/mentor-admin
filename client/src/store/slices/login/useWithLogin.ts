@@ -7,10 +7,11 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
-import * as loginActions from ".";
+import * as loginActions from "./actions";
+import * as loginState from ".";
 
 interface UseWithLogin {
-  state: loginActions.LoginState;
+  state: loginState.LoginState;
   login: (accessToken: string) => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
@@ -34,9 +35,9 @@ export function useWithLogin(): UseWithLogin {
 
   function login(accessToken: string) {
     if (
-      state.loginStatus === loginActions.LoginStatus.NONE ||
-      state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
-      state.loginStatus === loginActions.LoginStatus.FAILED
+      state.loginStatus === loginState.LoginStatus.NONE ||
+      state.loginStatus === loginState.LoginStatus.NOT_LOGGED_IN ||
+      state.loginStatus === loginState.LoginStatus.FAILED
     ) {
       dispatch(loginActions.login(accessToken));
     }
@@ -44,16 +45,16 @@ export function useWithLogin(): UseWithLogin {
 
   function loginWithGoogle(googleAccessToken: string) {
     if (
-      state.loginStatus === loginActions.LoginStatus.NONE ||
-      state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
-      state.loginStatus === loginActions.LoginStatus.FAILED
+      state.loginStatus === loginState.LoginStatus.NONE ||
+      state.loginStatus === loginState.LoginStatus.NOT_LOGGED_IN ||
+      state.loginStatus === loginState.LoginStatus.FAILED
     ) {
       dispatch(loginActions.googleLogin(googleAccessToken));
     }
   }
 
   function logout() {
-    if (state.loginStatus === loginActions.LoginStatus.AUTHENTICATED) {
+    if (state.loginStatus === loginState.LoginStatus.AUTHENTICATED) {
       dispatch(loginActions.logout());
     }
   }

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { equals } from "helpers";
 import { Mentor } from "types";
-import * as mentorActions from ".";
+import * as loginState from "../login";
 import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
@@ -74,7 +74,7 @@ export const useMentorEdits = (): UseMentorEdits => {
     if (!mentor || isMentorLoading || isMentorSaving) {
       return;
     }
-    dispatch(mentorActions.updateMentor(mentor));
+    dispatch(loginState.updateMentor(mentor));
   };
 
   return {
