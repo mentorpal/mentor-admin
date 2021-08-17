@@ -17,7 +17,7 @@ import {
 } from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
 
 export interface NewQuestionArgs {
   question: string;
@@ -44,7 +44,7 @@ export function useWithSubject(
   subjectId: string,
   accessToken: string
 ): UseWithSubject {
-  const { loadMentor } = useActiveMentor();
+  const { loadMentor } = useActiveMentorActions();
   const {
     data,
     editedData,

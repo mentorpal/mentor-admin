@@ -74,15 +74,31 @@ export const loadMentor = createAsyncThunk(
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (headers: {
-    accessToken: string;
-    editedData: Mentor;
-  }): Promise<Mentor | unknown> => {
-    try {
-      await api.updateMentorDetails(headers.editedData, headers.accessToken);
-      return headers.editedData;
-    } catch (err) {
-      return err.response.data;
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorDetails(editedData, state.login.accessToken);
+        return editedData;
+      } catch (err) {
+        return err.response.data;
+      }
+    }
+  }
+);
+
+export const saveMentorSubjects = createAsyncThunk(
+  "mentor/saveMentorSubjects",
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorSubjects(editedData, state.login.accessToken);
+        // need to fetch the updated mentor because the questions/answers might have changed
+        return api.fetchMentorById(state.login.accessToken, editedData._id);
+      } catch (err) {
+        return err.response.data;
+      }
     }
   }
 );
@@ -104,22 +120,6 @@ export const saveThumbnail = createAsyncThunk(
       return await api.uploadThumbnail(mentorId, headers.file);
     } catch (err) {
       return err.response.data;
-    }
-  }
-);
-
-export const saveMentorSubjects = createAsyncThunk(
-  "mentor/saveMentorSubjects",
-  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
-    const state = thunkAPI.getState() as RootState;
-    if (state.login.accessToken) {
-      try {
-        await api.updateMentorSubjects(editedData, state.login.accessToken);
-        // need to fetch the updated mentor because the questions/answers might have changed
-        return api.fetchMentorById(state.login.accessToken, editedData._id);
-      } catch (err) {
-        return err.response.data;
-      }
     }
   }
 );
@@ -185,7 +185,7 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
-          error: saveMentor.rejected.name,
+          error: saveThumbnail.rejected.name,
         };
       })
       .addCase(saveMentorSubjects.pending, (state) => {

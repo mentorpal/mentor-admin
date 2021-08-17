@@ -41,7 +41,10 @@ import {
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import {
+  isActiveMentorLoading,
+  useActiveMentor,
+} from "store/slices/mentor/useActiveMentor";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
@@ -216,7 +219,10 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const { mentor, mentorError, isMentorLoading } = useActiveMentor();
+  const mentor = useActiveMentor((state) => state.data);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+
   const {
     data: feedback,
     isLoading: isFeedbackLoading,

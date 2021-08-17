@@ -30,6 +30,10 @@ import parseMentor from "./mentor-info";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
 import { UseMentorEdits } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+} from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
@@ -54,14 +58,11 @@ export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
 }): JSX.Element {
-  const {
-    mentor,
-    isMentorLoading,
-    isMentorSaving,
-    mentorError,
-    editedMentor,
-    editMentor,
-  } = props.useMentor;
+  const mentor = useActiveMentor((state) => state.data);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
+  const { editedMentor, editMentor } = props.useMentor;
 
   if (!mentor || !editedMentor) {
     return <div />;

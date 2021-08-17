@@ -34,6 +34,9 @@ import MyMentorCard from "components/my-mentor-card";
 import { User, UserRole } from "types";
 import { launchMentor } from "helpers";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
+import useActiveMentor, {
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -93,7 +96,10 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
   const defaultMentor = props.user.defaultMentor._id;
-  const { mentor, isMentorEdited, loadMentor } = useMentor;
+
+  const mentor = useActiveMentor((state) => state.data);
+  const { loadMentor } = useActiveMentorActions();
+  const { isMentorEdited } = useMentor;
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
