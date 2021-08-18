@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useReducer, useState } from "react";
 import { equals } from "helpers";
-import { AsyncJob, JobState, TaskStatus } from "types";
 import {
   TaskActionType,
   TaskError,
@@ -14,6 +13,7 @@ import {
   TaskState,
 } from "./task-reducer";
 import useInterval from "./use-interval";
+import { TaskStatus, AsyncJob, JobState } from "types";
 
 const initialState: TaskState = {
   isPolling: false,

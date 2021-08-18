@@ -7,12 +7,12 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
 import { CLIENT_ENDPOINT } from "api";
-import { Mentor } from "types";
+import { MentorGQL } from "types-gql";
 import { Slide } from "./slide";
 
 export function BuildMentorSlide(props: {
   classes: Record<string, string>;
-  mentor: Mentor;
+  mentor: MentorGQL;
   isBuildable: boolean;
   isBuilt: boolean;
   startTraining: () => void;

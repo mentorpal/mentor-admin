@@ -26,12 +26,13 @@ import NavBar from "components/nav-bar";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import React from "react";
-import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { launchMentor } from "../helpers";
+import { Edge, UserRole, Connection } from "types";
+import { UserGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -124,7 +125,7 @@ function TableFooter(props: {
 }
 
 function UserItem(props: {
-  edge: Edge<User>;
+  edge: Edge<UserGQL>;
   i: number;
   userPagin: UseUserData;
   userRole: UserRole;
@@ -204,7 +205,7 @@ function UserItem(props: {
 }
 
 function UsersTable(props: {
-  userData: Connection<User>;
+  userData: Connection<UserGQL>;
   userPagin: UseUserData;
   userRole: UserRole;
 }): JSX.Element {
@@ -246,7 +247,7 @@ function UsersTable(props: {
   );
 }
 
-function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
+function UsersPage(props: { accessToken: string; user: UserGQL }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const styles = useStyles();
   const permissionToView =

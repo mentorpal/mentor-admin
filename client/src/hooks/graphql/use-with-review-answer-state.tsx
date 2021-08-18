@@ -8,16 +8,6 @@ import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 import { updateSubject } from "api";
-import {
-  Status,
-  Answer,
-  Subject,
-  Category,
-  SubjectQuestion,
-  QuestionType,
-  Question,
-  UtteranceName,
-} from "types";
 import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
@@ -29,6 +19,8 @@ import useActiveMentor, {
   isActiveMentorLoading,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { Status, Question, Category, QuestionType, UtteranceName } from "types";
+import { AnswerGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 interface Progress {
   complete: number;
@@ -38,9 +30,9 @@ interface Progress {
 export interface RecordingBlock {
   name: string;
   description: string;
-  answers: Answer[];
+  answers: AnswerGQL[];
   recordAll: (status: Status) => void;
-  recordOne: (answer: Answer) => void;
+  recordOne: (answer: AnswerGQL) => void;
   editQuestion: (question: Question) => void;
   addQuestion?: () => void;
 }
@@ -204,7 +196,7 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function recordAnswer(answer: Answer) {
+  function recordAnswer(answer: AnswerGQL) {
     navigate(
       urlBuild("/record", {
         videoId: answer.question._id,
@@ -220,7 +212,7 @@ export function useWithReviewAnswerState(
     setSelectedSubject(sId || "");
   }
 
-  function addNewQuestion(subject: Subject, category?: Category) {
+  function addNewQuestion(subject: SubjectGQL, category?: Category) {
     if (!editedMentor || isMentorLoading || isSaving) {
       return;
     }
@@ -230,7 +222,7 @@ export function useWithReviewAnswerState(
     if (subjectIdx === -1) {
       return;
     }
-    const newQuestion: SubjectQuestion = {
+    const newQuestion: SubjectQuestionGQL = {
       question: {
         _id: uuid(),
         question: "",
@@ -261,7 +253,7 @@ export function useWithReviewAnswerState(
     });
   }
 
-  function editQuestion(subject: Subject, question: Question) {
+  function editQuestion(subject: SubjectGQL, question: Question) {
     if (!editedMentor || isMentorLoading || isSaving) {
       return;
     }

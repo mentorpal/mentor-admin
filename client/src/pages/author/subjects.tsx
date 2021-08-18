@@ -23,7 +23,7 @@ import AddIcon from "@material-ui/icons/Add";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject } from "types";
+import { SubjectGQL } from "types-gql";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -78,7 +78,7 @@ const columns: ColumnDef[] = [
   },
 ];
 
-function SubjectItem(props: { subject: Subject }): JSX.Element {
+function SubjectItem(props: { subject: SubjectGQL }): JSX.Element {
   const { subject } = props;
 
   return (

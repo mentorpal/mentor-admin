@@ -7,14 +7,15 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Status, Subject, Answer } from "types";
 import { Slide } from "./slide";
 import { urlBuild } from "helpers";
+import { Status } from "types";
+import { SubjectGQL, AnswerGQL } from "types-gql";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
-  subject: Subject;
-  questions: Answer[];
+  subject: SubjectGQL;
+  questions: AnswerGQL[];
   i: number;
 }): JSX.Element {
   const { classes, subject, questions, i } = props;

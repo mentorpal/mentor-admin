@@ -6,17 +6,13 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import {
-  MentorExportJson,
-  MentorImportPreview,
-  Question,
-  Subject,
-} from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import {
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { Subject, Question } from "types";
+import { MentorExportJson, MentorImportPreview } from "types-gql";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;

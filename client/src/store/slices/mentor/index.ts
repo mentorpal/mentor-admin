@@ -8,8 +8,8 @@ import * as api from "api";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
-import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
+import { LoginState } from "../login";
 
 /** Store */
 
@@ -53,7 +53,7 @@ export const loadMentor = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
-    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
+    if (!state.login.accessToken || !state.login.user?.defaultMentor) {
       return Promise.reject("no access token");
     } else
       return headers.mentorId
@@ -66,7 +66,7 @@ export const loadMentor = createAsyncThunk(
         : {
             result: await api.fetchMentorById(
               state.login.accessToken,
-              state.login.user?.defaultMentor._id
+              state.login.user?.defaultMentor
             ),
           };
   }

@@ -5,45 +5,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import axios, { CancelTokenSource } from "axios";
+import axios from "axios";
 import {
   cancelUploadVideo,
   deleteUploadTask,
   fetchUploadTasks,
   uploadVideo,
 } from "api";
-import { Media, Question } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
-
-export enum UploadStatus {
-  PENDING = "PENDING", // local state only; sending upload request to upload api
-  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
-  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
-  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
-  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
-  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
-  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
-  QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
-  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
-  TRANSFER_FAILED = "TRANSFER_FAILED",
-  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
-  CANCEL_FAILED = "CANCEL_FAILED",
-  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
-  DONE = "DONE", // api is done with upload process
-}
-
-export interface UploadTask {
-  taskId: string;
-  question: Question;
-  uploadStatus: UploadStatus;
-  uploadProgress: number;
-  errorMessage?: string;
-  isCancelling?: boolean;
-  tokenSource?: CancelTokenSource;
-  transcript?: string;
-  media?: Media[];
-}
+import { UploadTask, UploadStatus, Question } from "types";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -233,8 +204,6 @@ export function useWithUploadStatus(
         });
       });
   }
-
-  // function deleteUpload() {}
 
   return {
     pollStatusCount,

@@ -32,6 +32,7 @@ import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-s
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import { Subject, User, UserRole } from "types";
+import { UserGQL } from "types-gql";
 import { launchMentor } from "helpers";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import useActiveMentor, {
@@ -80,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
 function HomePage(props: {
   accessToken: string;
   search: { subject?: string };
-  user: User;
+  user: UserGQL;
 }): JSX.Element {
   const {
     useMentor,

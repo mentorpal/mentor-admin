@@ -19,18 +19,19 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Category, SubjectQuestion } from "types";
 import QuestionListItem from "./question-list-item";
+import { Category } from "types";
+import { SubjectQuestionGQL } from "types-gql";
 
 export function CategoryListItem(props: {
   category: Category;
-  questions: SubjectQuestion[];
+  questions: SubjectQuestionGQL[];
   selectedQuestion?: string;
   removeCategory: (val: Category) => void;
   updateCategory: (newVal: Category) => void;
-  updateQuestion: (newVal: SubjectQuestion) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
-  selectQuestion: (val: SubjectQuestion) => void;
+  updateQuestion: (newVal: SubjectQuestionGQL) => void;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
+  selectQuestion: (val: SubjectQuestionGQL) => void;
   deselectQuestion: () => void;
 }): JSX.Element {
   const {

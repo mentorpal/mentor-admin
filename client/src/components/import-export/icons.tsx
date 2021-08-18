@@ -12,8 +12,9 @@ import {
   NewReleases as NewReleasesIcon,
   Remove as RemoveIcon,
 } from "@material-ui/icons";
-import { EditType, ImportPreview } from "types";
+import { ImportPreview } from "types-gql";
 import { equals } from "helpers";
+import { EditType } from "types";
 
 const useStyles = makeStyles(() => ({
   icon: {

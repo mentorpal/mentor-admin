@@ -4,7 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, MentorType } from "types";
+import { MentorType } from "types";
+import { MentorGQL } from "types-gql";
+
 interface Stage {
   name: string;
   index: number;
@@ -128,7 +130,7 @@ function StageSelect(value: number): Stage {
   };
 }
 
-export default function parseMentor(mentor: Mentor): MentorInfo {
+export default function parseMentor(mentor: MentorGQL): MentorInfo {
   const value =
     mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0;
   return {

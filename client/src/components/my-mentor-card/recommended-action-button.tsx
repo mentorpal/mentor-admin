@@ -8,6 +8,7 @@ import { Button, Typography } from "@material-ui/core";
 import { DoubleArrow } from "@material-ui/icons";
 import React from "react";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
+
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;

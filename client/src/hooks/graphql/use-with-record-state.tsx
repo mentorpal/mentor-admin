@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
 import {
-  Answer,
   AnswerAttentionNeeded,
   MediaTag,
   MediaType,
@@ -16,18 +15,18 @@ import {
 } from "types";
 import { copyAndSet, equals } from "helpers";
 
-import { RecordPageState } from "types";
 import { LoadingError } from "./loading-reducer";
-import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import {
   isActiveMentorLoading,
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { useWithUploadStatus } from "./use-with-upload-status";
+import { AnswerGQL } from "types-gql";
 
 export interface AnswerState {
-  answer: Answer;
-  editedAnswer: Answer;
+  answer: AnswerGQL;
+  editedAnswer: AnswerGQL;
   attentionNeeded: AnswerAttentionNeeded;
   recordedVideo?: File;
   minVideoLength?: number;
@@ -194,7 +193,7 @@ export function useWithRecordState(
     );
   }
 
-  function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
+  function doesAnswerNeedAttention(answer: AnswerGQL): AnswerAttentionNeeded {
     if (
       answer.media?.length &&
       !answer.transcript &&
@@ -230,7 +229,7 @@ export function useWithRecordState(
     }
   }
 
-  function isAnswerUploading(answer: Answer) {
+  function isAnswerUploading(answer: AnswerGQL) {
     const upload = uploads.find((u) => u.question._id === answer.question._id);
     return Boolean(upload && !isTaskDoneOrFailed(upload));
   }
@@ -316,7 +315,7 @@ export function useWithRecordState(
     updateAnswerState({ minVideoLength: length });
   }
 
-  function editAnswer(edits: Partial<Answer>) {
+  function editAnswer(edits: Partial<AnswerGQL>) {
     const answer = answers[answerIdx];
     updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
   }
@@ -445,7 +444,7 @@ export interface UseWithRecordState {
   nextAnswer: () => void;
   setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<Answer>) => void;
+  editAnswer: (edits: Partial<AnswerGQL>) => void;
   saveAnswer: () => void;
   removeCompletedTask: (tasks: UploadTask) => void;
   rerecord: () => void;

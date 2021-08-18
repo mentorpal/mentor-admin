@@ -39,11 +39,10 @@ import {
   PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
 
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
-import { UserRole } from "types";
 import { launchMentor } from "helpers";
+import { UserRole, UploadTask, UploadStatus } from "types";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,

@@ -7,16 +7,16 @@ The full terms of this copyright and license should always be found in the root 
 
 import React from "react";
 import ListItem from "./uploading-list-item";
-import { Answer } from "types";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
+import { AnswerGQL } from "types-gql";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
 import { useWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
+import { UploadStatus } from "types";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
-  curAnswer: Answer;
+  curAnswer: AnswerGQL;
   visible: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {

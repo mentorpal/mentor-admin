@@ -6,16 +6,17 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Paper, Typography } from "@material-ui/core";
-import { Answer, Question, Status } from "types";
 import AnswerList from "components/home/answer-list";
 import ProgressChecks from "components/progress-checks";
+import { Status, Question } from "types";
+import { AnswerGQL } from "types-gql";
 
 export interface RecordingBlock {
   name: string;
   description: string;
-  answers: Answer[];
+  answers: AnswerGQL[];
   recordAll: (status: Status) => void;
-  recordOne: (answer: Answer) => void;
+  recordOne: (answer: AnswerGQL) => void;
   editQuestion: (question: Question) => void;
   addQuestion?: () => void;
 }

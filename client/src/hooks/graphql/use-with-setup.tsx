@@ -6,14 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import { useEffect, useState } from "react";
-import {
-  Answer,
-  Mentor,
-  MentorType,
-  Status,
-  Subject,
-  UtteranceName,
-} from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -25,6 +17,8 @@ import useActiveMentor, {
   isActiveMentorSaving,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { UtteranceName, MentorType, Status } from "types";
+import { AnswerGQL, SubjectGQL, MentorGQL } from "types-gql";
 
 export enum SetupStepType {
   WELCOME = 0,
@@ -47,12 +41,12 @@ interface SetupStatus {
   isMentorInfoDone: boolean;
   isMentorTypeChosen: boolean;
   idle?: {
-    idle: Answer;
+    idle: AnswerGQL;
     complete: boolean;
   };
   requiredSubjects: {
-    subject: Subject;
-    answers: Answer[];
+    subject: SubjectGQL;
+    answers: AnswerGQL[];
     complete: boolean;
   }[];
   isBuildable: boolean;
@@ -65,14 +59,14 @@ interface UseWithSetup {
   setupStep: number;
   setupSteps: SetupStep[];
   idleTipsVideoUrl: string;
-  mentor?: Mentor;
+  mentor?: MentorGQL;
   isEdited: boolean;
   isLoading: boolean;
   isSaving: boolean;
   isTraining: boolean;
   readyToDisplay: boolean;
   error?: LoadingError;
-  editMentor: (d: Partial<Mentor>) => void;
+  editMentor: (d: Partial<MentorGQL>) => void;
   saveMentor: () => void;
   startTraining: () => void;
   nextStep: () => void;

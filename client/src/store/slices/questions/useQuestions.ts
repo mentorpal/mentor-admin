@@ -4,44 +4,45 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
-import { fetchQuestions } from "api";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "store/hooks";
+import { RootState } from "store/store";
 import { Question } from "types";
-import {
-  UseDataConnection,
-  useWithDataConnection,
-} from "./use-with-data-connection";
+import { loadQuestionsById } from ".";
 
-export function useWithQuestions(): UseDataConnection<Question> {
-  const {
-    data,
-    isLoading,
-    searchParams,
-    error,
-    editData,
-    reloadData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-  } = useWithDataConnection<Question>(fetch);
+export interface UseQuestions {
+  getQuestions: (ids?: string[]) => Question[];
+  loadQuestions: (ids?: string[], reload?: boolean) => void;
+}
 
-  function fetch() {
-    return fetchQuestions();
+export function useQuestions(): UseQuestions {
+  const dispatch = useDispatch();
+  const questions = useAppSelector((state) => {
+    return state.questions.questions;
+  });
+
+  function getQuestions(ids?: string[]): Question[] {
+    const q: Question[] = [];
+    for (const [id, question] of Object.entries(questions)) {
+      if (!ids || ids.includes(id)) {
+        q.push(question);
+      }
+    }
+    return q;
+  }
+
+  function loadQuestions(ids?: string[], reload = false): void {
+    if (!reload && ids) {
+    }
+
+    dispatch(loadQuestionsById(ids));
   }
 
   return {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    editData,
-    reloadData,
-    saveData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
+    getQuestions,
+    loadQuestions,
   };
 }
+
+export default useQuestions;

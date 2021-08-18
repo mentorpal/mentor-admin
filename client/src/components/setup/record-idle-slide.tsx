@@ -7,13 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Answer, Status } from "types";
 import { Slide } from "./slide";
 import { urlBuild } from "helpers";
+import { AnswerGQL } from "types-gql";
+import { Status } from "types";
 
 export function RecordIdleSlide(props: {
   classes: Record<string, string>;
-  idle: Answer;
+  idle: AnswerGQL;
   i: number;
 }): JSX.Element {
   const { classes, idle, i } = props;

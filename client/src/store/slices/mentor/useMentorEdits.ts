@@ -6,13 +6,13 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { equals } from "helpers";
-import { Mentor } from "types";
 import * as mentorActions from ".";
 import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
   useActiveMentorActions,
 } from "./useActiveMentor";
+import { Mentor } from "types";
 
 export interface UseMentorEdits {
   editedMentor?: Mentor;

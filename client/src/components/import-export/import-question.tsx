@@ -15,8 +15,8 @@ import {
 } from "@material-ui/core";
 import { FindReplace as FindReplaceIcon } from "@material-ui/icons";
 import { Autocomplete } from "@material-ui/lab";
-import { Question, ImportPreview, EditType } from "types";
 import { ChangeIcon } from "./icons";
+import { ImportPreview, Question, EditType } from "types";
 
 const useStyles = makeStyles(() => ({
   root: {

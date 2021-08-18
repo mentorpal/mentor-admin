@@ -21,7 +21,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject } from "types";
+import { SubjectGQL } from "types-gql";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
@@ -115,7 +115,7 @@ function SubjectsPage(props: {
     prevPage: subjectsPrevPage,
   } = useWithSubjects();
 
-  function toggleSubject(subject: Subject) {
+  function toggleSubject(subject: SubjectGQL) {
     if (!editedMentor) {
       return;
     }
@@ -132,7 +132,7 @@ function SubjectsPage(props: {
     });
   }
 
-  function toggleDefaultSubject(subject: Subject) {
+  function toggleDefaultSubject(subject: SubjectGQL) {
     if (!editedMentor) {
       return;
     }

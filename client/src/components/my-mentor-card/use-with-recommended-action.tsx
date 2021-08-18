@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { navigate } from "gatsby";
-import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
 import { urlBuild } from "helpers";
 import {
@@ -17,6 +16,8 @@ import {
   NoteAdd,
 } from "@material-ui/icons";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { UtteranceName, Status, MentorType } from "types";
+import { AnswerGQL } from "types-gql";
 
 interface Category {
   subjectName: string;
@@ -24,12 +25,12 @@ interface Category {
   isRequired: boolean;
   categoryName: string;
   category: string;
-  answers: Answer[];
+  answers: AnswerGQL[];
 }
 
 interface Conditions {
   mentorId: string;
-  idle?: Answer;
+  idle?: AnswerGQL;
   idleIncomplete: boolean;
   isVideo: boolean;
   hasThumbnail: boolean;

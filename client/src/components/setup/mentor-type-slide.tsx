@@ -6,14 +6,15 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Typography, Select, MenuItem } from "@material-ui/core";
-import { Mentor, MentorType } from "types";
+import { MentorGQL } from "types-gql";
+import { MentorType } from "types";
 import { Slide } from "./slide";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
-  mentor?: Mentor;
+  mentor?: MentorGQL;
   isMentorLoading: boolean;
-  editMentor: (edits: Partial<Mentor>) => void;
+  editMentor: (edits: Partial<MentorGQL>) => void;
 }): JSX.Element {
   const { classes, mentor, isMentorLoading, editMentor } = props;
 

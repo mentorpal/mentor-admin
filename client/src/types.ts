@@ -4,28 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { CancelTokenSource } from "axios";
 
-export interface Config {
-  googleClientId: string;
-  urlVideoIdleTips: string;
-  videoRecorderMaxLength: number;
-}
-
-export interface Connection<T> {
-  edges: Edge<T>[];
-  pageInfo: PageInfo;
-}
-
-export interface Edge<T> {
-  cursor: string;
-  node: T;
-}
-
-export interface PageInfo {
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
-  startCursor: string;
-  endCursor: string;
+export interface UserAccessToken {
+  user: User;
+  accessToken: string;
+  expirationDate: string;
 }
 
 export interface User {
@@ -33,13 +17,7 @@ export interface User {
   name: string;
   email: string;
   userRole: UserRole;
-  defaultMentor: Mentor;
-}
-
-export interface UserAccessToken {
-  user: User;
-  accessToken: string;
-  expirationDate: string;
+  defaultMentor: string;
 }
 
 export interface Mentor {
@@ -48,16 +26,13 @@ export interface Mentor {
   firstName: string;
   title: string;
   email: string;
-  allowContact: boolean;
   thumbnail: string;
-  mentorType: MentorType;
+  allowContact: boolean;
+  defaultSubject?: string;
+  subjects: string[];
   lastTrainedAt: string;
   isDirty: boolean;
-  defaultSubject?: Subject;
-  subjects: Subject[];
-  topics: Topic[];
-  answers: Answer[];
-  questions: SubjectQuestion[];
+  mentorType: MentorType;
 }
 
 export interface Subject {
@@ -71,9 +46,9 @@ export interface Subject {
 }
 
 export interface SubjectQuestion {
-  question: Question;
-  category?: Category;
-  topics: Topic[];
+  question: string;
+  category?: string;
+  topics: string[];
 }
 
 export interface Category {
@@ -99,6 +74,16 @@ export interface Question {
   minVideoLength?: number;
 }
 
+export interface Answer {
+  _id: string;
+  mentor: string;
+  question: string;
+  transcript: string;
+  status: Status;
+  media?: Media[];
+  hasUntransferredMedia: boolean;
+}
+
 export interface Media {
   type: string;
   tag: string;
@@ -106,38 +91,15 @@ export interface Media {
   needsTransfer: boolean;
 }
 
-export enum MediaType {
-  VIDEO = "video",
-}
-
-export enum MediaTag {
-  WEB = "web",
-  MOBILE = "mobile",
-}
-
-export interface Answer {
-  _id: string;
-  question: Question;
-  transcript: string;
-  status: Status;
-  hasUntransferredMedia: boolean;
-  media?: Media[];
-}
-
-export enum AnswerAttentionNeeded {
-  NONE = "",
-  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
-}
-
 export interface UserQuestion {
   _id: string;
+  mentor: string;
   question: string;
   confidence: number;
   feedback: Feedback;
-  mentor: Mentor;
   classifierAnswerType: ClassifierAnswerType;
-  classifierAnswer: Answer;
-  graderAnswer: Answer;
+  classifierAnswer: string;
+  graderAnswer: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -147,14 +109,113 @@ export interface FollowUpQuestion {
   entityType?: string;
 }
 
-export enum MentorType {
-  VIDEO = "VIDEO",
-  CHAT = "CHAT",
+export interface UploadTask {
+  question: string;
+  taskId: string;
+  uploadStatus: UploadStatus;
+  transcript?: string;
+  media?: Media[];
+  uploadProgress: number;
+  errorMessage?: string;
+  isCancelling?: boolean;
+  tokenSource?: CancelTokenSource;
 }
 
-export enum Status {
-  INCOMPLETE = "INCOMPLETE",
-  COMPLETE = "COMPLETE",
+export interface AsyncJob {
+  id: string;
+  statusUrl: string;
+}
+
+export interface CancelJob {
+  id: string;
+  cancelledId: string;
+}
+
+export interface TaskStatus<T> {
+  state: JobState;
+  status?: string;
+  info?: T;
+}
+
+export interface TrainingInfo {
+  mentor: string;
+  questions?: TrainExpectionResult[];
+}
+
+export interface TrainExpectionResult {
+  accuracy: number;
+}
+
+export interface VideoInfo {
+  mentor: string;
+  videoId: string;
+  video: File;
+  transcript: string;
+}
+
+export interface ImportPreview<T> {
+  importData: T | undefined;
+  curData: T | undefined;
+  editType: EditType;
+}
+
+export interface Config {
+  googleClientId: string;
+  urlVideoIdleTips: string;
+  videoRecorderMaxLength: number;
+}
+
+export interface Connection<T> {
+  edges: Edge<T>[];
+  pageInfo: PageInfo;
+}
+
+export interface Edge<T> {
+  cursor: string;
+  node: T;
+}
+
+export interface PageInfo {
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  startCursor: string;
+  endCursor: string;
+}
+
+export enum LoginStatus {
+  NONE = 0,
+  IN_PROGRESS = 1,
+  AUTHENTICATED = 2,
+  FAILED = 3,
+}
+
+export enum EditType {
+  NONE = "NONE",
+  ADDED = "ADDED",
+  REMOVED = "REMOVED",
+  CREATED = "CREATED",
+}
+
+export enum RecordPageState {
+  INITIALIZING = "INITIALIZING",
+  RECORDING_ANSWERS = "RECORDING_ANSWERS",
+  FETCHING_FOLLOW_UPS = "FETCHING_FOLLOW_UPS",
+  REVIEWING_FOLLOW_UPS = "REVIEWING_FOLLOW_UPS",
+  RELOADING_MENTOR = "RELOADING_MENTOR",
+}
+
+export enum UserRole {
+  ADMIN = "ADMIN",
+  CONTENT_MANAGER = "CONTENT_MANAGER",
+  USER = "USER",
+}
+
+export enum JobState {
+  NONE = "NONE",
+  FAILURE = "FAILURE",
+  SUCCESS = "SUCCESS",
+  PENDING = "PENDING",
+  STARTED = "STARTED",
 }
 
 export enum Feedback {
@@ -187,90 +248,40 @@ export enum UtteranceName {
   PROFANIY = "_PROFANITY_",
 }
 
-export interface AsyncJob {
-  id: string;
-  statusUrl: string;
+export enum MentorType {
+  VIDEO = "VIDEO",
+  CHAT = "CHAT",
 }
 
-export interface CancelJob {
-  id: string;
-  cancelledId: string;
+export enum Status {
+  INCOMPLETE = "INCOMPLETE",
+  COMPLETE = "COMPLETE",
 }
 
-export enum JobState {
-  NONE = "NONE",
-  FAILURE = "FAILURE",
-  SUCCESS = "SUCCESS",
-  PENDING = "PENDING",
-  STARTED = "STARTED",
+export enum MediaType {
+  VIDEO = "video",
 }
 
-export enum RecordPageState {
-  INITIALIZING = "INITIALIZING",
-  RECORDING_ANSWERS = "RECORDING_ANSWERS",
-  FETCHING_FOLLOW_UPS = "FETCHING_FOLLOW_UPS",
-  REVIEWING_FOLLOW_UPS = "REVIEWING_FOLLOW_UPS",
-  RELOADING_MENTOR = "RELOADING_MENTOR",
+export enum MediaTag {
+  WEB = "web",
+  MOBILE = "mobile",
 }
 
-export enum UserRole {
-  ADMIN = "ADMIN",
-  CONTENT_MANAGER = "CONTENT_MANAGER",
-  USER = "USER",
+export enum AnswerAttentionNeeded {
+  NONE = "",
+  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
 }
 
-export interface TaskStatus<T> {
-  state: JobState;
-  status?: string;
-  info?: T;
-}
-
-export interface TrainingInfo {
-  mentor: string;
-  questions?: TrainExpectionResult[];
-}
-
-export interface TrainExpectionResult {
-  accuracy: number;
-}
-
-export interface VideoInfo {
-  mentor: string;
-  videoId: string;
-  video: File;
-  transcript: string;
-}
-
-export enum LoginStatus {
-  NONE = 0,
-  IN_PROGRESS = 1,
-  AUTHENTICATED = 2,
-  FAILED = 3,
-}
-
-export interface MentorExportJson {
-  id: string;
-  subjects: Subject[];
-  questions: Question[];
-  answers: Answer[];
-}
-
-export enum EditType {
-  NONE = "NONE",
-  ADDED = "ADDED",
-  REMOVED = "REMOVED",
-  CREATED = "CREATED",
-}
-
-export interface ImportPreview<T> {
-  importData: T | undefined;
-  curData: T | undefined;
-  editType: EditType;
-}
-
-export interface MentorImportPreview {
-  id: string;
-  subjects: ImportPreview<Subject>[];
-  questions: ImportPreview<Question>[];
-  answers: ImportPreview<Answer>[];
+export enum UploadStatus {
+  PENDING = "PENDING", // local state only; sending upload request to upload api
+  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
+  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
+  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
+  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
+  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
+  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
+  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
+  CANCEL_FAILED = "CANCEL_FAILED",
+  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
+  DONE = "DONE", // api is done with upload process
 }

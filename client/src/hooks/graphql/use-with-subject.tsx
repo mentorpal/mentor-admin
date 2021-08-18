@@ -7,17 +7,11 @@ The full terms of this copyright and license should always be found in the root 
 import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
-import {
-  Category,
-  QuestionType,
-  Subject,
-  SubjectQuestion,
-  Topic,
-  UtteranceName,
-} from "types";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { UseData, useWithData } from "./use-with-data";
 import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
+import { Category, Topic, QuestionType, UtteranceName } from "types";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface NewQuestionArgs {
   question: string;
@@ -25,7 +19,7 @@ export interface NewQuestionArgs {
   mentorId: string;
 }
 
-interface UseWithSubject extends UseData<Subject> {
+interface UseWithSubject extends UseData<SubjectGQL> {
   saveSubject: () => Promise<void>;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
@@ -35,8 +29,8 @@ interface UseWithSubject extends UseData<Subject> {
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
   addQuestion: (q?: NewQuestionArgs) => void;
-  updateQuestion: (val: SubjectQuestion) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
+  updateQuestion: (val: SubjectQuestionGQL) => void;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
 }
 
@@ -55,11 +49,11 @@ export function useWithSubject(
     editData,
     saveData,
     reloadData,
-  } = useWithData<Subject>(fetch);
+  } = useWithData<SubjectGQL>(fetch);
 
   function fetch() {
     if (!subjectId) {
-      return new Promise<Subject>((resolve) => {
+      return new Promise<SubjectGQL>((resolve) => {
         resolve({
           _id: "",
           name: "",
@@ -76,7 +70,7 @@ export function useWithSubject(
 
   async function update(): Promise<void> {
     await saveData({
-      action: async (editedData: Subject) => {
+      action: async (editedData: SubjectGQL) => {
         await updateSubject(editedData, accessToken);
         // we need to reload the mentor after updating a subject because
         // the subjects and questions and answers might have changed
@@ -205,7 +199,7 @@ export function useWithSubject(
     });
   }
 
-  function updateQuestion(val: SubjectQuestion) {
+  function updateQuestion(val: SubjectQuestionGQL) {
     if (!editedData) {
       return;
     }
@@ -217,7 +211,7 @@ export function useWithSubject(
     }
   }
 
-  function removeQuestion(val: SubjectQuestion) {
+  function removeQuestion(val: SubjectQuestionGQL) {
     if (!editedData) {
       return;
     }
