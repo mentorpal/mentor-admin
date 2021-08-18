@@ -100,7 +100,7 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorError = useActiveMentor((state) => state.error);
   const isMentorLoading = isActiveMentorLoading();
   const {
@@ -115,7 +115,7 @@ function SubjectsPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" mentorId={mentor?._id} />
+      <NavBar title="Subjects" mentorId={mentorId} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

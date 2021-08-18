@@ -32,13 +32,7 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 import { updateUserQuestion } from "api";
-import {
-  Answer,
-  ClassifierAnswerType,
-  Feedback,
-  Mentor,
-  UserQuestion,
-} from "types";
+import { Answer, ClassifierAnswerType, Feedback, UserQuestion } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import {
@@ -124,10 +118,10 @@ const columnHeaders: ColumnDef[] = [
 
 function FeedbackItem(props: {
   feedback: UserQuestion;
-  mentor?: Mentor;
+  mentorAnswers?: Answer[];
   onUpdated: () => void;
 }): JSX.Element {
-  const { feedback, mentor, onUpdated } = props;
+  const { feedback, mentorAnswers, onUpdated } = props;
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
@@ -177,7 +171,7 @@ function FeedbackItem(props: {
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
               data-cy="select-answer"
-              options={mentor?.answers || []}
+              options={mentorAnswers || []}
               getOptionLabel={(option: Answer) => option.question.question}
               onChange={(e, v) => {
                 onUpdateAnswer(v?._id);
@@ -219,7 +213,8 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
   const mentorError = useActiveMentor((state) => state.error);
   const isMentorLoading = isActiveMentorLoading();
 
@@ -240,14 +235,14 @@ function FeedbackPage(): JSX.Element {
   } = useWithTraining();
 
   useEffect(() => {
-    if (mentor) {
-      filterFeedback({ mentor: mentor._id });
+    if (mentorId) {
+      filterFeedback({ mentor: mentorId });
     }
-  }, [mentor]);
+  }, [mentorId]);
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentor?._id} />
+      <NavBar title="Feedback" mentorId={mentorId} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -342,7 +337,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-classifier"
-                      options={mentor?.answers || []}
+                      options={mentorAnswers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
@@ -366,7 +361,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-grader"
-                      options={mentor?.answers || []}
+                      options={mentorAnswers || []}
                       getOptionLabel={(option: Answer) =>
                         option.question.question
                       }
@@ -396,7 +391,7 @@ function FeedbackPage(): JSX.Element {
                     key={`feedback-${i}`}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
-                    mentor={mentor}
+                    mentorAnswers={mentorAnswers}
                     onUpdated={reloadFeedback}
                   />
                 ))}
@@ -426,7 +421,7 @@ function FeedbackPage(): JSX.Element {
               color="primary"
               className={classes.fab}
               onClick={() => {
-                if (mentor) startTraining(mentor._id);
+                if (mentorId) startTraining(mentorId);
               }}
               disabled={isTraining || isMentorLoading || isFeedbackLoading}
             >

@@ -57,7 +57,7 @@ export function useWithReviewAnswerState(
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
   const mentorError = useActiveMentor((state) => state.error);
   const isMentorLoading = isActiveMentorLoading();
 
@@ -299,7 +299,7 @@ export function useWithReviewAnswerState(
 
   function saveChanges() {
     if (
-      !mentor ||
+      !mentorSubjects ||
       !editedMentor ||
       !isMentorEdited ||
       isMentorLoading ||
@@ -313,7 +313,7 @@ export function useWithReviewAnswerState(
     );
     Promise.all(
       editedMentor.subjects
-        .filter((s, i) => !equals(s, mentor.subjects[i]))
+        .filter((s, i) => !equals(s, mentorSubjects[i]))
         .map((subject) => {
           return updateSubject(subject, accessToken);
         })
