@@ -22,9 +22,10 @@ export interface UseWithImportExport {
   importedJson?: MentorExportJson;
   importPreview?: MentorImportPreview;
   onMentorExported: () => void;
-  onImportUploaded: (file: File) => void;
+  onMentorUploaded: (file: File) => void;
   onConfirmImport: () => void;
   onCancelImport: () => void;
+  onTransferMedia: () => void;
   onMapSubject: (curSubject: Subject, newSubject: Subject) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
@@ -34,6 +35,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
   const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
   const { loadMentor } = useActiveMentorActions();
 
   function onMentorExported(): void {
@@ -109,6 +111,18 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     setImportPreview(undefined);
   }
 
+  function onTransferMedia(): void {
+    if (!mentorId || !mentorAnswers || isUpdating) {
+      return;
+    }
+    for (const answer of mentorAnswers) {
+      if (!answer.hasUntransferredMedia) {
+        continue;
+      }
+      api.transferMedia(mentorId, answer.question._id);
+    }
+  }
+
   function onMapSubject(subject: Subject, replacement: Subject): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -176,9 +190,10 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     importedJson,
     importPreview,
     onMentorExported,
-    onImportUploaded,
+    onMentorUploaded: onImportUploaded,
     onConfirmImport,
     onCancelImport,
+    onTransferMedia,
     onMapSubject,
     onMapQuestion,
   };

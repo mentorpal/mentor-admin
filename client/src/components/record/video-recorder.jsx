@@ -1,7 +1,6 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
@@ -12,31 +11,35 @@ import videojs from "video.js";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
-
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 
-const videoJsOptions = {
-  controls: true,
-  bigPlayButton: false,
-  controlBar: {
-    fullscreenToggle: false,
-    volumePanel: false,
-    recordToggle: false,
-  },
-  fluid: true,
-  aspectRatio: "16:9",
-  plugins: {
-    record: {
-      audio: true,
-      video: true,
-      debug: true,
-      maxLength: 300,
+function VideoRecorder({
+  classes,
+  height,
+  width,
+  recordState,
+  videoRecorderMaxLength,
+}) {
+  const videoJsOptions = {
+    controls: true,
+    bigPlayButton: false,
+    controlBar: {
+      fullscreenToggle: false,
+      volumePanel: false,
+      recordToggle: false,
     },
-  },
-};
-
-function VideoRecorder({ classes, height, width, recordState }) {
+    fluid: true,
+    aspectRatio: "16:9",
+    plugins: {
+      record: {
+        audio: true,
+        video: true,
+        debug: true,
+        maxLength: videoRecorderMaxLength,
+      },
+    },
+  };
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks

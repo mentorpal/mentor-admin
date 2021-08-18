@@ -8,7 +8,6 @@ import React from "react";
 import {
   AppBar,
   Checkbox,
-  Fab,
   IconButton,
   Paper,
   Table,
@@ -142,17 +141,13 @@ function SubjectsPage(props: {
     });
   }
 
+  const onBack = () => {
+    props.search.back ? navigate(decodeURI(props.search.back)) : navigate("/");
+  };
+
   return (
     <div>
-      <NavBar
-        title="Subjects"
-        mentor={editedMentor?._id}
-        onBack={
-          props.search.back
-            ? () => navigate(decodeURI(props.search.back!))
-            : undefined
-        }
-      />
+      <NavBar title="Subjects" mentor={editedMentor?._id} onBack={onBack} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -229,17 +224,23 @@ function SubjectsPage(props: {
             >
               <KeyboardArrowRightIcon />
             </IconButton>
-            <Fab
-              data-cy="save-button"
-              variant="extended"
-              color="primary"
-              className={classes.fab}
-              disabled={!isMentorEdited}
-              onClick={saveMentorSubjects}
-            >
-              Save
-            </Fab>
           </Toolbar>
+          <ButtonGroupDropdown
+            styles={{ position: "absolute", top: "25%", right: 10 }}
+            dropdownItems={[
+              {
+                title: "Exit",
+                onClick: onBack,
+                becomePrimary: !isMentorEdited,
+              },
+              {
+                title: "Save",
+                onClick: saveMentorSubjects,
+                disabled: !isMentorEdited,
+                becomePrimary: isMentorEdited,
+              },
+            ]}
+          />
         </AppBar>
       </div>
       <LoadingDialog
