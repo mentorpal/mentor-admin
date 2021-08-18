@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useSelector, useDispatch } from "react-redux";
 import { saveThumbnail } from "store/slices/mentor";
-import { selectActiveMentor } from "store/slices/mentor/useWithMentor";
+import { selectActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { RootState } from "store/store";
 
 export function useWithThumbnail(): [string, (file: File) => void] {
