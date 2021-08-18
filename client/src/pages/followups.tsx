@@ -125,6 +125,7 @@ function FollowupsPage(props: {
     : followupList.length > 20
     ? 20
     : followupList.length;
+
   return (
     <div className={classes.root}>
       <NavBar
@@ -192,7 +193,7 @@ function FollowupsPage(props: {
             onClick={handleDoneButton}
             className={classes.nextBtn}
           >
-            Done
+            {toRecordFollowUpQs.length ? "Record" : "Done"}
           </Button>
         </Toolbar>
       </AppBar>
@@ -202,20 +203,28 @@ function FollowupsPage(props: {
           followupPageState === FollowupsPageState.PROMPT_GENERATE_FOLLOWUPS
         }
       >
-        <DialogTitle>{"Followups"}</DialogTitle>
+        <DialogTitle>{"Followup Questions"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {"Would you like to try and generate followups?"}
+            {"Would you like to generate followup questions that users may ask? (This may take a minute)"}
           </DialogContentText>
         </DialogContent>
         <DialogContent>
+          <Button
+            data-cy="do-not-generate-followups-button"
+            onClick={() => {
+              navigateToMyMentorPage();
+            }}
+          >
+            NO
+          </Button>
           <Button
             data-cy="generate-followups-button"
             onClick={() => {
               fetchFollowups();
             }}
           >
-            Generate
+            YES
           </Button>
         </DialogContent>
       </Dialog>
