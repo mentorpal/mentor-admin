@@ -26,7 +26,7 @@ import { HelpOutline } from "@material-ui/icons";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 import StageProgress from "./stage-progress";
-import parseMentor from "./mentor-info";
+import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorType } from "types";
 import { UseMentorEdits } from "store/slices/mentor/useMentorEdits";
@@ -58,16 +58,18 @@ export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
 }): JSX.Element {
-  const mentor = useActiveMentor((state) => state.data);
-  const mentorError = useActiveMentor((state) => state.error);
+  const mentorError = useActiveMentor((ms) => ms.error);
   const isMentorLoading = isActiveMentorLoading();
   const isMentorSaving = isActiveMentorSaving();
   const { editedMentor, editMentor } = props.useMentor;
+  const mentorId = useActiveMentor((ms) => ms.data?._id || "");
 
-  if (!mentor || !editedMentor) {
+  if (!mentorId || !editedMentor) {
     return <div />;
   }
-  const mentorInfo = parseMentor(mentor);
+  const mentorInfo = useActiveMentor((ms) =>
+    ms.data ? parseMentor(ms.data) : defaultMentorInfo
+  );
   const classes = useStyles();
   const [thumbnail, updateThumbnail] = useWithThumbnail();
 
@@ -261,7 +263,6 @@ export default function MyMentorCard(props: {
             </Grid>
             <Grid xs={12} md={2}>
               <RecommendedActionButton
-                mentor={mentor}
                 setThumbnail={updateThumbnail}
                 continueAction={props.continueAction}
               />

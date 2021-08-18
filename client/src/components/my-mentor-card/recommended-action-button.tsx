@@ -7,15 +7,12 @@ The full terms of this copyright and license should always be found in the root 
 import { Button, Typography } from "@material-ui/core";
 import { DoubleArrow } from "@material-ui/icons";
 import React from "react";
-import { Mentor } from "types";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
-  mentor: Mentor;
 }): JSX.Element {
   const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(
-    props.mentor,
     props.continueAction
   );
 

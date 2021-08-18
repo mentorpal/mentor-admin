@@ -78,7 +78,7 @@ function SubjectPage(props: {
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
 
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorId = useActiveMentor((state) => state.data?._id);
   const isMentorLoading = isActiveMentorLoading();
   const {
     editedData: editedSubject,
@@ -108,7 +108,7 @@ function SubjectPage(props: {
     setIsQuestionsExpanded(q);
   }
 
-  if (!mentor || !editedSubject) {
+  if (!mentorId || !editedSubject) {
     return (
       <div>
         <NavBar title="Edit Subject" />
@@ -120,7 +120,7 @@ function SubjectPage(props: {
   const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
   return (
     <div className={classes.root}>
-      <NavBar title="Edit Subject" mentorId={mentor._id} />
+      <NavBar title="Edit Subject" mentorId={mentorId} />
       <Card
         elevation={0}
         className={classes.flexChild}
@@ -186,7 +186,7 @@ function SubjectPage(props: {
         expanded={isQuestionsExpanded}
         categories={editedSubject.categories}
         questions={editedSubject.questions.filter(
-          (q) => !q.question.mentor || q.question.mentor === mentor._id
+          (q) => !q.question.mentor || q.question.mentor === mentorId
         )}
         topics={editedSubject.topics}
         toggleExpanded={() => toggleExpand(false, false, !isQuestionsExpanded)}

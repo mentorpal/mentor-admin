@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { useState } from "react";
 import * as api from "api";
 import {
-  Mentor,
   MentorExportJson,
   MentorImportPreview,
   Question,
@@ -20,9 +19,8 @@ import {
 } from "store/slices/mentor/useActiveMentor";
 
 export interface UseWithImportExport {
-  mentor: Mentor | undefined;
-  importedJson: MentorExportJson | undefined;
-  importPreview: MentorImportPreview | undefined;
+  importedJson?: MentorExportJson;
+  importPreview?: MentorImportPreview;
   onMentorExported: () => void;
   onImportUploaded: (file: File) => void;
   onConfirmImport: () => void;
@@ -35,16 +33,16 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorId = useActiveMentor((state) => state.data?._id);
   const { loadMentor } = useActiveMentorActions();
 
   function onMentorExported(): void {
-    if (!mentor || isUpdating) {
+    if (!mentorId || isUpdating) {
       return;
     }
     setIsUpdating(true);
     api
-      .exportMentor(mentor._id)
+      .exportMentor(mentorId)
       .then((m) => {
         const element = document.createElement("a");
         element.setAttribute(
@@ -66,7 +64,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   function onImportUploaded(file: File): void {
-    if (!mentor || isUpdating) {
+    if (!mentorId || isUpdating) {
       return;
     }
     const reader = new FileReader();
@@ -80,22 +78,22 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   async function updateImport(json: MentorExportJson) {
-    if (!mentor || isUpdating) {
+    if (!mentorId || isUpdating) {
       return;
     }
     setIsUpdating(true);
-    const preview = await api.importMentorPreview(mentor._id, json);
+    const preview = await api.importMentorPreview(mentorId, json);
     setImportJson(json);
     setImportPreview(preview);
     setIsUpdating(false);
   }
 
   function onConfirmImport(): void {
-    if (!importedJson || !mentor || isUpdating) {
+    if (!importedJson || !mentorId || isUpdating) {
       return;
     }
     setIsUpdating(true);
-    api.importMentor(mentor._id, importedJson, accessToken).then(() => {
+    api.importMentor(mentorId, importedJson, accessToken).then(() => {
       setImportJson(undefined);
       setImportPreview(undefined);
       setIsUpdating(true);
@@ -112,7 +110,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   function onMapSubject(subject: Subject, replacement: Subject): void {
-    if (!importedJson || !importPreview || !mentor || isUpdating) {
+    if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }
     let subjects = importedJson.subjects;
@@ -135,7 +133,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   function onMapQuestion(question: Question, replacement: Question): void {
-    if (!importedJson || !importPreview || !mentor || isUpdating) {
+    if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }
     const json = {
@@ -175,7 +173,6 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   return {
-    mentor,
     importedJson,
     importPreview,
     onMentorExported,

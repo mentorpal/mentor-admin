@@ -30,6 +30,29 @@ interface MentorInfo {
   value: number;
   currentStage: Stage;
 }
+export const defaultMentorInfo: MentorInfo = {
+  mentorId: "",
+  name: "",
+  type: MentorType.CHAT,
+  title: "",
+  lastTrainedAt: "",
+  value: 0,
+  currentStage: {
+    name: "Incomplete",
+    index: 0,
+    description: "This Mentor can't be built yet.",
+    floor: 0,
+    max: 5,
+    percent: 0,
+    next: {
+      name: "Incomplete",
+      index: 0,
+      description: "This Mentor can't be built yet.",
+      floor: 0,
+      max: 5,
+    },
+  },
+};
 
 function StageSelect(value: number): Stage {
   const stages = [
