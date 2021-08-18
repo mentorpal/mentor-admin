@@ -11,7 +11,6 @@ import {
   AnswerAttentionNeeded,
   MediaTag,
   MediaType,
-  Mentor,
   MentorType,
   UtteranceName,
 } from "types";
@@ -62,11 +61,11 @@ export function useWithRecordState(
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
-
-  const mentor = useActiveMentor((state) => state.data);
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
   const mentorError = useActiveMentor((state) => state.error);
-  const isMentorLoading = isActiveMentorLoading();
-
   const { loadMentor, clearMentorError } = useActiveMentorActions();
   const {
     uploads,
@@ -85,16 +84,16 @@ export function useWithRecordState(
     curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
 
   useEffect(() => {
-    if (!mentor) {
+    if (!mentorAnswers || !mentorSubjects) {
       return;
     }
     const { videoId, subject, category, status } = filter;
-    let answers = mentor.answers;
+    let answers = mentorAnswers;
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       answers = answers.filter((a) => ids.includes(a.question._id));
     } else if (subject) {
-      const s = mentor.subjects.find((a) => a._id === subject);
+      const s = mentorSubjects.find((a) => a._id === subject);
       if (s) {
         const sQuestions = s.questions.filter(
           (q) => !category || `${q.category?.id}` === category
@@ -108,8 +107,7 @@ export function useWithRecordState(
       answers = answers.filter((a) => a.status === status);
     }
     answers = answers.filter(
-      (a) =>
-        !a.question?.mentorType || a.question?.mentorType === mentor.mentorType
+      (a) => !a.question?.mentorType || a.question?.mentorType === mentorType
     );
     setAnswers(
       answers.map((a) => ({
@@ -121,14 +119,16 @@ export function useWithRecordState(
       }))
     );
     setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-  }, [mentor]);
+  }, [mentorAnswers]);
 
   useEffect(() => {
     setIsRecording(false);
   }, [answerIdx]);
 
+  const isMentorLoading = isActiveMentorLoading();
+
   useEffect(() => {
-    if (!mentor) return;
+    if (!mentorAnswers) return;
     if (
       recordPageState === RecordPageState.RELOADING_MENTOR &&
       !isMentorLoading
@@ -141,7 +141,7 @@ export function useWithRecordState(
   }, [isMentorLoading]);
 
   useEffect(() => {
-    if (!mentor || !answers[answerIdx]) return;
+    if (!mentorAnswers || !answers[answerIdx]) return;
     setCurAnswer({
       ...answers[answerIdx],
       isEdited: !equals(
@@ -157,7 +157,7 @@ export function useWithRecordState(
   }, [answers[answerIdx], uploads]);
 
   function fetchFollowUpQs() {
-    if (!mentor) return;
+    if (!mentorAnswers) return;
     if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
@@ -172,7 +172,7 @@ export function useWithRecordState(
           })
           .filter(
             (followUp) =>
-              mentor.answers.findIndex(
+              mentorAnswers.findIndex(
                 (a) => a.question.question === followUp
               ) === -1
           )
@@ -241,7 +241,7 @@ export function useWithRecordState(
   }
 
   function getVideoSrc() {
-    if (!mentor) {
+    if (!mentorAnswers) {
       return undefined;
     }
     const answer = answers[answerIdx];
@@ -254,14 +254,14 @@ export function useWithRecordState(
   }
 
   function isAnswerValid() {
-    if (!mentor) {
+    if (!mentorAnswers) {
       return false;
     }
     const editedAnswer = answers[answerIdx].editedAnswer;
-    if (mentor.mentorType === MentorType.CHAT) {
+    if (mentorType === MentorType.CHAT) {
       return Boolean(editedAnswer.transcript);
     }
-    if (mentor.mentorType === MentorType.VIDEO) {
+    if (mentorType === MentorType.VIDEO) {
       return Boolean(
         editedAnswer?.media?.find((m) => m.type === MediaType.VIDEO)?.url &&
           (editedAnswer.question?.name === UtteranceName.IDLE ||
@@ -387,21 +387,20 @@ export function useWithRecordState(
 
   function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
-    if (!mentor || !answer.answer.question || !answer.recordedVideo) {
+    if (!mentorId || !answer.answer.question || !answer.recordedVideo) {
       return;
     }
-    upload(mentor._id, answer.answer.question, answer.recordedVideo, trim);
+    upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
 
   function cancelUploadVideo(task: UploadTask) {
-    if (!mentor || isTaskDoneOrFailed(task)) {
+    if (!mentorId || isTaskDoneOrFailed(task)) {
       return;
     }
-    cancelUpload(mentor._id, task);
+    cancelUpload(mentorId, task);
   }
 
   return {
-    mentor,
     answers,
     answerIdx,
     recordPageState,
@@ -433,7 +432,6 @@ export function useWithRecordState(
 }
 
 export interface UseWithRecordState {
-  mentor?: Mentor;
   answers: AnswerState[];
   answerIdx: number;
   recordPageState: RecordPageState;
