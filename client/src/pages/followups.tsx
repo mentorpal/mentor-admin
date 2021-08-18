@@ -44,7 +44,6 @@ const useStyles = makeStyles(() => ({
 }));
 
 function FollowupsPage(props: {
-  //insert expected props here
   search: {
     subject: string;
     category: string;

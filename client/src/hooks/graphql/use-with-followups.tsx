@@ -1,12 +1,13 @@
-import { fetchFollowUpQuestions } from "api";
+import { fetchFollowUpQuestions, updateSubject } from "api";
 import { navigate } from "gatsby";
-import { copyAndRemove, copyAndSet } from "helpers";
+import { copyAndSet, equals } from "helpers";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithMentor } from "store/slices/mentor/useWithMentor";
-import { Answer, Mentor, QuestionType, Status, SubjectQuestion, UtteranceName } from "types";
+import { Answer, Mentor, QuestionType, Status, Subject, SubjectQuestion, UtteranceName } from "types";
 import { v4 as uuid } from "uuid";
+import { useWithSubject } from "./use-with-subject";
 
 
 export interface UseWithFollowups{
@@ -26,44 +27,59 @@ export function useWithFollowups(props: {
   subjectId: string,
 }): UseWithFollowups {
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
-  const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<boolean>(false);
-  const [newQuestionIds, setNewQuestionIds] = useState<string[]>([]);
-  const {mentor, editedMentor, editMentor, isMentorSaving, isMentorEdited, saveMentorSubjects } = useWithMentor();
+  const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const {state} = useWithLogin();
+  const {mentor, isMentorLoading} = useWithMentor();
+  const {editData, editedData, data: subjectData, isSaving: isSubjectSaving, isLoading: isSubjectLoading, isEdited: isSubjectEdited, saveSubject, reloadData: reloadSubject} = useWithSubject(props.subjectId, state.accessToken || "");
   const {categoryId, subjectId} = props;
   const curSubject = mentor?.subjects.find(
     (s) => s._id == subjectId
   );
   const curCategory = curSubject?.categories.find((c) => c.id == categoryId)
 
-  //TODO: be sure that fetch is getting called once 
+  //TODO: 
   useEffect(()=>{
-    if(!state.accessToken || !mentor || followUpQuestions?.length)
+    if(!state.accessToken || !subjectData || followUpQuestions?.length)
       return;
-    fetch(mentor, state.accessToken);
-  }, [mentor, state])
+    fetch(subjectData, state.accessToken);
+  }, [subjectData, state])
 
   useEffect(()=>{
-    if(!isMentorEdited)
+    if(!isSubjectEdited || !editedData)
       return;
-    console.log("triggering a save with edited mentor: ", editedMentor);
-    saveMentorSubjects()
-  }, [isMentorEdited])
+    console.log("triggering a save with edited subject: ", subjectData);
+    saveSubject().then(()=>{
+      reloadSubject();
+    })
+  }, [isSubjectEdited])
 
   useEffect(()=>{
     console.log("in isMentorLoading useEffect")
     console.log("toRecordFollowUpQs: ", toRecordFollowUpQs)
-    console.log("isMentorSaving: ", isMentorSaving)
-    if(!toRecordFollowUpQs || isMentorSaving)
+    console.log("isMentorLoading: ", isMentorLoading)
+    if(!toRecordFollowUpQs.length || isMentorLoading || !mentor || !curSubject)
       return;
-    console.log("triggered new record")
-    let url = `/record?videoId=`
-    newQuestionIds.forEach((questionId)=>{url += (questionId !== newQuestionIds[newQuestionIds.length-1] ? questionId + "," : questionId)})
-    console.log(url)
-    navigate(url)
-  }, [isMentorSaving])
+    console.log("curSubject should be updated with new question at this point: ", curSubject)
+    var newQuestionIds = curSubject.questions.reduce(function(result: string[], question) {
+      const index = toRecordFollowUpQs.findIndex((followup) =>followup === question.question.question)
+      if (index !== -1 && question.question.mentor === mentor._id) {
+        result.push(question.question._id);
+      }
+      return result;
+    }, []);
+    console.log("new question ids: " + newQuestionIds);
 
-  function fetch(mentor: Mentor, accessToken: string){
+    if(newQuestionIds && newQuestionIds.length){
+      console.log("triggered new record")
+      let url = `/record?videoId=`
+      newQuestionIds.forEach((questionId)=>{if(!newQuestionIds) return; url += (questionId !== newQuestionIds[newQuestionIds.length-1] ? questionId + "," : questionId)})
+      console.log(url)
+      navigate(url)
+    }
+  }, [isMentorLoading])
+
+  function fetch(subjectData: Subject, accessToken: string){
+    console.log(subjectData)
     fetchFollowUpQuestions(categoryId, accessToken).then((data) => {
       let followUps = data
         ? data.map((d) => {
@@ -72,7 +88,7 @@ export function useWithFollowups(props: {
         : [];
       followUps = followUps.filter(
         (followUp) =>
-          mentor.answers.findIndex((a) => a.question.question === followUp) ===
+        subjectData.questions.findIndex((q) => q.question.question === followUp) ===
           -1
       );
       if(!followUps.length)
@@ -86,13 +102,10 @@ export function useWithFollowups(props: {
   }
 
   function saveAndLoadNewFollowups(followups: string[]){
-    if(!mentor || !curSubject || !curCategory){
+    if(!editedData || !curCategory || !mentor){
       return
     }
-    const subjectIdx = mentor.subjects.findIndex((s)=>s._id === curSubject._id)
-    if(subjectIdx === -1)
-      return; //TODO: should also navigate, since it failed to find the current subject in the mentor?
-    setToRecordFollowUpQs(true);
+    setToRecordFollowUpQs(followups);
     const newQuestions: SubjectQuestion[] = followups.map((followUp)=>{
       return  {question: {
         _id: uuid(),
@@ -105,25 +118,11 @@ export function useWithFollowups(props: {
       category: curCategory,
       topics: [],
     }})
-    setNewQuestionIds(newQuestions.map((newQuestion)=>newQuestion.question._id))
-    const newAnswers: Answer[] = newQuestions.map((newQuestion)=>{
-      return {
-        _id: uuid(),
-        question: newQuestion.question,
-        transcript: "",
-        status: Status.INCOMPLETE,
-        media: undefined,
-        hasUntransferredMedia: false,
-      }
-    })
-    console.log("new question to add: ", newQuestions)
-    console.log("what subjects questions SHOULD be getting set to: ", [...newQuestions, ...curSubject.questions])
-    editMentor({
-      subjects: copyAndSet(mentor.subjects, subjectIdx, {
-        ...mentor.subjects[subjectIdx],
-        questions: [...newQuestions, ...curSubject.questions],
-      }),
-      answers: [...newAnswers, ...mentor.answers],
+    editData({
+      questions:[
+        ...editedData.questions,
+        ...newQuestions
+      ]
     })
   }
 
@@ -135,3 +134,5 @@ export function useWithFollowups(props: {
     mentor
   }
 }
+
+
