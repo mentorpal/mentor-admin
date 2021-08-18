@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { useState } from "react";
 import * as api from "api";
 import {
-  Mentor,
   MentorExportJson,
   MentorImportPreview,
   Question,
