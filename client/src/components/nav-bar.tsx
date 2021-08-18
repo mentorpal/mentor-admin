@@ -273,14 +273,15 @@ export function NavBar(props: {
     onNav,
     onBack,
   } = props;
-  const numUploadsInProgress = uploads?.filter(
-    (upload) =>
-      upload.uploadStatus !== UploadStatus.DONE &&
-      upload.uploadStatus !== UploadStatus.CANCELLED
-  ).length || 0;
-  const numUploadsComplete = uploads?.filter(
-    (upload) => upload.uploadStatus == UploadStatus.DONE
-  ).length || 0;
+  const numUploadsInProgress =
+    uploads?.filter(
+      (upload) =>
+        upload.uploadStatus !== UploadStatus.DONE &&
+        upload.uploadStatus !== UploadStatus.CANCELLED
+    ).length || 0;
+  const numUploadsComplete =
+    uploads?.filter((upload) => upload.uploadStatus == UploadStatus.DONE)
+      .length || 0;
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
@@ -317,31 +318,31 @@ export function NavBar(props: {
           <Typography data-cy="title" variant="h5" className={classes.title}>
             {props.title}
           </Typography>
-          {toggleUploadsButtonVisibility && uploads ?
-          <Button
-            variant="outlined"
-            disabled={disableUploadsButton}
-            onClick={() => {
-              toggleUploadsButtonVisibility(!uploadsButtonVisible)
-            }}
-            data-cy="header-uploads-button"
-            className={classes.uploadsButton}
-            style={{
-              opacity:
-                disableUploadsButton || uploadsButtonVisible ? "50%" : "100%",
-              width: "20%",
-            }}
-          >
-            <PublishRoundedIcon style={{ paddingRight: 5 }} />
-            {disableUploadsButton
-              ? ""
-              : numUploadsInProgress == 0
-              ? "Uploads Complete"
-              : `${numUploadsComplete} of ${
-                  numUploadsInProgress + numUploadsComplete
-                } Uploads Complete`}
-          </Button>
-          : undefined}
+          {toggleUploadsButtonVisibility && uploads ? (
+            <Button
+              variant="outlined"
+              disabled={disableUploadsButton}
+              onClick={() => {
+                toggleUploadsButtonVisibility(!uploadsButtonVisible);
+              }}
+              data-cy="header-uploads-button"
+              className={classes.uploadsButton}
+              style={{
+                opacity:
+                  disableUploadsButton || uploadsButtonVisible ? "50%" : "100%",
+                width: "20%",
+              }}
+            >
+              <PublishRoundedIcon style={{ paddingRight: 5 }} />
+              {disableUploadsButton
+                ? ""
+                : numUploadsInProgress == 0
+                ? "Uploads Complete"
+                : `${numUploadsComplete} of ${
+                    numUploadsInProgress + numUploadsComplete
+                  } Uploads Complete`}
+            </Button>
+          ) : undefined}
 
           <Login classes={classes} />
         </Toolbar>

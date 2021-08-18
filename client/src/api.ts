@@ -741,7 +741,6 @@ export async function updateMentorSubjects(
   mentor: Mentor,
   accessToken: string
 ): Promise<boolean> {
-  console.log("mentor object being sent to update mutation: ", mentor)
   return execGql<boolean>(
     {
       query: `

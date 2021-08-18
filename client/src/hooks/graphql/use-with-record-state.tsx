@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer, updateQuestion} from "api";
+import { updateAnswer, updateQuestion } from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
@@ -53,8 +53,7 @@ export function useWithRecordState(
   const [saveError, setSaveError] = useState<LoadingError>();
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
-  const { mentor, mentorError, clearMentorError, loadMentor } =
-    useWithMentor();
+  const { mentor, mentorError, clearMentorError, loadMentor } = useWithMentor();
   const {
     uploads,
     isUploading,
@@ -98,8 +97,8 @@ export function useWithRecordState(
         !a.question?.mentorType || a.question?.mentorType === mentor.mentorType
     );
     //if after filtering through the answers we end up with none, then go back to My Mentor page
-    if(!answers.length){
-      navigate("/")
+    if (!answers.length) {
+      navigate("/");
     }
     setAnswers(
       answers.map((a) => ({

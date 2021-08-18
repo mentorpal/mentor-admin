@@ -3040,7 +3040,7 @@ describe("Record", () => {
     cy.get("[data-cy=warn-empty-transcript]").should("not.exist");
   });
 
-  it("Can visit record via url param array",()=>{
+  it("Can visit record via url param array", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -3052,167 +3052,11 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A2_1_1,A3_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "How old are you now?"
-      );
+      cy.get("textarea").should("have.text", "How old are you now?");
     });
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Where do you live?"
-      );
+      cy.get("textarea").should("have.text", "Where do you live?");
     });
-  })
-
-  //TODO: add to its own followups.spec.ts
-  it.only("TEST: can navigate to followups page",()=>{
-    cyMockDefault(cy, {
-      mentor: [chatMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
-        mockGQL("FetchUploadTasks", []),
-      ],
-    });
-    cyMockFollowUpQuestions(cy, {
-      errors: null,
-      data: {
-        followups: [
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-        ],
-      },
-    });
-    cy.visit("/record?subject=background&category=cat");
-  })
-
-
-  it("TEST: loading followups page",()=>{
-    cyMockDefault(cy, {
-      mentor: [chatMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
-        mockGQL("FetchUploadTasks", []),
-      ],
-    });
-    cyMockFollowUpQuestions(cy, {
-      errors: null,
-      data: {
-        followups: [
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-          {
-            question: "Can you tell me more about Aaron?",
-            entityType: "profession",
-          },
-          {
-            question: "What was Florida like?",
-          },
-          {
-            question: "What does an Intern do?",
-          },
-          {
-            question: "What is foosball?",
-          },
-        ],
-      },
-    });
-    cy.visit("/followups?subject=background&category=cat");
-  })
-
-
+  });
 });

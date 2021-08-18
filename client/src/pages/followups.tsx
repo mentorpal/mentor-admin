@@ -6,17 +6,30 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import React, { useState, useEffect } from "react";
-import { AppBar, List, ListItem, ListItemText, makeStyles, Toolbar } from "@material-ui/core";
+import {
+  AppBar,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
+  makeStyles,
+  Toolbar,
+} from "@material-ui/core";
 import { Card, Button, Checkbox } from "@material-ui/core";
-import { useWithFollowups } from "hooks/graphql/use-with-followups";
+import {
+  FollowupsPageState,
+  useWithFollowups,
+} from "hooks/graphql/use-with-followups";
 import { LoadingDialog } from "components/dialog";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
-import { navigate } from "gatsby";
 import { NavBar } from "components/nav-bar";
 import { copyAndSet } from "helpers";
 
-interface question {
+interface followupListItem {
   question: string;
   checked: boolean;
 }
@@ -51,77 +64,77 @@ function FollowupsPage(props: {
   };
 }): JSX.Element {
   const [seeAll, setSeeAll] = useState(false);
-  const [questionList, updateQuestionList] = useState<question[]>([]);
+  const [followupList, setFollowupList] = useState<followupListItem[]>([]);
+  const { subject, category } = props.search;
   const {
-    subject,
-    category
-  } = props.search;
-  const {mentor, followUpQuestions, saveAndLoadNewFollowups} = useWithFollowups({categoryId: category, subjectId: subject});
+    mentor,
+    followUpQuestions,
+    saveAndLoadSelectedFollowups,
+    setToRecordFollowUpQs,
+    toRecordFollowUpQs,
+    navigateToMyMentorPage,
+    fetchFollowups,
+    followupPageState,
+  } = useWithFollowups({ categoryId: category, subjectId: subject });
   const classes = useStyles();
   const curSubject = mentor?.subjects.find(
-    (s) => s._id == props.search.subject
+    (s) => s._id === props.search.subject
   );
   const subjectTitle = curSubject?.name || "";
-  const curCategory = curSubject?.categories.find((c) => c.id == props.search.category)
+  const curCategory = curSubject?.categories.find(
+    (c) => c.id === props.search.category
+  );
   const categoryTitle = curCategory?.name || "";
-  if(!subject || !category){
-    navigate("/")
+  if (!subject || !category) {
+    console.error("followups failed to receive subject or category");
+    navigateToMyMentorPage();
   }
 
-  useEffect(()=>{
-    if(!followUpQuestions.length || questionList.length)
-      return;
-    setQuestionList(followUpQuestions);
-  }, [followUpQuestions])
+  useEffect(() => {
+    if (!followUpQuestions || followupList.length) return;
+    initFollowupList(followUpQuestions);
+  }, [followUpQuestions]);
 
-
-
-  if(!followUpQuestions.length || !mentor){
-    return (
-      <div>
-        <LoadingDialog title={"Loading..."} />
-      </div>
-    );
-  }
-
-  function toggleQuestionCheck(i: number) {
-    const checkValue = !questionList[i].checked;
-    const question = questionList[i].question;
-    updateQuestionList(
-      copyAndSet(questionList, i, {
-        question: question,
-        checked: checkValue,
-      })
-    );
-  }
-
-  function setQuestionList(followups: string[]){
+  function initFollowupList(followups: string[]) {
     const tempQuestionList = followups.map((followup) => {
       return { question: followup, checked: false };
     });
-    updateQuestionList(tempQuestionList);
+    setFollowupList(tempQuestionList);
   }
 
-  function handleDoneButton(){
-    const followups = questionList.filter((question)=>question.checked).map(question=>question.question)
-    if(!followups.length)
-      navigate("/")
-    else
-      saveAndLoadNewFollowups(followups)
+  function toggleFollowupCheck(i: number) {
+    const checkValue = !followupList[i].checked;
+    const curQuestion = followupList[i].question;
+    const newQuestionList: followupListItem[] = copyAndSet(followupList, i, {
+      question: curQuestion,
+      checked: checkValue,
+    });
+    setToRecordFollowUpQs(
+      newQuestionList.filter((q) => q.checked).map((q) => q.question)
+    );
+    setFollowupList(newQuestionList);
+  }
+
+  function handleDoneButton() {
+    if (!toRecordFollowUpQs.length) navigateToMyMentorPage();
+    else saveAndLoadSelectedFollowups();
   }
 
   const renderAmount = !seeAll
     ? 6
-    : questionList.length > 20
+    : followupList.length > 20
     ? 20
-    : questionList.length;
+    : followupList.length;
   return (
     <div className={classes.root}>
-      <NavBar         title={
+      <NavBar
+        title={
           categoryTitle
             ? `Followups: ${subjectTitle} - ${categoryTitle}`
             : `Followups: ${subjectTitle}`
-        } mentorId={mentor._id} />
+        }
+        mentorId={mentor?._id || ""}
+      />
       <Card
         data-cy="follow-up-q-widget"
         style={{ width: "100%", height: "100%" }}
@@ -129,8 +142,8 @@ function FollowupsPage(props: {
         <h3>Follow Up Questions</h3>
         <div>
           {" "}
-          Pick 2-10 follow up questions that you&apos;d like to answer to improve
-          your mentor.{" "}
+          Pick 2-10 follow up questions that you&apos;d like to answer to
+          improve your mentor.{" "}
         </div>
         <List
           style={{
@@ -139,18 +152,18 @@ function FollowupsPage(props: {
             overflowX: "hidden",
           }}
         >
-          {questionList.slice(0, renderAmount).map((question, i) => {
+          {followupList.slice(0, renderAmount).map((followupListItem, i) => {
             return (
               <div key={i}>
                 <ListItem divider={true} dense={true} alignItems={"center"}>
                   <Checkbox
                     onClick={() => {
-                      toggleQuestionCheck(i);
+                      toggleFollowupCheck(i);
                     }}
-                    checked={question.checked}
+                    checked={followupListItem.checked}
                   />
                   <ListItemText
-                    primary={question.question}
+                    primary={followupListItem.question}
                     data-cy={`follow-up-question-${i}`}
                   />
                 </ListItem>
@@ -158,14 +171,16 @@ function FollowupsPage(props: {
             );
           })}
         </List>
-        <Button
-          onClick={() => {
-            !seeAll ? setSeeAll(true) : setSeeAll(false);
-          }}
-          style={{ textTransform: "none" }}
-        >
-          {!seeAll ? "See All" : "See Less"}
-        </Button>
+        {followupList.length > 6 ? (
+          <Button
+            onClick={() => {
+              !seeAll ? setSeeAll(true) : setSeeAll(false);
+            }}
+            style={{ textTransform: "none" }}
+          >
+            {!seeAll ? "See All" : "See Less"}
+          </Button>
+        ) : undefined}
       </Card>
       <AppBar position="fixed" className={classes.footer}>
         <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
@@ -181,6 +196,59 @@ function FollowupsPage(props: {
           </Button>
         </Toolbar>
       </AppBar>
+      <Dialog
+        data-cy="generate-followups-dialog"
+        open={
+          followupPageState === FollowupsPageState.PROMPT_GENERATE_FOLLOWUPS
+        }
+      >
+        <DialogTitle>{"Followups"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {"Would you like to try and generate followups?"}
+          </DialogContentText>
+        </DialogContent>
+        <DialogContent>
+          <Button
+            data-cy="generate-followups-button"
+            onClick={() => {
+              fetchFollowups();
+            }}
+          >
+            Generate
+          </Button>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        data-cy="no-followups-generated-dialog"
+        open={Boolean(followUpQuestions && !followUpQuestions.length)}
+      >
+        <DialogTitle>{"Followups"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {"No followups were generated, lets continue on."}
+          </DialogContentText>
+        </DialogContent>
+        <DialogContent>
+          <Button
+            data-cy="leave-followups-button"
+            onClick={() => {
+              navigateToMyMentorPage();
+            }}
+          >
+            Done
+          </Button>
+        </DialogContent>
+      </Dialog>
+      <LoadingDialog
+        title={
+          !mentor ||
+          followupPageState === FollowupsPageState.GENERATING_FOLLOWUPS ||
+          followupPageState === FollowupsPageState.SAVING_SELECTED_FOLLOWUPS
+            ? "Loading..."
+            : ""
+        }
+      />
     </div>
   );
 }
