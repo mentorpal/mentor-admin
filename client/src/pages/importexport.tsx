@@ -25,13 +25,12 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport(props.accessToken);
   const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
 
-  if (!mentorId) {
+  if (!mentorId || !mentorAnswers) {
     return <div />;
   }
-  const needsTransfer = useImportExport.mentor.answers.some(
-    (a) => a.hasUntransferredMedia
-  );
+  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
