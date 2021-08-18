@@ -698,7 +698,6 @@ export async function fetchMentorById(
             }
           }  
         }
-      }
     `,
       variables: {
         mentor: mentorId,
