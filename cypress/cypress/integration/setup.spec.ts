@@ -487,9 +487,11 @@ describe("Setup", () => {
         cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
       });
     });
-    cy.get("[data-cy=dropdown-button-list]").should("not.be.disabled");
-    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
-    cy.get("[data-cy=dropdown-button-list]").trigger("mouseover").click();
+    cy.get("[data-cy=dropdown-button-list]")
+      .should("not.be.disabled")
+      .and("have.text", "Save")
+      .trigger("mouseover")
+      .click();
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();
     });
