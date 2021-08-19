@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { fetchFollowUpQuestions } from "api";
 import { navigate } from "gatsby";
 import { urlBuild } from "helpers";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor, {
@@ -24,16 +24,12 @@ import {
 } from "types";
 import { v4 as uuid } from "uuid";
 import { useWithSubject } from "./use-with-subject";
-
-export enum FollowupsPageState {
-  PROMPT_GENERATE_FOLLOWUPS = "PROMPT_GENERATE_FOLLOWUPS",
-  GENERATING_FOLLOWUPS = "GENERATING_FOLLOWUPS",
-  FAILED_GENERATING_FOLLOWUPS = "FAILED_GENERATING_FOLLOWUPS",
-  SUCCESS_GENERATING_FOLLOWUPS = "SUCCESS_GENERATING_FOLLOWUPS",
-  SAVING_SELECTED_FOLLOWUPS = "SAVING_SELECTED_FOLLOWUPS",
-  FAILED_SAVING_SELECTED_FOLLOWUPS = "FAILED_SAVING_SELECTED_FOLLOWUPS",
-  SUCCESS_SAVING_SELECTED_FOLLOWUPS = "SUCCESS_SAVING_SELECTED_FOLLOWUPS",
-}
+import {
+  FollowupsPageStatusType,
+  FollowupsPageState,
+  FollowupsReducer,
+  FollowupsActionType,
+} from "./followups-reducer";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -49,21 +45,17 @@ export interface UseWithFollowups {
   mentor?: Mentor;
 }
 
-export interface newQuestion {
-  question: string;
-  questionId: string;
-  answerId: string;
-}
-
 export function useWithFollowups(props: {
   categoryId: string;
   subjectId: string;
 }): UseWithFollowups {
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
-  const [followupPageState, setFollowupPageState] =
-    useState<FollowupsPageState>(FollowupsPageState.PROMPT_GENERATE_FOLLOWUPS);
+  const [state, dispatch] = useReducer(FollowupsReducer, {
+    status: FollowupsPageStatusType.INIT,
+    error: undefined,
+  });
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
-  const { state } = useWithLogin();
+  const { state: loginState } = useWithLogin();
   const isMentorLoading = isActiveMentorLoading();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
@@ -73,7 +65,7 @@ export function useWithFollowups(props: {
     editedData,
     isEdited: isSubjectEdited,
     saveSubject,
-  } = useWithSubject(props.subjectId, state.accessToken || "");
+  } = useWithSubject(props.subjectId, loginState.accessToken || "");
   const { categoryId, subjectId } = props;
   const curSubject = useActiveMentor((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
@@ -82,8 +74,13 @@ export function useWithFollowups(props: {
 
   useEffect(() => {
     if (!isSubjectEdited || !editedData) return;
-    setFollowupPageState(FollowupsPageState.SAVING_SELECTED_FOLLOWUPS);
-    saveSubject();
+    dispatch({ type: FollowupsActionType.SAVING_SELECTED_FOLLOWUPS });
+    saveSubject().catch((err) => {
+      dispatch({
+        type: FollowupsActionType.FAILED_GENERATING_FOLLOWUPS,
+        payload: { message: "Failed to save subject", error: err.message },
+      });
+    });
   }, [isSubjectEdited]);
 
   useEffect(() => {
@@ -122,17 +119,17 @@ export function useWithFollowups(props: {
   }, [isMentorLoading]);
 
   function fetchFollowups() {
-    if (!state.accessToken) {
+    if (!loginState.accessToken) {
       return;
     }
-    fetch(state.accessToken);
+    fetch(loginState.accessToken);
   }
 
   function fetch(accessToken: string) {
     if (!mentorAnswers) {
       return;
     }
-    setFollowupPageState(FollowupsPageState.GENERATING_FOLLOWUPS);
+    dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
     fetchFollowUpQuestions(categoryId, accessToken)
       .then((data) => {
         let followUps = data
@@ -140,8 +137,6 @@ export function useWithFollowups(props: {
               return d.question;
             })
           : [];
-        //ensures the same follow up question wasn't already answered elsewhere
-        //should exact match follow up questions be asked for different subjects?
         followUps = followUps.filter(
           (followUp) =>
             mentorAnswers.findIndex(
@@ -150,12 +145,17 @@ export function useWithFollowups(props: {
                 a.question.mentor === mentorId
             ) === -1
         );
-        setFollowupPageState(FollowupsPageState.SUCCESS_GENERATING_FOLLOWUPS);
+        dispatch({ type: FollowupsActionType.SUCCESS_GENERATING_FOLLOWUPS });
         setFollowUpQuestions(followUps);
       })
       .catch((err) => {
-        console.error(err);
-        setFollowupPageState(FollowupsPageState.FAILED_GENERATING_FOLLOWUPS);
+        dispatch({
+          type: FollowupsActionType.FAILED_GENERATING_FOLLOWUPS,
+          payload: {
+            message: "Failed to fetch follow up questions",
+            error: err.message,
+          },
+        });
       });
   }
 
@@ -168,7 +168,7 @@ export function useWithFollowups(props: {
     if (!editedData || !curCategory || !mentorId || !toRecordFollowUpQs) {
       return;
     }
-    setFollowupPageState(FollowupsPageState.SAVING_SELECTED_FOLLOWUPS);
+    dispatch({ type: FollowupsActionType.SAVING_SELECTED_FOLLOWUPS });
     const newQuestions: SubjectQuestion[] = toRecordFollowUpQs.map(
       (followUp) => {
         return {
@@ -196,7 +196,7 @@ export function useWithFollowups(props: {
     curCategory,
     followUpQuestions,
     fetchFollowups,
-    followupPageState,
+    followupPageState: state,
     saveAndLoadSelectedFollowups,
     toRecordFollowUpQs,
     setToRecordFollowUpQs,

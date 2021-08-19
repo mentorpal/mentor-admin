@@ -19,15 +19,13 @@ import {
   Toolbar,
 } from "@material-ui/core";
 import { Card, Button, Checkbox } from "@material-ui/core";
-import {
-  FollowupsPageState,
-  useWithFollowups,
-} from "hooks/graphql/use-with-followups";
-import { LoadingDialog } from "components/dialog";
+import { useWithFollowups } from "hooks/graphql/use-with-followups";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import withLocation from "wrap-with-location";
 import { NavBar } from "components/nav-bar";
 import { copyAndSet } from "helpers";
+import { FollowupsPageStatusType } from "hooks/graphql/followups-reducer";
 
 interface followupListItem {
   question: string;
@@ -196,9 +194,7 @@ function FollowupsPage(props: {
       </AppBar>
       <Dialog
         data-cy="generate-followups-dialog"
-        open={
-          followupPageState === FollowupsPageState.PROMPT_GENERATE_FOLLOWUPS
-        }
+        open={followupPageState.status === FollowupsPageStatusType.INIT}
       >
         <DialogTitle>{"Followup Questions"}</DialogTitle>
         <DialogContent>
@@ -251,12 +247,13 @@ function FollowupsPage(props: {
       <LoadingDialog
         title={
           !mentorId ||
-          followupPageState === FollowupsPageState.GENERATING_FOLLOWUPS ||
-          followupPageState === FollowupsPageState.SAVING_SELECTED_FOLLOWUPS
+          followupPageState.status === FollowupsPageStatusType.LOADING ||
+          followupPageState.status === FollowupsPageStatusType.SAVING
             ? "Loading..."
             : ""
         }
       />
+      <ErrorDialog error={followupPageState.error} />
     </div>
   );
 }
