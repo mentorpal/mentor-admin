@@ -38,30 +38,33 @@ export function urlBuild(
 ): string {
   const query = new URLSearchParams();
   Object.keys(params).forEach((n) => {
-    /**
-     * we have to distinguish between params where the value is `undefined` or `null`
-     * (which we generally want to exclude) vs. params where the value is falsy but meaningful (e.g. `0`)
-     */
-    let pval = "";
     if (Array.isArray(params[n])) {
-      (params[n] as string[]).forEach((value, i, arr) => {
-        const val = value !== null && typeof value !== "undefined" ? value : "";
-        //url array format uses commas (specified in wrap-with-location.tsx)
-        pval += val ? (i !== arr.length - 1 ? val + "," : val) : "";
+      (params[n] as string[]).forEach((value) => {
+        appendKeyPairToQuery(query, n, value, opts);
       });
     } else {
-      pval =
-        params[n] !== null && typeof params[n] !== "undefined"
-          ? (params[n] as string)
-          : "";
+      appendKeyPairToQuery(query, n, params[n] as string, opts);
     }
-    if (!(pval || opts?.includeEmptyParams)) {
-      return;
-    }
-    query.append(n, encodeURI(pval));
   });
   const qs = query.toString();
   return qs ? `${base}?${qs}` : base; // don't put ? if no query string
+}
+
+/**
+ * we have to distinguish between params where the value is `undefined` or `null`
+ * (which we generally want to exclude) vs. params where the value is falsy but meaningful (e.g. `0`)
+ */
+function appendKeyPairToQuery(
+  query: URLSearchParams,
+  key: string,
+  val: string,
+  opts?: UrlBuildOpts
+) {
+  const pval = val !== null && typeof val !== "undefined" ? val : "";
+  if (!(pval || opts?.includeEmptyParams)) {
+    return;
+  }
+  query.append(key, pval);
 }
 
 export function launchMentor(mentorId: string): void {

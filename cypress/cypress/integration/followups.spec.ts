@@ -212,7 +212,6 @@ const videoMentor: Mentor = completeMentor({
 });
 
 describe("generating followups", () => {
-  //TODO: add to its own followups.spec.ts
   it("can navigate to followups page from record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],

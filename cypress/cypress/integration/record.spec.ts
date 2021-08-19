@@ -424,7 +424,7 @@ describe("Record", () => {
 
     it("shows multiple questions if ?videoId={questionId},{questionId}", () => {
       cyMockDefault(cy, { mentor: chatMentor });
-      cy.visit("/record?videoId=A1_1_1,A3_1_1");
+      cy.visit("/record?videoId=A1_1_1&videoId=A3_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
         cy.get("textarea").should(
@@ -2466,7 +2466,7 @@ describe("Record", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
-    cy.visit("/record?videoId=A2_1_1,A3_1_1");
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
@@ -2534,7 +2534,7 @@ describe("Record", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
-    cy.visit("/record?videoId=A2_1_1,A3_1_1");
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
@@ -2869,7 +2869,7 @@ describe("Record", () => {
         mockGQL("FetchUploadTasks", []),
       ],
     });
-    cy.visit("/record?videoId=A2_1_1,A3_1_1");
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "How old are you now?");
     });
