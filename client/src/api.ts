@@ -209,6 +209,7 @@ export async function fetchConfig(): Promise<Config> {
         config {
           googleClientId
           urlVideoIdleTips
+          videoRecorderMaxLength
         }
       }
   `,
@@ -605,8 +606,9 @@ export async function updateUserQuestion(
   );
 }
 
-export async function fetchMentor(
+export async function fetchMentorById(
   accessToken: string,
+  mentorId: string,
   subject?: string,
   topic?: string,
   status?: string
@@ -614,9 +616,8 @@ export async function fetchMentor(
   return execGql<Mentor>(
     {
       query: `
-      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
-        me {
-          mentor {
+      query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
+          mentor (id: $mentor){
             _id
             name
             firstName
@@ -697,15 +698,15 @@ export async function fetchMentor(
             }
           }  
         }
-      }
     `,
       variables: {
+        mentor: mentorId,
         subject: subject || "",
         topic: topic || "",
         status: status || "",
       },
     },
-    { dataPath: ["me", "mentor"], accessToken }
+    { dataPath: ["mentor"], accessToken }
   );
 }
 
@@ -907,6 +908,9 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
           }
           accessToken
         }
@@ -995,7 +999,7 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
       query: `
         query MentorExport($mentor: ID!) {
           mentorExport(mentor: $mentor) {
-            _id
+            id
             subjects {
               _id
               name
@@ -1083,7 +1087,7 @@ export async function importMentorPreview(
       query: `
         query MentorImportPreview($mentor: ID!, $json: MentorImportJsonType!) {
           mentorImportPreview(mentor: $mentor, json: $json) {
-            _id
+            id
             subjects {
               editType
               importData {

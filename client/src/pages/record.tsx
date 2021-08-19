@@ -1,7 +1,6 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
@@ -41,6 +40,9 @@ import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import { ConfigStatus } from "store/slices/config";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -111,9 +113,15 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, mentor, reloadMentorData } = recordState;
-  const curSubject = mentor?.subjects.find(
-    (s) => s._id == props.search.subject
+  const { curAnswer, reloadMentorData } = recordState;
+  const config = useWithConfig();
+  function isConfigLoaded(): boolean {
+    return config.state.status === ConfigStatus.SUCCEEDED;
+  }
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const curSubject = useActiveMentor((state) =>
+    state.data?.subjects.find((s) => s._id == props.search.subject)
   );
   const subjectTitle = curSubject?.name || "";
   const curCategory = curSubject?.categories.find(
@@ -121,7 +129,7 @@ function RecordPage(props: {
   );
   const categoryTitle = curCategory?.name || "";
   const curAnswerBelongsToMentor =
-    curAnswer?.editedAnswer.question?.mentor === mentor?._id;
+    curAnswer?.editedAnswer.question?.mentor === mentorId;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
@@ -143,7 +151,7 @@ function RecordPage(props: {
         callback: onNav,
       });
     } else {
-      if (curAnswer?.isEdited) recordState.saveAnswer();
+      if (curAnswer?.isEdited) {recordState.saveAnswer();}
       onNav();
     }
   }
@@ -159,12 +167,24 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  if (!mentor || !curAnswer) {
+  if (!mentorId || !curAnswer || !isConfigLoaded()) {
     return (
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />
         <LoadingDialog title={"Loading..."} />
         <ErrorDialog error={recordState.error} />
+      </div>
+    );
+  }
+
+  if (!config.state.config || config.state.status === ConfigStatus.FAILED) {
+    return (
+      <div>
+        <NavBar title="Recording: " mentorId={undefined} />
+        <Typography>Failed to load config</Typography>
+        <Button color="primary" variant="contained" onClick={config.loadConfig}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -185,7 +205,7 @@ function RecordPage(props: {
             ? `Recording: ${subjectTitle} - ${categoryTitle}`
             : `Recording: ${subjectTitle}`
         }
-        mentorId={mentor._id}
+        mentorId={mentorId}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
@@ -206,8 +226,10 @@ function RecordPage(props: {
             total={recordState.answers.length}
           />
         </div>
-        {mentor.mentorType === MentorType.VIDEO ? (
-          <VideoPlayer classes={classes} recordState={recordState} />
+        {mentorType === MentorType.VIDEO ? (
+          <VideoPlayer classes={classes} recordState={recordState} videoRecorderMaxLength={
+            config.state.config.videoRecorderMaxLength
+          }/>
         ) : undefined}
         <div data-cy="question" className={classes.block}>
           <Typography className={classes.title}>Question:</Typography>

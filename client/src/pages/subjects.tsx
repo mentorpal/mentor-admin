@@ -8,7 +8,6 @@ import React from "react";
 import {
   AppBar,
   Checkbox,
-  Fab,
   IconButton,
   Paper,
   Table,
@@ -27,11 +26,16 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+} from "store/slices/mentor/useActiveMentor";
+import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -95,15 +99,12 @@ function SubjectsPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const {
-    editedMentor,
-    isMentorLoading,
-    isMentorSaving,
-    isMentorEdited,
-    mentorError,
-    editMentor,
-    saveMentorSubjects,
-  } = useWithMentor();
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
+
+  const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
+    useMentorEdits();
   const {
     data: subjects,
     isLoading: isSubjectsLoading,
@@ -141,17 +142,13 @@ function SubjectsPage(props: {
     });
   }
 
+  const onBack = () => {
+    props.search.back ? navigate(decodeURI(props.search.back)) : navigate("/");
+  };
+
   return (
     <div>
-      <NavBar
-        title="Subjects"
-        mentor={editedMentor?._id}
-        onBack={
-          props.search.back
-            ? () => navigate(decodeURI(props.search.back!))
-            : undefined
-        }
-      />
+      <NavBar title="Subjects" mentor={editedMentor?._id} onBack={onBack} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -228,17 +225,23 @@ function SubjectsPage(props: {
             >
               <KeyboardArrowRightIcon />
             </IconButton>
-            <Fab
-              data-cy="save-button"
-              variant="extended"
-              color="primary"
-              className={classes.fab}
-              disabled={!isMentorEdited}
-              onClick={saveMentorSubjects}
-            >
-              Save
-            </Fab>
           </Toolbar>
+          <ButtonGroupDropdown
+            styles={{ position: "absolute", top: "25%", right: 10 }}
+            dropdownItems={[
+              {
+                title: "Exit",
+                onClick: onBack,
+                becomePrimary: !isMentorEdited,
+              },
+              {
+                title: "Save",
+                onClick: saveMentorSubjects,
+                disabled: !isMentorEdited,
+                becomePrimary: isMentorEdited,
+              },
+            ]}
+          />
         </AppBar>
       </div>
       <LoadingDialog

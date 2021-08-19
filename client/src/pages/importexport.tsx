@@ -12,6 +12,7 @@ import NavBar from "components/nav-bar";
 import ImportView from "components/import-export/import-view";
 import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,17 +24,16 @@ const useStyles = makeStyles(() => ({
 function ImportPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport(props.accessToken);
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
 
-  if (!useImportExport.mentor) {
+  if (!mentorId || !mentorAnswers) {
     return <div />;
   }
-  const needsTransfer =
-    useImportExport.mentor.answers.filter((a) => a.hasUntransferredMedia)
-      ?.length || 0;
-
+  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
   return (
     <div className={classes.root}>
-      <NavBar title="Export Mentor" mentorId={useImportExport.mentor._id} />
+      <NavBar title="Export Mentor" mentorId={mentorId} />
       <ImportView useImportExport={useImportExport} />
       <div style={{ padding: 10 }}>
         <Button
@@ -59,14 +59,14 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             }}
           />
         </Button>
-        {needsTransfer > 0 ? (
+        {needsTransfer ? (
           <Button
             data-cy="transfer-media"
             variant="contained"
             onClick={useImportExport.onTransferMedia}
             style={{ marginLeft: 10 }}
           >
-            Transfer {needsTransfer} Answers
+            Transfer Answers
           </Button>
         ) : undefined}
       </div>

@@ -9,7 +9,7 @@ import { LoadingError } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
-import { selectActiveMentor } from "./useWithMentor";
+import { selectActiveMentor } from "./useActiveMentor";
 
 /** Store */
 
@@ -41,7 +41,10 @@ const initialState: MentorState = {
 
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
-  async (login: LoginState, thunkAPI): Promise<CancellabeResult<Mentor>> => {
+  async (
+    headers: { mentorId?: string },
+    thunkAPI
+  ): Promise<CancellabeResult<Mentor>> => {
     const state = thunkAPI.getState() as RootState;
     if (
       state.mentor.mentorStatus == MentorStatus.LOADING ||
@@ -50,24 +53,52 @@ export const loadMentor = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
-    if (!login.accessToken) {
+    if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
       return Promise.reject("no access token");
-    }
-    return { result: await api.fetchMentor(login.accessToken) };
+    } else
+      return headers.mentorId
+        ? {
+            result: await api.fetchMentorById(
+              state.login.accessToken,
+              headers.mentorId
+            ),
+          }
+        : {
+            result: await api.fetchMentorById(
+              state.login.accessToken,
+              state.login.user?.defaultMentor._id
+            ),
+          };
   }
 );
 
 export const saveMentor = createAsyncThunk(
   "mentor/saveMentor",
-  async (headers: {
-    accessToken: string;
-    editedData: Mentor;
-  }): Promise<Mentor | unknown> => {
-    try {
-      await api.updateMentorDetails(headers.editedData, headers.accessToken);
-      return headers.editedData;
-    } catch (err) {
-      return err.response.data;
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorDetails(editedData, state.login.accessToken);
+        return editedData;
+      } catch (err) {
+        return err.response.data;
+      }
+    }
+  }
+);
+
+export const saveMentorSubjects = createAsyncThunk(
+  "mentor/saveMentorSubjects",
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorSubjects(editedData, state.login.accessToken);
+        // need to fetch the updated mentor because the questions/answers might have changed
+        return api.fetchMentorById(state.login.accessToken, editedData._id);
+      } catch (err) {
+        return err.response.data;
+      }
     }
   }
 );
@@ -87,22 +118,6 @@ export const saveThumbnail = createAsyncThunk(
         return Promise.reject("upload api called with no active mentor");
       }
       return await api.uploadThumbnail(mentorId, headers.file);
-    } catch (err) {
-      return err.response.data;
-    }
-  }
-);
-
-export const saveMentorSubjects = createAsyncThunk(
-  "mentor/saveMentorSubjects",
-  async (headers: {
-    accessToken: string;
-    editedData: Mentor;
-  }): Promise<Mentor | unknown> => {
-    try {
-      await api.updateMentorSubjects(headers.editedData, headers.accessToken);
-      // need to fetch the updated mentor because the questions/answers might have changed
-      return await api.fetchMentor(headers.accessToken);
     } catch (err) {
       return err.response.data;
     }
@@ -170,7 +185,7 @@ export const mentorSlice = createSlice({
         state.mentorStatus = MentorStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
-          error: saveMentor.rejected.name,
+          error: saveThumbnail.rejected.name,
         };
       })
       .addCase(saveMentorSubjects.pending, (state) => {

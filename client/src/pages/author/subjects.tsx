@@ -28,7 +28,10 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
+import {
+  isActiveMentorLoading,
+  useActiveMentor,
+} from "store/slices/mentor/useActiveMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
@@ -97,7 +100,9 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const { mentor, isMentorLoading, mentorError } = useWithMentor();
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
   const {
     data: subjects,
     error: subjectsError,
@@ -110,7 +115,7 @@ function SubjectsPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Subjects" mentorId={mentor?._id} />
+      <NavBar title="Subjects" mentorId={mentorId} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

@@ -50,8 +50,7 @@ export default function AnswerImport(props: {
   const { preview } = props;
   const { editType, importData: answer, curData: curAnswer } = preview;
   const transcript = answer?.transcript || curAnswer?.transcript || "";
-
-  if (answer === undefined && curAnswer === undefined) {
+  if (!(answer || curAnswer)) {
     return <div />;
   }
 
@@ -79,6 +78,10 @@ export default function AnswerImport(props: {
         curData: m,
       });
     });
+
+  if (answer === undefined && curAnswer === undefined) {
+    return <div />;
+  }
 
   return (
     <Card data-cy="answer" className={classes.root}>
@@ -115,7 +118,7 @@ export default function AnswerImport(props: {
         style={{ width: "100%" }}
       >
         <ListSubheader>Media</ListSubheader>
-        {media?.filter((m) => m.importData?.needsTransfer).length} needs
+        {media?.filter((m) => m.importData?.needsTransfer)?.length || 0} needs
         transferring
         <List data-cy="answer-media" dense disablePadding>
           {media.map((m, i) => {

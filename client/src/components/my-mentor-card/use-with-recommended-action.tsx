@@ -16,6 +16,7 @@ import {
   Image,
   NoteAdd,
 } from "@material-ui/icons";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 interface Category {
   subjectName: string;
@@ -43,16 +44,22 @@ interface Recommendation {
   text: string;
   reason: string;
   icon: JSX.Element;
-  input: boolean;
+  input?: boolean;
   action: () => void;
-  skip: Conditions;
+  skip?: Conditions;
 }
 
 function recommend(
-  conditions: Conditions,
-  mentor: Mentor,
-  continueAction: () => void
+  conditions?: Conditions,
+  continueAction?: () => void
 ): Recommendation {
+  if (!conditions)
+    return {
+      text: "no recommendation",
+      reason: "invalid mentor",
+      icon: <CheckCircleOutlined />,
+      action: () => undefined,
+    };
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
@@ -141,7 +148,7 @@ function recommend(
 
       skip: { ...conditions, firstIncomplete: undefined },
     };
-  if (conditions.isDirty)
+  if (conditions.isDirty && continueAction)
     return {
       text: "Build Your Mentor",
       reason:
@@ -157,10 +164,13 @@ function recommend(
     icon: <NoteAdd />,
     input: false,
     action: () => navigate("/subjects"),
-    skip: parseMentor(mentor),
+    skip: conditions,
   };
 }
-function parseMentor(mentor: Mentor): Conditions {
+function parseMentorConditions(mentor?: Mentor): Conditions | undefined {
+  if (!mentor) {
+    return;
+  }
   const idle = mentor?.answers.find(
     (a) => a.question.name === UtteranceName.IDLE
   );
@@ -225,18 +235,13 @@ function parseMentor(mentor: Mentor): Conditions {
   };
 }
 export function UseWithRecommendedAction(
-  mentor: Mentor,
-  continueAction: () => void
+  continueAction?: () => void
 ): [Recommendation, () => void] {
-  const [recommendedAction, setRecommendedAction] = useState(
-    recommend(parseMentor(mentor), mentor, continueAction)
-  );
-
+  const conditions = useActiveMentor((ms) => parseMentorConditions(ms.data));
+  const recommendation = recommend(conditions, continueAction);
+  const [recommendedAction, setRecommendedAction] = useState(recommendation);
   function skipRecommendation() {
-    setRecommendedAction(
-      recommend(recommendedAction.skip, mentor, continueAction)
-    );
+    setRecommendedAction(recommend(recommendation.skip, continueAction));
   }
-
   return [recommendedAction, skipRecommendation];
 }

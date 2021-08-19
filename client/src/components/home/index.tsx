@@ -19,6 +19,7 @@ import {
   ListItem,
   MenuItem,
   Select,
+  TextField,
   Toolbar,
   Typography,
 } from "@material-ui/core";
@@ -30,9 +31,12 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
-import { User } from "types";
+import { Subject, User, UserRole } from "types";
 import { launchMentor } from "helpers";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
+import useActiveMentor, {
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -78,7 +82,6 @@ function HomePage(props: {
   search: { subject?: string };
   user: User;
 }): JSX.Element {
-  const classes = useStyles();
   const {
     useMentor,
     isLoading,
@@ -92,18 +95,33 @@ function HomePage(props: {
     saveChanges,
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
-  const { mentor, isMentorEdited } = useMentor;
+  const defaultMentor = props.user.defaultMentor._id;
+
+  const mentorId = useActiveMentor((m) => m.data?._id || "");
+  const { loadMentor } = useActiveMentorActions();
+  const { isMentorEdited } = useMentor;
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
-
+  const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
+  const mentorOwnership = defaultMentor === mentorId;
+  const classes = useStyles();
+  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
+  const mentorSubjectNamesById: Record<string, string> = useActiveMentor((m) =>
+    (m.data?.subjects || []).reduce(
+      (acc: Record<string, string>, cur: Subject) => {
+        acc[cur._id] = cur.name;
+        return acc;
+      },
+      {}
+    )
+  );
   React.useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
-
-  if (!mentor || !setupStatus) {
+  if (!(mentorId && setupStatus)) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId={""} />
@@ -115,30 +133,75 @@ function HomePage(props: {
     navigate("/setup");
   }
 
+  if (!setupStatus.isMentorInfoDone) {
+    navigate("/setup");
+  }
+
   const continueAction = () =>
-    mentor.isDirty ? startTraining(mentor._id) : launchMentor(mentor._id);
+    mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
   return (
-    <div className={classes.root}>
+    <div
+      data-cy="my-mentor-wrapper"
+      className={classes.root}
+      style={{ background: mentorOwnership ? "white" : "black" }}
+    >
       <div>
         <NavBar
           title="My Mentor"
-          mentorId={mentor?._id}
+          mentorId={mentorId}
           userRole={props.user.userRole}
         />
         <MyMentorCard
-          accessToken={props.accessToken}
+          editDisabled={!mentorOwnership}
           continueAction={continueAction}
           useMentor={useMentor}
         />
+        {props.user.userRole === UserRole.ADMIN && (
+          <div data-cy="mentor-select">
+            <TextField
+              data-cy="switch-mentor-id"
+              label="Active Mentor Id"
+              value={activeMentorId}
+              onChange={(e) => setActiveMentorId(e.target.value)}
+            />
+            <Fab
+              data-cy="switch-mentor-button"
+              variant="extended"
+              color="secondary"
+              onClick={() => loadMentor(activeMentorId)}
+              className={classes.fab}
+            >
+              Switch Mentor
+            </Fab>
+            <Fab
+              data-cy="default-mentor-button"
+              variant="extended"
+              color="primary"
+              onClick={() => {
+                setActiveMentorId(defaultMentor);
+                loadMentor();
+              }}
+              className={classes.fab}
+            >
+              Default Mentor
+            </Fab>
+          </div>
+        )}
+
         <Select
           data-cy="select-subject"
-          value={mentor?.subjects.find((s) => s._id === selectedSubject)}
+          value={
+            selectedSubject
+              ? mentorSubjectNamesById[selectedSubject]
+              : undefined
+          }
           displayEmpty
           renderValue={() => (
             <Typography variant="h6" className={classes.title}>
-              {mentor?.subjects.find((s) => s._id === selectedSubject)?.name ||
-                "All Answers"}{" "}
+              {selectedSubject
+                ? mentorSubjectNamesById[selectedSubject]
+                : "All Answers"}{" "}
               ({progress.complete} / {progress.total})
             </Typography>
           )}
@@ -151,9 +214,9 @@ function HomePage(props: {
           <MenuItem data-cy="all-subjects" value={undefined}>
             Show All Subjects
           </MenuItem>
-          {mentor?.subjects.map((s) => (
-            <MenuItem key={s._id} data-cy={`select-${s._id}`} value={s._id}>
-              {s.name}
+          {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
+            <MenuItem key={id} data-cy={`select-${id}`} value={id}>
+              {name}
             </MenuItem>
           ))}
         </Select>
@@ -170,7 +233,7 @@ function HomePage(props: {
             <RecordingBlockItem
               classes={classes}
               block={b}
-              mentorId={mentor?._id || ""}
+              mentorId={mentorId || ""}
             />
           </ListItem>
         ))}
@@ -198,11 +261,11 @@ function HomePage(props: {
             data-cy="train-button"
             variant="extended"
             color="primary"
-            disabled={!mentor || isTraining || isLoading || isSaving}
+            disabled={!mentorId || isTraining || isLoading || isSaving}
             onClick={continueAction}
             className={classes.fab}
           >
-            {mentor.isDirty ? "Build Mentor" : "Preview Mentor"}
+            {mentorIsDirty ? "Build Mentor" : "Preview Mentor"}
           </Fab>
         </Toolbar>
       </AppBar>
@@ -222,7 +285,7 @@ function HomePage(props: {
         data-cy="setup-dialog"
         maxWidth="sm"
         fullWidth={true}
-        open={setupStatus && showSetupAlert}
+        open={setupStatus && !setupStatus.isSetupComplete && showSetupAlert}
         onClose={() => setShowSetupAlert(false)}
       >
         <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>
