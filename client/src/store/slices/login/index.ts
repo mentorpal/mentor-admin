@@ -66,6 +66,7 @@ export const loginSlice = createSlice({
     onLogout: (state) => {
       delete state.user;
       delete state.accessToken;
+      state.activeMentor = { mentorStatus: MentorStatus.NONE };
       state.loginStatus = LoginStatus.NOT_LOGGED_IN;
     },
     loadingInProgress: (state, action: PayloadAction<LoginState>) => {
