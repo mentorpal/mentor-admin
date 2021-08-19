@@ -33,7 +33,7 @@ export function toTitleCase(convert: string): string {
 
 export function urlBuild(
   base: string,
-  params: Record<string, string>,
+  params: Record<string, string | string[]>,
   opts?: UrlBuildOpts
 ): string {
   const query = new URLSearchParams();
@@ -42,8 +42,18 @@ export function urlBuild(
      * we have to distinguish between params where the value is `undefined` or `null`
      * (which we generally want to exclude) vs. params where the value is falsy but meaningful (e.g. `0`)
      */
-    const pval =
-      params[n] !== null && typeof params[n] !== "undefined" ? params[n] : "";
+    let pval = "";
+    if (Array.isArray(params[n])) {
+      (params[n] as string[]).forEach((value, i, arr) => {
+        const val = value !== null && typeof value !== "undefined" ? value : "";
+        pval += val ? (i !== arr.length - 1 ? val + "," : val) : "";
+      });
+    } else {
+      pval =
+        params[n] !== null && typeof params[n] !== "undefined"
+          ? (params[n] as string)
+          : "";
+    }
     if (!(pval || opts?.includeEmptyParams)) {
       return;
     }

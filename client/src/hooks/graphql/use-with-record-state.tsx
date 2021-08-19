@@ -19,7 +19,6 @@ import { LoadingError } from "./loading-reducer";
 import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
 import { navigate } from "gatsby";
 import {
-  isActiveMentorLoading,
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";

@@ -213,7 +213,7 @@ const videoMentor: Mentor = completeMentor({
 
 describe("generating followups", () => {
   //TODO: add to its own followups.spec.ts
-  it.only("can navigate to followups page from record", () => {
+  it("can navigate to followups page from record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [

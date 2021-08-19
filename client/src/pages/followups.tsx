@@ -67,7 +67,9 @@ function FollowupsPage(props: {
   const [followupList, setFollowupList] = useState<followupListItem[]>([]);
   const { subject, category } = props.search;
   const {
-    mentor,
+    mentorId,
+    curSubject,
+    curCategory,
     followUpQuestions,
     saveAndLoadSelectedFollowups,
     setToRecordFollowUpQs,
@@ -77,13 +79,7 @@ function FollowupsPage(props: {
     followupPageState,
   } = useWithFollowups({ categoryId: category, subjectId: subject });
   const classes = useStyles();
-  const curSubject = mentor?.subjects.find(
-    (s) => s._id === props.search.subject
-  );
   const subjectTitle = curSubject?.name || "";
-  const curCategory = curSubject?.categories.find(
-    (c) => c.id === props.search.category
-  );
   const categoryTitle = curCategory?.name || "";
   if (!subject || !category) {
     console.error("followups failed to receive subject or category");
@@ -134,7 +130,8 @@ function FollowupsPage(props: {
             ? `Followups: ${subjectTitle} - ${categoryTitle}`
             : `Followups: ${subjectTitle}`
         }
-        mentorId={mentor?._id || ""}
+        mentorId={mentorId || ""}
+        onBack={() => navigateToMyMentorPage()}
       />
       <Card
         data-cy="follow-up-q-widget"
@@ -206,7 +203,9 @@ function FollowupsPage(props: {
         <DialogTitle>{"Followup Questions"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {"Would you like to generate followup questions that users may ask? (This may take a minute)"}
+            {
+              "Would you like to generate followup questions that users may ask? (This may take a minute)"
+            }
           </DialogContentText>
         </DialogContent>
         <DialogContent>
@@ -251,7 +250,7 @@ function FollowupsPage(props: {
       </Dialog>
       <LoadingDialog
         title={
-          !mentor ||
+          !mentorId ||
           followupPageState === FollowupsPageState.GENERATING_FOLLOWUPS ||
           followupPageState === FollowupsPageState.SAVING_SELECTED_FOLLOWUPS
             ? "Loading..."

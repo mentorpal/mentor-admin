@@ -6,11 +6,22 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchFollowUpQuestions } from "api";
 import { navigate } from "gatsby";
+import { urlBuild } from "helpers";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
-import { Mentor, QuestionType, SubjectQuestion, UtteranceName } from "types";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
+import {
+  Category,
+  Mentor,
+  QuestionType,
+  Subject,
+  SubjectQuestion,
+  UtteranceName,
+} from "types";
 import { v4 as uuid } from "uuid";
 import { useWithSubject } from "./use-with-subject";
 
@@ -19,12 +30,15 @@ export enum FollowupsPageState {
   GENERATING_FOLLOWUPS = "GENERATING_FOLLOWUPS",
   FAILED_GENERATING_FOLLOWUPS = "FAILED_GENERATING_FOLLOWUPS",
   SUCCESS_GENERATING_FOLLOWUPS = "SUCCESS_GENERATING_FOLLOWUPS",
-  SAVING_SELECTED_FOLLOWUPS = "LOADING_SELECTED_FOLLOWUPS",
+  SAVING_SELECTED_FOLLOWUPS = "SAVING_SELECTED_FOLLOWUPS",
   FAILED_SAVING_SELECTED_FOLLOWUPS = "FAILED_SAVING_SELECTED_FOLLOWUPS",
   SUCCESS_SAVING_SELECTED_FOLLOWUPS = "SUCCESS_SAVING_SELECTED_FOLLOWUPS",
 }
 
 export interface UseWithFollowups {
+  mentorId?: string;
+  curSubject?: Subject;
+  curCategory?: Category;
   followUpQuestions?: string[];
   fetchFollowups: () => void;
   followupPageState: FollowupsPageState;
@@ -50,7 +64,10 @@ export function useWithFollowups(props: {
     useState<FollowupsPageState>(FollowupsPageState.PROMPT_GENERATE_FOLLOWUPS);
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state } = useWithLogin();
-  const { mentor, isMentorLoading, loadMentor } = useWithMentor();
+  const isMentorLoading = isActiveMentorLoading();
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const { loadMentor } = useActiveMentorActions();
   const {
     editData,
     editedData,
@@ -58,7 +75,9 @@ export function useWithFollowups(props: {
     saveSubject,
   } = useWithSubject(props.subjectId, state.accessToken || "");
   const { categoryId, subjectId } = props;
-  const curSubject = mentor?.subjects.find((s) => s._id === subjectId);
+  const curSubject = useActiveMentor((state) =>
+    state.data?.subjects.find((s) => s._id == subjectId)
+  );
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   useEffect(() => {
@@ -68,7 +87,12 @@ export function useWithFollowups(props: {
   }, [isSubjectEdited]);
 
   useEffect(() => {
-    if (!toRecordFollowUpQs.length || isMentorLoading || !mentor || !curSubject)
+    if (
+      !toRecordFollowUpQs.length ||
+      isMentorLoading ||
+      !mentorId ||
+      !curSubject
+    )
       return;
     const newQuestionIds = curSubject.questions.reduce(function (
       result: string[],
@@ -77,7 +101,7 @@ export function useWithFollowups(props: {
       const index = toRecordFollowUpQs.findIndex(
         (followup) => followup === question.question.question
       );
-      if (index !== -1 && question.question.mentor === mentor._id) {
+      if (index !== -1 && question.question.mentor === mentorId) {
         result.push(question.question._id);
       }
       return result;
@@ -85,15 +109,15 @@ export function useWithFollowups(props: {
     []);
 
     if (newQuestionIds.length) {
-      let url = `/record?subject=${subjectId}&category=${categoryId}&videoId=`;
-      newQuestionIds.forEach((questionId) => {
-        if (!newQuestionIds) return;
-        url +=
-          questionId !== newQuestionIds[newQuestionIds.length - 1]
-            ? questionId + ","
-            : questionId;
-      });
-      navigate(url);
+      navigate(
+        urlBuild("/record", {
+          category: categoryId,
+          subject: subjectId,
+          videoId: newQuestionIds,
+        })
+      );
+    } else {
+      navigateToMyMentorPage();
     }
   }, [isMentorLoading]);
 
@@ -105,11 +129,10 @@ export function useWithFollowups(props: {
   }
 
   function fetch(accessToken: string) {
-    if (!mentor) {
+    if (!mentorAnswers) {
       return;
     }
     setFollowupPageState(FollowupsPageState.GENERATING_FOLLOWUPS);
-    const answers = mentor.answers;
     fetchFollowUpQuestions(categoryId, accessToken)
       .then((data) => {
         let followUps = data
@@ -121,10 +144,10 @@ export function useWithFollowups(props: {
         //should exact match follow up questions be asked for different subjects?
         followUps = followUps.filter(
           (followUp) =>
-            answers.findIndex(
+            mentorAnswers.findIndex(
               (a) =>
                 a.question.question === followUp &&
-                a.question.mentor === mentor?._id
+                a.question.mentor === mentorId
             ) === -1
         );
         setFollowupPageState(FollowupsPageState.SUCCESS_GENERATING_FOLLOWUPS);
@@ -142,7 +165,7 @@ export function useWithFollowups(props: {
   }
 
   function saveAndLoadSelectedFollowups() {
-    if (!editedData || !curCategory || !mentor || !toRecordFollowUpQs) {
+    if (!editedData || !curCategory || !mentorId || !toRecordFollowUpQs) {
       return;
     }
     setFollowupPageState(FollowupsPageState.SAVING_SELECTED_FOLLOWUPS);
@@ -155,7 +178,7 @@ export function useWithFollowups(props: {
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: UtteranceName.NONE,
-            mentor: mentor._id,
+            mentor: mentorId,
           },
           category: curCategory,
           topics: [],
@@ -168,6 +191,9 @@ export function useWithFollowups(props: {
   }
 
   return {
+    mentorId,
+    curSubject,
+    curCategory,
     followUpQuestions,
     fetchFollowups,
     followupPageState,
@@ -175,6 +201,5 @@ export function useWithFollowups(props: {
     toRecordFollowUpQs,
     setToRecordFollowUpQs,
     navigateToMyMentorPage,
-    mentor,
   };
 }
