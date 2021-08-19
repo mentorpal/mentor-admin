@@ -73,11 +73,13 @@ export function cySetup(cy) {
 export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
+  videoRecorderMaxLength: number;
 }
 
 export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
   urlVideoIdleTips: "",
+  videoRecorderMaxLength: 300,
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {

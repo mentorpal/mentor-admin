@@ -49,10 +49,12 @@ describe("Select Subjects", () => {
           "have.text",
           "These questions will ask general questions about your background that might be relevant to how people understand your career."
         );
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("be.disabled")
+          .and("be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("not.be.checked");
       });
     });
     // required subject repeat_after_me is selected and cannot be deselected
@@ -63,10 +65,12 @@ describe("Select Subjects", () => {
           "have.text",
           "These are miscellaneous phrases you'll be asked to repeat."
         );
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("be.disabled")
+          .and("be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("not.be.checked");
       });
     });
     // non-required subject leadership is not selected and can be selected
@@ -77,10 +81,12 @@ describe("Select Subjects", () => {
           "have.text",
           "These questions will ask about being in a leadership role."
         );
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("not.be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("be.disabled")
+          .and("not.be.checked");
       });
     });
     // non-required subject leadership is selected and can be deselected
@@ -166,28 +172,96 @@ describe("Select Subjects", () => {
       });
     });
     // save changes
-    cy.get("[data-cy=save-button]").should("not.be.disabled");
-    cy.get("[data-cy=save-button]").trigger("mouseover").click();
+    cy.get("[data-cy=dropdown-button-list]")
+      .should("not.be.disabled")
+      .and("have.text", "Save")
+      .trigger("mouseover")
+      .click();
     // changes were saved
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("be.disabled")
+          .and("be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("not.be.checked");
       });
       cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("be.disabled")
+          .and("be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("not.be.checked");
       });
       cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("be.checked");
+        cy.get('[data-cy=default] [type="checkbox"]')
+          .should("not.be.disabled")
+          .and("be.checked");
       });
     });
+  });
+});
+
+describe("Dropdown button list", () => {
+  it("Primary button set to Exit when there are no edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+  });
+
+  it("Primary button set to Save with edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-2]").within(($within) => {
+      cy.get("[data-cy=select]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
+  });
+
+  it("Save is disabled when there are no edits", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=dropdown-button-list]").within(($within) => {
+      cy.get("[data-cy=dropdown-button]").invoke("mouseover").click();
+      cy.get("[data-cy=dropdown-item-1]")
+        .should("have.text", "Save")
+        .and("have.attr", "aria-disabled", "true");
+    });
+  });
+
+  it("Revert primary button to Exit after saving", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      ],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-2]").within(($within) => {
+      cy.get("[data-cy=select]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=dropdown-button-list]")
+      .should("have.text", "Save")
+      .invoke("mouseover")
+      .click();
+    cy.get("[data-cy=dropdown-button-list]").should("have.text", "Exit");
   });
 });

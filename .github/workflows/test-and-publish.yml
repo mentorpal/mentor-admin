@@ -33,15 +33,29 @@ jobs:
         run: docker ps
       - name: Cypress run tests
         run: make test-e2e-exec
+      - name: Copy generated snapshots
+        run: make test-e2e-image-snapshots-clean && make test-e2e-image-snapshots-copy
+        if: ${{ success() }}
+      - name: Check for new generated snapshots
+        id: set-has-new-snapshots
+        run: if [[ $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots -A) ]]; then echo ::set-output name=has_new_snapshots::true; else echo ::set-output name=has_new_snapshots::false; fi
+      - name: If new snapshots, push to git
+        if: steps.set-has-new-snapshots.outputs.has_new_snapshots == 'true'
+        run: |
+          git config user.name ${{ github.actor }}
+          git config user.email github-actions@github.com
+          git add $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots) # git add only files that are under snapshots and untracked in git
+          git commit -m "gha, adding new snapshots"
+          git push
       - name: If Cypress failed, retrieve image diffs
-        run: make test-e2e-image-snapshots-copy && mkdir -p client/cypress/snapshots/snapshot_failed_diffs
+        run: make test-e2e-copy-failed_diffs
         if: ${{ failure() }}
       - name: If Cypress failed, upload image-diff artifacts
         uses: actions/upload-artifact@v1
         if: ${{ failure() }}
         with:
           name: snapshot_failed_diffs
-          path: client/cypress/snapshots
+          path: cypress/cypress/snapshots/snapshot_failed_diffs
   publish-check:
     name: publish check
     needs:

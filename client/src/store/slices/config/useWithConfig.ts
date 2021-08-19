@@ -12,6 +12,7 @@ import * as config from ".";
 interface UseWithConfig {
   state: config.ConfigState;
   loadConfig: () => void;
+  isConfigLoaded: () => boolean;
 }
 
 export function useWithConfig(): UseWithConfig {
@@ -21,6 +22,10 @@ export function useWithConfig(): UseWithConfig {
   useEffect(() => {
     loadConfig();
   }, []);
+
+  function isConfigLoaded(): boolean {
+    return state.status === config.ConfigStatus.SUCCEEDED;
+  }
 
   function loadConfig() {
     if (
@@ -34,5 +39,6 @@ export function useWithConfig(): UseWithConfig {
   return {
     state,
     loadConfig,
+    isConfigLoaded,
   };
 }

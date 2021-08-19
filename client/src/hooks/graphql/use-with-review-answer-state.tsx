@@ -254,6 +254,7 @@ export function useWithReviewAnswerState(
           transcript: "",
           status: Status.INCOMPLETE,
           media: undefined,
+          hasUntransferredMedia: false,
         },
         ...editedMentor.answers,
       ],

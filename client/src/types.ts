@@ -8,6 +8,7 @@ The full terms of this copyright and license should always be found in the root 
 export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
+  videoRecorderMaxLength: number;
 }
 
 export interface Connection<T> {
@@ -102,6 +103,7 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  needsTransfer: boolean;
 }
 
 export enum MediaType {
@@ -118,6 +120,7 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
+  hasUntransferredMedia: boolean;
   media?: Media[];
 }
 
@@ -246,6 +249,7 @@ export enum LoginStatus {
 }
 
 export interface MentorExportJson {
+  id: string;
   subjects: Subject[];
   questions: Question[];
   answers: Answer[];
@@ -265,6 +269,7 @@ export interface ImportPreview<T> {
 }
 
 export interface MentorImportPreview {
+  id: string;
   subjects: ImportPreview<Subject>[];
   questions: ImportPreview<Question>[];
   answers: ImportPreview<Answer>[];

@@ -25,11 +25,12 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport(props.accessToken);
   const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
 
-  if (!mentorId) {
+  if (!mentorId || !mentorAnswers) {
     return <div />;
   }
-
+  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
@@ -53,11 +54,21 @@ function ImportPage(props: { accessToken: string }): JSX.Element {
             hidden
             onChange={(e) => {
               e.target.files instanceof FileList
-                ? useImportExport.onImportUploaded(e.target.files[0])
+                ? useImportExport.onMentorUploaded(e.target.files[0])
                 : undefined;
             }}
           />
         </Button>
+        {needsTransfer ? (
+          <Button
+            data-cy="transfer-media"
+            variant="contained"
+            onClick={useImportExport.onTransferMedia}
+            style={{ marginLeft: 10 }}
+          >
+            Transfer Answers
+          </Button>
+        ) : undefined}
       </div>
     </div>
   );
