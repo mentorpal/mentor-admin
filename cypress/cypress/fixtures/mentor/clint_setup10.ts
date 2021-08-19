@@ -4,33 +4,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, QuestionType, Status } from "../../support/types";
+import { Status } from "../../support/types";
 import clint_prev from "./clint_setup9";
 
-export const mentor: Mentor = {
+export const mentor = {
   ...clint_prev,
   subjects: [
     ...clint_prev.subjects,
     {
       _id: "leadership",
-      name: "Leadership",
-      description: "These questions will ask about being in a leadership role.",
-      isRequired: false,
-      categories: [],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A7_1_1",
-            question:
-              "What's the hardest decision you've had to make as a leader?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-      ],
     },
   ],
   answers: [
@@ -39,10 +21,6 @@ export const mentor: Mentor = {
       _id: "A7_1_1",
       question: {
         _id: "A7_1_1",
-        question: "What's the hardest decision you've had to make as a leader?",
-        type: QuestionType.QUESTION,
-        name: null,
-        paraphrases: [],
       },
       transcript: "",
       status: Status.INCOMPLETE,

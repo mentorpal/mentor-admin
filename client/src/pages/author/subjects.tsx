@@ -23,7 +23,6 @@ import AddIcon from "@material-ui/icons/Add";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { SubjectGQL } from "types-gql";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -33,6 +32,7 @@ import {
   useActiveMentor,
 } from "store/slices/mentor/useActiveMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
+import { SubjectGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   root: {

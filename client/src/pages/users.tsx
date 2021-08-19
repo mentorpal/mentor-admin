@@ -31,8 +31,7 @@ import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { launchMentor } from "../helpers";
-import { Edge, UserRole, Connection } from "types";
-import { UserGQL } from "types-gql";
+import { Edge, UserRole, Connection, User } from "types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -125,7 +124,7 @@ function TableFooter(props: {
 }
 
 function UserItem(props: {
-  edge: Edge<UserGQL>;
+  edge: Edge<User>;
   i: number;
   userPagin: UseUserData;
   userRole: UserRole;
@@ -191,8 +190,8 @@ function UserItem(props: {
           <IconButton
             data-cy="launch-default-mentor"
             onClick={() => {
-              if (edge.node.defaultMentor._id)
-                launchMentor(edge.node.defaultMentor._id);
+              if (edge.node.defaultMentor)
+                launchMentor(edge.node.defaultMentor);
             }}
             className={styles.normalButton}
           >
@@ -205,7 +204,7 @@ function UserItem(props: {
 }
 
 function UsersTable(props: {
-  userData: Connection<UserGQL>;
+  userData: Connection<User>;
   userPagin: UseUserData;
   userRole: UserRole;
 }): JSX.Element {
@@ -247,7 +246,7 @@ function UsersTable(props: {
   );
 }
 
-function UsersPage(props: { accessToken: string; user: UserGQL }): JSX.Element {
+function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const styles = useStyles();
   const permissionToView =

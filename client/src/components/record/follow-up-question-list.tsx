@@ -9,8 +9,8 @@ import React, { useState, useEffect } from "react";
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import { Card, Button, Checkbox } from "@material-ui/core";
 import { copyAndSet } from "helpers";
+import { NewQuestionArgs } from "store/slices/subjects/useSubjectEdits";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
-import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 
 function FollowUpQuestionsWidget(props: {
   //insert expected props here

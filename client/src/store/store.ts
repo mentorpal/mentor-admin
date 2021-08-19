@@ -6,10 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { logger } from "redux-logger";
 import { configureStore } from "@reduxjs/toolkit";
-import loginReducer from "./slices/login";
 import configReducer from "./slices/config";
+import loginReducer from "./slices/login";
 import mentorReducer from "./slices/mentor";
 import questionsReducer from "./slices/questions";
+import subjectsReducer from "./slices/subjects";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
@@ -18,6 +19,7 @@ export const store = configureStore({
     config: configReducer,
     mentor: mentorReducer,
     questions: questionsReducer,
+    subjects: subjectsReducer,
   },
 });
 

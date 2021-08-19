@@ -12,7 +12,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 
-import { UserGQL } from "types-gql";
+import { User } from "types";
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { WelcomeSlide } from "components/setup/welcome-slide";
@@ -89,10 +89,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: {
-  user: UserGQL;
-  search: { i?: string };
-}): JSX.Element {
+function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
   const classes = useStyles();
   const {
     setupStatus: status,

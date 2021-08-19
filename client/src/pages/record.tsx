@@ -28,26 +28,29 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import {
-  MentorType,
-  Status,
-  UtteranceName,
-  RecordPageState,
-  AnswerAttentionNeeded,
-} from "types";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
-import VideoPlayer from "components/record/video-player";
-import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import withLocation from "wrap-with-location";
-import { useWithRecordState } from "hooks/graphql/use-with-record-state";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
-import UploadingWidget from "components/record/uploading-widget";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
-import { useWithSubject } from "hooks/graphql/use-with-subject";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import VideoPlayer from "components/record/video-player";
+import UploadingWidget from "components/record/uploading-widget";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import {
+  AnswerAttentionNeeded,
+  RecordPageState,
+  MentorType,
+  UtteranceName,
+  Status,
+} from "types";
+import withLocation from "wrap-with-location";
+import { useSubjectEdits } from "store/slices/subjects/useSubjectEdits";
+import useSubjects from "store/slices/subjects/useSubjects";
+import { getValueIfKeyExists } from "helpers";
+import useQuestions from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -103,8 +106,8 @@ interface LeaveConfirmation {
   message: string;
   callback: () => void;
 }
+
 function RecordPage(props: {
-  accessToken: string;
   search: {
     videoId?: string[] | string;
     subject?: string;
@@ -117,30 +120,38 @@ function RecordPage(props: {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
-  const recordState = useWithRecordState(props.accessToken, props.search);
+
+  const config = useWithConfig();
+  const recordState = useWithRecordState(props.search);
   const { curAnswer, setRecordPageState, recordPageState, reloadMentorData } =
     recordState;
-  const { addQuestion, removeQuestion, editedData, saveSubject } =
-    useWithSubject(props.search.subject || "", props.accessToken);
-  const config = useWithConfig();
-  function isConfigLoaded(): boolean {
-    return config.state.status === ConfigStatus.SUCCEEDED;
-  }
+  const { addQuestion, removeQuestion, editedSubject, saveSubject } =
+    useSubjectEdits(props.search.subject);
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
-  const curSubject = useActiveMentor((state) =>
-    state.data?.subjects.find((s) => s._id == props.search.subject)
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const questions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
   );
-  const subjectTitle = curSubject?.name || "";
+
+  const curSubject = useSubjects(
+    (s) => getValueIfKeyExists(props.search.subject || "", s.subjects),
+    [props.search.subject || ""]
+  );
+  const subjectTitle = curSubject?.subject?.name || "";
   const categoryTitle =
-    curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
-    "";
+    curSubject?.subject?.categories.find((c) => c.id == props.search.category)
+      ?.name || "";
   const curAnswerBelongsToMentor =
-    curAnswer?.editedAnswer.question?.mentor === mentorId;
+    getValueIfKeyExists(curAnswer?.editedAnswer.question || "", questions)
+      ?.question?.mentor === mentorId;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+
+  const isConfigLoaded = config.state.status === ConfigStatus.SUCCEEDED;
 
   function onBack() {
     reloadMentorData();
@@ -179,10 +190,10 @@ function RecordPage(props: {
 
   function handleSaveSubject() {
     setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    saveSubject().then(() => recordState.reloadMentorData());
+    saveSubject();
   }
 
-  if (!mentorId || !curAnswer || !isConfigLoaded()) {
+  if (!mentorId || !curAnswer || !isConfigLoaded) {
     return (
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />
@@ -271,15 +282,15 @@ function RecordPage(props: {
               <OutlinedInput
                 data-cy="question-input"
                 multiline
-                value={curEditedQuestion?.question}
+                value={
+                  getValueIfKeyExists(curEditedQuestion || "", questions)
+                    ?.question
+                }
                 disabled={!curAnswerBelongsToMentor}
                 onChange={(e) => {
                   if (curEditedQuestion) {
-                    recordState.editAnswer({
-                      question: {
-                        ...curEditedQuestion,
-                        question: e.target.value,
-                      },
+                    recordState.editQuestion({
+                      question: curEditedQuestion,
                     });
                   }
                 }}
@@ -287,15 +298,15 @@ function RecordPage(props: {
                   <InputAdornment position="end">
                     <IconButton
                       data-cy="undo-question-btn"
-                      disabled={
-                        curEditedQuestion?.question ===
-                        curAnswer?.answer.question?.question
-                      }
-                      onClick={() =>
-                        recordState.editAnswer({
-                          question: curAnswer?.answer.question,
-                        })
-                      }
+                      // disabled={
+                      //   curEditedQuestion?.question ===
+                      //   curAnswer?.answer.question?.question
+                      // }
+                      // onClick={() =>
+                      //   recordState.editAnswer({
+                      //     question: curAnswer?.answer.question,
+                      //   })
+                      // }
                     >
                       <UndoIcon />
                     </IconButton>
@@ -305,7 +316,8 @@ function RecordPage(props: {
             </FormControl>
           </div>
           {curAnswer?.minVideoLength &&
-          curEditedQuestion?.name === UtteranceName.IDLE ? (
+          getValueIfKeyExists(curEditedQuestion || "", questions)?.question
+            ?.name === UtteranceName.IDLE ? (
             <div data-cy="idle" className={classes.block}>
               <Typography className={classes.title}>Idle Duration:</Typography>
               <Select
@@ -412,7 +424,7 @@ function RecordPage(props: {
               toRecordFollowUpQs={setRecordFollowUpQs}
               addQuestion={addQuestion}
               removeQuestion={removeQuestion}
-              editedData={editedData}
+              editedData={editedSubject}
             />
           </Box>
         </div>

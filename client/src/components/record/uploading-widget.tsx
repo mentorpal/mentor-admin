@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React from "react";
 import ListItem from "./uploading-list-item";
-import { AnswerGQL } from "types-gql";
+import { Answer } from "types";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
@@ -16,7 +16,7 @@ import { UploadStatus } from "types";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
-  curAnswer: AnswerGQL;
+  curAnswer: Answer;
   visible: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
@@ -34,7 +34,7 @@ function UploadingView(props: {
 
   function retrieveAnswerIdx(id: string) {
     for (let i = 0; i < answers?.length; i++) {
-      if (answers[i].answer.question._id == id) {
+      if (answers[i].answer.question == id) {
         return i;
       }
     }
@@ -59,7 +59,7 @@ function UploadingView(props: {
               key={`upload-card-${i}`}
               data-cy={`upload-card-${i}`}
               style={
-                curAnswer.question._id == upload.question._id
+                curAnswer.question == upload.question
                   ? { background: "#FFFBCC" }
                   : {}
               }
@@ -70,7 +70,7 @@ function UploadingView(props: {
                   upload
                 )}
                 jumpToAnswer={() => {
-                  setAnswerIdx(retrieveAnswerIdx(upload.question._id));
+                  setAnswerIdx(retrieveAnswerIdx(upload.question));
                 }}
               />
             </div>

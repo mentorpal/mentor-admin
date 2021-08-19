@@ -5,13 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { fetchUserQuestions } from "api";
-import { UserQuestionGQL } from "types-gql";
+import { UserQuestion } from "types";
 import {
   UseDataConnection,
   useWithDataConnection,
 } from "./use-with-data-connection";
 
-export function useWithFeedback(): UseDataConnection<UserQuestionGQL> {
+export function useWithFeedback(): UseDataConnection<UserQuestion> {
   const {
     data,
     isLoading,
@@ -24,7 +24,7 @@ export function useWithFeedback(): UseDataConnection<UserQuestionGQL> {
     sortBy,
     nextPage,
     prevPage,
-  } = useWithDataConnection<UserQuestionGQL>(fetch);
+  } = useWithDataConnection<UserQuestion>(fetch);
 
   function fetch() {
     return fetchUserQuestions(searchParams);

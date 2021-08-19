@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { navigate } from "@reach/router";
 import React from "react";
 import {
   AppBar,
@@ -21,21 +22,20 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { SubjectGQL } from "types-gql";
+import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 import { ColumnDef, ColumnHeader } from "components/column-header";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
-import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
-import { navigate } from "gatsby";
-import withLocation from "wrap-with-location";
-import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
 } from "store/slices/mentor/useActiveMentor";
-import ButtonGroupDropdown from "components/ButtonGroupDropdown";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import withLocation from "wrap-with-location";
+import { SubjectGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -119,14 +119,14 @@ function SubjectsPage(props: {
     if (!editedMentor) {
       return;
     }
-    const i = editedMentor.subjects.findIndex((s) => s._id === subject._id);
+    const i = editedMentor.subjects.findIndex((s) => s === subject._id);
     editMentor({
       subjects:
         i === -1
-          ? [...editedMentor.subjects, subject]
+          ? [...editedMentor.subjects, subject._id]
           : copyAndRemove(editedMentor.subjects, i),
       defaultSubject:
-        editedMentor.defaultSubject?._id === subject._id
+        editedMentor.defaultSubject === subject._id
           ? undefined
           : editedMentor.defaultSubject,
     });
@@ -138,7 +138,7 @@ function SubjectsPage(props: {
     }
     editMentor({
       defaultSubject:
-        editedMentor.defaultSubject?._id === subject._id ? undefined : subject,
+        editedMentor.defaultSubject === subject._id ? undefined : subject._id,
     });
   }
 
@@ -180,7 +180,7 @@ function SubjectsPage(props: {
                         <Checkbox
                           checked={
                             editedMentor?.subjects.find(
-                              (s) => s._id === subject._id
+                              (s) => s === subject._id
                             ) !== undefined
                           }
                           disabled={subject.isRequired}
@@ -190,12 +190,10 @@ function SubjectsPage(props: {
                       </TableCell>
                       <TableCell data-cy="default" align="center">
                         <Checkbox
-                          checked={
-                            subject._id === editedMentor?.defaultSubject?._id
-                          }
+                          checked={subject._id === editedMentor?.defaultSubject}
                           disabled={
                             editedMentor?.subjects.find(
-                              (s) => s._id === subject._id
+                              (s) => s === subject._id
                             ) === undefined
                           }
                           color="secondary"

@@ -11,8 +11,8 @@ import {
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
-import { Subject, Question } from "types";
-import { MentorExportJson, MentorImportPreview } from "types-gql";
+import { Question } from "types";
+import { MentorExportJson, MentorImportPreview, SubjectGQL } from "types-gql";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -22,7 +22,7 @@ export interface UseWithImportExport {
   onConfirmImport: () => void;
   onCancelImport: () => void;
   onTransferMedia: () => void;
-  onMapSubject: (curSubject: Subject, newSubject: Subject) => void;
+  onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
 
@@ -115,11 +115,11 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
       if (!answer.hasUntransferredMedia) {
         continue;
       }
-      api.transferMedia(mentorId, answer.question._id);
+      api.transferMedia(mentorId, answer.question);
     }
   }
 
-  function onMapSubject(subject: Subject, replacement: Subject): void {
+  function onMapSubject(subject: SubjectGQL, replacement: SubjectGQL): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }

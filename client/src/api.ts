@@ -15,7 +15,6 @@ import {
   UserAccessTokenGQL,
   MentorGQL,
   SubjectGQL,
-  AnswerGQL,
   UserQuestionGQL,
   UserGQL,
   MentorExportJson,
@@ -58,6 +57,7 @@ export const CLASSIFIER_ENTRYPOINT =
   process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
 export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
+const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
 const defaultSearchParams = {
   limit: 1000,
   filter: {},
@@ -74,8 +74,6 @@ function stringifyObject(value: any) {
 function isValidObjectID(id: string) {
   return id.match(/^[0-9a-fA-F]{24}$/);
 }
-
-const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
 
 /**
  * Middleware function takes some action on an axios instance
@@ -207,62 +205,152 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
   return data;
 }
 
-export async function fetchQuestionsById(ids?: string[]): Promise<Question[]> {
-  return execGql<Question[]>(
+export async function fetchMentorById(
+  accessToken: string,
+  mentorId: string
+): Promise<Mentor> {
+  const gql = await execGql<MentorGQL>(
     {
       query: `
-        query QuestionsById($ids: [ID]!) {
-          questionsById(ids: $ids) {
-            id
-            question
-            type
+        query MentorFindOne($mentor: ID!) {
+          mentor (id: $mentor) {
+            _id
             name
-            paraphrases
-            mentor
+            firstName
+            title
+            email
+            allowContact
             mentorType
-            minVideoLength
+            thumbnail
+            lastTrainedAt
+            isDirty
+            defaultSubject {
+              _id
+            }
+            subjects {
+              _id
+            }
+            answers {
+              _id
+              transcript
+              status
+              media {
+                type
+                tag
+                url
+              }
+              question {
+                _id
+              }
+            }
+          }
+        }
+      `,
+      variables: { mentor: mentorId },
+    },
+    { dataPath: ["mentor"], accessToken }
+  );
+  return convertMentorGQL(gql);
+}
+
+export async function updateMentorDetails(
+  mentor: Mentor,
+  accessToken: string
+): Promise<void> {
+  execGql<boolean>(
+    {
+      query: `
+        mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
+          me {
+            updateMentorDetails(mentor: $mentor)
+          }
+        }
+      `,
+      variables: {
+        mentor: {
+          name: mentor.name,
+          firstName: mentor.firstName,
+          title: mentor.title,
+          email: mentor.email,
+          allowContact: mentor.allowContact,
+          mentorType: mentor.mentorType,
+        },
+      },
+    },
+    { dataPath: ["me", "updateMentorDetails"], accessToken }
+  );
+}
+
+export async function updateMentorSubjects(
+  mentor: Mentor,
+  accessToken: string
+): Promise<void> {
+  execGql<boolean>(
+    {
+      query: `
+        mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
+          me {
+            updateMentorSubjects(mentor: $mentor)
+          }
+        }
+      `,
+      variables: {
+        mentor: {
+          defaultSubject: mentor.defaultSubject,
+          subjects: mentor.subjects,
+        },
+      },
+    },
+    { accessToken, dataPath: ["me", "updateMentorSubjects"] }
+  );
+}
+
+export async function fetchSubjectsById(ids: string[]): Promise<Subject[]> {
+  const gql = await execGql<SubjectGQL[]>(
+    {
+      query: `
+        query SubjectsById($ids: [ID]!) {
+          subjectsById(ids: $ids) {
+            _id
+            name
+            description
+            isRequired
+            categories {
+              id
+              name
+              description
+            }
+            topics {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+              }
+              category {
+                id
+              }
+              topics {
+                id
+              }
+            }
           }
         }
     `,
-      variables: { ids: ids || null },
+      variables: { ids },
     },
-    { dataPath: "questionsById" }
+    { dataPath: "subjectsById" }
   );
-}
-
-export async function fetchFollowUpQuestions(
-  categoryId: string,
-  accessToken: string
-): Promise<FollowUpQuestion[]> {
-  return execHttp<FollowUpQuestion[]>(
-    "POST",
-    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
-    { accessToken, dataPath: "followups" }
-  );
-}
-
-export async function fetchConfig(): Promise<Config> {
-  return execGql<Config>(
-    {
-      query: `
-      query FetchConfig{
-        config {
-          googleClientId
-          urlVideoIdleTips
-          videoRecorderMaxLength
-        }
-      }
-    `,
-    },
-    { dataPath: "config" }
-  );
+  return gql.map((s) => convertSubjectGQL(s));
 }
 
 export async function fetchSubjects(
   searchParams?: SearchParams
-): Promise<Connection<Subject>> {
+): Promise<Connection<SubjectGQL>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  const gql = await execGql<Connection<SubjectGQL>>(
+  return await execGql<Connection<SubjectGQL>>(
     {
       query: `
       query Subjects($filter: Object, $cursor: String, $limit: Int, $sortBy: String, $sortAscending: Boolean) {
@@ -322,7 +410,214 @@ export async function fetchSubjects(
     },
     { dataPath: "subjects" }
   );
-  return convertConnectionGQL(gql, convertSubjectGQL);
+}
+
+export async function updateSubject(
+  subject: Partial<SubjectGQL>,
+  accessToken: string
+): Promise<SubjectGQL> {
+  return await execGql<SubjectGQL>(
+    {
+      query: `
+        mutation UpdateSubject($subject: SubjectUpdateInputType!) {
+          me {
+            updateSubject(subject: $subject) {
+              _id
+              name
+              description
+              isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                }
+                category {
+                  id
+                }
+                topics {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        subject: {
+          _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
+          name: subject?.name,
+          description: subject?.description,
+          categories: subject?.categories,
+          topics: subject?.topics,
+          questions: subject?.questions,
+        },
+      },
+    },
+    { dataPath: ["me", "updateSubject"], accessToken }
+  );
+}
+
+export async function fetchQuestionsById(ids?: string[]): Promise<Question[]> {
+  return execGql<Question[]>(
+    {
+      query: `
+        query QuestionsById($ids: [ID]) {
+          questionsById(ids: $ids) {
+            _id
+            question
+            type
+            name
+            paraphrases
+            mentor
+            mentorType
+            minVideoLength
+          }
+        }
+    `,
+      variables: { ids },
+    },
+    { dataPath: "questionsById" }
+  );
+}
+
+export async function fetchQuestions(
+  searchParams?: SearchParams
+): Promise<Connection<Question>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return execGql<Connection<Question>>(
+    {
+      query: `
+        query Questions($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+          questions(
+            filter:$filter,
+            cursor:$cursor,
+            limit:$limit,
+            sortBy:$sortBy,
+            sortAscending:$sortAscending
+          ) {
+            edges {
+              cursor
+              node {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "questions" }
+  );
+}
+
+export async function updateQuestion(
+  updateQuestion: Question,
+  accessToken: string
+): Promise<Question> {
+  const gql = await execGql<Question>(
+    {
+      query: `
+        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
+          me {
+            updateQuestion(question: $question) {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength
+            }
+          }
+        }
+      `,
+      variables: { question: updateQuestion },
+    },
+    { accessToken, dataPath: ["me", "updateQuestion"] }
+  );
+  return gql;
+}
+
+export async function updateAnswer(
+  answer: Answer,
+  accessToken: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
+        me {
+          updateAnswer(questionId: $questionId, answer: $answer)
+        }
+      }
+    `,
+      variables: {
+        questionId: answer.question,
+        answer: {
+          transcript: answer.transcript,
+          status: answer.status,
+        },
+      },
+    },
+    { accessToken, dataPath: ["me", "updateAnswer"] }
+  );
+}
+
+export async function fetchFollowUpQuestions(
+  categoryId: string,
+  accessToken: string
+): Promise<FollowUpQuestion[]> {
+  return execHttp<FollowUpQuestion[]>(
+    "POST",
+    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
+    { accessToken, dataPath: "followups" }
+  );
+}
+
+export async function fetchConfig(): Promise<Config> {
+  return execGql<Config>(
+    {
+      query: `
+      query FetchConfig{
+        config {
+          googleClientId
+          urlVideoIdleTips
+          videoRecorderMaxLength
+        }
+      }
+    `,
+    },
+    { dataPath: "config" }
+  );
 }
 
 export async function fetchUsers(
@@ -384,76 +679,6 @@ export async function updateUserPermissions(
       variables: { userId, permissionLevel },
     },
     { dataPath: ["me", "updateUserPermissions"], accessToken }
-  );
-}
-
-export async function fetchSubject(id: string): Promise<Subject> {
-  const gql = await execGql<SubjectGQL>(
-    {
-      query: `
-        query Subject($id: ID!) {
-          subject(id: $id) {
-            _id
-            name
-            description
-            categories {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            questions {
-              question {
-                _id
-              }
-              category {
-                id
-              }
-              topics {
-                id
-              }
-            }
-          }
-        }
-      `,
-      variables: { id },
-    },
-    { dataPath: "subject" }
-  );
-  return convertSubjectGQL(gql);
-}
-
-export async function updateSubject(
-  subject: Partial<Subject>,
-  accessToken: string
-): Promise<void> {
-  execGql<SubjectGQL>(
-    {
-      query: `
-      mutation UpdateSubject($subject: SubjectUpdateInputType!) {
-        me {
-          updateSubject(subject: $subject) {
-            _id
-          }
-        }
-      }
-    `,
-      variables: {
-        subject: {
-          _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
-          name: subject?.name,
-          description: subject?.description,
-          categories: subject?.categories,
-          topics: subject?.topics,
-          questions: subject?.questions,
-        },
-      },
-    },
-    { dataPath: ["me", "updateSubject"], accessToken }
   );
 }
 
@@ -559,138 +784,6 @@ export async function updateUserQuestion(
   );
 }
 
-export async function fetchMentorById(
-  accessToken: string,
-  mentorId: string
-): Promise<Mentor> {
-  const gql = await execGql<MentorGQL>(
-    {
-      query: `
-      query MentorFindOne($mentor: ID!) {
-        mentor (id: $mentor) {
-          _id
-          name
-          firstName
-          title
-          email
-          allowContact
-          mentorType
-          thumbnail
-          lastTrainedAt
-          isDirty
-          defaultSubject {
-            _id
-          }
-          subjects {
-            _id
-          }
-        }
-    `,
-      variables: { mentor: mentorId },
-    },
-    { dataPath: ["mentor"], accessToken }
-  );
-  return convertMentorGQL(gql);
-}
-
-export async function updateMentorDetails(
-  mentor: Mentor,
-  accessToken: string
-): Promise<void> {
-  execGql<boolean>(
-    {
-      query: `
-      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
-        me {
-          updateMentorDetails(mentor: $mentor)
-        }
-      }
-    `,
-      variables: {
-        mentor: {
-          name: mentor.name,
-          firstName: mentor.firstName,
-          title: mentor.title,
-          email: mentor.email,
-          allowContact: mentor.allowContact,
-          mentorType: mentor.mentorType,
-        },
-      },
-    },
-    { dataPath: ["me", "updateMentorDetails"], accessToken }
-  );
-}
-
-export async function updateMentorSubjects(
-  mentor: Mentor,
-  accessToken: string
-): Promise<void> {
-  execGql<boolean>(
-    {
-      query: `
-      mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
-        me {
-          updateMentorSubjects(mentor: $mentor)
-        }
-      }
-    `,
-      variables: {
-        mentor: {
-          defaultSubject: mentor.defaultSubject,
-          subjects: mentor.subjects,
-        },
-      },
-    },
-    { accessToken, dataPath: ["me", "updateMentorSubjects"] }
-  );
-}
-
-export async function updateQuestion(
-  updateQuestion: Question,
-  accessToken: string
-): Promise<boolean> {
-  return execGql<boolean>(
-    {
-      query: `
-        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
-          me {
-            updateQuestion(question: $question) {
-              _id
-            }
-          }
-        }
-      `,
-      variables: { question: updateQuestion },
-    },
-    { accessToken, dataPath: ["me", "updateQuestion"] }
-  );
-}
-
-export async function updateAnswer(
-  answer: Answer,
-  accessToken: string
-): Promise<boolean> {
-  return execGql<boolean>(
-    {
-      query: `
-      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
-        me {
-          updateAnswer(questionId: $questionId, answer: $answer)
-        }
-      }
-    `,
-      variables: {
-        questionId: answer.question,
-        answer: {
-          transcript: answer.transcript,
-          status: answer.status,
-        },
-      },
-    },
-    { accessToken, dataPath: ["me", "updateAnswer"] }
-  );
-}
-
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     axiosConfig: {
@@ -734,7 +827,7 @@ export async function transferMedia(
 export async function uploadVideo(
   mentorId: string,
   video: File,
-  question: Question,
+  question: string,
   tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
@@ -742,13 +835,13 @@ export async function uploadVideo(
   const data = new FormData();
   data.append(
     "body",
-    JSON.stringify({ mentor: mentorId, question: question._id, trim })
+    JSON.stringify({ mentor: mentorId, question: question, trim })
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
     onUploadProgress: (progressEvent: { loaded: string }) =>
       addOrEditTask({
-        question: question._id,
+        question: question,
         uploadStatus: UploadStatus.PENDING,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
@@ -764,12 +857,12 @@ export async function uploadVideo(
 
 export async function cancelUploadVideo(
   mentorId: string,
-  question: Question,
+  question: string,
   taskId: string
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
     mentor: mentorId,
-    question: question._id,
+    question: question,
     task: taskId,
   });
   return getDataFromAxiosResponse(result, []);

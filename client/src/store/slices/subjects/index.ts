@@ -4,99 +4,106 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchQuestionsById, updateQuestion } from "api";
+import { fetchSubjectsById, updateSubject } from "api";
 import { getValueIfKeyExists } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
-import { Question } from "types";
+import { Subject } from "types";
+import { convertSubjectGQL, SubjectGQL } from "types-gql";
+import { questionsSlice, saveQuestion } from "../questions";
 
 /** Store */
 
-export interface QuestionsState {
-  questions: Record<string, QuestionState>;
+export interface SubjectsState {
+  subjects: Record<string, SubjectState>;
 }
 
-export interface QuestionState {
-  question?: Question;
+export interface SubjectState {
+  subject?: Subject;
   status: LoadingStatus;
   error?: LoadingError;
 }
 
-const initialState: QuestionsState = {
-  questions: {},
+const initialState: SubjectsState = {
+  subjects: {},
 };
 
 /** Actions */
 
-export const loadQuestionsById = createAsyncThunk(
-  "questions/loadQuestionsById",
+export const loadSubjectsById = createAsyncThunk(
+  "subjects/loadSubjectsById",
   async (
     args: { ids: string[]; reload?: boolean },
     thunkAPI
-  ): Promise<Question[]> => {
+  ): Promise<Subject[]> => {
     const state = thunkAPI.getState() as RootState;
     const ids = args.reload
       ? args.ids
       : args.ids.filter((id) => {
-          const q = getValueIfKeyExists(id, state.questions.questions);
+          const s = getValueIfKeyExists(id, state.subjects.subjects);
           return (
-            !q ||
-            q.status === LoadingStatus.FAILED ||
-            q.status === LoadingStatus.NONE
+            !s ||
+            s.status === LoadingStatus.FAILED ||
+            s.status === LoadingStatus.NONE
           );
         });
     for (const id in ids) {
-      thunkAPI.dispatch(questionsSlice.actions.loadingInProgress(id));
+      thunkAPI.dispatch(subjectsSlice.actions.loadingInProgress(id));
     }
     if (ids.length === 0) {
       return [];
     }
-    return await fetchQuestionsById(ids);
+    return await fetchSubjectsById(ids);
   }
 );
 
-export const saveQuestion = createAsyncThunk(
-  "questions/saveQuestion",
-  async (editedData: Question, thunkAPI): Promise<Question> => {
-    thunkAPI.dispatch(questionsSlice.actions.savingInProgress(editedData._id));
+export const saveSubject = createAsyncThunk(
+  "subjects/saveSubject",
+  async (editedData: SubjectGQL, thunkAPI): Promise<Subject> => {
+    thunkAPI.dispatch(subjectsSlice.actions.savingInProgress(editedData._id));
     const state = thunkAPI.getState() as RootState;
     if (!state.login.accessToken) {
       return Promise.reject("no access token");
     }
-    return await updateQuestion(editedData, state.login.accessToken);
+    const subject = await updateSubject(editedData, state.login.accessToken);
+    for (const sq of subject.questions) {
+      const q = sq.question;
+      thunkAPI.dispatch(saveQuestion(q));
+    }
+    return convertSubjectGQL(subject);
   }
 );
 
 /** Reducer */
 
-export const questionsSlice = createSlice({
-  name: "questions",
+export const subjectsSlice = createSlice({
+  name: "subjects",
   initialState,
   reducers: {
     loadingInProgress: (state, action: PayloadAction<string>) => {
-      state.questions[action.payload] = {
-        ...state.questions[action.payload],
+      state.subjects[action.payload] = {
+        ...state.subjects[action.payload],
         status: LoadingStatus.LOADING,
         error: undefined,
       };
     },
     savingInProgress: (state, action: PayloadAction<string>) => {
-      state.questions[action.payload] = {
-        ...state.questions[action.payload],
+      state.subjects[action.payload] = {
+        ...state.subjects[action.payload],
         status: LoadingStatus.SAVING,
         error: undefined,
       };
     },
     clearError: (state, action: PayloadAction<string>) => {
-      state.questions[action.payload] = {
-        ...state.questions[action.payload],
+      state.subjects[action.payload] = {
+        ...state.subjects[action.payload],
         error: undefined,
       };
     },
     clearErrors: (state) => {
-      for (const k of Object.keys(state.questions)) {
-        state.questions[k] = {
-          ...state.questions[k],
+      for (const k of Object.keys(state.subjects)) {
+        state.subjects[k] = {
+          ...state.subjects[k],
           error: undefined,
         };
       }
@@ -104,53 +111,51 @@ export const questionsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // loadQuestionsById
-      .addCase(loadQuestionsById.fulfilled, (state, action) => {
-        for (const q of action.payload) {
-          state.questions[q._id] = {
-            question: q,
+      // loadSubjectsById
+      .addCase(loadSubjectsById.fulfilled, (state, action) => {
+        for (const s of action.payload) {
+          state.subjects[s._id] = {
+            subject: s,
             status: LoadingStatus.SUCCEEDED,
             error: undefined,
           };
         }
       })
-      .addCase(loadQuestionsById.rejected, (state, action) => {
+      .addCase(loadSubjectsById.rejected, (state, action) => {
         for (const id of action.meta.arg.ids) {
-          state.questions[id] = {
-            ...state.questions[id],
+          state.subjects[id] = {
+            ...state.subjects[id],
             status: LoadingStatus.FAILED,
             error: {
-              message: `failed to load question`,
-              error: loadQuestionsById.rejected.name,
+              message: `failed to load subject`,
+              error: loadSubjectsById.rejected.name,
             },
           };
         }
       })
-      // saveQuestion
-      .addCase(saveQuestion.fulfilled, (state, action) => {
-        const q = action.payload;
-        if (action.meta.arg._id !== q._id) {
-          delete state.questions[action.meta.arg._id];
+      // saveSubject
+      .addCase(saveSubject.fulfilled, (state, action) => {
+        const s = action.payload;
+        if (action.meta.arg._id !== s._id) {
+          delete state.subjects[action.meta.arg._id];
         }
-        state.questions[q._id] = {
-          question: q,
+        state.subjects[s._id] = {
+          subject: s,
           status: LoadingStatus.SUCCEEDED,
           error: undefined,
         };
       })
-      .addCase(saveQuestion.rejected, (state, action) => {
-        state.questions[action.meta.arg._id] = {
-          ...state.questions[action.meta.arg._id],
+      .addCase(saveSubject.rejected, (state, action) => {
+        state.subjects[action.meta.arg._id] = {
+          ...state.subjects[action.meta.arg._id],
           status: LoadingStatus.FAILED,
           error: {
-            message: `failed to save question`,
-            error: saveQuestion.rejected.name,
+            message: `failed to save subject`,
+            error: saveSubject.rejected.name,
           },
         };
       });
   },
 });
 
-export const { clearError, clearErrors } = questionsSlice.actions;
-
-export default questionsSlice.reducer;
+export default subjectsSlice.reducer;

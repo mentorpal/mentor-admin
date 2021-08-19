@@ -5,7 +5,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
-import { LoadingError } from "hooks/graphql/loading-reducer";
+import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import { selectActiveMentor } from "./useActiveMentor";
@@ -13,17 +13,9 @@ import { LoginState } from "../login";
 
 /** Store */
 
-export enum MentorStatus {
-  NONE = 0,
-  LOADING = 1,
-  SAVING = 2,
-  SUCCEEDED = 3,
-  FAILED = 4,
-}
-
 export interface MentorState {
   data?: Mentor;
-  mentorStatus: MentorStatus;
+  mentorStatus: LoadingStatus;
   error?: LoadingError;
   userLoadedBy?: string;
 }
@@ -34,7 +26,7 @@ interface CancellabeResult<T> {
 }
 
 const initialState: MentorState = {
-  mentorStatus: MentorStatus.NONE,
+  mentorStatus: LoadingStatus.NONE,
 };
 
 /** Actions */
@@ -47,8 +39,8 @@ export const loadMentor = createAsyncThunk(
   ): Promise<CancellabeResult<Mentor>> => {
     const state = thunkAPI.getState() as RootState;
     if (
-      state.mentor.mentorStatus == MentorStatus.LOADING ||
-      state.mentor.mentorStatus == MentorStatus.SAVING
+      state.mentor.mentorStatus == LoadingStatus.LOADING ||
+      state.mentor.mentorStatus == LoadingStatus.SAVING
     ) {
       return { isCancelled: true };
     }
@@ -131,7 +123,7 @@ export const mentorSlice = createSlice({
   initialState,
   reducers: {
     loadingInProgress: (state, action: PayloadAction<LoginState>) => {
-      state.mentorStatus = MentorStatus.LOADING;
+      state.mentorStatus = LoadingStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
     },
     clearError: (state) => {
@@ -148,7 +140,7 @@ export const mentorSlice = createSlice({
           return;
         }
         state.data = action.payload.result;
-        state.mentorStatus = MentorStatus.SUCCEEDED;
+        state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
       .addCase(loadMentor.rejected, (state) => {
         delete state.data;
@@ -156,47 +148,47 @@ export const mentorSlice = createSlice({
           message: "failed to load mentor",
           error: loadMentor.rejected.name,
         };
-        state.mentorStatus = MentorStatus.FAILED;
+        state.mentorStatus = LoadingStatus.FAILED;
       })
       .addCase(saveMentor.pending, (state) => {
-        state.mentorStatus = MentorStatus.SAVING;
+        state.mentorStatus = LoadingStatus.SAVING;
       })
       .addCase(saveMentor.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
-        state.mentorStatus = MentorStatus.SUCCEEDED;
+        state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
       .addCase(saveMentor.rejected, (state) => {
-        state.mentorStatus = MentorStatus.FAILED;
+        state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
       })
       .addCase(saveThumbnail.pending, (state) => {
-        state.mentorStatus = MentorStatus.SAVING;
+        state.mentorStatus = LoadingStatus.SAVING;
       })
       .addCase(saveThumbnail.fulfilled, (state, action) => {
         if (state.data) {
           state.data.thumbnail = String(action.payload);
         }
-        state.mentorStatus = MentorStatus.SUCCEEDED;
+        state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
       .addCase(saveThumbnail.rejected, (state) => {
-        state.mentorStatus = MentorStatus.FAILED;
+        state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
           error: saveThumbnail.rejected.name,
         };
       })
       .addCase(saveMentorSubjects.pending, (state) => {
-        state.mentorStatus = MentorStatus.SAVING;
+        state.mentorStatus = LoadingStatus.SAVING;
       })
       .addCase(saveMentorSubjects.fulfilled, (state, action) => {
         state.data = action.payload as Mentor;
-        state.mentorStatus = MentorStatus.SUCCEEDED;
+        state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
       .addCase(saveMentorSubjects.rejected, (state) => {
-        state.mentorStatus = MentorStatus.FAILED;
+        state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,

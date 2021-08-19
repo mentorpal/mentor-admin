@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import allSubjects from "../fixtures/subjects/all-subjects";
+import allSubjects from "../fixtures/subjects-connection";
 import { mockGQL, cyMockDefault, cySetup } from "../support/functions";
 
 const mentor = {
@@ -26,7 +26,7 @@ const mentor = {
   ],
 };
 
-describe("Select Subjects", () => {
+describe.only("Select Subjects", () => {
   it("lists subjects", () => {
     cySetup(cy);
     cyMockDefault(cy, {

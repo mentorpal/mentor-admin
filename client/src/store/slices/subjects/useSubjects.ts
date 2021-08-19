@@ -8,70 +8,58 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
 import { RootState } from "store/store";
-import { Question } from "types";
-import { loadQuestionsById, clearError, QuestionsState, clearErrors } from ".";
+import { SubjectGQL } from "types-gql";
+import { loadSubjectsById, SubjectsState } from ".";
 
-export interface SelectFromQuestionStateFunc<T> {
-  (questionState: QuestionsState, rootState: RootState): T;
+export interface SelectFromSubjectStateFunc<T> {
+  (subjectState: SubjectsState, rootState: RootState): T;
 }
 
-export interface QuestionActions {
-  loadQuestions: (ids: string[], reload?: boolean) => void;
-  saveQuestion: (data: Question) => void;
-  clearQuestionError: (id: string) => void;
-  clearQuestionErrors: () => void;
-}
-
-export function useQuestions<T>(
-  selector: SelectFromQuestionStateFunc<T>,
+export function useSubjects<T>(
+  selector: SelectFromSubjectStateFunc<T>,
   ids?: string[]
 ): T {
-  const { loadQuestions } = useQuestionActions();
+  const { loadSubjects } = useSubjectActions();
   const data = useAppSelector((state) => {
-    return selector(state.questions, state);
+    return selector(state.subjects, state);
   });
 
   useEffect(() => {
     if (ids) {
-      loadQuestions(ids);
+      loadSubjects(ids);
     }
   }, [ids]);
 
   return data;
 }
 
-export function useQuestionActions(): QuestionActions {
+export interface SubjectActions {
+  loadSubjects: (ids: string[], reload?: boolean) => void;
+  saveSubject: (data: SubjectGQL) => void;
+}
+
+export function useSubjectActions(): SubjectActions {
   const dispatch = useDispatch();
   const data = useAppSelector((state) => {
-    return state.questions.questions;
+    return state.subjects.subjects;
   });
 
-  function loadQuestions(ids: string[], reload = false): void {
+  function loadSubjects(ids: string[], reload = false): void {
     if (!reload) {
       const qIds = Object.keys(data);
       ids = ids.filter((i) => !qIds.includes(i));
     }
-    dispatch(loadQuestionsById({ ids, reload }));
+    dispatch(loadSubjectsById({ ids, reload }));
   }
 
-  function saveQuestion(data: Question): void {
-    dispatch(saveQuestion(data));
-  }
-
-  function clearQuestionError(id: string): void {
-    dispatch(clearError(id));
-  }
-
-  function clearQuestionErrors(): void {
-    dispatch(clearErrors());
+  function saveSubject(data: SubjectGQL): void {
+    dispatch(saveSubject(data));
   }
 
   return {
-    loadQuestions,
-    saveQuestion,
-    clearQuestionError,
-    clearQuestionErrors,
+    loadSubjects,
+    saveSubject,
   };
 }
 
-export default useQuestions;
+export default useSubjects;

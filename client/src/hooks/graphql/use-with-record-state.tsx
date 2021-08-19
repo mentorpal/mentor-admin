@@ -7,26 +7,37 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { updateAnswer, updateQuestion, fetchFollowUpQuestions } from "api";
 import {
+  Answer,
   AnswerAttentionNeeded,
   MediaTag,
   MediaType,
   MentorType,
+  Question,
+  RecordPageState,
+  UploadTask,
   UtteranceName,
 } from "types";
-import { copyAndSet, equals } from "helpers";
+import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
 
 import { LoadingError } from "./loading-reducer";
 import {
   isActiveMentorLoading,
+  isActiveMentorSaving,
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
 import { useWithUploadStatus } from "./use-with-upload-status";
-import { AnswerGQL } from "types-gql";
+import { useAppSelector } from "store/hooks";
+import useSubjects from "store/slices/subjects/useSubjects";
+import useQuestions, {
+  useQuestionActions,
+} from "store/slices/questions/useQuestions";
 
 export interface AnswerState {
-  answer: AnswerGQL;
-  editedAnswer: AnswerGQL;
+  answer: Answer;
+  editedAnswer: Answer;
+  question: Question;
+  editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
   recordedVideo?: File;
   minVideoLength?: number;
@@ -39,24 +50,21 @@ export interface CurAnswerState extends AnswerState {
   videoSrc?: string;
 }
 
-export function useWithRecordState(
-  accessToken: string,
-  filter: {
-    videoId?: string[] | string;
-    subject?: string;
-    status?: string;
-    category?: string;
-    poll?: string;
-  }
-): UseWithRecordState {
+export function useWithRecordState(filter: {
+  videoId?: string[] | string;
+  subject?: string;
+  status?: string;
+  category?: string;
+  poll?: string;
+}): UseWithRecordState {
+  const accessToken = useAppSelector((state) => state.login.accessToken);
+
   const [answers, setAnswers] = useState<AnswerState[]>([]);
   const [answerIdx, setAnswerIdx] = useState<number>(0);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordPageState, setRecordPageState] = useState<RecordPageState>(
     RecordPageState.INITIALIZING
   );
-  const [saveError, setSaveError] = useState<LoadingError>();
   const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const pollingInterval = parseInt(filter.poll || "");
@@ -65,7 +73,15 @@ export function useWithRecordState(
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
   const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
   const mentorError = useActiveMentor((state) => state.error);
+  const mentorIsSaving = isActiveMentorSaving();
+  const mentorIsLoading = isActiveMentorLoading();
+  const subjects = useSubjects((s) => s.subjects, mentorSubjects);
+  const questions = useQuestions(
+    (s) => s.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
   const { loadMentor, clearMentorError } = useActiveMentorActions();
+  const { saveQuestion, clearQuestionErrors } = useQuestionActions();
   const {
     uploads,
     isUploading,
@@ -75,12 +91,11 @@ export function useWithRecordState(
     removeCompletedTask,
     isTaskDoneOrFailed,
   } = useWithUploadStatus(
-    accessToken,
     onAnswerUploaded,
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
   const idxChanged =
-    curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
+    curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
     if (!mentorAnswers || !mentorSubjects) {
@@ -90,30 +105,33 @@ export function useWithRecordState(
     let answers = mentorAnswers;
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      answers = answers.filter((a) => ids.includes(a.question._id));
+      answers = answers.filter((a) => ids.includes(a.question));
     } else if (subject) {
-      const s = mentorSubjects.find((a) => a._id === subject);
+      const sId = mentorSubjects.find((s) => s === subject);
+      const s = getValueIfKeyExists(sId || "", subjects);
       if (s) {
         const sQuestions = s.questions.filter(
-          (q) => !category || `${q.category?.id}` === category
+          (q) => !category || `${q.category}` === category
         );
         answers = answers.filter((a) =>
-          sQuestions.map((q) => q.question._id).includes(a.question._id)
+          sQuestions.map((q) => q.question).includes(a.question)
         );
       }
     }
     if (status) {
       answers = answers.filter((a) => a.status === status);
     }
-    answers = answers.filter(
-      (a) => !a.question?.mentorType || a.question?.mentorType === mentorType
-    );
+    answers = answers.filter((a) => {
+      const question = getValueIfKeyExists(a.question, questions);
+      return !question?.mentorType || question.mentorType === mentorType;
+    });
     setAnswers(
       answers.map((a) => ({
         answer: a,
         editedAnswer: a,
         recordedVideo: undefined,
-        minVideoLength: a.question?.minVideoLength,
+        minVideoLength: getValueIfKeyExists(a.question, questions)
+          ?.minVideoLength,
         attentionNeeded: doesAnswerNeedAttention(a),
       }))
     );
@@ -124,20 +142,18 @@ export function useWithRecordState(
     setIsRecording(false);
   }, [answerIdx]);
 
-  const isMentorLoading = isActiveMentorLoading();
-
   useEffect(() => {
     if (!mentorAnswers) return;
     if (
       recordPageState === RecordPageState.RELOADING_MENTOR &&
-      !isMentorLoading
+      !mentorIsLoading
     ) {
       setRecordPageState(RecordPageState.RECORDING_ANSWERS);
       if (answerIdx < answers.length) {
         nextAnswer();
       }
     }
-  }, [isMentorLoading]);
+  }, [mentorIsLoading]);
 
   useEffect(() => {
     if (!mentorAnswers || !answers[answerIdx]) return;
@@ -156,7 +172,7 @@ export function useWithRecordState(
   }, [answers[answerIdx], uploads]);
 
   function fetchFollowUpQs() {
-    if (!mentorAnswers) return;
+    if (!mentorAnswers || !accessToken) return;
     if (!filter.category || filter.status === "COMPLETE") {
       setFollowUpQuestions([]);
       setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
@@ -172,7 +188,9 @@ export function useWithRecordState(
           .filter(
             (followUp) =>
               mentorAnswers.findIndex(
-                (a) => a.question.question === followUp
+                (a) =>
+                  getValueIfKeyExists(a.question, questions)?.question ===
+                  followUp
               ) === -1
           )
       );
@@ -193,11 +211,12 @@ export function useWithRecordState(
     );
   }
 
-  function doesAnswerNeedAttention(answer: AnswerGQL): AnswerAttentionNeeded {
+  function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
     if (
       answer.media?.length &&
       !answer.transcript &&
-      answer.question.name !== UtteranceName.IDLE
+      getValueIfKeyExists(answer.question, questions)?.name !==
+        UtteranceName.IDLE
     ) {
       return AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
     }
@@ -205,9 +224,7 @@ export function useWithRecordState(
   }
 
   function onAnswerUploaded(upload: UploadTask) {
-    const idx = answers.findIndex(
-      (a) => a.answer.question?._id === upload.question._id
-    );
+    const idx = answers.findIndex((a) => a.answer.question === upload.question);
     if (idx !== -1) {
       const answer = answers[idx];
       updateAnswerState(
@@ -229,14 +246,14 @@ export function useWithRecordState(
     }
   }
 
-  function isAnswerUploading(answer: AnswerGQL) {
-    const upload = uploads.find((u) => u.question._id === answer.question._id);
+  function isAnswerUploading(answer: Answer) {
+    const upload = uploads.find((u) => u.question === answer.question);
     return Boolean(upload && !isTaskDoneOrFailed(upload));
   }
 
   function clearError() {
     clearMentorError();
-    setSaveError(undefined);
+    clearQuestionsError();
   }
 
   function getVideoSrc() {
@@ -263,7 +280,8 @@ export function useWithRecordState(
     if (mentorType === MentorType.VIDEO) {
       return Boolean(
         editedAnswer?.media?.find((m) => m.type === MediaType.VIDEO)?.url &&
-          (editedAnswer.question?.name === UtteranceName.IDLE ||
+          (getValueIfKeyExists(editedAnswer.question, questions)?.name ===
+            UtteranceName.IDLE ||
             editedAnswer.transcript)
       );
     }
@@ -315,71 +333,42 @@ export function useWithRecordState(
     updateAnswerState({ minVideoLength: length });
   }
 
-  function editAnswer(edits: Partial<AnswerGQL>) {
+  function editAnswer(edits: Partial<Answer>) {
     const answer = answers[answerIdx];
     updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
   }
 
+  function editQuestion(edits: Partial<Question>) {
+    // const question = questions[]
+  }
+
   function saveAnswer() {
+    if (!accessToken) {
+      return;
+    }
     const answer = answers[answerIdx].answer;
     const editedAnswer = answers[answerIdx].editedAnswer;
-    // update the question if it has changed
-    if (!equals(answer.question, editedAnswer.question)) {
-      setIsSaving(true);
-      updateQuestion(editedAnswer.question, accessToken)
-        .then((didUpdate) => {
-          if (!didUpdate) {
-            setIsSaving(false);
-            return;
-          }
-          if (!equals(answer, editedAnswer)) {
-            updateAnswer(editedAnswer, accessToken)
-              .then((didUpdate) => {
-                if (!didUpdate) {
-                  setIsSaving(false);
-                  return;
-                }
-                updateAnswerState({ answer: editedAnswer });
-                setIsSaving(false);
-              })
-              .catch((err) => {
-                setIsSaving(false);
-                setSaveError({
-                  message: "Failed to save answer",
-                  error: err.message,
-                });
-              });
-          } else {
-            updateAnswerState({ answer: editedAnswer });
-            setIsSaving(false);
-          }
-        })
-        .catch((err) => {
-          setIsSaving(false);
-          setSaveError({
-            message: "Failed to save question",
-            error: err.message,
-          });
-        });
+    const question = getValueIfKeyExists(answer.question, questions);
+    const editedQuestion = getValueIfKeyExists(
+      editedAnswer.question,
+      questions
+    );
+    if (
+      editedQuestion?.question &&
+      !equals(question?.question, editedQuestion?.question)
+    ) {
+      saveQuestion(editedQuestion.question);
     }
-    // update the answer if it has changed
-    else if (!equals(answer, editedAnswer)) {
-      setIsSaving(true);
+    if (editedAnswer && !equals(answer, editedAnswer)) {
       updateAnswer(editedAnswer, accessToken)
         .then((didUpdate) => {
           if (!didUpdate) {
-            setIsSaving(false);
             return;
           }
           updateAnswerState({ answer: editedAnswer });
-          setIsSaving(false);
         })
         .catch((err) => {
-          setIsSaving(false);
-          setSaveError({
-            message: "Failed to save answer",
-            error: err.message,
-          });
+          console.error(err);
         });
     }
   }
@@ -424,8 +413,8 @@ export function useWithRecordState(
     setMinVideoLength,
     isUploading,
     isRecording,
-    isSaving,
-    error: mentorError || saveError,
+    isSaving: mentorIsSaving,
+    error: mentorError,
     clearError,
   };
 }
@@ -444,7 +433,7 @@ export interface UseWithRecordState {
   nextAnswer: () => void;
   setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<AnswerGQL>) => void;
+  editAnswer: (edits: Partial<Answer>) => void;
   saveAnswer: () => void;
   removeCompletedTask: (tasks: UploadTask) => void;
   rerecord: () => void;

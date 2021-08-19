@@ -38,6 +38,9 @@ import { useWithSetup } from "hooks/graphql/use-with-setup";
 import useActiveMentor, {
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { useAppSelector } from "store/hooks";
+import { useEffect } from "react";
+import useSubjects from "store/slices/subjects/useSubjects";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -78,11 +81,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function HomePage(props: {
-  accessToken: string;
-  search: { subject?: string };
-  user: UserGQL;
-}): JSX.Element {
+function HomePage(props: { search: { subject?: string } }): JSX.Element {
+  const classes = useStyles();
   const {
     useMentor,
     isLoading,
@@ -95,34 +95,32 @@ function HomePage(props: {
     selectSubject,
     saveChanges,
     startTraining,
-  } = useWithReviewAnswerState(props.accessToken, props.search);
-  const defaultMentor = props.user.defaultMentor._id;
+  } = useWithReviewAnswerState(props.search);
+  const { setupStatus, navigateToMissingSetup } = useWithSetup();
+  const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   const mentorId = useActiveMentor((m) => m.data?._id || "");
   const { loadMentor } = useActiveMentorActions();
   const { isMentorEdited } = useMentor;
-  const { setupStatus, navigateToMissingSetup } = useWithSetup();
-  const [showSetupAlert, setShowSetupAlert] = useState(true);
+  const userRole = useAppSelector((state) => state.login.user?.userRole);
+  const defaultMentor = useAppSelector(
+    (state) => state.login.user?.defaultMentor
+  );
+
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
   const mentorOwnership = defaultMentor === mentorId;
-  const classes = useStyles();
   const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
-  const mentorSubjectNamesById: Record<string, string> = useActiveMentor((m) =>
-    (m.data?.subjects || []).reduce(
-      (acc: Record<string, string>, cur: Subject) => {
-        acc[cur._id] = cur.name;
-        return acc;
-      },
-      {}
-    )
-  );
-  React.useEffect(() => {
+  const mentorSubjects = useActiveMentor((m) => m.data?.subjects);
+  const mentorSubjectNamesById = useSubjects((s) => s.subjects, mentorSubjects);
+
+  useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
-  if (!(mentorId && setupStatus)) {
+
+  if (!mentorId || !setupStatus) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId={""} />
@@ -130,10 +128,6 @@ function HomePage(props: {
       </div>
     );
   }
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
-  }
-
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
   }
@@ -148,17 +142,13 @@ function HomePage(props: {
       style={{ background: mentorOwnership ? "white" : "black" }}
     >
       <div>
-        <NavBar
-          title="My Mentor"
-          mentorId={mentorId}
-          userRole={props.user.userRole}
-        />
+        <NavBar title="My Mentor" mentorId={mentorId} userRole={userRole} />
         <MyMentorCard
           editDisabled={!mentorOwnership}
           continueAction={continueAction}
           useMentor={useMentor}
         />
-        {props.user.userRole === UserRole.ADMIN && (
+        {userRole === UserRole.ADMIN && (
           <div data-cy="mentor-select">
             <TextField
               data-cy="switch-mentor-id"
@@ -194,14 +184,14 @@ function HomePage(props: {
           data-cy="select-subject"
           value={
             selectedSubject
-              ? mentorSubjectNamesById[selectedSubject]
+              ? mentorSubjectNamesById[selectedSubject].name
               : undefined
           }
           displayEmpty
           renderValue={() => (
             <Typography variant="h6" className={classes.title}>
               {selectedSubject
-                ? mentorSubjectNamesById[selectedSubject]
+                ? mentorSubjectNamesById[selectedSubject].name
                 : "All Answers"}{" "}
               ({progress.complete} / {progress.total})
             </Typography>
@@ -215,9 +205,9 @@ function HomePage(props: {
           <MenuItem data-cy="all-subjects" value={undefined}>
             Show All Subjects
           </MenuItem>
-          {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
+          {Object.entries(mentorSubjectNamesById).map(([id, s]) => (
             <MenuItem key={id} data-cy={`select-${id}`} value={id}>
-              {name}
+              {s.name}
             </MenuItem>
           ))}
         </Select>

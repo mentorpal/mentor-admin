@@ -27,6 +27,7 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
   const removed = copyAndRemove(a, moveFrom);
   return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }
+
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
@@ -58,4 +59,12 @@ export function launchMentor(mentorId: string): void {
     mentor: mentorId,
   });
   window.location.href = path;
+}
+
+export function getValueIfKeyExists<T>(
+  key: string,
+  dict: Record<string, T>
+): T | null {
+  const result = dict[key];
+  return typeof result !== "undefined" ? result : null;
 }

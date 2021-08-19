@@ -4,15 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import {
-  Mentor,
-  MentorType,
-  QuestionType,
-  Status,
-  UtteranceName,
-} from "../../support/types";
+import { MentorType, Status } from "../../support/types";
 
-export const mentor: Mentor = {
+export const mentor = {
   _id: "clintanderson",
   name: "",
   firstName: "",
@@ -23,92 +17,9 @@ export const mentor: Mentor = {
   subjects: [
     {
       _id: "background",
-      name: "Background",
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      categories: [
-        {
-          id: "category",
-          name: "Category",
-          description: "A category",
-        },
-      ],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-          category: { id: "category" },
-        },
-        {
-          question: {
-            _id: "A2_1_1",
-            question: "How old are you now?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-      ],
     },
     {
       _id: "repeat_after_me",
-      name: "Repeat After Me",
-      description: "These are miscellaneous phrases you'll be asked to repeat.",
-      isRequired: true,
-      categories: [
-        {
-          id: "category2",
-          name: "Category2",
-          description: "Another category",
-        },
-      ],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A3_1_1",
-            question:
-              "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-            type: QuestionType.UTTERANCE,
-            name: UtteranceName.IDLE,
-            paraphrases: [],
-            mentorType: MentorType.VIDEO,
-            minVideoLength: 10,
-          },
-          topics: [],
-        },
-        {
-          question: {
-            _id: "A4_1_1",
-            question:
-              "Please give a short introduction of yourself, which includes your name, current job, and title.",
-            type: QuestionType.UTTERANCE,
-            name: UtteranceName.INTRO,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-        {
-          question: {
-            _id: "A5_1_1",
-            question:
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-            type: QuestionType.UTTERANCE,
-            name: UtteranceName.OFF_TOPIC,
-            paraphrases: [],
-          },
-          topics: [],
-          category: { id: "category2" },
-        },
-      ],
     },
   ],
   topics: [],
@@ -117,10 +28,6 @@ export const mentor: Mentor = {
       _id: "A1_1_1",
       question: {
         _id: "A1_1_1",
-        question: "Who are you and what do you do?",
-        type: QuestionType.QUESTION,
-        name: null,
-        paraphrases: [],
       },
       transcript: "",
       status: Status.INCOMPLETE,
@@ -129,10 +36,6 @@ export const mentor: Mentor = {
       _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
-        question: "How old are you now?",
-        type: QuestionType.QUESTION,
-        name: null,
-        paraphrases: [],
       },
       transcript: "",
       status: Status.INCOMPLETE,
@@ -141,13 +44,6 @@ export const mentor: Mentor = {
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
-        question:
-          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-        type: QuestionType.UTTERANCE,
-        name: UtteranceName.IDLE,
-        paraphrases: [],
-        mentorType: MentorType.VIDEO,
-        minVideoLength: 10,
       },
       transcript: "",
       status: Status.INCOMPLETE,
@@ -156,11 +52,6 @@ export const mentor: Mentor = {
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
-        question:
-          "Please give a short introduction of yourself, which includes your name, current job, and title.",
-        type: QuestionType.UTTERANCE,
-        name: UtteranceName.INTRO,
-        paraphrases: [],
       },
       transcript: "",
       status: Status.INCOMPLETE,
@@ -169,11 +60,6 @@ export const mentor: Mentor = {
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
-        question:
-          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-        type: QuestionType.UTTERANCE,
-        name: UtteranceName.OFF_TOPIC,
-        paraphrases: [],
       },
       transcript: "",
       status: Status.INCOMPLETE,

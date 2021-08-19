@@ -14,13 +14,14 @@ import {
 } from "api";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
-import { UploadTask, UploadStatus, Question } from "types";
+import { UploadTask, UploadStatus } from "types";
+import { useAppSelector } from "store/hooks";
 
 export function useWithUploadStatus(
-  accessToken: string,
   onUploadedCallback?: (task: UploadTask) => void,
   pollingInterval = 1000
 ): UseWithUploadStatus {
+  const accessToken = useAppSelector((state) => state.login.accessToken) || "";
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
@@ -47,7 +48,7 @@ export function useWithUploadStatus(
   useEffect(() => {
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
-        deleteUploadTask(u.question._id, accessToken).catch((error) => {
+        deleteUploadTask(u.question, accessToken).catch((error) => {
           console.error(error);
         });
       }
@@ -65,9 +66,7 @@ export function useWithUploadStatus(
           }
           setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
-            const findUpload = uploads.find(
-              (up) => up.question._id === u.question._id
-            );
+            const findUpload = uploads.find((up) => up.question === u.question);
             if (
               !findUpload ||
               findUpload.uploadStatus !== u.uploadStatus ||
@@ -96,11 +95,9 @@ export function useWithUploadStatus(
     isPolling ? pollingInterval : null
   );
   function removeCompletedTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    const idx = uploads.findIndex((u) => u.question === task.question);
     if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
-      const newArray = uploads.filter(
-        (u) => u.question._id !== task.question._id
-      );
+      const newArray = uploads.filter((u) => u.question !== task.question);
       setUploads(newArray);
     }
   }
@@ -127,7 +124,7 @@ export function useWithUploadStatus(
   }
 
   function addOrEditTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    const idx = uploads.findIndex((u) => u.question === task.question);
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
@@ -137,13 +134,13 @@ export function useWithUploadStatus(
 
   function upload(
     mentorId: string,
-    question: Question,
+    question: string,
     video: File,
     trim?: { start: number; end: number }
   ) {
     const tokenSource = CancelToken.source();
     addOrEditTask({
-      question,
+      question: question,
       uploadStatus: UploadStatus.PENDING,
       uploadProgress: 0,
       tokenSource: tokenSource,
@@ -152,7 +149,7 @@ export function useWithUploadStatus(
     uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
       .then((task) => {
         addOrEditTask({
-          question,
+          question: question,
           uploadStatus: UploadStatus.POLLING,
           uploadProgress: 100,
           taskId: task.id,
@@ -160,7 +157,7 @@ export function useWithUploadStatus(
       })
       .catch((err) => {
         addOrEditTask({
-          question,
+          question: question,
           uploadStatus:
             err.message && err.message === UploadStatus.CANCELLED
               ? UploadStatus.CANCELLED
@@ -222,7 +219,7 @@ export interface UseWithUploadStatus {
   isUploading: boolean;
   upload: (
     mentorId: string,
-    question: Question,
+    question: string,
     video: File,
     trim?: { start: number; end: number }
   ) => void;

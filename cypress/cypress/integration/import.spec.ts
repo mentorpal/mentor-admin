@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import clintNew from "../fixtures/mentor/clint_new";
-import allSubjects from "../fixtures/subjects/all-subjects";
+import allSubjects from "../fixtures/subjects-connection";
 import exportJson from "../fixtures/imports/export";
 import importPreview from "../fixtures/imports/import-preview";
 import { Connection, Question } from "../support/types";

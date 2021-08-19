@@ -4,8 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import useQuestions from "store/slices/questions/useQuestions";
+import { UploadTask, UploadStatus } from "types";
 import { UseWithRecordState } from "./use-with-record-state";
-import { UploadStatus, UploadTask } from "./use-with-upload-status";
 
 export function useWithUploadListItem(
   recordState: UseWithRecordState,
@@ -14,8 +15,9 @@ export function useWithUploadListItem(
   const jobStatus = upload.uploadStatus;
   const cancelling = upload.isCancelling || false;
   const answer = recordState.answers.find(
-    (a) => a.answer.question._id === upload.question._id
+    (a) => a.answer.question._id === upload.question
   );
+  const question = useQuestions({ ids: [answer?.answer.question._id] });
 
   function isJobQueued(): boolean {
     return (

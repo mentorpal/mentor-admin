@@ -28,8 +28,11 @@ import {
   isActiveMentorLoading,
   useActiveMentor,
 } from "store/slices/mentor/useActiveMentor";
-import { useWithSubject } from "hooks/graphql/use-with-subject";
+import { useSubjectEdits } from "store/slices/subjects/useSubjectEdits";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import useSubjects from "store/slices/subjects/useSubjects";
+import { getValueIfKeyExists } from "helpers";
+import { LoadingStatus } from "hooks/graphql/loading-reducer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -81,12 +84,9 @@ function SubjectPage(props: {
   const mentorId = useActiveMentor((state) => state.data?._id);
   const isMentorLoading = isActiveMentorLoading();
   const {
-    editedData: editedSubject,
-    error: subjectError,
-    isEdited: isSubjectEdited,
-    isLoading: isSubjectLoading,
-    isSaving: isSubjectSaving,
-    editData: editSubject,
+    editedSubject,
+    isSubjectEdited,
+    editSubject,
     saveSubject,
     addCategory,
     updateCategory,
@@ -99,7 +99,14 @@ function SubjectPage(props: {
     updateQuestion,
     removeQuestion,
     moveQuestion,
-  } = useWithSubject(props.search.id || "", props.accessToken);
+  } = useSubjectEdits(props.search.id || "");
+  const subject = useSubjects(
+    (state) => getValueIfKeyExists(props.search.id || "", state.subjects),
+    [props.search.id || ""]
+  );
+  const isSubjectSaving = subject?.status === LoadingStatus.SAVING;
+  const isSubjectLoading = subject?.status === LoadingStatus.LOADING;
+  const subjectError = subject?.error;
   const { height: windowHeight } = useWithWindowSize();
 
   function toggleExpand(s: boolean, t: boolean, q: boolean) {

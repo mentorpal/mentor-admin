@@ -10,7 +10,7 @@ import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
 
-describe("Index page", () => {
+describe.only("Index page", () => {
   it("if not logged in, show login page", () => {
     cyMockDefault(cy, { noAccessTokenStored: true });
     cy.visit("/");
@@ -20,7 +20,7 @@ describe("Index page", () => {
     cy.contains("Please sign in to access the Mentor Studio portal");
   });
 
-  it("if logged in and setup not complete, redirect to setup page", () => {
+  it.only("if logged in and setup not complete, redirect to setup page", () => {
     cyMockDefault(cy, { mentor: newMentor });
     cy.visit("/");
     cy.location("pathname").then(($el) => {

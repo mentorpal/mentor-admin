@@ -23,16 +23,15 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import { AnswerGQL } from "types-gql";
-import { Question } from "types";
+import { Answer, Question } from "types";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
-  answers: AnswerGQL[];
+  answers: Answer[];
   onRecordAll: () => void;
-  onRecordOne: (answer: AnswerGQL) => void;
+  onRecordOne: (answer: Answer) => void;
   onEditQuestion: (question: Question) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
@@ -104,7 +103,7 @@ function AnswerList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
-            {answers.map((answer: AnswerGQL, i: number) => (
+            {answers.map((answer: Answer, i: number) => (
               <ListItem
                 data-cy={`answer-${i}`}
                 key={`item-${i}`}

@@ -13,7 +13,7 @@ import {
   SubjectQuestion,
 } from "./types";
 
-export function completeMentor(m: Partial<Mentor>): Mentor {
+export function completeMentor(m) {
   return {
     ...m,
     _id: m._id || "",
@@ -50,7 +50,7 @@ export function completeSubjectQuestion(
   };
 }
 
-export function completeSubject(s: Partial<Subject>): Subject {
+export function completeSubject(s) {
   return {
     ...s,
     _id: s._id || "",
@@ -62,11 +62,7 @@ export function completeSubject(s: Partial<Subject>): Subject {
   };
 }
 
-export function updateMentorAnswer(
-  mentor: Mentor,
-  answerId: string,
-  update: any
-): Mentor {
+export function updateMentorAnswer(mentor: any, answerId: string, update: any) {
   return {
     ...mentor,
     answers: mentor.answers.map((answer) => {

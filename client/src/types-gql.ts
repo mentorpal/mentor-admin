@@ -24,6 +24,7 @@ import {
   UserAccessToken,
   UploadStatus,
   UploadTask,
+  Answer,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -80,6 +81,7 @@ export interface AnswerGQL {
   transcript: string;
   status: Status;
   media?: Media[];
+  hasUntransferredMedia: boolean;
 }
 
 export interface UserQuestionGQL {
@@ -146,6 +148,7 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
     ...gql,
     defaultSubject: gql.defaultSubject?._id,
     subjects: gql.subjects.map((s) => s._id),
+    answers: gql.answers.map((a) => convertAnswerGQL(a)),
   };
 }
 
@@ -157,6 +160,13 @@ export function convertSubjectGQL(gql: SubjectGQL): Subject {
       category: sq.category?.id,
       topics: sq.topics.map((t) => t.id),
     })),
+  };
+}
+
+export function convertAnswerGQL(gql: AnswerGQL): Answer {
+  return {
+    ...gql,
+    question: gql.question._id,
   };
 }
 

@@ -33,6 +33,7 @@ export interface Mentor {
   lastTrainedAt: string;
   isDirty: boolean;
   mentorType: MentorType;
+  answers: Answer[]; // remove eventually?
 }
 
 export interface Subject {
@@ -76,7 +77,6 @@ export interface Question {
 
 export interface Answer {
   _id: string;
-  mentor: string;
   question: string;
   transcript: string;
   status: Status;

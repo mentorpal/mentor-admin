@@ -23,6 +23,7 @@ import {
 } from "@material-ui/icons";
 import { Answer, EditType, ImportPreview, Media } from "types";
 import { ChangeIcon } from "./icons";
+import { AnswerGQL } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -43,7 +44,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function AnswerImport(props: {
-  preview: ImportPreview<Answer>;
+  preview: ImportPreview<AnswerGQL>;
 }): JSX.Element {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
