@@ -164,17 +164,6 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=answer-0]").first().should("be.visible");
   });
 
-  it("dropdown should expand when question is added", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=answer-0]").should("not.exist");
-    cy.get("[data-cy=add-question]").first().trigger("mouseover").click();
-    cy.get("[data-cy=answer-0]").first().should("exist");
-    cy.get("[data-cy=answer-0]").first().should("be.visible");
-  });
-
   it("can pick a subject from dropdown and view questions and categories", () => {
     cySetup(cy);
     cyMockDefault(cy, {
