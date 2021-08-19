@@ -46,6 +46,7 @@ export function urlBuild(
     if (Array.isArray(params[n])) {
       (params[n] as string[]).forEach((value, i, arr) => {
         const val = value !== null && typeof value !== "undefined" ? value : "";
+        //url array format uses commas (specified in wrap-with-location.tsx)
         pval += val ? (i !== arr.length - 1 ? val + "," : val) : "";
       });
     } else {

@@ -79,10 +79,6 @@ export default function AnswerImport(props: {
       });
     });
 
-  if (answer === undefined && curAnswer === undefined) {
-    return <div />;
-  }
-
   return (
     <Card data-cy="answer" className={classes.root}>
       <div className={classes.row}>
