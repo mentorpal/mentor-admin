@@ -4,8 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { getValueIfKeyExists } from "helpers";
+import { UploadTask, UploadStatus } from "types";
 import { UseWithRecordState } from "./use-with-record-state";
-import { UploadStatus, UploadTask } from "./use-with-upload-status";
 
 export function useWithUploadListItem(
   recordState: UseWithRecordState,
@@ -14,7 +15,7 @@ export function useWithUploadListItem(
   const jobStatus = upload.uploadStatus;
   const cancelling = upload.isCancelling || false;
   const answer = recordState.answers.find(
-    (a) => a.answer.question._id === upload.question._id
+    (a) => a.answer.question === upload.question
   );
 
   function isJobQueued(): boolean {
@@ -51,7 +52,9 @@ export function useWithUploadListItem(
     isJobQueued,
     cancelling,
     needsAttention,
-    jobTitle: upload.question.question,
+    jobTitle:
+      getValueIfKeyExists(upload.question, recordState.mentorQuestions)
+        ?.question?.question || "",
     pollStatusCount: recordState.pollStatusCount,
     onClose,
   };

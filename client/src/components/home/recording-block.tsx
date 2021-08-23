@@ -14,6 +14,7 @@ export interface RecordingBlock {
   name: string;
   description: string;
   answers: Answer[];
+  // questions: Question[];
   recordAll: (status: Status) => void;
   recordOne: (answer: Answer) => void;
   editQuestion: (question: Question) => void;

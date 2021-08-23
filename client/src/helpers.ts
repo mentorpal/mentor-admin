@@ -59,3 +59,11 @@ export function launchMentor(mentorId: string): void {
   });
   window.location.href = path;
 }
+
+export function getValueIfKeyExists<T>(
+  key: string,
+  dict: Record<string, T>
+): T | null {
+  const result = dict[key];
+  return typeof result !== "undefined" ? result : null;
+}

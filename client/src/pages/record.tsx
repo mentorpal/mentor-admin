@@ -48,6 +48,8 @@ import { useWithSubject } from "hooks/graphql/use-with-subject";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import useQuestions from "store/slices/questions/useQuestions";
+import { getValueIfKeyExists } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -103,6 +105,7 @@ interface LeaveConfirmation {
   message: string;
   callback: () => void;
 }
+
 function RecordPage(props: {
   accessToken: string;
   search: {
@@ -117,18 +120,23 @@ function RecordPage(props: {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
+  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
+
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, setRecordPageState, recordPageState, reloadMentorData } =
     recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
   const config = useWithConfig();
-  function isConfigLoaded(): boolean {
-    return config.state.status === ConfigStatus.SUCCEEDED;
-  }
-  const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const curQuestion = getValueIfKeyExists(
+    curAnswer?.answer.question || "",
+    useQuestions(
+      (state) => state.questions,
+      curAnswer?.answer.question ? [curAnswer.answer.question] : undefined
+    )
+  );
   const curSubject = useActiveMentor((state) =>
     state.data?.subjects.find((s) => s._id == props.search.subject)
   );
@@ -136,11 +144,14 @@ function RecordPage(props: {
   const categoryTitle =
     curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
     "";
-  const curAnswerBelongsToMentor =
-    curAnswer?.editedAnswer.question?.mentor === mentorId;
-  const curEditedQuestion = curAnswer?.editedAnswer?.question;
+  const curEditedQuestion = curAnswer?.editedQuestion;
+  const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+
+  function isConfigLoaded(): boolean {
+    return config.state.status === ConfigStatus.SUCCEEDED;
+  }
 
   function onBack() {
     reloadMentorData();
@@ -275,11 +286,9 @@ function RecordPage(props: {
                 disabled={!curAnswerBelongsToMentor}
                 onChange={(e) => {
                   if (curEditedQuestion) {
-                    recordState.editAnswer({
-                      question: {
-                        ...curEditedQuestion,
-                        question: e.target.value,
-                      },
+                    recordState.editQuestion({
+                      ...curEditedQuestion,
+                      question: e.target.value,
                     });
                   }
                 }}
@@ -289,11 +298,11 @@ function RecordPage(props: {
                       data-cy="undo-question-btn"
                       disabled={
                         curEditedQuestion?.question ===
-                        curAnswer?.answer.question?.question
+                        curQuestion?.question?.question
                       }
                       onClick={() =>
-                        recordState.editAnswer({
-                          question: curAnswer?.answer.question,
+                        recordState.editQuestion({
+                          question: curQuestion?.question?.question,
                         })
                       }
                     >

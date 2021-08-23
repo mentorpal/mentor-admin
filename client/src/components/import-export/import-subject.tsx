@@ -23,16 +23,10 @@ import {
   ExpandMore as ExpandMoreIcon,
   FindReplace as FindReplaceIcon,
 } from "@material-ui/icons";
-import {
-  Category,
-  EditType,
-  ImportPreview,
-  Question,
-  Subject,
-  Topic,
-} from "types";
+import { Category, EditType, ImportPreview, Question, Topic } from "types";
 import { Autocomplete } from "@material-ui/lab";
 import { ChangeIcon } from "./icons";
+import { SubjectGQL } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -53,13 +47,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function SubjectImport(props: {
-  preview: ImportPreview<Subject>;
-  subjects: Subject[];
-  mapSubject: (curSubject: Subject, newSubject: Subject) => void;
+  preview: ImportPreview<SubjectGQL>;
+  subjects: SubjectGQL[];
+  mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
 }): JSX.Element {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [subjectSearch, setSubjectSearch] = useState<Subject>();
+  const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
   const { preview, subjects, mapSubject } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
 
@@ -150,7 +144,7 @@ export default function SubjectImport(props: {
             <Autocomplete
               data-cy="subject-input"
               options={subjects}
-              getOptionLabel={(option: Subject) => option.name}
+              getOptionLabel={(option: SubjectGQL) => option.name}
               onChange={(e, v) => {
                 setSubjectSearch(v || undefined);
               }}

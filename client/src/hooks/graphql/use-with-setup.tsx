@@ -18,13 +18,16 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
-import { urlBuild } from "helpers";
+import { getValueIfKeyExists, urlBuild } from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
 
 export enum SetupStepType {
   WELCOME = 0,
@@ -89,9 +92,15 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
 
   const mentor = useActiveMentor((state) => state.data);
   const mentorError = useActiveMentor((state) => state.error);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentor?.answers?.map((a) => a.question)
+  );
+  const questionsLoading = isQuestionsLoading(
+    mentor?.answers?.map((a) => a.question)
+  );
   const isMentorLoading = isActiveMentorLoading();
   const isMentorSaving = isActiveMentorSaving();
-
   const { clearMentorError } = useActiveMentorActions();
   const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
     useMentorEdits();
@@ -108,7 +117,14 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   }
 
   useEffect(() => {
-    if (!mentor || isMentorSaving || isMentorLoading || !isConfigLoaded()) {
+    console.log(questionsLoading);
+    if (
+      !mentor ||
+      isMentorSaving ||
+      isMentorLoading ||
+      questionsLoading ||
+      !isConfigLoaded()
+    ) {
       return;
     }
     const isMentorInfoDone = Boolean(
@@ -116,7 +132,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     );
     const isMentorTypeChosen = Boolean(mentor.mentorType);
     const idleAnswer = mentor.answers.find(
-      (a) => a.question.name === UtteranceName.IDLE
+      (a) =>
+        getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
+        UtteranceName.IDLE
     );
     const idle =
       mentor.mentorType === MentorType.VIDEO && idleAnswer
@@ -127,9 +145,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       .map((s) => {
         const answers = mentor.answers.filter(
           (a) =>
-            (!a.question?.mentorType ||
-              a.question?.mentorType == mentor.mentorType) &&
-            s.questions.map((q) => q.question._id).includes(a.question._id)
+            (!getValueIfKeyExists(a.question, mentorQuestions)?.question
+              ?.mentorType ||
+              getValueIfKeyExists(a.question, mentorQuestions)?.question
+                ?.mentorType === mentor.mentorType) &&
+            s.questions.map((q) => q.question).includes(a.question)
         );
         return {
           subject: s,
@@ -173,7 +193,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     });
     status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
     setSteps(status);
-  }, [mentor, config.state.config]);
+  }, [mentor, questionsLoading, config.state.config]);
 
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js

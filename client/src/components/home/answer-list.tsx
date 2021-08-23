@@ -24,6 +24,8 @@ import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
+import useQuestions from "store/slices/questions/useQuestions";
+import { getValueIfKeyExists } from "helpers";
 
 function AnswerList(props: {
   classes: Record<string, string>;
@@ -45,6 +47,10 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
+  const questions = useQuestions(
+    (state) => state.questions,
+    answers.map((a) => a.question)
+  );
 
   return (
     <Card
@@ -103,50 +109,56 @@ function AnswerList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
-            {answers.map((answer: Answer, i: number) => (
-              <ListItem
-                data-cy={`answer-${i}`}
-                key={`item-${i}`}
-                style={{ backgroundColor: "#eee" }}
-              >
-                <div>
-                  {answer.question.mentor === props.mentorId ? (
-                    <TextField
-                      data-cy="edit-question"
-                      placeholder="New question"
-                      fullWidth
-                      multiline
-                      value={answer.question.question}
-                      style={{ marginRight: 100 }}
-                      onChange={(e) =>
-                        onEditQuestion({
-                          ...answer.question,
-                          question: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    <ListItemText
-                      primary={answer.question.question}
-                      secondary={`${answer.transcript.substring(0, 100)}${
-                        answer.transcript.length > 100 ? "..." : ""
-                      }`}
-                      style={{ marginRight: 100 }}
-                    />
-                  )}
-                  <ListItemSecondaryAction>
-                    <Button
-                      data-cy="record-one"
-                      variant="outlined"
-                      endIcon={<PlayArrowIcon />}
-                      onClick={() => onRecordOne(answer)}
-                    >
-                      Record
-                    </Button>
-                  </ListItemSecondaryAction>
-                </div>
-              </ListItem>
-            ))}
+            {answers.map((answer: Answer, i: number) => {
+              const question = getValueIfKeyExists(
+                answer.question,
+                questions
+              )?.question;
+              return (
+                <ListItem
+                  data-cy={`answer-${i}`}
+                  key={`item-${i}`}
+                  style={{ backgroundColor: "#eee" }}
+                >
+                  <div>
+                    {question?.mentor === props.mentorId ? (
+                      <TextField
+                        data-cy="edit-question"
+                        placeholder="New question"
+                        fullWidth
+                        multiline
+                        value={question?.question}
+                        style={{ marginRight: 100 }}
+                        onChange={(e) =>
+                          onEditQuestion({
+                            ...question,
+                            question: e.target.value,
+                          })
+                        }
+                      />
+                    ) : (
+                      <ListItemText
+                        primary={question?.question}
+                        secondary={`${answer.transcript.substring(0, 100)}${
+                          answer.transcript.length > 100 ? "..." : ""
+                        }`}
+                        style={{ marginRight: 100 }}
+                      />
+                    )}
+                    <ListItemSecondaryAction>
+                      <Button
+                        data-cy="record-one"
+                        variant="outlined"
+                        endIcon={<PlayArrowIcon />}
+                        onClick={() => onRecordOne(answer)}
+                      >
+                        Record
+                      </Button>
+                    </ListItemSecondaryAction>
+                  </div>
+                </ListItem>
+              );
+            })}
           </List>
         </Collapse>
       </CardContent>
