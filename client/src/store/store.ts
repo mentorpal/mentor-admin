@@ -9,6 +9,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import loginReducer from "./slices/login";
 import configReducer from "./slices/config";
 import mentorReducer from "./slices/mentor";
+import questionsReducer from "./slices/questions";
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
@@ -16,6 +17,7 @@ export const store = configureStore({
     login: loginReducer,
     config: configReducer,
     mentor: mentorReducer,
+    questions: questionsReducer,
   },
 });
 

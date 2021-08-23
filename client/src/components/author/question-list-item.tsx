@@ -14,15 +14,14 @@ import {
 } from "@material-ui/core";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 import DeleteIcon from "@material-ui/icons/Delete";
-
-import { SubjectQuestion } from "types";
+import { SubjectQuestionGQL } from "types-gql";
 
 export function QuestionListItem(props: {
   isSelected: boolean;
-  question: SubjectQuestion;
-  updateQuestion: (newVal: SubjectQuestion) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
-  selectQuestion: (val: SubjectQuestion) => void;
+  question: SubjectQuestionGQL;
+  updateQuestion: (newVal: SubjectQuestionGQL) => void;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
+  selectQuestion: (val: SubjectQuestionGQL) => void;
   deselectQuestion: () => void;
 }): JSX.Element {
   const {

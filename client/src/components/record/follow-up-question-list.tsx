@@ -9,8 +9,8 @@ import React, { useState, useEffect } from "react";
 import { List, ListItem, ListItemText } from "@material-ui/core";
 import { Card, Button, Checkbox } from "@material-ui/core";
 import { copyAndSet } from "helpers";
-import { Subject, SubjectQuestion } from "types";
 import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 function FollowUpQuestionsWidget(props: {
   //insert expected props here
@@ -18,8 +18,8 @@ function FollowUpQuestionsWidget(props: {
   categoryId: string;
   mentorId: string;
   addQuestion: (q: NewQuestionArgs) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
-  editedData?: Subject;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
+  editedData?: SubjectGQL;
   toRecordFollowUpQs: (b: boolean) => void;
 }): JSX.Element {
   const [seeAll, setSeeAll] = useState(false);

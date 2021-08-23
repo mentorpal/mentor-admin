@@ -37,6 +37,7 @@ import { useWithSetup } from "hooks/graphql/use-with-setup";
 import useActiveMentor, {
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { useEffect } from "react";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -96,7 +97,6 @@ function HomePage(props: {
     startTraining,
   } = useWithReviewAnswerState(props.accessToken, props.search);
   const defaultMentor = props.user.defaultMentor._id;
-
   const mentorId = useActiveMentor((m) => m.data?._id || "");
   const { loadMentor } = useActiveMentorActions();
   const { isMentorEdited } = useMentor;
@@ -115,12 +115,16 @@ function HomePage(props: {
       {}
     )
   );
-  React.useEffect(() => {
+  const continueAction = () =>
+    mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
+
+  useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
+
   if (!(mentorId && setupStatus)) {
     return (
       <div>
@@ -129,16 +133,10 @@ function HomePage(props: {
       </div>
     );
   }
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
-  }
 
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
   }
-
-  const continueAction = () =>
-    mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
   return (
     <div

@@ -22,7 +22,7 @@ export function RecordIdleSlide(props: {
   function onRecord() {
     navigate(
       urlBuild("/record", {
-        videoId: idle.question._id,
+        videoId: idle.question,
         back: urlBuild("/setup", { i: String(i) }),
       })
     );

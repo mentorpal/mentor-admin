@@ -22,7 +22,7 @@ import {
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
-import { UploadStatus } from "hooks/graphql/use-with-upload-status";
+import { UploadStatus } from "types";
 
 function UploadingListItem(props: {
   useWithUploadListItem: UseWithUploadListItem;

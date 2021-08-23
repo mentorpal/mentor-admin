@@ -29,9 +29,21 @@ import {
   Config,
   MentorExportJson,
   MentorImportPreview,
+  UploadStatus,
+  UploadTask,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
+import {
+  convertConnectionGQL,
+  convertMentorGQL,
+  convertSubjectGQL,
+  convertUploadTaskGQL,
+  convertUserQuestionGQL,
+  MentorGQL,
+  SubjectGQL,
+  UploadTaskGQL,
+  UserQuestionGQL,
+} from "types-gql";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -218,82 +230,6 @@ export async function fetchConfig(): Promise<Config> {
   );
 }
 
-export async function fetchSubjects(
-  searchParams?: SearchParams
-): Promise<Connection<Subject>> {
-  const params = { ...defaultSearchParams, ...searchParams };
-  return execGql<Connection<Subject>>(
-    {
-      query: `
-      query Subjects($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
-        subjects(
-          filter:$filter,
-          cursor:$cursor,
-          limit:$limit,
-          sortBy:$sortBy,
-          sortAscending:$sortAscending
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              name
-              description
-              isRequired
-              categories {
-                id
-                name
-                description
-              }
-              topics {
-                id
-                name
-                description
-              }
-              questions {
-                question {
-                  _id
-                  question
-                  type
-                  name
-                  paraphrases
-                  mentor
-                  mentorType
-                  minVideoLength
-                }
-                category {
-                  id
-                  name
-                  description
-                }
-                topics {
-                  id
-                  name
-                  description
-                }
-              }
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
-        }
-      }
-    `,
-      variables: {
-        filter: stringifyObject(params.filter),
-        limit: params.limit,
-        cursor: params.cursor,
-        sortBy: params.sortBy,
-        sortAscending: params.sortAscending,
-      },
-    },
-    { dataPath: "subjects" }
-  );
-}
 export async function fetchUsers(
   searchParams?: SearchParams
 ): Promise<Connection<User>> {
@@ -355,8 +291,8 @@ export async function updateUserPermissions(
   );
 }
 
-export async function fetchSubject(id: string): Promise<Subject> {
-  return execGql<Subject>(
+export async function fetchSubject(id: string): Promise<SubjectGQL> {
+  return await execGql<SubjectGQL>(
     {
       query: `
         query Subject($id: ID!) {
@@ -364,6 +300,7 @@ export async function fetchSubject(id: string): Promise<Subject> {
             _id
             name
             description
+            isRequired
             categories {
               id
               name
@@ -377,13 +314,6 @@ export async function fetchSubject(id: string): Promise<Subject> {
             questions {
               question {
                 _id
-                question
-                type
-                name
-                paraphrases
-                mentor
-                mentorType
-                minVideoLength
               }
               category {
                 id
@@ -403,19 +333,118 @@ export async function fetchSubject(id: string): Promise<Subject> {
     },
     { dataPath: "subject" }
   );
+  // return convertSubjectGQL(gql);
+}
+
+export async function fetchSubjects(
+  searchParams?: SearchParams
+): Promise<Connection<SubjectGQL>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return await execGql<Connection<SubjectGQL>>(
+    {
+      query: `
+      query Subjects($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        subjects(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              name
+              description
+              isRequired
+              categories {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+              questions {
+                question {
+                  _id
+                }
+                category {
+                  id
+                  name
+                  description
+                }
+                topics {
+                  id
+                  name
+                  description
+                }
+              }
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "subjects" }
+  );
 }
 
 export async function updateSubject(
-  subject: Partial<Subject>,
+  subject: Partial<SubjectGQL>,
   accessToken: string
 ): Promise<Subject> {
-  return execGql<Subject>(
+  const gql = await execGql<SubjectGQL>(
     {
       query: `
       mutation UpdateSubject($subject: SubjectUpdateInputType!) {
         me {
           updateSubject(subject: $subject) {
             _id
+            name
+            description
+            isRequired
+            categories {
+              id
+              name
+              description
+            }
+            topics {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+              }
+              category {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+            }
           }
         }
       }
@@ -433,6 +462,7 @@ export async function updateSubject(
     },
     { dataPath: ["me", "updateSubject"], accessToken }
   );
+  return convertSubjectGQL(gql);
 }
 
 export async function fetchQuestions(
@@ -484,11 +514,63 @@ export async function fetchQuestions(
   );
 }
 
+export async function fetchQuestionsById(ids: string[]): Promise<Question[]> {
+  return execGql<Question[]>(
+    {
+      query: `
+        query QuestionsById($ids: [ID]!) {
+          questionsById(ids: $ids) {
+            _id
+            question
+            type
+            name
+            paraphrases
+            mentor
+            mentorType
+            minVideoLength
+          }
+        }
+    `,
+      variables: { ids },
+    },
+    { dataPath: "questionsById" }
+  );
+}
+
+export async function updateQuestion(
+  updateQuestion: Question,
+  accessToken: string
+): Promise<Question> {
+  const gql = await execGql<Question>(
+    {
+      query: `
+        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
+          me {
+            updateQuestion(question: $question) {
+              _id
+              question
+              type
+              name
+              paraphrases
+              mentor
+              mentorType
+              minVideoLength
+            }
+          }
+        }
+      `,
+      variables: { question: updateQuestion },
+    },
+    { accessToken, dataPath: ["me", "updateQuestion"] }
+  );
+  return gql;
+}
+
 export async function fetchUserQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<UserQuestion>> {
   const params = { ...defaultSearchParams, ...searchParams };
-  return execGql<Connection<UserQuestion>>(
+  const gql = await execGql<Connection<UserQuestionGQL>>(
     {
       query: `
       query {
@@ -543,10 +625,11 @@ export async function fetchUserQuestions(
     },
     { dataPath: "userQuestions" }
   );
+  return convertConnectionGQL(gql, convertUserQuestionGQL);
 }
 
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
-  return execGql<UserQuestion>(
+  const gql = await execGql<UserQuestionGQL>(
     {
       query: `
       query UserQuestion($id: ID!) {
@@ -585,13 +668,14 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
     },
     { dataPath: "userQuestion" }
   );
+  return convertUserQuestionGQL(gql);
 }
 
 export async function updateUserQuestion(
   feedbackId: string,
   answerId: string
-): Promise<UserQuestion> {
-  return execGql<UserQuestion>(
+): Promise<void> {
+  execGql<UserQuestion>(
     {
       query: `
       mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
@@ -613,30 +697,44 @@ export async function fetchMentorById(
   topic?: string,
   status?: string
 ): Promise<Mentor> {
-  return execGql<Mentor>(
+  const gql = await execGql<MentorGQL>(
     {
       query: `
       query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
-          mentor (id: $mentor){
+        mentor (id: $mentor){
+          _id
+          name
+          firstName
+          title
+          email
+          allowContact
+          mentorType
+          thumbnail
+          lastTrainedAt
+          isDirty
+          defaultSubject {
+            _id
+          }
+          subjects {
             _id
             name
-            firstName
-            title
-            email
-            allowContact
-            mentorType
-            thumbnail
-            lastTrainedAt
-            isDirty
-            defaultSubject {
-              _id
-            }
-            subjects {
-              _id
+            description
+            isRequired
+            categories {
+              id
               name
               description
-              isRequired
-              categories {
+            }
+            topics {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+              }
+              category {
                 id
                 name
                 description
@@ -646,58 +744,30 @@ export async function fetchMentorById(
                 name
                 description
               }
-              questions {
-                question {
-                  _id
-                  question
-                  type
-                  name
-                  paraphrases
-                  mentor
-                  mentorType
-                  minVideoLength
-                }
-                category {
-                  id
-                  name
-                  description
-                }
-                topics {
-                  id
-                  name
-                  description
-                }
-              }
             }
-            topics(subject: $subject) {
-              id
-              name
-              description
-            }
-            answers(subject: $subject, topic: $topic, status: $status) {
+          }
+          topics(subject: $subject) {
+            id
+            name
+            description
+          }
+          answers(subject: $subject, topic: $topic, status: $status) {
+            _id
+            question {
               _id
-              question {
-                _id
-                question
-                paraphrases
-                type
-                name
-                mentor
-                mentorType
-                minVideoLength
-              }
-              transcript
-              status
-              hasUntransferredMedia
-              media {
-                type
-                tag
-                url
-                needsTransfer
-              }
             }
-          }  
-        }
+            transcript
+            status
+            hasUntransferredMedia
+            media {
+              type
+              tag
+              url
+              needsTransfer
+            }
+          }
+        }  
+      }
     `,
       variables: {
         mentor: mentorId,
@@ -708,6 +778,7 @@ export async function fetchMentorById(
     },
     { dataPath: ["mentor"], accessToken }
   );
+  return convertMentorGQL(gql);
 }
 
 export async function updateMentorDetails(
@@ -762,27 +833,6 @@ export async function updateMentorSubjects(
   );
 }
 
-export async function updateQuestion(
-  updateQuestion: Question,
-  accessToken: string
-): Promise<boolean> {
-  return execGql<boolean>(
-    {
-      query: `
-        mutation UpdateQuestion($question: QuestionUpdateInputType!) {
-          me {
-            updateQuestion(question: $question) {
-              _id
-            }
-          }
-        }
-      `,
-      variables: { question: updateQuestion },
-    },
-    { accessToken, dataPath: ["me", "updateQuestion"] }
-  );
-}
-
 export async function updateAnswer(
   answer: Answer,
   accessToken: string
@@ -797,7 +847,7 @@ export async function updateAnswer(
       }
     `,
       variables: {
-        questionId: answer.question._id,
+        questionId: answer.question,
         answer: {
           transcript: answer.transcript,
           status: answer.status,
@@ -851,7 +901,7 @@ export async function transferMedia(
 export async function uploadVideo(
   mentorId: string,
   video: File,
-  question: Question,
+  question: string,
   tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
@@ -859,7 +909,7 @@ export async function uploadVideo(
   const data = new FormData();
   data.append(
     "body",
-    JSON.stringify({ mentor: mentorId, question: question._id, trim })
+    JSON.stringify({ mentor: mentorId, question: question, trim })
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
@@ -881,12 +931,12 @@ export async function uploadVideo(
 
 export async function cancelUploadVideo(
   mentorId: string,
-  question: Question,
+  question: string,
   taskId: string
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
     mentor: mentorId,
-    question: question._id,
+    question: question,
     task: taskId,
   });
   return getDataFromAxiosResponse(result, []);
@@ -948,7 +998,7 @@ export async function loginGoogle(
 export async function fetchUploadTasks(
   accessToken: string
 ): Promise<UploadTask[]> {
-  return execGql<UploadTask[]>(
+  const gql = await execGql<UploadTaskGQL[]>(
     {
       query: `
         query FetchUploadTasks {
@@ -972,6 +1022,7 @@ export async function fetchUploadTasks(
     },
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
+  return gql.map((u) => convertUploadTaskGQL(u));
 }
 
 export async function deleteUploadTask(
@@ -1248,8 +1299,8 @@ export async function importMentor(
   mentor: string,
   json: MentorExportJson,
   accessToken: string
-): Promise<Mentor> {
-  return execGql<Mentor>(
+): Promise<MentorGQL> {
+  return execGql<MentorGQL>(
     {
       query: `
         mutation MentorImport($mentor: ID!, $json: MentorImportJsonType!) {

@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { LoadingStatus } from "hooks/graphql/loading-reducer";
 import { useAppSelector } from "store/hooks";
 import { RootState } from "store/store";
 import { Mentor } from "types";
@@ -19,13 +20,13 @@ export function selectActiveMentor(
 
 export function isActiveMentorLoading(): boolean {
   return useActiveMentor(
-    (state) => state.mentorStatus === mentorActions.MentorStatus.LOADING
+    (state) => state.mentorStatus === LoadingStatus.LOADING
   );
 }
 
 export function isActiveMentorSaving(): boolean {
   return useActiveMentor(
-    (state) => state.mentorStatus === mentorActions.MentorStatus.SAVING
+    (state) => state.mentorStatus === LoadingStatus.SAVING
   );
 }
 
