@@ -122,10 +122,8 @@ function RecordPage(props: {
     recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
-  const config = useWithConfig();
-  function isConfigLoaded(): boolean {
-    return config.state.status === ConfigStatus.SUCCEEDED;
-  }
+
+  const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
@@ -192,12 +190,12 @@ function RecordPage(props: {
     );
   }
 
-  if (!config.state.config || config.state.status === ConfigStatus.FAILED) {
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
     return (
       <div>
         <NavBar title="Recording: " mentorId={undefined} />
         <Typography>Failed to load config</Typography>
-        <Button color="primary" variant="contained" onClick={config.loadConfig}>
+        <Button color="primary" variant="contained" onClick={loadConfig}>
           Retry
         </Button>
       </div>
@@ -260,9 +258,7 @@ function RecordPage(props: {
             <VideoPlayer
               classes={classes}
               recordState={recordState}
-              videoRecorderMaxLength={
-                config.state.config.videoRecorderMaxLength
-              }
+              videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
             />
           ) : undefined}
           <div data-cy="question" className={classes.block}>
