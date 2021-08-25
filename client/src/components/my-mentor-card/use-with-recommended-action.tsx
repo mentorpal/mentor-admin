@@ -73,7 +73,7 @@ function recommend(
 
       skip: { ...conditions, hasThumbnail: true },
     };
-  if (conditions.idleIncomplete && conditions.isVideo)
+  if (conditions.idleIncomplete && conditions.isVideo) {
     return {
       text: "Record an Idle Video",
       reason: "Users see your idle video while typing a question",
@@ -91,6 +91,7 @@ function recommend(
 
       skip: { ...conditions, idleIncomplete: false },
     };
+  }
   if (conditions.incompleteRequirement)
     return {
       text: "Finish Required Questions",
@@ -255,10 +256,19 @@ export function UseWithRecommendedAction(
   const conditions = useActiveMentor((ms) =>
     parseMentorConditions(mentorQuestions, ms.data)
   );
-  const recommendation = recommend(conditions, continueAction);
-  const [recommendedAction, setRecommendedAction] = useState(recommendation);
+  const [recommendedAction, setRecommendedAction] = useState<Recommendation>(
+    recommend(conditions, continueAction)
+  );
+
+  React.useEffect(() => {
+    const action = recommend(conditions, continueAction);
+    setRecommendedAction(action);
+  }, [mentorQuestions]);
+
   function skipRecommendation() {
-    setRecommendedAction(recommend(recommendation.skip, continueAction));
+    const skip = recommend(recommendedAction.skip, continueAction);
+    setRecommendedAction(skip);
   }
+
   return [recommendedAction, skipRecommendation];
 }

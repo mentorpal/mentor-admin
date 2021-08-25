@@ -241,7 +241,7 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=recommended-action-upload]").should("be.hidden");
     });
 
-    it.skip("Asks user with thumbnail and without idle video to upload one", () => {
+    it("Asks user with thumbnail and without idle video to upload one", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
@@ -405,8 +405,9 @@ describe("My Mentor Page", () => {
         .click();
       cy.url().should("include", "/subjects");
     });
+
     describe("Skip Button allows user to see next recommendation.", () => {
-      it.skip("Skip button shows user next recommendation.", () => {
+      it("Skip button shows user next recommendation.", () => {
         cySetup(cy);
         cyMockDefault(cy, {
           mentor: {
@@ -415,7 +416,6 @@ describe("My Mentor Page", () => {
             answers: clint.answers.map((a) => {
               if (a.question.name === UtteranceName.IDLE) {
                 a.status = Status.INCOMPLETE;
-                a.question._id = "idletest";
               }
               return a;
             }),
