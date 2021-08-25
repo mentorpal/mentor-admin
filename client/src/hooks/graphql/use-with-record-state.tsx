@@ -366,7 +366,6 @@ export function useWithRecordState(
     const editedQuesiton = answers[answerIdx].editedQuestion;
     // update the question if it has changed
     if (!equals(question, editedQuesiton)) {
-      console.log(`saveQuestion: ${editedQuesiton}`);
       saveQuestion(editedQuesiton);
     }
     // update the answer if it has changed

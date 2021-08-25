@@ -4,10 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { equals } from "helpers";
 import { Mentor } from "types";
-import * as mentorActions from ".";
 import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
@@ -20,11 +18,9 @@ export interface UseMentorEdits {
   editMentor: (edits: Partial<Mentor>) => void;
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
-  onMentorUpdated: (mentor: Mentor) => void;
 }
 
 export const useMentorEdits = (): UseMentorEdits => {
-  const dispatch = useDispatch();
   const [editedMentor, setEditedMentor] = useState<Mentor>();
 
   const mentor = useActiveMentor((state) => state.data);
@@ -71,19 +67,11 @@ export const useMentorEdits = (): UseMentorEdits => {
     saveSubjects(editedMentor);
   };
 
-  const onMentorUpdated = (mentor: Mentor) => {
-    if (!mentor || isMentorLoading || isMentorSaving) {
-      return;
-    }
-    dispatch(mentorActions.updateMentor(mentor));
-  };
-
   return {
     editedMentor,
     isMentorEdited,
     editMentor,
     saveMentorDetails,
     saveMentorSubjects,
-    onMentorUpdated,
   };
 };

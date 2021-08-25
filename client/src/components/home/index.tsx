@@ -99,7 +99,6 @@ function HomePage(props: {
   const defaultMentor = props.user.defaultMentor._id;
   const mentorId = useActiveMentor((m) => m.data?._id || "");
   const { loadMentor } = useActiveMentorActions();
-  const { isMentorEdited } = useMentor;
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
@@ -186,7 +185,6 @@ function HomePage(props: {
             </Fab>
           </div>
         )}
-
         <Select
           data-cy="select-subject"
           value={
@@ -249,7 +247,7 @@ function HomePage(props: {
             data-cy="save-button"
             variant="extended"
             color="secondary"
-            disabled={!isMentorEdited}
+            // disabled={!isMentorEdited}
             onClick={saveChanges}
             className={classes.fab}
           >
