@@ -10,7 +10,13 @@ import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
 import { RootState } from "store/store";
 import { Question } from "types";
-import { loadQuestionsById, clearError, QuestionsState, clearErrors } from ".";
+import {
+  loadQuestionsById,
+  saveQuestion as saveQuestionAction,
+  clearError,
+  QuestionsState,
+  clearErrors,
+} from ".";
 
 export interface SelectFromQuestionStateFunc<T> {
   (questionState: QuestionsState, rootState: RootState): T;
@@ -98,7 +104,7 @@ export function useQuestionActions(): QuestionActions {
   }
 
   function saveQuestion(data: Question): void {
-    dispatch(saveQuestion(data));
+    dispatch(saveQuestionAction(data));
   }
 
   function clearQuestionError(id: string): void {

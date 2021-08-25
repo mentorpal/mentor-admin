@@ -22,13 +22,14 @@ import useActiveMentor, {
   useActiveMentorActions,
   isActiveMentorLoading,
 } from "store/slices/mentor/useActiveMentor";
-import { saveQuestion, QuestionState } from "store/slices/questions";
 import useQuestions, {
   isQuestionsLoading,
   isQuestionsSaving,
+  useQuestionActions,
 } from "store/slices/questions/useQuestions";
 import { LoadingError } from "./loading-reducer";
 import { useWithUploadStatus } from "./use-with-upload-status";
+import { QuestionState } from "store/slices/questions";
 
 export interface AnswerState {
   answer: Answer;
@@ -70,20 +71,23 @@ export function useWithRecordState(
   const pollingInterval = parseInt(filter.poll || "");
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
+  const isMentorLoading = isActiveMentorLoading();
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
   const questionsSaving = isQuestionsSaving(
     mentorAnswers?.map((a) => a.question)
   );
-  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
   const mentorError = useActiveMentor((state) => state.error);
   const { loadMentor, clearMentorError } = useActiveMentorActions();
+  const { saveQuestion } = useQuestionActions();
+
   const {
     uploads,
     isUploading,
@@ -146,8 +150,6 @@ export function useWithRecordState(
     setIsRecording(false);
   }, [answerIdx]);
 
-  const isMentorLoading = isActiveMentorLoading();
-
   useEffect(() => {
     if (!mentorAnswers) return;
     if (
@@ -168,7 +170,6 @@ export function useWithRecordState(
       answer.answer.question,
       mentorQuestions
     )?.question;
-
     setCurAnswer({
       ...answer,
       isEdited:
@@ -363,10 +364,10 @@ export function useWithRecordState(
       answer.question,
       mentorQuestions
     )?.question;
-    const editedQuesiton = answers[answerIdx].editedQuestion;
+    const editedQuestion = answers[answerIdx].editedQuestion;
     // update the question if it has changed
-    if (!equals(question, editedQuesiton)) {
-      saveQuestion(editedQuesiton);
+    if (!equals(question, editedQuestion)) {
+      saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
     if (!equals(answer, editedAnswer)) {
@@ -406,6 +407,7 @@ export function useWithRecordState(
   }
 
   return {
+    mentorQuestions,
     answers,
     answerIdx,
     recordPageState,
@@ -413,7 +415,11 @@ export function useWithRecordState(
     uploads,
     pollStatusCount,
     followUpQuestions,
-    mentorQuestions,
+    isUploading,
+    isRecording,
+    isSaving: isSaving || questionsSaving,
+    error: mentorError || saveError,
+
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
@@ -430,15 +436,12 @@ export function useWithRecordState(
     uploadVideo,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
-    isUploading,
-    isRecording,
-    isSaving,
-    error: mentorError || saveError,
     clearError,
   };
 }
 
 export interface UseWithRecordState {
+  mentorQuestions: Record<string, QuestionState>;
   answers: AnswerState[];
   answerIdx: number;
   recordPageState: RecordPageState;
@@ -446,7 +449,10 @@ export interface UseWithRecordState {
   uploads: UploadTask[];
   pollStatusCount: number;
   followUpQuestions: string[];
-  mentorQuestions: Record<string, QuestionState>;
+  isUploading: boolean;
+  isRecording: boolean;
+  isSaving: boolean;
+  error?: LoadingError;
   fetchFollowUpQs: () => void;
   prevAnswer: () => void;
   reloadMentorData: () => void;
@@ -463,9 +469,5 @@ export interface UseWithRecordState {
   uploadVideo: (trim?: { start: number; end: number }) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
-  isUploading: boolean;
-  isRecording: boolean;
-  isSaving: boolean;
-  error?: LoadingError;
   clearError: () => void;
 }

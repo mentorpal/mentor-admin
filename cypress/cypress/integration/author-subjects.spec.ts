@@ -77,8 +77,4 @@ describe("Edit subjects", () => {
     );
     cy.location("search").should("equal", "");
   });
-
-  it.skip("can delete a subject", () => {
-    // not implemented
-  });
 });

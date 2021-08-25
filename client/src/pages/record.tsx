@@ -127,7 +127,6 @@ function RecordPage(props: {
     recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
-
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
@@ -247,7 +246,6 @@ function RecordPage(props: {
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
         onBack={() => switchAnswer(onBack)}
       />
-
       {displayRecordingPage ? (
         <div>
           <div data-cy="progress" className={classes.block}>
@@ -422,7 +420,6 @@ function RecordPage(props: {
         </div>
       )}
       <div className={classes.toolbar} />
-
       <AppBar position="fixed" className={classes.footer}>
         <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
           <IconButton

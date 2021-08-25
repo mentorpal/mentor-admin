@@ -25,7 +25,6 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
-import questions from "../fixtures/questions";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -2720,7 +2719,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it.skip("can update question for a question belonging to mentor", () => {
+  it("can update question for a question belonging to mentor", () => {
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
@@ -2739,7 +2738,7 @@ describe("Record", () => {
         mockGQL("UpdateQuestion", {
           me: {
             updateQuestion: {
-              ...questions[1],
+              ...chatQuestions[1],
               question: "How old are you now?test",
             },
           },
