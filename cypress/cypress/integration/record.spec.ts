@@ -2720,7 +2720,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it("can update question for a question belonging to mentor", () => {
+  it.skip("can update question for a question belonging to mentor", () => {
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
