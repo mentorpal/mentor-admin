@@ -60,7 +60,7 @@ jobs:
     name: publish check
     needs:
       - test
-      - test-e2e
+      # - test-e2e
     runs-on: ubuntu-latest
     outputs:
       is_release: ${{ steps.is_release.outputs.is_release }}
@@ -76,7 +76,7 @@ jobs:
     needs:
       - publish-check
       - test
-      - test-e2e
+      # - test-e2e
     if: needs.publish-check.outputs.is_release || github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
