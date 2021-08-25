@@ -9,7 +9,7 @@ import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 
 import { updateSubject } from "api";
-import { urlBuild, copyAndSet, equals } from "helpers";
+import { urlBuild, copyAndSet } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import useActiveMentor, {
   isActiveMentorLoading,
@@ -317,28 +317,20 @@ export function useWithReviewAnswerState(
       "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
     );
     Promise.all(
-      editedSubjects
-        ?.filter(
-          (s) =>
-            !equals(
-              s,
-              mentorSubjects.find((ms) => ms._id === s._id)
-            )
-        )
-        .map((subject) => {
-          const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-          for (const sq of subject.questions) {
-            const q = editedQuestions.find((q) => q._id === sq.question);
-            if (q) {
-              subjectQuestionsGQL.push({ ...sq, question: q });
-            }
+      editedSubjects?.map((subject) => {
+        const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
+        for (const sq of subject.questions) {
+          const q = editedQuestions.find((q) => q._id === sq.question);
+          if (q) {
+            subjectQuestionsGQL.push({ ...sq, question: q });
           }
-          const subjectGQL: SubjectGQL = {
-            ...subject,
-            questions: subjectQuestionsGQL,
-          };
-          return updateSubject(subjectGQL, accessToken);
-        })
+        }
+        const subjectGQL: SubjectGQL = {
+          ...subject,
+          questions: subjectQuestionsGQL,
+        };
+        return updateSubject(subjectGQL, accessToken);
+      })
     )
       .then(() => {
         saveMentorDetails();
