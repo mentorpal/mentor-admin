@@ -101,7 +101,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-  const config = useWithConfig();
+  const { state: configState, isConfigLoaded } = useWithConfig();
 
   function isConfigLoaded(): boolean {
     return config.state.status === ConfigStatus.SUCCEEDED;
@@ -263,7 +263,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
-    idleTipsVideoUrl: config.state.config?.urlVideoIdleTips || "",
+    idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
