@@ -15,10 +15,15 @@ import {
   UtteranceName,
 } from "types";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { urlBuild } from "helpers";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 export enum SetupStepType {
   WELCOME = 0,
@@ -80,17 +85,15 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
-  const {
-    mentor,
-    mentorError,
-    editedMentor,
-    isMentorEdited,
-    isMentorLoading,
-    isMentorSaving,
-    clearMentorError,
-    editMentor,
-    saveMentorDetails,
-  } = useWithMentor();
+
+  const mentor = useActiveMentor((state) => state.data);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
+
+  const { clearMentorError } = useActiveMentorActions();
+  const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
+    useMentorEdits();
   const {
     isPolling: isTraining,
     error: trainError,
@@ -212,8 +215,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     if (
       !mentor ||
       isTraining ||
-      isMentorLoading ||
       isMentorSaving ||
+      isMentorLoading ||
       !status ||
       !status.isBuildable
     ) {

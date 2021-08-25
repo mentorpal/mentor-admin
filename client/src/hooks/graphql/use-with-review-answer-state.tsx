@@ -22,9 +22,13 @@ import { copyAndSet, equals, urlBuild } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import {
-  UseWithMentor,
-  useWithMentor,
-} from "store/slices/mentor/useWithMentor";
+  UseMentorEdits,
+  useMentorEdits,
+} from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  useActiveMentorActions,
+} from "store/slices/mentor/useActiveMentor";
 
 interface Progress {
   complete: number;
@@ -52,17 +56,19 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const useMentor = useWithMentor();
+
+  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+
+  const { clearMentorError } = useActiveMentorActions();
+  const useMentor = useMentorEdits();
   const {
-    mentor,
     editedMentor,
-    mentorError,
     isMentorEdited,
-    isMentorLoading,
     onMentorUpdated,
     editMentor,
     saveMentorDetails,
-    clearMentorError,
   } = useMentor;
   const {
     isPolling: isTraining,
@@ -294,7 +300,7 @@ export function useWithReviewAnswerState(
 
   function saveChanges() {
     if (
-      !mentor ||
+      !mentorSubjects ||
       !editedMentor ||
       !isMentorEdited ||
       isMentorLoading ||
@@ -308,7 +314,7 @@ export function useWithReviewAnswerState(
     );
     Promise.all(
       editedMentor.subjects
-        .filter((s, i) => !equals(s, mentor.subjects[i]))
+        .filter((s, i) => !equals(s, mentorSubjects[i]))
         .map((subject) => {
           return updateSubject(subject, accessToken);
         })
@@ -342,7 +348,7 @@ export function useWithReviewAnswerState(
 }
 
 interface UseWithReviewAnswerState {
-  useMentor: UseWithMentor;
+  useMentor: UseMentorEdits;
   blocks: RecordingBlock[];
   progress: Progress;
   selectedSubject?: string;

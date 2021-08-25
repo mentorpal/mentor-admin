@@ -12,6 +12,7 @@ import NavBar from "components/nav-bar";
 import ImportView from "components/import-export/import-view";
 import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,16 +24,16 @@ const useStyles = makeStyles(() => ({
 function ImportPage(props: { accessToken: string }): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport(props.accessToken);
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
 
-  if (!useImportExport.mentor) {
+  if (!mentorId || !mentorAnswers) {
     return <div />;
   }
-  const needsTransfer = useImportExport.mentor.answers.some(
-    (a) => a.hasUntransferredMedia
-  );
+  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
   return (
     <div className={classes.root}>
-      <NavBar title="Export Mentor" mentorId={useImportExport.mentor._id} />
+      <NavBar title="Export Mentor" mentorId={mentorId} />
       <ImportView useImportExport={useImportExport} />
       <div style={{ padding: 10 }}>
         <Button

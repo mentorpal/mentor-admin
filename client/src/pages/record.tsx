@@ -45,6 +45,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import UploadingWidget from "components/record/uploading-widget";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 
@@ -117,26 +118,24 @@ function RecordPage(props: {
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const {
-    curAnswer,
-    mentor,
-    setRecordPageState,
-    recordPageState,
-    reloadMentorData,
-  } = recordState;
+  const { curAnswer, setRecordPageState, recordPageState, reloadMentorData } =
+    recordState;
   const { addQuestion, removeQuestion, editedData, saveSubject } =
     useWithSubject(props.search.subject || "", props.accessToken);
+
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const [toRecordFollowUpQs, setRecordFollowUpQs] = useState(false);
-  const curSubject = mentor?.subjects.find(
-    (s) => s._id == props.search.subject
+  const mentorId = useActiveMentor((state) => state.data?._id);
+  const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const curSubject = useActiveMentor((state) =>
+    state.data?.subjects.find((s) => s._id == props.search.subject)
   );
   const subjectTitle = curSubject?.name || "";
   const categoryTitle =
     curSubject?.categories.find((c) => c.id == props.search.category)?.name ||
     "";
   const curAnswerBelongsToMentor =
-    curAnswer?.editedAnswer.question?.mentor === mentor?._id;
+    curAnswer?.editedAnswer.question?.mentor === mentorId;
   const curEditedQuestion = curAnswer?.editedAnswer?.question;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
@@ -181,7 +180,7 @@ function RecordPage(props: {
     saveSubject().then(() => recordState.reloadMentorData());
   }
 
-  if (!mentor || !curAnswer || !isConfigLoaded()) {
+  if (!mentorId || !curAnswer || !isConfigLoaded()) {
     return (
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />
@@ -232,7 +231,7 @@ function RecordPage(props: {
             ? `Recording: ${subjectTitle} - ${categoryTitle}`
             : `Recording: ${subjectTitle}`
         }
-        mentorId={mentor._id}
+        mentorId={mentorId}
         uploads={recordState.uploads}
         uploadsButtonVisible={uploadingWidgetVisible}
         toggleUploadsButtonVisibility={setUploadingWidgetVisible}
@@ -255,7 +254,7 @@ function RecordPage(props: {
               total={recordState.answers.length}
             />
           </div>
-          {mentor.mentorType === MentorType.VIDEO ? (
+          {mentorType === MentorType.VIDEO ? (
             <VideoPlayer
               classes={classes}
               recordState={recordState}
@@ -405,7 +404,7 @@ function RecordPage(props: {
             <FollowUpQuestionsWidget
               categoryId={props.search.category || ""}
               questions={recordState.followUpQuestions}
-              mentorId={mentor._id || ""}
+              mentorId={mentorId || ""}
               toRecordFollowUpQs={setRecordFollowUpQs}
               addQuestion={addQuestion}
               removeQuestion={removeQuestion}

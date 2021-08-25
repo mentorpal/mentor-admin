@@ -26,11 +26,15 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithMentor } from "store/slices/mentor/useWithMentor";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import useActiveMentor, {
+  isActiveMentorLoading,
+  isActiveMentorSaving,
+} from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 
 const useStyles = makeStyles((theme) => ({
@@ -95,15 +99,12 @@ function SubjectsPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const {
-    editedMentor,
-    isMentorLoading,
-    isMentorSaving,
-    isMentorEdited,
-    mentorError,
-    editMentor,
-    saveMentorSubjects,
-  } = useWithMentor();
+  const mentorError = useActiveMentor((state) => state.error);
+  const isMentorLoading = isActiveMentorLoading();
+  const isMentorSaving = isActiveMentorSaving();
+
+  const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
+    useMentorEdits();
   const {
     data: subjects,
     isLoading: isSubjectsLoading,

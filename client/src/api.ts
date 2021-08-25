@@ -606,8 +606,9 @@ export async function updateUserQuestion(
   );
 }
 
-export async function fetchMentor(
+export async function fetchMentorById(
   accessToken: string,
+  mentorId: string,
   subject?: string,
   topic?: string,
   status?: string
@@ -615,9 +616,8 @@ export async function fetchMentor(
   return execGql<Mentor>(
     {
       query: `
-      query Mentor($subject: ID!, $topic: ID!, $status: String!) {
-        me {
-          mentor {
+      query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
+          mentor (id: $mentor){
             _id
             name
             firstName
@@ -698,15 +698,15 @@ export async function fetchMentor(
             }
           }  
         }
-      }
     `,
       variables: {
+        mentor: mentorId,
         subject: subject || "",
         topic: topic || "",
         status: status || "",
       },
     },
-    { dataPath: ["me", "mentor"], accessToken }
+    { dataPath: ["mentor"], accessToken }
   );
 }
 
@@ -908,6 +908,9 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
           }
           accessToken
         }
