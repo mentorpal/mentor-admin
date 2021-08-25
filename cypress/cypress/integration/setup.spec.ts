@@ -251,7 +251,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getSettled("[data-cy=first-name]", { retries: 2 }).type("Clint");
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).type("Clint");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -270,7 +270,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.getSettled("[data-cy=name]", { retries: 2 }).type("Clinton Anderson");
+    cy.getSettled("[data-cy=name]", { retries: 4 }).type("Clinton Anderson");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -289,7 +289,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.getSettled("[data-cy=mentor-title]", { retries: 2 }).type(
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
       "Nuclear Electrician's Mate"
     );
     cy.get("[data-cy=first-name]").within(($input) => {
@@ -310,7 +310,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
-    cy.getSettled("[data-cy=email]", { retries: 2 }).type("clint@anderson.com");
+    cy.getSettled("[data-cy=email]", { retries: 4 }).type("clint@anderson.com");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -342,7 +342,7 @@ describe("Setup", () => {
     cy.contains("Pick a mentor type");
     // select chat type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -361,7 +361,7 @@ describe("Setup", () => {
     cy.get("[data-cy=radio]").should("have.length", 7);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -425,7 +425,7 @@ describe("Setup", () => {
     cy.contains("Pick the ones you feel qualified to mentor in!");
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=button]", { retries: 2 })
+      cy.getSettled("[data-cy=button]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -530,7 +530,7 @@ describe("Setup", () => {
     });
     cy.contains("Idle");
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+      cy.getSettled("[data-cy=record-btn]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -587,7 +587,7 @@ describe("Setup", () => {
       cy.contains("1 / 3");
     });
     cy.contains("Repeat After Me questions");
-    cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+    cy.getSettled("[data-cy=record-btn]", { retries: 4 })
       .trigger("mouseover")
       .click();
     // go to record
@@ -665,7 +665,7 @@ describe("Setup", () => {
         cy.contains("Click the build button to start building your mentor.");
         cy.contains("Once its complete, click preview to see your mentor.");
         cy.get("[data-cy=train-btn]").contains("Build");
-        cy.getSettled("[data-cy=train-btn]", { retries: 2 })
+        cy.getSettled("[data-cy=train-btn]", { retries: 4 })
           .trigger("mouseover")
           .click();
       });
