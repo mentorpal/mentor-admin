@@ -70,10 +70,10 @@ To build/push a pre-release semver tag of `mentor-admin` for the current commit 
 - ensure all github actions tests are passing
 - create a [github release](https://github.com/ICTLearningSciences/mentor-admin/releases/new) with tag format `[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9.]*)?$` (e.g. `1.0.0-alpha.1`)
 - ensure all github actions tests pass again and the docker `test and publish` action completes
-- this will create a tag like `uscictdocker/mentor-admin:1.0.0-alpha.1`
+- this will create a tag like `mentorpal/mentor-admin:1.0.0-alpha.1`
 
 Once your changes are approved and merged to `main`, you should create a release tag in semver format as follows:
 
 - create a [github release](https://github.com/ICTLearningSciences/mentor-admin/releases/new) **from main** with tag format `[0-9]+\.[0-9]+\.[0-9]$` (e.g. `1.0.0`)
 - ensure all github actions tests pass and the docker `test and publish` action completes
-- this will create a tag like `uscictdocker/mentor-admin:1.0.0`
+- this will create a tag like `mentorpal/mentor-admin:1.0.0`
