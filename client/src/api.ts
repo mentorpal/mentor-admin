@@ -314,6 +314,13 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
             questions {
               question {
                 _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
               }
               category {
                 id
@@ -371,6 +378,13 @@ export async function fetchSubjects(
               questions {
                 question {
                   _id
+                  question
+                  type
+                  name
+                  paraphrases
+                  mentor
+                  mentorType
+                  minVideoLength
                 }
                 category {
                   id

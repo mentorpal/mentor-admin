@@ -112,7 +112,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const { state: configState, isConfigLoaded } = useWithConfig();
 
   useEffect(() => {
-    console.log(questionsLoading);
     if (
       !mentor ||
       isMentorSaving ||

@@ -42,6 +42,7 @@ interface Conditions {
   completedAnswers: number;
   totalAnswers: number;
 }
+
 interface Recommendation {
   text: string;
   reason: string;

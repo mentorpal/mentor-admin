@@ -23,17 +23,16 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import { Answer, Question } from "types";
-import useQuestions from "store/slices/questions/useQuestions";
-import { getValueIfKeyExists } from "helpers";
+import { Question } from "types";
+import { AnswerGQL } from "types-gql";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
-  answers: Answer[];
+  answers: AnswerGQL[];
   onRecordAll: () => void;
-  onRecordOne: (answer: Answer) => void;
+  onRecordOne: (question: Question) => void;
   onEditQuestion: (question: Question) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
@@ -47,10 +46,6 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
-  const questions = useQuestions(
-    (state) => state.questions,
-    answers.map((a) => a.question)
-  );
 
   return (
     <Card
@@ -109,11 +104,7 @@ function AnswerList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
-            {answers.map((answer: Answer, i: number) => {
-              const question = getValueIfKeyExists(
-                answer.question,
-                questions
-              )?.question;
+            {answers.map((answer, i) => {
               return (
                 <ListItem
                   data-cy={`answer-${i}`}
@@ -121,24 +112,24 @@ function AnswerList(props: {
                   style={{ backgroundColor: "#eee" }}
                 >
                   <div>
-                    {question?.mentor === props.mentorId ? (
+                    {answer.question?.mentor === props.mentorId ? (
                       <TextField
                         data-cy="edit-question"
                         placeholder="New question"
                         fullWidth
                         multiline
-                        value={question?.question}
+                        value={answer.question?.question}
                         style={{ marginRight: 100 }}
                         onChange={(e) =>
                           onEditQuestion({
-                            ...question,
+                            ...answer.question,
                             question: e.target.value,
                           })
                         }
                       />
                     ) : (
                       <ListItemText
-                        primary={question?.question}
+                        primary={answer.question?.question}
                         secondary={`${answer.transcript.substring(0, 100)}${
                           answer.transcript.length > 100 ? "..." : ""
                         }`}
@@ -150,7 +141,7 @@ function AnswerList(props: {
                         data-cy="record-one"
                         variant="outlined"
                         endIcon={<PlayArrowIcon />}
-                        onClick={() => onRecordOne(answer)}
+                        onClick={() => onRecordOne(answer.question)}
                       >
                         Record
                       </Button>
