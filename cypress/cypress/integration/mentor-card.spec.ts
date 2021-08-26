@@ -115,11 +115,10 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=mentor-job-title]").within(($input) => {
           cy.get("input").should("have.value", "dNuclear Electrician's Mate");
         });
-        cy.get("[data-cy=edit-mentor-data-modal]").contains(
-          "Last Trained: Today"
-        );
-
         cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+
+        cy.get("[data-cy=mentor-card-trained]").contains("Last Trained: Today");
+
         cy.get("[data-cy=my-mentor-card]").contains("Scope: Incomplete");
         cy.get("[data-cy=my-mentor-card]").contains(
           "This Mentor can't be built yet."
@@ -135,7 +134,7 @@ describe("My Mentor Page", () => {
       });
     });
 
-    it.only("shows placeholder when no thumbnail", () => {
+    it("shows placeholder when no thumbnail", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {

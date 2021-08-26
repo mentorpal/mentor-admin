@@ -24,7 +24,7 @@ describe("Switch Active Mentor", () => {
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-select]").should("not.exist");
     });
-    it.only("loads other mentors' profile data if user is admin, data cannot be edited", () => {
+    it("loads other mentors' profile data if user is admin, data cannot be edited", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [
