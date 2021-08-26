@@ -106,7 +106,8 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, baseMock);
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cy.visit("/setup");
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Oops! Your mentor is not ready yet."
@@ -580,13 +581,11 @@ describe("Setup", () => {
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
-    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Repeat After Me questions");
-      cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
-      cy.contains("1 / 3");
-    });
+    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Repeat After Me questions");
+    cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
+    cy.contains("1 / 3");
     cy.getSettled("[data-cy=record-btn]", { retries: 4 })
       .trigger("mouseover")
       .click();
@@ -640,7 +639,8 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup7],
       });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Oops! Your mentor is not ready yet.");
       cy.contains(
         "You're still missing some steps before you can build your mentor."
@@ -657,18 +657,15 @@ describe("Setup", () => {
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]");
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Great job! You're ready to build your mentor!");
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Great job! You're ready to build your mentor!");
-        cy.contains("Click the build button to start building your mentor.");
-        cy.contains("Once its complete, click preview to see your mentor.");
-        cy.get("[data-cy=train-btn]").contains("Build");
-        cy.getSettled("[data-cy=train-btn]", { retries: 4 })
-          .trigger("mouseover")
-          .click();
-      });
+      cy.contains("Click the build button to start building your mentor.");
+      cy.contains("Once its complete, click preview to see your mentor.");
+      cy.get("[data-cy=train-btn]").contains("Build");
+      cy.getSettled("[data-cy=train-btn]", { retries: 4 })
+        .trigger("mouseover")
+        .click();
       cy.contains("Building your mentor...");
       cy.contains("Your brand-new mentor is ready!");
       cy.contains("Click the preview button to see your mentor.");
@@ -690,13 +687,13 @@ describe("Setup", () => {
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.contains("Great job! You're ready to build your mentor!");
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Great job! You're ready to build your mentor!");
       cy.contains("Click the build button to start building your mentor.");
       cy.contains("Once its complete, click preview to see your mentor.");
       cy.get("[data-cy=train-btn]").contains("Build");
-      cy.getSettled("[data-cy=train-btn]", { retries: 4 })
+      cy.getSettled("[data-cy=train-btn]", { retries: 10 })
         .trigger("mouseover")
         .click();
       cy.contains("Building your mentor...");
