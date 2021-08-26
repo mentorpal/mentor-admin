@@ -28,3 +28,76 @@ body {
 div.jsoneditor {
     min-height: 400px !important;
 }
+
+.mentorName,
+.mentorTitle {
+  text-align: left !important;
+}
+
+.mentorTitle {
+  font-size: 18px !important;
+  color: #b1b1b1;
+}
+
+.mentorName {
+  margin-bottom: 0 !important;
+}
+
+.upload-thumbnail {
+  background-color: #ddd;
+  width: 100px;
+  height: 45px;
+  border-radius: 10px;
+  margin-left: 30px;
+  margin-right: auto;
+}
+
+.edit-pencil-icon {
+  padding: 0px !important;
+}
+
+.modal-wrapper {
+  max-width: 50% !important;
+}
+.page-title {
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transform: translateY(-50%);
+  max-width: 30%;
+}
+
+.stage-text {
+  margin-bottom: 5px !important;
+}
+
+.footer-info {
+  display: flex;
+}
+
+.trainnig-stage-info {
+  display: flex;
+  justify-content: left;
+  width: 100%;
+}
+
+.page-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.secondary-btn:hover {
+  background-color: white !important;
+  border: 2px solid blue;
+}
+
+.MuiFab-secondary {
+  color: #1c6a9c !important;
+  background-color: #fff !important;
+  border: 1px solid #1c6a9c  !important;
+}

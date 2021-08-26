@@ -314,7 +314,7 @@ export function NavBar(props: {
             {onBack ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Typography data-cy="title" variant="h5" className={classes.title}>
-            {props.title}
+            <div className="page-title">{props.title}</div>
           </Typography>
           <Button
             variant="outlined"

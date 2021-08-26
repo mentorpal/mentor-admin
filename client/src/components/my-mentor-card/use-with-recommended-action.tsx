@@ -8,7 +8,7 @@ import React from "react";
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
-import { getValueIfKeyExists, urlBuild } from "helpers";
+import { urlBuild, getValueIfKeyExists } from "helpers";
 import {
   AccountBox,
   CheckCircleOutlined,

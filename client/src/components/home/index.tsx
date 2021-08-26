@@ -38,6 +38,11 @@ import useActiveMentor, {
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
 import { useEffect } from "react";
+import parseMentor, {
+  defaultMentorInfo,
+} from "components/my-mentor-card/mentor-info";
+
+import "styles/layout.css";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -114,6 +119,11 @@ function HomePage(props: {
       {}
     )
   );
+
+  const mentorInfo = useActiveMentor((ms) =>
+    ms.data ? parseMentor(ms.data) : defaultMentorInfo
+  );
+
   const continueAction = () =>
     mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
@@ -240,29 +250,41 @@ function HomePage(props: {
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "center",
           }}
         >
-          <Fab
-            data-cy="save-button"
-            variant="extended"
-            color="secondary"
-            // disabled={!isMentorEdited}
-            onClick={saveChanges}
-            className={classes.fab}
-          >
-            Save Changes
-          </Fab>
-          <Fab
-            data-cy="train-button"
-            variant="extended"
-            color="primary"
-            disabled={!mentorId || isTraining || isLoading || isSaving}
-            onClick={continueAction}
-            className={classes.fab}
-          >
-            {mentorIsDirty ? "Build Mentor" : "Preview Mentor"}
-          </Fab>
+          <div className={"trainnig-stage-info"}>
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="left"
+              data-cy="mentor-card-trained"
+            >
+              Last Trained: {mentorInfo.lastTrainedAt.substring(0, 10)}
+            </Typography>
+          </div>
+          <div className="page-buttons">
+            <Fab
+              data-cy="save-button"
+              variant="extended"
+              color="secondary"
+              // disabled={!isMentorEdited}
+              onClick={saveChanges}
+              className={[classes.fab, "seconday-btn"].join(" ")}
+            >
+              Save Changes
+            </Fab>
+            <Fab
+              data-cy="train-button"
+              variant="extended"
+              color="primary"
+              disabled={!mentorId || isTraining || isLoading || isSaving}
+              onClick={continueAction}
+              className={classes.fab}
+            >
+              {mentorIsDirty ? "Build Mentor" : "Preview Mentor"}
+            </Fab>
+          </div>
         </Toolbar>
       </AppBar>
       <LoadingDialog

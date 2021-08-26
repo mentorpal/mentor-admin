@@ -19,9 +19,13 @@ import {
   MenuItem,
   Select,
   TextField,
+  IconButton,
+  Modal,
+  Fade,
+  Button,
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, Theme } from "@material-ui/core/styles";
 import { HelpOutline } from "@material-ui/icons";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
@@ -34,10 +38,13 @@ import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
 } from "store/slices/mentor/useActiveMentor";
+import CreateIcon from "@material-ui/icons/Create";
+import Backdrop from "@material-ui/core/Backdrop";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
-    width: 240,
+    width: "100%",
     height: 180,
   },
   siteThumbnail: {
@@ -50,6 +57,18 @@ const useStyles = makeStyles(() => ({
   inputField: {
     width: "100%",
     margin: 10,
+  },
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+    maxWidth: "50%",
   },
 }));
 
@@ -72,12 +91,145 @@ export default function MyMentorCard(props: {
   );
   const classes = useStyles();
   const [thumbnail, updateThumbnail] = useWithThumbnail();
+  const [open, setOpen] = React.useState<boolean>(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const modal = (
+    <div>
+      <IconButton
+        data-cy="edit-mentor-data"
+        color="primary"
+        aria-label="upload picture"
+        component="span"
+        className="edit-pencil-icon"
+        onClick={handleOpen}
+      >
+        <CreateIcon />
+      </IconButton>
+      <div className="modal-wrapper">
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          className={classes.modal}
+          open={open}
+          onClose={handleClose}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+          data-cy="edit-mentor-data-modal"
+        >
+          <Fade in={open}>
+            <div className={classes.paper}>
+              <Grid item alignItems="center" xs={12} md={12}>
+                <TextField
+                  data-cy="mentor-name"
+                  label="Full Name"
+                  value={editedMentor.name}
+                  onChange={(e) => editMentor({ name: e.target.value })}
+                  className={classes.inputField}
+                  disabled={props.editDisabled}
+                />
+                <TextField
+                  data-cy="mentor-job-title"
+                  label="Job Title"
+                  value={editedMentor.title}
+                  onChange={(e) => editMentor({ title: e.target.value })}
+                  className={classes.inputField}
+                  disabled={props.editDisabled}
+                />
+                <TextField
+                  data-cy="mentor-first-name"
+                  label="First Name"
+                  value={editedMentor.firstName}
+                  onChange={(e) => editMentor({ firstName: e.target.value })}
+                  className={classes.inputField}
+                  disabled={props.editDisabled}
+                />
+                <TextField
+                  data-cy="mentor-email"
+                  label="Email"
+                  type="email"
+                  value={editedMentor.email}
+                  onChange={(e) => editMentor({ email: e.target.value })}
+                  className={classes.inputField}
+                  disabled={props.editDisabled}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={editedMentor.allowContact}
+                      onChange={() =>
+                        editMentor({
+                          allowContact: !editedMentor.allowContact,
+                        })
+                      }
+                      color="secondary"
+                      disabled={props.editDisabled}
+                    />
+                  }
+                  label="Allow people to contact me"
+                  style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
+                />
+                <div className={classes.inputField}>
+                  <FormControl>
+                    <InputLabel>Mentor Type</InputLabel>
+                    <Select
+                      data-cy="select-chat-type"
+                      label="Mentor Type"
+                      disabled={props.editDisabled}
+                      value={editedMentor.mentorType}
+                      style={{ width: 200 }}
+                      onChange={(
+                        event: React.ChangeEvent<{
+                          name?: string | undefined;
+                          value: unknown;
+                        }>
+                      ) => {
+                        editMentor({
+                          mentorType: event.target.value as MentorType,
+                        });
+                      }}
+                    >
+                      <MenuItem data-cy="chat" value={MentorType.CHAT}>
+                        Chat
+                      </MenuItem>
+                      <MenuItem data-cy="video" value={MentorType.VIDEO}>
+                        Video
+                      </MenuItem>
+                    </Select>
+                  </FormControl>
+                </div>
+              </Grid>
+              <Button
+                onClick={handleClose}
+                data-cy="close-modal"
+                variant="contained"
+                color="primary"
+                component="span"
+              >
+                Close
+              </Button>
+            </div>
+          </Fade>
+        </Modal>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ marginTop: 2, flexGrow: 1, marginLeft: 25, marginRight: 25 }}>
       <Card data-cy="my-mentor-card">
         <CardContent>
-          <Grid alignItems="center" container xs={12}>
+          <Grid alignItems="center" container spacing={3}>
             <Grid
               item
               container
@@ -86,22 +238,6 @@ export default function MyMentorCard(props: {
               xs={12}
               md={4}
             >
-              <TextField
-                data-cy="mentor-name"
-                label="Full Name"
-                value={editedMentor.name}
-                onChange={(e) => editMentor({ name: e.target.value })}
-                className={classes.inputField}
-                disabled={props.editDisabled}
-              />
-              <TextField
-                data-cy="mentor-job-title"
-                label="Job Title"
-                value={editedMentor.title}
-                onChange={(e) => editMentor({ title: e.target.value })}
-                className={classes.inputField}
-                disabled={props.editDisabled}
-              />
               <Grid
                 justify="center"
                 alignItems="center"
@@ -125,9 +261,41 @@ export default function MyMentorCard(props: {
                   />
                 )}
               </Grid>
+              <Grid
+                alignItems="center"
+                data-cy="thumbnail-wrapper"
+                thumbnail-src={thumbnail}
+                item
+                xs={10}
+              >
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="h2"
+                  className="mentorName"
+                >
+                  <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    <b>{editedMentor.name}</b>
+                    {modal}
+                  </div>
+                </Typography>
+                <Typography
+                  gutterBottom
+                  variant="h6"
+                  component="h4"
+                  className="mentorTitle"
+                >
+                  {editedMentor.title}
+                </Typography>
+              </Grid>
+
               <input
+                id="icon-button-file"
                 data-cy="upload-file"
                 type="file"
+                hidden
                 accept="image/*"
                 onChange={(e) => {
                   e.target.files instanceof FileList
@@ -135,92 +303,29 @@ export default function MyMentorCard(props: {
                     : undefined;
                 }}
               />
-            </Grid>
-            <Grid item alignItems="center" xs={12} md={3}>
-              <TextField
-                data-cy="mentor-first-name"
-                label="First Name"
-                value={editedMentor.firstName}
-                onChange={(e) => editMentor({ firstName: e.target.value })}
-                className={classes.inputField}
-                disabled={props.editDisabled}
-              />
-              <TextField
-                data-cy="mentor-email"
-                label="Email"
-                type="email"
-                value={editedMentor.email}
-                onChange={(e) => editMentor({ email: e.target.value })}
-                className={classes.inputField}
-                disabled={props.editDisabled}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={editedMentor.allowContact}
-                    onChange={() =>
-                      editMentor({
-                        allowContact: !editedMentor.allowContact,
-                      })
-                    }
-                    color="secondary"
-                    disabled={props.editDisabled}
-                  />
-                }
-                label="Allow people to contact me"
-                style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
-              />
-              <div className={classes.inputField}>
-                <FormControl>
-                  <InputLabel>Mentor Type</InputLabel>
-                  <Select
-                    data-cy="select-chat-type"
-                    label="Mentor Type"
-                    disabled={props.editDisabled}
-                    value={editedMentor.mentorType}
-                    style={{ width: 200 }}
-                    onChange={(
-                      event: React.ChangeEvent<{
-                        name?: string | undefined;
-                        value: unknown;
-                      }>
-                    ) => {
-                      editMentor({
-                        mentorType: event.target.value as MentorType,
-                      });
-                    }}
-                  >
-                    <MenuItem data-cy="chat" value={MentorType.CHAT}>
-                      Chat
-                    </MenuItem>
-                    <MenuItem data-cy="video" value={MentorType.VIDEO}>
-                      Video
-                    </MenuItem>
-                  </Select>
-                </FormControl>
+              <div className="upload-thumbnail">
+                <label htmlFor="icon-button-file">
+                  <IconButton color="primary" component="span">
+                    <CloudUploadIcon />
+                  </IconButton>
+                </label>
               </div>
-
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                align="left"
-                data-cy="mentor-card-trained"
-              >
-                Last Trained: {mentorInfo.lastTrainedAt.substring(0, 10)}
-              </Typography>
             </Grid>
-            <Grid item alignItems="center" xs={12} md={3}>
+            <Grid item alignItems="center" xs={12} md={4}>
               <Typography
-                variant="h6"
-                color="textSecondary"
+                variant="h5"
+                color="textPrimary"
                 data-cy="mentor-card-scope"
               >
-                Scope: {mentorInfo.currentStage.name}
+                <div className="stage-text">
+                  Scope: <b>{mentorInfo.currentStage.name}</b>
+                </div>
               </Typography>
               <Typography
                 variant="body1"
                 color="textSecondary"
                 data-cy="mentor-card-scope-description"
+                className="stage-text"
               >
                 {mentorInfo.currentStage.description}
               </Typography>
@@ -261,7 +366,7 @@ export default function MyMentorCard(props: {
                 </Tooltip>
               </Typography>
             </Grid>
-            <Grid xs={12} md={2}>
+            <Grid xs={12} md={3}>
               <RecommendedActionButton
                 setThumbnail={updateThumbnail}
                 continueAction={props.continueAction}

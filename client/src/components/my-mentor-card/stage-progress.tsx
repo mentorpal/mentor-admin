@@ -55,9 +55,6 @@ export default function StageProgress(props: {
           </Typography>
         </Box>
       </Box>
-      <Typography variant="body1" color="textSecondary">
-        {props.percent}%
-      </Typography>
     </Box>
   );
 }
