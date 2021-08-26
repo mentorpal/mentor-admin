@@ -106,7 +106,8 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, baseMock);
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cy.visit("/setup");
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Oops! Your mentor is not ready yet."
@@ -251,7 +252,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getSettled("[data-cy=first-name]", { retries: 2 }).type("Clint");
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).type("Clint");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -270,7 +271,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.getSettled("[data-cy=name]", { retries: 2 }).type("Clinton Anderson");
+    cy.getSettled("[data-cy=name]", { retries: 4 }).type("Clinton Anderson");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -289,7 +290,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.getSettled("[data-cy=mentor-title]", { retries: 2 }).type(
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
       "Nuclear Electrician's Mate"
     );
     cy.get("[data-cy=first-name]").within(($input) => {
@@ -310,7 +311,7 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
     // fill out email and save
-    cy.getSettled("[data-cy=email]", { retries: 2 }).type("clint@anderson.com");
+    cy.getSettled("[data-cy=email]", { retries: 4 }).type("clint@anderson.com");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -342,7 +343,7 @@ describe("Setup", () => {
     cy.contains("Pick a mentor type");
     // select chat type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -361,7 +362,7 @@ describe("Setup", () => {
     cy.get("[data-cy=radio]").should("have.length", 7);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 2 })
+      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -425,7 +426,7 @@ describe("Setup", () => {
     cy.contains("Pick the ones you feel qualified to mentor in!");
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=button]", { retries: 2 })
+      cy.getSettled("[data-cy=button]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -530,7 +531,7 @@ describe("Setup", () => {
     });
     cy.contains("Idle");
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+      cy.getSettled("[data-cy=record-btn]", { retries: 4 })
         .trigger("mouseover")
         .click();
     });
@@ -580,14 +581,12 @@ describe("Setup", () => {
       subject: repeatAfterMe,
       gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
     });
-    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Repeat After Me questions");
-      cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
-      cy.contains("1 / 3");
-    });
+    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Repeat After Me questions");
-    cy.getSettled("[data-cy=record-btn]", { retries: 2 })
+    cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
+    cy.contains("1 / 3");
+    cy.getSettled("[data-cy=record-btn]", { retries: 4 })
       .trigger("mouseover")
       .click();
     // go to record
@@ -640,17 +639,15 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup7],
       });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Oops! Your mentor is not ready yet.");
-        cy.contains(
-          "You're still missing some steps before you can build your mentor."
-        );
-        cy.contains("Make sure you complete the previous slides first.");
-        cy.get("[data-cy=train-btn]").contains("Build");
-        cy.get("[data-cy=train-btn]").should("be.disabled");
-      });
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Oops! Your mentor is not ready yet.");
+      cy.contains(
+        "You're still missing some steps before you can build your mentor."
+      );
+      cy.contains("Make sure you complete the previous slides first.");
+      cy.get("[data-cy=train-btn]").contains("Build");
+      cy.get("[data-cy=train-btn]").should("be.disabled");
     });
 
     it("builds mentor once setup is done", () => {
@@ -660,18 +657,15 @@ describe("Setup", () => {
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.SUCCESS } });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]");
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Great job! You're ready to build your mentor!");
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Great job! You're ready to build your mentor!");
-        cy.contains("Click the build button to start building your mentor.");
-        cy.contains("Once its complete, click preview to see your mentor.");
-        cy.get("[data-cy=train-btn]").contains("Build");
-        cy.getSettled("[data-cy=train-btn]", { retries: 2 })
-          .trigger("mouseover")
-          .click();
-      });
+      cy.contains("Click the build button to start building your mentor.");
+      cy.contains("Once its complete, click preview to see your mentor.");
+      cy.get("[data-cy=train-btn]").contains("Build");
+      cy.getSettled("[data-cy=train-btn]", { retries: 4 })
+        .trigger("mouseover")
+        .click();
       cy.contains("Building your mentor...");
       cy.contains("Your brand-new mentor is ready!");
       cy.contains("Click the preview button to see your mentor.");
@@ -693,17 +687,15 @@ describe("Setup", () => {
       });
       cyMockTrain(cy);
       cyMockTrainStatus(cy, { status: { state: JobState.FAILURE } });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.contains("Great job! You're ready to build your mentor!");
-      cy.get("[data-cy=slide]").within(($slide) => {
-        cy.contains("Great job! You're ready to build your mentor!");
-        cy.contains("Click the build button to start building your mentor.");
-        cy.contains("Once its complete, click preview to see your mentor.");
-        cy.get("[data-cy=train-btn]").contains("Build");
-        cy.getSettled("[data-cy=train-btn]", { retries: 2 })
-          .trigger("mouseover")
-          .click();
-      });
+      cy.contains("Click the build button to start building your mentor.");
+      cy.contains("Once its complete, click preview to see your mentor.");
+      cy.get("[data-cy=train-btn]").contains("Build");
+      cy.getSettled("[data-cy=train-btn]", { retries: 10 })
+        .trigger("mouseover")
+        .click();
       cy.contains("Building your mentor...");
       cy.contains("Oops, training failed. Please try again.");
       cy.matchImageSnapshot(snapname("build-slide-4"));

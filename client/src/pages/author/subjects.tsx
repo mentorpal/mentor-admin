@@ -33,6 +33,7 @@ import {
   useActiveMentor,
 } from "store/slices/mentor/useActiveMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
+import { convertSubjectGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -128,7 +129,10 @@ function SubjectsPage(): JSX.Element {
               />
               <TableBody data-cy="subjects">
                 {subjects?.edges.map((row, i) => (
-                  <SubjectItem key={`subject-${i}`} subject={row.node} />
+                  <SubjectItem
+                    key={`subject-${i}`}
+                    subject={convertSubjectGQL(row.node)}
+                  />
                 ))}
               </TableBody>
             </Table>

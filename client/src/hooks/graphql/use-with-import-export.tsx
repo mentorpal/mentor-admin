@@ -6,17 +6,13 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import {
-  MentorExportJson,
-  MentorImportPreview,
-  Question,
-  Subject,
-} from "types";
+import { MentorExportJson, MentorImportPreview, Question } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import {
   useActiveMentor,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import { SubjectGQL } from "types-gql";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -26,7 +22,7 @@ export interface UseWithImportExport {
   onConfirmImport: () => void;
   onCancelImport: () => void;
   onTransferMedia: () => void;
-  onMapSubject: (curSubject: Subject, newSubject: Subject) => void;
+  onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
 
@@ -119,11 +115,11 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
       if (!answer.hasUntransferredMedia) {
         continue;
       }
-      api.transferMedia(mentorId, answer.question._id);
+      api.transferMedia(mentorId, answer.question);
     }
   }
 
-  function onMapSubject(subject: Subject, replacement: Subject): void {
+  function onMapSubject(subject: SubjectGQL, replacement: SubjectGQL): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }

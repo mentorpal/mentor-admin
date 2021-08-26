@@ -5,45 +5,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import axios, { CancelTokenSource } from "axios";
+import axios from "axios";
 import {
   cancelUploadVideo,
   deleteUploadTask,
   fetchUploadTasks,
   uploadVideo,
 } from "api";
-import { Media, Question } from "types";
+import { UploadStatus, UploadTask } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
-
-export enum UploadStatus {
-  PENDING = "PENDING", // local state only; sending upload request to upload api
-  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
-  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
-  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
-  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
-  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
-  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
-  QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
-  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
-  TRANSFER_FAILED = "TRANSFER_FAILED",
-  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
-  CANCEL_FAILED = "CANCEL_FAILED",
-  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
-  DONE = "DONE", // api is done with upload process
-}
-
-export interface UploadTask {
-  taskId: string;
-  question: Question;
-  uploadStatus: UploadStatus;
-  uploadProgress: number;
-  errorMessage?: string;
-  isCancelling?: boolean;
-  tokenSource?: CancelTokenSource;
-  transcript?: string;
-  media?: Media[];
-}
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -76,7 +47,7 @@ export function useWithUploadStatus(
   useEffect(() => {
     uploads.forEach((u) => {
       if (isTaskDoneOrFailed(u)) {
-        deleteUploadTask(u.question._id, accessToken).catch((error) => {
+        deleteUploadTask(u.question, accessToken).catch((error) => {
           console.error(error);
         });
       }
@@ -94,9 +65,7 @@ export function useWithUploadStatus(
           }
           setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
-            const findUpload = uploads.find(
-              (up) => up.question._id === u.question._id
-            );
+            const findUpload = uploads.find((up) => up.question === u.question);
             if (
               !findUpload ||
               findUpload.uploadStatus !== u.uploadStatus ||
@@ -125,11 +94,9 @@ export function useWithUploadStatus(
     isPolling ? pollingInterval : null
   );
   function removeCompletedTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    const idx = uploads.findIndex((u) => u.question === task.question);
     if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
-      const newArray = uploads.filter(
-        (u) => u.question._id !== task.question._id
-      );
+      const newArray = uploads.filter((u) => u.question !== task.question);
       setUploads(newArray);
     }
   }
@@ -156,7 +123,7 @@ export function useWithUploadStatus(
   }
 
   function addOrEditTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question._id === task.question._id);
+    const idx = uploads.findIndex((u) => u.question === task.question);
     if (idx === -1) {
       setUploads([...uploads, task]);
     } else {
@@ -166,7 +133,7 @@ export function useWithUploadStatus(
 
   function upload(
     mentorId: string,
-    question: Question,
+    question: string,
     video: File,
     trim?: { start: number; end: number }
   ) {
@@ -253,7 +220,7 @@ export interface UseWithUploadStatus {
   isUploading: boolean;
   upload: (
     mentorId: string,
-    question: Question,
+    question: string,
     video: File,
     trim?: { start: number; end: number }
   ) => void;

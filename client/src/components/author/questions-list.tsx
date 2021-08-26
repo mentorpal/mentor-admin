@@ -24,10 +24,11 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Category, SubjectQuestion, Topic } from "types";
+import { Category, Topic } from "types";
 import CategoryListItem from "./category-list-item";
 import QuestionListItem from "./question-list-item";
 import QuestionEditCard from "./question-edit";
+import { SubjectQuestionGQL } from "types-gql";
 
 export function QuestionsList(props: {
   classes: Record<string, string>;
@@ -35,21 +36,21 @@ export function QuestionsList(props: {
   expanded: boolean;
   categories: Category[];
   topics: Topic[];
-  questions: SubjectQuestion[];
+  questions: SubjectQuestionGQL[];
   toggleExpanded: () => void;
   addCategory: () => void;
   editCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
   addQuestion: () => void;
-  editQuestion: (val: SubjectQuestion) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
+  editQuestion: (val: SubjectQuestionGQL) => void;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
 }): JSX.Element {
   const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
 
-  function selectQuestion(val?: SubjectQuestion) {
+  function selectQuestion(val?: SubjectQuestionGQL) {
     setSelectedQuestion(val?.question._id || undefined);
   }
 

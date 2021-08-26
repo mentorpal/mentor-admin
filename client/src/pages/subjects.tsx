@@ -36,6 +36,7 @@ import useActiveMentor, {
   isActiveMentorSaving,
 } from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
+import { convertSubjectGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -185,7 +186,9 @@ function SubjectsPage(props: {
                           }
                           disabled={subject.isRequired}
                           color="primary"
-                          onClick={() => toggleSubject(subject)}
+                          onClick={() =>
+                            toggleSubject(convertSubjectGQL(subject))
+                          }
                         />
                       </TableCell>
                       <TableCell data-cy="default" align="center">
@@ -199,7 +202,9 @@ function SubjectsPage(props: {
                             ) === undefined
                           }
                           color="secondary"
-                          onClick={() => toggleDefaultSubject(subject)}
+                          onClick={() =>
+                            toggleDefaultSubject(convertSubjectGQL(subject))
+                          }
                         />
                       </TableCell>
                     </TableRow>

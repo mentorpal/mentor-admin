@@ -25,7 +25,6 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
-import mentor from "../fixtures/mentor/clint_home";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -37,22 +36,12 @@ const chatMentor: Mentor = completeMentor({
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A1_1_1",
-            question: "Who are you and what do you do?",
-            name: "A1_1_1",
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          }),
+          question: { _id: "A1_1_1" },
           category: { id: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A2_1_1",
-            question: "How old are you now?",
-          }),
-          // mentor: "clintanderson",
+          question: { _id: "A2_1_1" },
         }),
       ],
     }),
@@ -60,32 +49,16 @@ const chatMentor: Mentor = completeMentor({
       _id: "repeat_after_me",
       questions: [
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A3_1_1",
-            question:
-              "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-          }),
+          question: { _id: "A3_1_1" },
         }),
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A4_1_1",
-            question:
-              "Please give a short introduction of yourself, which includes your name, current job, and title.",
-          }),
+          question: { _id: "A4_1_1" },
         }),
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A5_1_1",
-            question:
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-          }),
+          question: { _id: "A5_1_1" },
         }),
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A6_1_1",
-            question: "",
-          }),
-          // mentor: "notclint",
+          question: { _id: "A6_1_1" },
         }),
       ],
     }),
@@ -93,58 +66,71 @@ const chatMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: completeQuestion({
-        _id: "A1_1_1",
-        question: "Who are you and what do you do?",
-      }),
+      question: { _id: "A1_1_1" },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: completeQuestion({
-        _id: "A2_1_1",
-        question: "How old are you now?",
-        mentor: "clintanderson",
-      }),
+      question: { _id: "A2_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: completeQuestion({
-        _id: "A3_1_1",
-        question:
-          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
-      }),
+      question: { _id: "A3_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: completeQuestion({
-        _id: "A4_1_1",
-        question:
-          "Please give a short introduction of yourself, which includes your name, current job, and title.",
-      }),
+      question: { _id: "A4_1_1" },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A5_1_1",
-      question: completeQuestion({
-        _id: "A5_1_1",
-        question:
-          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
-      }),
+      question: { _id: "A5_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
   ],
 });
-
+const chatQuestions = [
+  {
+    _id: "A1_1_1",
+    question: "Who are you and what do you do?",
+    name: "A1_1_1",
+    type: QuestionType.QUESTION,
+    paraphrases: [],
+  },
+  completeQuestion({
+    _id: "A2_1_1",
+    question: "How old are you now?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A3_1_1",
+    question:
+      "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+  }),
+  completeQuestion({
+    _id: "A4_1_1",
+    question:
+      "Please give a short introduction of yourself, which includes your name, current job, and title.",
+  }),
+  completeQuestion({
+    _id: "A5_1_1",
+    question:
+      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+  }),
+  completeQuestion({
+    _id: "A6_1_1",
+    question: "",
+  }),
+];
 const videoMentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.VIDEO,
@@ -152,20 +138,13 @@ const videoMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: completeQuestion({
-        _id: "A1_1_1",
-        question: "Who are you and what do you do?",
-      }),
+      question: { _id: "A1_1_1", question: "Who are you and what do you do?" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: completeQuestion({
-        _id: "A2_1_1",
-        question: "How old are you now?",
-        mentor: "clintanderson",
-      }),
+      question: { _id: "A2_1_1", question: "How old are you now?" },
       transcript: "I'm 37 years old",
       media: [
         {
@@ -178,11 +157,7 @@ const videoMentor: Mentor = completeMentor({
     },
     {
       _id: "A3_1_1",
-      question: completeQuestion({
-        _id: "A3_1_1",
-        question: "Where do you live?",
-        mentor: "clintanderson",
-      }),
+      question: { _id: "A3_1_1", question: "Where do you live?" },
       transcript: "In Howard City, Michigan",
       media: [
         {
@@ -195,12 +170,7 @@ const videoMentor: Mentor = completeMentor({
     },
     {
       _id: "A4_1_1",
-      question: completeQuestion({
-        _id: "A4_1_1",
-        question: "Record an idle video",
-        mentor: "clintanderson",
-        name: "_IDLE_",
-      }),
+      question: { _id: "A4_1_1", question: "Record an idle video" },
       transcript: "",
       media: [
         {
@@ -213,11 +183,39 @@ const videoMentor: Mentor = completeMentor({
     },
   ],
 });
+const videoQuestions = [
+  completeQuestion({
+    _id: "A1_1_1",
+    question: "Who are you and what do you do?",
+  }),
+  completeQuestion({
+    _id: "A2_1_1",
+    question: "How old are you now?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A3_1_1",
+    question: "Where do you live?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A4_1_1",
+    question: "Record an idle video",
+    mentor: "clintanderson",
+    name: "_IDLE_",
+  }),
+];
 
 describe("Record", () => {
   describe("search params", () => {
     it("shows all questions if no filters", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, {
+        mentor: chatMentor,
+        questions: chatQuestions,
+        gqlQueries: [
+          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        ],
+      });
       cy.visit("/record");
       cy.get("[data-cy=progress]").contains("Questions 1 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -305,7 +303,7 @@ describe("Record", () => {
     });
 
     it("shows all incomplete questions if ?status=INCOMPLETE", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?status=INCOMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 3");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -355,7 +353,7 @@ describe("Record", () => {
     });
 
     it("shows all complete questions if ?status=COMPLETE", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?status=COMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -398,7 +396,7 @@ describe("Record", () => {
     });
 
     it("shows a single question if ?videoId={questionId}", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?videoId=A1_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -422,7 +420,7 @@ describe("Record", () => {
     });
 
     it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?videoId=A1_1_1&videoId=A3_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -462,7 +460,7 @@ describe("Record", () => {
     });
 
     it("shows all questions for a subject if ?subject={subjectId}", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -499,7 +497,7 @@ describe("Record", () => {
     });
 
     it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background&status=INCOMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -517,7 +515,7 @@ describe("Record", () => {
     });
 
     it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background&status=COMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -541,7 +539,7 @@ describe("Record", () => {
     });
 
     it("shows all questions for a category in a subject if ?category={categoryId}", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background&category=cat");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -566,7 +564,7 @@ describe("Record", () => {
   });
   describe("Recording Session Ending Page", () => {
     it("Done Button after recording sessions leads to session ending page", () => {
-      cyMockDefault(cy, { mentor: chatMentor });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -606,6 +604,7 @@ describe("Record", () => {
     it("displays a list of followup questions", () => {
       cyMockDefault(cy, {
         mentor: [chatMentor],
+        questions: chatQuestions,
         gqlQueries: [
           mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
           mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -715,12 +714,8 @@ describe("Record", () => {
     });
 
     it("does not traverse to followups page if there are no followups", () => {
-      cyMockDefault(cy, {
-        mentor: [chatMentor],
-      });
-      cyMockFollowUpQuestions(cy, {
-        data: [],
-      });
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cyMockFollowUpQuestions(cy, { data: [] });
       cy.visit("/record?subject=background&category=cat");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -749,6 +744,7 @@ describe("Record", () => {
   it("When an upload finishes on record view, should swap user to video view", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -815,6 +811,7 @@ describe("Record", () => {
   it('cancelling an upload changes the local uploading status to "cancelling"', () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -917,6 +914,7 @@ describe("Record", () => {
   it("A successfully cancelled upload item should disappear from the list of uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1042,6 +1040,7 @@ describe("Record", () => {
   it("tapping an item from active uploads (via upload button) takes you to that item", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1071,6 +1070,7 @@ describe("Record", () => {
   it("User gets guidance to know they can move on and record another answer", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1126,6 +1126,7 @@ describe("Record", () => {
   it("can dismiss completed items in list via x button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1199,6 +1200,7 @@ describe("Record", () => {
   it("upload button changes to cancel while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1256,6 +1258,7 @@ describe("Record", () => {
   it("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1279,6 +1282,7 @@ describe("Record", () => {
   it("Option to cancel upload is available when returning to page with an upload in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1339,6 +1343,7 @@ describe("Record", () => {
   it("the upload card corresponding to current question should be highlighted", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1481,6 +1486,7 @@ describe("Record", () => {
   it("displays multiple cards with multiple uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1548,6 +1554,7 @@ describe("Record", () => {
   it("uploading widget should not be open if there are no uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1562,6 +1569,7 @@ describe("Record", () => {
   it("can update status", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
+      questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1593,6 +1601,7 @@ describe("Record", () => {
   it("uploading widget should be open if there are active uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1633,6 +1642,7 @@ describe("Record", () => {
   it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1758,6 +1768,7 @@ describe("Record", () => {
   it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -1883,6 +1894,7 @@ describe("Record", () => {
   it("upload 'processing' text animates three ellipsis", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2000,6 +2012,7 @@ describe("Record", () => {
   it("When an upload gets cancelled, should return user back to recording page", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2059,6 +2072,7 @@ describe("Record", () => {
   it("Header shows a count of N of M uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2128,6 +2142,7 @@ describe("Record", () => {
   it("If no uploads occuring, uploads header only shows a dimmed out icon", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2147,6 +2162,7 @@ describe("Record", () => {
   it("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2291,6 +2307,7 @@ describe("Record", () => {
   it("pressing cancel button changes UI to indicate cancel in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2357,6 +2374,7 @@ describe("Record", () => {
   it("hides video if mentor type is CHAT", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
+      questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2372,6 +2390,7 @@ describe("Record", () => {
   it("shows video recorder if mentor type is VIDEO and no video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2394,6 +2413,7 @@ describe("Record", () => {
   it("shows video player if mentor type is VIDEO and has video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2431,6 +2451,7 @@ describe("Record", () => {
           transcript: "My name is Clint Anderson",
         }),
       ],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2473,6 +2494,7 @@ describe("Record", () => {
   it("progress bars shown for each upload task", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2639,6 +2661,7 @@ describe("Record", () => {
           transcript: "37",
         }),
       ],
+      questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2681,6 +2704,7 @@ describe("Record", () => {
   it("cannot update question for a question not belonging to mentor", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
+      questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2707,10 +2731,18 @@ describe("Record", () => {
           },
         }),
       ],
+      questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("UpdateQuestion", {
+          me: {
+            updateQuestion: {
+              ...chatQuestions[1],
+              question: "How old are you now?test",
+            },
+          },
+        }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -2737,7 +2769,6 @@ describe("Record", () => {
 
     cy.get("[data-cy=question-input]").type("test");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=loading-dialog]");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -2754,6 +2785,7 @@ describe("Record", () => {
           transcript: "My name is Clint Anderson",
         }),
       ],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2825,6 +2857,7 @@ describe("Record", () => {
   it("failed gql process displays error message in upload widget", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2919,9 +2952,11 @@ describe("Record", () => {
         .should("have.text", "Failed to process file: UPLOAD_FAILED");
     });
   });
+
   it("warns user of empty transcript", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -2982,6 +3017,7 @@ describe("Record", () => {
   it("does not warn user of empty transcript if idle video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),

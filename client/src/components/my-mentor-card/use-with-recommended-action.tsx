@@ -8,7 +8,7 @@ import React from "react";
 import { navigate } from "gatsby";
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
 import { useState } from "react";
-import { urlBuild } from "helpers";
+import { getValueIfKeyExists, urlBuild } from "helpers";
 import {
   AccountBox,
   CheckCircleOutlined,
@@ -17,6 +17,8 @@ import {
   NoteAdd,
 } from "@material-ui/icons";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import useQuestions from "store/slices/questions/useQuestions";
+import { QuestionState } from "store/slices/questions";
 
 interface Category {
   subjectName: string;
@@ -40,6 +42,7 @@ interface Conditions {
   completedAnswers: number;
   totalAnswers: number;
 }
+
 interface Recommendation {
   text: string;
   reason: string;
@@ -70,7 +73,7 @@ function recommend(
 
       skip: { ...conditions, hasThumbnail: true },
     };
-  if (conditions.idleIncomplete && conditions.isVideo)
+  if (conditions.idleIncomplete && conditions.isVideo) {
     return {
       text: "Record an Idle Video",
       reason: "Users see your idle video while typing a question",
@@ -81,13 +84,14 @@ function recommend(
           navigate(
             urlBuild("/record", {
               subject: "",
-              videoId: conditions.idle?.question._id,
+              videoId: conditions.idle?.question,
             })
           );
       },
 
       skip: { ...conditions, idleIncomplete: false },
     };
+  }
   if (conditions.incompleteRequirement)
     return {
       text: "Finish Required Questions",
@@ -167,12 +171,18 @@ function recommend(
     skip: conditions,
   };
 }
-function parseMentorConditions(mentor?: Mentor): Conditions | undefined {
+
+function parseMentorConditions(
+  mentorQuestions: Record<string, QuestionState>,
+  mentor?: Mentor
+): Conditions | undefined {
   if (!mentor) {
     return;
   }
   const idle = mentor?.answers.find(
-    (a) => a.question.name === UtteranceName.IDLE
+    (a) =>
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
+      UtteranceName.IDLE
   );
   const idleIncomplete = idle?.status === Status.INCOMPLETE;
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
@@ -189,8 +199,8 @@ function parseMentorConditions(mentor?: Mentor): Conditions | undefined {
       answers: mentor?.answers.filter((a) =>
         s.questions
           .filter((q) => !q.category)
-          .map((q) => q.question._id)
-          .includes(a.question._id)
+          .map((q) => q.question)
+          .includes(a.question)
       ),
     });
     s.categories.forEach((c) => {
@@ -203,8 +213,8 @@ function parseMentorConditions(mentor?: Mentor): Conditions | undefined {
         answers: mentor?.answers.filter((a) =>
           s.questions
             .filter((q) => q.category?.id === c.id)
-            .map((q) => q.question._id)
-            .includes(a.question._id)
+            .map((q) => q.question)
+            .includes(a.question)
         ),
       });
     });
@@ -234,14 +244,31 @@ function parseMentorConditions(mentor?: Mentor): Conditions | undefined {
     totalAnswers: totalAnswers,
   };
 }
+
 export function UseWithRecommendedAction(
   continueAction?: () => void
 ): [Recommendation, () => void] {
-  const conditions = useActiveMentor((ms) => parseMentorConditions(ms.data));
-  const recommendation = recommend(conditions, continueAction);
-  const [recommendedAction, setRecommendedAction] = useState(recommendation);
+  const mentorAnswers = useActiveMentor((ms) => ms.data?.answers);
+  const mentorQuestions = useQuestions(
+    (s) => s.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const conditions = useActiveMentor((ms) =>
+    parseMentorConditions(mentorQuestions, ms.data)
+  );
+  const [recommendedAction, setRecommendedAction] = useState<Recommendation>(
+    recommend(conditions, continueAction)
+  );
+
+  React.useEffect(() => {
+    const action = recommend(conditions, continueAction);
+    setRecommendedAction(action);
+  }, [mentorQuestions]);
+
   function skipRecommendation() {
-    setRecommendedAction(recommend(recommendation.skip, continueAction));
+    const skip = recommend(recommendedAction.skip, continueAction);
+    setRecommendedAction(skip);
   }
+
   return [recommendedAction, skipRecommendation];
 }

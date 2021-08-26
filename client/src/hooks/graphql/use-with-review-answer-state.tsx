@@ -7,28 +7,33 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
+
 import { updateSubject } from "api";
-import {
-  Status,
-  Answer,
-  Subject,
-  Category,
-  SubjectQuestion,
-  QuestionType,
-  Question,
-  UtteranceName,
-} from "types";
-import { copyAndSet, equals, urlBuild } from "helpers";
+import { urlBuild, copyAndSet } from "helpers";
 import { useWithTraining } from "hooks/task/use-with-train";
-import { LoadingError } from "./loading-reducer";
-import {
-  UseMentorEdits,
-  useMentorEdits,
-} from "store/slices/mentor/useMentorEdits";
 import useActiveMentor, {
   isActiveMentorLoading,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import {
+  useMentorEdits,
+  UseMentorEdits,
+} from "store/slices/mentor/useMentorEdits";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
+import {
+  Question,
+  Status,
+  Subject,
+  Answer,
+  Category,
+  QuestionType,
+  UtteranceName,
+} from "types";
+import { SubjectQuestionGQL, SubjectGQL, AnswerGQL } from "types-gql";
+import { LoadingError } from "./loading-reducer";
+import { loadMentor } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
@@ -38,9 +43,9 @@ interface Progress {
 export interface RecordingBlock {
   name: string;
   description: string;
-  answers: Answer[];
+  answers: AnswerGQL[];
   recordAll: (status: Status) => void;
-  recordOne: (answer: Answer) => void;
+  recordOne: (question: Question) => void;
   editQuestion: (question: Question) => void;
   addQuestion?: () => void;
 }
@@ -56,20 +61,26 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
+  const [editedSubjects, setEditedSubjects] = useState<Subject[]>();
+  const [editedAnswers, setEditedAnswers] = useState<Answer[]>();
 
+  const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const questionsLoading = isQuestionsLoading(
+    mentorAnswers?.map((a) => a.question)
+  );
   const mentorError = useActiveMentor((state) => state.error);
   const isMentorLoading = isActiveMentorLoading();
-
   const { clearMentorError } = useActiveMentorActions();
+
   const useMentor = useMentorEdits();
-  const {
-    editedMentor,
-    isMentorEdited,
-    onMentorUpdated,
-    editMentor,
-    saveMentorDetails,
-  } = useMentor;
+  const { editedMentor, saveMentorDetails } = useMentor;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -78,111 +89,129 @@ export function useWithReviewAnswerState(
   } = useWithTraining();
 
   useEffect(() => {
-    if (!editedMentor || isMentorLoading || isSaving) {
+    setEditedSubjects(mentorSubjects?.map((s) => ({ ...s })));
+  }, [mentorSubjects]);
+
+  useEffect(() => {
+    setEditedAnswers(mentorAnswers?.map((a) => ({ ...a })));
+  }, [mentorAnswers]);
+
+  useEffect(() => {
+    const qs = [];
+    for (const q of Object.values(mentorQuestions)) {
+      if (q.question) {
+        qs.push(q.question);
+      }
+    }
+    setEditedQuestions(qs);
+  }, [mentorQuestions, questionsLoading]);
+
+  useEffect(() => {
+    if (!editedSubjects || !editedQuestions || !editedAnswers) {
       return;
     }
     const _blocks: RecordingBlock[] = [];
-    const foundSubject = editedMentor.subjects.find(
-      (s) => s._id === selectedSubject
-    );
-    const answers = editedMentor.answers;
-    if (foundSubject) {
-      const subject = foundSubject;
-      const subjectAnswers = answers.filter((a) =>
-        subject.questions.map((q) => q.question._id).includes(a.question._id)
+    const subject = editedSubjects?.find((s) => s._id === selectedSubject);
+    if (subject) {
+      const uncategorizedQuestions = subject.questions
+        .filter((sq) => !sq.category)
+        .map((sq) => sq.question);
+      const subjectAnswers = editedAnswers.filter((a) =>
+        subject.questions.map((q) => q.question).includes(a.question)
       );
-      const uncategorizedAnswers = subjectAnswers.filter((a) =>
-        subject.questions
-          .filter((q) => !q.category)
-          .map((q) => q.question._id)
-          .includes(a.question._id)
-      );
-      if (uncategorizedAnswers.length > 0) {
+      if (uncategorizedQuestions.length > 0) {
         _blocks.push({
           name: subject.name,
           description: subject.description,
-          answers: uncategorizedAnswers,
+          answers: editedAnswers
+            .filter((a) => uncategorizedQuestions.includes(a.question))
+            .map((a) => ({
+              ...a,
+              question: editedQuestions.find((q) => q._id === a.question)!,
+            })),
           recordAll: (status) => recordAnswers(status, subject._id, ""),
           recordOne: recordAnswer,
           addQuestion: () => addNewQuestion(subject, undefined),
-          editQuestion: (question) => editQuestion(subject, question),
+          editQuestion,
         });
       }
       subject.categories.forEach((c) => {
-        const categoryAnswers = subjectAnswers.filter((a) =>
-          subject.questions
-            .filter((q) => q.category?.id === c.id)
-            .map((q) => q.question._id)
-            .includes(a.question._id)
-        );
-        if (categoryAnswers.length > 0) {
+        const categoryQuestions = subject.questions
+          .filter((sq) => sq.category?.id === c.id)
+          .map((sq) => sq.question);
+        if (categoryQuestions.length > 0) {
           _blocks.push({
             name: c.name,
             description: c.description,
-            answers: categoryAnswers,
+            answers: editedAnswers
+              .filter((a) => categoryQuestions.includes(a.question))
+              .map((a) => ({
+                ...a,
+                question: editedQuestions.find((q) => q._id === a.question)!,
+              })),
             recordAll: (status) => recordAnswers(status, subject._id, c.id),
             recordOne: recordAnswer,
             addQuestion: () => addNewQuestion(subject, c),
-            editQuestion: (question) => editQuestion(subject, question),
+            editQuestion,
           });
         }
       });
-
       setProgress({
         complete: subjectAnswers.filter((a) => a.status === Status.COMPLETE)
           .length,
         total: subjectAnswers.length,
       });
     } else {
-      editedMentor.subjects.forEach((subject) => {
-        const subjectAnswers = answers.filter((a) =>
-          subject.questions.map((q) => q.question._id).includes(a.question._id)
-        );
-        const uncategorizedAnswers = subjectAnswers.filter((a) =>
-          subject.questions
-            .filter((q) => !q.category)
-            .map((q) => q.question._id)
-            .includes(a.question._id)
-        );
-        if (uncategorizedAnswers.length > 0) {
+      editedSubjects.forEach((subject) => {
+        const uncategorizedQuestions = subject.questions
+          .filter((sq) => !sq.category)
+          .map((sq) => sq.question);
+        if (uncategorizedQuestions.length > 0) {
           _blocks.push({
             name: subject.name,
             description: subject.description,
-            answers: uncategorizedAnswers,
+            answers: editedAnswers
+              .filter((a) => uncategorizedQuestions.includes(a.question))
+              .map((a) => ({
+                ...a,
+                question: editedQuestions.find((q) => q._id === a.question)!,
+              })),
             recordAll: (status) => recordAnswers(status, subject._id, ""),
             recordOne: recordAnswer,
             addQuestion: () => addNewQuestion(subject, undefined),
-            editQuestion: (question) => editQuestion(subject, question),
+            editQuestion,
           });
         }
         subject.categories.forEach((c) => {
-          const categoryAnswers = subjectAnswers.filter((a) =>
-            subject.questions
-              .filter((q) => q.category?.id === c.id)
-              .map((q) => q.question._id)
-              .includes(a.question._id)
-          );
-          if (categoryAnswers.length > 0) {
+          const categoryQuestions = subject.questions
+            .filter((sq) => sq.category?.id === c.id)
+            .map((sq) => sq.question);
+          if (categoryQuestions.length > 0) {
             _blocks.push({
               name: c.name,
               description: c.description,
-              answers: categoryAnswers,
+              answers: editedAnswers
+                .filter((a) => categoryQuestions.includes(a.question))
+                .map((a) => ({
+                  ...a,
+                  question: editedQuestions.find((q) => q._id === a.question)!,
+                })),
               recordAll: (status) => recordAnswers(status, subject._id, c.id),
               recordOne: recordAnswer,
               addQuestion: () => addNewQuestion(subject, c),
-              editQuestion: (question) => editQuestion(subject, question),
+              editQuestion,
             });
           }
         });
       });
       setProgress({
-        complete: answers.filter((a) => a.status === Status.COMPLETE).length,
-        total: answers.length,
+        complete: editedAnswers.filter((a) => a.status === Status.COMPLETE)
+          .length,
+        total: editedAnswers.length,
       });
     }
-
     setBlocks(_blocks);
-  }, [editedMentor, selectedSubject]);
+  }, [editedSubjects, editedQuestions, editedAnswers, selectedSubject]);
 
   function clearError() {
     clearMentorError();
@@ -193,9 +222,9 @@ export function useWithReviewAnswerState(
   function recordAnswers(status: Status, subject: string, category: string) {
     navigate(
       urlBuild("/record", {
-        status: status,
-        subject: subject,
-        category: category,
+        status,
+        subject,
+        category,
         back: urlBuild(
           "/",
           selectedSubject ? { subject: selectedSubject } : {}
@@ -204,10 +233,10 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function recordAnswer(answer: Answer) {
+  function recordAnswer(question: Question) {
     navigate(
       urlBuild("/record", {
-        videoId: answer.question._id,
+        videoId: question._id,
         back: urlBuild(
           "/",
           selectedSubject ? { subject: selectedSubject } : {}
@@ -221,88 +250,63 @@ export function useWithReviewAnswerState(
   }
 
   function addNewQuestion(subject: Subject, category?: Category) {
-    if (!editedMentor || isMentorLoading || isSaving) {
+    if (!editedSubjects || !editedAnswers || !editedQuestions || isSaving) {
       return;
     }
-    const subjectIdx = editedMentor.subjects.findIndex(
-      (s) => s._id === subject._id
-    );
+    const subjectIdx = editedSubjects.findIndex((s) => s._id === subject._id);
     if (subjectIdx === -1) {
       return;
     }
-    const newQuestion: SubjectQuestion = {
-      question: {
-        _id: uuid(),
-        question: "",
-        paraphrases: [],
-        type: QuestionType.QUESTION,
-        name: UtteranceName.NONE,
-        mentor: editedMentor._id,
-      },
-      category: category,
-      topics: [],
+    const newQuestion = {
+      _id: uuid(),
+      question: "",
+      paraphrases: [],
+      type: QuestionType.QUESTION,
+      name: UtteranceName.NONE,
+      mentor: mentorId,
     };
-    editMentor({
-      subjects: copyAndSet(editedMentor.subjects, subjectIdx, {
-        ...editedMentor.subjects[subjectIdx],
-        questions: [newQuestion, ...subject.questions],
-      }),
-      answers: [
-        {
-          _id: uuid(),
-          question: newQuestion.question,
-          transcript: "",
-          status: Status.INCOMPLETE,
-          media: undefined,
-          hasUntransferredMedia: false,
-        },
-        ...editedMentor.answers,
-      ],
-    });
+    const newAnswer = {
+      _id: uuid(),
+      question: newQuestion._id,
+      transcript: "",
+      status: Status.INCOMPLETE,
+      media: undefined,
+      hasUntransferredMedia: false,
+    };
+    setEditedQuestions([newQuestion, ...editedQuestions]);
+    setEditedSubjects(
+      copyAndSet(editedSubjects, subjectIdx, {
+        ...editedSubjects[subjectIdx],
+        questions: [
+          { question: newQuestion._id, category: category, topics: [] },
+          ...editedSubjects[subjectIdx].questions,
+        ],
+      })
+    );
+    setEditedAnswers([newAnswer, ...editedAnswers]);
   }
 
-  function editQuestion(subject: Subject, question: Question) {
-    if (!editedMentor || isMentorLoading || isSaving) {
+  function editQuestion(question: Question) {
+    if (!editedSubjects || !editedAnswers || !editedQuestions || isSaving) {
       return;
     }
-    const subjectIdx = editedMentor.subjects.findIndex(
-      (s) => s._id === subject._id
-    );
-    if (subjectIdx === -1) {
-      return;
-    }
-    const questionIdx = subject.questions.findIndex(
-      (q) => q.question._id === question._id
+    const questionIdx = editedQuestions.findIndex(
+      (q) => q._id === question._id
     );
     if (questionIdx === -1) {
       return;
     }
-    const answerIdx = editedMentor.answers.findIndex(
-      (a) => a.question._id === question._id
-    );
-    if (answerIdx === -1) {
-      return;
-    }
-    editMentor({
-      subjects: copyAndSet(editedMentor.subjects, subjectIdx, {
-        ...subject,
-        questions: copyAndSet(subject.questions, questionIdx, {
-          ...subject.questions[questionIdx],
-          question,
-        }),
-      }),
-      answers: copyAndSet(editedMentor.answers, answerIdx, {
-        ...editedMentor.answers[answerIdx],
-        question,
-      }),
-    });
+    setEditedQuestions(copyAndSet(editedQuestions, questionIdx, question));
   }
 
   function saveChanges() {
     if (
+      !mentorQuestions ||
       !mentorSubjects ||
+      !editedSubjects ||
+      !editedQuestions ||
+      !editedAnswers ||
       !editedMentor ||
-      !isMentorEdited ||
       isMentorLoading ||
       isSaving
     ) {
@@ -313,15 +317,24 @@ export function useWithReviewAnswerState(
       "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
     );
     Promise.all(
-      editedMentor.subjects
-        .filter((s, i) => !equals(s, mentorSubjects[i]))
-        .map((subject) => {
-          return updateSubject(subject, accessToken);
-        })
+      editedSubjects?.map((subject) => {
+        const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
+        for (const sq of subject.questions) {
+          const q = editedQuestions.find((q) => q._id === sq.question);
+          if (q) {
+            subjectQuestionsGQL.push({ ...sq, question: q });
+          }
+        }
+        const subjectGQL: SubjectGQL = {
+          ...subject,
+          questions: subjectQuestionsGQL,
+        };
+        return updateSubject(subjectGQL, accessToken);
+      })
     )
       .then(() => {
-        onMentorUpdated(editedMentor); // update with the added/edited mentor questions
         saveMentorDetails();
+        loadMentor({ mentorId: editedMentor._id });
         setIsSaving(false);
       })
       .catch((err) => {

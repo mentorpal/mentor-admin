@@ -43,6 +43,9 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { useQuestions } from "store/slices/questions/useQuestions";
+import { getValueIfKeyExists } from "helpers";
+import { QuestionState } from "store/slices/questions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -119,9 +122,10 @@ const columnHeaders: ColumnDef[] = [
 function FeedbackItem(props: {
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
+  mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
 }): JSX.Element {
-  const { feedback, mentorAnswers, onUpdated } = props;
+  const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
@@ -161,7 +165,10 @@ function FeedbackItem(props: {
       <TableCell data-cy="classifierAnswer" align="left">
         <Tooltip title={feedback.classifierAnswer?.transcript || ""}>
           <Typography variant="body2">
-            {feedback.classifierAnswer?.question.question || ""}
+            {getValueIfKeyExists(
+              feedback.classifierAnswer.question,
+              mentorQuestions
+            )?.question?.question || ""}
           </Typography>
         </Tooltip>
       </TableCell>
@@ -172,7 +179,10 @@ function FeedbackItem(props: {
             <Autocomplete
               data-cy="select-answer"
               options={mentorAnswers || []}
-              getOptionLabel={(option: Answer) => option.question.question}
+              getOptionLabel={(option: Answer) =>
+                getValueIfKeyExists(option.question, mentorQuestions)?.question
+                  ?.question || ""
+              }
               onChange={(e, v) => {
                 onUpdateAnswer(v?._id);
               }}
@@ -182,7 +192,10 @@ function FeedbackItem(props: {
                 flexGrow: 1,
               }}
               renderOption={(option) => (
-                <Typography align="left">{option.question.question}</Typography>
+                <Typography align="left">
+                  {getValueIfKeyExists(option.question, mentorQuestions)
+                    ?.question?.question || ""}
+                </Typography>
               )}
               renderInput={(params) => (
                 <TextField {...params} variant="outlined" />
@@ -198,7 +211,10 @@ function FeedbackItem(props: {
           title={feedback.graderAnswer?.transcript || ""}
         >
           <Typography variant="body2">
-            {feedback.graderAnswer?.question.question || ""}
+            {getValueIfKeyExists(
+              feedback.graderAnswer?.question,
+              mentorQuestions
+            )?.question?.question || ""}
           </Typography>
         </Tooltip>
       </TableCell>
@@ -215,6 +231,10 @@ function FeedbackPage(): JSX.Element {
   const classes = useStyles();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
   const mentorError = useActiveMentor((state) => state.error);
   const isMentorLoading = isActiveMentorLoading();
 
@@ -339,7 +359,8 @@ function FeedbackPage(): JSX.Element {
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
                       getOptionLabel={(option: Answer) =>
-                        option.question.question
+                        getValueIfKeyExists(option.question, mentorQuestions)
+                          ?.question?.question || ""
                       }
                       onChange={(e, v) =>
                         filterFeedback({
@@ -350,7 +371,8 @@ function FeedbackPage(): JSX.Element {
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">
-                          {option.question.question}
+                          {getValueIfKeyExists(option.question, mentorQuestions)
+                            ?.question?.question || ""}
                         </Typography>
                       )}
                       renderInput={(params) => (
@@ -363,7 +385,8 @@ function FeedbackPage(): JSX.Element {
                       data-cy="filter-grader"
                       options={mentorAnswers || []}
                       getOptionLabel={(option: Answer) =>
-                        option.question.question
+                        getValueIfKeyExists(option.question, mentorQuestions)
+                          ?.question?.question || ""
                       }
                       onChange={(e, v) =>
                         filterFeedback({
@@ -374,7 +397,8 @@ function FeedbackPage(): JSX.Element {
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">
-                          {option.question.question}
+                          {getValueIfKeyExists(option.question, mentorQuestions)
+                            ?.question?.question || ""}
                         </Typography>
                       )}
                       renderInput={(params) => (
@@ -392,6 +416,7 @@ function FeedbackPage(): JSX.Element {
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
                     mentorAnswers={mentorAnswers}
+                    mentorQuestions={mentorQuestions}
                     onUpdated={reloadFeedback}
                   />
                 ))}
