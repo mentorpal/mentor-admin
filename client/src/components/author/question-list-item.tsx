@@ -15,6 +15,7 @@ import {
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
 import DeleteIcon from "@material-ui/icons/Delete";
 import { SubjectQuestionGQL } from "types-gql";
+import { onTextInputChanged } from "helpers";
 
 export function QuestionListItem(props: {
   isSelected: boolean;
@@ -49,9 +50,11 @@ export function QuestionListItem(props: {
           multiline
           value={question.question.question}
           onChange={(e) =>
-            updateQuestion({
-              ...question,
-              question: { ...question.question, question: e.target.value },
+            onTextInputChanged(e, () => {
+              updateQuestion({
+                ...question,
+                question: { ...question.question, question: e.target.value },
+              });
             })
           }
           onFocus={() => selectQuestion(question)}

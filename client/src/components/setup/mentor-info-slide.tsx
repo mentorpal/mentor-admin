@@ -8,6 +8,7 @@ import React from "react";
 import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import { Mentor } from "types";
 import { Slide } from "./slide";
+import { onTextInputChanged } from "helpers";
 
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
@@ -33,7 +34,11 @@ export function MentorInfoSlide(props: {
             label="First Name"
             variant="outlined"
             value={mentor.firstName || ""}
-            onChange={(e) => editMentor({ firstName: e.target.value })}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                editMentor({ firstName: e.target.value });
+              })
+            }
             className={classes.inputField}
           />
           <TextField
@@ -42,7 +47,11 @@ export function MentorInfoSlide(props: {
             label="Full Name"
             variant="outlined"
             value={mentor.name || ""}
-            onChange={(e) => editMentor({ name: e.target.value })}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                editMentor({ name: e.target.value });
+              })
+            }
             className={classes.inputField}
           />
           <TextField
@@ -51,7 +60,11 @@ export function MentorInfoSlide(props: {
             label="Job Title"
             variant="outlined"
             value={mentor.title || ""}
-            onChange={(e) => editMentor({ title: e.target.value })}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                editMentor({ title: e.target.value });
+              })
+            }
             className={classes.inputField}
           />
           <TextField
@@ -60,7 +73,9 @@ export function MentorInfoSlide(props: {
             type="email"
             variant="outlined"
             value={mentor.email || ""}
-            onChange={(e) => editMentor({ email: e.target.value })}
+            onChange={(e) => {
+              editMentor({ email: e.target.value });
+            }}
             className={classes.inputField}
           />
           <FormControlLabel

@@ -39,6 +39,7 @@ import useActiveMentor, {
 import CreateIcon from "@material-ui/icons/Create";
 import Backdrop from "@material-ui/core/Backdrop";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import { onTextInputChanged } from "helpers";
 
 import "styles/layout.css";
 
@@ -134,7 +135,11 @@ export default function MyMentorCard(props: {
                   data-cy="mentor-name"
                   label="Full Name"
                   value={editedMentor.name}
-                  onChange={(e) => editMentor({ name: e.target.value })}
+                  onChange={(e) =>
+                    onTextInputChanged(e, () => {
+                      editMentor({ name: e.target.value });
+                    })
+                  }
                   className={classes.inputField}
                   disabled={props.editDisabled}
                 />
@@ -142,7 +147,11 @@ export default function MyMentorCard(props: {
                   data-cy="mentor-job-title"
                   label="Job Title"
                   value={editedMentor.title}
-                  onChange={(e) => editMentor({ title: e.target.value })}
+                  onChange={(e) =>
+                    onTextInputChanged(e, () => {
+                      editMentor({ title: e.target.value });
+                    })
+                  }
                   className={classes.inputField}
                   disabled={props.editDisabled}
                 />
@@ -150,7 +159,11 @@ export default function MyMentorCard(props: {
                   data-cy="mentor-first-name"
                   label="First Name"
                   value={editedMentor.firstName}
-                  onChange={(e) => editMentor({ firstName: e.target.value })}
+                  onChange={(e) =>
+                    onTextInputChanged(e, () => {
+                      editMentor({ firstName: e.target.value });
+                    })
+                  }
                   className={classes.inputField}
                   disabled={props.editDisabled}
                 />
@@ -301,7 +314,6 @@ export default function MyMentorCard(props: {
                   {editedMentor.title}
                 </Typography>
               </Grid>
-
               <input
                 id="icon-button-file"
                 data-cy="upload-file"

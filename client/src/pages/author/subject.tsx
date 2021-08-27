@@ -30,6 +30,7 @@ import {
 } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { onTextInputChanged } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -151,7 +152,11 @@ function SubjectPage(props: {
               label="Subject Name"
               placeholder="Display name for the subject"
               value={editedSubject.name}
-              onChange={(e) => editSubject({ name: e.target.value })}
+              onChange={(e) =>
+                onTextInputChanged(e, () => {
+                  editSubject({ name: e.target.value });
+                })
+              }
               style={{ marginTop: 20, marginBottom: 20 }}
               fullWidth
               multiline
@@ -162,7 +167,11 @@ function SubjectPage(props: {
               label="Subject Description"
               placeholder="Description about the types of questions in the subject"
               value={editedSubject.description}
-              onChange={(e) => editSubject({ description: e.target.value })}
+              onChange={(e) =>
+                onTextInputChanged(e, () => {
+                  editSubject({ description: e.target.value });
+                })
+              }
               fullWidth
               multiline
             />

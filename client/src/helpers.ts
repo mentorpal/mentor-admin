@@ -67,3 +67,16 @@ export function getValueIfKeyExists<T>(
   const result = dict[key];
   return typeof result !== "undefined" ? result : null;
 }
+
+export function onTextInputChanged(
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  update: () => void
+): void {
+  const caret = e?.target.selectionStart;
+  const element = e.target;
+  window.requestAnimationFrame(() => {
+    element.selectionStart = caret;
+    element.selectionEnd = caret;
+  });
+  update();
+}

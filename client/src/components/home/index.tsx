@@ -32,7 +32,7 @@ import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-s
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import { Subject, User, UserRole } from "types";
-import { launchMentor } from "helpers";
+import { launchMentor, onTextInputChanged } from "helpers";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import useActiveMentor, {
   useActiveMentorActions,
@@ -170,7 +170,11 @@ function HomePage(props: {
               data-cy="switch-mentor-id"
               label="Active Mentor Id"
               value={activeMentorId}
-              onChange={(e) => setActiveMentorId(e.target.value)}
+              onChange={(e) =>
+                onTextInputChanged(e, () => {
+                  setActiveMentorId(e.target.value);
+                })
+              }
             />
             <Fab
               data-cy="switch-mentor-button"
