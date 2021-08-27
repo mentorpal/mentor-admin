@@ -28,28 +28,28 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import {
-  MentorType,
-  Status,
-  UtteranceName,
-  RecordPageState,
-  AnswerAttentionNeeded,
-} from "types";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
-import VideoPlayer from "components/record/video-player";
-import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import withLocation from "wrap-with-location";
-import { useWithRecordState } from "hooks/graphql/use-with-record-state";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
-import UploadingWidget from "components/record/uploading-widget";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
+import UploadingWidget from "components/record/uploading-widget";
+import VideoPlayer from "components/record/video-player";
+import { getValueIfKeyExists } from "helpers";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
-import { getValueIfKeyExists } from "helpers";
+import {
+  AnswerAttentionNeeded,
+  RecordPageState,
+  MentorType,
+  UtteranceName,
+  Status,
+} from "types";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -279,6 +279,12 @@ function RecordPage(props: {
                 disabled={!curAnswerBelongsToMentor}
                 onChange={(e) => {
                   if (curEditedQuestion) {
+                    const caret = e?.target.selectionStart;
+                    const element = e.target;
+                    window.requestAnimationFrame(() => {
+                      element.selectionStart = caret;
+                      element.selectionEnd = caret;
+                    });
                     recordState.editQuestion({
                       ...curEditedQuestion,
                       question: e.target.value,
@@ -350,9 +356,15 @@ function RecordPage(props: {
                   data-cy="transcript-input"
                   multiline
                   value={curAnswer?.editedAnswer.transcript}
-                  onChange={(e) =>
-                    recordState.editAnswer({ transcript: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const caret = e?.target.selectionStart;
+                    const element = e.target;
+                    window.requestAnimationFrame(() => {
+                      element.selectionStart = caret;
+                      element.selectionEnd = caret;
+                    });
+                    recordState.editAnswer({ transcript: e.target.value });
+                  }}
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton
