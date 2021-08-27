@@ -28,6 +28,7 @@ import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Topic } from "types";
+import { onTextInputChanged } from "helpers";
 
 export function TopicCard(props: {
   classes: Record<string, string>;
@@ -48,15 +49,11 @@ export function TopicCard(props: {
             label="Topic"
             variant="outlined"
             value={topic.name}
-            onChange={(e) => {
-              const caret = e?.target.selectionStart;
-              const element = e.target;
-              window.requestAnimationFrame(() => {
-                element.selectionStart = caret;
-                element.selectionEnd = caret;
-              });
-              props.editTopic({ ...topic, name: e.target.value });
-            }}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                props.editTopic({ ...topic, name: e.target.value });
+              })
+            }
             fullWidth
             multiline
           />
@@ -92,15 +89,11 @@ export function TopicCard(props: {
             label="Description"
             variant="outlined"
             value={topic.description}
-            onChange={(e) => {
-              const caret = e?.target.selectionStart;
-              const element = e.target;
-              window.requestAnimationFrame(() => {
-                element.selectionStart = caret;
-                element.selectionEnd = caret;
-              });
-              props.editTopic({ ...topic, description: e.target.value });
-            }}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                props.editTopic({ ...topic, description: e.target.value });
+              })
+            }
             fullWidth
             multiline
           />

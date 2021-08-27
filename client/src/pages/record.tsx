@@ -34,7 +34,7 @@ import ProgressBar from "components/progress-bar";
 import FollowUpQuestionsWidget from "components/record/follow-up-question-list";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists } from "helpers";
+import { getValueIfKeyExists, onTextInputChanged } from "helpers";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -356,15 +356,11 @@ function RecordPage(props: {
                   data-cy="transcript-input"
                   multiline
                   value={curAnswer?.editedAnswer.transcript}
-                  onChange={(e) => {
-                    const caret = e?.target.selectionStart;
-                    const element = e.target;
-                    window.requestAnimationFrame(() => {
-                      element.selectionStart = caret;
-                      element.selectionEnd = caret;
-                    });
-                    recordState.editAnswer({ transcript: e.target.value });
-                  }}
+                  onChange={(e) =>
+                    onTextInputChanged(e, () => {
+                      recordState.editAnswer({ transcript: e.target.value });
+                    })
+                  }
                   endAdornment={
                     <InputAdornment position="end">
                       <IconButton

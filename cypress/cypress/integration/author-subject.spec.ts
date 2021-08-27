@@ -275,7 +275,7 @@ describe("Edit subject", () => {
     cy.get("[data-cy=select-name]").should("have.attr", "cy-value", "_IDLE_");
   });
 
-  it.only("only shows video length if question is video only", () => {
+  it("only shows video length if question is video only", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,

@@ -22,6 +22,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Category } from "types";
 import QuestionListItem from "./question-list-item";
 import { SubjectQuestionGQL } from "types-gql";
+import { onTextInputChanged } from "helpers";
 
 export function CategoryListItem(props: {
   category: Category;
@@ -58,15 +59,11 @@ export function CategoryListItem(props: {
             label="Category"
             placeholder="New category"
             value={category.name}
-            onChange={(e) => {
-              const caret = e?.target.selectionStart;
-              const element = e.target;
-              window.requestAnimationFrame(() => {
-                element.selectionStart = caret;
-                element.selectionEnd = caret;
-              });
-              updateCategory({ ...category, name: e.target.value });
-            }}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                updateCategory({ ...category, name: e.target.value });
+              })
+            }
             InputLabelProps={{
               shrink: true,
             }}
@@ -107,15 +104,11 @@ export function CategoryListItem(props: {
             data-cy="category-description"
             label="Description"
             value={category.description}
-            onChange={(e) => {
-              const caret = e?.target.selectionStart;
-              const element = e.target;
-              window.requestAnimationFrame(() => {
-                element.selectionStart = caret;
-                element.selectionEnd = caret;
-              });
-              updateCategory({ ...category, description: e.target.value });
-            }}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                updateCategory({ ...category, description: e.target.value });
+              })
+            }
             InputLabelProps={{
               shrink: true,
             }}

@@ -34,6 +34,7 @@ import useActiveMentor, {
   isActiveMentorLoading,
   isActiveMentorSaving,
 } from "store/slices/mentor/useActiveMentor";
+import { onTextInputChanged } from "helpers";
 
 const useStyles = makeStyles(() => ({
   homeThumbnail: {
@@ -90,15 +91,11 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-name"
                 label="Full Name"
                 value={editedMentor.name}
-                onChange={(e) => {
-                  const caret = e?.target.selectionStart;
-                  const element = e.target;
-                  window.requestAnimationFrame(() => {
-                    element.selectionStart = caret;
-                    element.selectionEnd = caret;
-                  });
-                  editMentor({ name: e.target.value });
-                }}
+                onChange={(e) =>
+                  onTextInputChanged(e, () => {
+                    editMentor({ name: e.target.value });
+                  })
+                }
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -106,15 +103,11 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-job-title"
                 label="Job Title"
                 value={editedMentor.title}
-                onChange={(e) => {
-                  const caret = e?.target.selectionStart;
-                  const element = e.target;
-                  window.requestAnimationFrame(() => {
-                    element.selectionStart = caret;
-                    element.selectionEnd = caret;
-                  });
-                  editMentor({ title: e.target.value });
-                }}
+                onChange={(e) =>
+                  onTextInputChanged(e, () => {
+                    editMentor({ title: e.target.value });
+                  })
+                }
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -157,15 +150,11 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-first-name"
                 label="First Name"
                 value={editedMentor.firstName}
-                onChange={(e) => {
-                  const caret = e?.target.selectionStart;
-                  const element = e.target;
-                  window.requestAnimationFrame(() => {
-                    element.selectionStart = caret;
-                    element.selectionEnd = caret;
-                  });
-                  editMentor({ firstName: e.target.value });
-                }}
+                onChange={(e) =>
+                  onTextInputChanged(e, () => {
+                    editMentor({ firstName: e.target.value });
+                  })
+                }
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -175,12 +164,6 @@ export default function MyMentorCard(props: {
                 type="email"
                 value={editedMentor.email}
                 onChange={(e) => {
-                  const caret = e?.target.selectionStart;
-                  const element = e.target;
-                  window.requestAnimationFrame(() => {
-                    element.selectionStart = caret;
-                    element.selectionEnd = caret;
-                  });
                   editMentor({ email: e.target.value });
                 }}
                 className={classes.inputField}

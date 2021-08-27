@@ -25,6 +25,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Question } from "types";
 import { AnswerGQL } from "types-gql";
+import { onTextInputChanged } from "helpers";
 
 function AnswerList(props: {
   classes: Record<string, string>;
@@ -120,18 +121,14 @@ function AnswerList(props: {
                         multiline
                         value={answer.question?.question}
                         style={{ marginRight: 100 }}
-                        onChange={(e) => {
-                          const caret = e?.target.selectionStart;
-                          const element = e.target;
-                          window.requestAnimationFrame(() => {
-                            element.selectionStart = caret;
-                            element.selectionEnd = caret;
-                          });
-                          onEditQuestion({
-                            ...answer.question,
-                            question: e.target.value,
-                          });
-                        }}
+                        onChange={(e) =>
+                          onTextInputChanged(e, () => {
+                            onEditQuestion({
+                              ...answer.question,
+                              question: e.target.value,
+                            });
+                          })
+                        }
                       />
                     ) : (
                       <ListItemText
