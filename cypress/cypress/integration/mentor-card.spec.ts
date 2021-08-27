@@ -134,7 +134,7 @@ describe("My Mentor Page", () => {
       });
     });
 
-    it("shows placeholder when no thumbnail", () => {
+    it.only("shows placeholder when no thumbnail", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {

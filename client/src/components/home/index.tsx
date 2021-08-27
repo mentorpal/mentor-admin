@@ -270,7 +270,7 @@ function HomePage(props: {
               color="secondary"
               // disabled={!isMentorEdited}
               onClick={saveChanges}
-              className={[classes.fab, "seconday-btn"].join(" ")}
+              className={[classes.fab, "secondary-btn"].join(" ")}
             >
               Save Changes
             </Fab>

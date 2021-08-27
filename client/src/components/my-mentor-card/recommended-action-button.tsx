@@ -4,9 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Button, Typography } from "@material-ui/core";
-import { DoubleArrow } from "@material-ui/icons";
+import { Button, Link, Tooltip, Typography } from "@material-ui/core";
+import { HelpOutline } from "@material-ui/icons";
 import React from "react";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import "styles/layout.css";
+import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { UseWithRecommendedAction } from "./use-with-recommended-action";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
@@ -16,17 +19,51 @@ export default function RecommendedActionButton(props: {
     props.continueAction
   );
 
+  const mentorInfo = useActiveMentor((ms) =>
+    ms.data ? parseMentor(ms.data) : defaultMentorInfo
+  );
+
   return (
     <div>
       <Typography
         variant="body1"
+        color="textSecondary"
+        display="inline"
+        style={{ marginBottom: 10 }}
+      >
+        Next Goal:{" "}
+      </Typography>
+      <Typography variant="body1" color="textSecondary" display="inline">
+        {mentorInfo.currentStage.next.name}
+        {"   "}
+        <Tooltip
+          title={
+            <React.Fragment>
+              <Typography color="inherit">
+                {mentorInfo.currentStage.next.name}
+              </Typography>
+              {mentorInfo.currentStage.next.description}
+            </React.Fragment>
+          }
+          data-cy="next-stage-info"
+        >
+          <HelpOutline fontSize="small" />
+        </Tooltip>
+      </Typography>
+      <Typography
+        variant="h6"
         color="textPrimary"
         data-cy="recommended-action"
+        style={{ marginBottom: 15 }}
       >
-        {recommendedAction.text}
+        <b>{recommendedAction.text}</b>
       </Typography>
       {recommendedAction.input ? (
-        <div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link href="#" onClick={skipRecommendation} className="skip-btn">
+            <b>Skip</b>
+          </Link>
+
           <input
             accept="image/*"
             style={{ display: "none" }}
@@ -39,32 +76,39 @@ export default function RecommendedActionButton(props: {
                 : undefined;
             }}
           />
-          <label htmlFor="thumbnail-upload">
+          <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
             <Button
-              size="large"
+              size="medium"
               fullWidth
               color="primary"
               variant="contained"
               component="span"
               data-cy="recommended-action-thumbnail"
               startIcon={recommendedAction.icon}
+              className={recommendedAction.input ? "go-btn-label" : "go-btn"}
             >
               Go
             </Button>
           </label>
         </div>
       ) : (
-        <Button
-          size="large"
-          fullWidth
-          color="primary"
-          variant="contained"
-          data-cy="recommended-action-button"
-          onClick={recommendedAction.action}
-          startIcon={recommendedAction.icon}
-        >
-          Go
-        </Button>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link href="#" onClick={skipRecommendation} className="skip-btn">
+            <b>Skip</b>
+          </Link>
+          <Button
+            size="medium"
+            fullWidth
+            color="primary"
+            variant="contained"
+            data-cy="recommended-action-button"
+            onClick={recommendedAction.action}
+            startIcon={recommendedAction.icon}
+            className="go-btn"
+          >
+            Go
+          </Button>
+        </div>
       )}
       <Typography
         variant="caption"
@@ -73,17 +117,6 @@ export default function RecommendedActionButton(props: {
       >
         {recommendedAction.reason}
       </Typography>
-
-      <Button
-        fullWidth
-        data-cy="skip-action-button"
-        onClick={skipRecommendation}
-      >
-        <Typography variant="caption" color="textPrimary">
-          skip
-        </Typography>
-        <DoubleArrow />
-      </Button>
     </div>
   );
 }

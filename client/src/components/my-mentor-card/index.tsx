@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Tooltip,
   Avatar,
   Grid,
   Checkbox,
@@ -26,7 +25,6 @@ import {
 } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import { HelpOutline } from "@material-ui/icons";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import RecommendedActionButton from "./recommended-action-button";
 import StageProgress from "./stage-progress";
@@ -41,6 +39,8 @@ import useActiveMentor, {
 import CreateIcon from "@material-ui/icons/Create";
 import Backdrop from "@material-ui/core/Backdrop";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+
+import "styles/layout.css";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -179,7 +179,10 @@ export default function MyMentorCard(props: {
                   label="Allow people to contact me"
                   style={{ width: "100%", marginLeft: 10, marginRight: 10 }}
                 />
-                <div className={classes.inputField}>
+                <div
+                  className={classes.inputField}
+                  style={{ textAlign: "left" }}
+                >
                   <FormControl>
                     <InputLabel>Mentor Type</InputLabel>
                     <Select
@@ -245,7 +248,15 @@ export default function MyMentorCard(props: {
                 thumbnail-src={thumbnail}
                 item
                 xs={10}
+                className="thumbnail-wrapper"
               >
+                <div className="upload-thumbnail">
+                  <label htmlFor="icon-button-file">
+                    <IconButton color="primary" component="span">
+                      <CloudUploadIcon />
+                    </IconButton>
+                  </label>
+                </div>
                 {thumbnail ? (
                   <Avatar
                     data-cy="uploaded-thumbnail"
@@ -303,13 +314,6 @@ export default function MyMentorCard(props: {
                     : undefined;
                 }}
               />
-              <div className="upload-thumbnail">
-                <label htmlFor="icon-button-file">
-                  <IconButton color="primary" component="span">
-                    <CloudUploadIcon />
-                  </IconButton>
-                </label>
-              </div>
             </Grid>
             <Grid item alignItems="center" xs={12} md={4}>
               <Typography
@@ -337,7 +341,7 @@ export default function MyMentorCard(props: {
                   percent={mentorInfo.currentStage.percent || 0}
                 />
               )}
-              <Typography
+              {/* <Typography
                 variant="body1"
                 color="textSecondary"
                 display="inline"
@@ -364,7 +368,7 @@ export default function MyMentorCard(props: {
                 >
                   <HelpOutline fontSize="small" />
                 </Tooltip>
-              </Typography>
+              </Typography> */}
             </Grid>
             <Grid xs={12} md={3}>
               <RecommendedActionButton

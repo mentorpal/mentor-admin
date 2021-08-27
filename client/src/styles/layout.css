@@ -3,6 +3,7 @@ body {
   margin: 0;
   text-align: center;
   -webkit-overflow-scrolling: touch;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 }
 #header {
   padding: 10px;
@@ -26,7 +27,7 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 div.jsoneditor {
-    min-height: 400px !important;
+  min-height: 400px !important;
 }
 
 .mentorName,
@@ -43,13 +44,22 @@ div.jsoneditor {
   margin-bottom: 0 !important;
 }
 
+.thumbnail-wrapper {
+  position: relative;
+}
+
 .upload-thumbnail {
-  background-color: #ddd;
-  width: 100px;
-  height: 45px;
+  position: absolute;
+  background-color: #fff;
+  width: 70px;
+  height: 40px;
+  border: 1px solid #1c6a9c;
   border-radius: 10px;
   margin-left: 30px;
   margin-right: auto;
+  z-index: 1;
+  bottom: 5px;
+  right: 5px;
 }
 
 .edit-pencil-icon {
@@ -95,9 +105,50 @@ div.jsoneditor {
   background-color: white !important;
   border: 2px solid blue;
 }
+.secondary-btn {
+  box-shadow: none !important;
+}
 
 .MuiFab-secondary {
   color: #1c6a9c !important;
   background-color: #fff !important;
-  border: 1px solid #1c6a9c  !important;
+  border: 1px solid #1c6a9c !important;
+}
+
+.skip-btn {
+  width: 50%;
+  font-size: 20px;
+  margin-top: 6px !important;
+  margin-bottom: 15px !important;
+}
+
+.go-btn {
+  border-radius: 25px !important;
+  width: 50% !important;
+}
+
+.go-btn-label {
+  border-radius: 25px !important;
+  width: 100% !important;
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+  height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(134, 134, 134, 0.3);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: rgb(204, 204, 204);
+  border-radius: 1rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(139, 139, 139);
 }
