@@ -120,12 +120,18 @@ function AnswerList(props: {
                         multiline
                         value={answer.question?.question}
                         style={{ marginRight: 100 }}
-                        onChange={(e) =>
+                        onChange={(e) => {
+                          const caret = e?.target.selectionStart;
+                          const element = e.target;
+                          window.requestAnimationFrame(() => {
+                            element.selectionStart = caret;
+                            element.selectionEnd = caret;
+                          });
                           onEditQuestion({
                             ...answer.question,
                             question: e.target.value,
-                          })
-                        }
+                          });
+                        }}
                       />
                     ) : (
                       <ListItemText

@@ -151,7 +151,15 @@ function SubjectPage(props: {
               label="Subject Name"
               placeholder="Display name for the subject"
               value={editedSubject.name}
-              onChange={(e) => editSubject({ name: e.target.value })}
+              onChange={(e) => {
+                const caret = e?.target.selectionStart;
+                const element = e.target;
+                window.requestAnimationFrame(() => {
+                  element.selectionStart = caret;
+                  element.selectionEnd = caret;
+                });
+                editSubject({ name: e.target.value });
+              }}
               style={{ marginTop: 20, marginBottom: 20 }}
               fullWidth
               multiline
@@ -162,7 +170,15 @@ function SubjectPage(props: {
               label="Subject Description"
               placeholder="Description about the types of questions in the subject"
               value={editedSubject.description}
-              onChange={(e) => editSubject({ description: e.target.value })}
+              onChange={(e) => {
+                const caret = e?.target.selectionStart;
+                const element = e.target;
+                window.requestAnimationFrame(() => {
+                  element.selectionStart = caret;
+                  element.selectionEnd = caret;
+                });
+                editSubject({ description: e.target.value });
+              }}
               fullWidth
               multiline
             />

@@ -69,7 +69,15 @@ export function ParaphraseList(props: {
                     variant="outlined"
                     fullWidth
                     value={paraphrase}
-                    onChange={(e) => updateParaphrase(e.target.value, i)}
+                    onChange={(e) => {
+                      const caret = e?.target.selectionStart;
+                      const element = e.target;
+                      window.requestAnimationFrame(() => {
+                        element.selectionStart = caret;
+                        element.selectionEnd = caret;
+                      });
+                      updateParaphrase(e.target.value, i);
+                    }}
                   />
                   <CardActions>
                     <IconButton

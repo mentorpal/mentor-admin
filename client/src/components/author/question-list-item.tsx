@@ -48,12 +48,18 @@ export function QuestionListItem(props: {
           fullWidth
           multiline
           value={question.question.question}
-          onChange={(e) =>
+          onChange={(e) => {
+            const caret = e?.target.selectionStart;
+            const element = e.target;
+            window.requestAnimationFrame(() => {
+              element.selectionStart = caret;
+              element.selectionEnd = caret;
+            });
             updateQuestion({
               ...question,
               question: { ...question.question, question: e.target.value },
-            })
-          }
+            });
+          }}
           onFocus={() => selectQuestion(question)}
         />
         <CardActions>

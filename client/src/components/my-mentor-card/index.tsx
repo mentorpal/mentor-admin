@@ -90,7 +90,15 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-name"
                 label="Full Name"
                 value={editedMentor.name}
-                onChange={(e) => editMentor({ name: e.target.value })}
+                onChange={(e) => {
+                  const caret = e?.target.selectionStart;
+                  const element = e.target;
+                  window.requestAnimationFrame(() => {
+                    element.selectionStart = caret;
+                    element.selectionEnd = caret;
+                  });
+                  editMentor({ name: e.target.value });
+                }}
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -98,7 +106,15 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-job-title"
                 label="Job Title"
                 value={editedMentor.title}
-                onChange={(e) => editMentor({ title: e.target.value })}
+                onChange={(e) => {
+                  const caret = e?.target.selectionStart;
+                  const element = e.target;
+                  window.requestAnimationFrame(() => {
+                    element.selectionStart = caret;
+                    element.selectionEnd = caret;
+                  });
+                  editMentor({ title: e.target.value });
+                }}
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -141,7 +157,15 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-first-name"
                 label="First Name"
                 value={editedMentor.firstName}
-                onChange={(e) => editMentor({ firstName: e.target.value })}
+                onChange={(e) => {
+                  const caret = e?.target.selectionStart;
+                  const element = e.target;
+                  window.requestAnimationFrame(() => {
+                    element.selectionStart = caret;
+                    element.selectionEnd = caret;
+                  });
+                  editMentor({ firstName: e.target.value });
+                }}
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />
@@ -150,7 +174,15 @@ export default function MyMentorCard(props: {
                 label="Email"
                 type="email"
                 value={editedMentor.email}
-                onChange={(e) => editMentor({ email: e.target.value })}
+                onChange={(e) => {
+                  const caret = e?.target.selectionStart;
+                  const element = e.target;
+                  window.requestAnimationFrame(() => {
+                    element.selectionStart = caret;
+                    element.selectionEnd = caret;
+                  });
+                  editMentor({ email: e.target.value });
+                }}
                 className={classes.inputField}
                 disabled={props.editDisabled}
               />

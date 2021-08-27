@@ -48,9 +48,15 @@ export function TopicCard(props: {
             label="Topic"
             variant="outlined"
             value={topic.name}
-            onChange={(e) =>
-              props.editTopic({ ...topic, name: e.target.value })
-            }
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              props.editTopic({ ...topic, name: e.target.value });
+            }}
             fullWidth
             multiline
           />
@@ -86,9 +92,15 @@ export function TopicCard(props: {
             label="Description"
             variant="outlined"
             value={topic.description}
-            onChange={(e) =>
-              props.editTopic({ ...topic, description: e.target.value })
-            }
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              props.editTopic({ ...topic, description: e.target.value });
+            }}
             fullWidth
             multiline
           />

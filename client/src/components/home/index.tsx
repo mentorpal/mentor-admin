@@ -160,7 +160,15 @@ function HomePage(props: {
               data-cy="switch-mentor-id"
               label="Active Mentor Id"
               value={activeMentorId}
-              onChange={(e) => setActiveMentorId(e.target.value)}
+              onChange={(e) => {
+                const caret = e?.target.selectionStart;
+                const element = e.target;
+                window.requestAnimationFrame(() => {
+                  element.selectionStart = caret;
+                  element.selectionEnd = caret;
+                });
+                setActiveMentorId(e.target.value);
+              }}
             />
             <Fab
               data-cy="switch-mentor-button"

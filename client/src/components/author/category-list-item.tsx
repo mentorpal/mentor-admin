@@ -58,9 +58,15 @@ export function CategoryListItem(props: {
             label="Category"
             placeholder="New category"
             value={category.name}
-            onChange={(e) =>
-              updateCategory({ ...category, name: e.target.value })
-            }
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              updateCategory({ ...category, name: e.target.value });
+            }}
             InputLabelProps={{
               shrink: true,
             }}
@@ -101,9 +107,15 @@ export function CategoryListItem(props: {
             data-cy="category-description"
             label="Description"
             value={category.description}
-            onChange={(e) =>
-              updateCategory({ ...category, description: e.target.value })
-            }
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              updateCategory({ ...category, description: e.target.value });
+            }}
             InputLabelProps={{
               shrink: true,
             }}

@@ -33,7 +33,15 @@ export function MentorInfoSlide(props: {
             label="First Name"
             variant="outlined"
             value={mentor.firstName || ""}
-            onChange={(e) => editMentor({ firstName: e.target.value })}
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              editMentor({ firstName: e.target.value });
+            }}
             className={classes.inputField}
           />
           <TextField
@@ -42,7 +50,15 @@ export function MentorInfoSlide(props: {
             label="Full Name"
             variant="outlined"
             value={mentor.name || ""}
-            onChange={(e) => editMentor({ name: e.target.value })}
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              editMentor({ name: e.target.value });
+            }}
             className={classes.inputField}
           />
           <TextField
@@ -51,7 +67,15 @@ export function MentorInfoSlide(props: {
             label="Job Title"
             variant="outlined"
             value={mentor.title || ""}
-            onChange={(e) => editMentor({ title: e.target.value })}
+            onChange={(e) => {
+              const caret = e?.target.selectionStart;
+              const element = e.target;
+              window.requestAnimationFrame(() => {
+                element.selectionStart = caret;
+                element.selectionEnd = caret;
+              });
+              editMentor({ title: e.target.value });
+            }}
             className={classes.inputField}
           />
           <TextField
@@ -60,7 +84,9 @@ export function MentorInfoSlide(props: {
             type="email"
             variant="outlined"
             value={mentor.email || ""}
-            onChange={(e) => editMentor({ email: e.target.value })}
+            onChange={(e) => {
+              editMentor({ email: e.target.value });
+            }}
             className={classes.inputField}
           />
           <FormControlLabel
