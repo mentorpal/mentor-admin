@@ -60,7 +60,12 @@ export default function RecommendedActionButton(props: {
       </Typography>
       {recommendedAction.input ? (
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Link href="#" onClick={skipRecommendation} className="skip-btn">
+          <Link
+            href="#"
+            onClick={skipRecommendation}
+            className="skip-btn"
+            data-cy="skip-action-button"
+          >
             <b>Skip</b>
           </Link>
 
@@ -93,7 +98,12 @@ export default function RecommendedActionButton(props: {
         </div>
       ) : (
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Link href="#" onClick={skipRecommendation} className="skip-btn">
+          <Link
+            href="#"
+            onClick={skipRecommendation}
+            className="skip-btn"
+            data-cy="skip-action-button"
+          >
             <b>Skip</b>
           </Link>
           <Button

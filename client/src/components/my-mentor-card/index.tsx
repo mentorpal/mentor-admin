@@ -341,34 +341,6 @@ export default function MyMentorCard(props: {
                   percent={mentorInfo.currentStage.percent || 0}
                 />
               )}
-              {/* <Typography
-                variant="body1"
-                color="textSecondary"
-                display="inline"
-              >
-                Next Goal:{" "}
-              </Typography>
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                display="inline"
-              >
-                {mentorInfo.currentStage.next.name}
-                {"   "}
-                <Tooltip
-                  title={
-                    <React.Fragment>
-                      <Typography color="inherit">
-                        {mentorInfo.currentStage.next.name}
-                      </Typography>
-                      {mentorInfo.currentStage.next.description}
-                    </React.Fragment>
-                  }
-                  data-cy="next-stage-info"
-                >
-                  <HelpOutline fontSize="small" />
-                </Tooltip>
-              </Typography> */}
             </Grid>
             <Grid xs={12} md={3}>
               <RecommendedActionButton
