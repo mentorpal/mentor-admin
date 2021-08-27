@@ -131,7 +131,7 @@ function HomePage(props: {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
-    setShowSetupAlert(!setupStatus.isSetupComplete);
+    setShowSetupAlert(!setupStatus.isBuildable);
   }, [setupStatus]);
 
   if (!(mentorId && setupStatus)) {
