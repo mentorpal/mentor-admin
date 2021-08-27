@@ -50,13 +50,9 @@ div.jsoneditor {
 
 .upload-thumbnail {
   position: absolute;
-  background-color: #fff;
-  width: 70px;
-  height: 40px;
-  border: 1px solid #1c6a9c;
   border-radius: 10px;
   margin-left: 30px;
-  margin-right: auto;
+  margin: 5px 0px 5px 0px;
   z-index: 1;
   bottom: 5px;
   right: 5px;

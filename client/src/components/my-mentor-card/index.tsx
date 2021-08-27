@@ -45,7 +45,7 @@ import "styles/layout.css";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
-    width: "100%",
+    width: "70%",
     height: 180,
   },
   siteThumbnail: {
@@ -334,7 +334,7 @@ export default function MyMentorCard(props: {
                 data-cy="mentor-card-scope"
               >
                 <div className="stage-text">
-                  Scope: <b>{mentorInfo.currentStage.name}</b>
+                  Mentor Status: <b>{mentorInfo.currentStage.name}</b>
                 </div>
               </Typography>
               <Typography

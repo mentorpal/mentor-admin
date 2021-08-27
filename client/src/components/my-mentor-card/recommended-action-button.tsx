@@ -26,15 +26,15 @@ export default function RecommendedActionButton(props: {
   return (
     <div>
       <Typography
-        variant="body1"
-        color="textSecondary"
+        variant="h5"
+        color="textPrimary"
         display="inline"
         style={{ marginBottom: 10 }}
       >
-        Next Goal:{" "}
+        Next Status:{" "}
       </Typography>
-      <Typography variant="body1" color="textSecondary" display="inline">
-        {mentorInfo.currentStage.next.name}
+      <Typography variant="h5" color="textPrimary" display="inline">
+        <b>{mentorInfo.currentStage.next.name}</b>
         {"   "}
         <Tooltip
           title={
@@ -54,79 +54,84 @@ export default function RecommendedActionButton(props: {
         variant="h6"
         color="textPrimary"
         data-cy="recommended-action"
-        style={{ marginBottom: 15 }}
+        style={{ marginBottom: 5 }}
       >
-        <b>{recommendedAction.text}</b>
+        <p style={{ margin: 0, marginTop: 5, fontSize: "1rem" }}>
+          {recommendedAction.text}
+        </p>
       </Typography>
-      {recommendedAction.input ? (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Link
-            href="#"
-            onClick={skipRecommendation}
-            className="skip-btn"
-            data-cy="skip-action-button"
-          >
-            <b>Skip</b>
-          </Link>
+      <Typography
+        variant="caption"
+        color="textSecondary"
+        data-cy="recommended-action-reason"
+        style={{ marginBottom: 10 }}
+      >
+        {recommendedAction.reason}
+      </Typography>
+      <div style={{ marginTop: 20 }}>
+        {recommendedAction.input ? (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Link
+              href="#"
+              onClick={skipRecommendation}
+              className="skip-btn"
+              data-cy="skip-action-button"
+            >
+              <b>Skip</b>
+            </Link>
 
-          <input
-            accept="image/*"
-            style={{ display: "none" }}
-            id="thumbnail-upload"
-            data-cy="recommended-action-upload"
-            type="file"
-            onChange={(e) => {
-              e.target.files instanceof FileList
-                ? props.setThumbnail(e.target.files[0])
-                : undefined;
-            }}
-          />
-          <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
+            <input
+              accept="image/*"
+              style={{ display: "none" }}
+              id="thumbnail-upload"
+              data-cy="recommended-action-upload"
+              type="file"
+              onChange={(e) => {
+                e.target.files instanceof FileList
+                  ? props.setThumbnail(e.target.files[0])
+                  : undefined;
+              }}
+            />
+            <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
+              <Button
+                size="medium"
+                fullWidth
+                color="primary"
+                variant="contained"
+                component="span"
+                data-cy="recommended-action-thumbnail"
+                startIcon={recommendedAction.icon}
+                className={recommendedAction.input ? "go-btn-label" : "go-btn"}
+              >
+                Go
+              </Button>
+            </label>
+          </div>
+        ) : (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Link
+              href="#"
+              onClick={skipRecommendation}
+              className="skip-btn"
+              data-cy="skip-action-button"
+            >
+              <b>Skip</b>
+            </Link>
             <Button
               size="medium"
               fullWidth
               color="primary"
               variant="contained"
-              component="span"
-              data-cy="recommended-action-thumbnail"
+              data-cy="recommended-action-button"
+              onClick={recommendedAction.action}
               startIcon={recommendedAction.icon}
-              className={recommendedAction.input ? "go-btn-label" : "go-btn"}
+              className="go-btn"
             >
               Go
             </Button>
-          </label>
-        </div>
-      ) : (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Link
-            href="#"
-            onClick={skipRecommendation}
-            className="skip-btn"
-            data-cy="skip-action-button"
-          >
-            <b>Skip</b>
-          </Link>
-          <Button
-            size="medium"
-            fullWidth
-            color="primary"
-            variant="contained"
-            data-cy="recommended-action-button"
-            onClick={recommendedAction.action}
-            startIcon={recommendedAction.icon}
-            className="go-btn"
-          >
-            Go
-          </Button>
-        </div>
-      )}
-      <Typography
-        variant="caption"
-        color="textSecondary"
-        data-cy="recommended-action-reason"
-      >
-        {recommendedAction.reason}
-      </Typography>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
