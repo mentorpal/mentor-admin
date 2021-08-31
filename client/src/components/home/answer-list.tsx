@@ -15,16 +15,12 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
-import { onTextInputChanged } from "helpers";
+import AnswerItem from "./answer-item";
 
 function AnswerList(props: {
   classes: Record<string, string>;
@@ -47,7 +43,6 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
-  console.log(answers);
 
   return (
     <Card
@@ -116,44 +111,13 @@ function AnswerList(props: {
                   key={`item-${i}`}
                   style={{ backgroundColor: "#eee" }}
                 >
-                  <div>
-                    {question?.mentor === props.mentorId ? (
-                      <TextField
-                        data-cy="edit-question"
-                        placeholder="New question"
-                        fullWidth
-                        multiline
-                        value={question?.question}
-                        style={{ marginRight: 100 }}
-                        onChange={(e) =>
-                          onTextInputChanged(e, () => {
-                            onEditQuestion({
-                              ...question,
-                              question: e.target.value,
-                            });
-                          })
-                        }
-                      />
-                    ) : (
-                      <ListItemText
-                        primary={question?.question}
-                        secondary={`${answer.transcript.substring(0, 100)}${
-                          answer.transcript.length > 100 ? "..." : ""
-                        }`}
-                        style={{ marginRight: 100 }}
-                      />
-                    )}
-                    <ListItemSecondaryAction>
-                      <Button
-                        data-cy="record-one"
-                        variant="outlined"
-                        endIcon={<PlayArrowIcon />}
-                        onClick={() => onRecordOne(question?._id || "")}
-                      >
-                        Record
-                      </Button>
-                    </ListItemSecondaryAction>
-                  </div>
+                  <AnswerItem
+                    mentorId={props.mentorId}
+                    answer={answer}
+                    question={question}
+                    onEditQuestion={onEditQuestion}
+                    onRecordOne={onRecordOne}
+                  />
                 </ListItem>
               );
             })}

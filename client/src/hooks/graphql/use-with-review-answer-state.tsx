@@ -182,7 +182,6 @@ export function useWithReviewAnswerState(
       });
     }
     setBlocks(_blocks);
-    console.log(JSON.stringify(_blocks, null, " "));
   }, [mentorSubjects, mentorAnswers, selectedSubject]);
 
   function clearError() {
@@ -329,22 +328,27 @@ export function useWithReviewAnswerState(
       });
   }
 
+  function getBlocks() {
+    return blocks;
+  }
+
+  function getAnswers() {
+    return editedAnswers || [];
+  }
+
+  function getQuestions() {
+    return editedQuestions || [];
+  }
+
   return {
     progress,
     selectedSubject,
     isSaving,
     error: saveError,
 
-    getBlocks: () => {
-      return blocks;
-    },
-    getAnswers: () => {
-      return editedAnswers || [];
-    },
-    getQuestions: () => {
-      return editedQuestions || [];
-    },
-
+    getBlocks,
+    getAnswers,
+    getQuestions,
     clearError,
     selectSubject,
     saveChanges,

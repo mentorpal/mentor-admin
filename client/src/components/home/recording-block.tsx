@@ -14,10 +14,7 @@ import { RecordingBlock } from "hooks/graphql/use-with-review-answer-state";
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
-  // answers: Answer[];
-  // questions: Question[];
   mentorId: string;
-
   getAnswers: () => Answer[];
   getQuestions: () => Question[];
   recordAnswers: (status: Status, subject: string, category: string) => void;

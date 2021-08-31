@@ -106,14 +106,13 @@ function HomePage(props: {
   const mentorId = useActiveMentor((m) => m.data?._id || "");
   const mentorLoading = isActiveMentorLoading();
   const mentorError = useActiveMentor((state) => state.error);
+  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
   const defaultMentor = props.user.defaultMentor._id;
   const mentorOwnership = defaultMentor === mentorId;
 
+  const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
-
-  const classes = useStyles();
-  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
   const mentorSubjectNamesById: Record<string, string> = useActiveMentor((m) =>
     (m.data?.subjects || []).reduce(
       (acc: Record<string, string>, cur: Subject) => {
@@ -123,11 +122,9 @@ function HomePage(props: {
       {}
     )
   );
-
   const mentorInfo = useActiveMentor((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
-
   const continueAction = () =>
     mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
