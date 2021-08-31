@@ -23,17 +23,17 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import { Question } from "types";
-import { AnswerGQL } from "types-gql";
+import { Answer, Question } from "types";
 import { onTextInputChanged } from "helpers";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
-  answers: AnswerGQL[];
+  answers: Answer[];
+  questions: Question[];
   onRecordAll: () => void;
-  onRecordOne: (question: Question) => void;
+  onRecordOne: (question: string) => void;
   onEditQuestion: (question: Question) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
@@ -47,6 +47,7 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
+  console.log(answers);
 
   return (
     <Card
@@ -106,6 +107,9 @@ function AnswerList(props: {
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
             {answers.map((answer, i) => {
+              const question = props.questions.find(
+                (q) => q._id === answer.question
+              );
               return (
                 <ListItem
                   data-cy={`answer-${i}`}
@@ -113,18 +117,18 @@ function AnswerList(props: {
                   style={{ backgroundColor: "#eee" }}
                 >
                   <div>
-                    {answer.question?.mentor === props.mentorId ? (
+                    {question?.mentor === props.mentorId ? (
                       <TextField
                         data-cy="edit-question"
                         placeholder="New question"
                         fullWidth
                         multiline
-                        value={answer.question?.question}
+                        value={question?.question}
                         style={{ marginRight: 100 }}
                         onChange={(e) =>
                           onTextInputChanged(e, () => {
                             onEditQuestion({
-                              ...answer.question,
+                              ...question,
                               question: e.target.value,
                             });
                           })
@@ -132,7 +136,7 @@ function AnswerList(props: {
                       />
                     ) : (
                       <ListItemText
-                        primary={answer.question?.question}
+                        primary={question?.question}
                         secondary={`${answer.transcript.substring(0, 100)}${
                           answer.transcript.length > 100 ? "..." : ""
                         }`}
@@ -144,7 +148,7 @@ function AnswerList(props: {
                         data-cy="record-one"
                         variant="outlined"
                         endIcon={<PlayArrowIcon />}
-                        onClick={() => onRecordOne(answer.question)}
+                        onClick={() => onRecordOne(question?._id || "")}
                       >
                         Record
                       </Button>

@@ -706,15 +706,12 @@ export async function updateUserQuestion(
 
 export async function fetchMentorById(
   accessToken: string,
-  mentorId: string,
-  subject?: string,
-  topic?: string,
-  status?: string
+  mentorId: string
 ): Promise<Mentor> {
   const gql = await execGql<MentorGQL>(
     {
       query: `
-      query MentorFindOne($mentor: ID!, $subject: ID!, $topic: ID!, $status: String!) {
+      query MentorFindOne($mentor: ID!) {
         mentor (id: $mentor){
           _id
           name
@@ -760,12 +757,7 @@ export async function fetchMentorById(
               }
             }
           }
-          topics(subject: $subject) {
-            id
-            name
-            description
-          }
-          answers(subject: $subject, topic: $topic, status: $status) {
+          answers {
             _id
             question {
               _id
@@ -785,9 +777,6 @@ export async function fetchMentorById(
     `,
       variables: {
         mentor: mentorId,
-        subject: subject || "",
-        topic: topic || "",
-        status: status || "",
       },
     },
     { dataPath: ["mentor"], accessToken }
