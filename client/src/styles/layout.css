@@ -46,6 +46,7 @@ div.jsoneditor {
 
 .thumbnail-wrapper {
   position: relative;
+  width: auto;
 }
 
 .upload-thumbnail {
@@ -78,6 +79,7 @@ div.jsoneditor {
 
 .stage-text {
   margin-bottom: 5px !important;
+  color: #6f6f6f;
 }
 
 .footer-info {
@@ -112,10 +114,13 @@ div.jsoneditor {
 }
 
 .skip-btn {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   width: 50%;
   font-size: 20px;
   margin-top: 6px !important;
-  margin-bottom: 15px !important;
+  margin-bottom: 5px !important;
 }
 
 .go-btn {
@@ -126,6 +131,31 @@ div.jsoneditor {
 .go-btn-label {
   border-radius: 25px !important;
   width: 100% !important;
+}
+
+.progressCircle-text > p {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+.helpbox {
+  display: inline-block;
+  background-color: #99999930;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.helpbox > p {
+  margin: 15px;
+  text-align: left;
+}
+
+.next-status-text-wrapper {
+  text-align: left;
+}
+
+.next-status-wrapper {
+  display: flex;
+  justify-content: flex-end;
 }
 
 ::-webkit-scrollbar {

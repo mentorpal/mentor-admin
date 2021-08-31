@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Box, Typography, CircularProgress } from "@material-ui/core";
+import "styles/layout.css";
 
 export default function StageProgress(props: {
   value: number;
@@ -13,16 +14,18 @@ export default function StageProgress(props: {
   percent: number;
 }): JSX.Element {
   return (
-    <Box alignItems="center">
+    <Box
+      alignItems="center"
+      style={{ display: "flex", justifyContent: "center", width: "80%" }}
+    >
       <Box position="relative" display="inline-flex">
         <CircularProgress
           data-cy="stage-progress"
           variant="determinate"
           style={{ color: "lightgrey" }}
           value={100}
-          size={80}
+          size={120}
         />
-
         <Box
           top={0}
           left={0}
@@ -37,7 +40,7 @@ export default function StageProgress(props: {
             data-cy="stage-progress"
             variant="determinate"
             value={props.percent}
-            size={80}
+            size={120}
           />
         </Box>
         <Box
@@ -51,7 +54,12 @@ export default function StageProgress(props: {
           justifyContent="center"
         >
           <Typography variant="h5" component="div" color="textSecondary">
-            {props.value}/{props.max}
+            <div className="progressCircle-text">
+              <b style={{ color: "#1c6a9c", fontSize: 30 }}>
+                {props.value}/{props.max}
+              </b>
+              <p>Questions</p>
+            </div>
           </Typography>
         </Box>
       </Box>

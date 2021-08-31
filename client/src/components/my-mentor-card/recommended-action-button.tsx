@@ -25,48 +25,49 @@ export default function RecommendedActionButton(props: {
 
   return (
     <div>
-      <Typography
-        variant="h5"
-        color="textPrimary"
-        display="inline"
-        style={{ marginBottom: 10 }}
-      >
-        Next Status:{" "}
-      </Typography>
-      <Typography variant="h5" color="textPrimary" display="inline">
-        <b>{mentorInfo.currentStage.next.name}</b>
-        {"   "}
-        <Tooltip
-          title={
-            <React.Fragment>
-              <Typography color="inherit">
-                {mentorInfo.currentStage.next.name}
-              </Typography>
-              {mentorInfo.currentStage.next.description}
-            </React.Fragment>
-          }
-          data-cy="next-stage-info"
+      <div className="next-status-text-wrapper">
+        <Typography
+          variant="h6"
+          color="textPrimary"
+          display="inline"
+          className="stage-text"
+          align="right"
+          style={{ textAlign: "right", color: "#6f6f6f" }}
         >
-          <HelpOutline fontSize="small" />
-        </Tooltip>
-      </Typography>
+          Next Status:{" "}
+        </Typography>
+        <Typography
+          variant="h6"
+          color="textPrimary"
+          display="inline"
+          align="right"
+        >
+          <b>{mentorInfo.currentStage.next.name}</b>
+          {"   "}
+          <Tooltip
+            title={
+              <React.Fragment>
+                <Typography color="inherit">
+                  {mentorInfo.currentStage.next.name}
+                </Typography>
+                {mentorInfo.currentStage.next.description}
+              </React.Fragment>
+            }
+            data-cy="next-stage-info"
+          >
+            <HelpOutline fontSize="small" />
+          </Tooltip>
+        </Typography>
+      </div>
       <Typography
-        variant="h6"
-        color="textPrimary"
-        data-cy="recommended-action"
-        style={{ marginBottom: 5 }}
-      >
-        <p style={{ margin: 0, marginTop: 5, fontSize: "1rem" }}>
-          {recommendedAction.text}
-        </p>
-      </Typography>
-      <Typography
-        variant="caption"
+        variant="body1"
         color="textSecondary"
         data-cy="recommended-action-reason"
         style={{ marginBottom: 10 }}
       >
-        {recommendedAction.reason}
+        <div className="helpbox">
+          <p>{recommendedAction.reason}</p>
+        </div>
       </Typography>
       <div style={{ marginTop: 20 }}>
         {recommendedAction.input ? (
@@ -77,7 +78,7 @@ export default function RecommendedActionButton(props: {
               className="skip-btn"
               data-cy="skip-action-button"
             >
-              <b>Skip</b>
+              skip
             </Link>
 
             <input
@@ -93,18 +94,32 @@ export default function RecommendedActionButton(props: {
               }}
             />
             <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
-              <Button
-                size="medium"
-                fullWidth
-                color="primary"
-                variant="contained"
-                component="span"
-                data-cy="recommended-action-thumbnail"
-                startIcon={recommendedAction.icon}
-                className={recommendedAction.input ? "go-btn-label" : "go-btn"}
-              >
-                Go
-              </Button>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                <Typography
+                  variant="h6"
+                  color="textPrimary"
+                  data-cy="recommended-action"
+                  style={{ marginBottom: 5 }}
+                >
+                  <p style={{ margin: 0, marginTop: 5, fontSize: "1.2rem" }}>
+                    <b>{recommendedAction.text}</b>
+                  </p>
+                </Typography>
+                <Button
+                  size="medium"
+                  fullWidth
+                  color="primary"
+                  variant="contained"
+                  component="span"
+                  data-cy="recommended-action-thumbnail"
+                  startIcon={recommendedAction.icon}
+                  className={
+                    recommendedAction.input ? "go-btn-label" : "go-btn"
+                  }
+                >
+                  Go
+                </Button>
+              </div>
             </label>
           </div>
         ) : (
@@ -115,20 +130,39 @@ export default function RecommendedActionButton(props: {
               className="skip-btn"
               data-cy="skip-action-button"
             >
-              <b>Skip</b>
+              skip
             </Link>
-            <Button
-              size="medium"
-              fullWidth
-              color="primary"
-              variant="contained"
-              data-cy="recommended-action-button"
-              onClick={recommendedAction.action}
-              startIcon={recommendedAction.icon}
-              className="go-btn"
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              Go
-            </Button>
+              <Typography
+                variant="h6"
+                color="textPrimary"
+                data-cy="recommended-action"
+                style={{ marginBottom: 5 }}
+              >
+                <p style={{ margin: 0, marginTop: 5, fontSize: "1.5rem" }}>
+                  <b>{recommendedAction.text}</b>
+                </p>
+              </Typography>
+              <Button
+                size="medium"
+                fullWidth
+                color="primary"
+                variant="contained"
+                data-cy="recommended-action-button"
+                onClick={recommendedAction.action}
+                startIcon={recommendedAction.icon}
+                className="go-btn"
+              >
+                Go
+              </Button>
+            </div>
           </div>
         )}
       </div>

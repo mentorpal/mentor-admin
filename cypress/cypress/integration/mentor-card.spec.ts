@@ -120,7 +120,7 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=mentor-card-trained]").contains("Last Trained: Today");
 
         cy.get("[data-cy=my-mentor-card]").contains(
-          "Mentor Status: Incomplete"
+          "Current Status: Incomplete"
         );
         cy.get("[data-cy=my-mentor-card]").contains(
           "This Mentor can't be built yet."
@@ -245,7 +245,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=my-mentor-card]").contains("Mentor Status: Life-Story");
+      cy.get("[data-cy=my-mentor-card]").contains("Current Status: Life-Story");
       cy.get("[data-cy=stage-progress]").should("not.exist");
     });
   });
