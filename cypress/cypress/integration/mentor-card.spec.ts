@@ -145,8 +145,6 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.viewport(1400, 600);
-      cy.get("[data-cy=placeholder-thumbnail]").should("exist");
     });
 
     it("displays mentor's thumbnail when configured", () => {
@@ -199,7 +197,6 @@ describe("My Mentor Page", () => {
 
     it("shows mentor scope toast on stage floor", () => {
       cySetup(cy);
-
       cyMockDefault(cy, {
         mentor: {
           ...clint,
@@ -302,9 +299,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=recommended-action]").contains(
-        "Finish Required Questions"
-      );
+      cy.get("[data-cy=recommended-action]").contains("Add Intro");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -445,7 +440,9 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=recommended-action]").contains("Record an Idle Video");
         cy.get("[data-cy=skip-action-button]").should("exist");
         cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
-        cy.get("[data-cy=recommended-action]").contains("Questions");
+        cy.get("[data-cy=recommended-action]").contains(
+          "Finish Required Questions"
+        );
       });
     });
   });

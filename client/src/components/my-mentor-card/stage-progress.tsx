@@ -22,7 +22,7 @@ export default function StageProgress(props: {
         display: "flex",
         justifyContent: "center",
         width: "75%",
-        marginTop: "35px",
+        marginTop: "20px",
       }}
     >
       <Box position="relative" display="inline-flex">

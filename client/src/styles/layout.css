@@ -125,7 +125,7 @@ div.jsoneditor {
 
 .go-btn {
   border-radius: 25px !important;
-  width: 50% !important;
+  width: 100% !important;
 }
 
 .go-btn-label {
@@ -147,6 +147,7 @@ div.jsoneditor {
 .helpbox > p {
   margin: 15px;
   text-align: left;
+  line-height: 1.5rem;
 }
 
 .next-status-text-wrapper {
@@ -176,6 +177,12 @@ div.jsoneditor {
 
 .label svg {
   width: 1em;
+}
+.recommended-action-text {
+  margin: 0;
+  margin-top: 30px;
+  font-size: 1.1rem;
+  line-height: 1.1rem;
 }
 
 ::-webkit-scrollbar {

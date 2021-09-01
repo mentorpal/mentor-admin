@@ -17,6 +17,8 @@ import setup9 from "./clint_setup9";
 import setup10 from "./clint_setup10";
 import setup11 from "./clint_setup11";
 
+import status1 from "../mentor-statuses/clint_status1";
+
 export {
   setup0 as mentorDefault,
   setup0,
@@ -31,4 +33,5 @@ export {
   setup9,
   setup10,
   setup11,
+  status1,
 };

@@ -100,7 +100,7 @@ export default function RecommendedActionButton(props: {
                   data-cy="recommended-action"
                   style={{ marginBottom: 5 }}
                 >
-                  <p style={{ margin: 0, marginTop: 5, fontSize: "1.2rem" }}>
+                  <p className="recommended-action-text">
                     <b>{recommendedAction.text}</b>
                   </p>
                 </Typography>
@@ -145,7 +145,7 @@ export default function RecommendedActionButton(props: {
                 data-cy="recommended-action"
                 style={{ marginBottom: 5 }}
               >
-                <p style={{ margin: 0, marginTop: 5, fontSize: "1.5rem" }}>
+                <p className="recommended-action-text">
                   <b>{recommendedAction.text}</b>
                 </p>
               </Typography>

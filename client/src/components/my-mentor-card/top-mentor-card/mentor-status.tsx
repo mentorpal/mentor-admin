@@ -78,7 +78,7 @@ function MentorStatus(props: {
             <b>Improve your Mentor</b>
           </Typography>
         </Grid>
-        <Grid container spacing={0} className="status-container">
+        <Grid container spacing={2} className="status-container">
           <Grid item xs={12} sm={6} md={6}>
             {currentStatus}
           </Grid>
