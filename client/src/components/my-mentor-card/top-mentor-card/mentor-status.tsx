@@ -27,7 +27,7 @@ function MentorStatus(props: {
       alignContent="flex-start"
       xs={12}
       md={10}
-      style={{ marginRight: 15 }}
+      className="status-item-wrapper"
     >
       <Typography
         variant="h6"
@@ -72,25 +72,26 @@ function MentorStatus(props: {
   );
   return (
     <>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={11}>
+      <Grid container spacing={2} className="top-card-container">
+        <Grid item xs={12} md={11} className="status-title-wrapper">
           <Typography variant="h5">
             <b>Improve your Mentor</b>
           </Typography>
         </Grid>
-        <Grid item xs={12} sm={6} md={6}>
-          {currentStatus}
-        </Grid>
-
-        <Grid
-          item
-          xs={12}
-          sm={6}
-          md={6}
-          className="next-status-wrapper"
-          next-states
-        >
-          {nextStatus}
+        <Grid container spacing={0} className="status-container">
+          <Grid item xs={12} sm={6} md={6}>
+            {currentStatus}
+          </Grid>
+          <Grid
+            item
+            xs={12}
+            sm={6}
+            md={6}
+            className="next-status-wrapper status-item-wrapper"
+            next-states
+          >
+            {nextStatus}
+          </Grid>
         </Grid>
       </Grid>
     </>

@@ -145,6 +145,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
+      cy.viewport(1400, 600);
       cy.get("[data-cy=placeholder-thumbnail]").should("exist");
     });
 

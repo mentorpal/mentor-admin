@@ -141,7 +141,7 @@ div.jsoneditor {
   display: inline-block;
   background-color: #99999930;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0 10px 0;
 }
 
 .helpbox > p {
@@ -155,7 +155,27 @@ div.jsoneditor {
 
 .next-status-wrapper {
   display: flex;
-  justify-content: flex-end;
+}
+.status-container {
+  width: 80% !important;
+}
+.top-card-container {
+  justify-content: flex-end !important;
+}
+
+.status-item-wrapper {
+  max-width: 100% !important;
+}
+
+.progress-circle-complete {
+  color: var(--complete-color) !important;
+}
+.progress-circle-in-progess {
+  color: var(--progress-color) !important;
+}
+
+.label svg {
+  width: 1em;
 }
 
 ::-webkit-scrollbar {

@@ -13,10 +13,17 @@ export default function StageProgress(props: {
   max: number;
   percent: number;
 }): JSX.Element {
+  const progressColor = "#FFE194";
+  const completeColor = "#57CC99 ";
   return (
     <Box
       alignItems="center"
-      style={{ display: "flex", justifyContent: "center", width: "80%" }}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        width: "75%",
+        marginTop: "35px",
+      }}
     >
       <Box position="relative" display="inline-flex">
         <CircularProgress
@@ -24,7 +31,7 @@ export default function StageProgress(props: {
           variant="determinate"
           style={{ color: "lightgrey" }}
           value={100}
-          size={120}
+          size={90}
         />
         <Box
           top={0}
@@ -40,7 +47,12 @@ export default function StageProgress(props: {
             data-cy="stage-progress"
             variant="determinate"
             value={props.percent}
-            size={120}
+            style={
+              props.percent < 100
+                ? { color: progressColor }
+                : { color: completeColor }
+            }
+            size={90}
           />
         </Box>
         <Box
@@ -55,10 +67,10 @@ export default function StageProgress(props: {
         >
           <Typography variant="h5" component="div" color="textSecondary">
             <div className="progressCircle-text">
-              <b style={{ color: "#1c6a9c", fontSize: 30 }}>
+              <b style={{ fontSize: 20 }}>
                 {props.value}/{props.max}
               </b>
-              <p>Questions</p>
+              <p style={{ fontSize: 10 }}>Questions</p>
             </div>
           </Typography>
         </Box>

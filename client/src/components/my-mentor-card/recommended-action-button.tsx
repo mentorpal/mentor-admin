@@ -63,13 +63,12 @@ export default function RecommendedActionButton(props: {
         variant="body1"
         color="textSecondary"
         data-cy="recommended-action-reason"
-        style={{ marginBottom: 10 }}
       >
         <div className="helpbox">
           <p>{recommendedAction.reason}</p>
         </div>
       </Typography>
-      <div style={{ marginTop: 20 }}>
+      <div>
         {recommendedAction.input ? (
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Link
