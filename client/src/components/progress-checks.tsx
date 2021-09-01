@@ -16,7 +16,7 @@ import {
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     smallRadioButton: {
       "& svg": {
