@@ -562,6 +562,7 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
     });
   });
+
   describe("Recording Session Ending Page", () => {
     it("Done Button after recording sessions leads to session ending page", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });

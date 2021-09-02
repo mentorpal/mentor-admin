@@ -47,6 +47,8 @@ describe("My Mentor Page", () => {
         });
         cy.visit("/");
         cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
+
         cy.get("[data-cy=mentor-name]").within(($input) => {
           cy.get("input").should("have.value", "d");
         });
@@ -56,13 +58,16 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=mentor-job-title]").within(($input) => {
           cy.get("input").should("have.value", "d");
         });
-        // cy.get("[data-cy=save-button]").should("be.disabled");
 
         // fill out full name and save
         cy.get("[data-cy=mentor-name]").type("Clinton Anderson");
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+
         cy.get("[data-cy=save-button]").should("not.be.disabled");
         cy.get("[data-cy=save-button]").trigger("mouseover").click();
-        // cy.get("[data-cy=save-button]").should("be.disabled");
+
+        //  open modal
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
           cy.get("input").should("have.value", "dClinton Anderson");
         });
@@ -75,9 +80,13 @@ describe("My Mentor Page", () => {
 
         // fill out first name and save
         cy.get("[data-cy=mentor-first-name]").type("Clint");
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+
         cy.get("[data-cy=save-button]").should("not.be.disabled");
         cy.get("[data-cy=save-button]").trigger("mouseover").click();
-        // cy.get("[data-cy=save-button]").should("be.disabled");
+
+        //  open modal
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
           cy.get("input").should("have.value", "dClinton Anderson");
         });
@@ -90,9 +99,13 @@ describe("My Mentor Page", () => {
 
         // fill out title and save
         cy.get("[data-cy=mentor-job-title]").type("Nuclear Electrician's Mate");
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+
         cy.get("[data-cy=save-button]").should("not.be.disabled");
         cy.get("[data-cy=save-button]").trigger("mouseover").click();
-        // cy.get("[data-cy=save-button]").should("be.disabled");
+
+        //  open modal
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
           cy.get("input").should("have.value", "dClinton Anderson");
         });
@@ -102,8 +115,13 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=mentor-job-title]").within(($input) => {
           cy.get("input").should("have.value", "dNuclear Electrician's Mate");
         });
-        cy.get("[data-cy=my-mentor-card]").contains("Last Trained: Today");
-        cy.get("[data-cy=my-mentor-card]").contains("Scope: Incomplete");
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+
+        cy.get("[data-cy=mentor-card-trained]").contains("Last Trained: Today");
+
+        cy.get("[data-cy=my-mentor-card]").contains(
+          "Current Status: Incomplete"
+        );
         cy.get("[data-cy=my-mentor-card]").contains(
           "This Mentor can't be built yet."
         );
@@ -112,7 +130,7 @@ describe("My Mentor Page", () => {
           .find("[data-cy=next-stage-info]")
           .trigger("mouseover");
         cy.contains("This Mentor can select questions from a list");
-        cy.get("[data-cy=thumbnail-wrapper]").trigger("mouseover");
+        cy.get("[data-cy=uploaded-thumbnail]").trigger("mouseover");
         cy.get("[data-cy=upload-file]").should("exist");
         cy.get("[data-cy=recommended-action-button]").should("exist");
       });
@@ -127,7 +145,6 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=placeholder-thumbnail]").should("exist");
     });
 
     it("displays mentor's thumbnail when configured", () => {
@@ -180,7 +197,6 @@ describe("My Mentor Page", () => {
 
     it("shows mentor scope toast on stage floor", () => {
       cySetup(cy);
-
       cyMockDefault(cy, {
         mentor: {
           ...clint,
@@ -227,7 +243,7 @@ describe("My Mentor Page", () => {
         },
       });
       cy.visit("/");
-      cy.get("[data-cy=my-mentor-card]").contains("Scope: Life-Story");
+      cy.get("[data-cy=my-mentor-card]").contains("Current Status: Life-Story");
       cy.get("[data-cy=stage-progress]").should("not.exist");
     });
   });
@@ -283,9 +299,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=recommended-action]").contains(
-        "Finish Required Questions"
-      );
+      cy.get("[data-cy=recommended-action]").contains("Add Your Intro");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -426,7 +440,9 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=recommended-action]").contains("Record an Idle Video");
         cy.get("[data-cy=skip-action-button]").should("exist");
         cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
-        cy.get("[data-cy=recommended-action]").contains("Questions");
+        cy.get("[data-cy=recommended-action]").contains(
+          "Finish Required Questions"
+        );
       });
     });
   });

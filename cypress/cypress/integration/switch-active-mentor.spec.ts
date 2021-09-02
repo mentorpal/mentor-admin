@@ -50,12 +50,18 @@ describe("Switch Active Mentor", () => {
         "background-color",
         "rgb(255, 255, 255)"
       );
+
+      //  open modal
+      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Clinton Anderson");
       });
       cy.get("[data-cy=mentor-job-title]").within(($input) => {
         cy.get("input").should("have.value", "Nuclear Electrician's Mate");
       });
+
+      // close modal
+      cy.get("[data-cy=close-modal]").trigger("mouseover").click();
       cy.get("[data-cy=switch-mentor-id]").within(($input) => {
         cy.get("input").clear();
       });
@@ -66,6 +72,9 @@ describe("Switch Active Mentor", () => {
         "background-color",
         "rgb(0, 0, 0)"
       );
+
+      //  open modal
+      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Nega Clint");
         cy.get("input").should("be.disabled");
@@ -74,7 +83,13 @@ describe("Switch Active Mentor", () => {
         cy.get("input").should("have.value", "Evil Clone");
         cy.get("input").should("be.disabled");
       });
+
+      // close modal
+      cy.get("[data-cy=close-modal]").trigger("mouseover").click();
       cy.get("[data-cy=default-mentor-button]").trigger("mouseover").click();
+
+      //  open modal
+      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Clinton Anderson");
         cy.get("input").should("not.be.disabled");

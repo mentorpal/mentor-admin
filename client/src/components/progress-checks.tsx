@@ -6,8 +6,32 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 
-import { Box, Radio, Typography } from "@material-ui/core";
-import { Stop, StopOutlined } from "@material-ui/icons";
+import {
+  Box,
+  createStyles,
+  makeStyles,
+  Radio,
+  Typography,
+} from "@material-ui/core";
+import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
+import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
+
+const useStyles = makeStyles(() =>
+  createStyles({
+    smallRadioButton: {
+      "& svg": {
+        width: "0.7em",
+        height: "0.7em",
+      },
+    },
+    smallRadioButtonProgess: {
+      "& svg": {
+        width: "0.9em",
+        height: "0.9em",
+      },
+    },
+  })
+);
 
 export default function ProgressChecks(props: {
   value: number;
@@ -22,6 +46,10 @@ export default function ProgressChecks(props: {
       }),
   ];
 
+  const classes = useStyles();
+  const progressColor = "#FFE194";
+  const completeColor = "#57CC99 ";
+
   return (
     <Box display="flex" alignItems="center">
       <Box width="100%" mr={1}>
@@ -29,12 +57,21 @@ export default function ProgressChecks(props: {
           <Radio
             data-cy={`radio-${i}`}
             disableRipple
-            icon={<StopOutlined />}
-            checkedIcon={<Stop />}
+            icon={<RadioButtonUncheckedIcon />}
+            checkedIcon={<FiberManualRecordIcon />}
             key={i}
             checked={q.complete}
-            color={q.complete ? "primary" : "default"}
+            style={
+              q.complete
+                ? { color: completeColor }
+                : { color: progressColor, fontSize: 15 }
+            }
             size="small"
+            className={
+              q.complete
+                ? classes.smallRadioButton
+                : classes.smallRadioButtonProgess
+            }
           />
         ))}
       </Box>

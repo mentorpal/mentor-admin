@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Button,
@@ -24,20 +24,26 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import NavBar from "components/nav-bar";
-import RecordingBlockItem from "components/home/recording-block";
-import withLocation from "wrap-with-location";
-import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
+
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
-import { Subject, User, UserRole } from "types";
-import { launchMentor } from "helpers";
+import parseMentor, {
+  defaultMentorInfo,
+} from "components/my-mentor-card/mentor-info";
+import NavBar from "components/nav-bar";
+import { launchMentor, onTextInputChanged } from "helpers";
+import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
+import { useWithTraining } from "hooks/task/use-with-train";
+import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor, {
   useActiveMentorActions,
+  isActiveMentorLoading,
 } from "store/slices/mentor/useActiveMentor";
-import { useEffect } from "react";
+import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
+import { User, Subject, UserRole } from "types";
+import withLocation from "wrap-with-location";
+import RecordingBlockItem from "./recording-block";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -83,28 +89,30 @@ function HomePage(props: {
   search: { subject?: string };
   user: User;
 }): JSX.Element {
+  const reviewAnswerState = useWithReviewAnswerState(
+    props.accessToken,
+    props.search
+  );
+  const useMentor = useMentorEdits();
   const {
-    useMentor,
-    isLoading,
-    selectedSubject,
-    blocks,
-    progress,
-    isSaving,
-    isTraining,
-    error,
-    selectSubject,
-    saveChanges,
-    startTraining,
-  } = useWithReviewAnswerState(props.accessToken, props.search);
-  const defaultMentor = props.user.defaultMentor._id;
-  const mentorId = useActiveMentor((m) => m.data?._id || "");
-  const { loadMentor } = useActiveMentorActions();
+    isPolling: isTraining,
+    error: trainError,
+    startTask: startTraining,
+    clearError: clearTrainingError,
+  } = useWithTraining();
+  const { loadMentor, clearMentorError } = useActiveMentorActions();
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
+
+  const mentorId = useActiveMentor((m) => m.data?._id || "");
+  const mentorLoading = isActiveMentorLoading();
+  const mentorError = useActiveMentor((state) => state.error);
+  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
+  const defaultMentor = props.user.defaultMentor._id;
+  const mentorOwnership = defaultMentor === mentorId;
+
+  const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
-  const mentorOwnership = defaultMentor === mentorId;
-  const classes = useStyles();
-  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
   const mentorSubjectNamesById: Record<string, string> = useActiveMentor((m) =>
     (m.data?.subjects || []).reduce(
       (acc: Record<string, string>, cur: Subject) => {
@@ -114,6 +122,9 @@ function HomePage(props: {
       {}
     )
   );
+  const mentorInfo = useActiveMentor((ms) =>
+    ms.data ? parseMentor(ms.data) : defaultMentorInfo
+  );
   const continueAction = () =>
     mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
@@ -121,7 +132,7 @@ function HomePage(props: {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
-    setShowSetupAlert(!setupStatus.isSetupComplete);
+    setShowSetupAlert(!setupStatus.isBuildable);
   }, [setupStatus]);
 
   if (!(mentorId && setupStatus)) {
@@ -160,7 +171,11 @@ function HomePage(props: {
               data-cy="switch-mentor-id"
               label="Active Mentor Id"
               value={activeMentorId}
-              onChange={(e) => setActiveMentorId(e.target.value)}
+              onChange={(e) =>
+                onTextInputChanged(e, () => {
+                  setActiveMentorId(e.target.value);
+                })
+              }
             />
             <Fab
               data-cy="switch-mentor-button"
@@ -188,23 +203,24 @@ function HomePage(props: {
         <Select
           data-cy="select-subject"
           value={
-            selectedSubject
-              ? mentorSubjectNamesById[selectedSubject]
+            reviewAnswerState.selectedSubject
+              ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
               : undefined
           }
           displayEmpty
           renderValue={() => (
             <Typography variant="h6" className={classes.title}>
-              {selectedSubject
-                ? mentorSubjectNamesById[selectedSubject]
+              {reviewAnswerState.selectedSubject
+                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
                 : "All Answers"}{" "}
-              ({progress.complete} / {progress.total})
+              ({reviewAnswerState.progress.complete} /{" "}
+              {reviewAnswerState.progress.total})
             </Typography>
           )}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => {
-            selectSubject(event.target.value as string);
+            reviewAnswerState.selectSubject(event.target.value as string);
           }}
         >
           <MenuItem data-cy="all-subjects" value={undefined}>
@@ -224,12 +240,18 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-        {blocks.map((b, i) => (
+        {reviewAnswerState.getBlocks().map((b, i) => (
           <ListItem key={b.name} data-cy={`block-${i}`}>
             <RecordingBlockItem
+              mentorId={mentorId || ""}
               classes={classes}
               block={b}
-              mentorId={mentorId || ""}
+              getAnswers={reviewAnswerState.getAnswers}
+              getQuestions={reviewAnswerState.getQuestions}
+              recordAnswers={reviewAnswerState.recordAnswers}
+              recordAnswer={reviewAnswerState.recordAnswer}
+              addNewQuestion={reviewAnswerState.addNewQuestion}
+              editQuestion={reviewAnswerState.editQuestion}
             />
           </ListItem>
         ))}
@@ -240,43 +262,71 @@ function HomePage(props: {
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "center",
           }}
         >
-          <Fab
-            data-cy="save-button"
-            variant="extended"
-            color="secondary"
-            // disabled={!isMentorEdited}
-            onClick={saveChanges}
-            className={classes.fab}
-          >
-            Save Changes
-          </Fab>
-          <Fab
-            data-cy="train-button"
-            variant="extended"
-            color="primary"
-            disabled={!mentorId || isTraining || isLoading || isSaving}
-            onClick={continueAction}
-            className={classes.fab}
-          >
-            {mentorIsDirty ? "Build Mentor" : "Preview Mentor"}
-          </Fab>
+          <div className={"trainnig-stage-info"}>
+            <Typography
+              variant="body1"
+              color="textSecondary"
+              align="left"
+              data-cy="mentor-card-trained"
+            >
+              Last Trained: {mentorInfo.lastTrainedAt.substring(0, 10)}
+            </Typography>
+          </div>
+          <div className="page-buttons">
+            <Fab
+              data-cy="save-button"
+              variant="extended"
+              color="secondary"
+              onClick={() => {
+                reviewAnswerState.saveChanges();
+                if (useMentor.isMentorEdited) {
+                  useMentor.saveMentorDetails();
+                }
+              }}
+              className={[classes.fab, "secondary-btn"].join(" ")}
+            >
+              Save Changes
+            </Fab>
+            <Fab
+              data-cy="train-button"
+              variant="extended"
+              color="primary"
+              disabled={
+                !mentorId ||
+                isTraining ||
+                mentorLoading ||
+                reviewAnswerState.isSaving
+              }
+              onClick={continueAction}
+              className={classes.fab}
+            >
+              {mentorIsDirty ? "Build Mentor" : "Preview Mentor"}
+            </Fab>
+          </div>
         </Toolbar>
       </AppBar>
       <LoadingDialog
         title={
-          isLoading
+          mentorLoading
             ? "Loading..."
-            : isSaving
+            : reviewAnswerState.isSaving
             ? "Saving..."
             : isTraining
             ? "Building..."
             : ""
         }
       />
-      <ErrorDialog error={error} />
+      <ErrorDialog
+        error={reviewAnswerState.error || trainError || mentorError}
+        clearError={() => {
+          clearTrainingError();
+          clearMentorError();
+          reviewAnswerState.clearError();
+        }}
+      />
       <Dialog
         data-cy="setup-dialog"
         maxWidth="sm"

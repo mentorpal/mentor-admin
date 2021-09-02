@@ -19,6 +19,7 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
+import { onTextInputChanged } from "helpers";
 
 export function ParaphraseList(props: {
   classes: Record<string, string>;
@@ -69,7 +70,11 @@ export function ParaphraseList(props: {
                     variant="outlined"
                     fullWidth
                     value={paraphrase}
-                    onChange={(e) => updateParaphrase(e.target.value, i)}
+                    onChange={(e) =>
+                      onTextInputChanged(e, () => {
+                        updateParaphrase(e.target.value, i);
+                      })
+                    }
                   />
                   <CardActions>
                     <IconButton

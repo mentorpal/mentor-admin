@@ -3,6 +3,7 @@ body {
   margin: 0;
   text-align: center;
   -webkit-overflow-scrolling: touch;
+  font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 }
 #header {
   padding: 10px;
@@ -26,5 +27,199 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 div.jsoneditor {
-    min-height: 400px !important;
+  min-height: 400px !important;
+}
+
+.mentorName,
+.mentorTitle {
+  text-align: left !important;
+}
+
+.mentorTitle {
+  font-size: 18px !important;
+  color: #b1b1b1;
+}
+
+.mentorName {
+  margin-bottom: 0 !important;
+}
+
+.thumbnail-wrapper {
+  position: relative;
+  width: auto;
+}
+
+.upload-thumbnail {
+  position: absolute;
+  border-radius: 10px;
+  margin-left: 30px;
+  margin: 5px 0px 5px 0px;
+  z-index: 1;
+  bottom: 5px;
+  right: 5px;
+}
+
+.edit-pencil-icon {
+  padding: 0px !important;
+}
+
+.modal-wrapper {
+  max-width: 50% !important;
+}
+.page-title {
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transform: translateY(-50%);
+  max-width: 30%;
+}
+
+.stage-text {
+  margin-bottom: 5px !important;
+  color: #6f6f6f;
+}
+
+.footer-info {
+  display: flex;
+}
+
+.trainnig-stage-info {
+  display: flex;
+  justify-content: left;
+  width: 100%;
+}
+
+.page-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.secondary-btn:hover {
+  background-color: white !important;
+  border: 2px solid blue;
+}
+.secondary-btn {
+  box-shadow: none !important;
+}
+
+.MuiFab-secondary {
+  color: #1c6a9c !important;
+  background-color: #fff !important;
+  border: 1px solid #1c6a9c !important;
+}
+
+.skip-btn {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 50%;
+  font-size: 20px;
+  margin-top: 6px !important;
+  margin-bottom: 5px !important;
+}
+
+.go-btn {
+  border-radius: 25px !important;
+  width: 100% !important;
+}
+
+.go-btn-label {
+  border-radius: 25px !important;
+  width: 100% !important;
+}
+
+.progressCircle-text > p {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+.helpbox {
+  display: inline-block;
+  background-color: #99999930;
+  border-radius: 10px;
+  margin: 10px 0 10px 0;
+}
+
+.helpbox > p {
+  margin: 15px;
+  text-align: left;
+  line-height: 1.5rem;
+}
+
+.next-status-text-wrapper {
+  text-align: left;
+}
+
+.next-status-wrapper {
+  display: flex;
+}
+.status-container {
+  width: 80% !important;
+}
+.top-card-container {
+  justify-content: flex-end !important;
+}
+
+.status-item-wrapper {
+  max-width: 100% !important;
+}
+
+.progress-circle-complete {
+  color: var(--complete-color) !important;
+}
+.progress-circle-in-progess {
+  color: var(--progress-color) !important;
+}
+
+.label svg {
+  width: 1em;
+}
+.recommended-action-text {
+  margin: 0;
+  margin-top: 30px;
+  font-size: 1.1rem;
+  line-height: 1.1rem;
+}
+
+.progress-circle {
+  position: absolute;
+  left: 40%;
+  transform: translateX(-50%);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 75%;
+}
+
+.current-status-wrapper {
+  position: relative;
+}
+
+.recommended-action-btns {
+  position: relative;
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+  height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(134, 134, 134, 0.3);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: rgb(204, 204, 204);
+  border-radius: 1rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(139, 139, 139);
 }

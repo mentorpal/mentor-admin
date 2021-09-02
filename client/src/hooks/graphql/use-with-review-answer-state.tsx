@@ -10,28 +10,21 @@ import { v4 as uuid } from "uuid";
 
 import { updateSubject } from "api";
 import { urlBuild, copyAndSet } from "helpers";
-import { useWithTraining } from "hooks/task/use-with-train";
 import useActiveMentor, {
   isActiveMentorLoading,
-  useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
-import {
-  useMentorEdits,
-  UseMentorEdits,
-} from "store/slices/mentor/useMentorEdits";
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
 import {
+  Answer,
   Question,
+  QuestionType,
   Status,
   Subject,
-  Answer,
-  Category,
-  QuestionType,
   UtteranceName,
 } from "types";
-import { SubjectQuestionGQL, SubjectGQL, AnswerGQL } from "types-gql";
+import { SubjectQuestionGQL, SubjectGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import { loadMentor } from "store/slices/mentor";
 
@@ -41,13 +34,30 @@ interface Progress {
 }
 
 export interface RecordingBlock {
+  subject: string;
+  category?: string;
   name: string;
   description: string;
-  answers: AnswerGQL[];
-  recordAll: (status: Status) => void;
-  recordOne: (question: Question) => void;
+  questions: string[];
+}
+
+interface UseWithReviewAnswerState {
+  selectedSubject?: string;
+  progress: Progress;
+  isSaving: boolean;
+  error?: LoadingError;
+
+  getBlocks: () => RecordingBlock[];
+  getAnswers: () => Answer[];
+  getQuestions: () => Question[];
+
+  clearError: () => void;
+  selectSubject: (sId?: string) => void;
+  saveChanges: () => void;
+  recordAnswers: (status: Status, subject: string, category: string) => void;
+  recordAnswer: (question: string) => void;
+  addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: Question) => void;
-  addQuestion?: () => void;
 }
 
 export function useWithReviewAnswerState(
@@ -61,9 +71,9 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
   const [editedSubjects, setEditedSubjects] = useState<Subject[]>();
   const [editedAnswers, setEditedAnswers] = useState<Answer[]>();
+  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
 
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
@@ -72,21 +82,10 @@ export function useWithReviewAnswerState(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
+  const isMentorLoading = isActiveMentorLoading();
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
-  const mentorError = useActiveMentor((state) => state.error);
-  const isMentorLoading = isActiveMentorLoading();
-  const { clearMentorError } = useActiveMentorActions();
-
-  const useMentor = useMentorEdits();
-  const { editedMentor, saveMentorDetails } = useMentor;
-  const {
-    isPolling: isTraining,
-    error: trainError,
-    startTask: startTraining,
-    clearError: clearTrainingError,
-  } = useWithTraining();
 
   useEffect(() => {
     setEditedSubjects(mentorSubjects?.map((s) => ({ ...s })));
@@ -107,32 +106,25 @@ export function useWithReviewAnswerState(
   }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
-    if (!editedSubjects || !editedQuestions || !editedAnswers) {
+    if (!mentorSubjects || !mentorAnswers) {
       return;
     }
     const _blocks: RecordingBlock[] = [];
-    const subject = editedSubjects?.find((s) => s._id === selectedSubject);
+    const subject = mentorSubjects?.find((s) => s._id === selectedSubject);
     if (subject) {
       const uncategorizedQuestions = subject.questions
         .filter((sq) => !sq.category)
         .map((sq) => sq.question);
-      const subjectAnswers = editedAnswers.filter((a) =>
+      const subjectAnswers = mentorAnswers.filter((a) =>
         subject.questions.map((q) => q.question).includes(a.question)
       );
       if (uncategorizedQuestions.length > 0) {
         _blocks.push({
+          subject: subject._id,
+          category: undefined,
           name: subject.name,
           description: subject.description,
-          answers: editedAnswers
-            .filter((a) => uncategorizedQuestions.includes(a.question))
-            .map((a) => ({
-              ...a,
-              question: editedQuestions.find((q) => q._id === a.question)!,
-            })),
-          recordAll: (status) => recordAnswers(status, subject._id, ""),
-          recordOne: recordAnswer,
-          addQuestion: () => addNewQuestion(subject, undefined),
-          editQuestion,
+          questions: uncategorizedQuestions,
         });
       }
       subject.categories.forEach((c) => {
@@ -141,18 +133,11 @@ export function useWithReviewAnswerState(
           .map((sq) => sq.question);
         if (categoryQuestions.length > 0) {
           _blocks.push({
+            subject: subject._id,
+            category: c.id,
             name: c.name,
             description: c.description,
-            answers: editedAnswers
-              .filter((a) => categoryQuestions.includes(a.question))
-              .map((a) => ({
-                ...a,
-                question: editedQuestions.find((q) => q._id === a.question)!,
-              })),
-            recordAll: (status) => recordAnswers(status, subject._id, c.id),
-            recordOne: recordAnswer,
-            addQuestion: () => addNewQuestion(subject, c),
-            editQuestion,
+            questions: categoryQuestions,
           });
         }
       });
@@ -162,24 +147,17 @@ export function useWithReviewAnswerState(
         total: subjectAnswers.length,
       });
     } else {
-      editedSubjects.forEach((subject) => {
+      mentorSubjects.forEach((subject) => {
         const uncategorizedQuestions = subject.questions
           .filter((sq) => !sq.category)
           .map((sq) => sq.question);
         if (uncategorizedQuestions.length > 0) {
           _blocks.push({
+            subject: subject._id,
+            category: undefined,
             name: subject.name,
             description: subject.description,
-            answers: editedAnswers
-              .filter((a) => uncategorizedQuestions.includes(a.question))
-              .map((a) => ({
-                ...a,
-                question: editedQuestions.find((q) => q._id === a.question)!,
-              })),
-            recordAll: (status) => recordAnswers(status, subject._id, ""),
-            recordOne: recordAnswer,
-            addQuestion: () => addNewQuestion(subject, undefined),
-            editQuestion,
+            questions: uncategorizedQuestions,
           });
         }
         subject.categories.forEach((c) => {
@@ -188,35 +166,30 @@ export function useWithReviewAnswerState(
             .map((sq) => sq.question);
           if (categoryQuestions.length > 0) {
             _blocks.push({
+              subject: subject._id,
+              category: c.id,
               name: c.name,
               description: c.description,
-              answers: editedAnswers
-                .filter((a) => categoryQuestions.includes(a.question))
-                .map((a) => ({
-                  ...a,
-                  question: editedQuestions.find((q) => q._id === a.question)!,
-                })),
-              recordAll: (status) => recordAnswers(status, subject._id, c.id),
-              recordOne: recordAnswer,
-              addQuestion: () => addNewQuestion(subject, c),
-              editQuestion,
+              questions: categoryQuestions,
             });
           }
         });
       });
       setProgress({
-        complete: editedAnswers.filter((a) => a.status === Status.COMPLETE)
+        complete: mentorAnswers.filter((a) => a.status === Status.COMPLETE)
           .length,
-        total: editedAnswers.length,
+        total: mentorAnswers.length,
       });
     }
     setBlocks(_blocks);
-  }, [editedSubjects, editedQuestions, editedAnswers, selectedSubject]);
+  }, [mentorSubjects, mentorAnswers, selectedSubject]);
 
   function clearError() {
-    clearMentorError();
-    clearTrainingError();
     setSaveError(undefined);
+  }
+
+  function selectSubject(sId?: string) {
+    setSelectedSubject(sId || "");
   }
 
   function recordAnswers(status: Status, subject: string, category: string) {
@@ -233,10 +206,10 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function recordAnswer(question: Question) {
+  function recordAnswer(question: string) {
     navigate(
       urlBuild("/record", {
-        videoId: question._id,
+        videoId: question,
         back: urlBuild(
           "/",
           selectedSubject ? { subject: selectedSubject } : {}
@@ -245,15 +218,11 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function selectSubject(sId?: string) {
-    setSelectedSubject(sId || "");
-  }
-
-  function addNewQuestion(subject: Subject, category?: Category) {
+  function addNewQuestion(subject: string, category?: string) {
     if (!editedSubjects || !editedAnswers || !editedQuestions || isSaving) {
       return;
     }
-    const subjectIdx = editedSubjects.findIndex((s) => s._id === subject._id);
+    const subjectIdx = editedSubjects.findIndex((s) => s._id === subject);
     if (subjectIdx === -1) {
       return;
     }
@@ -273,17 +242,34 @@ export function useWithReviewAnswerState(
       media: undefined,
       hasUntransferredMedia: false,
     };
+    let _blocks = blocks;
+    const idx = _blocks.findIndex(
+      (b) => b.subject === subject && b.category === category
+    );
+    if (idx !== -1) {
+      _blocks = copyAndSet(_blocks, idx, {
+        ..._blocks[idx],
+        questions: [newQuestion._id, ..._blocks[idx].questions],
+      });
+    }
     setEditedQuestions([newQuestion, ...editedQuestions]);
     setEditedSubjects(
       copyAndSet(editedSubjects, subjectIdx, {
         ...editedSubjects[subjectIdx],
         questions: [
-          { question: newQuestion._id, category: category, topics: [] },
+          {
+            question: newQuestion._id,
+            category: editedSubjects[subjectIdx].categories.find(
+              (c) => c.id === category
+            ),
+            topics: [],
+          },
           ...editedSubjects[subjectIdx].questions,
         ],
       })
     );
     setEditedAnswers([newAnswer, ...editedAnswers]);
+    setBlocks(_blocks);
   }
 
   function editQuestion(question: Question) {
@@ -306,7 +292,6 @@ export function useWithReviewAnswerState(
       !editedSubjects ||
       !editedQuestions ||
       !editedAnswers ||
-      !editedMentor ||
       isMentorLoading ||
       isSaving
     ) {
@@ -333,8 +318,7 @@ export function useWithReviewAnswerState(
       })
     )
       .then(() => {
-        saveMentorDetails();
-        loadMentor({ mentorId: editedMentor._id });
+        loadMentor({ mentorId });
         setIsSaving(false);
       })
       .catch((err) => {
@@ -344,33 +328,33 @@ export function useWithReviewAnswerState(
       });
   }
 
+  function getBlocks() {
+    return blocks;
+  }
+
+  function getAnswers() {
+    return editedAnswers || [];
+  }
+
+  function getQuestions() {
+    return editedQuestions || [];
+  }
+
   return {
-    useMentor,
-    blocks,
     progress,
     selectedSubject,
-    isLoading: isMentorLoading,
     isSaving,
-    isTraining,
-    error: mentorError || trainError || saveError,
+    error: saveError,
+
+    getBlocks,
+    getAnswers,
+    getQuestions,
     clearError,
     selectSubject,
     saveChanges,
-    startTraining,
+    recordAnswers,
+    recordAnswer,
+    addNewQuestion,
+    editQuestion,
   };
-}
-
-interface UseWithReviewAnswerState {
-  useMentor: UseMentorEdits;
-  blocks: RecordingBlock[];
-  progress: Progress;
-  selectedSubject?: string;
-  isLoading: boolean;
-  isSaving: boolean;
-  isTraining: boolean;
-  error?: LoadingError;
-  clearError: () => void;
-  selectSubject: (sId?: string) => void;
-  saveChanges: () => void;
-  startTraining: (params: string) => void;
 }

@@ -154,15 +154,15 @@ export function QuestionEditCard(props: {
               fullWidth
               disabled={question.question.mentorType !== MentorType.VIDEO}
               value={question.question.minVideoLength}
-              onChange={(e) =>
+              onChange={(e) => {
                 props.updateQuestion({
                   ...question,
                   question: {
                     ...question.question,
                     minVideoLength: parseInt(e.target.value),
                   },
-                })
-              }
+                });
+              }}
               InputLabelProps={{
                 shrink: true,
               }}
