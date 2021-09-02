@@ -73,7 +73,8 @@ function recommend(
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
-      reason: "A thumbnail helps a user identify your mentor",
+      reason:
+        "A thumbnail helps a user pick out your mentor from other mentors.",
       icon: <Image />,
       input: true,
       action: () => undefined,
@@ -83,8 +84,8 @@ function recommend(
 
   if (conditions.introIncomplete)
     return {
-      text: "Add Intro",
-      reason: "An Intro helps people to know you",
+      text: "Add Your Intro",
+      reason: "Your mentor's introduction is what they say when a user starts.",
       icon: <CheckCircleOutlined />,
       input: false,
       action: () => {
@@ -121,8 +122,9 @@ function recommend(
 
   if (conditions.offTopicIncomplete)
     return {
-      text: "Add Off Topic",
-      reason: "An Off Topic",
+      text: "Add an Off Topic Response",
+      reason:
+        "The off topic response helps tell the user that the AI didn't understand their question.",
       icon: <CheckCircleOutlined />,
       input: false,
       action: () => {

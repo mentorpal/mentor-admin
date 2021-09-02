@@ -79,7 +79,7 @@ function MentorStatus(props: {
           </Typography>
         </Grid>
         <Grid container spacing={2} className="status-container">
-          <Grid item xs={12} sm={6} md={6}>
+          <Grid item xs={12} sm={6} md={6} className="current-status-wrapper">
             {currentStatus}
           </Grid>
           <Grid

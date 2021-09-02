@@ -26,8 +26,8 @@ const useStyles = makeStyles(() =>
     },
     smallRadioButtonProgess: {
       "& svg": {
-        width: "1em",
-        height: "1em",
+        width: "0.9em",
+        height: "0.9em",
       },
     },
   })

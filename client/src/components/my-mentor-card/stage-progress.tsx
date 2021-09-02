@@ -16,15 +16,7 @@ export default function StageProgress(props: {
   const progressColor = "#FFE194";
   const completeColor = "#57CC99 ";
   return (
-    <Box
-      alignItems="center"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        width: "75%",
-        marginTop: "20px",
-      }}
-    >
+    <Box alignItems="center" className="progress-circle">
       <Box position="relative" display="inline-flex">
         <CircularProgress
           data-cy="stage-progress"

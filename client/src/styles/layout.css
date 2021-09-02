@@ -185,6 +185,24 @@ div.jsoneditor {
   line-height: 1.1rem;
 }
 
+.progress-circle {
+  position: absolute;
+  left: 40%;
+  transform: translateX(-50%);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 75%;
+}
+
+.current-status-wrapper {
+  position: relative;
+}
+
+.recommended-action-btns {
+  position: relative;
+}
+
 ::-webkit-scrollbar {
   width: 15px;
   height: 10px;

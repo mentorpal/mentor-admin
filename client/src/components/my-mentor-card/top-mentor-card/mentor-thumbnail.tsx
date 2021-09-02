@@ -10,7 +10,7 @@ import EditMentorInfoModal from "./edit-mentor-info-modal";
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
     position: "relative",
-    width: "78%",
+    width: "60%",
     height: 180,
   },
   siteThumbnail: {

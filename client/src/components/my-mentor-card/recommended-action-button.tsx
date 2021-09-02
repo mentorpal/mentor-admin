@@ -68,7 +68,7 @@ export default function RecommendedActionButton(props: {
           <p>{recommendedAction.reason}</p>
         </div>
       </Typography>
-      <div>
+      <div className="recommended-action-btns">
         {recommendedAction.input ? (
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Link
