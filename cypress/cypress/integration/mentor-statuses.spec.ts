@@ -95,7 +95,7 @@ describe("My Mentor Card", () => {
     });
     cy.visit("/");
     cy.get("[data-cy=recommended-action-reason]").contains(
-      "An Intro helps people to know you"
+      "Your mentor's introduction is what they say when a user starts."
     );
   });
   it("It needs off topic", () => {
@@ -121,7 +121,9 @@ describe("My Mentor Card", () => {
       },
     });
     cy.visit("/");
-    cy.get("[data-cy=recommended-action-reason]").contains("An Off Topic");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "The off topic response helps tell the user that the AI didn't understand their question."
+    );
   });
   it("It needs subject", () => {
     cySetup(cy);

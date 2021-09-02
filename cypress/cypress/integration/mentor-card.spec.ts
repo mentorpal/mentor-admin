@@ -299,7 +299,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=recommended-action]").contains("Add Intro");
+      cy.get("[data-cy=recommended-action]").contains("Add Your Intro");
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
