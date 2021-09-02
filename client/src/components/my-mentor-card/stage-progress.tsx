@@ -6,23 +6,25 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Box, Typography, CircularProgress } from "@material-ui/core";
+import "styles/layout.css";
 
 export default function StageProgress(props: {
   value: number;
   max: number;
   percent: number;
 }): JSX.Element {
+  const progressColor = "#FFE194";
+  const completeColor = "#57CC99 ";
   return (
-    <Box alignItems="center">
+    <Box alignItems="center" className="progress-circle">
       <Box position="relative" display="inline-flex">
         <CircularProgress
           data-cy="stage-progress"
           variant="determinate"
           style={{ color: "lightgrey" }}
           value={100}
-          size={80}
+          size={90}
         />
-
         <Box
           top={0}
           left={0}
@@ -37,7 +39,12 @@ export default function StageProgress(props: {
             data-cy="stage-progress"
             variant="determinate"
             value={props.percent}
-            size={80}
+            style={
+              props.percent < 100
+                ? { color: progressColor }
+                : { color: completeColor }
+            }
+            size={90}
           />
         </Box>
         <Box
@@ -51,7 +58,12 @@ export default function StageProgress(props: {
           justifyContent="center"
         >
           <Typography variant="h5" component="div" color="textSecondary">
-            {props.value}/{props.max}
+            <div className="progressCircle-text">
+              <b style={{ fontSize: 20 }}>
+                {props.value}/{props.max}
+              </b>
+              <p style={{ fontSize: 10 }}>Questions</p>
+            </div>
           </Typography>
         </Box>
       </Box>

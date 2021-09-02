@@ -32,8 +32,12 @@ interface Category {
 interface Conditions {
   mentorId: string;
   idle?: Answer;
+  intro?: Answer;
+  offTopic?: Answer;
+  introIncomplete: boolean;
   idleIncomplete: boolean;
   isVideo: boolean;
+  offTopicIncomplete: boolean;
   hasThumbnail: boolean;
   isDirty: boolean;
   categories: Category[];
@@ -41,6 +45,9 @@ interface Conditions {
   firstIncomplete?: Category;
   completedAnswers: number;
   totalAnswers: number;
+  neverBuilt: boolean;
+  builttNeverPreview: boolean;
+  needSubject: boolean;
 }
 
 interface Recommendation {
@@ -66,12 +73,32 @@ function recommend(
   if (!conditions.hasThumbnail)
     return {
       text: "Add a Thumbnail",
-      reason: "A thumbnail helps a user identify your mentor",
+      reason:
+        "A thumbnail helps a user pick out your mentor from other mentors.",
       icon: <Image />,
       input: true,
       action: () => undefined,
 
       skip: { ...conditions, hasThumbnail: true },
+    };
+
+  if (conditions.introIncomplete)
+    return {
+      text: "Add Your Intro",
+      reason: "Your mentor's introduction is what they say when a user starts.",
+      icon: <CheckCircleOutlined />,
+      input: false,
+      action: () => {
+        if (conditions.intro)
+          navigate(
+            urlBuild("/record", {
+              subject: "",
+              videoId: conditions.intro?.question,
+            })
+          );
+      },
+
+      skip: { ...conditions, introIncomplete: true },
     };
   if (conditions.idleIncomplete && conditions.isVideo) {
     return {
@@ -92,6 +119,66 @@ function recommend(
       skip: { ...conditions, idleIncomplete: false },
     };
   }
+
+  if (conditions.offTopicIncomplete)
+    return {
+      text: "Add an Off Topic Response",
+      reason:
+        "The off topic response helps tell the user that the AI didn't understand their question.",
+      icon: <CheckCircleOutlined />,
+      input: false,
+      action: () => {
+        if (conditions.offTopic)
+          navigate(
+            urlBuild("/record", {
+              subject: "",
+              videoId: conditions.offTopic?.question,
+            })
+          );
+      },
+
+      skip: { ...conditions, offTopicIncomplete: true },
+    };
+
+  if (conditions.needSubject)
+    return {
+      text: "Add a subject",
+      reason:
+        "Your mentor doesn't have any subject areas. Subjects give you sets of questions to record.",
+      icon: <CheckCircleOutlined />,
+      input: false,
+      action: () => {
+        navigate("/subjects");
+      },
+
+      skip: { ...conditions, offTopicIncomplete: true },
+    };
+
+  if (
+    (!conditions.neverBuilt && conditions.totalAnswers > 0) ||
+    conditions.completedAnswers > 5
+  )
+    return {
+      text: "Build Mentor",
+      reason:
+        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
+      icon: <CheckCircleOutlined />,
+      input: false,
+      action: () => continueAction,
+
+      skip: { ...conditions, neverBuilt: true },
+    };
+
+  if (conditions.completedAnswers > 5)
+    return {
+      text: "Build Mentor",
+      reason:
+        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
+      icon: <CheckCircleOutlined />,
+      input: false,
+      action: () => continueAction,
+    };
+
   if (conditions.incompleteRequirement)
     return {
       text: "Finish Required Questions",
@@ -115,8 +202,11 @@ function recommend(
   if (conditions.completedAnswers < 5)
     return {
       text:
-        conditions.totalAnswers < 5 ? "Add a Subject" : "Answer More Questions",
-      reason: "You can't build your mentor until you have at least 5 questions",
+        conditions.completedAnswers < 5
+          ? "Answer More Questions"
+          : "Add a Subject",
+      reason:
+        "You need at least a few questions before you can make a mentor, even for testing.",
       icon: conditions.totalAnswers < 5 ? <NoteAdd /> : <FiberManualRecord />,
       input: false,
       action: () => {
@@ -133,6 +223,7 @@ function recommend(
 
       skip: { ...conditions, completedAnswers: 5 },
     };
+
   if (conditions.firstIncomplete)
     return {
       text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
@@ -184,9 +275,25 @@ function parseMentorConditions(
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.IDLE
   );
+  const intro = mentor?.answers.find(
+    (a) =>
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
+      UtteranceName.INTRO
+  );
+  const offTopic = mentor?.answers.find(
+    (a) =>
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
+      UtteranceName.OFF_TOPIC
+  );
+
+  const introIncomplete = intro?.status === Status.INCOMPLETE;
   const idleIncomplete = idle?.status === Status.INCOMPLETE;
+  const offTopicIncomplete = offTopic?.status === Status.INCOMPLETE;
+
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
   const hasThumbnail = Boolean(mentor?.thumbnail);
+  const neverBuilt = Boolean(mentor?.lastTrainedAt);
+
   const categories: Category[] = [];
 
   mentor?.subjects.forEach((s) => {
@@ -230,9 +337,17 @@ function parseMentorConditions(
     mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
   const totalAnswers = mentor?.answers.length || 0;
 
+  const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);
+
+  const needSubject = unique(categories).length;
+
   return {
     mentorId: mentor._id,
+    intro: intro,
     idle: idle,
+    offTopic: offTopic,
+    offTopicIncomplete: offTopicIncomplete,
+    introIncomplete: introIncomplete,
     idleIncomplete: idleIncomplete,
     isVideo: isVideo,
     hasThumbnail: hasThumbnail,
@@ -242,7 +357,19 @@ function parseMentorConditions(
     firstIncomplete: firstIncomplete,
     completedAnswers: completedAnswers,
     totalAnswers: totalAnswers,
+    neverBuilt: neverBuilt,
+    builttNeverPreview: builttNeverPreview,
+    needSubject: needSubject === 1,
   };
+}
+
+function unique(array: Category[]) {
+  return array.filter(
+    (e, i) =>
+      array.findIndex(
+        (a: Category) => a["subjectName"] === e["subjectName"]
+      ) === i
+  );
 }
 
 export function UseWithRecommendedAction(
@@ -253,9 +380,11 @@ export function UseWithRecommendedAction(
     (s) => s.questions,
     mentorAnswers?.map((a) => a.question)
   );
+
   const conditions = useActiveMentor((ms) =>
     parseMentorConditions(mentorQuestions, ms.data)
   );
+
   const [recommendedAction, setRecommendedAction] = useState<Recommendation>(
     recommend(conditions, continueAction)
   );

@@ -46,6 +46,7 @@ div.jsoneditor {
 
 .thumbnail-wrapper {
   position: relative;
+  width: auto;
 }
 
 .upload-thumbnail {
@@ -78,6 +79,7 @@ div.jsoneditor {
 
 .stage-text {
   margin-bottom: 5px !important;
+  color: #6f6f6f;
 }
 
 .footer-info {
@@ -112,20 +114,93 @@ div.jsoneditor {
 }
 
 .skip-btn {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   width: 50%;
   font-size: 20px;
   margin-top: 6px !important;
-  margin-bottom: 15px !important;
+  margin-bottom: 5px !important;
 }
 
 .go-btn {
   border-radius: 25px !important;
-  width: 50% !important;
+  width: 100% !important;
 }
 
 .go-btn-label {
   border-radius: 25px !important;
   width: 100% !important;
+}
+
+.progressCircle-text > p {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+}
+.helpbox {
+  display: inline-block;
+  background-color: #99999930;
+  border-radius: 10px;
+  margin: 10px 0 10px 0;
+}
+
+.helpbox > p {
+  margin: 15px;
+  text-align: left;
+  line-height: 1.5rem;
+}
+
+.next-status-text-wrapper {
+  text-align: left;
+}
+
+.next-status-wrapper {
+  display: flex;
+}
+.status-container {
+  width: 80% !important;
+}
+.top-card-container {
+  justify-content: flex-end !important;
+}
+
+.status-item-wrapper {
+  max-width: 100% !important;
+}
+
+.progress-circle-complete {
+  color: var(--complete-color) !important;
+}
+.progress-circle-in-progess {
+  color: var(--progress-color) !important;
+}
+
+.label svg {
+  width: 1em;
+}
+.recommended-action-text {
+  margin: 0;
+  margin-top: 30px;
+  font-size: 1.1rem;
+  line-height: 1.1rem;
+}
+
+.progress-circle {
+  position: absolute;
+  left: 40%;
+  transform: translateX(-50%);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  width: 75%;
+}
+
+.current-status-wrapper {
+  position: relative;
+}
+
+.recommended-action-btns {
+  position: relative;
 }
 
 ::-webkit-scrollbar {
