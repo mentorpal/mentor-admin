@@ -9,24 +9,23 @@ import { Paper, Typography } from "@material-ui/core";
 import { Answer, Question, Status } from "types";
 import AnswerList from "components/home/answer-list";
 import ProgressChecks from "components/progress-checks";
-
-export interface RecordingBlock {
-  name: string;
-  description: string;
-  answers: Answer[];
-  recordAll: (status: Status) => void;
-  recordOne: (answer: Answer) => void;
-  editQuestion: (question: Question) => void;
-  addQuestion?: () => void;
-}
+import { RecordingBlock } from "hooks/graphql/use-with-review-answer-state";
 
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
   mentorId: string;
+  getAnswers: () => Answer[];
+  getQuestions: () => Question[];
+  recordAnswers: (status: Status, subject: string, category: string) => void;
+  recordAnswer: (question: string) => void;
+  addNewQuestion: (subject: string, category?: string) => void;
+  editQuestion: (question: Question) => void;
 }): JSX.Element {
   const { classes, block } = props;
-  const answers = block.answers;
+  const answers = props
+    .getAnswers()
+    .filter((a) => block.questions.includes(a.question));
   const complete = answers.filter((a) => a.status === Status.COMPLETE);
   const incomplete = answers.filter((a) => a.status === Status.INCOMPLETE);
 
@@ -52,22 +51,38 @@ export default function RecordingBlockItem(props: {
         <div style={{ flex: "auto" }}>
           <AnswerList
             classes={classes}
-            answers={complete}
-            header="Complete"
             mentorId={props.mentorId}
-            onRecordAll={() => block.recordAll(Status.COMPLETE)}
-            onRecordOne={block.recordOne}
-            onEditQuestion={block.editQuestion}
+            header="Complete"
+            answers={complete}
+            questions={props.getQuestions()}
+            onRecordAll={() =>
+              props.recordAnswers(
+                Status.COMPLETE,
+                block.subject,
+                block.category || ""
+              )
+            }
+            onRecordOne={props.recordAnswer}
+            onEditQuestion={props.editQuestion}
           />
           <AnswerList
             classes={classes}
-            answers={incomplete}
             header="Incomplete"
+            answers={incomplete}
+            questions={props.getQuestions()}
             mentorId={props.mentorId}
-            onRecordAll={() => block.recordAll(Status.INCOMPLETE)}
-            onRecordOne={block.recordOne}
-            onAddQuestion={block.addQuestion}
-            onEditQuestion={block.editQuestion}
+            onRecordAll={() =>
+              props.recordAnswers(
+                Status.INCOMPLETE,
+                block.subject,
+                block.category || ""
+              )
+            }
+            onRecordOne={props.recordAnswer}
+            onAddQuestion={() =>
+              props.addNewQuestion(block.subject, block.category)
+            }
+            onEditQuestion={props.editQuestion}
           />
         </div>
       </div>

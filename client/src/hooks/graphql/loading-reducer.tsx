@@ -10,6 +10,14 @@ export interface LoadingError {
   error: string;
 }
 
+export enum LoadingStatus {
+  NONE = 0,
+  LOADING = 1,
+  SAVING = 2,
+  SUCCEEDED = 3,
+  FAILED = 4,
+}
+
 export interface LoadingState {
   status: LoadingStatusType;
   error?: LoadingError;

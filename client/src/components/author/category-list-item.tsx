@@ -19,18 +19,20 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Category, SubjectQuestion } from "types";
+import { Category } from "types";
 import QuestionListItem from "./question-list-item";
+import { SubjectQuestionGQL } from "types-gql";
+import { onTextInputChanged } from "helpers";
 
 export function CategoryListItem(props: {
   category: Category;
-  questions: SubjectQuestion[];
+  questions: SubjectQuestionGQL[];
   selectedQuestion?: string;
   removeCategory: (val: Category) => void;
   updateCategory: (newVal: Category) => void;
-  updateQuestion: (newVal: SubjectQuestion) => void;
-  removeQuestion: (val: SubjectQuestion) => void;
-  selectQuestion: (val: SubjectQuestion) => void;
+  updateQuestion: (newVal: SubjectQuestionGQL) => void;
+  removeQuestion: (val: SubjectQuestionGQL) => void;
+  selectQuestion: (val: SubjectQuestionGQL) => void;
   deselectQuestion: () => void;
 }): JSX.Element {
   const {
@@ -58,7 +60,9 @@ export function CategoryListItem(props: {
             placeholder="New category"
             value={category.name}
             onChange={(e) =>
-              updateCategory({ ...category, name: e.target.value })
+              onTextInputChanged(e, () => {
+                updateCategory({ ...category, name: e.target.value });
+              })
             }
             InputLabelProps={{
               shrink: true,
@@ -101,7 +105,9 @@ export function CategoryListItem(props: {
             label="Description"
             value={category.description}
             onChange={(e) =>
-              updateCategory({ ...category, description: e.target.value })
+              onTextInputChanged(e, () => {
+                updateCategory({ ...category, description: e.target.value });
+              })
             }
             InputLabelProps={{
               shrink: true,

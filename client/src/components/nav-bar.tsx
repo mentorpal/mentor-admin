@@ -39,10 +39,9 @@ import {
   PublishRounded as PublishRoundedIcon,
 } from "@material-ui/icons";
 
-import { UploadStatus, UploadTask } from "hooks/graphql/use-with-upload-status";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
-import { UserRole } from "types";
+import { UploadStatus, UploadTask, UserRole } from "types";
 import { launchMentor } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
@@ -316,7 +315,7 @@ export function NavBar(props: {
             {onBack ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
           <Typography data-cy="title" variant="h5" className={classes.title}>
-            {props.title}
+            <div className="page-title">{props.title}</div>
           </Typography>
           {toggleUploadsButtonVisibility && uploads ? (
             <Button

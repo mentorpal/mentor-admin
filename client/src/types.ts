@@ -5,6 +5,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import { CancelTokenSource } from "axios";
+import { AnswerGQL, SubjectGQL } from "types-gql";
+
 export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
@@ -28,18 +31,18 @@ export interface PageInfo {
   endCursor: string;
 }
 
+export interface UserAccessToken {
+  user: User;
+  accessToken: string;
+  expirationDate: string;
+}
+
 export interface User {
   _id: string;
   name: string;
   email: string;
   userRole: UserRole;
   defaultMentor: Mentor;
-}
-
-export interface UserAccessToken {
-  user: User;
-  accessToken: string;
-  expirationDate: string;
 }
 
 export interface Mentor {
@@ -57,7 +60,6 @@ export interface Mentor {
   subjects: Subject[];
   topics: Topic[];
   answers: Answer[];
-  questions: SubjectQuestion[];
 }
 
 export interface Subject {
@@ -71,7 +73,7 @@ export interface Subject {
 }
 
 export interface SubjectQuestion {
-  question: Question;
+  question: string;
   category?: Category;
   topics: Topic[];
 }
@@ -106,27 +108,13 @@ export interface Media {
   needsTransfer: boolean;
 }
 
-export enum MediaType {
-  VIDEO = "video",
-}
-
-export enum MediaTag {
-  WEB = "web",
-  MOBILE = "mobile",
-}
-
 export interface Answer {
   _id: string;
-  question: Question;
+  question: string;
   transcript: string;
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
-}
-
-export enum AnswerAttentionNeeded {
-  NONE = "",
-  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
 }
 
 export interface UserQuestion {
@@ -145,6 +133,115 @@ export interface UserQuestion {
 export interface FollowUpQuestion {
   question: string;
   entityType?: string;
+}
+
+export interface AsyncJob {
+  id: string;
+  statusUrl: string;
+}
+
+export interface CancelJob {
+  id: string;
+  cancelledId: string;
+}
+
+export interface TaskStatus<T> {
+  state: JobState;
+  status?: string;
+  info?: T;
+}
+
+export interface TrainingInfo {
+  mentor: string;
+  questions?: TrainExpectionResult[];
+}
+
+export interface TrainExpectionResult {
+  accuracy: number;
+}
+
+export interface VideoInfo {
+  mentor: string;
+  videoId: string;
+  video: File;
+  transcript: string;
+}
+
+export interface MentorExportJson {
+  id: string;
+  subjects: SubjectGQL[];
+  questions: Question[];
+  answers: AnswerGQL[];
+}
+
+export interface ImportPreview<T> {
+  importData: T | undefined;
+  curData: T | undefined;
+  editType: EditType;
+}
+
+export interface MentorImportPreview {
+  id: string;
+  subjects: ImportPreview<SubjectGQL>[];
+  questions: ImportPreview<Question>[];
+  answers: ImportPreview<AnswerGQL>[];
+}
+
+export interface UploadTask {
+  taskId: string;
+  question: string;
+  uploadStatus: UploadStatus;
+  uploadProgress: number;
+  errorMessage?: string;
+  isCancelling?: boolean;
+  tokenSource?: CancelTokenSource;
+  transcript?: string;
+  media?: Media[];
+}
+
+export enum UploadStatus {
+  PENDING = "PENDING", // local state only; sending upload request to upload api
+  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
+  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
+  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
+  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
+  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
+  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
+  QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
+  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
+  TRANSFER_FAILED = "TRANSFER_FAILED",
+  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
+  CANCEL_FAILED = "CANCEL_FAILED",
+  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
+  DONE = "DONE", // api is done with upload process
+}
+
+export enum EditType {
+  NONE = "NONE",
+  ADDED = "ADDED",
+  REMOVED = "REMOVED",
+  CREATED = "CREATED",
+}
+
+export enum LoginStatus {
+  NONE = 0,
+  IN_PROGRESS = 1,
+  AUTHENTICATED = 2,
+  FAILED = 3,
+}
+
+export enum JobState {
+  NONE = "NONE",
+  FAILURE = "FAILURE",
+  SUCCESS = "SUCCESS",
+  PENDING = "PENDING",
+  STARTED = "STARTED",
+}
+
+export enum UserRole {
+  ADMIN = "ADMIN",
+  CONTENT_MANAGER = "CONTENT_MANAGER",
+  USER = "USER",
 }
 
 export enum MentorType {
@@ -187,82 +284,16 @@ export enum UtteranceName {
   PROFANIY = "_PROFANITY_",
 }
 
-export interface AsyncJob {
-  id: string;
-  statusUrl: string;
+export enum AnswerAttentionNeeded {
+  NONE = "",
+  NEEDS_TRANSCRIPT = "NEEDS_TRANSCRIPT",
 }
 
-export interface CancelJob {
-  id: string;
-  cancelledId: string;
+export enum MediaType {
+  VIDEO = "video",
 }
 
-export enum JobState {
-  NONE = "NONE",
-  FAILURE = "FAILURE",
-  SUCCESS = "SUCCESS",
-  PENDING = "PENDING",
-  STARTED = "STARTED",
-}
-
-export enum UserRole {
-  ADMIN = "ADMIN",
-  CONTENT_MANAGER = "CONTENT_MANAGER",
-  USER = "USER",
-}
-
-export interface TaskStatus<T> {
-  state: JobState;
-  status?: string;
-  info?: T;
-}
-
-export interface TrainingInfo {
-  mentor: string;
-  questions?: TrainExpectionResult[];
-}
-
-export interface TrainExpectionResult {
-  accuracy: number;
-}
-
-export interface VideoInfo {
-  mentor: string;
-  videoId: string;
-  video: File;
-  transcript: string;
-}
-
-export enum LoginStatus {
-  NONE = 0,
-  IN_PROGRESS = 1,
-  AUTHENTICATED = 2,
-  FAILED = 3,
-}
-
-export interface MentorExportJson {
-  id: string;
-  subjects: Subject[];
-  questions: Question[];
-  answers: Answer[];
-}
-
-export enum EditType {
-  NONE = "NONE",
-  ADDED = "ADDED",
-  REMOVED = "REMOVED",
-  CREATED = "CREATED",
-}
-
-export interface ImportPreview<T> {
-  importData: T | undefined;
-  curData: T | undefined;
-  editType: EditType;
-}
-
-export interface MentorImportPreview {
-  id: string;
-  subjects: ImportPreview<Subject>[];
-  questions: ImportPreview<Question>[];
-  answers: ImportPreview<Answer>[];
+export enum MediaTag {
+  WEB = "web",
+  MOBILE = "mobile",
 }

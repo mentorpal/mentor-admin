@@ -8,6 +8,7 @@ import { Mentor, TrainingInfo, VideoInfo, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
+import questions from "../fixtures/questions";
 
 const TRAIN_STATUS_URL = `/classifier/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -152,6 +153,7 @@ export function cyMockDefault(
     mentor?: Mentor | _Ref | Mentor[];
     subject?: any;
     subjects?: any[];
+    questions?: any[];
   } = {}
 ) {
   const config = args?.config || {};
@@ -213,6 +215,9 @@ export function cyMockDefault(
     ...[mockGQL("MentorFindOne", mentors)],
     ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
     ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
+    ...(args.questions
+      ? [mockGQL("QuestionsById", { questionsById: args.questions })]
+      : [mockGQL("QuestionsById", { questionsById: questions })]),
     ...gqlQueries,
   ]);
 }

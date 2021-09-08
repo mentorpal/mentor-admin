@@ -15,23 +15,21 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-  TextField,
   Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
+import AnswerItem from "./answer-item";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
   answers: Answer[];
+  questions: Question[];
   onRecordAll: () => void;
-  onRecordOne: (answer: Answer) => void;
+  onRecordOne: (question: string) => void;
   onEditQuestion: (question: Question) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
@@ -103,50 +101,26 @@ function AnswerList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
-            {answers.map((answer: Answer, i: number) => (
-              <ListItem
-                data-cy={`answer-${i}`}
-                key={`item-${i}`}
-                style={{ backgroundColor: "#eee" }}
-              >
-                <div>
-                  {answer.question.mentor === props.mentorId ? (
-                    <TextField
-                      data-cy="edit-question"
-                      placeholder="New question"
-                      fullWidth
-                      multiline
-                      value={answer.question.question}
-                      style={{ marginRight: 100 }}
-                      onChange={(e) =>
-                        onEditQuestion({
-                          ...answer.question,
-                          question: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    <ListItemText
-                      primary={answer.question.question}
-                      secondary={`${answer.transcript.substring(0, 100)}${
-                        answer.transcript.length > 100 ? "..." : ""
-                      }`}
-                      style={{ marginRight: 100 }}
-                    />
-                  )}
-                  <ListItemSecondaryAction>
-                    <Button
-                      data-cy="record-one"
-                      variant="outlined"
-                      endIcon={<PlayArrowIcon />}
-                      onClick={() => onRecordOne(answer)}
-                    >
-                      Record
-                    </Button>
-                  </ListItemSecondaryAction>
-                </div>
-              </ListItem>
-            ))}
+            {answers.map((answer, i) => {
+              const question = props.questions.find(
+                (q) => q._id === answer.question
+              );
+              return (
+                <ListItem
+                  data-cy={`answer-${i}`}
+                  key={`item-${i}`}
+                  style={{ backgroundColor: "#eee" }}
+                >
+                  <AnswerItem
+                    mentorId={props.mentorId}
+                    answer={answer}
+                    question={question}
+                    onEditQuestion={onEditQuestion}
+                    onRecordOne={onRecordOne}
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         </Collapse>
       </CardContent>

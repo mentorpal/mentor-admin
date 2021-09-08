@@ -16,21 +16,16 @@ import {
   Grid,
 } from "@material-ui/core";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import {
-  QuestionType,
-  Topic,
-  SubjectQuestion,
-  MentorType,
-  UtteranceName,
-} from "types";
+import { QuestionType, Topic, MentorType, UtteranceName } from "types";
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
+import { SubjectQuestionGQL } from "types-gql";
 
 export function QuestionEditCard(props: {
   classes: Record<string, string>;
-  question?: SubjectQuestion;
+  question?: SubjectQuestionGQL;
   topics: Topic[];
-  updateQuestion: (val: SubjectQuestion) => void;
+  updateQuestion: (val: SubjectQuestionGQL) => void;
   onDeselect: () => void;
 }): JSX.Element {
   const { classes, question } = props;
@@ -159,15 +154,15 @@ export function QuestionEditCard(props: {
               fullWidth
               disabled={question.question.mentorType !== MentorType.VIDEO}
               value={question.question.minVideoLength}
-              onChange={(e) =>
+              onChange={(e) => {
                 props.updateQuestion({
                   ...question,
                   question: {
                     ...question.question,
                     minVideoLength: parseInt(e.target.value),
                   },
-                })
-              }
+                });
+              }}
               InputLabelProps={{
                 shrink: true,
               }}

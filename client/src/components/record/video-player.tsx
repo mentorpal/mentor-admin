@@ -38,7 +38,7 @@ function VideoPlayer(props: {
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
   const upload = recordState.uploads.find(
-    (u) => u.question._id === recordState.curAnswer?.answer.question._id
+    (u) => u.question === recordState.curAnswer?.answer.question
   );
   const isCancelling = upload ? upload.isCancelling : false;
   const isUploading = recordState.curAnswer?.isUploading;

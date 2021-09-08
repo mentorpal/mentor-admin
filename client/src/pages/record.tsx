@@ -4,6 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import { navigate } from "gatsby";
 import React, { useState } from "react";
 import {
@@ -27,23 +32,25 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import {
-  MentorType,
-  Status,
-  UtteranceName,
-  AnswerAttentionNeeded,
-} from "types";
+import { LoadingDialog, ErrorDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
+import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
+import { getValueIfKeyExists, onTextInputChanged } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { ConfigStatus } from "store/slices/config";
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import useQuestions from "store/slices/questions/useQuestions";
+import {
+  AnswerAttentionNeeded,
+  MentorType,
+  UtteranceName,
+  Status,
+} from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
-import UploadingWidget from "components/record/uploading-widget";
-import { useWithConfig } from "store/slices/config/useWithConfig";
-import { ConfigStatus } from "store/slices/config";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -99,6 +106,7 @@ interface LeaveConfirmation {
   message: string;
   callback: () => void;
 }
+
 function RecordPage(props: {
   accessToken: string;
   search: {
@@ -113,14 +121,19 @@ function RecordPage(props: {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
+
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, reloadMentorData } = recordState;
-  const config = useWithConfig();
-  function isConfigLoaded(): boolean {
-    return config.state.status === ConfigStatus.SUCCEEDED;
-  }
+  const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const curQuestion = getValueIfKeyExists(
+    curAnswer?.answer.question || "",
+    useQuestions(
+      (state) => state.questions,
+      curAnswer?.answer.question ? [curAnswer.answer.question] : undefined
+    )
+  );
   const curSubject = useActiveMentor((state) =>
     state.data?.subjects.find((s) => s._id == props.search.subject)
   );
@@ -129,9 +142,8 @@ function RecordPage(props: {
     (c) => c.id == props.search.category
   );
   const categoryTitle = curCategory?.name || "";
-  const curAnswerBelongsToMentor =
-    curAnswer?.editedAnswer.question?.mentor === mentorId;
-  const curEditedQuestion = curAnswer?.editedAnswer?.question;
+  const curEditedQuestion = curAnswer?.editedQuestion;
+  const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
@@ -180,12 +192,12 @@ function RecordPage(props: {
     );
   }
 
-  if (!config.state.config || config.state.status === ConfigStatus.FAILED) {
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
     return (
       <div>
         <NavBar title="Recording: " mentorId={undefined} />
         <Typography>Failed to load config</Typography>
-        <Button color="primary" variant="contained" onClick={config.loadConfig}>
+        <Button color="primary" variant="contained" onClick={loadConfig}>
           Retry
         </Button>
       </div>
@@ -233,7 +245,7 @@ function RecordPage(props: {
           <VideoPlayer
             classes={classes}
             recordState={recordState}
-            videoRecorderMaxLength={config.state.config.videoRecorderMaxLength}
+            videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
           />
         ) : undefined}
         <div data-cy="question" className={classes.block}>
@@ -246,11 +258,15 @@ function RecordPage(props: {
               disabled={!curAnswerBelongsToMentor}
               onChange={(e) => {
                 if (curEditedQuestion) {
-                  recordState.editAnswer({
-                    question: {
-                      ...curEditedQuestion,
-                      question: e.target.value,
-                    },
+                  const caret = e?.target.selectionStart;
+                  const element = e.target;
+                  window.requestAnimationFrame(() => {
+                    element.selectionStart = caret;
+                    element.selectionEnd = caret;
+                  });
+                  recordState.editQuestion({
+                    ...curEditedQuestion,
+                    question: e.target.value,
                   });
                 }
               }}
@@ -260,11 +276,11 @@ function RecordPage(props: {
                     data-cy="undo-question-btn"
                     disabled={
                       curEditedQuestion?.question ===
-                      curAnswer?.answer.question?.question
+                      curQuestion?.question?.question
                     }
                     onClick={() =>
-                      recordState.editAnswer({
-                        question: curAnswer?.answer.question,
+                      recordState.editQuestion({
+                        question: curQuestion?.question?.question,
                       })
                     }
                   >
@@ -318,7 +334,9 @@ function RecordPage(props: {
                 multiline
                 value={curAnswer?.editedAnswer.transcript}
                 onChange={(e) =>
-                  recordState.editAnswer({ transcript: e.target.value })
+                  onTextInputChanged(e, () => {
+                    recordState.editAnswer({ transcript: e.target.value });
+                  })
                 }
                 endAdornment={
                   <InputAdornment position="end">
@@ -371,8 +389,8 @@ function RecordPage(props: {
           </Select>
         </div>
       </div>
-      <div className={classes.toolbar} />
 
+      <div className={classes.toolbar} />
       <AppBar position="fixed" className={classes.footer}>
         <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
           <IconButton
@@ -400,6 +418,7 @@ function RecordPage(props: {
               variant="contained"
               color="primary"
               disableElevation
+              className={classes.nextBtn}
               onClick={() =>
                 switchAnswer(() => {
                   navigate(
@@ -407,7 +426,6 @@ function RecordPage(props: {
                   );
                 })
               }
-              className={classes.nextBtn}
             >
               Next
             </Button>

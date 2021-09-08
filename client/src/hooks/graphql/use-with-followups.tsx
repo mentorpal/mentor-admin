@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchFollowUpQuestions } from "api";
+import { fetchFollowUpQuestions, updateSubject } from "api";
 import { navigate } from "gatsby";
 import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
@@ -17,19 +17,22 @@ import useActiveMentor, {
 import {
   Category,
   Mentor,
+  Question,
   QuestionType,
   Subject,
-  SubjectQuestion,
   UtteranceName,
 } from "types";
 import { v4 as uuid } from "uuid";
-import { useWithSubject } from "./use-with-subject";
 import {
   FollowupsPageStatusType,
   FollowupsPageState,
   FollowupsReducer,
   FollowupsActionType,
 } from "./followups-reducer";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -59,13 +62,16 @@ export function useWithFollowups(props: {
   const isMentorLoading = isActiveMentorLoading();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
+  const [followUpQIds, setFollowUpQIds] = useState<string[]>([]);
+  const questionsLoading = isQuestionsLoading(
+    mentorAnswers?.map((a) => a.question)
+  );
   const { loadMentor } = useActiveMentorActions();
-  const {
-    editData,
-    editedData,
-    isEdited: isSubjectEdited,
-    saveSubject,
-  } = useWithSubject(props.subjectId, loginState.accessToken || "");
   const { categoryId, subjectId } = props;
   const curSubject = useActiveMentor((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
@@ -73,49 +79,30 @@ export function useWithFollowups(props: {
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   useEffect(() => {
-    if (!isSubjectEdited || !editedData) return;
-    dispatch({ type: FollowupsActionType.SAVING_SELECTED_FOLLOWUPS });
-    saveSubject().catch((err) => {
-      dispatch({
-        type: FollowupsActionType.FAILED_GENERATING_FOLLOWUPS,
-        payload: { message: "Failed to save subject", error: err.message },
-      });
-    });
-  }, [isSubjectEdited]);
+    const qs = [];
+    for (const q of Object.values(mentorQuestions)) {
+      if (q.question) {
+        qs.push(q.question);
+      }
+    }
+    setEditedQuestions(qs);
+  }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
-    if (
-      !toRecordFollowUpQs.length ||
-      isMentorLoading ||
-      !mentorId ||
-      !curSubject
-    )
-      return;
-    const newQuestionIds = curSubject.questions.reduce(function (
-      result: string[],
-      question
-    ) {
-      const index = toRecordFollowUpQs.findIndex(
-        (followup) => followup === question.question.question
-      );
-      if (index !== -1 && question.question.mentor === mentorId) {
-        result.push(question.question._id);
-      }
-      return result;
-    },
-    []);
+    if (!followUpQIds.length) return;
+    //we have q's to record, must reload mentor
+    loadMentor();
+  }, [followUpQIds]);
 
-    if (newQuestionIds.length) {
-      navigate(
-        urlBuild("/record", {
-          category: categoryId,
-          subject: subjectId,
-          videoId: newQuestionIds,
-        })
-      );
-    } else {
-      navigateToMyMentorPage();
-    }
+  useEffect(() => {
+    if (isMentorLoading || !followUpQIds.length) return;
+    navigate(
+      urlBuild("/record", {
+        category: categoryId,
+        subject: subjectId,
+        videoId: followUpQIds,
+      })
+    );
   }, [isMentorLoading]);
 
   function fetchFollowups() {
@@ -132,19 +119,11 @@ export function useWithFollowups(props: {
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
     fetchFollowUpQuestions(categoryId, accessToken)
       .then((data) => {
-        let followUps = data
+        const followUps = data
           ? data.map((d) => {
               return d.question;
             })
           : [];
-        followUps = followUps.filter(
-          (followUp) =>
-            mentorAnswers.findIndex(
-              (a) =>
-                a.question.question === followUp &&
-                a.question.mentor === mentorId
-            ) === -1
-        );
         dispatch({ type: FollowupsActionType.SUCCESS_GENERATING_FOLLOWUPS });
         setFollowUpQuestions(followUps);
       })
@@ -165,11 +144,18 @@ export function useWithFollowups(props: {
   }
 
   function saveAndLoadSelectedFollowups() {
-    if (!editedData || !curCategory || !mentorId || !toRecordFollowUpQs) {
+    if (
+      !loginState.accessToken ||
+      !curCategory ||
+      !curSubject ||
+      !mentorId ||
+      !toRecordFollowUpQs ||
+      !editedQuestions
+    ) {
       return;
     }
     dispatch({ type: FollowupsActionType.SAVING_SELECTED_FOLLOWUPS });
-    const newQuestions: SubjectQuestion[] = toRecordFollowUpQs.map(
+    const newQuestions: SubjectQuestionGQL[] = toRecordFollowUpQs.map(
       (followUp) => {
         return {
           question: {
@@ -185,9 +171,46 @@ export function useWithFollowups(props: {
         };
       }
     );
-    editData({
-      questions: [...editedData.questions, ...newQuestions],
-    });
+
+    const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
+    for (const sq of curSubject.questions) {
+      const q = editedQuestions.find((q) => q._id === sq.question);
+      if (q) {
+        subjectQuestionsGQL.push({ ...sq, question: q });
+      }
+    }
+    const subjectGQL: SubjectGQL = {
+      ...curSubject,
+      questions: [...subjectQuestionsGQL, ...newQuestions],
+    };
+    //subject
+    const oldSubjectQs = curSubject.questions;
+    updateSubject(subjectGQL, loginState.accessToken)
+      .then((subject) => {
+        //compare new subject questions to old subject questions
+        const newQuestionIds: string[] = subject.questions
+          .filter(
+            (newQuestionId) =>
+              !oldSubjectQs.find(
+                (oldId) => oldId.question === newQuestionId.question
+              )
+          )
+          .map((question) => question.question);
+        if (newQuestionIds.length) {
+          setFollowUpQIds(newQuestionIds);
+        } else {
+          navigateToMyMentorPage();
+        }
+      })
+      .catch((err) => {
+        dispatch({
+          type: FollowupsActionType.FAILED_GENERATING_FOLLOWUPS,
+          payload: {
+            message: "Failed to save subject with new follow up questions",
+            error: err.message,
+          },
+        });
+      });
   }
 
   return {

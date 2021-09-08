@@ -4,28 +4,41 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import { useEffect, useState } from "react";
-import { updateAnswer, updateQuestion } from "api";
+import { updateAnswer } from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
   MediaTag,
   MediaType,
   MentorType,
+  Question,
+  UploadTask,
   UtteranceName,
 } from "types";
-import { copyAndSet, equals } from "helpers";
-import { LoadingError } from "./loading-reducer";
-import { UploadTask, useWithUploadStatus } from "./use-with-upload-status";
-import { navigate } from "gatsby";
-import {
-  useActiveMentor,
+import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
+import useActiveMentor, {
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
+import useQuestions, {
+  isQuestionsLoading,
+  isQuestionsSaving,
+  useQuestionActions,
+} from "store/slices/questions/useQuestions";
+import { LoadingError } from "./loading-reducer";
+import { useWithUploadStatus } from "./use-with-upload-status";
+import { QuestionState } from "store/slices/questions";
+import { navigate } from "gatsby";
 
 export interface AnswerState {
   answer: Answer;
   editedAnswer: Answer;
+  editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
   recordedVideo?: File;
   minVideoLength?: number;
@@ -52,15 +65,29 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
+
   const [saveError, setSaveError] = useState<LoadingError>();
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
+
   const pollingInterval = parseInt(filter.poll || "");
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorType = useActiveMentor((state) => state.data?.mentorType);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
   const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
+  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const questionsLoading = isQuestionsLoading(
+    mentorAnswers?.map((a) => a.question)
+  );
+  const questionsSaving = isQuestionsSaving(
+    mentorAnswers?.map((a) => a.question)
+  );
   const mentorError = useActiveMentor((state) => state.error);
   const { loadMentor, clearMentorError } = useActiveMentorActions();
+  const { saveQuestion } = useQuestionActions();
+
   const {
     uploads,
     isUploading,
@@ -75,7 +102,7 @@ export function useWithRecordState(
     isNaN(pollingInterval) ? undefined : pollingInterval
   );
   const idxChanged =
-    curAnswer?.answer.question._id !== answers[answerIdx]?.answer.question._id;
+    curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
     if (!mentorAnswers || !mentorSubjects) {
@@ -85,7 +112,7 @@ export function useWithRecordState(
     let answers = mentorAnswers;
     if (videoId) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      answers = answers.filter((a) => ids.includes(a.question._id));
+      answers = answers.filter((a) => ids.includes(a.question));
     } else if (subject) {
       const s = mentorSubjects.find((a) => a._id === subject);
       if (s) {
@@ -93,30 +120,34 @@ export function useWithRecordState(
           (q) => !category || `${q.category?.id}` === category
         );
         answers = answers.filter((a) =>
-          sQuestions.map((q) => q.question._id).includes(a.question._id)
+          sQuestions.map((q) => q.question).includes(a.question)
         );
       }
     }
-    if (status) {
-      answers = answers.filter((a) => a.status === status);
+    const answerStates: AnswerState[] = [];
+    for (const a of answers) {
+      const q = getValueIfKeyExists(a.question, mentorQuestions);
+      if (
+        q?.question &&
+        (!q.question.mentorType || q.question.mentorType === mentorType) &&
+        (!status || a.status === status)
+      ) {
+        answerStates.push({
+          answer: a,
+          editedAnswer: a,
+          editedQuestion: q.question,
+          recordedVideo: undefined,
+          minVideoLength: q.question.minVideoLength,
+          attentionNeeded: doesAnswerNeedAttention(a),
+        });
+      }
     }
-    answers = answers.filter(
-      (a) => !a.question?.mentorType || a.question?.mentorType === mentorType
-    );
     //if after filtering through the answers we end up with none, then go back to My Mentor page
     if (!answers.length) {
       navigate("/");
     }
-    setAnswers(
-      answers.map((a) => ({
-        answer: a,
-        editedAnswer: a,
-        recordedVideo: undefined,
-        minVideoLength: a.question?.minVideoLength,
-        attentionNeeded: doesAnswerNeedAttention(a),
-      }))
-    );
-  }, [mentorAnswers]);
+    setAnswers(answerStates);
+  }, [mentorAnswers, mentorQuestions]);
 
   useEffect(() => {
     setIsRecording(false);
@@ -124,19 +155,23 @@ export function useWithRecordState(
 
   useEffect(() => {
     if (!mentorAnswers || !answers[answerIdx]) return;
+    const answer = answers[answerIdx];
+    const question = getValueIfKeyExists(
+      answer.answer.question,
+      mentorQuestions
+    )?.question;
     setCurAnswer({
-      ...answers[answerIdx],
-      isEdited: !equals(
-        answers[answerIdx].answer,
-        answers[answerIdx].editedAnswer
-      ),
+      ...answer,
+      isEdited:
+        !equals(answer.answer, answer.editedAnswer) ||
+        !equals(question, answer.editedQuestion),
       isValid: isAnswerValid(),
-      isUploading: isAnswerUploading(answers[answerIdx].editedAnswer),
+      isUploading: isAnswerUploading(answer.editedAnswer),
       videoSrc: idxChanged
         ? getVideoSrc()
         : curAnswer?.videoSrc || getVideoSrc(),
     });
-  }, [answers[answerIdx], uploads]);
+  }, [answers[answerIdx], questionsLoading, questionsSaving, uploads]);
 
   function updateAnswerState(
     edits: Partial<AnswerState>,
@@ -155,7 +190,8 @@ export function useWithRecordState(
     if (
       answer.media?.length &&
       !answer.transcript &&
-      answer.question.name !== UtteranceName.IDLE
+      getValueIfKeyExists(answer.question, mentorQuestions)?.question?.name !==
+        UtteranceName.IDLE
     ) {
       return AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
     }
@@ -163,9 +199,7 @@ export function useWithRecordState(
   }
 
   function onAnswerUploaded(upload: UploadTask) {
-    const idx = answers.findIndex(
-      (a) => a.answer.question?._id === upload.question._id
-    );
+    const idx = answers.findIndex((a) => a.answer.question === upload.question);
     if (idx !== -1) {
       const answer = answers[idx];
       updateAnswerState(
@@ -188,7 +222,7 @@ export function useWithRecordState(
   }
 
   function isAnswerUploading(answer: Answer) {
-    const upload = uploads.find((u) => u.question._id === answer.question._id);
+    const upload = uploads.find((u) => u.question === answer.question);
     return Boolean(upload && !isTaskDoneOrFailed(upload));
   }
 
@@ -215,13 +249,14 @@ export function useWithRecordState(
       return false;
     }
     const editedAnswer = answers[answerIdx].editedAnswer;
+    const editedQuestion = answers[answerIdx].editedQuestion;
     if (mentorType === MentorType.CHAT) {
       return Boolean(editedAnswer.transcript);
     }
     if (mentorType === MentorType.VIDEO) {
       return Boolean(
         editedAnswer?.media?.find((m) => m.type === MediaType.VIDEO)?.url &&
-          (editedAnswer.question?.name === UtteranceName.IDLE ||
+          (editedQuestion?.name === UtteranceName.IDLE ||
             editedAnswer.transcript)
       );
     }
@@ -273,50 +308,27 @@ export function useWithRecordState(
     updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
   }
 
+  function editQuestion(edits: Partial<Question>) {
+    const answer = answers[answerIdx];
+    updateAnswerState({
+      editedQuestion: { ...answer.editedQuestion, ...edits },
+    });
+  }
+
   function saveAnswer() {
     const answer = answers[answerIdx].answer;
     const editedAnswer = answers[answerIdx].editedAnswer;
+    const question = getValueIfKeyExists(
+      answer.question,
+      mentorQuestions
+    )?.question;
+    const editedQuestion = answers[answerIdx].editedQuestion;
     // update the question if it has changed
-    if (!equals(answer.question, editedAnswer.question)) {
-      setIsSaving(true);
-      updateQuestion(editedAnswer.question, accessToken)
-        .then((didUpdate) => {
-          if (!didUpdate) {
-            setIsSaving(false);
-            return;
-          }
-          if (!equals(answer, editedAnswer)) {
-            updateAnswer(editedAnswer, accessToken)
-              .then((didUpdate) => {
-                if (!didUpdate) {
-                  setIsSaving(false);
-                  return;
-                }
-                updateAnswerState({ answer: editedAnswer });
-                setIsSaving(false);
-              })
-              .catch((err) => {
-                setIsSaving(false);
-                setSaveError({
-                  message: "Failed to save answer",
-                  error: err.message,
-                });
-              });
-          } else {
-            updateAnswerState({ answer: editedAnswer });
-            setIsSaving(false);
-          }
-        })
-        .catch((err) => {
-          setIsSaving(false);
-          setSaveError({
-            message: "Failed to save question",
-            error: err.message,
-          });
-        });
+    if (!equals(question, editedQuestion)) {
+      saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
-    else if (!equals(answer, editedAnswer)) {
+    if (!equals(answer, editedAnswer)) {
       setIsSaving(true);
       updateAnswer(editedAnswer, accessToken)
         .then((didUpdate) => {
@@ -353,43 +365,52 @@ export function useWithRecordState(
   }
 
   return {
+    mentorQuestions,
     answers,
     answerIdx,
     curAnswer,
     uploads,
     pollStatusCount,
-    reloadMentorData: loadMentor,
+    isUploading,
+    isRecording,
+    isSaving: isSaving || questionsSaving,
+    error: mentorError || saveError,
+
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
+    editQuestion,
     editAnswer,
     saveAnswer,
     removeCompletedTask,
     rerecord,
+    reloadMentorData: loadMentor,
     startRecording,
     stopRecording,
     uploadVideo,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
-    isUploading,
-    isRecording,
-    isSaving,
-    error: mentorError || saveError,
     clearError,
   };
 }
 
 export interface UseWithRecordState {
+  mentorQuestions: Record<string, QuestionState>;
   answers: AnswerState[];
   answerIdx: number;
   curAnswer?: CurAnswerState;
   uploads: UploadTask[];
   pollStatusCount: number;
-  reloadMentorData: () => void;
+  isUploading: boolean;
+  isRecording: boolean;
+  isSaving: boolean;
+  error?: LoadingError;
   prevAnswer: () => void;
+  reloadMentorData: () => void;
   nextAnswer: () => void;
   setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
+  editQuestion: (edits: Partial<Question>) => void;
   saveAnswer: () => void;
   removeCompletedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
@@ -398,9 +419,5 @@ export interface UseWithRecordState {
   uploadVideo: (trim?: { start: number; end: number }) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
-  isUploading: boolean;
-  isRecording: boolean;
-  isSaving: boolean;
-  error?: LoadingError;
   clearError: () => void;
 }
