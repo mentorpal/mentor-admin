@@ -147,14 +147,6 @@ function HomePage(props: {
     navigate("/setup");
   }
 
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
-  }
-
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
-  }
-
   return (
     <div
       data-cy="my-mentor-wrapper"
