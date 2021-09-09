@@ -11,7 +11,6 @@ import { useReducer, useState } from "react";
 import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor, {
-  isActiveMentorLoading,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
 import {
@@ -59,15 +58,13 @@ export function useWithFollowups(props: {
   });
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
-  const isMentorLoading = isActiveMentorLoading();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
-  const mentorQuestions = useQuestions(
+  const mentorQuestionsRecord = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
-  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
-  const [followUpQIds, setFollowUpQIds] = useState<string[]>([]);
+  const [mentorQuestions, setMentorQuestions] = useState<Question[]>();
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
@@ -80,44 +77,20 @@ export function useWithFollowups(props: {
 
   useEffect(() => {
     const qs = [];
-    for (const q of Object.values(mentorQuestions)) {
+    for (const q of Object.values(mentorQuestionsRecord)) {
       if (q.question) {
         qs.push(q.question);
       }
     }
-    setEditedQuestions(qs);
-  }, [mentorQuestions, questionsLoading]);
-
-  useEffect(() => {
-    if (!followUpQIds.length) return;
-    //we have q's to record, must reload mentor
-    loadMentor();
-  }, [followUpQIds]);
-
-  useEffect(() => {
-    if (isMentorLoading || !followUpQIds.length) return;
-    navigate(
-      urlBuild("/record", {
-        category: categoryId,
-        subject: subjectId,
-        videoId: followUpQIds,
-      })
-    );
-  }, [isMentorLoading]);
+    setMentorQuestions(qs);
+  }, [mentorQuestionsRecord, questionsLoading]);
 
   function fetchFollowups() {
-    if (!loginState.accessToken) {
-      return;
-    }
-    fetch(loginState.accessToken);
-  }
-
-  function fetch(accessToken: string) {
-    if (!mentorAnswers) {
+    if (!mentorAnswers || !loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
-    fetchFollowUpQuestions(categoryId, accessToken)
+    fetchFollowUpQuestions(categoryId, loginState.accessToken)
       .then((data) => {
         const followUps = data
           ? data.map((d) => {
@@ -150,7 +123,7 @@ export function useWithFollowups(props: {
       !curSubject ||
       !mentorId ||
       !toRecordFollowUpQs ||
-      !editedQuestions
+      !mentorQuestions
     ) {
       return;
     }
@@ -174,7 +147,7 @@ export function useWithFollowups(props: {
 
     const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
     for (const sq of curSubject.questions) {
-      const q = editedQuestions.find((q) => q._id === sq.question);
+      const q = mentorQuestions.find((q) => q._id === sq.question);
       if (q) {
         subjectQuestionsGQL.push({ ...sq, question: q });
       }
@@ -196,8 +169,16 @@ export function useWithFollowups(props: {
               )
           )
           .map((question) => question.question);
+        //TODO: The reason we have to wait for mentor to reload first is because the new Q's won't be there
         if (newQuestionIds.length) {
-          setFollowUpQIds(newQuestionIds);
+          loadMentor();
+          navigate(
+            urlBuild("/record", {
+              category: categoryId,
+              subject: subjectId,
+              videoId: newQuestionIds,
+            })
+          );
         } else {
           navigateToMyMentorPage();
         }

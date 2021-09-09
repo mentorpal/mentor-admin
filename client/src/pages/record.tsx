@@ -41,7 +41,9 @@ import { getValueIfKeyExists, onTextInputChanged } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import useActiveMentor, {
+  isActiveMentorLoading,
+} from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import {
   AnswerAttentionNeeded,
@@ -146,6 +148,7 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+  const isMentorLoading = isActiveMentorLoading();
 
   function onBack() {
     reloadMentorData();
@@ -182,7 +185,7 @@ function RecordPage(props: {
     setConfirmLeave(undefined);
   }
 
-  if (!mentorId || !curAnswer || !isConfigLoaded()) {
+  if (!mentorId || !curAnswer || !isConfigLoaded() || isMentorLoading) {
     return (
       <div className={classes.root}>
         <NavBar title="Recording: " mentorId={undefined} />

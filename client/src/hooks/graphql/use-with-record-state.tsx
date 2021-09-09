@@ -23,6 +23,7 @@ import {
 } from "types";
 import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
 import useActiveMentor, {
+  isActiveMentorLoading,
   useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
@@ -87,6 +88,7 @@ export function useWithRecordState(
   const mentorError = useActiveMentor((state) => state.error);
   const { loadMentor, clearMentorError } = useActiveMentorActions();
   const { saveQuestion } = useQuestionActions();
+  const isMentorLoading = isActiveMentorLoading();
 
   const {
     uploads,
@@ -105,7 +107,7 @@ export function useWithRecordState(
     curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
-    if (!mentorAnswers || !mentorSubjects) {
+    if (!mentorAnswers || !mentorSubjects || isMentorLoading) {
       return;
     }
     const { videoId, subject, category, status } = filter;
