@@ -34,20 +34,13 @@ const chatMentor: Mentor = completeMentor({
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
-          question: completeQuestion({
-            _id: "A1_1_1",
-            question: "Who are you and what do you do?",
-            name: "A1_1_1",
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          }),
+          question: { _id: "A1_1_1" },
           category: { id: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
           question: completeQuestion({
             _id: "A2_1_1",
-            question: "How old are you now?",
           }),
           // mentor: "clintanderson",
         }),
@@ -59,28 +52,21 @@ const chatMentor: Mentor = completeMentor({
         completeSubjectQuestion({
           question: completeQuestion({
             _id: "A3_1_1",
-            question:
-              "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
           }),
         }),
         completeSubjectQuestion({
           question: completeQuestion({
             _id: "A4_1_1",
-            question:
-              "Please give a short introduction of yourself, which includes your name, current job, and title.",
           }),
         }),
         completeSubjectQuestion({
           question: completeQuestion({
             _id: "A5_1_1",
-            question:
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
           }),
         }),
         completeSubjectQuestion({
           question: completeQuestion({
             _id: "A6_1_1",
-            question: "",
           }),
           // mentor: "notclint",
         }),
@@ -92,7 +78,6 @@ const chatMentor: Mentor = completeMentor({
       _id: "A1_1_1",
       question: completeQuestion({
         _id: "A1_1_1",
-        question: "Who are you and what do you do?",
       }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
@@ -102,8 +87,6 @@ const chatMentor: Mentor = completeMentor({
       _id: "A2_1_1",
       question: completeQuestion({
         _id: "A2_1_1",
-        question: "How old are you now?",
-        mentor: "clintanderson",
       }),
       transcript: "",
       status: Status.INCOMPLETE,
@@ -112,8 +95,6 @@ const chatMentor: Mentor = completeMentor({
       _id: "A3_1_1",
       question: completeQuestion({
         _id: "A3_1_1",
-        question:
-          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
       }),
       transcript: "",
       status: Status.INCOMPLETE,
@@ -122,8 +103,6 @@ const chatMentor: Mentor = completeMentor({
       _id: "A4_1_1",
       question: completeQuestion({
         _id: "A4_1_1",
-        question:
-          "Please give a short introduction of yourself, which includes your name, current job, and title.",
       }),
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
@@ -133,8 +112,6 @@ const chatMentor: Mentor = completeMentor({
       _id: "A5_1_1",
       question: completeQuestion({
         _id: "A5_1_1",
-        question:
-          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
       }),
       transcript: "",
       status: Status.INCOMPLETE,
