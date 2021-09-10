@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import {
   cyMockDefault,
   mockGQL,
-  cyMockFollowUpQuestions,
   cyAttachUpload,
   cyMockUpload,
 } from "../support/functions";
@@ -33,6 +32,7 @@ const chatMentor: Mentor = completeMentor({
   subjects: [
     completeSubject({
       _id: "background",
+      name: "background",
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
@@ -600,145 +600,6 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    });
-
-    it("displays a list of followup questions", () => {
-      cyMockDefault(cy, {
-        mentor: [chatMentor],
-        questions: chatQuestions,
-        gqlQueries: [
-          mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-          mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-          mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-          mockGQL("Subject", [{ subject: [] }]),
-        ],
-      });
-      cyMockFollowUpQuestions(cy, {
-        errors: null,
-        data: {
-          followups: [
-            {
-              question: "Can you tell me more about Aaron?",
-              entityType: "profession",
-            },
-            {
-              question: "What was Florida like?",
-            },
-            {
-              question: "What does an Intern do?",
-            },
-            {
-              question: "What is foosball?",
-            },
-            {
-              question: "Can you tell me more about Aaron?",
-              entityType: "profession",
-            },
-            {
-              question: "What was Florida like?",
-            },
-            {
-              question: "What does an Intern do?",
-            },
-            {
-              question: "What is foosball?",
-            },
-            {
-              question: "Can you tell me more about Aaron?",
-              entityType: "profession",
-            },
-            {
-              question: "What was Florida like?",
-            },
-            {
-              question: "What does an Intern do?",
-            },
-            {
-              question: "What is foosball?",
-            },
-            {
-              question: "Can you tell me more about Aaron?",
-              entityType: "profession",
-            },
-            {
-              question: "What was Florida like?",
-            },
-            {
-              question: "What does an Intern do?",
-            },
-            {
-              question: "What is foosball?",
-            },
-          ],
-        },
-      });
-      cy.visit("/record?subject=background&category=cat");
-      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
-      cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
-          "have.text",
-          "Who are you and what do you do?"
-        );
-        cy.get("textarea").should("have.attr", "disabled");
-      });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
-          "have.text",
-          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
-        );
-        cy.get("textarea").should("not.have.attr", "disabled");
-      });
-      cy.get("[data-cy=status]").contains("Active");
-      cy.get("[data-cy=back-btn]").should("be.disabled");
-      cy.get("[data-cy=next-btn]").should("not.exist");
-      cy.get("[data-cy=done-btn]").should("exist");
-      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=follow-up-question-0]").should("exist");
-      cy.get("[data-cy=follow-up-question-0]").should("be.visible");
-      cy.get("[data-cy=follow-up-question-0]").should(
-        "have.text",
-        "Can you tell me more about Aaron?"
-      );
-      cy.get("[data-cy=follow-up-question-1]").should("exist");
-      cy.get("[data-cy=follow-up-question-1]").should("be.visible");
-      cy.get("[data-cy=follow-up-question-1]").should(
-        "have.text",
-        "What was Florida like?"
-      );
-      cy.get("[data-cy=follow-up-question-2]").should("exist");
-      cy.get("[data-cy=follow-up-question-2]").should("be.visible");
-      cy.get("[data-cy=follow-up-question-2]").should(
-        "have.text",
-        "What does an Intern do?"
-      );
-    });
-
-    it("does not traverse to followups page if there are no followups", () => {
-      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
-      cyMockFollowUpQuestions(cy, { data: [] });
-      cy.visit("/record?subject=background&category=cat");
-      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
-      cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
-          "have.text",
-          "Who are you and what do you do?"
-        );
-        cy.get("textarea").should("have.attr", "disabled");
-      });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
-          "have.text",
-          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
-        );
-        cy.get("textarea").should("not.have.attr", "disabled");
-      });
-      cy.get("[data-cy=status]").contains("Active");
-      cy.get("[data-cy=back-btn]").should("be.disabled");
-      cy.get("[data-cy=next-btn]").should("not.exist");
-      cy.get("[data-cy=done-btn]").should("exist");
-      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=follow-up-q-widget]").should("not.exist");
     });
   });
 
@@ -3074,5 +2935,25 @@ describe("Record", () => {
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
     cy.get("[data-cy=warn-empty-transcript]").should("not.exist");
+  });
+
+  it("Can visit record via url param array", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+    });
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+    });
   });
 });

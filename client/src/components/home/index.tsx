@@ -143,7 +143,6 @@ function HomePage(props: {
       </div>
     );
   }
-
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
   }

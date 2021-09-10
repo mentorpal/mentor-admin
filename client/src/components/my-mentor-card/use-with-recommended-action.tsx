@@ -398,6 +398,5 @@ export function UseWithRecommendedAction(
     const skip = recommend(recommendedAction.skip, continueAction);
     setRecommendedAction(skip);
   }
-
   return [recommendedAction, skipRecommendation];
 }

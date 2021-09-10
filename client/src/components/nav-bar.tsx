@@ -258,9 +258,9 @@ function NavMenu(props: {
 export function NavBar(props: {
   mentorId: string;
   title: string;
-  uploads: UploadTask[];
-  uploadsButtonVisible: boolean;
-  toggleUploadsButtonVisibility: (b: boolean) => void;
+  uploads?: UploadTask[];
+  uploadsButtonVisible?: boolean;
+  toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
 }): JSX.Element {
@@ -272,14 +272,15 @@ export function NavBar(props: {
     onNav,
     onBack,
   } = props;
-  const numUploadsInProgress = uploads?.filter(
-    (upload) =>
-      upload.uploadStatus !== UploadStatus.DONE &&
-      upload.uploadStatus !== UploadStatus.CANCELLED
-  ).length;
-  const numUploadsComplete = uploads?.filter(
-    (upload) => upload.uploadStatus == UploadStatus.DONE
-  ).length;
+  const numUploadsInProgress =
+    uploads?.filter(
+      (upload) =>
+        upload.uploadStatus !== UploadStatus.DONE &&
+        upload.uploadStatus !== UploadStatus.CANCELLED
+    ).length || 0;
+  const numUploadsComplete =
+    uploads?.filter((upload) => upload.uploadStatus == UploadStatus.DONE)
+      .length || 0;
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
@@ -316,29 +317,31 @@ export function NavBar(props: {
           <Typography data-cy="title" variant="h5" className={classes.title}>
             <div className="page-title">{props.title}</div>
           </Typography>
-          <Button
-            variant="outlined"
-            disabled={disableUploadsButton}
-            onClick={() => {
-              toggleUploadsButtonVisibility(!uploadsButtonVisible);
-            }}
-            data-cy="header-uploads-button"
-            className={classes.uploadsButton}
-            style={{
-              opacity:
-                disableUploadsButton || uploadsButtonVisible ? "50%" : "100%",
-              width: "20%",
-            }}
-          >
-            <PublishRoundedIcon style={{ paddingRight: 5 }} />
-            {disableUploadsButton
-              ? ""
-              : numUploadsInProgress == 0
-              ? "Uploads Complete"
-              : `${numUploadsComplete} of ${
-                  numUploadsInProgress + numUploadsComplete
-                } Uploads Complete`}
-          </Button>
+          {toggleUploadsButtonVisibility && uploads ? (
+            <Button
+              variant="outlined"
+              disabled={disableUploadsButton}
+              onClick={() => {
+                toggleUploadsButtonVisibility(!uploadsButtonVisible);
+              }}
+              data-cy="header-uploads-button"
+              className={classes.uploadsButton}
+              style={{
+                opacity:
+                  disableUploadsButton || uploadsButtonVisible ? "50%" : "100%",
+                width: "20%",
+              }}
+            >
+              <PublishRoundedIcon style={{ paddingRight: 5 }} />
+              {disableUploadsButton
+                ? ""
+                : numUploadsInProgress == 0
+                ? "Uploads Complete"
+                : `${numUploadsComplete} of ${
+                    numUploadsInProgress + numUploadsComplete
+                  } Uploads Complete`}
+            </Button>
+          ) : undefined}
 
           <Login classes={classes} />
         </Toolbar>

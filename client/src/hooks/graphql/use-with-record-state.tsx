@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer, fetchFollowUpQuestions } from "api";
+import { updateAnswer } from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
@@ -13,14 +13,13 @@ import {
   MediaType,
   MentorType,
   Question,
-  RecordPageState,
   UploadTask,
   UtteranceName,
 } from "types";
 import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
 import useActiveMentor, {
-  useActiveMentorActions,
   isActiveMentorLoading,
+  useActiveMentorActions,
 } from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -30,6 +29,7 @@ import useQuestions, {
 import { LoadingError } from "./loading-reducer";
 import { useWithUploadStatus } from "./use-with-upload-status";
 import { QuestionState } from "store/slices/questions";
+import { navigate } from "gatsby";
 
 export interface AnswerState {
   answer: Answer;
@@ -61,11 +61,8 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [recordPageState, setRecordPageState] = useState<RecordPageState>(
-    RecordPageState.INITIALIZING
-  );
+
   const [saveError, setSaveError] = useState<LoadingError>();
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([]);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
 
   const pollingInterval = parseInt(filter.poll || "");
@@ -77,7 +74,6 @@ export function useWithRecordState(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
-  const isMentorLoading = isActiveMentorLoading();
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
@@ -87,6 +83,7 @@ export function useWithRecordState(
   const mentorError = useActiveMentor((state) => state.error);
   const { loadMentor, clearMentorError } = useActiveMentorActions();
   const { saveQuestion } = useQuestionActions();
+  const isMentorLoading = isActiveMentorLoading();
 
   const {
     uploads,
@@ -105,7 +102,7 @@ export function useWithRecordState(
     curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
-    if (!mentorAnswers || !mentorSubjects) {
+    if (!mentorAnswers || !mentorSubjects || isMentorLoading) {
       return;
     }
     const { videoId, subject, category, status } = filter;
@@ -142,26 +139,16 @@ export function useWithRecordState(
         });
       }
     }
+    //if after filtering through the answers we end up with none, then go back to My Mentor page
+    if (!answers.length) {
+      navigate("/");
+    }
     setAnswers(answerStates);
-    setRecordPageState(RecordPageState.RECORDING_ANSWERS);
   }, [mentorAnswers, mentorQuestions]);
 
   useEffect(() => {
     setIsRecording(false);
   }, [answerIdx]);
-
-  useEffect(() => {
-    if (!mentorAnswers) return;
-    if (
-      recordPageState === RecordPageState.RELOADING_MENTOR &&
-      !isMentorLoading
-    ) {
-      setRecordPageState(RecordPageState.RECORDING_ANSWERS);
-      if (answerIdx < answers.length) {
-        nextAnswer();
-      }
-    }
-  }, [isMentorLoading]);
 
   useEffect(() => {
     if (!mentorAnswers || !answers[answerIdx]) return;
@@ -182,33 +169,6 @@ export function useWithRecordState(
         : curAnswer?.videoSrc || getVideoSrc(),
     });
   }, [answers[answerIdx], questionsLoading, questionsSaving, uploads]);
-
-  function fetchFollowUpQs() {
-    if (!mentorAnswers) return;
-    if (!filter.category || filter.status === "COMPLETE") {
-      setFollowUpQuestions([]);
-      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
-      return;
-    }
-    setRecordPageState(RecordPageState.FETCHING_FOLLOW_UPS);
-    fetchFollowUpQuestions(filter.category, accessToken).then((data) => {
-      setFollowUpQuestions(
-        (data || [])
-          .map((d) => {
-            return d.question;
-          })
-          .filter(
-            (followUp) =>
-              mentorAnswers.findIndex(
-                (a) =>
-                  getValueIfKeyExists(a.question, mentorQuestions)?.question
-                    ?.question === followUp
-              ) === -1
-          )
-      );
-      setRecordPageState(RecordPageState.REVIEWING_FOLLOW_UPS);
-    });
-  }
 
   function updateAnswerState(
     edits: Partial<AnswerState>,
@@ -298,11 +258,6 @@ export function useWithRecordState(
       );
     }
     return false;
-  }
-
-  function reloadMentorData() {
-    setRecordPageState(RecordPageState.RELOADING_MENTOR);
-    loadMentor();
   }
 
   function prevAnswer() {
@@ -410,11 +365,9 @@ export function useWithRecordState(
     mentorQuestions,
     answers,
     answerIdx,
-    recordPageState,
     curAnswer,
     uploads,
     pollStatusCount,
-    followUpQuestions,
     isUploading,
     isRecording,
     isSaving: isSaving || questionsSaving,
@@ -423,14 +376,12 @@ export function useWithRecordState(
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
-    setRecordPageState,
     editQuestion,
     editAnswer,
     saveAnswer,
     removeCompletedTask,
-    fetchFollowUpQs,
     rerecord,
-    reloadMentorData,
+    reloadMentorData: loadMentor,
     startRecording,
     stopRecording,
     uploadVideo,
@@ -444,20 +395,16 @@ export interface UseWithRecordState {
   mentorQuestions: Record<string, QuestionState>;
   answers: AnswerState[];
   answerIdx: number;
-  recordPageState: RecordPageState;
   curAnswer?: CurAnswerState;
   uploads: UploadTask[];
   pollStatusCount: number;
-  followUpQuestions: string[];
   isUploading: boolean;
   isRecording: boolean;
   isSaving: boolean;
   error?: LoadingError;
-  fetchFollowUpQs: () => void;
   prevAnswer: () => void;
   reloadMentorData: () => void;
   nextAnswer: () => void;
-  setRecordPageState: (newState: RecordPageState) => void;
   setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   editQuestion: (edits: Partial<Question>) => void;
