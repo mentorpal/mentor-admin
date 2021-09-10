@@ -1428,7 +1428,7 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("not.be.visible");
   });
 
-  it.only("can update status", () => {
+  it("can update status", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       questions: chatQuestions,
