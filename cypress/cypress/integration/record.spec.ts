@@ -1457,7 +1457,6 @@ describe("Record", () => {
     cy.get("[data-cy=incomplete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
     cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=loading-dialog]");
   });
 
   it("uploading widget should be open if there are active uploads", () => {
