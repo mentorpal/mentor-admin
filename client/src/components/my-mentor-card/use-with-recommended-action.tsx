@@ -159,7 +159,7 @@ function recommend(
     conditions.completedAnswers > 5;
   if (condition && continueAction)
     return {
-      text: "Build Yout Mentor1",
+      text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <CheckCircleOutlined />,
@@ -171,7 +171,7 @@ function recommend(
 
   if (conditions.completedAnswers > 5 && continueAction)
     return {
-      text: "Build Your Mentor2",
+      text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <CheckCircleOutlined />,
@@ -246,7 +246,7 @@ function recommend(
     };
   if (conditions.isDirty && continueAction)
     return {
-      text: "Build Your Mentor3",
+      text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <FiberManualRecord />,
