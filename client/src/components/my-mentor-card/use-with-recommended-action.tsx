@@ -154,29 +154,30 @@ function recommend(
       skip: { ...conditions, offTopicIncomplete: true },
     };
 
-  if (
+  const condition =
     (!conditions.neverBuilt && conditions.totalAnswers > 0) ||
-    conditions.completedAnswers > 5
-  )
+    conditions.completedAnswers > 5;
+  if (condition && continueAction)
     return {
-      text: "Build Mentor",
+      text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <CheckCircleOutlined />,
       input: false,
-      action: () => continueAction,
+      action: continueAction,
 
       skip: { ...conditions, neverBuilt: true },
     };
 
-  if (conditions.completedAnswers > 5)
+  if (conditions.completedAnswers > 5 && continueAction)
     return {
-      text: "Build Mentor",
+      text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <CheckCircleOutlined />,
       input: false,
-      action: () => continueAction,
+      action: continueAction,
+      skip: { ...conditions, completedAnswers: 6 },
     };
 
   if (conditions.incompleteRequirement)
