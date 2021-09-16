@@ -125,22 +125,6 @@ export interface MentorImportPreview {
   answers: ImportPreview<AnswerGQL>[];
 }
 
-// export function convertUserAccessTokenGQL(
-//   gql: UserAccessTokenGQL
-// ): UserAccessToken {
-//   return {
-//     ...gql,
-//     user: convertUserGQL(gql.user),
-//   };
-// }
-
-// export function convertUserGQL(gql: UserGQL): User {
-//   return {
-//     ...gql,
-//     defaultMentor: gql.defaultMentor._id,
-//   };
-// }
-
 export function convertMentorGQL(gql: MentorGQL): Mentor {
   return {
     ...gql,

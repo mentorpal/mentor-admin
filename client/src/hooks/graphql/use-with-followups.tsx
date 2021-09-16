@@ -31,7 +31,7 @@ import {
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
-import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { convertSubjectGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -159,7 +159,8 @@ export function useWithFollowups(props: {
     //subject
     const oldSubjectQs = curSubject.questions;
     updateSubject(subjectGQL, loginState.accessToken)
-      .then((subject) => {
+      .then((subjectGQL) => {
+        const subject = convertSubjectGQL(subjectGQL);
         //compare new subject questions to old subject questions
         const newQuestionIds: string[] = subject.questions
           .filter(

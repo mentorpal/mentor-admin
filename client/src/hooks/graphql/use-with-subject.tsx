@@ -8,10 +8,11 @@ import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
-import { UseData, useWithData } from "hooks/graphql/use-with-data";
+import { useWithData } from "hooks/graphql/use-with-data";
 import { Category, Topic, QuestionType, UtteranceName } from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
+import { LoadingError } from "./loading-reducer";
 
 export interface NewQuestionArgs {
   question: string;
@@ -19,8 +20,14 @@ export interface NewQuestionArgs {
   mentorId: string;
 }
 
-interface UseWithSubject extends UseData<SubjectGQL> {
-  saveSubject: () => Promise<void>;
+interface UseWithSubject {
+  editedData: SubjectGQL | undefined;
+  isEdited: boolean;
+  isLoading: boolean;
+  isSaving: boolean;
+  error: LoadingError | undefined;
+  editData: (d: Partial<SubjectGQL>) => void;
+  saveSubject: () => void;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -40,15 +47,13 @@ export function useWithSubject(
 ): UseWithSubject {
   const { loadMentor } = useActiveMentorActions();
   const {
-    data,
     editedData,
     isEdited,
     isLoading,
     isSaving,
     error,
     editData,
-    saveData,
-    reloadData,
+    saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
 
   function fetch() {
@@ -68,16 +73,17 @@ export function useWithSubject(
     return fetchSubject(subjectId);
   }
 
-  async function update(): Promise<void> {
-    await saveData({
+  function saveSubject() {
+    saveAndReturnData({
       action: async (editedData: SubjectGQL) => {
-        await updateSubject(editedData, accessToken);
+        const updated = await updateSubject(editedData, accessToken);
         // we need to reload the mentor after updating a subject because
         // the subjects and questions and answers might have changed
         // would be better to edit in place but for now do the easy (but more expensive) way and
         // change this later if needed
         // this doesn't happen very often anyway
         loadMentor();
+        return updated;
       },
     });
   }
@@ -246,16 +252,13 @@ export function useWithSubject(
   }
 
   return {
-    data,
     editedData,
     isEdited,
     isLoading,
     isSaving,
     error,
     editData,
-    saveData,
-    reloadData,
-    saveSubject: update,
+    saveSubject,
     addCategory,
     updateCategory,
     removeCategory,
