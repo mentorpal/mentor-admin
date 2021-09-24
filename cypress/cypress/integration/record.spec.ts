@@ -620,7 +620,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -641,7 +645,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -688,7 +696,7 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
                   taskId: "fake_task_id_1",
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -704,7 +712,7 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
                   taskId: "fake_task_id_2",
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -726,7 +734,7 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
                   taskId: "fake_task_id_1",
-                  uploadStatus: "CANCEL_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -742,7 +750,7 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
                   taskId: "fake_task_id_2",
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -790,7 +798,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -805,7 +817,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -820,7 +836,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -841,7 +861,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "CANCELLED",
+
+                  uploadFlag: "CANCELLED",
+                  transcribingFlag: "CANCELLED",
+                  transcodingFlag: "CANCELLED",
+                  finalizationFlag: "CANCELLED",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -856,7 +880,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "CANCELLED",
+
+                  uploadFlag: "CANCELLED",
+                  transcribingFlag: "CANCELLED",
+                  transcodingFlag: "CANCELLED",
+                  finalizationFlag: "CANCELLED",
                   transcript: "",
                   media: [
                     {
@@ -871,7 +899,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "CANCELLED",
+
+                  uploadFlag: "CANCELLED",
+                  transcribingFlag: "CANCELLED",
+                  transcodingFlag: "CANCELLED",
+                  finalizationFlag: "CANCELLED",
                   transcript: "",
                   media: [
                     {
@@ -946,7 +978,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -961,8 +997,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
-                  transcript: "i am kayla",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   media: [
                     {
                       type: "video",
@@ -1002,7 +1041,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
+                  uploadFlag: "UPLOAD_FAILED",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1017,7 +1060,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1032,7 +1079,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1076,7 +1127,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1091,7 +1146,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1158,7 +1217,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1173,7 +1236,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1219,7 +1286,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1234,7 +1301,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1249,7 +1316,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1270,7 +1337,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1285,7 +1352,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1300,7 +1367,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1362,7 +1429,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1377,7 +1444,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1392,7 +1459,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1477,7 +1544,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1517,7 +1584,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1532,7 +1599,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1547,7 +1614,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1568,7 +1635,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1583,7 +1650,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1598,7 +1665,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1626,7 +1693,7 @@ describe("Record", () => {
     });
   });
 
-  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
+  it("TODO: TEST deletes upload if all tasks are done", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1643,37 +1710,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[2].question._id,
-                    question: videoMentor.answers[2].question.question,
-                  },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1694,7 +1735,71 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  uploadFlag: "FAILED",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+  });
+
+  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1709,7 +1814,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1724,7 +1829,58 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1769,7 +1925,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1790,7 +1946,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1811,7 +1967,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1832,7 +1988,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRANSCRIBE_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1887,7 +2043,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1908,7 +2068,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "CANCELLED",
+
+                  uploadFlag: "CANCELLED",
+                  transcribingFlag: "CANCELLED",
+                  transcodingFlag: "CANCELLED",
+                  finalizationFlag: "CANCELLED",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1947,7 +2111,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1962,7 +2130,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1977,7 +2149,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2037,7 +2213,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2052,7 +2232,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2067,7 +2251,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2088,7 +2276,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRIM_IN_PROGRESS",
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2103,7 +2294,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
+                  uploadFlag: "FAILED",
+                  transcribingFlag: "FAILED",
+                  transcodingFlag: "FAILED",
+                  finalizationFlag: "FAILED",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2118,7 +2313,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2147,9 +2346,7 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]")
         .get("span")
         .should("have.text", videoMentor.answers[1].question.question);
-      cy.get("[data-cy=card-answer-title]").contains(
-        "Failed to process file: UPLOAD_FAILED"
-      );
+      cy.get("[data-cy=card-answer-title]").contains("Failed to process file:");
     });
     cy.get("[data-cy=upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
@@ -2161,7 +2358,7 @@ describe("Record", () => {
         );
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Trimming video");
+        .should("have.text", "Processing");
     });
   });
 
@@ -2183,7 +2380,7 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
                   taskId: "fake_task_id",
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2205,7 +2402,7 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
                   taskId: "fake_task_id",
-                  uploadStatus: "CANCEL_IN_PROGRESS",
+
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2326,7 +2523,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -2349,168 +2550,6 @@ describe("Record", () => {
         .invoke("mouseover")
         .trigger("mousedown", { button: 0 });
       cy.get("[data-cy=outline]").should("be.visible");
-    });
-  });
-
-  it("progress bars shown for each upload task", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
-                  uploadProgress: 0,
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
-                  uploadProgress: 50,
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
-                  uploadProgress: 100,
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  uploadStatus: "TRANSCRIBE_IN_PROGRESS",
-                  uploadProgress: 100,
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  uploadStatus: "DONE",
-                  uploadProgress: 100,
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
-      //ListItems primary text is under <span> and its secondary text is under <p>
-      cy.get("[data-cy=card-answer-title]")
-        .get("span")
-        .should(
-          "contain",
-          videoMentor.answers[0].question.question.substr(0, 25)
-        );
-      cy.get("[data-cy=progress-bar]")
-        .invoke("attr", "aria-valuenow")
-        .should("eq", "0");
-    });
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
-      //ListItems primary text is under <span> and its secondary text is under <p>
-      cy.get("[data-cy=card-answer-title]")
-        .get("span")
-        .should(
-          "contain",
-          videoMentor.answers[0].question.question.substr(0, 25)
-        );
-      cy.get("[data-cy=progress-bar]")
-        .invoke("attr", "aria-valuenow")
-        .should("eq", "50");
-    });
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
-      //ListItems primary text is under <span> and its secondary text is under <p>
-      cy.get("[data-cy=card-answer-title]")
-        .get("span")
-        .should(
-          "contain",
-          videoMentor.answers[0].question.question.substr(0, 25)
-        );
-      cy.get("[data-cy=progress-bar]")
-        .invoke("attr", "aria-valuenow")
-        .should("eq", "100");
     });
   });
 
@@ -2661,7 +2700,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -2732,7 +2774,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -2747,7 +2793,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -2768,8 +2818,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "TRANSCRIBE_FAILED",
-                  transcript: "i am kayla",
+                  transcribingFlag: "FAILED",
                   media: [
                     {
                       type: "video",
@@ -2783,7 +2832,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  uploadStatus: "UPLOAD_FAILED",
+
+                  uploadFlag: "FAILED",
                   transcript: "",
                   media: [
                     {
@@ -2804,13 +2854,13 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-0]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Failed to process file: TRANSCRIBE_FAILED");
+        .should("have.text", "Failed to process file: transcribing failed");
     });
     cy.get("[data-cy=upload-card-1]").should("exist");
     cy.get("[data-cy=upload-card-1]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Failed to process file: UPLOAD_FAILED");
+        .should("have.text", "Failed to process file: upload failed");
     });
   });
 
@@ -2831,7 +2881,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
+                  uploadFlag: "IN_PROGRESS",
+                  transcribingFlag: "IN_PROGRESS",
+                  transcodingFlag: "IN_PROGRESS",
+                  finalizationFlag: "IN_PROGRESS",
                   transcript: "",
                   media: [
                     {
@@ -2852,7 +2906,11 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadStatus: "DONE",
+
+                  uploadFlag: "DONE",
+                  transcribingFlag: "DONE",
+                  transcodingFlag: "DONE",
+                  finalizationFlag: "DONE",
                   transcript: "",
                   media: [
                     {
@@ -2892,7 +2950,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[3].question._id,
                     question: videoMentor.answers[3].question.question,
                   },
-                  uploadStatus: "UPLOAD_IN_PROGRESS",
+
                   transcript: "",
                   media: [
                     {
@@ -2913,7 +2971,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[3].question._id,
                     question: videoMentor.answers[3].question.question,
                   },
-                  uploadStatus: "DONE",
+
                   transcript: "",
                   media: [
                     {

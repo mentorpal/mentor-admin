@@ -7,11 +7,15 @@ The full terms of this copyright and license should always be found in the root 
 
 import React from "react";
 import ListItem from "./uploading-list-item";
-import { Answer, UploadStatus } from "types";
+import { Answer } from "types";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
 import { useWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
+import {
+  areAllTasksDone,
+  isATaskCancelled,
+} from "hooks/graphql/upload-status-helpers";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -22,11 +26,9 @@ function UploadingView(props: {
   const { recordState, curAnswer, visible, setUploadWidgetVisible } = props;
   const { answers, setAnswerIdx, uploads } = recordState;
 
-  const uploadsToShow = uploads.filter(
-    (upload) => upload.uploadStatus !== UploadStatus.CANCELLED
-  );
+  const uploadsToShow = uploads.filter((upload) => !isATaskCancelled(upload));
   const uploadsInProgress = uploadsToShow.filter(
-    (upload) => upload.uploadStatus !== UploadStatus.DONE
+    (upload) => !areAllTasksDone(upload)
   );
   const height = 250;
   const width = 350;

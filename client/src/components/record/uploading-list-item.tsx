@@ -22,7 +22,10 @@ import {
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
-import { UploadStatus } from "types";
+import {
+  areAllTasksDone,
+  isATaskPending,
+} from "hooks/graphql/upload-status-helpers";
 
 function UploadingListItem(props: {
   useWithUploadListItem: UseWithUploadListItem;
@@ -30,7 +33,6 @@ function UploadingListItem(props: {
 }): JSX.Element {
   const {
     upload,
-    jobStatus,
     pollStatusCount,
     cancelling,
     jobTitle,
@@ -54,8 +56,8 @@ function UploadingListItem(props: {
     "Cancelling"
   ) : isJobFailed() ? (
     upload.errorMessage || ""
-  ) : jobStatus === UploadStatus.PENDING ||
-    jobStatus === UploadStatus.UPLOAD_IN_PROGRESS ? (
+  ) : // used to also check if an upload was in progress, solely to help with the mocking
+  isATaskPending(upload) ? (
     <LinearProgress
       data-cy="progress-bar"
       variant={"determinate"}
@@ -63,9 +65,7 @@ function UploadingListItem(props: {
     />
   ) : isJobQueued() ? (
     "Queued"
-  ) : jobStatus === UploadStatus.TRIM_IN_PROGRESS ? (
-    "Trimming video"
-  ) : jobStatus !== UploadStatus.DONE ? (
+  ) : !areAllTasksDone(upload) ? (
     `Processing${".".repeat(pollStatusCount % 4)}`
   ) : needsAttention ? (
     "Needs Attention"

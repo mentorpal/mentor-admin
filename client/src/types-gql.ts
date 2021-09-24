@@ -18,12 +18,12 @@ import {
   Media,
   Feedback,
   ClassifierAnswerType,
-  UploadStatus,
   EditType,
   Connection,
   Mentor,
   UploadTask,
   UserQuestion,
+  UploadTaskFlagStatuses,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -98,7 +98,10 @@ export interface UserQuestionGQL {
 export interface UploadTaskGQL {
   taskId: string;
   question: Question;
-  uploadStatus: UploadStatus;
+  uploadFlag: UploadTaskFlagStatuses;
+  transcribingFlag: UploadTaskFlagStatuses;
+  transcodingFlag: UploadTaskFlagStatuses;
+  finalizationFlag: UploadTaskFlagStatuses;
   uploadProgress: number;
   errorMessage?: string;
   isCancelling?: boolean;

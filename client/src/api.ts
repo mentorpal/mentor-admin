@@ -29,7 +29,6 @@ import {
   Config,
   MentorExportJson,
   MentorImportPreview,
-  UploadStatus,
   UploadTask,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
@@ -919,7 +918,6 @@ export async function uploadVideo(
     onUploadProgress: (progressEvent: { loaded: string }) =>
       addOrEditTask({
         question,
-        uploadStatus: UploadStatus.PENDING,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
         taskId: "",
@@ -1012,7 +1010,10 @@ export async function fetchUploadTasks(
                 question
               }
               taskId
-              uploadStatus
+              uploadFlag
+              transcribingFlag
+              transcodingFlag
+              finalizationFlag
               transcript
               media {
                 type
