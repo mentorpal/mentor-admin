@@ -188,7 +188,7 @@ export interface MentorImportPreview {
 }
 
 export interface UploadTask {
-  taskId: string;
+  taskId: string[];
   question: string;
   uploadProgress: number;
   uploadFlag?: UploadTaskFlagStatuses;

@@ -96,7 +96,7 @@ export interface UserQuestionGQL {
 }
 
 export interface UploadTaskGQL {
-  taskId: string;
+  taskId: string[];
   question: Question;
   uploadFlag: UploadTaskFlagStatuses;
   transcribingFlag: UploadTaskFlagStatuses;

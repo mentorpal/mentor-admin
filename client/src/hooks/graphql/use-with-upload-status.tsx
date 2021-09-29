@@ -161,7 +161,7 @@ export function useWithUploadStatus(
       finalizationFlag: UploadTaskFlagStatuses.PENDING,
       uploadProgress: 0,
       tokenSource: tokenSource,
-      taskId: "",
+      taskId: [],
     });
     uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
       .then((task) => {
@@ -172,7 +172,7 @@ export function useWithUploadStatus(
           transcodingFlag: UploadTaskFlagStatuses.QUEUED,
           finalizationFlag: UploadTaskFlagStatuses.QUEUED,
           uploadProgress: 100,
-          taskId: task.id,
+          taskId: [task.id],
         });
       })
       .catch((err) => {
@@ -181,7 +181,7 @@ export function useWithUploadStatus(
           uploadFlag: UploadTaskFlagStatuses.FAILED,
           errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
           uploadProgress: 0,
-          taskId: "",
+          taskId: [],
         });
       });
   }

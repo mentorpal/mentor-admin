@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { UploadTask, UploadTaskFlagStatuses } from "types";
 
 export function isTaskDoneOrFailed(task: UploadTask): boolean {
-  return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task);
+  return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task) || isATaskNone(task) //TODO: Delete isATaskNone, this is just for testing
 }
 
 export function isATaskFailed(task: UploadTask): boolean {
@@ -30,6 +30,15 @@ export function isATaskCancelled(task: UploadTask): boolean {
   return compareFlagStatusesToValue(
     task,
     UploadTaskFlagStatuses.CANCELLED,
+    false
+  );
+}
+
+//TODO: Delete this
+export function isATaskNone(task: UploadTask): boolean {
+  return compareFlagStatusesToValue(
+    task,
+    UploadTaskFlagStatuses.NONE,
     false
   );
 }

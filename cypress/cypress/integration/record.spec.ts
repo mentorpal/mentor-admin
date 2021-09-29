@@ -678,6 +678,43 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
   });
 
+  it.only("testing that taskId is correctly an array", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  taskId: ["fake_task_id_1", "fake_task_id_2"],
+
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+  });
+
   it('cancelling an upload changes the local uploading status to "cancelling"', () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],

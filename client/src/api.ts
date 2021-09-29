@@ -920,7 +920,7 @@ export async function uploadVideo(
         question,
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
-        taskId: "",
+        taskId: [],
       }),
     headers: {
       "Content-Type": "multipart/form-data",
@@ -933,7 +933,7 @@ export async function uploadVideo(
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,
-  taskId: string
+  taskId: string[]
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
     mentor: mentorId,
