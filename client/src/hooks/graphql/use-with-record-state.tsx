@@ -92,7 +92,7 @@ export function useWithRecordState(
     upload,
     cancelUpload,
     removeCompletedTask,
-    isTaskDoneOrFailed,
+    isATaskDoneOrFailed,
   } = useWithUploadStatus(
     accessToken,
     onAnswerUploaded,
@@ -220,7 +220,7 @@ export function useWithRecordState(
 
   function isAnswerUploading(answer: Answer) {
     const upload = uploads.find((u) => u.question === answer.question);
-    return Boolean(upload && !isTaskDoneOrFailed(upload));
+    return Boolean(upload && !isATaskDoneOrFailed(upload));
   }
 
   function clearError() {
@@ -355,7 +355,7 @@ export function useWithRecordState(
   }
 
   function cancelUploadVideo(task: UploadTask) {
-    if (!mentorId || isTaskDoneOrFailed(task)) {
+    if (!mentorId) {
       return;
     }
     cancelUpload(mentorId, task);

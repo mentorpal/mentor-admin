@@ -5,10 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { getValueIfKeyExists } from "helpers";
-import { UploadTask, UploadTaskFlagStatuses } from "types";
+import { UploadTask, UploadTaskStatuses } from "types";
 import {
   areAllTasksDone,
-  compareFlagStatusesToValue,
+  compareTaskStatusesToValue,
   isATaskFailed,
 } from "./upload-status-helpers";
 import { UseWithRecordState } from "./use-with-record-state";
@@ -23,11 +23,7 @@ export function useWithUploadListItem(
   );
 
   function isJobQueued(): boolean {
-    return compareFlagStatusesToValue(
-      upload,
-      UploadTaskFlagStatuses.QUEUED,
-      true
-    );
+    return compareTaskStatusesToValue(upload, UploadTaskStatuses.QUEUED, true);
   }
 
   function isJobDone(): boolean {

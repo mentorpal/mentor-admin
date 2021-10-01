@@ -23,7 +23,8 @@ import {
   Mentor,
   UploadTask,
   UserQuestion,
-  UploadTaskFlagStatuses,
+  UploadTaskStatuses,
+  TaskInfo,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -96,12 +97,8 @@ export interface UserQuestionGQL {
 }
 
 export interface UploadTaskGQL {
-  taskId: string[];
   question: Question;
-  uploadFlag: UploadTaskFlagStatuses;
-  transcribingFlag: UploadTaskFlagStatuses;
-  transcodingFlag: UploadTaskFlagStatuses;
-  finalizationFlag: UploadTaskFlagStatuses;
+  taskList: TaskInfo[];
   uploadProgress: number;
   errorMessage?: string;
   isCancelling?: boolean;

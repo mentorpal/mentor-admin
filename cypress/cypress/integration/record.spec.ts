@@ -621,10 +621,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -646,10 +646,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -678,7 +678,7 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
   });
 
-  it.only("testing that taskId is correctly an array", () => {
+  it.only("testing that task list is getting set correctly", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -695,8 +695,23 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskId: ["fake_task_id_1", "fake_task_id_2"],
-
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "QUEUED",
+                    },
+                  ],
                   transcript: "i am kayla",
                   media: [
                     {
@@ -732,8 +747,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskId: "fake_task_id_1",
-
                   transcript: "i am kayla",
                   media: [
                     {
@@ -748,7 +761,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskId: "fake_task_id_2",
 
                   transcript: "i am kayla",
                   media: [
@@ -770,7 +782,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskId: "fake_task_id_1",
 
                   transcript: "i am kayla",
                   media: [
@@ -786,7 +797,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskId: "fake_task_id_2",
 
                   transcript: "i am kayla",
                   media: [
@@ -836,10 +846,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -855,10 +865,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -874,10 +884,10 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -1016,10 +1026,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1035,10 +1045,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   media: [
                     {
                       type: "video",
@@ -1079,10 +1089,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "UPLOAD_FAILED",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "FAILED" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1098,10 +1108,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1117,10 +1127,10 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1165,10 +1175,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1184,10 +1194,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1255,10 +1265,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1274,10 +1284,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1748,10 +1758,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1773,10 +1783,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -1797,10 +1807,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadFlag: "FAILED",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "FAILED" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2081,10 +2091,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2149,10 +2159,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2168,10 +2178,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2187,10 +2197,10 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2251,10 +2261,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2270,10 +2280,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2289,10 +2299,10 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2313,10 +2323,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2331,11 +2341,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-
-                  uploadFlag: "FAILED",
-                  transcribingFlag: "FAILED",
-                  transcodingFlag: "FAILED",
-                  finalizationFlag: "FAILED",
+                  uploadFlag: { task_id: "task_id", flag: "FAILED" },
+                  transcribingFlag: { task_id: "task_id", flag: "FAILED" },
+                  transcodingFlag: { task_id: "task_id", flag: "FAILED" },
+                  finalizationFlag: { task_id: "task_id", flag: "FAILED" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2351,10 +2360,10 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "i am kayla",
                   media: [
                     {
@@ -2416,7 +2425,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskId: "fake_task_id",
 
                   transcript: "i am kayla",
                   media: [
@@ -2438,7 +2446,6 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskId: "fake_task_id",
 
                   transcript: "i am kayla",
                   media: [
@@ -2561,10 +2568,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -2737,10 +2744,10 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -2812,10 +2819,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -2831,10 +2838,10 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -2855,7 +2862,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  transcribingFlag: "FAILED",
+                  transcribingFlag: { task_id: "task_id", flag: "FAILED" },
                   media: [
                     {
                       type: "video",
@@ -2870,7 +2877,7 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  uploadFlag: "FAILED",
+                  uploadFlag: { task_id: "task_id", flag: "FAILED" },
                   transcript: "",
                   media: [
                     {
@@ -2919,10 +2926,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "IN_PROGRESS",
-                  transcribingFlag: "IN_PROGRESS",
-                  transcodingFlag: "IN_PROGRESS",
-                  finalizationFlag: "IN_PROGRESS",
+                  uploadFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcribingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  transcodingFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
+                  finalizationFlag: { task_id: "task_id", flag: "IN_PROGRESS" },
                   transcript: "",
                   media: [
                     {
@@ -2944,10 +2951,10 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  uploadFlag: "DONE",
-                  transcribingFlag: "DONE",
-                  transcodingFlag: "DONE",
-                  finalizationFlag: "DONE",
+                  uploadFlag: { task_id: "task_id", flag: "DONE" },
+                  transcribingFlag: { task_id: "task_id", flag: "DONE" },
+                  transcodingFlag: { task_id: "task_id", flag: "DONE" },
+                  finalizationFlag: { task_id: "task_id", flag: "DONE" },
                   transcript: "",
                   media: [
                     {

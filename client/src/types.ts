@@ -187,22 +187,7 @@ export interface MentorImportPreview {
   answers: ImportPreview<AnswerGQL>[];
 }
 
-export interface UploadTask {
-  taskId: string[];
-  question: string;
-  uploadProgress: number;
-  uploadFlag?: UploadTaskFlagStatuses;
-  transcribingFlag?: UploadTaskFlagStatuses;
-  transcodingFlag?: UploadTaskFlagStatuses;
-  finalizationFlag?: UploadTaskFlagStatuses;
-  errorMessage?: string;
-  isCancelling?: boolean;
-  tokenSource?: CancelTokenSource;
-  transcript?: string;
-  media?: Media[];
-}
-
-export enum UploadTaskFlagStatuses {
+export enum UploadTaskStatuses {
   NONE = "NONE",
   PENDING = "PENDING",
   QUEUED = "QUEUED",
@@ -211,6 +196,23 @@ export enum UploadTaskFlagStatuses {
   CANCELLED = "CANCELLED",
   FAILED = "FAILED",
   DONE = "DONE",
+}
+
+export interface TaskInfo {
+  task_name: string;
+  task_id: string;
+  status: UploadTaskStatuses;
+}
+
+export interface UploadTask {
+  question: string;
+  uploadProgress: number;
+  taskList: TaskInfo[];
+  errorMessage?: string;
+  isCancelling?: boolean;
+  tokenSource?: CancelTokenSource;
+  transcript?: string;
+  media?: Media[];
 }
 
 export enum EditType {

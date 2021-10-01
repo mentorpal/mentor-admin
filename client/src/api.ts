@@ -918,9 +918,9 @@ export async function uploadVideo(
     onUploadProgress: (progressEvent: { loaded: string }) =>
       addOrEditTask({
         question,
+        taskList: [],
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
-        taskId: [],
       }),
     headers: {
       "Content-Type": "multipart/form-data",
@@ -933,12 +933,12 @@ export async function uploadVideo(
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,
-  taskId: string[]
+  taskIds: string[]
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
     mentor: mentorId,
     question: question,
-    task: taskId,
+    task_ids_to_cancel: taskIds,
   });
   return getDataFromAxiosResponse(result, []);
 }
@@ -1009,11 +1009,11 @@ export async function fetchUploadTasks(
                 _id
                 question
               }
-              taskId
-              uploadFlag
-              transcribingFlag
-              transcodingFlag
-              finalizationFlag
+              taskList{
+                task_name
+                task_id
+                status
+              }
               transcript
               media {
                 type

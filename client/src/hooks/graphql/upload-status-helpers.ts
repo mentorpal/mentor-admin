@@ -4,83 +4,54 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { UploadTask, UploadTaskFlagStatuses } from "types";
+import { UploadTask, UploadTaskStatuses } from "types";
 
-export function isTaskDoneOrFailed(task: UploadTask): boolean {
-  return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task) || isATaskNone(task) //TODO: Delete isATaskNone, this is just for testing
+export function isATaskDoneOrFailed(task: UploadTask): boolean {
+  return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task);
 }
 
 export function isATaskFailed(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(task, UploadTaskFlagStatuses.FAILED, false);
+  return compareTaskStatusesToValue(task, UploadTaskStatuses.FAILED, false);
 }
 
-export function whichTaskFailed(task: UploadTask): string {
-  return task.transcribingFlag === UploadTaskFlagStatuses.FAILED
-    ? "transcribing"
-    : task.finalizationFlag == UploadTaskFlagStatuses.FAILED
-    ? "finalization"
-    : task.transcodingFlag === UploadTaskFlagStatuses.FAILED
-    ? "transcoding"
-    : task.uploadFlag === UploadTaskFlagStatuses.FAILED
-    ? "upload"
-    : "None";
+export function whichTaskFailed(upload: UploadTask): string {
+  return (
+    upload.taskList.find((task) => task.status === UploadTaskStatuses.FAILED)
+      ?.task_name || ""
+  );
 }
 
 export function isATaskCancelled(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(
-    task,
-    UploadTaskFlagStatuses.CANCELLED,
-    false
-  );
-}
-
-//TODO: Delete this
-export function isATaskNone(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(
-    task,
-    UploadTaskFlagStatuses.NONE,
-    false
-  );
+  return compareTaskStatusesToValue(task, UploadTaskStatuses.CANCELLED, false);
 }
 
 export function isATaskCancelling(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(
-    task,
-    UploadTaskFlagStatuses.CANCELLING,
-    false
-  );
+  return compareTaskStatusesToValue(task, UploadTaskStatuses.CANCELLING, false);
 }
 
 export function isATaskPending(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(
-    task,
-    UploadTaskFlagStatuses.PENDING,
-    false
-  );
+  return compareTaskStatusesToValue(task, UploadTaskStatuses.PENDING, false);
 }
 
 export function areAllTasksDone(task: UploadTask): boolean {
-  return compareFlagStatusesToValue(task, UploadTaskFlagStatuses.DONE, true);
+  if (!task.taskList.length) return false;
+  return compareTaskStatusesToValue(task, UploadTaskStatuses.DONE, true);
 }
 
-export function compareFlagStatusesToValue(
+export function fetchIncompleteTaskIds(task: UploadTask): string[]{
+  console.log(task.taskList.filter((task) => task.status !== UploadTaskStatuses.FAILED && task.status !== UploadTaskStatuses.DONE).map((task)=>task.task_id))
+  if (!task.taskList.length) return [];
+  return task.taskList.filter((task) => task.status !== UploadTaskStatuses.FAILED && task.status !== UploadTaskStatuses.DONE).map((task)=>task.task_id)
+}
+
+export function compareTaskStatusesToValue(
   task: UploadTask,
-  value: UploadTaskFlagStatuses,
+  value: UploadTaskStatuses,
   allEqual: boolean
 ): boolean {
   if (allEqual) {
-    return (
-      task.uploadFlag === value &&
-      task.finalizationFlag === value &&
-      task.transcodingFlag === value &&
-      task.transcribingFlag === value
-    );
+    return task.taskList.every((task) => task.status === value);
   } else {
-    return (
-      task.uploadFlag === value ||
-      task.finalizationFlag === value ||
-      task.transcodingFlag === value ||
-      task.transcribingFlag === value
-    );
+    return task.taskList.some((task) => task.status === value);
   }
 }
