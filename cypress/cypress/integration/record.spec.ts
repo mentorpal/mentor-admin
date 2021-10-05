@@ -3451,7 +3451,7 @@ describe("Record", () => {
     });
   });
 
-  it("pressing cancel button changes UI to indicate cancel in progress", () => {
+  it("pressing cancel button removes item from upload list", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -3502,48 +3502,6 @@ describe("Record", () => {
               ],
             },
           },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
         ]),
       ],
     });
@@ -3551,11 +3509,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-card-0]").should("exist");
     cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
-      cy.get("[data-cy=card-answer-title]")
-        .get("p")
-        .should("have.text", "Cancelling");
-    });
+    cy.get("[data-cy=upload-card-0]").should("not.exist");
   });
 
   it("hides video if mentor type is CHAT", () => {
