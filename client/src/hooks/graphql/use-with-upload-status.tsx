@@ -56,7 +56,7 @@ export function useWithUploadStatus(
 
   useEffect(() => {
     uploads.forEach((u) => {
-      if (areAllTasksDoneOrOneFailed(u)) {
+      if (areAllTasksDone(u) || isATaskFailed(u) || isATaskCancelled(u)) {
         deleteUploadTask(u.question, accessToken).catch((error) => {
           console.error(error);
         });
@@ -206,6 +206,13 @@ export function useWithUploadStatus(
       task.tokenSource?.cancel(UploadTaskStatuses.CANCELLED);
       addOrEditTask({
         ...task,
+        taskList: [
+          {
+            task_name: "trim_upload",
+            task_id: "",
+            status: UploadTaskStatuses.CANCELLED,
+          },
+        ],
         isCancelling: true,
       });
       return;
@@ -218,6 +225,13 @@ export function useWithUploadStatus(
       .then(() => {
         addOrEditTask({
           ...task,
+          taskList: [
+            {
+              task_name: "trim_upload",
+              task_id: "",
+              status: UploadTaskStatuses.CANCELLED,
+            },
+          ],
           isCancelling: true,
         });
       })
