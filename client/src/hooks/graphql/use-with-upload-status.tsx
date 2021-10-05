@@ -21,7 +21,7 @@ import {
   isATaskCancelled,
   isATaskCancelling,
   isATaskFailed,
-  isATaskDoneOrFailed,
+  areAllTasksDoneOrOneFailed,
   whichTaskFailed,
   fetchIncompleteTaskIds,
 } from "./upload-status-helpers";
@@ -56,13 +56,13 @@ export function useWithUploadStatus(
 
   useEffect(() => {
     uploads.forEach((u) => {
-      if (isATaskDoneOrFailed(u)) {
+      if (areAllTasksDoneOrOneFailed(u)) {
         deleteUploadTask(u.question, accessToken).catch((error) => {
           console.error(error);
         });
       }
     });
-    setIsUploading(uploads.some((u) => !isATaskDoneOrFailed(u)));
+    setIsUploading(uploads.some((u) => !areAllTasksDoneOrOneFailed(u)));
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
@@ -73,15 +73,10 @@ export function useWithUploadStatus(
           if (isCancelled()) {
             return;
           }
-          console.log(data);
           setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
             const findUpload = uploads.find((up) => up.question === u.question);
-            if (
-              !findUpload ||
-              fetchedTaskHasUpdates(findUpload, u)
-              //used to also check if the found upload was in progress to it would trigger polling for mocking
-            ) {
+            if (!findUpload || fetchedTaskHasUpdates(findUpload, u)) {
               addOrEditTask({
                 ...u,
                 isCancelling:
@@ -130,7 +125,7 @@ export function useWithUploadStatus(
 
   function areTasksProcessing(task: UploadTask) {
     return (
-      !isATaskDoneOrFailed(task) &&
+      !areAllTasksDoneOrOneFailed(task) &&
       !compareTaskStatusesToValue(task, UploadTaskStatuses.PENDING, true)
     );
   }
@@ -162,7 +157,7 @@ export function useWithUploadStatus(
       tokenSource: tokenSource,
     });
     uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
-      .then((task) => {
+      .then(() => {
         addOrEditTask({
           question,
           taskList: [
@@ -206,9 +201,6 @@ export function useWithUploadStatus(
       });
   }
 
-
-
-  //TODO: implement this
   function cancelUpload(mentorId: string, task: UploadTask) {
     if (!task.taskList.length) {
       task.tokenSource?.cancel(UploadTaskStatuses.CANCELLED);
@@ -220,7 +212,6 @@ export function useWithUploadStatus(
     }
     addOrEditTask({
       ...task,
-      // uploadFlag: {task_id: "",flag: UploadTaskStatuses.QUEUED}, // this was to trigger polling in case it is still in http upload
       isCancelling: true,
     });
     cancelUploadVideo(mentorId, task.question, fetchIncompleteTaskIds(task))
@@ -248,7 +239,6 @@ export function useWithUploadStatus(
     upload,
     cancelUpload,
     removeCompletedTask,
-    isATaskDoneOrFailed,
   };
 }
 
@@ -264,5 +254,4 @@ export interface UseWithUploadStatus {
   ) => void;
   cancelUpload: (mentorId: string, task: UploadTask) => void;
   removeCompletedTask: (tasks: UploadTask) => void;
-  isATaskDoneOrFailed: (upload: UploadTask) => boolean;
 }

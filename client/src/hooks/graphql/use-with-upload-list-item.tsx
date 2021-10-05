@@ -33,7 +33,6 @@ export function useWithUploadListItem(
   function isJobFailed(): boolean {
     return isATaskFailed(upload);
   }
-  console.log(isJobFailed(), upload);
 
   const needsAttention = Boolean(answer?.attentionNeeded);
   function onClose() {

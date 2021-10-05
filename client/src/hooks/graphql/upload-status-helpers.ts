@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { UploadTask, UploadTaskStatuses } from "types";
 
-export function isATaskDoneOrFailed(task: UploadTask): boolean {
+export function areAllTasksDoneOrOneFailed(task: UploadTask): boolean {
   return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task);
 }
 
@@ -38,10 +38,15 @@ export function areAllTasksDone(task: UploadTask): boolean {
   return compareTaskStatusesToValue(task, UploadTaskStatuses.DONE, true);
 }
 
-export function fetchIncompleteTaskIds(task: UploadTask): string[]{
-  console.log(task.taskList.filter((task) => task.status !== UploadTaskStatuses.FAILED && task.status !== UploadTaskStatuses.DONE).map((task)=>task.task_id))
+export function fetchIncompleteTaskIds(task: UploadTask): string[] {
   if (!task.taskList.length) return [];
-  return task.taskList.filter((task) => task.status !== UploadTaskStatuses.FAILED && task.status !== UploadTaskStatuses.DONE).map((task)=>task.task_id)
+  return task.taskList
+    .filter(
+      (task) =>
+        task.status !== UploadTaskStatuses.FAILED &&
+        task.status !== UploadTaskStatuses.DONE
+    )
+    .map((task) => task.task_id);
 }
 
 export function compareTaskStatusesToValue(

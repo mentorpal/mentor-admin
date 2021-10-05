@@ -56,8 +56,7 @@ function UploadingListItem(props: {
     "Cancelling"
   ) : isJobFailed() ? (
     upload.errorMessage || ""
-  ) : // used to also check if an upload was in progress, solely to help with the mocking
-  isATaskPending(upload) ? (
+  ) : isATaskPending(upload) ? (
     <LinearProgress
       data-cy="progress-bar"
       variant={"determinate"}

@@ -23,7 +23,6 @@ import {
   Mentor,
   UploadTask,
   UserQuestion,
-  UploadTaskStatuses,
   TaskInfo,
 } from "types";
 
