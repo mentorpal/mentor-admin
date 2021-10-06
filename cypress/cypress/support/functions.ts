@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, TrainingInfo, VideoInfo, _Ref } from "./types";
+import { Mentor, TaskInfo, TrainingInfo, VideoInfo, _Ref } from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
@@ -307,7 +307,7 @@ export function cyMockTrainStatus(
 export function cyMockUpload(
   cy,
   params: {
-    id?: string;
+    taskList?: TaskInfo[];
     statusUrl?: string;
     statusCode?: number;
   } = {}
@@ -320,7 +320,7 @@ export function cyMockUpload(
         statusCode: params.statusCode || 200,
         body: {
           data: {
-            id: params.id || "fake_task_id",
+            taskList: params.taskList || [{}],
             statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
           },
           errors: null,

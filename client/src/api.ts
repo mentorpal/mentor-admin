@@ -30,6 +30,7 @@ import {
   MentorExportJson,
   MentorImportPreview,
   UploadTask,
+  UploadProcessAsyncJob,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -907,7 +908,7 @@ export async function uploadVideo(
   tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
-): Promise<AsyncJob> {
+): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
   data.append(
     "body",

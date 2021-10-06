@@ -157,31 +157,10 @@ export function useWithUploadStatus(
       tokenSource: tokenSource,
     });
     uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
-      .then(() => {
+      .then((task) => {
         addOrEditTask({
           question,
-          taskList: [
-            {
-              task_name: "trim_upload",
-              task_id: "",
-              status: UploadTaskStatuses.QUEUED,
-            },
-            {
-              task_name: "transcode",
-              task_id: "",
-              status: UploadTaskStatuses.QUEUED,
-            },
-            {
-              task_name: "transcribe",
-              task_id: "",
-              status: UploadTaskStatuses.QUEUED,
-            },
-            {
-              task_name: "finalization",
-              task_id: "",
-              status: UploadTaskStatuses.QUEUED,
-            },
-          ],
+          taskList: task.taskList,
           uploadProgress: 100,
         });
       })

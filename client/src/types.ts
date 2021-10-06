@@ -140,6 +140,11 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
+export interface UploadProcessAsyncJob {
+  taskList: TaskInfo[];
+  statusUrl: string;
+}
+
 export interface CancelJob {
   id: string;
   cancelledId: string;
