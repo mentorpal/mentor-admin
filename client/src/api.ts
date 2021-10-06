@@ -29,8 +29,8 @@ import {
   Config,
   MentorExportJson,
   MentorImportPreview,
-  UploadStatus,
   UploadTask,
+  UploadProcessAsyncJob,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -908,7 +908,7 @@ export async function uploadVideo(
   tokenSource: CancelTokenSource,
   addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
-): Promise<AsyncJob> {
+): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
   data.append(
     "body",
@@ -919,10 +919,9 @@ export async function uploadVideo(
     onUploadProgress: (progressEvent: { loaded: string }) =>
       addOrEditTask({
         question,
-        uploadStatus: UploadStatus.PENDING,
+        taskList: [],
         uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
         tokenSource: tokenSource,
-        taskId: "",
       }),
     headers: {
       "Content-Type": "multipart/form-data",
@@ -935,12 +934,12 @@ export async function uploadVideo(
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,
-  taskId: string
+  taskIds: string[]
 ): Promise<CancelJob> {
   const result = await uploadRequest.post("/answer/cancel", {
     mentor: mentorId,
     question: question,
-    task: taskId,
+    task_ids_to_cancel: taskIds,
   });
   return getDataFromAxiosResponse(result, []);
 }
@@ -1011,8 +1010,11 @@ export async function fetchUploadTasks(
                 _id
                 question
               }
-              taskId
-              uploadStatus
+              taskList{
+                task_name
+                task_id
+                status
+              }
               transcript
               media {
                 type

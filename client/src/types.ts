@@ -140,6 +140,11 @@ export interface AsyncJob {
   statusUrl: string;
 }
 
+export interface UploadProcessAsyncJob {
+  taskList: TaskInfo[];
+  statusUrl: string;
+}
+
 export interface CancelJob {
   id: string;
   cancelledId: string;
@@ -187,33 +192,32 @@ export interface MentorImportPreview {
   answers: ImportPreview<AnswerGQL>[];
 }
 
+export enum UploadTaskStatuses {
+  NONE = "NONE",
+  PENDING = "PENDING",
+  QUEUED = "QUEUED",
+  IN_PROGESS = "IN_PROGRESS",
+  CANCELLING = "CANCELLING",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
+  DONE = "DONE",
+}
+
+export interface TaskInfo {
+  task_name: string;
+  task_id: string;
+  status: UploadTaskStatuses;
+}
+
 export interface UploadTask {
-  taskId: string;
   question: string;
-  uploadStatus: UploadStatus;
   uploadProgress: number;
+  taskList: TaskInfo[];
   errorMessage?: string;
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
   media?: Media[];
-}
-
-export enum UploadStatus {
-  PENDING = "PENDING", // local state only; sending upload request to upload api
-  POLLING = "POLLING", // local state only; upload request has been received by api, start polling
-  TRIM_IN_PROGRESS = "TRIM_IN_PROGRESS",
-  TRANSCRIBE_IN_PROGRESS = "TRANSCRIBE_IN_PROGRESS", // api has started transcribing
-  TRANSCRIBE_FAILED = "TRANSCRIBE_FAILED", // api transcribe failed (should it still try to upload anyway...?)
-  UPLOAD_IN_PROGRESS = "UPLOAD_IN_PROGRESS", // api has started uploading video
-  UPLOAD_FAILED = "UPLOAD_FAILED", // api upload failed
-  QUEUING = "QUEUING", // upload has reached mentor-upload, but is not yet being processed by celery
-  TRANSFER_IN_PROGRESS = "TRANSFER_IN_PROGRESS",
-  TRANSFER_FAILED = "TRANSFER_FAILED",
-  CANCEL_IN_PROGRESS = "CANCEL_IN_PROGRESS", //
-  CANCEL_FAILED = "CANCEL_FAILED",
-  CANCELLED = "CANCELLED", // api has successfully cancelled the upload
-  DONE = "DONE", // api is done with upload process
 }
 
 export enum EditType {

@@ -189,6 +189,23 @@ export enum JobState {
   STARTED = "STARTED",
 }
 
+export enum UploadTaskStatuses {
+  NONE = "NONE",
+  PENDING = "PENDING",
+  QUEUED = "QUEUED",
+  IN_PROGESS = "IN_PROGRESS",
+  CANCELLING = "CANCELLING",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
+  DONE = "DONE",
+}
+
+export interface TaskInfo {
+  task_name: string;
+  task_id: string;
+  status: UploadTaskStatuses;
+}
+
 export interface TaskStatus<T> {
   state: JobState;
   status?: string;

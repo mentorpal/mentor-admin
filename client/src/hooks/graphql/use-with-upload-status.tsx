@@ -12,9 +12,19 @@ import {
   fetchUploadTasks,
   uploadVideo,
 } from "api";
-import { UploadStatus, UploadTask } from "types";
+import { UploadTask, UploadTaskStatuses } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
+import {
+  areAllTasksDone,
+  compareTaskStatusesToValue,
+  isATaskCancelled,
+  isATaskCancelling,
+  isATaskFailed,
+  areAllTasksDoneOrOneFailed,
+  whichTaskFailed,
+  fetchIncompleteTaskIds,
+} from "./upload-status-helpers";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -46,13 +56,13 @@ export function useWithUploadStatus(
 
   useEffect(() => {
     uploads.forEach((u) => {
-      if (isTaskDoneOrFailed(u)) {
+      if (areAllTasksDone(u) || isATaskFailed(u) || isATaskCancelled(u)) {
         deleteUploadTask(u.question, accessToken).catch((error) => {
           console.error(error);
         });
       }
     });
-    setIsUploading(uploads.some((u) => !isTaskDoneOrFailed(u)));
+    setIsUploading(uploads.some((u) => !areAllTasksDoneOrOneFailed(u)));
     setIsPolling(uploads.some((u) => isTaskPolling(u)));
   }, [uploads]);
 
@@ -66,22 +76,18 @@ export function useWithUploadStatus(
           setPollStatusCount(pollStatusCount + 1);
           data.forEach((u) => {
             const findUpload = uploads.find((up) => up.question === u.question);
-            if (
-              !findUpload ||
-              findUpload.uploadStatus !== u.uploadStatus ||
-              findUpload.uploadStatus == UploadStatus.UPLOAD_IN_PROGRESS
-            ) {
+            if (!findUpload || fetchedTaskHasUpdates(findUpload, u)) {
               addOrEditTask({
                 ...u,
                 isCancelling:
                   findUpload?.isCancelling ||
-                  u.uploadStatus === UploadStatus.CANCEL_IN_PROGRESS ||
-                  u.uploadStatus === UploadStatus.CANCELLED,
-                errorMessage: isTaskFailed(u)
-                  ? `Failed to process file: ${u.uploadStatus}`
+                  isATaskCancelling(u) ||
+                  isATaskCancelled(u),
+                errorMessage: isATaskFailed(u)
+                  ? `Failed to process file: ${whichTaskFailed(u)} task failed`
                   : "",
               });
-              if (u.uploadStatus === UploadStatus.DONE && onUploadedCallback) {
+              if (areAllTasksDone(u) && onUploadedCallback) {
                 onUploadedCallback(u);
               }
             }
@@ -95,31 +101,37 @@ export function useWithUploadStatus(
   );
   function removeCompletedTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question === task.question);
-    if (idx !== -1 && uploads[idx].uploadStatus === UploadStatus.DONE) {
+    if (idx !== -1 && areAllTasksDone(uploads[idx])) {
       const newArray = uploads.filter((u) => u.question !== task.question);
       setUploads(newArray);
     }
   }
-  function isTaskDoneOrFailed(task: UploadTask) {
-    return (
-      task.uploadStatus === UploadStatus.CANCELLED ||
-      task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
-      task.uploadStatus === UploadStatus.UPLOAD_FAILED ||
-      task.uploadStatus === UploadStatus.DONE
-    );
+
+  function fetchedTaskHasUpdates(
+    localUploadTask: UploadTask,
+    recievedUploadTask: UploadTask
+  ): boolean {
+    const localTaskList = localUploadTask.taskList;
+    const receivedTaskList = recievedUploadTask.taskList;
+    if (localTaskList.length !== receivedTaskList.length) return true;
+    let changes = false;
+    localTaskList.forEach((task, idx) => {
+      if (task.status !== receivedTaskList[idx].status) changes = true;
+    });
+    if (localUploadTask.uploadProgress !== recievedUploadTask.uploadProgress)
+      changes = true;
+    return changes;
   }
 
-  function isTaskFailed(task: UploadTask) {
+  function areTasksProcessing(task: UploadTask) {
     return (
-      task.uploadStatus === UploadStatus.TRANSCRIBE_FAILED ||
-      task.uploadStatus === UploadStatus.UPLOAD_FAILED
+      !areAllTasksDoneOrOneFailed(task) &&
+      !compareTaskStatusesToValue(task, UploadTaskStatuses.PENDING, true)
     );
   }
 
   function isTaskPolling(task: UploadTask) {
-    return (
-      !isTaskDoneOrFailed(task) && task.uploadStatus !== UploadStatus.PENDING
-    );
+    return areTasksProcessing(task);
   }
 
   function addOrEditTask(task: UploadTask) {
@@ -140,54 +152,65 @@ export function useWithUploadStatus(
     const tokenSource = CancelToken.source();
     addOrEditTask({
       question,
-      uploadStatus: UploadStatus.PENDING,
+      taskList: [],
       uploadProgress: 0,
       tokenSource: tokenSource,
-      taskId: "",
     });
     uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
       .then((task) => {
         addOrEditTask({
           question,
-          uploadStatus: UploadStatus.POLLING,
+          taskList: task.taskList,
           uploadProgress: 100,
-          taskId: task.id,
         });
       })
       .catch((err) => {
         addOrEditTask({
           question,
-          uploadStatus:
-            err.message && err.message === UploadStatus.CANCELLED
-              ? UploadStatus.CANCELLED
-              : UploadStatus.UPLOAD_FAILED,
+          taskList: [
+            {
+              task_name: "trim_upload",
+              task_id: "",
+              status: UploadTaskStatuses.FAILED,
+            },
+          ],
           errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
           uploadProgress: 0,
-          taskId: "",
         });
       });
   }
 
   function cancelUpload(mentorId: string, task: UploadTask) {
-    if (!task.taskId) {
-      task.tokenSource?.cancel(UploadStatus.CANCELLED);
+    if (!task.taskList.length) {
+      task.tokenSource?.cancel(UploadTaskStatuses.CANCELLED);
       addOrEditTask({
         ...task,
-        uploadStatus: UploadStatus.CANCELLED,
+        taskList: [
+          {
+            task_name: "trim_upload",
+            task_id: "",
+            status: UploadTaskStatuses.CANCELLED,
+          },
+        ],
         isCancelling: true,
       });
       return;
     }
     addOrEditTask({
       ...task,
-      uploadStatus: UploadStatus.PENDING,
       isCancelling: true,
     });
-    cancelUploadVideo(mentorId, task.question, task.taskId)
+    cancelUploadVideo(mentorId, task.question, fetchIncompleteTaskIds(task))
       .then(() => {
         addOrEditTask({
           ...task,
-          uploadStatus: UploadStatus.POLLING,
+          taskList: [
+            {
+              task_name: "trim_upload",
+              task_id: "",
+              status: UploadTaskStatuses.CANCELLED,
+            },
+          ],
           isCancelling: true,
         });
       })
@@ -195,7 +218,6 @@ export function useWithUploadStatus(
         console.error(err);
         addOrEditTask({
           ...task,
-          uploadStatus: UploadStatus.CANCEL_FAILED,
           isCancelling: true,
         });
       });
@@ -210,7 +232,6 @@ export function useWithUploadStatus(
     upload,
     cancelUpload,
     removeCompletedTask,
-    isTaskDoneOrFailed,
   };
 }
 
@@ -226,5 +247,4 @@ export interface UseWithUploadStatus {
   ) => void;
   cancelUpload: (mentorId: string, task: UploadTask) => void;
   removeCompletedTask: (tasks: UploadTask) => void;
-  isTaskDoneOrFailed: (upload: UploadTask) => boolean;
 }
