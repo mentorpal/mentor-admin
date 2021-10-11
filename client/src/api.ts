@@ -246,7 +246,7 @@ export async function fetchUsers(
               name
               email
               userRole
-              defaultMentor{
+              defaultMentor {
                 _id
               }
             }
@@ -786,18 +786,20 @@ export async function fetchMentorById(
 
 export async function updateMentorDetails(
   mentor: Mentor,
-  accessToken: string
+  accessToken: string,
+  mentorId: string
 ): Promise<boolean> {
   return execGql<boolean>(
     {
       query: `
-      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!) {
+      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!, $mentorId: ID) {
         me {
-          updateMentorDetails(mentor: $mentor)
+          updateMentorDetails(mentor: $mentor, mentorId: $mentorId)
         }
       }
     `,
       variables: {
+        mentorId,
         mentor: {
           name: mentor.name,
           firstName: mentor.firstName,
@@ -814,18 +816,20 @@ export async function updateMentorDetails(
 
 export async function updateMentorSubjects(
   mentor: Mentor,
-  accessToken: string
+  accessToken: string,
+  mentorId: string
 ): Promise<boolean> {
   return execGql<boolean>(
     {
       query: `
-      mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!) {
+      mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!, $mentorId: ID) {
         me {
-          updateMentorSubjects(mentor: $mentor)
+          updateMentorSubjects(mentor: $mentor, mentorId: $mentorId)
         }
       }
     `,
       variables: {
+        mentorId,
         mentor: {
           defaultSubject: mentor.defaultSubject?._id || null,
           subjects: mentor.subjects.map((s) => s._id),
@@ -838,18 +842,20 @@ export async function updateMentorSubjects(
 
 export async function updateAnswer(
   answer: Answer,
-  accessToken: string
+  accessToken: string,
+  mentorId: string
 ): Promise<boolean> {
   return execGql<boolean>(
     {
       query: `
-      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!) {
+      mutation UpdateAnswer($questionId: ID!, $answer: UpdateAnswerInputType!, $mentorId: ID) {
         me {
-          updateAnswer(questionId: $questionId, answer: $answer)
+          updateAnswer(questionId: $questionId, answer: $answer, mentorId: $mentorId)
         }
       }
     `,
       variables: {
+        mentorId,
         questionId: answer.question,
         answer: {
           transcript: answer.transcript,
@@ -998,14 +1004,15 @@ export async function loginGoogle(
 }
 
 export async function fetchUploadTasks(
-  accessToken: string
+  accessToken: string,
+  mentorId: string
 ): Promise<UploadTask[]> {
   const gql = await execGql<UploadTaskGQL[]>(
     {
       query: `
-        query FetchUploadTasks {
+        query FetchUploadTasks($mentorId: ID) {
           me {
-            uploadTasks {
+            uploadTasks(mentorId: $mentorId) {
               question {
                 _id
                 question
@@ -1024,6 +1031,7 @@ export async function fetchUploadTasks(
             }
           }
         }`,
+      variables: { mentorId },
     },
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
@@ -1032,18 +1040,19 @@ export async function fetchUploadTasks(
 
 export async function deleteUploadTask(
   question: string,
-  accessToken: string
+  accessToken: string,
+  mentorId: string
 ): Promise<boolean> {
   return execGql<boolean>(
     {
       query: `
-        mutation UploadTaskDelete($questionId: ID!) {
+        mutation UploadTaskDelete($questionId: ID!, $mentorId: ID) {
           me {
-            uploadTaskDelete(questionId: $questionId)
+            uploadTaskDelete(questionId: $questionId, mentorId: $mentorId)
           }
         }
       `,
-      variables: { questionId: question },
+      variables: { questionId: question, mentorId },
     },
     { accessToken, dataPath: ["me", "uploadTaskDelete"] }
   );

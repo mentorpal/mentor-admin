@@ -25,6 +25,7 @@ import {
   whichTaskFailed,
   fetchIncompleteTaskIds,
 } from "./upload-status-helpers";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -35,11 +36,15 @@ export function useWithUploadStatus(
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
+  const mentorId = useActiveMentor((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
 
   useEffect(() => {
     let mounted = true;
-    fetchUploadTasks(accessToken)
+    if (!mentorId) {
+      return;
+    }
+    fetchUploadTasks(accessToken, mentorId)
       .then((data) => {
         if (!mounted) {
           return;
@@ -52,12 +57,15 @@ export function useWithUploadStatus(
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [mentorId]);
 
   useEffect(() => {
+    if (!mentorId) {
+      return;
+    }
     uploads.forEach((u) => {
       if (areAllTasksDone(u) || isATaskFailed(u) || isATaskCancelled(u)) {
-        deleteUploadTask(u.question, accessToken).catch((error) => {
+        deleteUploadTask(u.question, accessToken, mentorId).catch((error) => {
           console.error(error);
         });
       }
@@ -68,7 +76,10 @@ export function useWithUploadStatus(
 
   useInterval(
     (isCancelled) => {
-      fetchUploadTasks(accessToken)
+      if (!mentorId) {
+        return;
+      }
+      fetchUploadTasks(accessToken, mentorId)
         .then((data) => {
           if (isCancelled()) {
             return;

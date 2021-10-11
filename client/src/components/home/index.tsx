@@ -159,11 +159,7 @@ function HomePage(props: {
           mentorId={mentorId}
           userRole={props.user.userRole}
         />
-        <MyMentorCard
-          editDisabled={!mentorOwnership}
-          continueAction={continueAction}
-          useMentor={useMentor}
-        />
+        <MyMentorCard continueAction={continueAction} useMentor={useMentor} />
         {props.user.userRole === UserRole.ADMIN && (
           <div data-cy="mentor-select">
             <TextField

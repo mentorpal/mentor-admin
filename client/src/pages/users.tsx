@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import React from "react";
 import {
   AppBar,
   CircularProgress,
@@ -20,17 +21,21 @@ import {
   Toolbar,
   Tooltip,
 } from "@material-ui/core";
-import LaunchIcon from "@material-ui/icons/Launch";
+import {
+  GetApp as GetAppIcon,
+  KeyboardArrowLeft as KeyboardArrowLeftIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+  Launch as LaunchIcon,
+} from "@material-ui/icons";
+
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
+import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import React from "react";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { launchMentor } from "../helpers";
 
 const useStyles = makeStyles((theme) => ({
@@ -185,7 +190,7 @@ function UserItem(props: {
           </Select>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell data-cy="actions" align="right">
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
           <IconButton
             data-cy="launch-default-mentor"
@@ -196,6 +201,15 @@ function UserItem(props: {
             className={styles.normalButton}
           >
             <LaunchIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Export" arrow>
+          <IconButton
+            data-cy="export-button"
+            onClick={() => exportMentor(edge.node.defaultMentor._id)}
+            className={styles.normalButton}
+          >
+            <GetAppIcon />
           </IconButton>
         </Tooltip>
       </TableCell>

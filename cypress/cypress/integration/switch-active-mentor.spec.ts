@@ -24,7 +24,8 @@ describe("Switch Active Mentor", () => {
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-select]").should("not.exist");
     });
-    it("loads other mentors' profile data if user is admin, data cannot be edited", () => {
+
+    it("loads other mentors' profile data if user is admin", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [
@@ -77,11 +78,9 @@ describe("Switch Active Mentor", () => {
       cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
         cy.get("input").should("have.value", "Nega Clint");
-        cy.get("input").should("be.disabled");
       });
       cy.get("[data-cy=mentor-job-title]").within(($input) => {
         cy.get("input").should("have.value", "Evil Clone");
-        cy.get("input").should("be.disabled");
       });
 
       // close modal
