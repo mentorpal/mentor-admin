@@ -30,6 +30,7 @@ import { LoadingError } from "./loading-reducer";
 import { useWithUploadStatus } from "./use-with-upload-status";
 import { QuestionState } from "store/slices/questions";
 import { navigate } from "gatsby";
+import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
 
 export interface AnswerState {
   answer: Answer;
@@ -92,7 +93,6 @@ export function useWithRecordState(
     upload,
     cancelUpload,
     removeCompletedTask,
-    isTaskDoneOrFailed,
   } = useWithUploadStatus(
     accessToken,
     onAnswerUploaded,
@@ -220,7 +220,7 @@ export function useWithRecordState(
 
   function isAnswerUploading(answer: Answer) {
     const upload = uploads.find((u) => u.question === answer.question);
-    return Boolean(upload && !isTaskDoneOrFailed(upload));
+    return Boolean(upload && !areAllTasksDoneOrOneFailed(upload));
   }
 
   function clearError() {
@@ -355,7 +355,7 @@ export function useWithRecordState(
   }
 
   function cancelUploadVideo(task: UploadTask) {
-    if (!mentorId || isTaskDoneOrFailed(task)) {
+    if (!mentorId) {
       return;
     }
     cancelUpload(mentorId, task);

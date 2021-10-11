@@ -5,34 +5,33 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { getValueIfKeyExists } from "helpers";
-import { UploadTask, UploadStatus } from "types";
+import { UploadTask, UploadTaskStatuses } from "types";
+import {
+  areAllTasksDone,
+  compareTaskStatusesToValue,
+  isATaskFailed,
+} from "./upload-status-helpers";
 import { UseWithRecordState } from "./use-with-record-state";
 
 export function useWithUploadListItem(
   recordState: UseWithRecordState,
   upload: UploadTask
 ): UseWithUploadListItem {
-  const jobStatus = upload.uploadStatus;
   const cancelling = upload.isCancelling || false;
   const answer = recordState.answers.find(
     (a) => a.answer.question === upload.question
   );
 
   function isJobQueued(): boolean {
-    return (
-      jobStatus === UploadStatus.QUEUING || jobStatus === UploadStatus.POLLING
-    );
+    return compareTaskStatusesToValue(upload, UploadTaskStatuses.QUEUED, true);
   }
 
   function isJobDone(): boolean {
-    return jobStatus === UploadStatus.DONE;
+    return areAllTasksDone(upload);
   }
 
   function isJobFailed(): boolean {
-    return (
-      jobStatus === UploadStatus.UPLOAD_FAILED ||
-      jobStatus === UploadStatus.TRANSCRIBE_FAILED
-    );
+    return isATaskFailed(upload);
   }
 
   const needsAttention = Boolean(answer?.attentionNeeded);
@@ -46,7 +45,6 @@ export function useWithUploadListItem(
 
   return {
     upload,
-    jobStatus,
     isJobDone,
     isJobFailed,
     isJobQueued,
@@ -62,7 +60,6 @@ export function useWithUploadListItem(
 
 export interface UseWithUploadListItem {
   upload: UploadTask;
-  jobStatus: UploadStatus;
   isJobDone: () => boolean;
   isJobFailed: () => boolean;
   isJobQueued: () => boolean;

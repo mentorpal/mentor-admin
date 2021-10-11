@@ -41,8 +41,12 @@ import {
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import withLocation from "wrap-with-location";
-import { UploadStatus, UploadTask, UserRole } from "types";
+import { UploadTask, UserRole } from "types";
 import { launchMentor } from "helpers";
+import {
+  areAllTasksDone,
+  isATaskCancelled,
+} from "hooks/graphql/upload-status-helpers";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -274,20 +278,15 @@ export function NavBar(props: {
   } = props;
   const numUploadsInProgress =
     uploads?.filter(
-      (upload) =>
-        upload.uploadStatus !== UploadStatus.DONE &&
-        upload.uploadStatus !== UploadStatus.CANCELLED
+      (upload) => !areAllTasksDone(upload) && !isATaskCancelled(upload)
     ).length || 0;
   const numUploadsComplete =
-    uploads?.filter((upload) => upload.uploadStatus == UploadStatus.DONE)
-      .length || 0;
+    uploads?.filter((upload) => areAllTasksDone(upload)).length || 0;
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
   const disableUploadsButton = uploads
-    ? Boolean(
-        uploads.find((upload) => upload.uploadStatus !== UploadStatus.CANCELLED)
-      ) === false
+    ? Boolean(uploads.find((upload) => !isATaskCancelled(upload))) === false
     : true;
 
   function toggleDrawer(tf: boolean): void {
