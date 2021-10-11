@@ -334,6 +334,9 @@ export function useWithRecordState(
       mentorQuestions
     )?.question;
     const editedQuestion = answers[answerIdx].editedQuestion;
+    if (!mentorId) {
+      return;
+    }
     // update the question if it has changed
     if (!equals(question, editedQuestion)) {
       saveQuestion(editedQuestion);
@@ -341,7 +344,7 @@ export function useWithRecordState(
     // update the answer if it has changed
     if (!equals(answer, editedAnswer)) {
       setIsSaving(true);
-      updateAnswer(editedAnswer, accessToken)
+      updateAnswer(editedAnswer, accessToken, mentorId)
         .then((didUpdate) => {
           if (!didUpdate) {
             setIsSaving(false);

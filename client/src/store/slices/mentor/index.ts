@@ -70,7 +70,11 @@ export const saveMentor = createAsyncThunk(
     const state = thunkAPI.getState() as RootState;
     if (state.login.accessToken) {
       try {
-        await api.updateMentorDetails(editedData, state.login.accessToken);
+        await api.updateMentorDetails(
+          editedData,
+          state.login.accessToken,
+          editedData._id
+        );
         return editedData;
       } catch (err) {
         return err.response.data;
@@ -85,7 +89,11 @@ export const saveMentorSubjects = createAsyncThunk(
     const state = thunkAPI.getState() as RootState;
     if (state.login.accessToken) {
       try {
-        await api.updateMentorSubjects(editedData, state.login.accessToken);
+        await api.updateMentorSubjects(
+          editedData,
+          state.login.accessToken,
+          editedData._id
+        );
         // need to fetch the updated mentor because the questions/answers might have changed
         return api.fetchMentorById(state.login.accessToken, editedData._id);
       } catch (err) {

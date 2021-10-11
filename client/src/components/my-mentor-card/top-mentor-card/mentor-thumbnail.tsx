@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function MentorThumbnail(props: {
   handleOpen: () => void;
-  editDisabled: boolean;
   editedMentor: Mentor;
   handleClose: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
@@ -52,7 +51,6 @@ function MentorThumbnail(props: {
     handleOpen,
     editedMentor,
     handleClose,
-    editDisabled,
     editMentor,
     open,
     thumbnail,
@@ -100,7 +98,6 @@ function MentorThumbnail(props: {
               handleClose={handleClose}
               editMentor={editMentor}
               editedMentor={editedMentor}
-              editDisabled={editDisabled}
               open={open}
             />
           </div>

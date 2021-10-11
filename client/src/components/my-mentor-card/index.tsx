@@ -21,7 +21,6 @@ import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 
 export default function MyMentorCard(props: {
-  editDisabled: boolean;
   continueAction: () => void;
   useMentor: UseMentorEdits;
 }): JSX.Element {
@@ -53,7 +52,6 @@ export default function MyMentorCard(props: {
       <Card data-cy="my-mentor-card">
         <CardContent>
           {/* card-container */}
-
           <Grid container spacing={3}>
             <Grid item xs={4}>
               <MentorThumbnail
@@ -61,7 +59,6 @@ export default function MyMentorCard(props: {
                 editedMentor={editedMentor}
                 handleClose={handleClose}
                 editMentor={editMentor}
-                editDisabled={props.editDisabled}
                 open={open}
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}

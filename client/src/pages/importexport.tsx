@@ -21,9 +21,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function ImportPage(props: { accessToken: string }): JSX.Element {
+function ImportPage(): JSX.Element {
   const classes = useStyles();
-  const useImportExport = useWithImportExport(props.accessToken);
+  const useImportExport = useWithImportExport();
   const mentorId = useActiveMentor((state) => state.data?._id);
   const mentorAnswers = useActiveMentor((state) => state.data?.answers);
 
