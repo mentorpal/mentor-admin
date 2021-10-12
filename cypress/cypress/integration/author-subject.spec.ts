@@ -342,7 +342,23 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                topics: [
+                  ...subject.topics,
+                  {
+                    id: "t1",
+                    name: "Topic2",
+                    description: "2",
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -407,7 +423,23 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                topics: [
+                  ...subject.topics,
+                  {
+                    id: "t1",
+                    name: "Topic2",
+                    description: "2",
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -456,7 +488,22 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                topics: [
+                  {
+                    id: "t1",
+                    name: "Topic1 Edited",
+                    description: "1 Edited",
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
@@ -531,7 +578,23 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                categories: [
+                  ...subject.categories,
+                  {
+                    id: "c2",
+                    name: "category 2",
+                    description: "2",
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -583,7 +646,16 @@ describe("Edit subject", () => {
             categories: [],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                categories: [],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -627,7 +699,22 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                categories: [
+                  {
+                    id: "c1",
+                    name: "Category1 Edited",
+                    description: "1 Edited",
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -670,7 +757,15 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -699,7 +794,15 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -772,7 +875,30 @@ describe("Edit subject", () => {
             ],
           },
         ],
-        gqlQueries: [mockGQL("UpdateSubject", { me: { updateSubject: {} } })],
+        gqlQueries: [
+          mockGQL("UpdateSubject", {
+            me: {
+              updateSubject: {
+                ...subject,
+                questions: [
+                  ...subject.questions,
+                  {
+                    question: {
+                      _id: "q4",
+                      question: "new question",
+                      type: QuestionType.QUESTION,
+                      name: "",
+                      paraphrases: [],
+                      mentor: null,
+                    },
+                    topics: [],
+                    category: null,
+                  },
+                ],
+              },
+            },
+          }),
+        ],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
