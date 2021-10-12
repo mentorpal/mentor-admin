@@ -14,7 +14,6 @@ import axios, {
 import {
   UserAccessToken,
   Mentor,
-  Subject,
   Connection,
   AsyncJob,
   Answer,
@@ -36,7 +35,6 @@ import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
   convertConnectionGQL,
   convertMentorGQL,
-  convertSubjectGQL,
   convertUploadTaskGQL,
   convertUserQuestionGQL,
   MentorGQL,
@@ -423,8 +421,8 @@ export async function fetchSubjects(
 export async function updateSubject(
   subject: Partial<SubjectGQL>,
   accessToken: string
-): Promise<Subject> {
-  const gql = await execGql<SubjectGQL>(
+): Promise<SubjectGQL> {
+  return await execGql<SubjectGQL>(
     {
       query: `
       mutation UpdateSubject($subject: SubjectUpdateInputType!) {
@@ -476,7 +474,6 @@ export async function updateSubject(
     },
     { dataPath: ["me", "updateSubject"], accessToken }
   );
-  return convertSubjectGQL(gql);
 }
 
 export async function fetchQuestions(
