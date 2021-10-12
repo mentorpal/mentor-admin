@@ -20,8 +20,8 @@ jobs:
       #   run: cd client && npm run test:audit
       - name: Client - Run lint test
         run: cd client && npm run test:lint
-      - name: Client - Run types test
-        run: cd client && npm run test:types
+      # - name: Client - Run types test
+      #   run: cd client && npm run test:types
   test-e2e:
     name: test e2e
     runs-on: ubuntu-latest

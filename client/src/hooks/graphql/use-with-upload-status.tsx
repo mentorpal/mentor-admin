@@ -36,7 +36,9 @@ export function useWithUploadStatus(
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
-  const mentorId = useActiveMentor((state) => state.data?._id);
+  const { getData } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
 
   useEffect(() => {

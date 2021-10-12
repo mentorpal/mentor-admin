@@ -21,10 +21,7 @@ import {
   UtteranceName,
 } from "types";
 import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
   isQuestionsSaving,
@@ -73,10 +70,18 @@ export function useWithRecordState(
   const [downloadError, setDownloadError] = useState<LoadingError>();
 
   const pollingInterval = parseInt(filter.poll || "");
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorType = useActiveMentor((state) => state.data?.mentorType);
-  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const {
+    getData,
+    loadMentor,
+    clearMentorError,
+    isLoading: isMentorLoading,
+    error: mentorError,
+  } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
+  const mentorSubjects = getData((state) => state.data?.subjects);
+  const mentorAnswers = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -87,10 +92,7 @@ export function useWithRecordState(
   const questionsSaving = isQuestionsSaving(
     mentorAnswers?.map((a) => a.question)
   );
-  const mentorError = useActiveMentor((state) => state.error);
-  const { loadMentor, clearMentorError } = useActiveMentorActions();
   const { saveQuestion } = useQuestionActions();
-  const isMentorLoading = isActiveMentorLoading();
 
   const {
     uploads,

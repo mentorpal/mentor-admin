@@ -9,10 +9,7 @@ import { Card, CardContent, Grid } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseMentorEdits } from "store/slices/mentor/useMentorEdits";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  isActiveMentorSaving,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 import "styles/layout.css";
 import MentorThumbnail from "./top-mentor-card/mentor-thumbnail";
@@ -24,17 +21,20 @@ export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
 }): JSX.Element {
-  const mentorError = useActiveMentor((ms) => ms.error);
-  const isMentorLoading = isActiveMentorLoading();
-  const isMentorSaving = isActiveMentorSaving();
+  const {
+    error: mentorError,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    getData,
+  } = useActiveMentor();
   const { editedMentor, editMentor } = props.useMentor;
-  const mentorId = useActiveMentor((ms) => ms.data?._id || "");
+  const mentorId = getData((ms) => ms.data?._id || "");
   const [thumbnail, updateThumbnail] = useWithThumbnail();
 
   if (!mentorId || !editedMentor) {
     return <div />;
   }
-  const mentorInfo = useActiveMentor((ms) =>
+  const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const [open, setOpen] = React.useState<boolean>(false);

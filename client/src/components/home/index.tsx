@@ -36,14 +36,12 @@ import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-s
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import useActiveMentor, {
-  useActiveMentorActions,
-  isActiveMentorLoading,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import { User, Subject, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
+import { ACTIVE_MENTOR_KEY, sessionStorageGet } from "store/local-storage";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -100,20 +98,22 @@ function HomePage(props: {
     startTask: startTraining,
     clearError: clearTrainingError,
   } = useWithTraining();
-  const { loadMentor, clearMentorError } = useActiveMentorActions();
+  const {
+    getData,
+    clearMentorError,
+    switchActiveMentor,
+    isLoading: mentorLoading,
+    error: mentorError,
+  } = useActiveMentor();
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
-
-  const mentorId = useActiveMentor((m) => m.data?._id || "");
-  const mentorLoading = isActiveMentorLoading();
-  const mentorError = useActiveMentor((state) => state.error);
-  const mentorIsDirty = useActiveMentor((m) => Boolean(m.data?.isDirty));
+  const mentorId = getData((m) => m.data?._id || "");
+  const mentorIsDirty = getData((m) => Boolean(m.data?.isDirty));
   const defaultMentor = props.user.defaultMentor._id;
-  const mentorOwnership = defaultMentor === mentorId;
-
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
   const [activeMentorId, setActiveMentorId] = useState(defaultMentor);
-  const mentorSubjectNamesById: Record<string, string> = useActiveMentor((m) =>
+
+  const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
       (acc: Record<string, string>, cur: Subject) => {
         acc[cur._id] = cur.name;
@@ -122,7 +122,7 @@ function HomePage(props: {
       {}
     )
   );
-  const mentorInfo = useActiveMentor((ms) =>
+  const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const continueAction = () =>
@@ -135,10 +135,14 @@ function HomePage(props: {
     setShowSetupAlert(!setupStatus.isBuildable);
   }, [setupStatus]);
 
+  useEffect(() => {
+    setActiveMentorId(sessionStorageGet(ACTIVE_MENTOR_KEY) || "");
+  }, []);
+
   if (!(mentorId && setupStatus)) {
     return (
       <div>
-        <NavBar title="Mentor Studio" mentorId={""} />
+        <NavBar title="Mentor Studio" mentorId="" />
         <CircularProgress />
       </div>
     );
@@ -148,11 +152,7 @@ function HomePage(props: {
   }
 
   return (
-    <div
-      data-cy="my-mentor-wrapper"
-      className={classes.root}
-      style={{ background: mentorOwnership ? "white" : "black" }}
-    >
+    <div data-cy="my-mentor-wrapper" className={classes.root}>
       <div>
         <NavBar
           title="My Mentor"
@@ -176,7 +176,7 @@ function HomePage(props: {
               data-cy="switch-mentor-button"
               variant="extended"
               color="secondary"
-              onClick={() => loadMentor(activeMentorId)}
+              onClick={() => switchActiveMentor(activeMentorId)}
               className={classes.fab}
             >
               Switch Mentor
@@ -185,10 +185,7 @@ function HomePage(props: {
               data-cy="default-mentor-button"
               variant="extended"
               color="primary"
-              onClick={() => {
-                setActiveMentorId(defaultMentor);
-                loadMentor();
-              }}
+              onClick={() => switchActiveMentor()}
               className={classes.fab}
             >
               Default Mentor
@@ -260,7 +257,7 @@ function HomePage(props: {
             justifyContent: "center",
           }}
         >
-          <div className={"trainnig-stage-info"}>
+          <div className="training-stage-info">
             <Typography
               variant="body1"
               color="textSecondary"

@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchTrainingStatus, trainMentor } from "api";
 import { useEffect } from "react";
-import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { JobState, TrainingInfo } from "types";
 import { Task, useWithTask } from "./use-with-task";
 
@@ -15,7 +15,7 @@ export function useWithTraining(
 ): Task<TrainingInfo, string> {
   const { status, statusUrl, error, isPolling, startTask, clearError } =
     useWithTask<TrainingInfo, string>(train, poll, pollingInterval);
-  const { loadMentor } = useActiveMentorActions();
+  const { loadMentor } = useActiveMentor();
 
   useEffect(() => {
     if (status?.state === JobState.SUCCESS) {

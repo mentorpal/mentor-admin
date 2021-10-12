@@ -4,7 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect } from "react";
+import { navigate } from "gatsby";
 import {
   AppBar,
   CircularProgress,
@@ -22,6 +23,7 @@ import {
   Tooltip,
 } from "@material-ui/core";
 import {
+  Edit as EditIcon,
   GetApp as GetAppIcon,
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
@@ -37,6 +39,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import { launchMentor } from "../helpers";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -140,8 +143,9 @@ function UserItem(props: {
     props.userRole === UserRole.USER ||
     (edge.node.userRole === UserRole.ADMIN &&
       props.userRole !== UserRole.ADMIN);
+  const { switchActiveMentor } = useActiveMentor();
 
-  function handleRoleChange(user: string, permission: string) {
+  function handleRoleChange(user: string, permission: string): void {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
@@ -203,13 +207,25 @@ function UserItem(props: {
             <LaunchIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Export" arrow>
+        <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
           <IconButton
             data-cy="export-button"
             onClick={() => exportMentor(edge.node.defaultMentor._id)}
             className={styles.normalButton}
           >
             <GetAppIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Edit Mentor" arrow>
+          <IconButton
+            data-cy="edit-button"
+            onClick={() => {
+              switchActiveMentor(edge.node.defaultMentor._id);
+              navigate("/");
+            }}
+            className={styles.normalButton}
+          >
+            <EditIcon />
           </IconButton>
         </Tooltip>
       </TableCell>
@@ -263,9 +279,15 @@ function UsersTable(props: {
 function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const styles = useStyles();
+  const { switchActiveMentor } = useActiveMentor();
   const permissionToView =
     props.user.userRole === UserRole.ADMIN ||
     props.user.userRole === UserRole.CONTENT_MANAGER;
+
+  useEffect(() => {
+    switchActiveMentor();
+  }, []);
+
   if (!permissionToView) {
     return (
       <div>You must be an admin or content manager to view this page.</div>

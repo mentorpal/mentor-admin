@@ -10,9 +10,7 @@ import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
 import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import useActiveMentor, {
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import {
   Category,
   Mentor,
@@ -58,8 +56,9 @@ export function useWithFollowups(props: {
   });
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const { getData, loadMentor } = useActiveMentor();
+  const mentorId = getData((state) => state.data?._id);
+  const mentorAnswers = getData((state) => state.data?.answers);
   const mentorQuestionsRecord = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -68,9 +67,8 @@ export function useWithFollowups(props: {
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
-  const { loadMentor } = useActiveMentorActions();
   const { categoryId, subjectId } = props;
-  const curSubject = useActiveMentor((state) =>
+  const curSubject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);

@@ -11,8 +11,8 @@ import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
 import { Category, Topic, QuestionType, UtteranceName } from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
-import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
 import { LoadingError } from "./loading-reducer";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 export interface NewQuestionArgs {
   question: string;
@@ -45,7 +45,7 @@ export function useWithSubject(
   subjectId: string,
   accessToken: string
 ): UseWithSubject {
-  const { loadMentor } = useActiveMentorActions();
+  const { loadMentor } = useActiveMentor();
   const {
     editedData,
     isEdited,
