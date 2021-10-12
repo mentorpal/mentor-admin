@@ -31,10 +31,7 @@ import { copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  isActiveMentorSaving,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 import { convertSubjectGQL } from "types-gql";
 
@@ -100,9 +97,11 @@ function SubjectsPage(props: {
   };
 }): JSX.Element {
   const classes = useStyles();
-  const mentorError = useActiveMentor((state) => state.error);
-  const isMentorLoading = isActiveMentorLoading();
-  const isMentorSaving = isActiveMentorSaving();
+  const {
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    error: mentorError,
+  } = useActiveMentor();
 
   const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
     useMentorEdits();

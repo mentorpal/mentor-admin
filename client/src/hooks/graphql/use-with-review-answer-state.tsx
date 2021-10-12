@@ -10,9 +10,7 @@ import { v4 as uuid } from "uuid";
 
 import { updateSubject } from "api";
 import { urlBuild, copyAndSet } from "helpers";
-import useActiveMentor, {
-  isActiveMentorLoading,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
@@ -26,7 +24,6 @@ import {
 } from "types";
 import { SubjectQuestionGQL, SubjectGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
-import { loadMentor } from "store/slices/mentor";
 
 interface Progress {
   complete: number;
@@ -74,15 +71,15 @@ export function useWithReviewAnswerState(
   const [editedSubjects, setEditedSubjects] = useState<Subject[]>();
   const [editedAnswers, setEditedAnswers] = useState<Answer[]>();
   const [editedQuestions, setEditedQuestions] = useState<Question[]>();
+  const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
 
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const mentorId = getData((state) => state.data?._id);
+  const mentorSubjects = getData((state) => state.data?.subjects);
+  const mentorAnswers = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
-  const isMentorLoading = isActiveMentorLoading();
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
@@ -318,7 +315,7 @@ export function useWithReviewAnswerState(
       })
     )
       .then(() => {
-        loadMentor({ mentorId });
+        loadMentor();
         setIsSaving(false);
       })
       .catch((err) => {

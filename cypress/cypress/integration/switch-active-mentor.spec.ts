@@ -46,12 +46,6 @@ describe("Switch Active Mentor", () => {
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-select]").should("exist");
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(255, 255, 255)"
-      );
-
       //  open modal
       cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
@@ -68,12 +62,6 @@ describe("Switch Active Mentor", () => {
       });
       cy.get("[data-cy=switch-mentor-id]").type("nega-clint");
       cy.get("[data-cy=switch-mentor-button]").trigger("mouseover").click();
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(0, 0, 0)"
-      );
-
       //  open modal
       cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
       cy.get("[data-cy=mentor-name]").within(($input) => {
@@ -96,11 +84,6 @@ describe("Switch Active Mentor", () => {
       cy.get("[data-cy=mentor-job-title]").within(($input) => {
         cy.get("input").should("have.value", "Nuclear Electrician's Mate");
       });
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(255, 255, 255)"
-      );
     });
   });
 });

@@ -8,10 +8,7 @@ import { useState } from "react";
 import * as api from "api";
 import { MentorExportJson, MentorImportPreview, Question } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
-import {
-  useActiveMentor,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 
@@ -31,10 +28,10 @@ export function useWithImportExport(): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const { getData, loadMentor } = useActiveMentor();
+  const mentorId = getData((state) => state.data?._id);
+  const mentorAnswers = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
-  const { loadMentor } = useActiveMentorActions();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {

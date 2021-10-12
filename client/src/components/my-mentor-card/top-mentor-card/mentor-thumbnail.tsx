@@ -56,7 +56,8 @@ function MentorThumbnail(props: {
     thumbnail,
     updateThumbnail,
   } = props;
-  const mentorId = useActiveMentor((ms) => ms.data?._id || "");
+  const { getData } = useActiveMentor();
+  const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
 
   if (!mentorId || !editedMentor) {

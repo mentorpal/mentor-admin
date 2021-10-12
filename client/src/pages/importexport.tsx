@@ -24,8 +24,10 @@ const useStyles = makeStyles(() => ({
 function ImportPage(): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport();
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const { getData } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
+  const mentorAnswers = getData((state) => state.data?.answers);
 
   if (!mentorId || !mentorAnswers) {
     return <div />;

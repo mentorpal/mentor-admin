@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -24,10 +24,7 @@ import TopicsList from "components/author/topics-list";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import {
-  isActiveMentorLoading,
-  useActiveMentor,
-} from "store/slices/mentor/useActiveMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { onTextInputChanged } from "helpers";
@@ -78,9 +75,13 @@ function SubjectPage(props: {
   const [isSubjectInfoExpanded, setIsSubjectInfoExpanded] = useState(true);
   const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
   const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
+  const {
+    getData,
+    switchActiveMentor,
+    isLoading: isMentorLoading,
+  } = useActiveMentor();
 
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const isMentorLoading = isActiveMentorLoading();
+  const mentorId = getData((state) => state.data?._id);
   const {
     editedData: editedSubject,
     error: subjectError,
@@ -102,6 +103,11 @@ function SubjectPage(props: {
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
   const { height: windowHeight } = useWithWindowSize();
+  const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
+
+  useEffect(() => {
+    switchActiveMentor();
+  }, []);
 
   function toggleExpand(s: boolean, t: boolean, q: boolean) {
     setIsSubjectInfoExpanded(s);
@@ -118,7 +124,6 @@ function SubjectPage(props: {
     );
   }
 
-  const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
   return (
     <div className={classes.root}>
       <NavBar title="Edit Subject" mentorId={mentorId} />

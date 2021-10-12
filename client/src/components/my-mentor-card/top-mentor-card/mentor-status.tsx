@@ -12,9 +12,9 @@ function MentorStatus(props: {
   updateThumbnail: (file: File) => void;
 }): JSX.Element {
   const { continueAction, updateThumbnail } = props;
-  // const [thumbnail, updateThumbnail] = useWithThumbnail();
+  const { getData } = useActiveMentor();
 
-  const mentorInfo = useActiveMentor((ms) =>
+  const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
 
