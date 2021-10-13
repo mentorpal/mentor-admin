@@ -85,7 +85,7 @@ function MentorThumbnail(props: {
               <IconButton
                 data-cy="edit-mentor-data"
                 color="primary"
-                aria-label="upload picture"
+                aria-label="edit mentor"
                 component="span"
                 className="edit-pencil-icon"
                 onClick={handleOpen}
@@ -125,15 +125,21 @@ function MentorThumbnail(props: {
       >
         <div className="upload-thumbnail"></div>
         {thumbnail ? (
-          <Avatar
-            data-cy="uploaded-thumbnail"
-            variant="rounded"
-            className={classes.homeThumbnail}
-            src={thumbnail}
-          >
+          <div style={{ display: "flex" }}>
+            <Avatar
+              data-cy="uploaded-thumbnail"
+              variant="rounded"
+              className={classes.homeThumbnail}
+              src={thumbnail}
+            />
             <label
               htmlFor="icon-button-file"
-              style={{ position: "absolute", zIndex: 2 }}
+              style={{
+                position: "absolute",
+                zIndex: 2,
+                bottom: -2,
+                right: 73,
+              }}
             >
               <IconButton color="primary" component="span">
                 <CloudUploadIcon />
@@ -151,7 +157,7 @@ function MentorThumbnail(props: {
                   : undefined;
               }}
             />
-          </Avatar>
+          </div>
         ) : (
           <div style={{ display: "flex" }}>
             <Avatar
