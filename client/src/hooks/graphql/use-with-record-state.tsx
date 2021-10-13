@@ -150,6 +150,15 @@ export function useWithRecordState(
     setIsRecording(false);
   }, [answerIdx]);
 
+  useEffect(()=>{
+    if(!curAnswer)
+      return;
+    setCurAnswer({
+      ...curAnswer,
+      videoSrc: getVideoSrc()
+    })
+  },[curAnswer?.answer.media])
+
   useEffect(() => {
     if (!mentorAnswers || !answers[answerIdx]) return;
     const answer = answers[answerIdx];
@@ -348,7 +357,7 @@ export function useWithRecordState(
 
   function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
-    if (!mentorId || !answer.answer.question || !answer.recordedVideo) {
+    if (!mentorId || !answer.answer.question) {
       return;
     }
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);

@@ -898,6 +898,24 @@ export async function transferMedia(
   return getDataFromAxiosResponse(result, []);
 }
 
+export async function trimExistingUpload(
+  mentorId: string,
+  question: string,
+  trim?: { start: number; end: number }
+): Promise<UploadProcessAsyncJob> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: question, trim })
+  );
+  const result = await uploadRequest.post("/answer/trim_existing_upload", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return getDataFromAxiosResponse(result, []);
+}
+
 export async function uploadVideo(
   mentorId: string,
   video: File,
