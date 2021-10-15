@@ -5,12 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import {
-  LinearProgress,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   PublishRounded,
@@ -22,10 +17,6 @@ import {
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
-import {
-  areAllTasksDone,
-  isATaskPending,
-} from "hooks/graphql/upload-status-helpers";
 
 function UploadingListItem(props: {
   useWithUploadListItem: UseWithUploadListItem;
@@ -52,25 +43,17 @@ function UploadingListItem(props: {
     },
   }));
   const classes = useStyles();
-  const progressTitle = cancelling ? (
-    "Cancelling"
-  ) : isJobFailed() ? (
-    upload.errorMessage || ""
-  ) : isATaskPending(upload) ? (
-    <LinearProgress
-      data-cy="progress-bar"
-      variant={"determinate"}
-      value={upload.uploadProgress}
-    />
-  ) : isJobQueued() ? (
-    "Queued"
-  ) : !areAllTasksDone(upload) ? (
-    `Processing${".".repeat(pollStatusCount % 4)}`
-  ) : needsAttention ? (
-    "Needs Attention"
-  ) : (
-    "Tap to preview"
-  );
+  const progressTitle = cancelling
+    ? "Cancelling"
+    : isJobFailed()
+    ? upload.errorMessage || ""
+    : isJobQueued()
+    ? "Queued"
+    : !isJobDone()
+    ? `Processing${".".repeat(pollStatusCount % 4)}`
+    : needsAttention
+    ? "Needs Attention"
+    : "Tap to preview";
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
       <ListItemIcon

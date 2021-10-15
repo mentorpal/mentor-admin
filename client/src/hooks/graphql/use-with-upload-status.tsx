@@ -74,24 +74,42 @@ export function useWithUploadStatus(
             return;
           }
           setPollStatusCount(pollStatusCount + 1);
+          const updatedUploadsList: UploadTask[] = JSON.parse(
+            JSON.stringify(uploads)
+          );
+          let changes = false;
           data.forEach((u) => {
-            const findUpload = uploads.find((up) => up.question === u.question);
-            if (!findUpload || fetchedTaskHasUpdates(findUpload, u)) {
-              addOrEditTask({
-                ...u,
-                isCancelling:
-                  findUpload?.isCancelling ||
-                  isATaskCancelling(u) ||
-                  isATaskCancelled(u),
-                errorMessage: isATaskFailed(u)
-                  ? `Failed to process file: ${whichTaskFailed(u)} task failed`
-                  : "",
-              });
-              if (areAllTasksDone(u) && onUploadedCallback) {
-                onUploadedCallback(u);
+            const findUploadIdx = updatedUploadsList.findIndex(
+              (up) => up.question === u.question
+            );
+            const newUploadTask = {
+              ...u,
+              isCancelling:
+                u?.isCancelling || isATaskCancelling(u) || isATaskCancelled(u),
+              errorMessage: isATaskFailed(u)
+                ? `Failed to process file: ${whichTaskFailed(u)} task failed`
+                : "",
+            };
+            if (findUploadIdx < 0) {
+              changes = true;
+              updatedUploadsList.push(newUploadTask);
+              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
+                onUploadedCallback(newUploadTask);
+              }
+            } else if (
+              fetchedTaskHasUpdates(
+                updatedUploadsList[findUploadIdx],
+                newUploadTask
+              )
+            ) {
+              changes = true;
+              updatedUploadsList[findUploadIdx] = newUploadTask;
+              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
+                onUploadedCallback(newUploadTask);
               }
             }
           });
+          if (changes) setUploads(updatedUploadsList);
         })
         .catch((err) => {
           console.error(err);
@@ -99,6 +117,7 @@ export function useWithUploadStatus(
     },
     isPolling ? pollingInterval : null
   );
+
   function removeCompletedTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question === task.question);
     if (idx !== -1 && areAllTasksDone(uploads[idx])) {
@@ -152,11 +171,17 @@ export function useWithUploadStatus(
     const tokenSource = CancelToken.source();
     addOrEditTask({
       question,
-      taskList: [],
+      taskList: [
+        {
+          task_name: "upload",
+          task_id: "",
+          status: UploadTaskStatuses.QUEUED,
+        },
+      ],
       uploadProgress: 0,
       tokenSource: tokenSource,
     });
-    uploadVideo(mentorId, video, question, tokenSource, addOrEditTask, trim)
+    uploadVideo(mentorId, video, question, tokenSource, trim)
       .then((task) => {
         addOrEditTask({
           question,

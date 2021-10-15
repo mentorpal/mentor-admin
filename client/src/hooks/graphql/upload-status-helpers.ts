@@ -34,7 +34,7 @@ export function isATaskPending(task: UploadTask): boolean {
 }
 
 export function areAllTasksDone(task: UploadTask): boolean {
-  if (!task.taskList.length) return false;
+  if (!task.taskList.length) return true;
   return compareTaskStatusesToValue(task, UploadTaskStatuses.DONE, true);
 }
 
@@ -54,6 +54,7 @@ export function compareTaskStatusesToValue(
   value: UploadTaskStatuses,
   allEqual: boolean
 ): boolean {
+  if (!task.taskList.length) return false;
   if (allEqual) {
     return task.taskList.every((task) => task.status === value);
   } else {
