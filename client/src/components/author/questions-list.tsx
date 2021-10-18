@@ -29,6 +29,7 @@ import QuestionEditCard from "./question-edit";
 import { SubjectQuestionGQL } from "types-gql";
 import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 export function QuestionsList(props: {
   classes: Record<string, string>;
@@ -46,7 +47,10 @@ export function QuestionsList(props: {
   const { classes, questions } = props;
   const [searchInput, setSearchInput] = useState<Question>();
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
+  const [selectedCategory, setSelectedCategory] = useState<string>();
+
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
+  const { height: windowHeight } = useWithWindowSize();
   const { data } = useWithQuestions();
   const allQuestions = data?.edges
     .map((e) => e.node)
@@ -70,25 +74,42 @@ export function QuestionsList(props: {
   }
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ height: windowHeight - 250 }}>
       <Grid
         container
         style={{
           display: "flex",
           flexDirection: "row",
+          height: windowHeight - 350,
+          overflow: "auto",
         }}
       >
         <Grid item xs={selectedQuestion ? 6 : 12}>
           <DragDropContext onDragEnd={onDragEnd}>
             <List data-cy="categories" className={classes.list}>
               {props.categories.map((category, i) => (
-                <ListItem data-cy={`category-${i}`} key={category.id}>
+                <ListItem
+                  data-cy={`category-${i}`}
+                  key={category.id}
+                  onFocus={() => setSelectedCategory(category.id)}
+                  onBlur={(e) => {
+                    if (e.relatedTarget) {
+                      const element = e.relatedTarget as Element;
+                      if (element.getAttribute("data-cy") !== "add-question") {
+                        setSelectedCategory(undefined);
+                      }
+                    } else {
+                      setSelectedCategory(undefined);
+                    }
+                  }}
+                >
                   <CategoryListItem
                     category={category}
                     questions={questions.filter(
                       (q) => q.category?.id === category.id
                     )}
                     selectedQuestion={selectedQuestion}
+                    selectedCategory={selectedCategory}
                     removeCategory={props.removeCategory}
                     updateCategory={props.editCategory}
                     updateQuestion={props.editQuestion}
@@ -181,7 +202,10 @@ export function QuestionsList(props: {
         className={classes.button}
         onClick={() => {
           setSearchInput(undefined);
-          props.addQuestion({ question: searchInput });
+          props.addQuestion({
+            question: searchInput,
+            categoryId: selectedCategory,
+          });
         }}
       >
         Add Question

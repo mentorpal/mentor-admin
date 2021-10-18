@@ -28,6 +28,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Topic } from "types";
 import { onTextInputChanged } from "helpers";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 export function TopicCard(props: {
   classes: Record<string, string>;
@@ -111,6 +112,7 @@ export function TopicsList(props: {
   moveTopic: (toMove: number, moveTo: number) => void;
 }): JSX.Element {
   const { classes } = props;
+  const { height: windowHeight } = useWithWindowSize();
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
@@ -120,7 +122,7 @@ export function TopicsList(props: {
   }
 
   return (
-    <div style={{ width: "100%" }}>
+    <div style={{ height: windowHeight - 250 }}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
           {(provided) => (
@@ -128,6 +130,7 @@ export function TopicsList(props: {
               data-cy="topics-list"
               ref={provided.innerRef}
               className={classes.list}
+              style={{ height: windowHeight - 300, overflow: "auto" }}
               {...provided.droppableProps}
             >
               {props.topics.map((t, i) => (
