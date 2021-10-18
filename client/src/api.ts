@@ -445,6 +445,13 @@ export async function updateSubject(
             questions {
               question {
                 _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
               }
               category {
                 id
