@@ -6,10 +6,10 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
-import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
 import { users } from "../fixtures/users";
+
 describe("users screen", () => {
   it("admins can edit all users roles", () => {
     cyMockDefault(cy, {

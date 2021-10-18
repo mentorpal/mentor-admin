@@ -54,7 +54,7 @@ export function ParaphraseList(props: {
     >
       <List data-cy="paraphrases" dense disablePadding>
         <ListSubheader>Paraphrases</ListSubheader>
-        {paraphrases.map((paraphrase, i) => (
+        {paraphrases?.map((paraphrase, i) => (
           <ListItem
             data-cy={`paraphrase-${i}`}
             key={`paraphrase-${i}`}

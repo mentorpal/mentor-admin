@@ -4,26 +4,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Card,
-  CardContent,
-  CircularProgress,
-  Collapse,
-  IconButton,
-  TextField,
-  Typography,
-} from "@material-ui/core";
+import React, { useState } from "react";
+import { Button, CircularProgress, Tab, TextField } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
 import TopicsList from "components/author/topics-list";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { useWithWindowSize } from "hooks/use-with-window-size";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
@@ -37,16 +27,16 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     margin: 0,
   },
-  flexChild: {
-    width: "calc(100% - 40px)",
-    textAlign: "left",
-    padding: 0,
-    margin: 0,
-  },
   row: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+  },
+  tab: {
+    display: "flex",
+    flexDirection: "column",
+    width: "95%",
+    height: "100%",
   },
   button: {
     width: 200,
@@ -55,16 +45,6 @@ const useStyles = makeStyles((theme) => ({
   list: {
     background: "#F5F5F5",
   },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
 }));
 
 function SubjectPage(props: {
@@ -72,14 +52,8 @@ function SubjectPage(props: {
   search: { id?: string };
 }): JSX.Element {
   const classes = useStyles();
-  const [isSubjectInfoExpanded, setIsSubjectInfoExpanded] = useState(true);
-  const [isTopicsExpanded, setIsTopicsExpanded] = useState(false);
-  const [isQuestionsExpanded, setIsQuestionsExpanded] = useState(false);
-  const {
-    getData,
-    switchActiveMentor,
-    isLoading: isMentorLoading,
-  } = useActiveMentor();
+  const [tab, setTab] = useState<string>("1");
+  const { getData, isLoading: isMentorLoading } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
   const {
@@ -102,18 +76,6 @@ function SubjectPage(props: {
     removeQuestion,
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
-  const { height: windowHeight } = useWithWindowSize();
-  const maxChildHeight = windowHeight - 65 - 30 - 30 - 30 - 65 - 50;
-
-  useEffect(() => {
-    switchActiveMentor();
-  }, []);
-
-  function toggleExpand(s: boolean, t: boolean, q: boolean) {
-    setIsSubjectInfoExpanded(s);
-    setIsTopicsExpanded(t);
-    setIsQuestionsExpanded(q);
-  }
 
   if (!mentorId || !editedSubject) {
     return (
@@ -127,103 +89,81 @@ function SubjectPage(props: {
   return (
     <div className={classes.root}>
       <NavBar title="Edit Subject" mentorId={mentorId} />
-      <Card
-        elevation={0}
-        className={classes.flexChild}
-        style={{ maxHeight: maxChildHeight }}
+      <TabContext value={tab}>
+        <TabList onChange={(event, newValue) => setTab(newValue)}>
+          <Tab label="Subject Info" value="1" data-cy="toggle-info" />
+          <Tab label="Topics" value="2" data-cy="toggle-topics" />
+          <Tab label="Questions" value="3" data-cy="toggle-questions" />
+        </TabList>
+        <TabPanel className={classes.tab} value="1">
+          <TextField
+            data-cy="subject-name"
+            variant="outlined"
+            label="Subject Name"
+            placeholder="Display name for the subject"
+            value={editedSubject.name}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                editSubject({ name: e.target.value });
+              })
+            }
+            style={{ marginTop: 20, marginBottom: 20 }}
+            fullWidth
+            multiline
+          />
+          <TextField
+            data-cy="subject-description"
+            variant="outlined"
+            label="Subject Description"
+            placeholder="Description about the types of questions in the subject"
+            value={editedSubject.description}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                editSubject({ description: e.target.value });
+              })
+            }
+            fullWidth
+            multiline
+          />
+        </TabPanel>
+        <TabPanel className={classes.tab} value="2">
+          <TopicsList
+            classes={classes}
+            topics={editedSubject.topics}
+            addTopic={addTopic}
+            editTopic={updateTopic}
+            removeTopic={removeTopic}
+            moveTopic={moveTopic}
+          />
+        </TabPanel>
+        <TabPanel className={classes.tab} value="3">
+          <QuestionsList
+            classes={classes}
+            categories={editedSubject.categories}
+            questions={editedSubject.questions.filter(
+              (q) => !q.question.mentor || q.question.mentor === mentorId
+            )}
+            topics={editedSubject.topics}
+            addCategory={addCategory}
+            editCategory={updateCategory}
+            removeCategory={removeCategory}
+            addQuestion={addQuestion}
+            editQuestion={updateQuestion}
+            removeQuestion={removeQuestion}
+            moveQuestion={moveQuestion}
+          />
+        </TabPanel>
+      </TabContext>
+      <Button
+        data-cy="save-button"
+        variant="contained"
+        color="primary"
+        className={classes.button}
+        disabled={!isSubjectEdited}
+        onClick={() => saveSubject()}
       >
-        <div className={classes.row}>
-          <IconButton
-            data-cy="toggle-info"
-            size="small"
-            aria-expanded={isSubjectInfoExpanded}
-            onClick={() => toggleExpand(!isSubjectInfoExpanded, false, false)}
-          >
-            <ExpandMoreIcon
-              style={{
-                transform: isSubjectInfoExpanded
-                  ? "rotate(180deg)"
-                  : "rotate(0deg)",
-              }}
-            />
-          </IconButton>
-          <Typography variant="body2">Subject Info</Typography>
-        </div>
-        <CardContent style={{ padding: 0 }}>
-          <Collapse in={isSubjectInfoExpanded} timeout="auto" unmountOnExit>
-            <TextField
-              data-cy="subject-name"
-              variant="outlined"
-              label="Subject Name"
-              placeholder="Display name for the subject"
-              value={editedSubject.name}
-              onChange={(e) =>
-                onTextInputChanged(e, () => {
-                  editSubject({ name: e.target.value });
-                })
-              }
-              style={{ marginTop: 20, marginBottom: 20 }}
-              fullWidth
-              multiline
-            />
-            <TextField
-              data-cy="subject-description"
-              variant="outlined"
-              label="Subject Description"
-              placeholder="Description about the types of questions in the subject"
-              value={editedSubject.description}
-              onChange={(e) =>
-                onTextInputChanged(e, () => {
-                  editSubject({ description: e.target.value });
-                })
-              }
-              fullWidth
-              multiline
-            />
-          </Collapse>
-        </CardContent>
-      </Card>
-      <TopicsList
-        classes={classes}
-        maxHeight={maxChildHeight}
-        expanded={isTopicsExpanded}
-        topics={editedSubject.topics}
-        toggleExpanded={() => toggleExpand(false, !isTopicsExpanded, false)}
-        addTopic={addTopic}
-        editTopic={updateTopic}
-        removeTopic={removeTopic}
-        moveTopic={moveTopic}
-      />
-      <QuestionsList
-        classes={classes}
-        maxHeight={maxChildHeight}
-        expanded={isQuestionsExpanded}
-        categories={editedSubject.categories}
-        questions={editedSubject.questions.filter(
-          (q) => !q.question.mentor || q.question.mentor === mentorId
-        )}
-        topics={editedSubject.topics}
-        toggleExpanded={() => toggleExpand(false, false, !isQuestionsExpanded)}
-        addCategory={addCategory}
-        editCategory={updateCategory}
-        removeCategory={removeCategory}
-        addQuestion={addQuestion}
-        editQuestion={updateQuestion}
-        removeQuestion={removeQuestion}
-        moveQuestion={moveQuestion}
-      />
-      <div style={{ height: 65 }}>
-        <Button
-          data-cy="save-button"
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          disabled={!isSubjectEdited}
-          onClick={() => saveSubject()}
-        >
-          Save
-        </Button>
-      </div>
+        Save
+      </Button>
       <LoadingDialog
         title={
           isMentorLoading || isSubjectLoading

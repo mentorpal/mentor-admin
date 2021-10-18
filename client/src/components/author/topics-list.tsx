@@ -21,7 +21,6 @@ import {
   Collapse,
   IconButton,
   TextField,
-  Typography,
   CardActions,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
@@ -105,10 +104,7 @@ export function TopicCard(props: {
 
 export function TopicsList(props: {
   classes: Record<string, string>;
-  maxHeight: number;
-  expanded: boolean;
   topics: Topic[];
-  toggleExpanded: () => void;
   addTopic: () => void;
   editTopic: (val: Topic) => void;
   removeTopic: (val: Topic) => void;
@@ -124,92 +120,55 @@ export function TopicsList(props: {
   }
 
   return (
-    <Card
-      elevation={0}
-      className={classes.flexChild}
-      style={{ textAlign: "left" }}
-    >
-      <div className={classes.row}>
-        <IconButton
-          data-cy="toggle-topics"
-          size="small"
-          onClick={props.toggleExpanded}
-        >
-          <ExpandMoreIcon
-            style={{
-              transform: props.expanded ? "rotate(180deg)" : "rotate(0deg)",
-            }}
-          />
-        </IconButton>
-        <Typography variant="body2">Topics</Typography>
-      </div>
-      <CardContent style={{ padding: 0 }}>
-        <Collapse in={props.expanded} timeout="auto" unmountOnExit>
-          <div
-            style={{
-              maxHeight: props.maxHeight - 70,
-              overflow: "auto",
-            }}
-          >
-            <DragDropContext onDragEnd={onDragEnd}>
-              <Droppable droppableId="droppable">
-                {(provided) => (
-                  <List
-                    data-cy="topics-list"
-                    ref={provided.innerRef}
-                    className={classes.list}
-                    {...provided.droppableProps}
-                  >
-                    {props.topics.map((t, i) => (
-                      <Draggable
-                        index={i}
-                        key={`topic-${i}`}
-                        draggableId={`topic-${i}`}
-                      >
-                        {(provided) => (
-                          <ListItem
-                            data-cy={`topic-${i}`}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <TopicCard
-                              classes={classes}
-                              topic={t}
-                              editTopic={props.editTopic}
-                              removeTopic={props.removeTopic}
-                            />
-                          </ListItem>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </List>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              data-cy="topics-list-add-topic"
-              startIcon={<AddIcon />}
-              className={classes.button}
-              variant="outlined"
-              color="primary"
-              onClick={props.addTopic}
+    <div style={{ width: "100%" }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable">
+          {(provided) => (
+            <List
+              data-cy="topics-list"
+              ref={provided.innerRef}
+              className={classes.list}
+              {...provided.droppableProps}
             >
-              Add Topic
-            </Button>
-          </div>
-        </Collapse>
-      </CardContent>
-    </Card>
+              {props.topics.map((t, i) => (
+                <Draggable
+                  index={i}
+                  key={`topic-${i}`}
+                  draggableId={`topic-${i}`}
+                >
+                  {(provided) => (
+                    <ListItem
+                      data-cy={`topic-${i}`}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <TopicCard
+                        classes={classes}
+                        topic={t}
+                        editTopic={props.editTopic}
+                        removeTopic={props.removeTopic}
+                      />
+                    </ListItem>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </DragDropContext>
+      <Button
+        data-cy="topics-list-add-topic"
+        startIcon={<AddIcon />}
+        className={classes.button}
+        variant="outlined"
+        color="primary"
+        onClick={props.addTopic}
+      >
+        Add Topic
+      </Button>
+    </div>
   );
 }
 
