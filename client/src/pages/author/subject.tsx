@@ -18,6 +18,7 @@ import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { onTextInputChanged } from "helpers";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -33,10 +34,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
   },
   tab: {
-    display: "flex",
-    flexDirection: "column",
     width: "95%",
-    height: "100%",
   },
   button: {
     width: 200,
@@ -54,7 +52,6 @@ function SubjectPage(props: {
   const classes = useStyles();
   const [tab, setTab] = useState<string>("1");
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
-
   const mentorId = getData((state) => state.data?._id);
   const {
     editedData: editedSubject,
@@ -76,6 +73,7 @@ function SubjectPage(props: {
     removeQuestion,
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
+  const { height: windowHeight } = useWithWindowSize();
 
   if (!mentorId || !editedSubject) {
     return (
@@ -95,7 +93,11 @@ function SubjectPage(props: {
           <Tab label="Topics" value="2" data-cy="toggle-topics" />
           <Tab label="Questions" value="3" data-cy="toggle-questions" />
         </TabList>
-        <TabPanel className={classes.tab} value="1">
+        <TabPanel
+          className={classes.tab}
+          style={{ height: windowHeight - 250, overflow: "auto" }}
+          value="1"
+        >
           <TextField
             data-cy="subject-name"
             variant="outlined"
