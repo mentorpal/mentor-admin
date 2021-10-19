@@ -169,7 +169,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (res.status !== 200) {
-    throw new Error(`http request failed: ${res.statusText}}`);
+    throw new Error(`http request failed: ${res.statusText}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
@@ -903,7 +903,6 @@ export async function uploadVideo(
   video: File,
   question: string,
   tokenSource: CancelTokenSource,
-  addOrEditTask: (u: UploadTask) => void,
   trim?: { start: number; end: number }
 ): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
@@ -913,13 +912,6 @@ export async function uploadVideo(
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
-    onUploadProgress: (progressEvent: { loaded: string }) =>
-      addOrEditTask({
-        question,
-        taskList: [],
-        uploadProgress: (parseInt(progressEvent.loaded) / video.size) * 100,
-        tokenSource: tokenSource,
-      }),
     headers: {
       "Content-Type": "multipart/form-data",
     },
