@@ -147,6 +147,14 @@ export function useWithRecordState(
   }, [mentorAnswers, mentorQuestions]);
 
   useEffect(() => {
+    if (!curAnswer) return;
+    setCurAnswer({
+      ...curAnswer,
+      videoSrc: getVideoSrc(),
+    });
+  }, [curAnswer?.answer.media]);
+
+  useEffect(() => {
     setIsRecording(false);
   }, [answerIdx]);
 
