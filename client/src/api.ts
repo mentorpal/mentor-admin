@@ -924,7 +924,7 @@ export async function downloadVideo(
   mentorId: string,
   question: string
 ): Promise<void> {
-  uploadRequest.get(`/answer/download/${mentorId}/${question}`);
+  window.open(`${UPLOAD_ENTRYPOINT}/answer/download/${mentorId}/${question}`)
 }
 
 export async function cancelUploadVideo(
