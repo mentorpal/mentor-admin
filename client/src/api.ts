@@ -920,6 +920,13 @@ export async function uploadVideo(
   return getDataFromAxiosResponse(result, []);
 }
 
+export async function downloadVideo(
+  mentorId: string,
+  question: string
+): Promise<void> {
+  uploadRequest.get(`/answer/download/${mentorId}/${question}`);
+}
+
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,

@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer } from "api";
+import { downloadVideo, updateAnswer } from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
@@ -362,6 +362,14 @@ export function useWithRecordState(
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
 
+  function downloadCurAnswerVideo(){
+    const answer = answers[answerIdx];
+    console.log("here")
+    if(!mentorId || !answer.answer.question)
+      return;
+    downloadVideo(mentorId, answer.answer.question)
+  }
+
   function cancelUploadVideo(task: UploadTask) {
     if (!mentorId) {
       return;
@@ -393,6 +401,7 @@ export function useWithRecordState(
     startRecording,
     stopRecording,
     uploadVideo,
+    downloadCurAnswerVideo,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
@@ -422,6 +431,7 @@ export interface UseWithRecordState {
   startRecording: () => void;
   stopRecording: (video: File) => void;
   uploadVideo: (trim?: { start: number; end: number }) => void;
+  downloadCurAnswerVideo: () => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
