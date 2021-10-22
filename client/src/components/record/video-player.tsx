@@ -224,7 +224,7 @@ function VideoPlayer(props: {
           }}
         />
         <div className={classes.row} style={{ justifyContent: "center" }}>
-        <Button
+          <Button
             data-cy="rerecord-video"
             variant="outlined"
             color="primary"
@@ -273,14 +273,15 @@ function VideoPlayer(props: {
           </Button>
           <Button
             data-cy="download-video"
-            variant="outlined"
+            variant="contained"
             color="primary"
             disableElevation
+            disabled={recordState.isDownloadingVideo}
             className={classes.button}
             onClick={recordState.downloadCurAnswerVideo}
             style={{ marginRight: 15 }}
           >
-            Download Video
+            Download
           </Button>
         </div>
       </div>

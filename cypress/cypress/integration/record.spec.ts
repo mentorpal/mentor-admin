@@ -3349,7 +3349,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.hidden");
   });
 
-  it.only("TODO: testing, delete", () => {
+  it("download video button only visible when video is present", () => {
     cyMockDefault(cy, {
       mentor: [
         videoMentor,
@@ -3362,54 +3362,32 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
+        mockGQL("FetchUploadTasks", []),
       ],
     });
     cy.visit("/record");
+    cyAttachUpload(cy);
+    cy.get("[data-cy=download-video]").should("exist");
+  });
+
+  it("download video button not visible when no video is present", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=download-video]").should("not.exist");
   });
 
   it("guide silhouette should be visible while trimming a video", () => {
@@ -3704,7 +3682,7 @@ describe("Record", () => {
     });
   });
 
-  it("failed gql process displays error message in upload widget", () => {
+  it.only("failed gql process displays error message in upload widget", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

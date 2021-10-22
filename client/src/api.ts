@@ -920,11 +920,22 @@ export async function uploadVideo(
   return getDataFromAxiosResponse(result, []);
 }
 
-export async function downloadVideo(
+export async function fetchVideoBlobFromServer(
   mentorId: string,
   question: string
-): Promise<void> {
-  window.open(`${UPLOAD_ENTRYPOINT}/answer/download/${mentorId}/${question}`)
+): Promise<Blob> {
+  const result = await uploadRequest.get(
+    `/answer/download_video/${mentorId}/${question}`,
+    { responseType: "blob" }
+  );
+  throwErrorsInAxiosResponse(result);
+  return result.data;
+}
+
+export async function fetchVideoBlobFromUrl(url: string): Promise<Blob> {
+  const result = await axios.get(url, { responseType: "blob" });
+  throwErrorsInAxiosResponse(result);
+  return result.data;
 }
 
 export async function cancelUploadVideo(
