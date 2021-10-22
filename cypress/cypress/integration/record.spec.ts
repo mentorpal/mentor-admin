@@ -3682,7 +3682,7 @@ describe("Record", () => {
     });
   });
 
-  it.only("failed gql process displays error message in upload widget", () => {
+  it("failed gql process displays error message in upload widget", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

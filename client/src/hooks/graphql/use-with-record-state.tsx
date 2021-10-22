@@ -368,11 +368,7 @@ export function useWithRecordState(
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
 
-  function downloadBlobOrFile(
-    blob: Blob,
-    filename: string,
-    document: Document
-  ) {
+  function downloadVideoBlob(blob: Blob, filename: string, document: Document) {
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
@@ -384,7 +380,7 @@ export function useWithRecordState(
     if (!mentorId || !curAnswer) return;
     setIsDownloadingVideo(true);
     if (curAnswer.recordedVideo) {
-      downloadBlobOrFile(
+      downloadVideoBlob(
         curAnswer.recordedVideo,
         `${curAnswer.answer.question}-video.mp4`,
         document
@@ -395,7 +391,7 @@ export function useWithRecordState(
           mentorId,
           curAnswer.answer.question
         );
-        downloadBlobOrFile(
+        downloadVideoBlob(
           videoBlob,
           `${curAnswer.answer.question}-video.mp4`,
           document
@@ -409,7 +405,7 @@ export function useWithRecordState(
     } else if (curAnswer.videoSrc) {
       try {
         const videoBlob = await fetchVideoBlobFromUrl(curAnswer.videoSrc);
-        downloadBlobOrFile(
+        downloadVideoBlob(
           videoBlob,
           `${curAnswer.answer.question}-video.mp4`,
           document
