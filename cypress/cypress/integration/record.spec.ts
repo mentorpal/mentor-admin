@@ -712,58 +712,6 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
   });
 
-  it("testing that task list is getting set correctly", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "QUEUED",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-  });
-
   it("A successfully cancelled upload item should disappear from the list of uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -3399,6 +3347,47 @@ describe("Record", () => {
     cy.get("[data-cy=slider]").should("be.hidden");
     cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.hidden");
+  });
+
+  it("download video button only visible when video is present", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record");
+    cyAttachUpload(cy);
+    cy.get("[data-cy=download-video]").should("exist");
+  });
+
+  it("download video button not visible when no video is present", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=download-video]").should("not.exist");
   });
 
   it("guide silhouette should be visible while trimming a video", () => {

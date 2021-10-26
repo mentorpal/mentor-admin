@@ -5,7 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useState } from "react";
-import { updateAnswer } from "api";
+import {
+  fetchVideoBlobFromServer,
+  fetchVideoBlobFromUrl,
+  updateAnswer,
+} from "api";
 import {
   Answer,
   AnswerAttentionNeeded,
@@ -65,6 +69,8 @@ export function useWithRecordState(
 
   const [saveError, setSaveError] = useState<LoadingError>();
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
+  const [isDownloadingVideo, setIsDownloadingVideo] = useState<boolean>(false);
+  const [downloadError, setDownloadError] = useState<LoadingError>();
 
   const pollingInterval = parseInt(filter.poll || "");
   const mentorId = useActiveMentor((state) => state.data?._id);
@@ -145,6 +151,14 @@ export function useWithRecordState(
     }
     setAnswers(answerStates);
   }, [mentorAnswers, mentorQuestions]);
+
+  useEffect(() => {
+    if (!curAnswer) return;
+    setCurAnswer({
+      ...curAnswer,
+      videoSrc: getVideoSrc(),
+    });
+  }, [curAnswer?.answer.media]);
 
   useEffect(() => {
     setIsRecording(false);
@@ -354,6 +368,63 @@ export function useWithRecordState(
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
 
+  function downloadVideoBlob(blob: Blob, filename: string, document: Document) {
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", blobUrl);
+    link.setAttribute("download", `${filename}.mp4`);
+    link.click();
+  }
+
+  async function downloadCurAnswerVideo() {
+    if (!mentorId || !curAnswer) return;
+    setIsDownloadingVideo(true);
+    if (curAnswer.recordedVideo) {
+      downloadVideoBlob(
+        curAnswer.recordedVideo,
+        `${curAnswer.answer.question}_video`,
+        document
+      );
+    } else if (isAnswerUploading(curAnswer.answer)) {
+      try {
+        const videoBlob = await fetchVideoBlobFromServer(
+          mentorId,
+          curAnswer.answer.question
+        );
+        downloadVideoBlob(
+          videoBlob,
+          `${curAnswer.answer.question}_video`,
+          document
+        );
+      } catch (error) {
+        setDownloadError({
+          message: "Failed to download video from server",
+          error: String(error),
+        });
+      }
+    } else if (curAnswer.videoSrc) {
+      try {
+        const videoBlob = await fetchVideoBlobFromUrl(curAnswer.videoSrc);
+        downloadVideoBlob(
+          videoBlob,
+          `${curAnswer.answer.question}_video`,
+          document
+        );
+      } catch (error) {
+        setDownloadError({
+          message: `Failed to download video from url: ${curAnswer.videoSrc}`,
+          error: String(error),
+        });
+      }
+    } else {
+      setDownloadError({
+        message: "No video file available for download",
+        error: "",
+      });
+    }
+    setIsDownloadingVideo(false);
+  }
+
   function cancelUploadVideo(task: UploadTask) {
     if (!mentorId) {
       return;
@@ -371,8 +442,8 @@ export function useWithRecordState(
     isUploading,
     isRecording,
     isSaving: isSaving || questionsSaving,
-    error: mentorError || saveError,
-
+    error: mentorError || saveError || downloadError,
+    isDownloadingVideo,
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
@@ -385,6 +456,7 @@ export function useWithRecordState(
     startRecording,
     stopRecording,
     uploadVideo,
+    downloadCurAnswerVideo,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
@@ -402,6 +474,7 @@ export interface UseWithRecordState {
   isRecording: boolean;
   isSaving: boolean;
   error?: LoadingError;
+  isDownloadingVideo: boolean;
   prevAnswer: () => void;
   reloadMentorData: () => void;
   nextAnswer: () => void;
@@ -414,6 +487,7 @@ export interface UseWithRecordState {
   startRecording: () => void;
   stopRecording: (video: File) => void;
   uploadVideo: (trim?: { start: number; end: number }) => void;
+  downloadCurAnswerVideo: () => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
