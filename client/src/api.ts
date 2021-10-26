@@ -920,6 +920,24 @@ export async function uploadVideo(
   return getDataFromAxiosResponse(result, []);
 }
 
+export async function fetchVideoBlobFromServer(
+  mentorId: string,
+  question: string
+): Promise<Blob> {
+  const result = await uploadRequest.get(
+    `/answer/download_video/${mentorId}/${question}`,
+    { responseType: "blob" }
+  );
+  throwErrorsInAxiosResponse(result);
+  return result.data;
+}
+
+export async function fetchVideoBlobFromUrl(url: string): Promise<Blob> {
+  const result = await axios.get(url, { responseType: "blob" });
+  throwErrorsInAxiosResponse(result);
+  return result.data;
+}
+
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,
