@@ -271,6 +271,18 @@ function VideoPlayer(props: {
               ? "Trim Video"
               : "Upload Video"}
           </Button>
+          <Button
+            data-cy="download-video"
+            variant="contained"
+            color="primary"
+            disableElevation
+            disabled={recordState.isDownloadingVideo}
+            className={classes.button}
+            onClick={recordState.downloadCurAnswerVideo}
+            style={{ marginRight: 15 }}
+          >
+            Download
+          </Button>
         </div>
       </div>
     </div>
