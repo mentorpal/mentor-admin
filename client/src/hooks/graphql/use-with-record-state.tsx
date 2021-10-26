@@ -382,7 +382,7 @@ export function useWithRecordState(
     if (curAnswer.recordedVideo) {
       downloadVideoBlob(
         curAnswer.recordedVideo,
-        `${curAnswer.answer.question}-video.mp4`,
+        `${curAnswer.answer.question}_video`,
         document
       );
     } else if (isAnswerUploading(curAnswer.answer)) {
@@ -393,7 +393,7 @@ export function useWithRecordState(
         );
         downloadVideoBlob(
           videoBlob,
-          `${curAnswer.answer.question}-video.mp4`,
+          `${curAnswer.answer.question}_video`,
           document
         );
       } catch (error) {
@@ -407,7 +407,7 @@ export function useWithRecordState(
         const videoBlob = await fetchVideoBlobFromUrl(curAnswer.videoSrc);
         downloadVideoBlob(
           videoBlob,
-          `${curAnswer.answer.question}-video.mp4`,
+          `${curAnswer.answer.question}_video`,
           document
         );
       } catch (error) {
