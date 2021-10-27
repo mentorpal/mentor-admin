@@ -375,61 +375,70 @@ export function useWithRecordState(
     link.click();
   }
 
-  async function downloadVideoForQuestion(question: string) {
+  async function downloadAnswerVideoFromServer(answer: Answer) {
     if (!mentorId) return;
-    const answer = answers.find((a) => a.answer.question === question);
-    if (!answer) {
+    try {
+      const videoBlob = await fetchVideoBlobFromServer(
+        mentorId,
+        answer.question
+      );
+      downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
+    } catch (error) {
       setDownloadError({
-        message: "Failed to download video",
-        error: "Question ID did not match any Answer",
+        message: "Failed to download video from server",
+        error: String(error),
+      });
+    }
+  }
+
+  async function downloadAnswerSrcVideo(answer: AnswerState) {
+    const videoSrc = getVideoSrc(answer);
+    if (!videoSrc) {
+      setDownloadError({
+        message: "No video source file available for download",
+        error: "",
       });
       return;
     }
+    try {
+      const videoBlob = await fetchVideoBlobFromUrl(videoSrc);
+      downloadVideoBlob(videoBlob, `${answer.answer.question}_video`, document);
+    } catch (error) {
+      setDownloadError({
+        message: `Failed to download video from url: ${videoSrc}`,
+        error: String(error),
+      });
+    }
+  }
+
+  async function downloadVideoForQuestion(question: string) {
+    if (!mentorId) return;
     setIsDownloadingVideo(true);
-    if (answer.recordedVideo) {
-      downloadVideoBlob(
-        answer.recordedVideo,
-        `${answer.answer.question}_video`,
-        document
-      );
-    } else if (isAnswerUploading(answer.answer)) {
-      try {
-        const videoBlob = await fetchVideoBlobFromServer(
-          mentorId,
-          answer.answer.question
-        );
+    const answer = answers.find((a) => a.answer.question === question);
+    if (answer) {
+      if (answer.recordedVideo) {
         downloadVideoBlob(
-          videoBlob,
+          answer.recordedVideo,
           `${answer.answer.question}_video`,
           document
         );
-      } catch (error) {
-        setDownloadError({
-          message: "Failed to download video from server",
-          error: String(error),
-        });
+      } else if (isAnswerUploading(answer.answer)) {
+        downloadAnswerVideoFromServer(answer.answer);
+      } else {
+        const videoSrc = getVideoSrc(answer);
+        if (videoSrc) downloadAnswerSrcVideo(answer);
       }
     } else {
-      const videoSrc = getVideoSrc(answer);
-      if (videoSrc) {
-        try {
-          const videoBlob = await fetchVideoBlobFromUrl(videoSrc);
-          downloadVideoBlob(
-            videoBlob,
-            `${answer.answer.question}_video`,
-            document
-          );
-        } catch (error) {
-          setDownloadError({
-            message: `Failed to download video from url: ${videoSrc}`,
-            error: String(error),
-          });
-        }
-      } else {
+      const answer = mentorAnswers?.find((a) => a.question === question);
+      if (!answer) {
         setDownloadError({
-          message: "No video file available for download",
-          error: "",
+          message: "Failed to download video",
+          error: "Question ID did not match any Answer",
         });
+      } else {
+        if (isAnswerUploading(answer)) {
+          downloadAnswerVideoFromServer(answer);
+        }
       }
     }
     setIsDownloadingVideo(false);
