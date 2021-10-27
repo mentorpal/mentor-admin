@@ -34,6 +34,10 @@ export function useWithUploadListItem(
     return isATaskFailed(upload);
   }
 
+  function downloadVideo() {
+    recordState.downloadVideoForQuestion(upload.question);
+  }
+
   const needsAttention = Boolean(answer?.attentionNeeded);
   function onClose() {
     if (isJobDone()) {
@@ -48,6 +52,8 @@ export function useWithUploadListItem(
     isJobDone,
     isJobFailed,
     isJobQueued,
+    downloadVideo,
+    isDownloadingVideo: recordState.isDownloadingVideo,
     cancelling,
     needsAttention,
     jobTitle:
@@ -63,6 +69,8 @@ export interface UseWithUploadListItem {
   isJobDone: () => boolean;
   isJobFailed: () => boolean;
   isJobQueued: () => boolean;
+  downloadVideo: () => void;
+  isDownloadingVideo: boolean;
   cancelling: boolean;
   needsAttention: boolean;
   jobTitle: string;
