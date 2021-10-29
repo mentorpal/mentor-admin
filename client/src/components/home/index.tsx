@@ -44,6 +44,8 @@ import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import { User, Subject, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import UploadingWidget from "components/record/uploading-widget";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -128,6 +130,9 @@ function HomePage(props: {
   const continueAction = () =>
     mentorIsDirty ? startTraining(mentorId) : launchMentor(mentorId);
 
+  const recordState = useWithRecordState(props.accessToken, props.search);
+  const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
+
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
@@ -143,9 +148,9 @@ function HomePage(props: {
       </div>
     );
   }
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
-  }
+  // if (!setupStatus.isMentorInfoDone) {
+  //   navigate("/setup");
+  // }
 
   return (
     <div
@@ -153,11 +158,20 @@ function HomePage(props: {
       className={classes.root}
       style={{ background: mentorOwnership ? "white" : "black" }}
     >
+      <UploadingWidget
+        visible={uploadingWidgetVisible}
+        setUploadWidgetVisible={setUploadingWidgetVisible}
+        onRecordPage={false}
+        recordState={recordState}
+      />
       <div>
         <NavBar
           title="My Mentor"
           mentorId={mentorId}
           userRole={props.user.userRole}
+          uploads={recordState.uploads}
+          uploadsButtonVisible={uploadingWidgetVisible}
+          toggleUploadsButtonVisibility={setUploadingWidgetVisible}
         />
         <MyMentorCard
           editDisabled={!mentorOwnership}

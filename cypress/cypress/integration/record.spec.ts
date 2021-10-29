@@ -2229,7 +2229,7 @@ describe("Record", () => {
     });
   });
 
-  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
+  it.only("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

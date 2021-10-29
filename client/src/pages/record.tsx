@@ -204,19 +204,19 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
-      {curAnswer ? (
-        <UploadingWidget
-          visible={uploadingWidgetVisible}
-          setUploadWidgetVisible={setUploadingWidgetVisible}
-          curAnswer={curAnswer.answer}
-          recordState={recordState}
-        />
-      ) : undefined}
+      <UploadingWidget
+        visible={uploadingWidgetVisible}
+        onRecordPage={true}
+        setUploadWidgetVisible={setUploadingWidgetVisible}
+        recordState={recordState}
+      />
       <NavBar
         title={
           categoryTitle
             ? `Recording: ${subjectTitle} - ${categoryTitle}`
-            : `Recording: ${subjectTitle}`
+            : subjectTitle
+            ? `Recording: ${subjectTitle}`
+            : ""
         }
         mentorId={mentorId}
         uploads={recordState.uploads}

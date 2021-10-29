@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 
 import React from "react";
 import ListItem from "./uploading-list-item";
-import { Answer } from "types";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
@@ -16,15 +15,19 @@ import {
   areAllTasksDone,
   isATaskCancelled,
 } from "hooks/graphql/upload-status-helpers";
+import { navigate } from "gatsby-link";
+import { urlBuild } from "helpers";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { Subject, UploadTask } from "types";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
-  curAnswer: Answer;
   visible: boolean;
+  onRecordPage: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
-  const { recordState, curAnswer, visible, setUploadWidgetVisible } = props;
-  const { answers, setAnswerIdx, uploads } = recordState;
+  const { recordState, visible, onRecordPage, setUploadWidgetVisible } = props;
+  const { curAnswer, answers, setAnswerIdx, uploads } = recordState;
 
   const uploadsToShow = uploads.filter((upload) => !isATaskCancelled(upload));
   const uploadsInProgress = uploadsToShow.filter(
@@ -33,6 +36,31 @@ function UploadingView(props: {
   const height = 250;
   const width = 350;
 
+  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
+
+  interface SubjectUploads{
+    subject: Subject;
+    uploads: UploadTask[];
+  }
+  function buildSubjectUploadLists(){
+    if(!mentorSubjects){
+      return;
+    }
+    let subjectUploads: SubjectUploads[] = mentorSubjects.map((subject)=>{ return{subject: subject, uploads: []}});
+    console.log(mentorSubjects)
+    uploadsToShow.forEach((upload)=>{
+      subjectUploads.forEach((subjUpload)=>{
+        const containsQuestion = subjUpload.subject.questions.find((subjQuestion) =>subjQuestion.question == upload.question)
+        if(containsQuestion){
+          subjUpload.uploads.push();
+        }
+      })
+    })
+    return subjectUploads;
+  }
+  console.log(buildSubjectUploadLists())
+
+
   function retrieveAnswerIdx(id: string) {
     for (let i = 0; i < answers?.length; i++) {
       if (answers[i].answer.question == id) {
@@ -40,7 +68,22 @@ function UploadingView(props: {
       }
     }
     //Default case
-    return 0;
+    return -1;
+  }
+
+  async function jumpToAnswer(id: string) {
+    const answerIdx = retrieveAnswerIdx(id);
+    if (answerIdx !== -1 && onRecordPage) {
+      console.log("setting answerIdx: " + answerIdx);
+      setAnswerIdx(answerIdx);
+    } else {
+      console.log("navigating to record page");
+      navigate(
+        urlBuild("/record", {
+          videoId: id,
+        })
+      );
+    }
   }
 
   function produceList() {
@@ -60,7 +103,7 @@ function UploadingView(props: {
               key={`upload-card-${i}`}
               data-cy={`upload-card-${i}`}
               style={
-                curAnswer.question == upload.question
+                onRecordPage && curAnswer?.answer.question == upload.question
                   ? { background: "#FFFBCC" }
                   : {}
               }
@@ -71,7 +114,7 @@ function UploadingView(props: {
                   upload
                 )}
                 jumpToAnswer={() => {
-                  setAnswerIdx(retrieveAnswerIdx(upload.question));
+                  jumpToAnswer(upload.question);
                 }}
               />
             </div>
@@ -86,13 +129,15 @@ function UploadingView(props: {
       data-cy="uploading-widget"
       style={{
         display: uploadsToShow.length > 0 && visible ? "block" : "none",
-        position: "absolute",
+        position: "fixed",
         right: 10,
         borderRadius: "5px",
         marginTop: 200,
         boxShadow: "1px 1px 1px 1px",
         width: width,
         height: height,
+        zIndex: 1,
+        backgroundColor: "white",
       }}
     >
       <div

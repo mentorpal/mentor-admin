@@ -150,7 +150,7 @@ export function useWithRecordState(
       navigate("/");
     }
     setAnswers(answerStates);
-  }, [mentorAnswers, mentorQuestions]);
+  }, [mentorAnswers, mentorQuestions, filter]);
 
   useEffect(() => {
     if (!curAnswer) return;
