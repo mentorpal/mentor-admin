@@ -5,7 +5,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import {
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Button,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   PublishRounded,
@@ -14,6 +19,7 @@ import {
   WarningRounded,
   AccessTimeRounded,
   Clear,
+  CloudUpload,
 } from "@material-ui/icons";
 import CloseIcon from "@material-ui/icons/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
@@ -30,6 +36,8 @@ function UploadingListItem(props: {
     isJobFailed,
     isJobDone,
     isJobQueued,
+    downloadVideo,
+    isDownloadingVideo,
     onClose,
     needsAttention,
   } = props.useWithUploadListItem;
@@ -80,7 +88,7 @@ function UploadingListItem(props: {
         ) : needsAttention ? (
           <WarningRounded />
         ) : (
-          <PublishRounded />
+          <CloudUpload />
         )}
       </ListItemIcon>
       <ListItemText
@@ -92,24 +100,39 @@ function UploadingListItem(props: {
           secondary: classes.secondaryListItemText,
         }}
         primary={
-          jobTitle && jobTitle.length > 25
-            ? jobTitle.substring(0, 25) + "..."
+          jobTitle && jobTitle.length > 22
+            ? jobTitle.substring(0, 22) + "..."
             : jobTitle
         }
         secondary={progressTitle}
       />
-      <ListItemIcon
+
+      <Button
+        disabled={isDownloadingVideo}
+        title={"Download Video"}
+        style={{
+          minWidth: 0,
+          visibility: isJobDone() || cancelling ? "hidden" : "visible",
+        }}
+        data-cy="download-video-from-list"
+        onClick={downloadVideo}
+      >
+        <PublishRounded
+          style={{ cursor: "pointer", transform: "scaleY(-1)", color: "gray" }}
+        />
+      </Button>
+      <Button
+        title={"Cancel Upload"}
         style={{
           minWidth: 0,
           visibility: isJobFailed() || cancelling ? "hidden" : "visible",
+          color: "gray",
         }}
         data-cy="cancel-upload"
+        onClick={onClose}
       >
-        <CloseIcon
-          onClick={onClose}
-          style={{ cursor: "pointer", paddingRight: 5 }}
-        />
-      </ListItemIcon>
+        <CloseIcon />
+      </Button>
     </ListItem>
   );
 }
