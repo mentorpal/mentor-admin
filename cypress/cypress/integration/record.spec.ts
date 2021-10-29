@@ -3208,11 +3208,11 @@ describe("Record", () => {
         .get("span")
         .should(
           "contain",
-          videoMentor.answers[0].question.question.substr(0, 25)
+          videoMentor.answers[0].question.question.substr(0, 22)
         );
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Processing");
+        .should("contain.text", "Processing");
     });
   });
 
@@ -3969,6 +3969,128 @@ describe("Record", () => {
     cy.get("[data-cy=warn-empty-transcript]").should("exist");
     cy.get("[data-cy=upload-card-0]").within(($within) => {
       cy.get("p").should("have.text", "Needs Attention");
+    });
+  });
+
+  it("download button visible for upload items in progress", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
+      cy.get("[data-cy=download-video-from-list]").should("be.visible");
+    });
+  });
+
+  it("download button not visible for done items", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-card-0]").within(($within) => {
+      cy.get("[data-cy=download-video-from-list]").should("not.be.visible");
     });
   });
 
