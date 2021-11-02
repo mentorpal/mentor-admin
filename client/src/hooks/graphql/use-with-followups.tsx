@@ -6,19 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchFollowUpQuestions, updateSubject } from "api";
 import { navigate } from "gatsby";
-import { urlBuild } from "helpers";
+import { getValueIfKeyExists, urlBuild } from "helpers";
 import { useReducer, useState } from "react";
-import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import {
-  Category,
-  Mentor,
-  Question,
-  QuestionType,
-  Subject,
-  UtteranceName,
-} from "types";
+import { Category, Mentor, QuestionType, Subject, UtteranceName } from "types";
 import { v4 as uuid } from "uuid";
 import {
   FollowupsPageStatusType,
@@ -32,17 +24,17 @@ import useQuestions, {
 import { convertSubjectGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
+  mentor?: Mentor;
   mentorId?: string;
   curSubject?: Subject;
   curCategory?: Category;
   followUpQuestions?: string[];
-  fetchFollowups: () => void;
   followupPageState: FollowupsPageState;
-  saveAndLoadSelectedFollowups: () => void;
   toRecordFollowUpQs: string[];
+  fetchFollowups: () => void;
+  saveAndLoadSelectedFollowups: () => void;
   setToRecordFollowUpQs: (followups: string[]) => void;
   navigateToMyMentorPage: () => void;
-  mentor?: Mentor;
 }
 
 export function useWithFollowups(props: {
@@ -58,33 +50,21 @@ export function useWithFollowups(props: {
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers = getData((state) => state.data?.answers);
-  const mentorQuestionsRecord = useQuestions(
-    (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
-  );
-  const [mentorQuestions, setMentorQuestions] = useState<Question[]>();
-  const questionsLoading = isQuestionsLoading(
-    mentorAnswers?.map((a) => a.question)
-  );
-  const { categoryId, subjectId } = props;
-  const curSubject = getData((state) =>
+  const subject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
-  const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
-
-  useEffect(() => {
-    const qs = [];
-    for (const q of Object.values(mentorQuestionsRecord)) {
-      if (q.question) {
-        qs.push(q.question);
-      }
-    }
-    setMentorQuestions(qs);
-  }, [mentorQuestionsRecord, questionsLoading]);
+  const category = subject?.categories.find((c) => c.id === categoryId);
+  const questions = useQuestions(
+    (state) => state.questions,
+    subject?.questions.map((sq) => sq.question)
+  );
+  const questionsLoading = isQuestionsLoading(
+    subject?.questions.map((sq) => sq.question)
+  );
+  const { categoryId, subjectId } = props;
 
   function fetchFollowups() {
-    if (!mentorAnswers || !loginState.accessToken) {
+    if (questionsLoading || !questions || !loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
@@ -117,11 +97,11 @@ export function useWithFollowups(props: {
   function saveAndLoadSelectedFollowups() {
     if (
       !loginState.accessToken ||
-      !curCategory ||
-      !curSubject ||
+      !category ||
+      !subject ||
       !mentorId ||
       !toRecordFollowUpQs ||
-      !mentorQuestions
+      !questions
     ) {
       return;
     }
@@ -137,25 +117,24 @@ export function useWithFollowups(props: {
             name: UtteranceName.NONE,
             mentor: mentorId,
           },
-          category: curCategory,
+          category: category,
           topics: [],
         };
       }
     );
-
     const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-    for (const sq of curSubject.questions) {
-      const q = mentorQuestions.find((q) => q._id === sq.question);
+    for (const sq of subject.questions) {
+      const q = getValueIfKeyExists(sq.question, questions)?.question;
       if (q) {
         subjectQuestionsGQL.push({ ...sq, question: q });
       }
     }
     const subjectGQL: SubjectGQL = {
-      ...curSubject,
+      ...subject,
       questions: [...subjectQuestionsGQL, ...newQuestions],
     };
     //subject
-    const oldSubjectQs = curSubject.questions;
+    const oldSubjectQs = subject.questions;
     updateSubject(subjectGQL, loginState.accessToken)
       .then((subjectGQL) => {
         const subject = convertSubjectGQL(subjectGQL);
@@ -195,8 +174,8 @@ export function useWithFollowups(props: {
 
   return {
     mentorId,
-    curSubject,
-    curCategory,
+    curSubject: subject,
+    curCategory: category,
     followUpQuestions,
     fetchFollowups,
     followupPageState: state,

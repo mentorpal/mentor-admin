@@ -9,7 +9,7 @@ import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 
 import { updateSubject } from "api";
-import { urlBuild, copyAndSet } from "helpers";
+import { urlBuild, copyAndSet, getValueIfKeyExists } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -73,9 +73,20 @@ export function useWithReviewAnswerState(
   const [editedQuestions, setEditedQuestions] = useState<Question[]>();
   const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
 
-  const mentorId = getData((state) => state.data?._id);
-  const mentorSubjects = getData((state) => state.data?.subjects);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorId: string = getData((state) => state.data?._id);
+  const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const subjectQuestionIds: string[] = (mentorSubjects || []).reduce(
+    (acc: string[], cur) => {
+      acc.push(...cur.questions.map((sq) => sq.question));
+      return acc;
+    },
+    []
+  );
+  const subjectQuestions = useQuestions(
+    (state) => state.questions,
+    subjectQuestionIds
+  );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -301,10 +312,18 @@ export function useWithReviewAnswerState(
     Promise.all(
       editedSubjects?.map((subject) => {
         const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-        for (const sq of subject.questions) {
-          const q = editedQuestions.find((q) => q._id === sq.question);
-          if (q) {
-            subjectQuestionsGQL.push({ ...sq, question: q });
+        for (const question of subject.questions) {
+          const sq = getValueIfKeyExists(
+            question.question,
+            subjectQuestions
+          )?.question;
+          if (sq && sq.mentor && sq.mentor !== mentorId) {
+            subjectQuestionsGQL.push({ ...question, question: sq });
+            continue;
+          }
+          const mq = editedQuestions.find((q) => q._id === question.question);
+          if (mq) {
+            subjectQuestionsGQL.push({ ...question, question: mq });
           }
         }
         const subjectGQL: SubjectGQL = {

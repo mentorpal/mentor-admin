@@ -233,7 +233,7 @@ function FeedbackPage(): JSX.Element {
   } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)

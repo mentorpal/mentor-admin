@@ -125,15 +125,6 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Edit subject", () => {
-  it.only("test", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor,
-      gqlQueries: [mockGQL("Questions", { questions: questions })],
-    });
-    cy.visit("/author/subject");
-  });
-
   it("can open different sections", () => {
     cySetup(cy);
     cyMockDefault(cy, {
