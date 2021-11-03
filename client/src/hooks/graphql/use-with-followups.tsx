@@ -4,9 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchFollowUpQuestions, updateSubject } from "api";
+import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
 import { navigate } from "gatsby";
-import { getValueIfKeyExists, urlBuild } from "helpers";
+import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -18,10 +18,7 @@ import {
   FollowupsReducer,
   FollowupsActionType,
 } from "./followups-reducer";
-import useQuestions, {
-  isQuestionsLoading,
-} from "store/slices/questions/useQuestions";
-import { convertSubjectGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
   mentor?: Mentor;
@@ -41,30 +38,24 @@ export function useWithFollowups(props: {
   categoryId: string;
   subjectId: string;
 }): UseWithFollowups {
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
   const [state, dispatch] = useReducer(FollowupsReducer, {
     status: FollowupsPageStatusType.INIT,
     error: undefined,
   });
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
+
   const mentorId = getData((state) => state.data?._id);
   const subject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
   const category = subject?.categories.find((c) => c.id === categoryId);
-  const questions = useQuestions(
-    (state) => state.questions,
-    subject?.questions.map((sq) => sq.question)
-  );
-  const questionsLoading = isQuestionsLoading(
-    subject?.questions.map((sq) => sq.question)
-  );
   const { categoryId, subjectId } = props;
 
   function fetchFollowups() {
-    if (questionsLoading || !questions || !loginState.accessToken) {
+    if (!loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
@@ -100,8 +91,7 @@ export function useWithFollowups(props: {
       !category ||
       !subject ||
       !mentorId ||
-      !toRecordFollowUpQs ||
-      !questions
+      !toRecordFollowUpQs
     ) {
       return;
     }
@@ -122,20 +112,13 @@ export function useWithFollowups(props: {
         };
       }
     );
-    const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-    for (const sq of subject.questions) {
-      const q = getValueIfKeyExists(sq.question, questions)?.question;
-      if (q) {
-        subjectQuestionsGQL.push({ ...sq, question: q });
-      }
-    }
-    const subjectGQL: SubjectGQL = {
-      ...subject,
-      questions: [...subjectQuestionsGQL, ...newQuestions],
-    };
     //subject
     const oldSubjectQs = subject.questions;
-    updateSubject(subjectGQL, loginState.accessToken)
+    addOrUpdateSubjectQuestions(
+      subject._id,
+      newQuestions,
+      loginState.accessToken
+    )
       .then((subjectGQL) => {
         const subject = convertSubjectGQL(subjectGQL);
         //compare new subject questions to old subject questions
@@ -177,10 +160,10 @@ export function useWithFollowups(props: {
     curSubject: subject,
     curCategory: category,
     followUpQuestions,
-    fetchFollowups,
     followupPageState: state,
-    saveAndLoadSelectedFollowups,
     toRecordFollowUpQs,
+    fetchFollowups,
+    saveAndLoadSelectedFollowups,
     setToRecordFollowUpQs,
     navigateToMyMentorPage,
   };

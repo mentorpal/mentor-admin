@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 
-import { updateSubject } from "api";
-import { urlBuild, copyAndSet, getValueIfKeyExists } from "helpers";
+import { addOrUpdateSubjectQuestions } from "api";
+import { urlBuild, copyAndSet } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -22,7 +22,7 @@ import {
   Subject,
   UtteranceName,
 } from "types";
-import { SubjectQuestionGQL, SubjectGQL } from "types-gql";
+import { SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 
 interface Progress {
@@ -43,11 +43,9 @@ interface UseWithReviewAnswerState {
   progress: Progress;
   isSaving: boolean;
   error?: LoadingError;
-
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
   getQuestions: () => Question[];
-
   clearError: () => void;
   selectSubject: (sId?: string) => void;
   saveChanges: () => void;
@@ -68,25 +66,14 @@ export function useWithReviewAnswerState(
   const [blocks, setBlocks] = useState<RecordingBlock[]>([]);
   const [progress, setProgress] = useState<Progress>({ complete: 0, total: 0 });
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [editedSubjects, setEditedSubjects] = useState<Subject[]>();
-  const [editedAnswers, setEditedAnswers] = useState<Answer[]>();
-  const [editedQuestions, setEditedQuestions] = useState<Question[]>();
+  const [subjects, setSubjects] = useState<Subject[]>();
+  const [answers, setAnswers] = useState<Answer[]>();
+  const [questions, setQuestions] = useState<Question[]>();
   const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
-  const subjectQuestionIds: string[] = (mentorSubjects || []).reduce(
-    (acc: string[], cur) => {
-      acc.push(...cur.questions.map((sq) => sq.question));
-      return acc;
-    },
-    []
-  );
-  const subjectQuestions = useQuestions(
-    (state) => state.questions,
-    subjectQuestionIds
-  );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -96,21 +83,19 @@ export function useWithReviewAnswerState(
   );
 
   useEffect(() => {
-    setEditedSubjects(mentorSubjects?.map((s) => ({ ...s })));
+    setSubjects(mentorSubjects?.map((s) => ({ ...s })));
   }, [mentorSubjects]);
 
   useEffect(() => {
-    setEditedAnswers(mentorAnswers?.map((a) => ({ ...a })));
+    setAnswers(mentorAnswers?.map((a) => ({ ...a })));
   }, [mentorAnswers]);
 
   useEffect(() => {
-    const qs = [];
-    for (const q of Object.values(mentorQuestions)) {
-      if (q.question) {
-        qs.push(q.question);
-      }
-    }
-    setEditedQuestions(qs);
+    setQuestions(
+      Object.values(mentorQuestions)
+        .filter((q) => q.question)
+        .map((q) => q.question!)
+    );
   }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
@@ -226,11 +211,11 @@ export function useWithReviewAnswerState(
     );
   }
 
-  function addNewQuestion(subject: string, category?: string) {
-    if (!editedSubjects || !editedAnswers || !editedQuestions || isSaving) {
+  function addNewQuestion(subId: string, catId?: string) {
+    if (!subjects || !answers || !questions || isSaving) {
       return;
     }
-    const subjectIdx = editedSubjects.findIndex((s) => s._id === subject);
+    const subjectIdx = subjects.findIndex((s) => s._id === subId);
     if (subjectIdx === -1) {
       return;
     }
@@ -252,7 +237,7 @@ export function useWithReviewAnswerState(
     };
     let _blocks = blocks;
     const idx = _blocks.findIndex(
-      (b) => b.subject === subject && b.category === category
+      (b) => b.subject === subId && b.category === catId
     );
     if (idx !== -1) {
       _blocks = copyAndSet(_blocks, idx, {
@@ -260,78 +245,76 @@ export function useWithReviewAnswerState(
         questions: [newQuestion._id, ..._blocks[idx].questions],
       });
     }
-    setEditedQuestions([newQuestion, ...editedQuestions]);
-    setEditedSubjects(
-      copyAndSet(editedSubjects, subjectIdx, {
-        ...editedSubjects[subjectIdx],
+    setQuestions([newQuestion, ...questions]);
+    setSubjects(
+      copyAndSet(subjects, subjectIdx, {
+        ...subjects[subjectIdx],
         questions: [
           {
             question: newQuestion._id,
-            category: editedSubjects[subjectIdx].categories.find(
-              (c) => c.id === category
+            category: subjects[subjectIdx].categories.find(
+              (c) => c.id === catId
             ),
             topics: [],
           },
-          ...editedSubjects[subjectIdx].questions,
+          ...subjects[subjectIdx].questions,
         ],
       })
     );
-    setEditedAnswers([newAnswer, ...editedAnswers]);
+    setAnswers([newAnswer, ...answers]);
     setBlocks(_blocks);
   }
 
   function editQuestion(question: Question) {
-    if (!editedSubjects || !editedAnswers || !editedQuestions || isSaving) {
+    if (!subjects || !answers || !questions || isSaving) {
       return;
     }
-    const questionIdx = editedQuestions.findIndex(
-      (q) => q._id === question._id
-    );
+    const questionIdx = questions.findIndex((q) => q._id === question._id);
     if (questionIdx === -1) {
       return;
     }
-    setEditedQuestions(copyAndSet(editedQuestions, questionIdx, question));
+    setQuestions(copyAndSet(questions, questionIdx, question));
   }
 
   function saveChanges() {
     if (
       !mentorQuestions ||
       !mentorSubjects ||
-      !editedSubjects ||
-      !editedQuestions ||
-      !editedAnswers ||
+      !subjects ||
+      !questions ||
+      !answers ||
       isMentorLoading ||
       isSaving
     ) {
       return;
     }
     setIsSaving(true);
-    console.warn(
-      "MUST FIX: batch the sequence of updateSubject async calls below into a single batch GQL update/request"
-    );
+    const editedQuestions = questions.filter((q) => q.mentor === mentorId);
+    const editedQuestionIds = editedQuestions.map((q) => q._id);
     Promise.all(
-      editedSubjects?.map((subject) => {
-        const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-        for (const question of subject.questions) {
-          const sq = getValueIfKeyExists(
-            question.question,
-            subjectQuestions
-          )?.question;
-          if (sq && sq.mentor && sq.mentor !== mentorId) {
-            subjectQuestionsGQL.push({ ...question, question: sq });
-            continue;
+      subjects
+        // only update subjects that have mentor questions since we can only edit mentor questions on home screen
+        ?.filter((subject) =>
+          subject.questions.some((sq) =>
+            editedQuestionIds.includes(sq.question)
+          )
+        )
+        .map((subject) => {
+          const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
+          for (const question of subject.questions.filter((sq) =>
+            editedQuestionIds.includes(sq.question)
+          )) {
+            const mq = editedQuestions.find((q) => q._id === question.question);
+            if (mq) {
+              subjectQuestionsGQL.push({ ...question, question: mq });
+            }
           }
-          const mq = editedQuestions.find((q) => q._id === question.question);
-          if (mq) {
-            subjectQuestionsGQL.push({ ...question, question: mq });
-          }
-        }
-        const subjectGQL: SubjectGQL = {
-          ...subject,
-          questions: subjectQuestionsGQL,
-        };
-        return updateSubject(subjectGQL, accessToken);
-      })
+          return addOrUpdateSubjectQuestions(
+            subject._id,
+            subjectQuestionsGQL,
+            accessToken
+          );
+        })
     )
       .then(() => {
         loadMentor();
@@ -349,11 +332,11 @@ export function useWithReviewAnswerState(
   }
 
   function getAnswers() {
-    return editedAnswers || [];
+    return answers || [];
   }
 
   function getQuestions() {
-    return editedQuestions || [];
+    return questions || [];
   }
 
   return {
