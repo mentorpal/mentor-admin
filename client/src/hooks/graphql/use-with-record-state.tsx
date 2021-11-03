@@ -17,6 +17,7 @@ import {
   MediaType,
   MentorType,
   Question,
+  Subject,
   UploadTask,
   UtteranceName,
 } from "types";
@@ -78,10 +79,10 @@ export function useWithRecordState(
     error: mentorError,
   } = useActiveMentor();
 
-  const mentorId = getData((state) => state.data?._id);
-  const mentorType = getData((state) => state.data?.mentorType);
-  const mentorSubjects = getData((state) => state.data?.subjects);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorId: string = getData((state) => state.data?._id);
+  const mentorType: MentorType = getData((state) => state.data?.mentorType);
+  const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)

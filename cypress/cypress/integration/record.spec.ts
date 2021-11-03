@@ -2229,7 +2229,7 @@ describe("Record", () => {
     });
   });
 
-  it.only("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
+  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -3458,6 +3458,69 @@ describe("Record", () => {
         .trigger("mousedown", { button: 0 });
       cy.get("[data-cy=outline]").should("be.visible");
     });
+  });
+
+  it.only("guide silhouette should be visible while trimming a video", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?videoId=${videoMentor.answers[1].question._id}`);
   });
 
   it("can update transcript", () => {

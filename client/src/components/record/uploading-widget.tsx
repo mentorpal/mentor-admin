@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import React from "react";
+import React, { useEffect } from "react";
 import ListItem from "./uploading-list-item";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Typography, List, Button } from "@material-ui/core";
@@ -17,8 +17,16 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Subject, UploadTask } from "types";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+
+const {
+  getData,
+  loadMentor,
+  clearMentorError,
+  isLoading: isMentorLoading,
+  error: mentorError,
+} = useActiveMentor();
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -36,29 +44,22 @@ function UploadingView(props: {
   const height = 250;
   const width = 350;
 
-  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
+  const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
 
-  interface SubjectUploads{
-    subject: Subject;
-    uploads: UploadTask[];
-  }
-  function buildSubjectUploadLists(){
-    if(!mentorSubjects){
-      return;
-    }
-    let subjectUploads: SubjectUploads[] = mentorSubjects.map((subject)=>{ return{subject: subject, uploads: []}});
-    console.log(mentorSubjects)
-    uploadsToShow.forEach((upload)=>{
-      subjectUploads.forEach((subjUpload)=>{
-        const containsQuestion = subjUpload.subject.questions.find((subjQuestion) =>subjQuestion.question == upload.question)
-        if(containsQuestion){
-          subjUpload.uploads.push();
-        }
-      })
-    })
-    return subjectUploads;
-  }
-  console.log(buildSubjectUploadLists())
+  // useEffect(()=>{
+  //   // if(!answers || !uploads){
+  //   //   return
+  //   // }
+  //   // const curSubjCategoryUploads = [];
+  //   // const otherUploads = [];
+  //   // uploads.forEach((upload)=>{
+  //   //   if(answers.find((a)=> a.answer.question === upload.question)){
+  //   //     curSubjCategoryUploads.push(upload);
+  //   //   }else{
+  //   //     otherUploads.push(upload);
+  //   //   }
+  //   // })
+  // },[uploads, answers])
 
 
   function retrieveAnswerIdx(id: string) {

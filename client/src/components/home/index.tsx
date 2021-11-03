@@ -147,10 +147,7 @@ function HomePage(props: {
   // }
 
   return (
-    <div
-      data-cy="my-mentor-wrapper"
-      className={classes.root}
-    >
+    <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget
         visible={uploadingWidgetVisible}
         setUploadWidgetVisible={setUploadingWidgetVisible}
