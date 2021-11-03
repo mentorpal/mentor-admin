@@ -72,7 +72,7 @@ export function useWithFollowups(props: {
   const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
-  const curCategory = curSubject.categories.find((c) => c.id === categoryId);
+  const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   useEffect(() => {
     const qs = [];
