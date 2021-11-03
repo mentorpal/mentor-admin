@@ -21,10 +21,7 @@ import {
   UtteranceName,
 } from "types";
 import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
   isQuestionsSaving,
@@ -73,10 +70,18 @@ export function useWithRecordState(
   const [downloadError, setDownloadError] = useState<LoadingError>();
 
   const pollingInterval = parseInt(filter.poll || "");
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorType = useActiveMentor((state) => state.data?.mentorType);
-  const mentorSubjects = useActiveMentor((state) => state.data?.subjects);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const {
+    getData,
+    loadMentor,
+    clearMentorError,
+    isLoading: isMentorLoading,
+    error: mentorError,
+  } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
+  const mentorSubjects = getData((state) => state.data?.subjects);
+  const mentorAnswers = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -87,10 +92,7 @@ export function useWithRecordState(
   const questionsSaving = isQuestionsSaving(
     mentorAnswers?.map((a) => a.question)
   );
-  const mentorError = useActiveMentor((state) => state.error);
-  const { loadMentor, clearMentorError } = useActiveMentorActions();
   const { saveQuestion } = useQuestionActions();
-  const isMentorLoading = isActiveMentorLoading();
 
   const {
     uploads,
@@ -156,7 +158,7 @@ export function useWithRecordState(
     if (!curAnswer) return;
     setCurAnswer({
       ...curAnswer,
-      videoSrc: getVideoSrc(),
+      videoSrc: getVideoSrc(curAnswer),
     });
   }, [curAnswer?.answer.media]);
 
@@ -179,8 +181,8 @@ export function useWithRecordState(
       isValid: isAnswerValid(),
       isUploading: isAnswerUploading(answer.editedAnswer),
       videoSrc: idxChanged
-        ? getVideoSrc()
-        : curAnswer?.videoSrc || getVideoSrc(),
+        ? getVideoSrc(answer)
+        : curAnswer?.videoSrc || getVideoSrc(answer),
     });
   }, [answers[answerIdx], questionsLoading, questionsSaving, uploads]);
 
@@ -242,11 +244,10 @@ export function useWithRecordState(
     setSaveError(undefined);
   }
 
-  function getVideoSrc() {
+  function getVideoSrc(answer: AnswerState) {
     if (!mentorAnswers) {
       return undefined;
     }
-    const answer = answers[answerIdx];
     if (answer.recordedVideo) {
       return URL.createObjectURL(answer.recordedVideo);
     }
@@ -334,6 +335,9 @@ export function useWithRecordState(
       mentorQuestions
     )?.question;
     const editedQuestion = answers[answerIdx].editedQuestion;
+    if (!mentorId) {
+      return;
+    }
     // update the question if it has changed
     if (!equals(question, editedQuestion)) {
       saveQuestion(editedQuestion);
@@ -341,7 +345,7 @@ export function useWithRecordState(
     // update the answer if it has changed
     if (!equals(answer, editedAnswer)) {
       setIsSaving(true);
-      updateAnswer(editedAnswer, accessToken)
+      updateAnswer(editedAnswer, accessToken, mentorId)
         .then((didUpdate) => {
           if (!didUpdate) {
             setIsSaving(false);
@@ -376,53 +380,78 @@ export function useWithRecordState(
     link.click();
   }
 
-  async function downloadCurAnswerVideo() {
-    if (!mentorId || !curAnswer) return;
-    setIsDownloadingVideo(true);
-    if (curAnswer.recordedVideo) {
-      downloadVideoBlob(
-        curAnswer.recordedVideo,
-        `${curAnswer.answer.question}_video`,
-        document
+  async function downloadAnswerVideoFromServer(answer: Answer) {
+    if (!mentorId) return;
+    try {
+      const videoBlob = await fetchVideoBlobFromServer(
+        mentorId,
+        answer.question
       );
-    } else if (isAnswerUploading(curAnswer.answer)) {
-      try {
-        const videoBlob = await fetchVideoBlobFromServer(
-          mentorId,
-          curAnswer.answer.question
-        );
-        downloadVideoBlob(
-          videoBlob,
-          `${curAnswer.answer.question}_video`,
-          document
-        );
-      } catch (error) {
-        setDownloadError({
-          message: "Failed to download video from server",
-          error: String(error),
-        });
-      }
-    } else if (curAnswer.videoSrc) {
-      try {
-        const videoBlob = await fetchVideoBlobFromUrl(curAnswer.videoSrc);
-        downloadVideoBlob(
-          videoBlob,
-          `${curAnswer.answer.question}_video`,
-          document
-        );
-      } catch (error) {
-        setDownloadError({
-          message: `Failed to download video from url: ${curAnswer.videoSrc}`,
-          error: String(error),
-        });
-      }
-    } else {
+      downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
+    } catch (error) {
       setDownloadError({
-        message: "No video file available for download",
-        error: "",
+        message: "Failed to download video from server",
+        error: String(error),
       });
     }
+  }
+
+  async function downloadAnswerSrcVideo(answer: AnswerState) {
+    const videoSrc = getVideoSrc(answer);
+    if (!videoSrc) {
+      setDownloadError({
+        message: "No video source file available for download",
+        error: "",
+      });
+      return;
+    }
+    try {
+      const videoBlob = await fetchVideoBlobFromUrl(videoSrc);
+      downloadVideoBlob(videoBlob, `${answer.answer.question}_video`, document);
+    } catch (error) {
+      setDownloadError({
+        message: `Failed to download video from url: ${videoSrc}`,
+        error: String(error),
+      });
+    }
+  }
+
+  async function downloadVideoForQuestion(question: string) {
+    if (!mentorId) return;
+    setIsDownloadingVideo(true);
+    const answer = answers.find((a) => a.answer.question === question);
+    if (answer) {
+      if (answer.recordedVideo) {
+        downloadVideoBlob(
+          answer.recordedVideo,
+          `${answer.answer.question}_video`,
+          document
+        );
+      } else if (isAnswerUploading(answer.answer)) {
+        downloadAnswerVideoFromServer(answer.answer);
+      } else {
+        const videoSrc = getVideoSrc(answer);
+        if (videoSrc) downloadAnswerSrcVideo(answer);
+      }
+    } else {
+      const answer = mentorAnswers?.find((a) => a.question === question);
+      if (!answer) {
+        setDownloadError({
+          message: "Failed to download video",
+          error: "Question ID did not match any Answer",
+        });
+      } else {
+        if (isAnswerUploading(answer)) {
+          downloadAnswerVideoFromServer(answer);
+        }
+      }
+    }
     setIsDownloadingVideo(false);
+  }
+
+  function downloadCurAnswerVideo() {
+    if (!curAnswer) return;
+    downloadVideoForQuestion(curAnswer?.answer.question);
   }
 
   function cancelUploadVideo(task: UploadTask) {
@@ -457,6 +486,7 @@ export function useWithRecordState(
     stopRecording,
     uploadVideo,
     downloadCurAnswerVideo,
+    downloadVideoForQuestion,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
@@ -488,6 +518,7 @@ export interface UseWithRecordState {
   stopRecording: (video: File) => void;
   uploadVideo: (trim?: { start: number; end: number }) => void;
   downloadCurAnswerVideo: () => void;
+  downloadVideoForQuestion: (question: string) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;

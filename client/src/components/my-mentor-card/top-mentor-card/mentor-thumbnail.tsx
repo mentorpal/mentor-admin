@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function MentorThumbnail(props: {
   handleOpen: () => void;
-  editDisabled: boolean;
   editedMentor: Mentor;
   handleClose: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
@@ -52,13 +51,13 @@ function MentorThumbnail(props: {
     handleOpen,
     editedMentor,
     handleClose,
-    editDisabled,
     editMentor,
     open,
     thumbnail,
     updateThumbnail,
   } = props;
-  const mentorId = useActiveMentor((ms) => ms.data?._id || "");
+  const { getData } = useActiveMentor();
+  const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
 
   if (!mentorId || !editedMentor) {
@@ -86,7 +85,7 @@ function MentorThumbnail(props: {
               <IconButton
                 data-cy="edit-mentor-data"
                 color="primary"
-                aria-label="upload picture"
+                aria-label="edit mentor"
                 component="span"
                 className="edit-pencil-icon"
                 onClick={handleOpen}
@@ -100,7 +99,6 @@ function MentorThumbnail(props: {
               handleClose={handleClose}
               editMentor={editMentor}
               editedMentor={editedMentor}
-              editDisabled={editDisabled}
               open={open}
             />
           </div>
@@ -127,15 +125,21 @@ function MentorThumbnail(props: {
       >
         <div className="upload-thumbnail"></div>
         {thumbnail ? (
-          <Avatar
-            data-cy="uploaded-thumbnail"
-            variant="rounded"
-            className={classes.homeThumbnail}
-            src={thumbnail}
-          >
+          <div style={{ display: "flex" }}>
+            <Avatar
+              data-cy="uploaded-thumbnail"
+              variant="rounded"
+              className={classes.homeThumbnail}
+              src={thumbnail}
+            />
             <label
               htmlFor="icon-button-file"
-              style={{ position: "absolute", zIndex: 2 }}
+              style={{
+                position: "absolute",
+                zIndex: 2,
+                bottom: -2,
+                right: 73,
+              }}
             >
               <IconButton color="primary" component="span">
                 <CloudUploadIcon />
@@ -153,7 +157,7 @@ function MentorThumbnail(props: {
                   : undefined;
               }}
             />
-          </Avatar>
+          </div>
         ) : (
           <div style={{ display: "flex" }}>
             <Avatar

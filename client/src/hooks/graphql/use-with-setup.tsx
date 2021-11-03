@@ -19,11 +19,7 @@ import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { getValueIfKeyExists, urlBuild } from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  isActiveMentorSaving,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
@@ -88,9 +84,15 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
+  const {
+    getData,
+    clearMentorError,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    error: mentorError,
+  } = useActiveMentor();
 
-  const mentor = useActiveMentor((state) => state.data);
-  const mentorError = useActiveMentor((state) => state.error);
+  const mentor = getData((state) => state.data);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentor?.answers?.map((a) => a.question)
@@ -98,9 +100,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const questionsLoading = isQuestionsLoading(
     mentor?.answers?.map((a) => a.question)
   );
-  const isMentorLoading = isActiveMentorLoading();
-  const isMentorSaving = isActiveMentorSaving();
-  const { clearMentorError } = useActiveMentorActions();
   const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
     useMentorEdits();
   const {

@@ -53,10 +53,9 @@ function EditMentorInfoModal(props: {
   handleClose: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
   editedMentor: Mentor;
-  editDisabled: boolean;
   open: boolean;
 }): JSX.Element {
-  const { handleClose, editMentor, editedMentor, editDisabled, open } = props;
+  const { handleClose, editMentor, editedMentor, open } = props;
   const classes = useStyles();
 
   return (
@@ -89,7 +88,6 @@ function EditMentorInfoModal(props: {
                       })
                     }
                     className={classes.inputField}
-                    disabled={editDisabled}
                   />
                   <TextField
                     data-cy="mentor-job-title"
@@ -101,7 +99,6 @@ function EditMentorInfoModal(props: {
                       })
                     }
                     className={classes.inputField}
-                    disabled={editDisabled}
                   />
                   <TextField
                     data-cy="mentor-first-name"
@@ -113,7 +110,6 @@ function EditMentorInfoModal(props: {
                       })
                     }
                     className={classes.inputField}
-                    disabled={editDisabled}
                   />
                   <TextField
                     data-cy="mentor-email"
@@ -122,7 +118,6 @@ function EditMentorInfoModal(props: {
                     value={editedMentor.email}
                     onChange={(e) => editMentor({ email: e.target.value })}
                     className={classes.inputField}
-                    disabled={editDisabled}
                   />
                   <FormControlLabel
                     control={
@@ -134,7 +129,6 @@ function EditMentorInfoModal(props: {
                           })
                         }
                         color="secondary"
-                        disabled={editDisabled}
                       />
                     }
                     label="Allow people to contact me"
@@ -149,7 +143,6 @@ function EditMentorInfoModal(props: {
                       <Select
                         data-cy="select-chat-type"
                         label="Mentor Type"
-                        disabled={editDisabled}
                         value={editedMentor.mentorType}
                         style={{ width: 200 }}
                         onChange={(

@@ -6,11 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { equals } from "helpers";
 import { Mentor } from "types";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  isActiveMentorSaving,
-  useActiveMentorActions,
-} from "./useActiveMentor";
+import useActiveMentor from "./useActiveMentor";
 
 export interface UseMentorEdits {
   editedMentor?: Mentor;
@@ -22,13 +18,14 @@ export interface UseMentorEdits {
 
 export const useMentorEdits = (): UseMentorEdits => {
   const [editedMentor, setEditedMentor] = useState<Mentor>();
-
-  const mentor = useActiveMentor((state) => state.data);
+  const {
+    mentor,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    saveMentorDetails: saveDetails,
+    saveMentorSubjects: saveSubjects,
+  } = useActiveMentor();
   const isMentorEdited = !equals(mentor, editedMentor);
-  const isMentorLoading = isActiveMentorLoading();
-  const isMentorSaving = isActiveMentorSaving();
-  const { saveMentorDetails: saveDetails, saveMentorSubjects: saveSubjects } =
-    useActiveMentorActions();
 
   useEffect(() => {
     setEditedMentor(mentor);

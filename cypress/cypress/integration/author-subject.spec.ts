@@ -71,23 +71,79 @@ const subject = {
   ],
 };
 
+const questions: Connection<Partial<Question>> = {
+  edges: [
+    {
+      cursor: "",
+      node: {
+        _id: "q1",
+        question: "Question 1",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q2",
+        question: "Question 2",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q3",
+        question: "Question 3",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q4",
+        question: "Added Question 4",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q5",
+        question: "Removed Question 5",
+      },
+    },
+    {
+      cursor: "",
+      node: {
+        _id: "q6",
+        question: "Pick me!",
+      },
+    },
+  ],
+  pageInfo: {
+    startCursor: null,
+    endCursor: null,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  },
+};
+
 describe("Edit subject", () => {
-  it("can open and collapse different sections", () => {
+  it.only("test", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
+    });
+    cy.visit("/author/subject");
+  });
+
+  it("can open different sections", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject");
     // info opened by default
     cy.get("[data-cy=subject-name]").should("exist");
     cy.get("[data-cy=subject-description]").should("exist");
-    cy.get("[data-cy=topics-list]").should("not.exist");
-    cy.get("[data-cy=categories]").should("not.exist");
-    cy.get("[data-cy=questions]").should("not.exist");
-    // close info
-    cy.get("[data-cy=toggle-info]").trigger("mouseover").click();
-    cy.get("[data-cy=subject-name]").should("not.exist");
-    cy.get("[data-cy=subject-description]").should("not.exist");
     cy.get("[data-cy=topics-list]").should("not.exist");
     cy.get("[data-cy=categories]").should("not.exist");
     cy.get("[data-cy=questions]").should("not.exist");
@@ -111,6 +167,7 @@ describe("Edit subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject");
     cy.get("[data-cy=subject-name]").within(($input) => {
@@ -131,6 +188,7 @@ describe("Edit subject", () => {
     cyMockDefault(cy, {
       mentor,
       subject,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject?id=background");
     cy.get("[data-cy=subject-name]").within(($input) => {
@@ -222,6 +280,7 @@ describe("Edit subject", () => {
     cyMockDefault(cy, {
       mentor: { _id: "notclint" },
       subject,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject?id=background");
     cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -251,6 +310,7 @@ describe("Edit subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject");
     cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -279,6 +339,7 @@ describe("Edit subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject");
     cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -343,6 +404,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -424,6 +486,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -467,8 +530,6 @@ describe("Edit subject", () => {
       cy.get("[data-cy=save-button]").should("not.be.disabled");
       cy.get("[data-cy=save-button]").trigger("mouseover").click();
       cy.get("[data-cy=save-button]").should("be.disabled");
-      cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
-      cy.get("[data-cy=question-topics-list]").children().should("not.exist");
     });
 
     it("can edit a topic", () => {
@@ -489,6 +550,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -579,6 +641,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -647,6 +710,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -700,6 +764,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -758,6 +823,7 @@ describe("Edit subject", () => {
         mentor,
         subject,
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -795,6 +861,7 @@ describe("Edit subject", () => {
         mentor,
         subject,
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -876,6 +943,7 @@ describe("Edit subject", () => {
           },
         ],
         gqlQueries: [
+          mockGQL("Questions", { questions: questions }),
           mockGQL("UpdateSubject", {
             me: {
               updateSubject: {
@@ -931,6 +999,7 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -948,6 +1017,7 @@ describe("Edit subject", () => {
       cyMockDefault(cy, {
         mentor,
         subject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
       });
       cy.visit("/author/subject?id=background");
       cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
@@ -995,6 +1065,7 @@ describe("Edit subject", () => {
     cyMockDefault(cy, {
       mentor,
       subject,
+      gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
     cy.visit("/author/subject?id=background");
     cy.get("[data-cy=save-button]").should("be.disabled");

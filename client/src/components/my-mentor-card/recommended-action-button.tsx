@@ -18,8 +18,8 @@ export default function RecommendedActionButton(props: {
   const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(
     props.continueAction
   );
-
-  const mentorInfo = useActiveMentor((ms) =>
+  const { getData } = useActiveMentor();
+  const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
 

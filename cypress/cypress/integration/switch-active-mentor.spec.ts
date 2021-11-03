@@ -4,10 +4,39 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cySetup, cyMockDefault } from "../support/functions";
+import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
+
+export const users = {
+  edges: [
+    {
+      cursor: "cursor 1",
+      node: {
+        _id: "clintanderson",
+        name: "Clinton Anderson",
+        email: "clint@anderson.com",
+        userRole: UserRole.ADMIN,
+        defaultMentor: { _id: "clintanderson" },
+      },
+    },
+    {
+      cursor: "cursor 2",
+      node: {
+        _id: "user",
+        name: "User",
+        email: "user@opentutor.org",
+        userRole: UserRole.USER,
+        defaultMentor: "nega-clint",
+      },
+    },
+  ],
+  pageInfo: {
+    hasNextPage: false,
+    endCursor: "cursor 2",
+  },
+};
 
 describe("Switch Active Mentor", () => {
   describe("Shows default mentor and can switch to other mentors.", () => {
@@ -22,9 +51,10 @@ describe("Switch Active Mentor", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=mentor-select]").should("not.exist");
+      cy.get("[data-cy=default-mentor-button]").should("not.exist");
     });
-    it("loads other mentors' profile data if user is admin, data cannot be edited", () => {
+
+    it("loads other mentors' profile data if user is admin", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [
@@ -35,73 +65,23 @@ describe("Switch Active Mentor", () => {
             name: "Nega Clint",
             title: "Evil Clone",
           },
-          { ...clint },
         ],
         login: {
           ...loginDefault,
           user: { ...loginDefault.user, userRole: UserRole.ADMIN },
         },
+        gqlQueries: [mockGQL("Users", { users })],
       });
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=mentor-select]").should("exist");
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(255, 255, 255)"
-      );
-
-      //  open modal
-      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
-      cy.get("[data-cy=mentor-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clinton Anderson");
+      cy.get("[data-cy=default-mentor-button]").should("exist");
+      cy.contains("Clinton Anderson");
+      cy.visit("/users");
+      cy.get("[data-cy=user-1]").within(($within) => {
+        cy.get("[data-cy=edit-button]").invoke("mouseover").click();
       });
-      cy.get("[data-cy=mentor-job-title]").within(($input) => {
-        cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-      });
-
-      // close modal
-      cy.get("[data-cy=close-modal]").trigger("mouseover").click();
-      cy.get("[data-cy=switch-mentor-id]").within(($input) => {
-        cy.get("input").clear();
-      });
-      cy.get("[data-cy=switch-mentor-id]").type("nega-clint");
-      cy.get("[data-cy=switch-mentor-button]").trigger("mouseover").click();
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(0, 0, 0)"
-      );
-
-      //  open modal
-      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
-      cy.get("[data-cy=mentor-name]").within(($input) => {
-        cy.get("input").should("have.value", "Nega Clint");
-        cy.get("input").should("be.disabled");
-      });
-      cy.get("[data-cy=mentor-job-title]").within(($input) => {
-        cy.get("input").should("have.value", "Evil Clone");
-        cy.get("input").should("be.disabled");
-      });
-
-      // close modal
-      cy.get("[data-cy=close-modal]").trigger("mouseover").click();
-      cy.get("[data-cy=default-mentor-button]").trigger("mouseover").click();
-
-      //  open modal
-      cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
-      cy.get("[data-cy=mentor-name]").within(($input) => {
-        cy.get("input").should("have.value", "Clinton Anderson");
-        cy.get("input").should("not.be.disabled");
-      });
-      cy.get("[data-cy=mentor-job-title]").within(($input) => {
-        cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-      });
-      cy.get("[data-cy=my-mentor-wrapper]").should(
-        "have.css",
-        "background-color",
-        "rgb(255, 255, 255)"
-      );
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.contains("Nega Clint");
     });
   });
 });
