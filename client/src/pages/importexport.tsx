@@ -13,6 +13,7 @@ import ImportView from "components/import-export/import-view";
 import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { Answer } from "types";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -27,7 +28,7 @@ function ImportPage(): JSX.Element {
   const { getData } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
 
   if (!mentorId || !mentorAnswers) {
     return <div />;

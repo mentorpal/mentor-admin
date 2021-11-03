@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import {
+  Answer,
   Category,
   Mentor,
   Question,
@@ -58,7 +59,7 @@ export function useWithFollowups(props: {
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestionsRecord = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -68,10 +69,10 @@ export function useWithFollowups(props: {
     mentorAnswers?.map((a) => a.question)
   );
   const { categoryId, subjectId } = props;
-  const curSubject = getData((state) =>
+  const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
-  const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
+  const curCategory = curSubject.categories.find((c) => c.id === categoryId);
 
   useEffect(() => {
     const qs = [];

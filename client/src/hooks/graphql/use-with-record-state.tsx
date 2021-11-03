@@ -50,6 +50,11 @@ export interface CurAnswerState extends AnswerState {
   videoSrc?: string;
 }
 
+interface RecordStateError {
+  message: string;
+  error: string;
+}
+
 export function useWithRecordState(
   accessToken: string,
   filter: {
@@ -64,11 +69,9 @@ export function useWithRecordState(
   const [answerIdx, setAnswerIdx] = useState<number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
-
-  const [saveError, setSaveError] = useState<LoadingError>();
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const [isDownloadingVideo, setIsDownloadingVideo] = useState<boolean>(false);
-  const [downloadError, setDownloadError] = useState<LoadingError>();
+  const [error, setError] = useState<RecordStateError>();
 
   const pollingInterval = parseInt(filter.poll || "");
   const {
@@ -116,7 +119,7 @@ export function useWithRecordState(
     }
     const { videoId, subject, category, status } = filter;
     let answers = mentorAnswers;
-    if (videoId) {
+    if (videoId && !subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       answers = answers.filter((a) => ids.includes(a.question));
     } else if (subject) {
@@ -156,6 +159,16 @@ export function useWithRecordState(
   }, [mentorAnswers, mentorQuestions, filter]);
 
   useEffect(() => {
+    const { videoId, subject } = filter;
+    if (!answers.length || !subject) return;
+    if (videoId) {
+      const ids = Array.isArray(videoId) ? videoId : [videoId];
+      const firstIdx = retrieveAnswerIdx(ids[0]);
+      if (firstIdx || firstIdx == 0) setAnswerIdx(firstIdx);
+    }
+  }, [answers]);
+
+  useEffect(() => {
     if (!curAnswer) return;
     setCurAnswer({
       ...curAnswer,
@@ -187,6 +200,17 @@ export function useWithRecordState(
     });
   }, [answers[answerIdx], questionsLoading, questionsSaving, uploads]);
 
+  function retrieveAnswerIdx(id: string) {
+    for (let i = 0; i < answers?.length; i++) {
+      if (answers[i].answer.question == id) {
+        return i;
+      }
+    }
+    setError({
+      message: "Failed to retrieve answer index",
+      error: `No answer object contains question with id: ${id}`,
+    });
+  }
   function updateAnswerState(
     edits: Partial<AnswerState>,
     idx: number = answerIdx
@@ -242,7 +266,7 @@ export function useWithRecordState(
 
   function clearError() {
     clearMentorError();
-    setSaveError(undefined);
+    setError(undefined);
   }
 
   function getVideoSrc(answer: AnswerState) {
@@ -357,7 +381,7 @@ export function useWithRecordState(
         })
         .catch((err) => {
           setIsSaving(false);
-          setSaveError({
+          setError({
             message: "Failed to save answer",
             error: err.message,
           });
@@ -390,7 +414,7 @@ export function useWithRecordState(
       );
       downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
     } catch (error) {
-      setDownloadError({
+      setError({
         message: "Failed to download video from server",
         error: String(error),
       });
@@ -400,7 +424,7 @@ export function useWithRecordState(
   async function downloadAnswerSrcVideo(answer: AnswerState) {
     const videoSrc = getVideoSrc(answer);
     if (!videoSrc) {
-      setDownloadError({
+      setError({
         message: "No video source file available for download",
         error: "",
       });
@@ -410,7 +434,7 @@ export function useWithRecordState(
       const videoBlob = await fetchVideoBlobFromUrl(videoSrc);
       downloadVideoBlob(videoBlob, `${answer.answer.question}_video`, document);
     } catch (error) {
-      setDownloadError({
+      setError({
         message: `Failed to download video from url: ${videoSrc}`,
         error: String(error),
       });
@@ -437,7 +461,7 @@ export function useWithRecordState(
     } else {
       const answer = mentorAnswers?.find((a) => a.question === question);
       if (!answer) {
-        setDownloadError({
+        setError({
           message: "Failed to download video",
           error: "Question ID did not match any Answer",
         });
@@ -472,7 +496,7 @@ export function useWithRecordState(
     isUploading,
     isRecording,
     isSaving: isSaving || questionsSaving,
-    error: mentorError || saveError || downloadError,
+    error: mentorError || error,
     isDownloadingVideo,
     prevAnswer,
     nextAnswer,

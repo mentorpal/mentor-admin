@@ -5,10 +5,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ListItem from "./uploading-list-item";
 import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
-import { Typography, List, Button } from "@material-ui/core";
+import {
+  Typography,
+  List,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+} from "@material-ui/core";
 import Close from "@material-ui/icons/Close";
 import { useWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
 import {
@@ -20,47 +28,51 @@ import { urlBuild } from "helpers";
 import { Subject, UploadTask } from "types";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
-const {
-  getData,
-  loadMentor,
-  clearMentorError,
-  isLoading: isMentorLoading,
-  error: mentorError,
-} = useActiveMentor();
-
 function UploadingView(props: {
   recordState: UseWithRecordState;
   visible: boolean;
   onRecordPage: boolean;
   setUploadWidgetVisible: (b: boolean) => void;
 }): JSX.Element {
+  const [navigateQuestionId, setNavigateQuestionId] = useState<string>("");
+  const [warningPopupOpen, setWarningPopupOpen] = useState<boolean>(false);
   const { recordState, visible, onRecordPage, setUploadWidgetVisible } = props;
   const { curAnswer, answers, setAnswerIdx, uploads } = recordState;
-
   const uploadsToShow = uploads.filter((upload) => !isATaskCancelled(upload));
   const uploadsInProgress = uploadsToShow.filter(
     (upload) => !areAllTasksDone(upload)
   );
+  const curRecordingSetUploads: UploadTask[] = uploadsToShow.filter((upload) =>
+    answers.find((a) => a.answer.question === upload.question)
+  );
+  const otherUploads: UploadTask[] = uploadsToShow.filter(
+    (upload) => !answers.find((a) => a.answer.question === upload.question)
+  );
+
   const height = 250;
   const width = 350;
 
+  const { getData } = useActiveMentor();
+
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
 
-  // useEffect(()=>{
-  //   // if(!answers || !uploads){
-  //   //   return
-  //   // }
-  //   // const curSubjCategoryUploads = [];
-  //   // const otherUploads = [];
-  //   // uploads.forEach((upload)=>{
-  //   //   if(answers.find((a)=> a.answer.question === upload.question)){
-  //   //     curSubjCategoryUploads.push(upload);
-  //   //   }else{
-  //   //     otherUploads.push(upload);
-  //   //   }
-  //   // })
-  // },[uploads, answers])
+  useEffect(() => {
+    if (!navigateQuestionId) return;
+    const answerIdx = retrieveAnswerIdx(navigateQuestionId);
+    if (answerIdx !== -1 && onRecordPage) {
+      setAnswerIdx(answerIdx);
+    } else {
+      setWarningPopupOpen(true);
+    }
+  }, [navigateQuestionId]);
 
+  function navigateToRecordQuestion(questionId: string) {
+    if (onRecordPage) {
+      setNavigateQuestionId(questionId);
+    } else {
+      navigateToQuestionsRecordingPage(questionId);
+    }
+  }
 
   function retrieveAnswerIdx(id: string) {
     for (let i = 0; i < answers?.length; i++) {
@@ -72,19 +84,29 @@ function UploadingView(props: {
     return -1;
   }
 
-  async function jumpToAnswer(id: string) {
-    const answerIdx = retrieveAnswerIdx(id);
-    if (answerIdx !== -1 && onRecordPage) {
-      console.log("setting answerIdx: " + answerIdx);
-      setAnswerIdx(answerIdx);
-    } else {
-      console.log("navigating to record page");
-      navigate(
-        urlBuild("/record", {
-          videoId: id,
-        })
-      );
+  function navigateToQuestionsRecordingPage(questionId: string) {
+    const questionsSubject = mentorSubjects.find((subject) =>
+      subject.questions.find((subjq) => subjq.question === questionId)
+    );
+    const subjectQuestion = questionsSubject?.questions.find(
+      (question) => question.question === questionId
+    );
+    if (!questionsSubject) {
+      console.error(`Failed to find a subject for question: ${questionId}`);
+      return;
     }
+    const url: string = subjectQuestion?.category
+      ? urlBuild("/record", {
+          category: subjectQuestion.category.id,
+          subject: questionsSubject._id,
+          videoId: questionId,
+        })
+      : urlBuild("/record", {
+          subject: questionsSubject._id,
+          videoId: questionId,
+        });
+    navigate(url);
+    setNavigateQuestionId("");
   }
 
   function produceList() {
@@ -98,11 +120,11 @@ function UploadingView(props: {
           overflow: "auto",
         }}
       >
-        {uploadsToShow.map((upload, i) => {
+        {curRecordingSetUploads.map((upload, i) => {
           return (
             <div
-              key={`upload-card-${i}`}
-              data-cy={`upload-card-${i}`}
+              key={`active-upload-card-${i}`}
+              data-cy={`active-upload-card-${i}`}
               style={
                 onRecordPage && curAnswer?.answer.question == upload.question
                   ? { background: "#FFFBCC" }
@@ -115,13 +137,75 @@ function UploadingView(props: {
                   upload
                 )}
                 jumpToAnswer={() => {
-                  jumpToAnswer(upload.question);
+                  navigateToRecordQuestion(upload.question);
                 }}
               />
             </div>
           );
         })}
+        {otherUploads.length && curRecordingSetUploads.length ? (
+          <div
+            data-cy={"uploads-split"}
+            style={{ backgroundColor: "gray", height: "5px" }}
+          ></div>
+        ) : undefined}
+        {otherUploads.length
+          ? otherUploads.map((upload, i) => {
+              return (
+                <div
+                  style={{ color: "gray" }}
+                  key={`grayed-upload-card-${i}`}
+                  data-cy={`grayed-upload-card-${i}`}
+                >
+                  <ListItem
+                    useWithUploadListItem={useWithUploadListItem(
+                      recordState,
+                      upload
+                    )}
+                    jumpToAnswer={() => {
+                      navigateToRecordQuestion(upload.question);
+                    }}
+                  />
+                </div>
+              );
+            })
+          : undefined}
       </List>
+    );
+  }
+
+  function navigationWarningPopup() {
+    return (
+      <Dialog data-cy="navigation-warning" open={warningPopupOpen}>
+        <DialogTitle>{"Navigating Away"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {
+              "The upload you selected belongs to a different subject, would you like to navigate to that subjects recording page?"
+            }
+          </DialogContentText>
+        </DialogContent>
+        <DialogContent>
+          <Button
+            data-cy="do-not-navigate-button"
+            onClick={() => {
+              setNavigateQuestionId("");
+              setWarningPopupOpen(false);
+            }}
+          >
+            NO
+          </Button>
+          <Button
+            data-cy="navigate-to-question-button"
+            onClick={() => {
+              navigateToQuestionsRecordingPage(navigateQuestionId);
+              setWarningPopupOpen(false);
+            }}
+          >
+            YES
+          </Button>
+        </DialogContent>
+      </Dialog>
     );
   }
 
@@ -174,6 +258,7 @@ function UploadingView(props: {
         </div>
       </div>
       {produceList()}
+      {navigationWarningPopup()}
     </div>
   );
 }

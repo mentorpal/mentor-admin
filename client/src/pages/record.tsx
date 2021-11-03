@@ -43,6 +43,7 @@ import {
   MentorType,
   UtteranceName,
   Status,
+  Subject,
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -131,7 +132,7 @@ function RecordPage(props: {
       curAnswer?.answer.question ? [curAnswer.answer.question] : undefined
     )
   );
-  const curSubject = getData((state) =>
+  const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == props.search.subject)
   );
   const subjectTitle = curSubject?.name || "";

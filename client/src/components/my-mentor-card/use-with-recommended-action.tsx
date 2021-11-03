@@ -377,7 +377,7 @@ export function UseWithRecommendedAction(
   continueAction?: () => void
 ): [Recommendation, () => void] {
   const { getData } = useActiveMentor();
-  const mentorAnswers = getData((ms) => ms.data?.answers);
+  const mentorAnswers: Answer[] = getData((ms) => ms.data?.answers);
   const mentorQuestions = useQuestions(
     (s) => s.questions,
     mentorAnswers?.map((a) => a.question)

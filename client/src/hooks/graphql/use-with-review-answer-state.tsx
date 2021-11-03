@@ -74,8 +74,8 @@ export function useWithReviewAnswerState(
   const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
-  const mentorSubjects = getData((state) => state.data?.subjects);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)

@@ -4,11 +4,36 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cyMockDefault } from "../support/functions";
+import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
+
+function taskListBuild(progressForAllTasks) {
+  return [
+    {
+      task_name: "trim_upload",
+      task_id: "trim_id",
+      status: progressForAllTasks,
+    },
+    {
+      task_name: "transcribe",
+      task_id: "transcribe_id",
+      status: progressForAllTasks,
+    },
+    {
+      task_name: "transcode",
+      task_id: "transcode_id",
+      status: progressForAllTasks,
+    },
+    {
+      task_name: "finalization",
+      task_id: "finalization_id",
+      status: progressForAllTasks,
+    },
+  ];
+}
 
 describe("Index page", () => {
   it("if not logged in, show login page", () => {
@@ -80,5 +105,155 @@ describe("Index page", () => {
     cy.get("[data-cy=select-subject]").should("exist");
     cy.get("[data-cy=menu-button]").trigger("mouseover").click();
     cy.get("[data-cy=Users-menu-button]").should("not.exist");
+  });
+
+  it.only("with uploads in progress, button not initially visible", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: clint.answers[0].question._id,
+                    question: clint.answers[0].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: clint.answers[1].question._id,
+                    question: clint.answers[1].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: clint.answers[2].question._id,
+                    question: clint.answers[2].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=header-uploads-button]")
+      .should("be.visible")
+      .should("contain.text", "0 of 3 Uploads Complete");
+  });
+
+  it.only("selecting an upload from upload list brings you directly to record page for that question", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: clint.answers[0].question._id,
+                    question: clint.answers[0].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: clint.answers[1].question._id,
+                    question: clint.answers[1].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: clint.answers[2].question._id,
+                    question: clint.answers[2].question.question,
+                  },
+
+                  taskList: taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=header-uploads-button]")
+      .should("be.visible")
+      .should("contain.text", "0 of 3 Uploads Complete");
+    cy.get("[data-cy=header-uploads-button]").trigger("mouseover").click();
+    cy.get("[data-cy=active-upload-card-0]").trigger("mouseover").click();
+    cy.get("[data-cy=question-input]").should(
+      "contain.text",
+      "Who are you and what do you do?"
+    );
   });
 });
