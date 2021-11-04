@@ -58,6 +58,7 @@ export function useWithFollowups(props: {
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
+  const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestionsRecord = useQuestions(
@@ -68,7 +69,6 @@ export function useWithFollowups(props: {
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
-  const { categoryId, subjectId } = props;
   const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
