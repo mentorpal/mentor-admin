@@ -95,10 +95,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const mentor: Mentor = getData((state) => state.data);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentor?.answers?.map((a) => a.question)
+    mentor?.answers?.map((a: Answer) => a.question)
   );
   const questionsLoading = isQuestionsLoading(
-    mentor?.answers?.map((a) => a.question)
+    mentor?.answers?.map((a: Answer) => a.question)
   );
   const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
     useMentorEdits();
@@ -125,7 +125,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     );
     const isMentorTypeChosen = Boolean(mentor.mentorType);
     const idleAnswer = mentor.answers.find(
-      (a) =>
+      (a: Answer) =>
         getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
         UtteranceName.IDLE
     );
@@ -134,10 +134,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
         : undefined;
     const requiredSubjects = mentor.subjects
-      .filter((s) => s.isRequired)
-      .map((s) => {
+      .filter((s: Subject) => s.isRequired)
+      .map((s: Subject) => {
         const answers = mentor.answers.filter(
-          (a) =>
+          (a: Answer) =>
             (!getValueIfKeyExists(a.question, mentorQuestions)?.question
               ?.mentorType ||
               getValueIfKeyExists(a.question, mentorQuestions)?.question
@@ -147,14 +147,17 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a) => a.status === Status.COMPLETE),
+          complete: answers.every((a: Answer) => a.status === Status.COMPLETE),
         };
       });
     const isBuildable =
       isMentorInfoDone &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
-      requiredSubjects.every((s) => s.complete);
+      requiredSubjects.every(
+        (s: { subject: Subject; answers: Answer[]; complete: boolean }) =>
+          s.complete
+      );
     const isBuilt = Boolean(mentor.lastTrainedAt);
     const isSetupComplete = isBuildable && isBuilt;
     setStatus({
@@ -178,12 +181,14 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
       status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
-    requiredSubjects.forEach((s) => {
-      status.push({
-        type: SetupStepType.REQUIRED_SUBJECT,
-        complete: s.complete,
-      });
-    });
+    requiredSubjects.forEach(
+      (s: { subject: Subject; answers: Answer[]; complete: boolean }) => {
+        status.push({
+          type: SetupStepType.REQUIRED_SUBJECT,
+          complete: s.complete,
+        });
+      }
+    );
     status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
     setSteps(status);
   }, [mentor, questionsLoading, configState.config]);

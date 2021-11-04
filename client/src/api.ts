@@ -39,6 +39,7 @@ import {
   convertUserQuestionGQL,
   MentorGQL,
   SubjectGQL,
+  SubjectQuestionGQL,
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
@@ -480,6 +481,66 @@ export async function updateSubject(
       },
     },
     { dataPath: ["me", "updateSubject"], accessToken }
+  );
+}
+
+export async function addOrUpdateSubjectQuestions(
+  subject: string,
+  questions: SubjectQuestionGQL[],
+  accessToken: string
+): Promise<SubjectGQL> {
+  return await execGql<SubjectGQL>(
+    {
+      query: `
+      mutation SubjectAddOrUpdateQuestions($subject: ID!, $questions: [SubjectQuestionInputType]!) {
+        me {
+          subjectAddOrUpdateQuestions(subject: $subject, questions: $questions) {
+            _id
+            name
+            description
+            isRequired
+            categories {
+              id
+              name
+              description
+            }
+            topics {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+              category {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+            }
+          }
+        }
+      }
+    `,
+      variables: {
+        subject,
+        questions,
+      },
+    },
+    { dataPath: ["me", "subjectAddOrUpdateQuestions"], accessToken }
   );
 }
 
