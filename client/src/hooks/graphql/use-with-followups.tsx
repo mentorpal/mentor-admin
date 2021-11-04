@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchFollowUpQuestions, updateSubject } from "api";
+import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
 import { navigate } from "gatsby";
 import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
@@ -30,7 +30,7 @@ import {
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
-import { convertSubjectGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -144,20 +144,13 @@ export function useWithFollowups(props: {
       }
     );
 
-    const subjectQuestionsGQL: SubjectQuestionGQL[] = [];
-    for (const sq of curSubject.questions) {
-      const q = mentorQuestions.find((q) => q._id === sq.question);
-      if (q) {
-        subjectQuestionsGQL.push({ ...sq, question: q });
-      }
-    }
-    const subjectGQL: SubjectGQL = {
-      ...curSubject,
-      questions: [...subjectQuestionsGQL, ...newQuestions],
-    };
     //subject
     const oldSubjectQs = curSubject.questions;
-    updateSubject(subjectGQL, loginState.accessToken)
+    addOrUpdateSubjectQuestions(
+      curSubject._id,
+      newQuestions,
+      loginState.accessToken
+    )
       .then((subjectGQL) => {
         const subject = convertSubjectGQL(subjectGQL);
         //compare new subject questions to old subject questions

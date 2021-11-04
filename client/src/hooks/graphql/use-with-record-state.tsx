@@ -166,7 +166,7 @@ export function useWithRecordState(
       const firstIdx = retrieveAnswerIdx(ids[0]);
       if (firstIdx || firstIdx == 0) setAnswerIdx(firstIdx);
     }
-  }, [answers]);
+  }, [answers.length]);
 
   useEffect(() => {
     if (!curAnswer) return;
@@ -206,10 +206,7 @@ export function useWithRecordState(
         return i;
       }
     }
-    setError({
-      message: "Failed to retrieve answer index",
-      error: `No answer object contains question with id: ${id}`,
-    });
+    return 0;
   }
   function updateAnswerState(
     edits: Partial<AnswerState>,
