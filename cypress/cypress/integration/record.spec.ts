@@ -1953,7 +1953,48 @@ describe("Record", () => {
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("FetchUploadTasks", [
-          { me: { uploadTasks: [] } },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
           {
             me: {
               uploadTasks: [
@@ -2000,10 +2041,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cyAttachUpload(cy).then(() => {
-      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-      cy.get("[data-cy=uploading-widget]").should("be.visible");
-    });
+    cy.get("[data-cy=uploading-widget]").should("be.visible");
   });
 
   it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
@@ -4190,6 +4228,86 @@ describe("Record", () => {
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
           {
             me: {
               uploadTasks: [
