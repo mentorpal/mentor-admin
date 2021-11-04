@@ -125,7 +125,7 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Edit subject", () => {
-  it.only("test", () => {
+  it("test", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,

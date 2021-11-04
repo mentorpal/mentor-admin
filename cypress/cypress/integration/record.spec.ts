@@ -381,7 +381,7 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
     });
 
-    it.only("shows all complete questions if ?status=COMPLETE", () => {
+    it("shows all complete questions if ?status=COMPLETE", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?status=COMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
@@ -424,7 +424,7 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
     });
 
-    it.only("shows a single question if ?videoId={questionId}", () => {
+    it("shows a single question if ?videoId={questionId}", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?videoId=A1_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
@@ -525,7 +525,7 @@ describe("Record", () => {
       cy.get("[data-cy=done-btn]").should("exist");
     });
 
-    it.only("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
+    it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background&status=INCOMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");

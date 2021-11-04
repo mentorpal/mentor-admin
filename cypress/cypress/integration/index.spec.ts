@@ -107,7 +107,7 @@ describe("Index page", () => {
     cy.get("[data-cy=Users-menu-button]").should("not.exist");
   });
 
-  it.only("with uploads in progress, button not initially visible", () => {
+  it("with uploads in progress, button not initially visible", () => {
     cyMockDefault(cy, {
       mentor: clint,
       gqlQueries: [
@@ -179,7 +179,7 @@ describe("Index page", () => {
       .should("contain.text", "0 of 3 Uploads Complete");
   });
 
-  it.only("selecting an upload from upload list brings you directly to record page for that question", () => {
+  it("selecting an upload from upload list brings you directly to record page for that question", () => {
     cyMockDefault(cy, {
       mentor: clint,
       gqlQueries: [
