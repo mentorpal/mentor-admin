@@ -163,6 +163,7 @@ function VideoPlayer(props: {
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
+            config={{file:{attributes:{"crossorigin":"use-credentials"}}}}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
             playing={!isUploading && !trimInProgress}
