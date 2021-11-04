@@ -6,11 +6,17 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { LoadingStatus } from "hooks/graphql/loading-reducer";
+import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { useAppSelector } from "store/hooks";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import * as mentorActions from ".";
+import {
+  ACTIVE_MENTOR_KEY,
+  sessionStorageClear,
+  sessionStorageGet,
+  sessionStorageStore,
+} from "store/local-storage";
 
 export function selectActiveMentor(
   state: RootState
@@ -18,34 +24,55 @@ export function selectActiveMentor(
   return state.mentor;
 }
 
-export function isActiveMentorLoading(): boolean {
-  return useActiveMentor(
-    (state) => state.mentorStatus === LoadingStatus.LOADING
-  );
-}
-
-export function isActiveMentorSaving(): boolean {
-  return useActiveMentor(
-    (state) => state.mentorStatus === LoadingStatus.SAVING
-  );
-}
-
 export interface SelectFromMentorStateFunc<T> {
   (mentorState: mentorActions.MentorState, rootState: RootState): T;
 }
 
-export interface ActiveMentorActions {
-  loadMentor: (mentorId?: string) => void;
-  saveMentorDetails: (mentor: Mentor) => void;
-  saveMentorSubjects: (mentor: Mentor) => void;
-  clearMentorError: () => void;
-}
-
-export function useActiveMentorActions(): ActiveMentorActions {
+export function useActiveMentor(): UseActiveMentor {
+  const loginUser = useAppSelector((state) => state.login.user);
+  const mentor = useAppSelector((state) => state.mentor);
   const dispatch = useDispatch();
 
-  function loadMentor(mentorId?: string): void {
-    dispatch(mentorActions.loadMentor({ mentorId }));
+  useEffect(() => {
+    const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
+    if (
+      mentor &&
+      mentor.userLoadedBy === loginUser?._id &&
+      mentor.data?._id === activeMentorId
+    ) {
+      return;
+    }
+    loadMentor();
+  }, [loginUser?._id]);
+
+  function getData<T>(selector: SelectFromMentorStateFunc<T>): T {
+    return useAppSelector((state) => {
+      return selector(selectActiveMentor(state), state);
+    });
+  }
+
+  function switchActiveMentor(mentorId?: string): void {
+    if (mentorId && mentor.data?._id === mentorId) {
+      return;
+    }
+    if (!mentorId && mentor.data?._id === loginUser?.defaultMentor._id) {
+      return;
+    }
+    if (mentorId) {
+      sessionStorageStore(ACTIVE_MENTOR_KEY, mentorId);
+    } else {
+      sessionStorageClear(ACTIVE_MENTOR_KEY);
+    }
+    loadMentor();
+  }
+
+  function loadMentor(): void {
+    const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
+    if (activeMentorId) {
+      dispatch(mentorActions.loadMentor({ mentorId: activeMentorId }));
+    } else {
+      dispatch(mentorActions.loadMentor({}));
+    }
   }
 
   function saveMentorDetails(data: Mentor): void {
@@ -61,30 +88,31 @@ export function useActiveMentorActions(): ActiveMentorActions {
   }
 
   return {
+    mentor: mentor.data,
+    isLoading: mentor.mentorStatus === LoadingStatus.LOADING,
+    isSaving: mentor.mentorStatus === LoadingStatus.SAVING,
+    error: mentor.error,
+    getData,
     loadMentor,
+    switchActiveMentor,
     saveMentorDetails,
     saveMentorSubjects,
     clearMentorError,
   };
 }
 
-export function useActiveMentor<T>(selector: SelectFromMentorStateFunc<T>): T {
-  const loginUser = useAppSelector((state) => state.login.user);
-  const data = useAppSelector((state) => {
-    return selector(selectActiveMentor(state), state);
-  });
-  const { loadMentor } = useActiveMentorActions();
-  const mentor = useAppSelector((state) => state.mentor.data);
-  const userLoadedBy = useAppSelector((state) => state.mentor.userLoadedBy);
-
-  useEffect(() => {
-    if (mentor && userLoadedBy === loginUser?._id) {
-      return;
-    }
-    loadMentor();
-  }, [loginUser?._id]);
-
-  return data;
+interface UseActiveMentor {
+  mentor: Mentor | undefined;
+  isLoading: boolean;
+  isSaving: boolean;
+  error: LoadingError | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getData: (selector: SelectFromMentorStateFunc<any>) => any;
+  loadMentor: () => void;
+  switchActiveMentor: (id?: string) => void;
+  saveMentorDetails: (d: Mentor) => void;
+  saveMentorSubjects: (d: Mentor) => void;
+  clearMentorError: () => void;
 }
 
 export default useActiveMentor;

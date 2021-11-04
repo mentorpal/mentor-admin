@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Fab,
@@ -28,10 +28,7 @@ import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
-import {
-  isActiveMentorLoading,
-  useActiveMentor,
-} from "store/slices/mentor/useActiveMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
 import { convertSubjectGQL } from "types-gql";
 
@@ -101,9 +98,14 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 
 function SubjectsPage(): JSX.Element {
   const classes = useStyles();
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorError = useActiveMentor((state) => state.error);
-  const isMentorLoading = isActiveMentorLoading();
+  const {
+    getData,
+    switchActiveMentor,
+    isLoading: isMentorLoading,
+    error: mentorError,
+  } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
   const {
     data: subjects,
     error: subjectsError,
@@ -113,6 +115,10 @@ function SubjectsPage(): JSX.Element {
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
   } = useWithSubjects();
+
+  useEffect(() => {
+    switchActiveMentor();
+  }, []);
 
   return (
     <div>

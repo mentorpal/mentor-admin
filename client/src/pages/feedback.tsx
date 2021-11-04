@@ -35,10 +35,7 @@ import { updateUserQuestion } from "api";
 import { Answer, ClassifierAnswerType, Feedback, UserQuestion } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
-import {
-  isActiveMentorLoading,
-  useActiveMentor,
-} from "store/slices/mentor/useActiveMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
@@ -229,14 +226,18 @@ function FeedbackItem(props: {
 
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
+  const {
+    getData,
+    isLoading: isMentorLoading,
+    error: mentorError,
+  } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
-  const mentorError = useActiveMentor((state) => state.error);
-  const isMentorLoading = isActiveMentorLoading();
 
   const {
     data: feedback,

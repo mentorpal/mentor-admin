@@ -9,15 +9,15 @@ import { v4 as uuid } from "uuid";
 import { fetchSubject, updateSubject } from "api";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
-import { Category, Topic, QuestionType, UtteranceName } from "types";
+import { Category, Topic, QuestionType, UtteranceName, Question } from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
-import { useActiveMentorActions } from "store/slices/mentor/useActiveMentor";
 import { LoadingError } from "./loading-reducer";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 export interface NewQuestionArgs {
-  question: string;
-  categoryId: string;
-  mentorId: string;
+  question?: Question;
+  categoryId?: string;
+  mentorId?: string;
 }
 
 interface UseWithSubject {
@@ -38,14 +38,14 @@ interface UseWithSubject {
   addQuestion: (q?: NewQuestionArgs) => void;
   updateQuestion: (val: SubjectQuestionGQL) => void;
   removeQuestion: (val: SubjectQuestionGQL) => void;
-  moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
+  moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
 }
 
 export function useWithSubject(
   subjectId: string,
   accessToken: string
 ): UseWithSubject {
-  const { loadMentor } = useActiveMentorActions();
+  const { loadMentor } = useActiveMentor();
   const {
     editedData,
     isEdited,
@@ -180,7 +180,7 @@ export function useWithSubject(
     editData({ topics: copyAndMove(editedData.topics, toMove, moveTo) });
   }
 
-  function addQuestion(q?: NewQuestionArgs) {
+  function addQuestion(args?: NewQuestionArgs) {
     if (!editedData) {
       return;
     }
@@ -188,16 +188,15 @@ export function useWithSubject(
       questions: [
         ...editedData.questions,
         {
-          question: {
+          question: args?.question || {
             _id: uuid(),
-            question: q?.question || "",
+            question: "",
             paraphrases: [],
             type: QuestionType.QUESTION,
             name: UtteranceName.NONE,
-            mentor: q?.mentorId || undefined,
           },
-          category: q?.categoryId
-            ? editedData.categories.find((c) => c.id == q.categoryId)
+          category: args?.categoryId
+            ? editedData.categories.find((c) => c.id == args.categoryId)
             : undefined,
           topics: [],
         },
@@ -225,11 +224,12 @@ export function useWithSubject(
       (q) => q.question._id === val.question._id
     );
     if (idx !== -1) {
-      editData({ questions: copyAndRemove(editedData.questions, idx) });
+      const questions = copyAndRemove(editedData.questions, idx);
+      editData({ questions });
     }
   }
 
-  function moveQuestion(toMove: string, moveTo?: string, category?: string) {
+  function moveQuestion(toMove: string, moveTo: number, cId?: string) {
     if (!editedData) {
       return;
     }
@@ -240,15 +240,21 @@ export function useWithSubject(
       return;
     }
     const question = editedData.questions[qToMove];
-    question.category = editedData.categories.find((c) => c.id === category);
-    const qMoveTo = editedData.questions.findIndex(
-      (q) => q.question._id === moveTo
+    const category = editedData.categories.find((c) => c.id === cId);
+    const questions = editedData.questions.filter(
+      (q) => q.category?.id === cId
     );
-    if (qMoveTo !== -1) {
-      editData({
-        questions: copyAndMove(editedData.questions, qToMove, qMoveTo),
-      });
-    }
+    const qMoveTo = editedData.questions.findIndex(
+      (q) => q.question._id === questions[moveTo]?.question?._id
+    );
+    question.category = category;
+    editData({
+      questions: copyAndMove(
+        editedData.questions,
+        qToMove,
+        qMoveTo === -1 ? editedData.questions.length - 1 : qMoveTo
+      ),
+    });
   }
 
   return {

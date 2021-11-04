@@ -9,13 +9,7 @@ import {
   mockGQL,
   cyMockFollowUpQuestions,
 } from "../support/functions";
-import {
-  Mentor,
-  MentorType,
-  QuestionType,
-  Status,
-  MediaType,
-} from "../support/types";
+import { Mentor, MentorType, Status } from "../support/types";
 import {
   completeMentor,
   completeQuestion,
@@ -115,75 +109,6 @@ const chatMentor: Mentor = completeMentor({
       }),
       transcript: "",
       status: Status.INCOMPLETE,
-    },
-  ],
-});
-
-const videoMentor: Mentor = completeMentor({
-  _id: "clintanderson",
-  mentorType: MentorType.VIDEO,
-  lastTrainedAt: null,
-  answers: [
-    {
-      _id: "A1_1_1",
-      question: completeQuestion({
-        _id: "A1_1_1",
-        question: "Who are you and what do you do?",
-      }),
-      transcript: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      _id: "A2_1_1",
-      question: completeQuestion({
-        _id: "A2_1_1",
-        question: "How old are you now?",
-        mentor: "clintanderson",
-      }),
-      transcript: "I'm 37 years old",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A2_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
-    },
-    {
-      _id: "A3_1_1",
-      question: completeQuestion({
-        _id: "A3_1_1",
-        question: "Where do you live?",
-        mentor: "clintanderson",
-      }),
-      transcript: "In Howard City, Michigan",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
-    },
-    {
-      _id: "A4_1_1",
-      question: completeQuestion({
-        _id: "A4_1_1",
-        question: "Record an idle video",
-        mentor: "clintanderson",
-        name: "_IDLE_",
-      }),
-      transcript: "",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
     },
   ],
 });

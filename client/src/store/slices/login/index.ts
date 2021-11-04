@@ -6,6 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "api";
+import {
+  ACCESS_TOKEN_KEY,
+  ACTIVE_MENTOR_KEY,
+  localStorageClear,
+  localStorageStore,
+  sessionStorageClear,
+  sessionStorageStore,
+} from "store/local-storage";
 import { User } from "types";
 
 /** Store */
@@ -47,7 +55,8 @@ export const login = createAsyncThunk(
   "login/login",
   async (accessToken: string, { rejectWithValue }) => {
     try {
-      accessTokenStore(accessToken);
+      localStorageStore(ACCESS_TOKEN_KEY, accessToken);
+      sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(accessToken);
     } catch (err) {
       console.error(err.response.data);
@@ -56,27 +65,27 @@ export const login = createAsyncThunk(
   }
 );
 
-export const logout =
-  () =>
-  (dispatch: (arg0: { payload: undefined; type: string }) => void): void => {
-    accessTokenClear();
-    dispatch(onLogout());
-  };
+export const logout = createAsyncThunk(
+  "login/logout",
+  async (): Promise<void> => {
+    localStorageClear(ACCESS_TOKEN_KEY);
+    sessionStorageClear(ACTIVE_MENTOR_KEY);
+  }
+);
 
 /** Reducer */
 
 export const loginSlice = createSlice({
   name: "login",
   initialState,
-  reducers: {
-    onLogout: (state) => {
-      delete state.user;
-      delete state.accessToken;
-      state.loginStatus = LoginStatus.NOT_LOGGED_IN;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(logout.fulfilled, (state) => {
+        delete state.user;
+        delete state.accessToken;
+        state.loginStatus = LoginStatus.NOT_LOGGED_IN;
+      })
       .addCase(login.pending, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.IN_PROGRESS;
@@ -85,6 +94,10 @@ export const loginSlice = createSlice({
         state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
+        sessionStorageStore(
+          ACTIVE_MENTOR_KEY,
+          action.payload.user.defaultMentor._id
+        );
       })
       .addCase(login.rejected, (state) => {
         delete state.user;
@@ -106,31 +119,4 @@ export const loginSlice = createSlice({
   },
 });
 
-const { onLogout } = loginSlice.actions;
-
 export default loginSlice.reducer;
-
-/** Helpers */
-
-const ACCESS_TOKEN_KEY = "accessToken";
-
-export function accessTokenGet(): string {
-  if (typeof window === "undefined") {
-    return "";
-  }
-  return localStorage.getItem(ACCESS_TOKEN_KEY) || "";
-}
-
-function accessTokenStore(accessToken: string): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-}
-
-function accessTokenClear(): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-}

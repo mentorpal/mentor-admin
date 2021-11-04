@@ -28,6 +28,7 @@ export function CategoryListItem(props: {
   category: Category;
   questions: SubjectQuestionGQL[];
   selectedQuestion?: string;
+  selectedCategory?: string;
   removeCategory: (val: Category) => void;
   updateCategory: (newVal: Category) => void;
   updateQuestion: (newVal: SubjectQuestionGQL) => void;
@@ -39,6 +40,7 @@ export function CategoryListItem(props: {
     category,
     questions,
     selectedQuestion,
+    selectedCategory,
     removeCategory,
     updateCategory,
     updateQuestion,
@@ -49,7 +51,13 @@ export function CategoryListItem(props: {
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <Card style={{ width: "100%" }}>
+    <Card
+      style={{
+        width: "100%",
+        backgroundColor:
+          category.id === selectedCategory ? "#FFF8CD" : undefined,
+      }}
+    >
       <CardContent>
         <div style={{ display: "flex", flexDirection: "row" }}>
           <TextField

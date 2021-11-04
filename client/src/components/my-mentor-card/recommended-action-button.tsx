@@ -10,7 +10,7 @@ import React from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
-import { UseWithRecommendedAction } from "./use-with-recommended-action";
+import { UseWithRecommendedAction } from "../../hooks/graphql/use-with-recommended-action";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
@@ -18,8 +18,8 @@ export default function RecommendedActionButton(props: {
   const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(
     props.continueAction
   );
-
-  const mentorInfo = useActiveMentor((ms) =>
+  const { getData } = useActiveMentor();
+  const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
 

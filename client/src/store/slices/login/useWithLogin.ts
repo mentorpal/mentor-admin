@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useAppSelector } from "store/hooks";
+import { ACCESS_TOKEN_KEY, localStorageGet } from "store/local-storage";
 import * as loginActions from ".";
 
 interface UseWithLogin {
@@ -24,7 +25,7 @@ export function useWithLogin(): UseWithLogin {
     if (state.accessToken) {
       return;
     }
-    const accessToken = loginActions.accessTokenGet();
+    const accessToken = localStorageGet(ACCESS_TOKEN_KEY);
     if (accessToken) {
       login(accessToken);
     } else {

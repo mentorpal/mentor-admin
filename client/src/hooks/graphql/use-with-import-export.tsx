@@ -8,16 +8,14 @@ import { useState } from "react";
 import * as api from "api";
 import { MentorExportJson, MentorImportPreview, Question } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
-import {
-  useActiveMentor,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
+import { useAppSelector } from "store/hooks";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
   importPreview?: MentorImportPreview;
-  onMentorExported: () => void;
+  onMentorExported: () => Promise<void>;
   onMentorUploaded: (file: File) => void;
   onConfirmImport: () => void;
   onCancelImport: () => void;
@@ -26,39 +24,22 @@ export interface UseWithImportExport {
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }
 
-export function useWithImportExport(accessToken: string): UseWithImportExport {
+export function useWithImportExport(): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorAnswers = useActiveMentor((state) => state.data?.answers);
-  const { loadMentor } = useActiveMentorActions();
+  const { getData, loadMentor } = useActiveMentor();
+  const mentorId = getData((state) => state.data?._id);
+  const mentorAnswers = getData((state) => state.data?.answers);
+  const accessToken = useAppSelector((state) => state.login.accessToken);
 
-  function onMentorExported(): void {
+  async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
       return;
     }
     setIsUpdating(true);
-    api
-      .exportMentor(mentorId)
-      .then((m) => {
-        const element = document.createElement("a");
-        element.setAttribute(
-          "href",
-          "data:text/json;charset=utf-8," +
-            encodeURIComponent(JSON.stringify(m))
-        );
-        element.setAttribute("download", "mentor.json");
-        element.style.display = "none";
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-        setIsUpdating(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsUpdating(false);
-      });
+    await exportMentor(mentorId);
+    setIsUpdating(false);
   }
 
   function onImportUploaded(file: File): void {
@@ -87,7 +68,7 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
   }
 
   function onConfirmImport(): void {
-    if (!importedJson || !mentorId || isUpdating) {
+    if (!importedJson || !mentorId || isUpdating || !accessToken) {
       return;
     }
     setIsUpdating(true);
@@ -193,4 +174,24 @@ export function useWithImportExport(accessToken: string): UseWithImportExport {
     onMapSubject,
     onMapQuestion,
   };
+}
+
+export function exportMentor(mentorId: string): Promise<void> {
+  return api
+    .exportMentor(mentorId)
+    .then((m) => {
+      const element = document.createElement("a");
+      element.setAttribute(
+        "href",
+        "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(m))
+      );
+      element.setAttribute("download", "mentor.json");
+      element.style.display = "none";
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 }
