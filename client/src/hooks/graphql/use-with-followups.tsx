@@ -47,12 +47,12 @@ export function useWithFollowups(props: {
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
 
+  const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
   const subject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
   const category = subject?.categories.find((c) => c.id === categoryId);
-  const { categoryId, subjectId } = props;
 
   function fetchFollowups() {
     if (!loginState.accessToken) {
