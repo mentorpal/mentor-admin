@@ -164,7 +164,7 @@ function VideoPlayer(props: {
             data-cy="video-player"
             ref={reactPlayerRef}
             config={{
-              file: { attributes: { crossorigin: "use-credentials" } },
+              file: { attributes: { crossOrigin: "true" } },
             }}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
