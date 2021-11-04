@@ -12,43 +12,49 @@ import {
   DropResult,
 } from "react-beautiful-dnd";
 import {
-  Typography,
   List,
   ListItem,
   Button,
-  Card,
-  CardContent,
   Grid,
-  IconButton,
-  Collapse,
+  Typography,
+  TextField,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Category, Topic } from "types";
+import { Autocomplete } from "@material-ui/lab";
+
+import { Category, Question, Topic } from "types";
 import CategoryListItem from "./category-list-item";
 import QuestionListItem from "./question-list-item";
 import QuestionEditCard from "./question-edit";
 import { SubjectQuestionGQL } from "types-gql";
+import { useWithQuestions } from "hooks/graphql/use-with-questions";
+import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 export function QuestionsList(props: {
   classes: Record<string, string>;
-  maxHeight: number;
-  expanded: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestionGQL[];
-  toggleExpanded: () => void;
   addCategory: () => void;
   editCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
-  addQuestion: () => void;
+  addQuestion: (args?: NewQuestionArgs) => void;
   editQuestion: (val: SubjectQuestionGQL) => void;
   removeQuestion: (val: SubjectQuestionGQL) => void;
-  moveQuestion: (toMove: string, moveTo?: string, category?: string) => void;
+  moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
 }): JSX.Element {
-  const { classes, maxHeight, expanded, questions, toggleExpanded } = props;
+  const { classes, questions } = props;
+  const [searchInput, setSearchInput] = useState<Question>();
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
+  const [selectedCategory, setSelectedCategory] = useState<string>();
+
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
+  const { height: windowHeight } = useWithWindowSize();
+  const { data } = useWithQuestions();
+  const allQuestions = data?.edges
+    .map((e) => e.node)
+    .filter((q) => !questions.map((sq) => sq.question._id).includes(q._id));
 
   function selectQuestion(val?: SubjectQuestionGQL) {
     setSelectedQuestion(val?.question._id || undefined);
@@ -61,193 +67,159 @@ export function QuestionsList(props: {
     const questionId = result.draggableId
       .replace("category-", "")
       .replace("question-", "");
-    const categoryId = result.destination.droppableId.startsWith("category")
+    const categoryId = result.destination.droppableId.startsWith("category-")
       ? result.destination.droppableId.replace("category-", "")
       : undefined;
-
-    // re-ordering questions in question list
-    if (
-      result.draggableId.startsWith("question") &&
-      result.destination.droppableId === "questions"
-    ) {
-      props.moveQuestion(
-        questionId,
-        uncategorizedQuestions[result.destination.index].question._id,
-        categoryId
-      );
-    }
-    // removed question from category list to question list
-    if (
-      result.draggableId.startsWith("category-question") &&
-      result.destination.droppableId === "questions"
-    ) {
-      props.moveQuestion(questionId, undefined, categoryId);
-    }
-    // added question in questions list to a category
-    if (
-      result.draggableId.startsWith("question") &&
-      result.destination.droppableId.startsWith("category")
-    ) {
-      props.moveQuestion(questionId, undefined, categoryId);
-    }
-    // moved question in category list to another category
-    if (
-      result.draggableId.startsWith("category-question") &&
-      result.destination.droppableId.startsWith("category")
-    ) {
-      props.moveQuestion(questionId, undefined, categoryId);
-    }
+    props.moveQuestion(questionId, result.destination.index, categoryId);
   }
 
   return (
-    <Card
-      elevation={0}
-      className={classes.flexChild}
-      style={{ textAlign: "left" }}
-    >
-      <div className={classes.row}>
-        <IconButton
-          data-cy="toggle-questions"
-          size="small"
-          aria-expanded={expanded}
-          onClick={toggleExpanded}
-        >
-          <ExpandMoreIcon
-            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
-          />
-        </IconButton>
-        <Typography variant="body2">Questions</Typography>
-      </div>
-      <CardContent style={{ padding: 0 }}>
-        <Collapse in={expanded} timeout="auto" unmountOnExit>
-          <Grid
-            container
-            style={{
-              display: "flex",
-              flexDirection: "row",
-            }}
-          >
-            <Grid
-              item
-              xs={selectedQuestion ? 6 : 12}
-              style={{
-                maxHeight: maxHeight - 70,
-                overflow: "auto",
-              }}
-            >
-              <DragDropContext onDragEnd={onDragEnd}>
-                <List data-cy="categories" className={classes.list}>
-                  {props.categories.map((category, i) => (
-                    <ListItem data-cy={`category-${i}`} key={category.id}>
-                      <CategoryListItem
-                        category={category}
-                        questions={questions.filter(
-                          (q) => q.category?.id === category.id
-                        )}
-                        selectedQuestion={selectedQuestion}
-                        removeCategory={props.removeCategory}
-                        updateCategory={props.editCategory}
-                        updateQuestion={props.editQuestion}
-                        removeQuestion={props.removeQuestion}
-                        selectQuestion={selectQuestion}
-                        deselectQuestion={() => selectQuestion(undefined)}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-                <Droppable droppableId="questions">
-                  {(provided) => (
-                    <List
-                      data-cy="questions"
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className={classes.list}
+    <div style={{ height: windowHeight - 250 }}>
+      <Grid
+        container
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          height: windowHeight - 350,
+          overflow: "auto",
+        }}
+      >
+        <Grid item xs={selectedQuestion ? 6 : 12}>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <List data-cy="categories" className={classes.list}>
+              {props.categories.map((category, i) => (
+                <ListItem
+                  data-cy={`category-${i}`}
+                  key={category.id}
+                  onFocus={() => setSelectedCategory(category.id)}
+                  onBlur={(e) => {
+                    if (e.relatedTarget) {
+                      const element = e.relatedTarget as Element;
+                      if (element.getAttribute("data-cy") !== "add-question") {
+                        setSelectedCategory(undefined);
+                      }
+                    } else {
+                      setSelectedCategory(undefined);
+                    }
+                  }}
+                >
+                  <CategoryListItem
+                    category={category}
+                    questions={questions.filter(
+                      (q) => q.category?.id === category.id
+                    )}
+                    selectedQuestion={selectedQuestion}
+                    selectedCategory={selectedCategory}
+                    removeCategory={props.removeCategory}
+                    updateCategory={props.editCategory}
+                    updateQuestion={props.editQuestion}
+                    removeQuestion={props.removeQuestion}
+                    selectQuestion={selectQuestion}
+                    deselectQuestion={() => selectQuestion(undefined)}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Droppable droppableId="questions">
+              {(provided) => (
+                <List
+                  data-cy="questions"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={classes.list}
+                >
+                  {uncategorizedQuestions.map((q, i) => (
+                    <Draggable
+                      key={`question-${q.question._id}`}
+                      draggableId={`question-${q.question._id}`}
+                      index={i}
                     >
-                      {uncategorizedQuestions.map((q, i) => (
-                        <Draggable
-                          key={`question-${q.question._id}`}
-                          draggableId={`question-${q.question._id}`}
-                          index={i}
+                      {(provided) => (
+                        <ListItem
+                          data-cy={`question-${i}`}
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
                         >
-                          {(provided) => (
-                            <ListItem
-                              data-cy={`question-${i}`}
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                            >
-                              <QuestionListItem
-                                question={q}
-                                isSelected={selectedQuestion === q.question._id}
-                                updateQuestion={props.editQuestion}
-                                removeQuestion={props.removeQuestion}
-                                selectQuestion={selectQuestion}
-                                deselectQuestion={() =>
-                                  selectQuestion(undefined)
-                                }
-                              />
-                            </ListItem>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </List>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </Grid>
-            {selectedQuestion ? (
-              <Grid
-                item
-                xs={6}
-                style={{
-                  overflow: "auto",
-                  maxHeight: maxHeight - 70,
-                }}
-              >
-                <QuestionEditCard
-                  classes={classes}
-                  topics={props.topics}
-                  question={questions.find(
-                    (q) => q.question._id === selectedQuestion
-                  )}
-                  updateQuestion={props.editQuestion}
-                  onDeselect={() => selectQuestion(undefined)}
-                />
-              </Grid>
-            ) : undefined}
-          </Grid>
-          <div
+                          <QuestionListItem
+                            question={q}
+                            isSelected={selectedQuestion === q.question._id}
+                            updateQuestion={props.editQuestion}
+                            removeQuestion={props.removeQuestion}
+                            selectQuestion={selectQuestion}
+                            deselectQuestion={() => selectQuestion(undefined)}
+                          />
+                        </ListItem>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </List>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </Grid>
+        {selectedQuestion ? (
+          <Grid
+            item
+            xs={6}
             style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
+              overflow: "auto",
             }}
           >
-            <Button
-              data-cy="add-question"
-              color="primary"
-              variant="outlined"
-              startIcon={<AddIcon />}
-              className={classes.button}
-              onClick={() => props.addQuestion()}
-            >
-              Add Question
-            </Button>
-            <Button
-              data-cy="add-category"
-              variant="outlined"
-              startIcon={<AddIcon />}
-              className={classes.button}
-              onClick={props.addCategory}
-            >
-              Add Category
-            </Button>
-          </div>
-        </Collapse>
-      </CardContent>
-    </Card>
+            <QuestionEditCard
+              classes={classes}
+              topics={props.topics}
+              question={questions.find(
+                (q) => q.question._id === selectedQuestion
+              )}
+              updateQuestion={props.editQuestion}
+              onDeselect={() => selectQuestion(undefined)}
+            />
+          </Grid>
+        ) : undefined}
+      </Grid>
+      <Autocomplete
+        data-cy="select-question"
+        options={allQuestions || []}
+        getOptionLabel={(option: Question) => option.question}
+        onChange={(e, v) => {
+          if (v) {
+            setSearchInput(v);
+          }
+        }}
+        style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
+        renderOption={(option) => (
+          <Typography align="left">{option.question}</Typography>
+        )}
+        renderInput={(params) => <TextField {...params} variant="outlined" />}
+      />
+      <Button
+        data-cy="add-question"
+        color="primary"
+        variant="outlined"
+        startIcon={<AddIcon />}
+        className={classes.button}
+        onClick={() => {
+          setSearchInput(undefined);
+          props.addQuestion({
+            question: searchInput,
+            categoryId: selectedCategory,
+          });
+        }}
+      >
+        Add Question
+      </Button>
+      <Button
+        data-cy="add-category"
+        variant="outlined"
+        startIcon={<AddIcon />}
+        className={classes.button}
+        onClick={props.addCategory}
+      >
+        Add Category
+      </Button>
+    </div>
   );
 }
 

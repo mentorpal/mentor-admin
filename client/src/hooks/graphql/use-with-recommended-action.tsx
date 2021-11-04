@@ -376,13 +376,14 @@ function unique(array: Category[]) {
 export function UseWithRecommendedAction(
   continueAction?: () => void
 ): [Recommendation, () => void] {
-  const mentorAnswers = useActiveMentor((ms) => ms.data?.answers);
+  const { getData } = useActiveMentor();
+  const mentorAnswers: Answer[] = getData((ms) => ms.data?.answers);
   const mentorQuestions = useQuestions(
     (s) => s.questions,
     mentorAnswers?.map((a) => a.question)
   );
 
-  const conditions = useActiveMentor((ms) =>
+  const conditions = getData((ms) =>
     parseMentorConditions(mentorQuestions, ms.data)
   );
 

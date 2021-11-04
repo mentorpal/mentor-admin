@@ -36,15 +36,14 @@ import { getValueIfKeyExists, onTextInputChanged } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import useActiveMentor, {
-  isActiveMentorLoading,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import {
   AnswerAttentionNeeded,
   MentorType,
   UtteranceName,
   Status,
+  Subject,
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -122,8 +121,10 @@ function RecordPage(props: {
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, reloadMentorData } = recordState;
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
-  const mentorId = useActiveMentor((state) => state.data?._id);
-  const mentorType = useActiveMentor((state) => state.data?.mentorType);
+  const { getData, isLoading: isMentorLoading } = useActiveMentor();
+
+  const mentorId = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
   const curQuestion = getValueIfKeyExists(
     curAnswer?.answer.question || "",
     useQuestions(
@@ -131,7 +132,7 @@ function RecordPage(props: {
       curAnswer?.answer.question ? [curAnswer.answer.question] : undefined
     )
   );
-  const curSubject = useActiveMentor((state) =>
+  const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == props.search.subject)
   );
   const subjectTitle = curSubject?.name || "";
@@ -143,7 +144,6 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
-  const isMentorLoading = isActiveMentorLoading();
 
   function onBack() {
     reloadMentorData();

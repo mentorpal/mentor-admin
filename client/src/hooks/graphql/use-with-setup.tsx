@@ -19,11 +19,7 @@ import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { getValueIfKeyExists, urlBuild } from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import useActiveMentor, {
-  isActiveMentorLoading,
-  isActiveMentorSaving,
-  useActiveMentorActions,
-} from "store/slices/mentor/useActiveMentor";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
@@ -88,19 +84,22 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
+  const {
+    getData,
+    clearMentorError,
+    isLoading: isMentorLoading,
+    isSaving: isMentorSaving,
+    error: mentorError,
+  } = useActiveMentor();
 
-  const mentor = useActiveMentor((state) => state.data);
-  const mentorError = useActiveMentor((state) => state.error);
+  const mentor = getData((state) => state.data);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentor?.answers?.map((a) => a.question)
+    mentor?.answers?.map((a: Answer) => a.question)
   );
   const questionsLoading = isQuestionsLoading(
-    mentor?.answers?.map((a) => a.question)
+    mentor?.answers?.map((a: Answer) => a.question)
   );
-  const isMentorLoading = isActiveMentorLoading();
-  const isMentorSaving = isActiveMentorSaving();
-  const { clearMentorError } = useActiveMentorActions();
   const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
     useMentorEdits();
   const {
@@ -126,7 +125,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     );
     const isMentorTypeChosen = Boolean(mentor.mentorType);
     const idleAnswer = mentor.answers.find(
-      (a) =>
+      (a: Answer) =>
         getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
         UtteranceName.IDLE
     );
@@ -135,10 +134,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
         : undefined;
     const requiredSubjects = mentor.subjects
-      .filter((s) => s.isRequired)
-      .map((s) => {
+      .filter((s: Subject) => s.isRequired)
+      .map((s: Subject) => {
         const answers = mentor.answers.filter(
-          (a) =>
+          (a: Answer) =>
             (!getValueIfKeyExists(a.question, mentorQuestions)?.question
               ?.mentorType ||
               getValueIfKeyExists(a.question, mentorQuestions)?.question
@@ -148,14 +147,17 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a) => a.status === Status.COMPLETE),
+          complete: answers.every((a: Answer) => a.status === Status.COMPLETE),
         };
       });
     const isBuildable =
       isMentorInfoDone &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
-      requiredSubjects.every((s) => s.complete);
+      requiredSubjects.every(
+        (s: { subject: Subject; answers: Answer[]; complete: boolean }) =>
+          s.complete
+      );
     const isBuilt = Boolean(mentor.lastTrainedAt);
     const isSetupComplete = isBuildable && isBuilt;
     setStatus({
@@ -179,12 +181,14 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
       status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
-    requiredSubjects.forEach((s) => {
-      status.push({
-        type: SetupStepType.REQUIRED_SUBJECT,
-        complete: s.complete,
-      });
-    });
+    requiredSubjects.forEach(
+      (s: { subject: Subject; answers: Answer[]; complete: boolean }) => {
+        status.push({
+          type: SetupStepType.REQUIRED_SUBJECT,
+          complete: s.complete,
+        });
+      }
+    );
     status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
     setSteps(status);
   }, [mentor, questionsLoading, configState.config]);

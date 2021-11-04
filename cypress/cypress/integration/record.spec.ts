@@ -2943,7 +2943,7 @@ describe("Record", () => {
     );
   });
 
-  it("displays status info for each job: Uploading, Completed, Failed", () => {
+  it.skip("displays status info for each job: Uploading, Completed, Failed", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

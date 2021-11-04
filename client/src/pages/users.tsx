@@ -4,6 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import React, { useEffect } from "react";
+import { navigate } from "gatsby";
 import {
   AppBar,
   CircularProgress,
@@ -20,18 +22,24 @@ import {
   Toolbar,
   Tooltip,
 } from "@material-ui/core";
-import LaunchIcon from "@material-ui/icons/Launch";
+import {
+  Edit as EditIcon,
+  GetApp as GetAppIcon,
+  KeyboardArrowLeft as KeyboardArrowLeftIcon,
+  KeyboardArrowRight as KeyboardArrowRightIcon,
+  Launch as LaunchIcon,
+} from "@material-ui/icons";
+
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
+import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import React from "react";
 import { Connection, Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { launchMentor } from "../helpers";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -135,8 +143,9 @@ function UserItem(props: {
     props.userRole === UserRole.USER ||
     (edge.node.userRole === UserRole.ADMIN &&
       props.userRole !== UserRole.ADMIN);
+  const { switchActiveMentor } = useActiveMentor();
 
-  function handleRoleChange(user: string, permission: string) {
+  function handleRoleChange(user: string, permission: string): void {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
@@ -185,7 +194,7 @@ function UserItem(props: {
           </Select>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell data-cy="actions" align="right">
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
           <IconButton
             data-cy="launch-default-mentor"
@@ -196,6 +205,27 @@ function UserItem(props: {
             className={styles.normalButton}
           >
             <LaunchIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
+          <IconButton
+            data-cy="export-button"
+            onClick={() => exportMentor(edge.node.defaultMentor._id)}
+            className={styles.normalButton}
+          >
+            <GetAppIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Edit Mentor" arrow>
+          <IconButton
+            data-cy="edit-button"
+            onClick={() => {
+              switchActiveMentor(edge.node.defaultMentor._id);
+              navigate("/");
+            }}
+            className={styles.normalButton}
+          >
+            <EditIcon />
           </IconButton>
         </Tooltip>
       </TableCell>
@@ -249,9 +279,15 @@ function UsersTable(props: {
 function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const styles = useStyles();
+  const { switchActiveMentor } = useActiveMentor();
   const permissionToView =
     props.user.userRole === UserRole.ADMIN ||
     props.user.userRole === UserRole.CONTENT_MANAGER;
+
+  useEffect(() => {
+    switchActiveMentor();
+  }, []);
+
   if (!permissionToView) {
     return (
       <div>You must be an admin or content manager to view this page.</div>
