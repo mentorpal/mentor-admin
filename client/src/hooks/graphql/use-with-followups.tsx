@@ -8,14 +8,12 @@ import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
 import { navigate } from "gatsby";
 import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
-import { useEffect } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import {
   Answer,
   Category,
   Mentor,
-  Question,
   QuestionType,
   Subject,
   UtteranceName,
@@ -27,9 +25,6 @@ import {
   FollowupsReducer,
   FollowupsActionType,
 } from "./followups-reducer";
-import useQuestions, {
-  isQuestionsLoading,
-} from "store/slices/questions/useQuestions";
 import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
@@ -61,28 +56,10 @@ export function useWithFollowups(props: {
   const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
-  const mentorQuestionsRecord = useQuestions(
-    (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
-  );
-  const [mentorQuestions, setMentorQuestions] = useState<Question[]>();
-  const questionsLoading = isQuestionsLoading(
-    mentorAnswers?.map((a) => a.question)
-  );
   const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
-
-  useEffect(() => {
-    const qs = [];
-    for (const q of Object.values(mentorQuestionsRecord)) {
-      if (q.question) {
-        qs.push(q.question);
-      }
-    }
-    setMentorQuestions(qs);
-  }, [mentorQuestionsRecord, questionsLoading]);
 
   function fetchFollowups() {
     if (!mentorAnswers || !loginState.accessToken) {
@@ -121,8 +98,7 @@ export function useWithFollowups(props: {
       !curCategory ||
       !curSubject ||
       !mentorId ||
-      !toRecordFollowUpQs ||
-      !mentorQuestions
+      !toRecordFollowUpQs
     ) {
       return;
     }
