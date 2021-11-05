@@ -634,7 +634,7 @@ describe("Setup", () => {
   });
 
   describe("shows build mentor slide after completing setup", () => {
-    it("cannot build if previous steps are not complete", () => {
+    it.only("cannot build if previous steps are not complete", () => {
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup7],

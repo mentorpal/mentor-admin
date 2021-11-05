@@ -146,6 +146,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function onBack() {
+    console.log("reloading mentor data via onBack")
     reloadMentorData();
     if (props.search.back) {
       navigate(decodeURI(props.search.back));

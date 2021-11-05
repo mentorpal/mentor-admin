@@ -88,6 +88,7 @@ export function useWithFollowups(props: {
   }
 
   function navigateToMyMentorPage() {
+    console.log("reloading mentor via navigateToMyMentorPage")
     loadMentor();
     navigate("/");
   }

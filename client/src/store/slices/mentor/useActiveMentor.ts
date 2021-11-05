@@ -42,6 +42,7 @@ export function useActiveMentor(): UseActiveMentor {
     ) {
       return;
     }
+    console.log("reloading mentor via login user id change")
     loadMentor();
   }, [loginUser?._id]);
 
@@ -63,6 +64,7 @@ export function useActiveMentor(): UseActiveMentor {
     } else {
       sessionStorageClear(ACTIVE_MENTOR_KEY);
     }
+    console.log("reloading mentor via switch active mentor")
     loadMentor();
   }
 

@@ -19,6 +19,7 @@ export function useWithTraining(
 
   useEffect(() => {
     if (status?.state === JobState.SUCCESS) {
+      console.log("reloading mentor via training")
       loadMentor();
     }
   }, [status]);

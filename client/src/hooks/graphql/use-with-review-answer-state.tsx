@@ -317,6 +317,7 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
+        console.log("reloading mentor via useWithReviewAnswerState")
         loadMentor();
         setIsSaving(false);
       })
