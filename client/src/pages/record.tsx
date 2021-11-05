@@ -207,8 +207,8 @@ function RecordPage(props: {
       {curAnswer ? (
         <UploadingWidget
           visible={uploadingWidgetVisible}
+          onRecordPage={true}
           setUploadWidgetVisible={setUploadingWidgetVisible}
-          curAnswer={curAnswer.answer}
           recordState={recordState}
         />
       ) : undefined}
@@ -216,7 +216,9 @@ function RecordPage(props: {
         title={
           categoryTitle
             ? `Recording: ${subjectTitle} - ${categoryTitle}`
-            : `Recording: ${subjectTitle}`
+            : subjectTitle
+            ? `Recording: ${subjectTitle}`
+            : ""
         }
         mentorId={mentorId}
         uploads={recordState.uploads}

@@ -10,7 +10,14 @@ import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Category, Mentor, QuestionType, Subject, UtteranceName } from "types";
+import {
+  Answer,
+  Category,
+  Mentor,
+  QuestionType,
+  Subject,
+  UtteranceName,
+} from "types";
 import { v4 as uuid } from "uuid";
 import {
   FollowupsPageStatusType,
@@ -21,41 +28,41 @@ import {
 import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
-  mentor?: Mentor;
   mentorId?: string;
   curSubject?: Subject;
   curCategory?: Category;
   followUpQuestions?: string[];
-  followupPageState: FollowupsPageState;
-  toRecordFollowUpQs: string[];
   fetchFollowups: () => void;
+  followupPageState: FollowupsPageState;
   saveAndLoadSelectedFollowups: () => void;
+  toRecordFollowUpQs: string[];
   setToRecordFollowUpQs: (followups: string[]) => void;
   navigateToMyMentorPage: () => void;
+  mentor?: Mentor;
 }
 
 export function useWithFollowups(props: {
   categoryId: string;
   subjectId: string;
 }): UseWithFollowups {
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
   const [state, dispatch] = useReducer(FollowupsReducer, {
     status: FollowupsPageStatusType.INIT,
     error: undefined,
   });
-  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>();
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
-
   const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
-  const subject: Subject = getData((state) =>
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
-  const category = subject?.categories.find((c) => c.id === categoryId);
+  const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   function fetchFollowups() {
-    if (!loginState.accessToken) {
+    if (!mentorAnswers || !loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
@@ -88,8 +95,8 @@ export function useWithFollowups(props: {
   function saveAndLoadSelectedFollowups() {
     if (
       !loginState.accessToken ||
-      !category ||
-      !subject ||
+      !curCategory ||
+      !curSubject ||
       !mentorId ||
       !toRecordFollowUpQs
     ) {
@@ -107,15 +114,16 @@ export function useWithFollowups(props: {
             name: UtteranceName.NONE,
             mentor: mentorId,
           },
-          category: category,
+          category: curCategory,
           topics: [],
         };
       }
     );
+
     //subject
-    const oldSubjectQs = subject.questions;
+    const oldSubjectQs = curSubject.questions;
     addOrUpdateSubjectQuestions(
-      subject._id,
+      curSubject._id,
       newQuestions,
       loginState.accessToken
     )
@@ -157,13 +165,13 @@ export function useWithFollowups(props: {
 
   return {
     mentorId,
-    curSubject: subject,
-    curCategory: category,
+    curSubject,
+    curCategory,
     followUpQuestions,
-    followupPageState: state,
-    toRecordFollowUpQs,
     fetchFollowups,
+    followupPageState: state,
     saveAndLoadSelectedFollowups,
+    toRecordFollowUpQs,
     setToRecordFollowUpQs,
     navigateToMyMentorPage,
   };

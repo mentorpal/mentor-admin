@@ -40,6 +40,8 @@ import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import { User, Subject, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import UploadingWidget from "components/record/uploading-widget";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -121,6 +123,8 @@ function HomePage(props: {
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
+  const recordState = useWithRecordState(props.accessToken, props.search);
+  const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -143,6 +147,12 @@ function HomePage(props: {
 
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
+      <UploadingWidget
+        visible={uploadingWidgetVisible}
+        setUploadWidgetVisible={setUploadingWidgetVisible}
+        onRecordPage={false}
+        recordState={recordState}
+      />
       <div>
         <NavBar
           title={
@@ -152,6 +162,9 @@ function HomePage(props: {
           }
           mentorId={mentorId}
           userRole={props.user.userRole}
+          uploads={recordState.uploads}
+          uploadsButtonVisible={uploadingWidgetVisible}
+          toggleUploadsButtonVisibility={setUploadingWidgetVisible}
         />
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}

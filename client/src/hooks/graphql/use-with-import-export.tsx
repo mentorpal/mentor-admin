@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import { MentorExportJson, MentorImportPreview, Question } from "types";
+import { Answer, MentorExportJson, MentorImportPreview, Question } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
@@ -30,7 +30,7 @@ export function useWithImportExport(): UseWithImportExport {
   const [isUpdating, setIsUpdating] = useState(false);
   const { getData, loadMentor } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers = getData((state) => state.data?.answers);
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
 
   async function onMentorExported(): Promise<void> {

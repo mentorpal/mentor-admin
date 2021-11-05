@@ -182,6 +182,35 @@ const videoMentor: Mentor = completeMentor({
       status: Status.COMPLETE,
     },
   ],
+  subjects: [
+    completeSubject({
+      _id: "subject_1",
+      name: "Subject 1",
+      questions: [
+        completeSubjectQuestion({
+          question: { _id: "A1_1_1" },
+          category: { id: "cat", name: "cat", description: "cat" },
+        }),
+        completeSubjectQuestion({
+          question: { _id: "A2_1_1" },
+          category: { id: "cat", name: "cat", description: "cat" },
+        }),
+      ],
+      categories: [{ id: "cat", name: "cat", description: "cat" }],
+    }),
+    completeSubject({
+      _id: "subject_2",
+      name: "Subject 2",
+      questions: [
+        completeSubjectQuestion({
+          question: { _id: "A3_1_1" },
+        }),
+        completeSubjectQuestion({
+          question: { _id: "A4_1_1" },
+        }),
+      ],
+    }),
+  ],
 });
 const videoQuestions = [
   completeQuestion({
@@ -958,13 +987,13 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-1]").should("exist");
-    cy.get("[data-cy=upload-card-2]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-2]").should("exist");
     //after next poll, these cards should be gone since they were cancelled
-    cy.get("[data-cy=upload-card-0]").should("not.exist");
-    cy.get("[data-cy=upload-card-1]").should("not.exist");
-    cy.get("[data-cy=upload-card-2]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-0]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-1]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-2]").should("not.exist");
     cy.get("[data-cy=upload-video]").should("exist");
   });
 
@@ -987,7 +1016,7 @@ describe("Record", () => {
 
       //go to next answer page and then press card 0
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=upload-card-0]").within(($i) => {
+      cy.get("[data-cy=active-upload-card-0]").within(($i) => {
         cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
       });
       cy.get("[data-cy=question-input]").within(($input) => {
@@ -1228,14 +1257,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-2]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-2]").within(($within) => {
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     });
-    cy.get("[data-cy=upload-card-2]").should("not.exist");
-    cy.get("[data-cy=upload-card-1]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-2]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
       cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
     });
-    cy.get("[data-cy=upload-card-1]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
   it("upload button changes to cancel while an upload is in progress", () => {
@@ -1710,27 +1739,27 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-0]").should(
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should(
       "have.css",
       "background-color",
       "rgb(255, 251, 204)"
     );
-    cy.get("[data-cy=upload-card-1]").should("exist");
-    cy.get("[data-cy=upload-card-1]").should(
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should(
       "have.css",
       "background-color",
       "rgba(0, 0, 0, 0)"
     );
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-0]").should(
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should(
       "have.css",
       "background-color",
       "rgba(0, 0, 0, 0)"
     );
-    cy.get("[data-cy=upload-card-1]").should("exist");
-    cy.get("[data-cy=upload-card-1]").should(
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should(
       "have.css",
       "background-color",
       "rgb(255, 251, 204)"
@@ -1865,8 +1894,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
   });
 
   it("uploading widget should not be open if there are no uploads", () => {
@@ -1924,7 +1953,48 @@ describe("Record", () => {
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("FetchUploadTasks", [
-          { me: { uploadTasks: [] } },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
           {
             me: {
               uploadTasks: [
@@ -1971,10 +2041,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cyAttachUpload(cy).then(() => {
-      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-      cy.get("[data-cy=uploading-widget]").should("be.visible");
-    });
+    cy.get("[data-cy=uploading-widget]").should("be.visible");
   });
 
   it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
@@ -2218,10 +2285,10 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0]").within(($i) => {
+    cy.get("[data-cy=active-upload-card-0]").within(($i) => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
     });
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -2662,8 +2729,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("p")
@@ -3188,21 +3255,21 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-2]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-2]").within(($within) => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
         .should("have.text", videoMentor.answers[2].question.question);
       cy.get("[data-cy=card-answer-title]").contains("Tap to preview");
     });
-    cy.get("[data-cy=upload-card-1]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
       //ListItems secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
         .should("have.text", videoMentor.answers[1].question.question);
       cy.get("[data-cy=card-answer-title]").contains("Failed to process file:");
     });
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       //ListItems primary text is under <span> and its secondary text is under <p>
       cy.get("[data-cy=card-answer-title]")
         .get("span")
@@ -3271,10 +3338,10 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
     cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
     cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-card-0]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-0]").should("not.exist");
   });
 
   it("hides video if mentor type is CHAT", () => {
@@ -3458,6 +3525,476 @@ describe("Record", () => {
         .trigger("mousedown", { button: 0 });
       cy.get("[data-cy=outline]").should("be.visible");
     });
+  });
+
+  it("uploads should be visibly split if they are not part of current recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=uploads-split]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-0]").should("exist");
+  });
+
+  it("navigation warning when selecting upload outside of current recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=uploads-split]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-0]").should("exist");
+
+    cy.get("[data-cy=grayed-upload-card-0]").invoke("mouseover").click();
+    cy.get("[data-cy=navigation-warning]").should("exist");
+  });
+
+  it("no navigation warning when selecting upload from same recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").invoke("mouseover").click();
+    cy.get("[data-cy=navigation-warning]").should("not.exist");
+  });
+
+  it("properly navigates to correct answer index when switching subjects", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "My name is Clint Anderson",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "video.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-1]").invoke("mouseover").click();
+    cy.get("[data-cy=navigate-to-question-button]").invoke("mouseover").click();
+    cy.get("[data-cy=progress]").contains("Questions 2 / 2");
   });
 
   it("can update transcript", () => {
@@ -3673,8 +4210,8 @@ describe("Record", () => {
       cy.get("[data-cy=upload-video]").trigger("mouseover").click();
       cy.get("[data-cy=uploading-widget]").should("be.visible");
 
-      cy.get("[data-cy=upload-card-0]").should("exist");
-      cy.get("[data-cy=upload-card-0]").within(($within) => {
+      cy.get("[data-cy=active-upload-card-0]").should("exist");
+      cy.get("[data-cy=active-upload-card-0]").within(($within) => {
         cy.get("[data-cy=card-answer-title]")
           .get("p")
           .should("have.text", "Failed to upload file: Error 400: Bad Request");
@@ -3691,6 +4228,86 @@ describe("Record", () => {
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
           {
             me: {
               uploadTasks: [
@@ -3853,14 +4470,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
         .should("have.text", "Failed to process file: trim_upload task failed");
     });
-    cy.get("[data-cy=upload-card-1]").should("exist");
-    cy.get("[data-cy=upload-card-1]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
         .should("have.text", "Failed to process file: trim_upload task failed");
@@ -3967,7 +4584,7 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=warn-empty-transcript]").should("exist");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("p").should("have.text", "Needs Attention");
     });
   });
@@ -4028,7 +4645,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("[data-cy=download-video-from-list]").should("be.visible");
     });
   });
@@ -4089,7 +4706,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-card-0]").within(($within) => {
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("[data-cy=download-video-from-list]").should("not.be.visible");
     });
   });
