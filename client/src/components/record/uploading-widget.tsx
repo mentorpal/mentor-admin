@@ -36,7 +36,8 @@ function UploadingView(props: {
   const [navigateQuestionId, setNavigateQuestionId] = useState<string>("");
   const [warningPopupOpen, setWarningPopupOpen] = useState<boolean>(false);
   const { recordState, visible, onRecordPage, setUploadWidgetVisible } = props;
-  const { curAnswer, answers, setAnswerIdx, uploads, mentorSubjects } = recordState;
+  const { curAnswer, answers, setAnswerIdx, uploads, mentorSubjects } =
+    recordState;
   const uploadsToShow = uploads.filter((upload) => !isATaskCancelled(upload));
   const uploadsInProgress = uploadsToShow.filter(
     (upload) => !areAllTasksDone(upload)
