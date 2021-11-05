@@ -156,17 +156,12 @@ export function useWithRecordState(
       navigate("/");
     }
     setAnswers(answerStates);
-  }, [mentorAnswers, mentorQuestions, filter]);
-
-  useEffect(() => {
-    const { videoId, subject } = filter;
-    if (!answers.length || !subject) return;
-    if (videoId) {
+    if(videoId && subject){
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      const firstIdx = retrieveAnswerIdx(ids[0]);
-      if (firstIdx || firstIdx == 0) setAnswerIdx(firstIdx);
+      const idx = retrieveAnswerIdx(answerStates, ids[0]);
+      setAnswerIdx(idx);
     }
-  }, [answers.length]);
+  }, [mentorAnswers, mentorQuestions, filter]);
 
   useEffect(() => {
     if (!curAnswer) return;
@@ -200,9 +195,9 @@ export function useWithRecordState(
     });
   }, [answers[answerIdx], questionsLoading, questionsSaving, uploads]);
 
-  function retrieveAnswerIdx(id: string) {
-    for (let i = 0; i < answers?.length; i++) {
-      if (answers[i].answer.question == id) {
+  function retrieveAnswerIdx(answerstates: AnswerState[], id: string) {
+    for (let i = 0; i < answerstates?.length; i++) {
+      if (answerstates[i].answer.question == id) {
         return i;
       }
     }
