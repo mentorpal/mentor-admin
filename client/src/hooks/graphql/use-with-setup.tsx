@@ -14,7 +14,6 @@ import {
   Subject,
   UtteranceName,
 } from "types";
-import { useWithTraining } from "hooks/task/use-with-train";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { getValueIfKeyExists, urlBuild } from "helpers";
@@ -33,7 +32,7 @@ export enum SetupStepType {
   IDLE_TIPS = 5,
   IDLE = 6,
   REQUIRED_SUBJECT = 7,
-  BUILD = 8,
+  FINISH_SETUP = 8,
 }
 
 interface SetupStep {
@@ -53,8 +52,6 @@ interface SetupStatus {
     answers: Answer[];
     complete: boolean;
   }[];
-  isBuildable: boolean;
-  isBuilt: boolean;
   isSetupComplete: boolean;
 }
 
@@ -67,12 +64,10 @@ interface UseWithSetup {
   isEdited: boolean;
   isLoading: boolean;
   isSaving: boolean;
-  isTraining: boolean;
   readyToDisplay: boolean;
   error?: LoadingError;
   editMentor: (d: Partial<Mentor>) => void;
   saveMentor: () => void;
-  startTraining: () => void;
   nextStep: () => void;
   prevStep: () => void;
   toStep: (i: number) => void;
@@ -102,12 +97,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   );
   const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
     useMentorEdits();
-  const {
-    isPolling: isTraining,
-    error: trainError,
-    startTask: startTraining,
-    clearError: clearTrainingError,
-  } = useWithTraining();
   const { state: configState, isConfigLoaded } = useWithConfig();
 
   useEffect(() => {
@@ -150,7 +139,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
           complete: answers.every((a: Answer) => a.status === Status.COMPLETE),
         };
       });
-    const isBuildable =
+    const isSetupComplete =
       isMentorInfoDone &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
@@ -158,15 +147,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         (s: { subject: Subject; answers: Answer[]; complete: boolean }) =>
           s.complete
       );
-    const isBuilt = Boolean(mentor.lastTrainedAt);
-    const isSetupComplete = isBuildable && isBuilt;
     setStatus({
       isMentorInfoDone,
       isMentorTypeChosen,
       idle,
       requiredSubjects,
-      isBuildable,
-      isBuilt,
       isSetupComplete,
     });
 
@@ -189,7 +174,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         });
       }
     );
-    status.push({ type: SetupStepType.BUILD, complete: isSetupComplete });
+    status.push({
+      type: SetupStepType.FINISH_SETUP,
+      complete: isSetupComplete,
+    });
     setSteps(status);
   }, [mentor, questionsLoading, configState.config]);
 
@@ -234,22 +222,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setIdx(i);
   }
 
-  function train(): void {
-    if (
-      !mentor ||
-      isTraining ||
-      isMentorSaving ||
-      isMentorLoading ||
-      !status ||
-      !status.isBuildable
-    ) {
-      return;
-    }
-    startTraining(mentor._id);
-  }
-
   function clearError() {
-    clearTrainingError();
     clearMentorError();
   }
 
@@ -286,12 +259,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
-    isTraining,
     readyToDisplay: isConfigLoaded(),
-    error: mentorError || trainError,
+    error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,
-    startTraining: train,
     nextStep,
     prevStep,
     toStep,

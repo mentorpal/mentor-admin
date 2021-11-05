@@ -6,26 +6,23 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { CLIENT_ENDPOINT } from "api";
 import { Mentor } from "types";
 import { Slide } from "./slide";
+import { navigate } from "@reach/router";
 
-export function BuildMentorSlide(props: {
+export function FinalSetupSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
-  isBuildable: boolean;
-  isBuilt: boolean;
-  startTraining: () => void;
+  isSetupComplete: boolean;
 }): JSX.Element {
-  const { classes, mentor, isBuildable, isBuilt, startTraining } = props;
+  const { classes, mentor, isSetupComplete } = props;
 
   function renderMessage(): JSX.Element {
-    if (!isBuildable) {
+    if (!isSetupComplete) {
       return (
         <div>
           <Typography variant="h6" className={classes.text}>
-            You&apos;re still missing some steps before you can build your
-            mentor.
+            Mentor setup incomplete.
           </Typography>
           <Typography variant="h6" className={classes.text}>
             Make sure you complete the previous slides first.
@@ -33,28 +30,14 @@ export function BuildMentorSlide(props: {
         </div>
       );
     }
-    if (isBuilt) {
-      return (
-        <div>
-          <Typography variant="h6" className={classes.text}>
-            Congratulations! Your brand-new mentor is ready!
-          </Typography>
-          <Typography variant="h6" className={classes.text}>
-            Click the preview button to see your mentor.
-          </Typography>
-          <Typography variant="h6" className={classes.text}>
-            Click the build button to retrain your mentor.
-          </Typography>
-        </div>
-      );
-    }
     return (
       <div>
         <Typography variant="h6" className={classes.text}>
-          Click the build button to start building your mentor.
+          Your mentor is coming together!
         </Typography>
         <Typography variant="h6" className={classes.text}>
-          Once its complete, click preview to see your mentor.
+          Visit the My Mentor page using the button below to continue working on
+          your mentor.
         </Typography>
       </div>
     );
@@ -67,38 +50,23 @@ export function BuildMentorSlide(props: {
   return (
     <Slide
       classes={classes}
-      title={
-        isBuildable
-          ? "Great job! You're ready to build your mentor!"
-          : "Oops! Your mentor is not ready yet."
-      }
+      title={isSetupComplete ? "Good work!" : "Oops!"}
       content={
         <div>
           <div>{renderMessage()}</div>
           <div className={classes.row}>
-            <Button
-              data-cy="train-btn"
-              variant="contained"
-              color="primary"
-              disabled={!isBuildable}
-              className={classes.button}
-              onClick={startTraining}
-            >
-              Build
-            </Button>
-            {isBuilt ? (
+            {isSetupComplete ? (
               <Button
-                data-cy="preview-btn"
+                data-cy="go-to-my-mentor-button"
                 variant="contained"
-                color="secondary"
+                color="primary"
                 className={classes.button}
-                disabled={!isBuildable}
+                style={{ width: "150px" }}
                 onClick={() => {
-                  const path = `${location.origin}${CLIENT_ENDPOINT}?mentor=${mentor._id}`;
-                  window.location.href = path;
+                  navigate("/admin");
                 }}
               >
-                Preview
+                My Mentor
               </Button>
             ) : undefined}
           </div>

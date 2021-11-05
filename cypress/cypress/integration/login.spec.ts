@@ -97,7 +97,7 @@ describe("Login", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor });
     cy.visit("/setup");
-    cy.contains("Welcome to MentorPal!");
+    cy.contains("Welcome to MentorStudio!");
     cy.get("[data-cy=login-option]").trigger("mouseover").click();
     cy.get("[data-cy=logout-button]").trigger("mouseover").click();
     cy.location("pathname").then(($el) => {

@@ -130,7 +130,7 @@ function HomePage(props: {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
-    setShowSetupAlert(!setupStatus.isBuildable);
+    setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
 
   if (!(mentorId && setupStatus)) {
