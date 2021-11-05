@@ -156,7 +156,7 @@ export function useWithRecordState(
       navigate("/");
     }
     setAnswers(answerStates);
-    if(videoId && subject){
+    if (videoId && subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       const idx = retrieveAnswerIdx(answerStates, ids[0]);
       setAnswerIdx(idx);
