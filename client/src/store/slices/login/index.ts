@@ -94,6 +94,9 @@ export const loginSlice = createSlice({
         state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
+        console.log(
+          `store activeMentorId: ${action.payload.user.defaultMentor._id}`
+        );
         sessionStorageStore(
           ACTIVE_MENTOR_KEY,
           action.payload.user.defaultMentor._id
