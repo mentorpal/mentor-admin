@@ -92,7 +92,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     error: mentorError,
   } = useActiveMentor();
 
-  const mentor: Mentor = getData((state) => state.data);
+  const mentor = getData((state) => state.data);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentor?.answers?.map((a: Answer) => a.question)

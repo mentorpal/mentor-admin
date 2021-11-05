@@ -42,7 +42,6 @@ export function useActiveMentor(): UseActiveMentor {
     ) {
       return;
     }
-    console.log("reloading mentor via login user id change")
     loadMentor();
   }, [loginUser?._id]);
 

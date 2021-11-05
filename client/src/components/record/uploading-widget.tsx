@@ -25,8 +25,7 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
-import { Subject, UploadTask } from "types";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { UploadTask } from "types";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;
@@ -37,7 +36,7 @@ function UploadingView(props: {
   const [navigateQuestionId, setNavigateQuestionId] = useState<string>("");
   const [warningPopupOpen, setWarningPopupOpen] = useState<boolean>(false);
   const { recordState, visible, onRecordPage, setUploadWidgetVisible } = props;
-  const { curAnswer, answers, setAnswerIdx, uploads } = recordState;
+  const { curAnswer, answers, setAnswerIdx, uploads, mentorSubjects } = recordState;
   const uploadsToShow = uploads.filter((upload) => !isATaskCancelled(upload));
   const uploadsInProgress = uploadsToShow.filter(
     (upload) => !areAllTasksDone(upload)
@@ -51,10 +50,6 @@ function UploadingView(props: {
 
   const height = 250;
   const width = 350;
-
-  const { getData } = useActiveMentor();
-
-  const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
 
   useEffect(() => {
     if (!navigateQuestionId) return;

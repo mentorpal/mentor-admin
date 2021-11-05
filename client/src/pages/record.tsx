@@ -205,12 +205,14 @@ function RecordPage(props: {
 
   return (
     <div className={classes.root}>
+      {curAnswer ? 
       <UploadingWidget
         visible={uploadingWidgetVisible}
         onRecordPage={true}
         setUploadWidgetVisible={setUploadingWidgetVisible}
         recordState={recordState}
       />
+        : undefined}
       <NavBar
         title={
           categoryTitle

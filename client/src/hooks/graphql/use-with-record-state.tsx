@@ -82,8 +82,8 @@ export function useWithRecordState(
     error: mentorError,
   } = useActiveMentor();
 
-  const mentorId: string = getData((state) => state.data?._id);
-  const mentorType: MentorType = getData((state) => state.data?.mentorType);
+  const mentorId = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -480,6 +480,7 @@ export function useWithRecordState(
 
   return {
     mentorQuestions,
+    mentorSubjects,
     answers,
     answerIdx,
     curAnswer,
@@ -512,6 +513,7 @@ export function useWithRecordState(
 
 export interface UseWithRecordState {
   mentorQuestions: Record<string, QuestionState>;
+  mentorSubjects: Subject[];
   answers: AnswerState[];
   answerIdx: number;
   curAnswer?: CurAnswerState;
