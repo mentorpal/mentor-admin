@@ -101,6 +101,7 @@ function UploadingView(props: {
           subject: questionsSubject._id,
           videoId: questionId,
         });
+    if (!onRecordPage) recordState.reloadMentorData();
     navigate(url);
     setNavigateQuestionId("");
   }
