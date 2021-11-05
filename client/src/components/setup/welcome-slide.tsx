@@ -16,7 +16,7 @@ export function WelcomeSlide(props: {
   return (
     <Slide
       classes={classes}
-      title="Welcome to MentorPal!"
+      title="Welcome to MentorStudio!"
       content={
         <div>
           <Typography variant="h6" className={classes.text}>
