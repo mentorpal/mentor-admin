@@ -82,7 +82,6 @@ export function useWithSubject(
         // would be better to edit in place but for now do the easy (but more expensive) way and
         // change this later if needed
         // this doesn't happen very often anyway
-        console.log("reloading mentor via saveSubject")
         loadMentor();
         return updated;
       },

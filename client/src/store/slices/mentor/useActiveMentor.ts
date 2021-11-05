@@ -63,7 +63,6 @@ export function useActiveMentor(): UseActiveMentor {
     } else {
       sessionStorageClear(ACTIVE_MENTOR_KEY);
     }
-    console.log("reloading mentor via switch active mentor")
     loadMentor();
   }
 

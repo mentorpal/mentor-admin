@@ -76,7 +76,6 @@ export function useWithImportExport(): UseWithImportExport {
       setImportJson(undefined);
       setImportPreview(undefined);
       setIsUpdating(true);
-      console.log("reloading mentor via importExport")
       loadMentor();
     });
   }
