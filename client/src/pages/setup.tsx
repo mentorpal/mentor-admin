@@ -23,7 +23,7 @@ import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
 import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
-import { BuildMentorSlide } from "components/setup/build-mentor-slide";
+import { FinalSetupSlide } from "components/setup/final-setup-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 import withLocation from "wrap-with-location";
@@ -100,10 +100,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     isLoading,
     isSaving,
     readyToDisplay,
-    isTraining,
     error,
     editMentor,
-    startTraining,
     toStep,
   } = useWithSetup(props.search);
 
@@ -173,15 +171,13 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             i={idx}
           />
         );
-      case SetupStepType.BUILD:
+      case SetupStepType.FINISH_SETUP:
         return (
-          <BuildMentorSlide
-            key="build"
+          <FinalSetupSlide
+            key={"FinalSetupSlide"}
             classes={classes}
             mentor={mentor}
-            isBuildable={status.isBuildable}
-            isBuilt={status.isSetupComplete}
-            startTraining={startTraining}
+            isSetupComplete={status.isSetupComplete}
           />
         );
       default:
@@ -237,15 +233,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         ))}
       </Carousel>
       <LoadingDialog
-        title={
-          isLoading
-            ? "Loading..."
-            : isSaving
-            ? "Saving..."
-            : isTraining
-            ? "Building your mentor..."
-            : ""
-        }
+        title={isLoading ? "Loading..." : isSaving ? "Saving..." : ""}
       />
       <ErrorDialog error={error} />
     </div>
