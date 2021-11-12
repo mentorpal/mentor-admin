@@ -291,7 +291,7 @@ function HomePage(props: {
               data-cy="preview-button"
               variant="extended"
               color="secondary"
-              onClick={() => launchMentor(mentorId)}
+              onClick={() => launchMentor(mentorId, true)}
               className={classes.fab}
             >
               Preview Mentor
