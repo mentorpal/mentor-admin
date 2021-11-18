@@ -383,7 +383,7 @@ export function useWithRecordState(
 
   function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
-    if (!mentorId || !answer.answer.question || !answer.recordedVideo) {
+    if (!mentorId || !answer.answer.question) {
       return;
     }
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
