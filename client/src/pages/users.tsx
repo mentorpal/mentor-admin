@@ -200,7 +200,7 @@ function UserItem(props: {
             data-cy="launch-default-mentor"
             onClick={() => {
               if (edge.node.defaultMentor._id)
-                launchMentor(edge.node.defaultMentor._id);
+                launchMentor(edge.node.defaultMentor._id, true);
             }}
             className={styles.normalButton}
           >
