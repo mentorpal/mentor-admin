@@ -8,11 +8,14 @@ The full terms of this copyright and license should always be found in the root 
 import { fetchQuestions } from "api";
 import { Question } from "types";
 import {
+  SearchParams,
   UseDataConnection,
   useWithDataConnection,
 } from "./use-with-data-connection";
 
-export function useWithQuestions(): UseDataConnection<Question> {
+export function useWithQuestions(
+  initalSearchParams?: SearchParams
+): UseDataConnection<Question> {
   const {
     data,
     isLoading,
@@ -25,10 +28,10 @@ export function useWithQuestions(): UseDataConnection<Question> {
     filter,
     nextPage,
     prevPage,
-  } = useWithDataConnection<Question>(fetch);
+  } = useWithDataConnection<Question>(fetch, initalSearchParams);
 
   function fetch() {
-    return fetchQuestions();
+    return fetchQuestions(searchParams);
   }
 
   return {

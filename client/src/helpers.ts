@@ -67,11 +67,12 @@ function appendKeyPairToQuery(
   query.append(key, pval);
 }
 
-export function launchMentor(mentorId: string): void {
+export function launchMentor(mentorId: string, newTab?: boolean): void {
   const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
     mentor: mentorId,
   });
-  window.location.href = path;
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
 }
 
 export function getValueIfKeyExists<T>(
