@@ -339,7 +339,7 @@ export function cyMockRegenVTT(
   params: {
     statusCode?: number;
   } = {}
-): void{
+): void {
   cy.intercept("/upload/answer/regen_vtt", (req) => {
     req.alias = "uploadThumbnail";
     req.reply(
@@ -347,7 +347,7 @@ export function cyMockRegenVTT(
         statusCode: params.statusCode || 200,
         body: {
           data: {
-            "regen_vtt":true
+            regen_vtt: true,
           },
         },
         headers: {
