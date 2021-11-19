@@ -906,6 +906,23 @@ export async function updateMentorSubjects(
   );
 }
 
+export async function regenerateVTTForQuestion(
+  questionId: string,
+  mentorId: string
+): Promise<boolean> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: questionId })
+  );
+  const result = await uploadRequest.post("/answer/regen_vtt/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return getDataFromAxiosResponse(result, ["regen_vtt"]);
+}
+
 export async function updateAnswer(
   answer: Answer,
   accessToken: string,
