@@ -386,13 +386,28 @@ export function useWithRecordState(
     }
   }
 
-  function uploadVideo(trim?: { start: number; end: number }) {
+  async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
     if (!mentorId || !answer.answer.question) {
       return;
     }
-    if (trim && answer.answer.hasEditedTranscript) {
+    if (
+      trim &&
+      (answer.editedAnswer.hasEditedTranscript ||
+        answer.answer.hasEditedTranscript)
+    ) {
       setNotifyDialogOpen(true);
+      if (answer.editedAnswer.hasEditedTranscript) {
+        try {
+          await updateAnswer(answer.editedAnswer, accessToken, mentorId);
+          updateAnswerState({ answer: answer.editedAnswer });
+        } catch (err) {
+          setError({
+            message: "Failed to update answer with edited transcript",
+            error: String(err),
+          });
+        }
+      }
     }
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
