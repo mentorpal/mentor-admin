@@ -3997,7 +3997,7 @@ describe("Record", () => {
     cy.get("[data-cy=progress]").contains("Questions 2 / 2");
   });
 
-  it.only("can update transcript", () => {
+  it("can update transcript", () => {
     cyMockDefault(cy, {
       mentor: [
         chatMentor,
