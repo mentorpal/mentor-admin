@@ -43,6 +43,7 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
+import { MountedFilesStatus } from "hooks/graphql/use-with-server-file-page";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -993,6 +994,36 @@ export async function uploadVideo(
   });
   return getDataFromAxiosResponse(result, []);
 }
+
+export async function removeMountedFileFromServer(
+  fileName: string
+): Promise<UploadProcessAsyncJob> {
+  const result = await uploadRequest.post(`/answer/remove_mounted_file/${fileName}`, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return getDataFromAxiosResponse(result, ["file_removed"]);
+}
+
+export async function fetchMountedFilesStatus(): Promise<MountedFilesStatus> {
+  const result = await uploadRequest.get(
+    `/answer/mounted_files/`,
+  );
+  return getDataFromAxiosResponse(result, []);
+}
+
+export async function downloadMountedFileAsBlob(
+  fileName: string
+): Promise<Blob> {
+  const result = await uploadRequest.get(
+    `/answer/download_mounted_file/${fileName}/`,
+    { responseType: "blob" }
+  );
+  throwErrorsInAxiosResponse(result);
+  return result.data;
+}
+
 
 export async function fetchVideoBlobFromServer(
   mentorId: string,
