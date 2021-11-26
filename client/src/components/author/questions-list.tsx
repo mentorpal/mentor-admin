@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -30,6 +30,7 @@ import { SubjectQuestionGQL } from "types-gql";
 import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 import { useWithWindowSize } from "hooks/use-with-window-size";
+import { SearchParams } from "hooks/graphql/use-with-data-connection";
 
 export function QuestionsList(props: {
   classes: Record<string, string>;
@@ -48,13 +49,32 @@ export function QuestionsList(props: {
   const [searchInput, setSearchInput] = useState<Question>();
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const [selectedCategory, setSelectedCategory] = useState<string>();
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
 
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
   const { height: windowHeight } = useWithWindowSize();
-  const { data } = useWithQuestions();
-  const allQuestions = data?.edges
-    .map((e) => e.node)
-    .filter((q) => !questions.map((sq) => sq.question._id).includes(q._id));
+  const searchParams: SearchParams = {
+    limit: 5000,
+    cursor: "",
+    sortBy: "",
+    sortAscending: true,
+    filter: {},
+  };
+  const { data, nextPage, isLoading } = useWithQuestions(searchParams);
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+    const questionsFromCurPage = data.edges
+      .map((e) => e.node)
+      .filter((q) => !questions.map((sq) => sq.question._id).includes(q._id));
+    if (questionsFromCurPage) {
+      setAllQuestions(allQuestions.concat(questionsFromCurPage));
+    }
+    if (data.pageInfo.hasNextPage) {
+      nextPage();
+    }
+  }, [data?.edges]);
 
   function selectQuestion(val?: SubjectQuestionGQL) {
     setSelectedQuestion(val?.question._id || undefined);
@@ -182,6 +202,7 @@ export function QuestionsList(props: {
       <Autocomplete
         data-cy="select-question"
         options={allQuestions || []}
+        disabled={isLoading}
         getOptionLabel={(option: Question) => option.question}
         onChange={(e, v) => {
           if (v) {
@@ -192,7 +213,13 @@ export function QuestionsList(props: {
         renderOption={(option) => (
           <Typography align="left">{option.question}</Typography>
         )}
-        renderInput={(params) => <TextField {...params} variant="outlined" />}
+        renderInput={(params) =>
+          isLoading ? (
+            <TextField {...params} label="Loading..." variant="outlined" />
+          ) : (
+            <TextField {...params} variant="outlined" />
+          )
+        }
       />
       <Button
         data-cy="add-question"
