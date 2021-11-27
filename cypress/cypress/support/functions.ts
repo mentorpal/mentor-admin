@@ -4,7 +4,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, TaskInfo, TrainingInfo, VideoInfo, _Ref } from "./types";
+import {
+  Mentor,
+  MountedFilesStatus,
+  ServerStorageInfo,
+  TaskInfo,
+  TrainingInfo,
+  VideoInfo,
+  _Ref,
+} from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
@@ -404,6 +412,82 @@ export function cyMockFollowUpQuestions(
         body: {
           errors: params.errors,
           data: params.data || {},
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockMountedFilesStatus(
+  cy,
+  params: {
+    mountedFilesStatus: MountedFilesStatus;
+    statusCode?: number;
+  }
+): void {
+  params = params;
+  cy.intercept("GET", "/upload/answer/mounted_files", (req) => {
+    req.alias = "mountedFiles";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: params.mountedFilesStatus,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockDeleteMountedFile(
+  cy,
+  params: {
+    fileRemoved: boolean;
+  }
+): void {
+  params = params;
+  cy.intercept("POST", "/upload/answer/remove_mounted_file/*", (req) => {
+    req.alias = "deleteFile";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            fileRemoved: params.fileRemoved,
+          },
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockServerStorageInfo(
+  cy,
+  params: {
+    serverStorageInfo: ServerStorageInfo;
+  }
+): void {
+  params = params;
+  cy.intercept("GET", "/upload/answer/storage_info/", (req) => {
+    req.alias = "storageInfo";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            freeStorage: params.serverStorageInfo.freeStorage,
+            totalStorage: params.serverStorageInfo.totalStorage,
+            usedStorage: params.serverStorageInfo.usedStorage,
+          },
         },
         headers: {
           "Content-Type": "application/json",

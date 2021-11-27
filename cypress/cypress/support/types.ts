@@ -137,6 +137,16 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface MountedFilesStatus {
+  mountedFiles: string[];
+}
+
+export interface ServerStorageInfo {
+  totalStorage: number;
+  usedStorage: number;
+  freeStorage: number;
+}
+
 export enum MentorType {
   VIDEO = "VIDEO",
   CHAT = "CHAT",

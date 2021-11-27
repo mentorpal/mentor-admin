@@ -43,7 +43,7 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
-import { MountedFilesStatus } from "hooks/graphql/use-with-server-file-page";
+import { ServerStorageInfo } from "hooks/graphql/use-with-server-file-page";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -617,6 +617,30 @@ export async function fetchQuestionsById(ids: string[]): Promise<Question[]> {
   );
 }
 
+export async function fetchBasicMentorInfo(): Promise<Connection<Mentor>> {
+  const gql = await execGql<Connection<MentorGQL>>(
+    {
+      query: `
+      query Mentors($limit: Int!){
+        mentors(limit: $limit) {
+          edges {
+            node {
+              _id
+              name
+            }
+          }
+        }
+      }
+    `,
+      variables: {
+        limit: 1000,
+      },
+    },
+    { dataPath: "mentors" }
+  );
+  return convertConnectionGQL(gql, convertMentorGQL);
+}
+
 export async function updateQuestion(
   updateQuestion: Question,
   accessToken: string
@@ -998,18 +1022,24 @@ export async function uploadVideo(
 export async function removeMountedFileFromServer(
   fileName: string
 ): Promise<UploadProcessAsyncJob> {
-  const result = await uploadRequest.post(`/answer/remove_mounted_file/${fileName}`, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  return getDataFromAxiosResponse(result, ["file_removed"]);
+  const result = await uploadRequest.post(
+    `/answer/remove_mounted_file/${fileName}`,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return getDataFromAxiosResponse(result, ["fileRemoved"]);
 }
 
-export async function fetchMountedFilesStatus(): Promise<MountedFilesStatus> {
-  const result = await uploadRequest.get(
-    `/answer/mounted_files/`,
-  );
+export async function fetchMountedFilesStatus(): Promise<string[]> {
+  const result = await uploadRequest.get(`/answer/mounted_files/`);
+  return getDataFromAxiosResponse(result, ["mountedFiles"]);
+}
+
+export async function fetchServerStorageInfo(): Promise<ServerStorageInfo> {
+  const result = await uploadRequest.get(`/answer/storage_info/`);
   return getDataFromAxiosResponse(result, []);
 }
 
@@ -1023,7 +1053,6 @@ export async function downloadMountedFileAsBlob(
   throwErrorsInAxiosResponse(result);
   return result.data;
 }
-
 
 export async function fetchVideoBlobFromServer(
   mentorId: string,
