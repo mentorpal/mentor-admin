@@ -4,41 +4,34 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
-import { navigate } from "gatsby";
-import { urlBuild } from "helpers";
 import { useReducer, useState } from "react";
+import { navigate } from "gatsby";
+import { v4 as uuid } from "uuid";
+
+import { addOrUpdateSubjectQuestions, fetchFollowUpQuestions } from "api";
+import { urlBuild } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import {
-  Answer,
-  Category,
-  Mentor,
-  QuestionType,
-  Subject,
-  UtteranceName,
-} from "types";
-import { v4 as uuid } from "uuid";
+import { Category, QuestionType, Subject, UtteranceName } from "types";
+import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 import {
   FollowupsPageStatusType,
   FollowupsPageState,
   FollowupsReducer,
   FollowupsActionType,
 } from "./followups-reducer";
-import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 export interface UseWithFollowups {
   mentorId?: string;
   curSubject?: Subject;
   curCategory?: Category;
   followUpQuestions?: string[];
-  fetchFollowups: () => void;
   followupPageState: FollowupsPageState;
-  saveAndLoadSelectedFollowups: () => void;
   toRecordFollowUpQs: string[];
+  fetchFollowups: () => void;
+  saveAndLoadSelectedFollowups: () => void;
   setToRecordFollowUpQs: (followups: string[]) => void;
   navigateToMyMentorPage: () => void;
-  mentor?: Mentor;
 }
 
 export function useWithFollowups(props: {
@@ -55,14 +48,13 @@ export function useWithFollowups(props: {
   const { getData, loadMentor } = useActiveMentor();
   const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const curSubject: Subject = getData((state) =>
     state.data?.subjects.find((s) => s._id == subjectId)
   );
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   function fetchFollowups() {
-    if (!mentorAnswers || !loginState.accessToken) {
+    if (!loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
@@ -168,10 +160,10 @@ export function useWithFollowups(props: {
     curSubject,
     curCategory,
     followUpQuestions,
-    fetchFollowups,
     followupPageState: state,
-    saveAndLoadSelectedFollowups,
     toRecordFollowUpQs,
+    fetchFollowups,
+    saveAndLoadSelectedFollowups,
     setToRecordFollowUpQs,
     navigateToMyMentorPage,
   };
