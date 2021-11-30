@@ -8,17 +8,13 @@ import {
   cyMockDefault,
   cyMockDeleteMountedFile,
   cyMockMountedFilesStatus,
-  cyMockServerStorageInfo,
   mockGQL,
 } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_setup11";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
-import {
-  fileStatusOnServer,
-  storageInfoOnServer,
-} from "../fixtures/files_on_server";
+import { fileStatusOnServer } from "../fixtures/files_on_server";
 import { mentors } from "../fixtures/basicMentorInfo";
 import questions from "../fixtures/questions";
 
@@ -36,7 +32,6 @@ describe("file manager page", () => {
       ],
     });
     cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
-    cyMockServerStorageInfo(cy, { serverStorageInfo: storageInfoOnServer });
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.visit("/filemanager");
     cy.get("[data-cy=files-list]").should("exist");
@@ -65,7 +60,6 @@ describe("file manager page", () => {
       ],
     });
     cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
-    cyMockServerStorageInfo(cy, { serverStorageInfo: storageInfoOnServer });
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.visit("/filemanager");
     cy.get("[data-cy=files-list]").should("exist");
@@ -90,7 +84,6 @@ describe("file manager page", () => {
       ],
     });
     cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
-    cyMockServerStorageInfo(cy, { serverStorageInfo: storageInfoOnServer });
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.visit("/filemanager");
     cy.get("[data-cy=files-list]").should("exist");
@@ -110,7 +103,6 @@ describe("file manager page", () => {
     });
     cy.visit("/filemanager");
     cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
-    cyMockServerStorageInfo(cy, { serverStorageInfo: storageInfoOnServer });
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.get("[data-cy=my-mentor-card]").should("exist");
   });

@@ -56,7 +56,8 @@ function FileListItem(props: {
         {fileInfo.questionText || fileInfo.fileName}
       </div>
 
-      <div>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <div>{(fileInfo.size / 1000000).toFixed(2)} MB</div>
         <Button
           title={"Download File"}
           data-cy="download-file-from-server"
@@ -97,8 +98,6 @@ function FileManager(): JSX.Element {
   const {
     loading,
     mountedFiles,
-    totalStorage,
-    freeStorage,
     downloadVideoFile,
     removeVideoFileFromServer,
     error,
@@ -107,9 +106,22 @@ function FileManager(): JSX.Element {
   const editServerFilesPermission =
     state.user?.userRole === UserRole.ADMIN ||
     state.user?.userRole === UserRole.CONTENT_MANAGER;
+  const totalSpaceUsedInMb = mountedFiles.length
+    ? bytesToMb(
+        mountedFiles
+          .map((file) => file.size)
+          .reduce(function (a, b) {
+            return a + b;
+          })
+      )
+    : 0;
 
   if (state.user && !editServerFilesPermission) {
     navigate("/");
+  }
+
+  function bytesToMb(bytes: number): number {
+    return bytes / 1000000;
   }
 
   function renderFilesList() {
@@ -133,8 +145,9 @@ function FileManager(): JSX.Element {
   function renderFooter() {
     return (
       <div>
-        {Math.floor((totalStorage - freeStorage) / Math.pow(2, 30))} GB Used /{" "}
-        {Math.floor(totalStorage / Math.pow(2, 30))} GB Total
+        {totalSpaceUsedInMb < 1000
+          ? totalSpaceUsedInMb.toFixed(2) + " MB Used"
+          : (totalSpaceUsedInMb / 1000).toFixed(2) + " GB Used"}
       </div>
     );
   }

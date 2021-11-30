@@ -43,7 +43,7 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
-import { ServerStorageInfo } from "hooks/graphql/use-with-server-file-page";
+import { FileOnServer } from "hooks/graphql/use-with-server-file-page";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -1033,14 +1033,9 @@ export async function removeMountedFileFromServer(
   return getDataFromAxiosResponse(result, ["fileRemoved"]);
 }
 
-export async function fetchMountedFilesStatus(): Promise<string[]> {
+export async function fetchMountedFilesStatus(): Promise<FileOnServer[]> {
   const result = await uploadRequest.get(`/answer/mounted_files/`);
   return getDataFromAxiosResponse(result, ["mountedFiles"]);
-}
-
-export async function fetchServerStorageInfo(): Promise<ServerStorageInfo> {
-  const result = await uploadRequest.get(`/answer/storage_info/`);
-  return getDataFromAxiosResponse(result, []);
 }
 
 export async function downloadMountedFileAsBlob(

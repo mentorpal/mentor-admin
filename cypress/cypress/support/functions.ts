@@ -469,30 +469,3 @@ export function cyMockDeleteMountedFile(
     );
   });
 }
-
-export function cyMockServerStorageInfo(
-  cy,
-  params: {
-    serverStorageInfo: ServerStorageInfo;
-  }
-): void {
-  params = params;
-  cy.intercept("GET", "/upload/answer/storage_info/", (req) => {
-    req.alias = "storageInfo";
-    req.reply(
-      staticResponse({
-        statusCode: 200,
-        body: {
-          data: {
-            freeStorage: params.serverStorageInfo.freeStorage,
-            totalStorage: params.serverStorageInfo.totalStorage,
-            usedStorage: params.serverStorageInfo.usedStorage,
-          },
-        },
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-    );
-  });
-}

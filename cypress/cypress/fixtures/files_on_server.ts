@@ -8,15 +8,22 @@ import { MountedFilesStatus, ServerStorageInfo } from "../support/types";
 
 export const fileStatusOnServer: MountedFilesStatus = {
   mountedFiles: [
-    "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-clint-A1_1_1.mp4",
-    "7da74796-3b2a-47bf-b49f-0a8d91f06152-mark-A3_1_1.mp4",
-    "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-jacob-A1_1_1.mp4",
-    "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-6184d14c068d43dc6822a721-60c7b69407dd702a7c3c5963.mp4",
+    {
+      fileName: "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-clint-A1_1_1.mp4",
+      size: 7000,
+    },
+    {
+      fileName: "7da74796-3b2a-47bf-b49f-0a8d91f06152-mark-A3_1_1.mp4",
+      size: 10000,
+    },
+    {
+      fileName: "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-jacob-A1_1_1.mp4",
+      size: 1240000000,
+    },
+    {
+      fileName:
+        "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-6184d14c068d43dc6822a721-60c7b69407dd702a7c3c5963.mp4",
+      size: 4,
+    },
   ],
-};
-
-export const storageInfoOnServer: ServerStorageInfo = {
-  freeStorage: 147618332672,
-  totalStorage: 269490393088,
-  usedStorage: 108111388672,
 };

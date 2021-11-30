@@ -10,23 +10,22 @@ import {
   fetchBasicMentorInfo,
   fetchMountedFilesStatus,
   fetchQuestionsById,
-  fetchServerStorageInfo,
   removeMountedFileFromServer,
 } from "api";
-
-export interface ServerStorageInfo {
-  totalStorage: number;
-  usedStorage: number;
-  freeStorage: number;
-}
 
 interface ServerFilePageError {
   message: string;
   error: string;
 }
 
+export interface FileOnServer {
+  fileName: string;
+  size: number;
+}
+
 export interface MountedFileInfo {
   fileName: string;
+  size: number;
   mentorId: string;
   mentorName?: string;
   questionId: string;
@@ -36,25 +35,12 @@ export interface MountedFileInfo {
 export function useWithServerFilePage(): useWithServerFilePage {
   const [loading, setLoading] = useState<boolean>(true);
   const [mountedFiles, setMountedfiles] = useState<MountedFileInfo[]>([]);
-  const [totalStorage, setTotalStorage] = useState<number>(0);
-  const [freeStorage, setFreeStorage] = useState<number>(0);
   const [error, setError] = useState<ServerFilePageError>();
 
   useEffect(() => {
     fetchMountedFilesStatus()
       .then((mountedFiles) => {
         hydrateFileInfo(mountedFiles);
-        fetchServerStorageInfo()
-          .then((serverStorageInfo) => {
-            setTotalStorage(serverStorageInfo.totalStorage);
-            setFreeStorage(serverStorageInfo.freeStorage);
-          })
-          .catch((err) => {
-            setError({
-              message: "Failed to fetch server storage info",
-              error: String(err),
-            });
-          });
       })
       .catch((err) => {
         setLoading(false);
@@ -65,18 +51,25 @@ export function useWithServerFilePage(): useWithServerFilePage {
       });
   }, []);
 
-  async function hydrateFileInfo(files: string[]) {
+  async function hydrateFileInfo(files: FileOnServer[]) {
     const mountedFileInfo: MountedFileInfo[] = [];
     files.forEach((file) => {
-      const splitFileName = file.split("-");
+      const splitFileName = file.fileName.split("-");
       const questionId = splitFileName[splitFileName.length - 1].split(".")[0];
       const mentorId = splitFileName[splitFileName.length - 2];
-      mountedFileInfo.push({ fileName: file, mentorId, questionId });
+      mountedFileInfo.push({
+        fileName: file.fileName,
+        size: file.size,
+        mentorId,
+        questionId,
+      });
     });
     try {
       const mentorInfo = await fetchBasicMentorInfo();
       const questionInfo = await fetchQuestionsById(
-        mountedFileInfo.map((fileInfo) => fileInfo.questionId)
+        mountedFileInfo
+          .filter((file) => file.questionId.length === 24)
+          .map((fileInfo) => fileInfo.questionId)
       );
       const mountedFileInfoCopy: MountedFileInfo[] = JSON.parse(
         JSON.stringify(mountedFileInfo)
@@ -143,10 +136,6 @@ export function useWithServerFilePage(): useWithServerFilePage {
             setMountedfiles(filesCopy);
           }
         }
-        fetchServerStorageInfo().then((serverStorageInfo) => {
-          setFreeStorage(serverStorageInfo.freeStorage);
-          setTotalStorage(serverStorageInfo.totalStorage);
-        });
       })
       .catch((err) => {
         setError({
@@ -159,8 +148,6 @@ export function useWithServerFilePage(): useWithServerFilePage {
   return {
     loading,
     mountedFiles,
-    totalStorage,
-    freeStorage,
     downloadVideoFile,
     removeVideoFileFromServer,
     error,
@@ -170,8 +157,6 @@ export function useWithServerFilePage(): useWithServerFilePage {
 export interface useWithServerFilePage {
   loading: boolean;
   mountedFiles: MountedFileInfo[];
-  totalStorage: number;
-  freeStorage: number;
   downloadVideoFile: (fileName: string) => Promise<void>;
   removeVideoFileFromServer: (fileName: string) => void;
   error?: ServerFilePageError;

@@ -137,8 +137,13 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface FileOnServer {
+  fileName: string;
+  size: number;
+}
+
 export interface MountedFilesStatus {
-  mountedFiles: string[];
+  mountedFiles: FileOnServer[];
 }
 
 export interface ServerStorageInfo {
