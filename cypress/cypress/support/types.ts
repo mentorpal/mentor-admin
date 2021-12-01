@@ -140,16 +140,11 @@ export interface UserQuestion {
 export interface FileOnServer {
   fileName: string;
   size: number;
+  uploadDate: string;
 }
 
 export interface MountedFilesStatus {
   mountedFiles: FileOnServer[];
-}
-
-export interface ServerStorageInfo {
-  totalStorage: number;
-  usedStorage: number;
-  freeStorage: number;
 }
 
 export enum MentorType {

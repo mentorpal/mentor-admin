@@ -87,10 +87,13 @@ describe("file manager page", () => {
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.visit("/filemanager");
     cy.get("[data-cy=files-list]").should("exist");
-    cy.get("[data-cy=file-list-item-3]").within(($within) => {
+    cy.get("[data-cy=file-list-item-0]").within(($within) => {
       cy.get("[data-cy=delete-file]").invoke("mouseover").click();
     });
-    cy.get("[data-cy=file-list-item-3]").should("not.exist");
+    cy.get("[data-cy=warn-file-deletion-dialog]").within(($within) => {
+      cy.get("[data-cy=warn-yes]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=file-list-item-4]").should("not.exist");
   });
 
   it("cannot view filemanager page if not an admin or content manager", () => {
@@ -105,5 +108,81 @@ describe("file manager page", () => {
     cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
     cyMockDeleteMountedFile(cy, { fileRemoved: true });
     cy.get("[data-cy=my-mentor-card]").should("exist");
+  });
+
+  it("cannot delete file its respective question is currently being uploaded", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Mentors", { mentors }),
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: "A1_1_1",
+                    question: "Tell me about yourself",
+                  },
+
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "i am kayla",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
+    cyMockDeleteMountedFile(cy, { fileRemoved: true });
+    cy.visit("/filemanager");
+    cy.get("[data-cy=file-list-item-1]").within(($within) => {
+      cy.get("[data-cy=delete-file]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=error-dialog]").should("exist");
+    cy.get("[data-cy=error-dialog-title]").should(
+      "have.text",
+      "Unable to delete file"
+    );
+  });
+
+  it("warns user when trying to delete unchecked file", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Mentors", { mentors }),
+        mockGQL("Questions", { questions: questions }),
+      ],
+    });
+    cyMockMountedFilesStatus(cy, { mountedFilesStatus: fileStatusOnServer });
+    cyMockDeleteMountedFile(cy, { fileRemoved: true });
+    cy.visit("/filemanager");
+    cy.get("[data-cy=file-list-item-0]").within(($within) => {
+      cy.get("[data-cy=delete-file]").invoke("mouseover").click();
+    });
+    cy.get("[data-cy=warn-file-deletion-dialog]").should("exist");
   });
 });

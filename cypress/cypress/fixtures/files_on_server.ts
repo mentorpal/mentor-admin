@@ -4,26 +4,30 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { MountedFilesStatus, ServerStorageInfo } from "../support/types";
+import { MountedFilesStatus } from "../support/types";
 
 export const fileStatusOnServer: MountedFilesStatus = {
   mountedFiles: [
     {
       fileName: "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-clint-A1_1_1.mp4",
       size: 7000,
+      uploadDate: "11/29/2021 08:23:02 PM PST",
     },
     {
       fileName: "7da74796-3b2a-47bf-b49f-0a8d91f06152-mark-A3_1_1.mp4",
       size: 10000,
+      uploadDate: "11/29/2021 08:23:02 PM PST",
     },
     {
-      fileName: "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-jacob-A1_1_1.mp4",
+      fileName: "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-jacob-A4_1_1.mp4",
       size: 1240000000,
+      uploadDate: "11/30/2021 5:23:02 AM PST",
     },
     {
       fileName:
         "f5c5aaf8-aaf8-4fe0-84c4-da3a1c5f9305-6184d14c068d43dc6822a721-60c7b69407dd702a7c3c5963.mp4",
       size: 4,
+      uploadDate: "11/29/2021 08:23:14 PM PST",
     },
   ],
 };

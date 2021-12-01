@@ -7,10 +7,8 @@ The full terms of this copyright and license should always be found in the root 
 import {
   Mentor,
   MountedFilesStatus,
-  ServerStorageInfo,
   TaskInfo,
   TrainingInfo,
-  VideoInfo,
   _Ref,
 } from "./types";
 import { login as loginDefault } from "../fixtures/login";

@@ -10,8 +10,11 @@ import {
   fetchBasicMentorInfo,
   fetchMountedFilesStatus,
   fetchQuestionsById,
+  fetchUploadTasks,
   removeMountedFileFromServer,
 } from "api";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { LoginState } from "store/slices/login";
 
 interface ServerFilePageError {
   message: string;
@@ -21,11 +24,13 @@ interface ServerFilePageError {
 export interface FileOnServer {
   fileName: string;
   size: number;
+  uploadDate: string;
 }
 
 export interface MountedFileInfo {
   fileName: string;
   size: number;
+  uploadDate: string;
   mentorId: string;
   mentorName?: string;
   questionId: string;
@@ -36,6 +41,9 @@ export function useWithServerFilePage(): useWithServerFilePage {
   const [loading, setLoading] = useState<boolean>(true);
   const [mountedFiles, setMountedfiles] = useState<MountedFileInfo[]>([]);
   const [error, setError] = useState<ServerFilePageError>();
+  const [unsafeDeletionFile, setUnsafeDeletionFile] =
+    useState<MountedFileInfo>();
+  const { state: loginState } = useWithLogin();
 
   useEffect(() => {
     fetchMountedFilesStatus()
@@ -60,6 +68,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
       mountedFileInfo.push({
         fileName: file.fileName,
         size: file.size,
+        uploadDate: file.uploadDate,
         mentorId,
         questionId,
       });
@@ -145,19 +154,61 @@ export function useWithServerFilePage(): useWithServerFilePage {
       });
   }
 
+  function safelyDeleteFileFromServer(fileInfo: MountedFileInfo) {
+    if (!loginState) {
+      setError({
+        message: "Unable to delete files",
+        error: "No login state",
+      });
+      return;
+    }
+    if (!loginState.accessToken) {
+      setError({
+        message: "Unable to delete files",
+        error: "No access token",
+      });
+      return;
+    }
+    fetchUploadTasks(loginState.accessToken, fileInfo.mentorId)
+      .then((uploadTasks) => {
+        const uploadTaskExists = uploadTasks.find(
+          (uploadTask) => uploadTask.question === fileInfo.questionId
+        );
+        if (uploadTaskExists) {
+          setError({
+            message: "Unable to delete file",
+            error: "That file is currently in use",
+          });
+        } else {
+          removeVideoFileFromServer(fileInfo.fileName);
+        }
+      })
+      .catch(() => {
+        setUnsafeDeletionFile(fileInfo);
+      });
+  }
+
   return {
     loading,
     mountedFiles,
     downloadVideoFile,
-    removeVideoFileFromServer,
+    safelyDeleteFileFromServer,
+    directlyRemoveFileFromServer: removeVideoFileFromServer,
+    setUnsafeDeletionFile,
+    unsafeDeletionFile,
     error,
+    loginState,
   };
 }
 
 export interface useWithServerFilePage {
   loading: boolean;
   mountedFiles: MountedFileInfo[];
+  unsafeDeletionFile?: MountedFileInfo;
+  setUnsafeDeletionFile: (file?: MountedFileInfo) => void;
+  directlyRemoveFileFromServer: (fileName: string) => void;
   downloadVideoFile: (fileName: string) => Promise<void>;
-  removeVideoFileFromServer: (fileName: string) => void;
+  safelyDeleteFileFromServer: (fileInfo: MountedFileInfo) => void;
   error?: ServerFilePageError;
+  loginState: LoginState;
 }
