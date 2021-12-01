@@ -852,6 +852,7 @@ export async function fetchMentorById(
             question {
               _id
             }
+            hasEditedTranscript
             transcript
             status
             hasUntransferredMedia
@@ -930,6 +931,23 @@ export async function updateMentorSubjects(
   );
 }
 
+export async function regenerateVTTForQuestion(
+  questionId: string,
+  mentorId: string
+): Promise<boolean> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: questionId })
+  );
+  const result = await uploadRequest.post("/answer/regen_vtt/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return getDataFromAxiosResponse(result, ["regen_vtt"]);
+}
+
 export async function updateAnswer(
   answer: Answer,
   accessToken: string,
@@ -994,6 +1012,28 @@ export async function transferMedia(
     mentor: mentorId,
     question: questionId,
   });
+  return getDataFromAxiosResponse(result, []);
+}
+
+export async function trimExistingUpload(
+  mentorId: string,
+  question: string,
+  trim?: { start: number; end: number }
+): Promise<UploadProcessAsyncJob> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentorId, question: question, trim })
+  );
+  const result = await uploadRequest.post(
+    "/answer/trim_existing_upload",
+    data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return getDataFromAxiosResponse(result, []);
 }
 
@@ -1244,6 +1284,7 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
               minVideoLength
             }
             answers {
+              hasEditedTranscript
               transcript
               status
               hasUntransferredMedia
@@ -1388,6 +1429,7 @@ export async function importMentorPreview(
             answers {
               editType
               importData {
+                hasEditedTranscript
                 transcript
                 status
                 hasUntransferredMedia
@@ -1411,6 +1453,7 @@ export async function importMentorPreview(
               curData {
                 transcript
                 status
+                hasEditedTranscript
                 hasUntransferredMedia
                 media {
                   type
@@ -1520,6 +1563,7 @@ export async function importMentor(
                 }
                 transcript
                 status
+                hasEditedTranscript
                 hasUntransferredMedia
                 media {
                   type

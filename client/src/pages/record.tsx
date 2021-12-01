@@ -27,7 +27,11 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
 
-import { LoadingDialog, ErrorDialog } from "components/dialog";
+import {
+  LoadingDialog,
+  ErrorDialog,
+  NotificationDialog,
+} from "components/dialog";
 import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
@@ -119,7 +123,8 @@ function RecordPage(props: {
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
 
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { curAnswer, reloadMentorData } = recordState;
+  const { curAnswer, reloadMentorData, notifyDialogOpen, setNotifyDialogOpen } =
+    recordState;
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
 
@@ -291,7 +296,7 @@ function RecordPage(props: {
             />
           </FormControl>
         </div>
-        {curAnswer?.minVideoLength &&
+        {curAnswer.minVideoLength &&
         curEditedQuestion?.name === UtteranceName.IDLE ? (
           <div data-cy="idle" className={classes.block}>
             <Typography className={classes.title}>Idle Duration:</Typography>
@@ -332,10 +337,14 @@ function RecordPage(props: {
               <OutlinedInput
                 data-cy="transcript-input"
                 multiline
-                value={curAnswer?.editedAnswer.transcript}
+                value={curAnswer.editedAnswer.transcript}
                 onChange={(e) =>
                   onTextInputChanged(e, () => {
-                    recordState.editAnswer({ transcript: e.target.value });
+                    recordState.editAnswer({
+                      transcript: e.target.value,
+                      hasEditedTranscript:
+                        e.target.value !== curAnswer.answer.transcript,
+                    });
                   })
                 }
                 endAdornment={
@@ -343,12 +352,13 @@ function RecordPage(props: {
                     <IconButton
                       data-cy="undo-transcript-btn"
                       disabled={
-                        curAnswer?.editedAnswer.transcript ===
-                        curAnswer?.answer.transcript
+                        curAnswer.editedAnswer.transcript ===
+                        curAnswer.answer.transcript
                       }
                       onClick={() =>
                         recordState.editAnswer({
-                          transcript: curAnswer?.answer.transcript,
+                          transcript: curAnswer.answer.transcript,
+                          hasEditedTranscript: false,
                         })
                       }
                     >
@@ -445,6 +455,13 @@ function RecordPage(props: {
       </AppBar>
       <LoadingDialog title={recordState.isSaving ? "Saving..." : ""} />
       <ErrorDialog error={recordState.error} />
+      <NotificationDialog
+        title={
+          "Don't forget to trim your transcript to match the length of your trimmed video!"
+        }
+        open={notifyDialogOpen}
+        closeDialog={() => setNotifyDialogOpen(false)}
+      />
       <Dialog open={confirmLeave !== undefined}>
         <DialogContent>
           <DialogContentText>{confirmLeave?.message}</DialogContentText>

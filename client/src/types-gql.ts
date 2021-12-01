@@ -76,6 +76,7 @@ export interface SubjectQuestionGQL {
 export interface AnswerGQL {
   _id: string;
   question: Question;
+  hasEditedTranscript: boolean;
   transcript: string;
   status: Status;
   media?: Media[];

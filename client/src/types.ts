@@ -111,6 +111,7 @@ export interface Media {
 export interface Answer {
   _id: string;
   question: string;
+  hasEditedTranscript: boolean;
   transcript: string;
   status: Status;
   hasUntransferredMedia: boolean;

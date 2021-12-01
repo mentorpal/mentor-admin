@@ -169,6 +169,7 @@ export function cyMockDefault(
     cyMockLogin(cy);
   }
   cyMockUpload(cy);
+  cyMockRegenVTT(cy);
   cyMockCancelUpload(cy);
 
   const mentors = [];
@@ -330,6 +331,30 @@ export function cyMockUpload(
             statusUrl: params.statusUrl || UPLOAD_STATUS_URL,
           },
           errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockRegenVTT(
+  cy,
+  params: {
+    statusCode?: number;
+  } = {}
+): void {
+  cy.intercept("/upload/answer/regen_vtt", (req) => {
+    req.alias = "uploadThumbnail";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {
+            regen_vtt: true,
+          },
         },
         headers: {
           "Content-Type": "application/json",
