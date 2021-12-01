@@ -59,7 +59,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
       });
   }, []);
 
-  async function hydrateFileInfo(files: FileOnServer[]) {
+  async function hydrateFileInfo(files: FileOnServer[]): Promise<void> {
     const mountedFileInfo: MountedFileInfo[] = [];
     files.forEach((file) => {
       const splitFileName = file.fileName.split("-");
@@ -111,7 +111,11 @@ export function useWithServerFilePage(): useWithServerFilePage {
     }
   }
 
-  function downloadVideoBlob(blob: Blob, filename: string, document: Document) {
+  function downloadVideoBlob(
+    blob: Blob,
+    filename: string,
+    document: Document
+  ): void {
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
@@ -119,7 +123,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
     link.click();
   }
 
-  async function downloadVideoFile(fileName: string) {
+  async function downloadVideoFile(fileName: string): Promise<void> {
     return downloadMountedFileAsBlob(fileName)
       .then((videoBlob) => {
         downloadVideoBlob(videoBlob, fileName, document);
@@ -132,7 +136,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
       });
   }
 
-  function removeVideoFileFromServer(fileName: string) {
+  function removeVideoFileFromServer(fileName: string): void {
     removeMountedFileFromServer(fileName)
       .then((fileRemoved) => {
         if (fileRemoved) {
@@ -154,7 +158,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
       });
   }
 
-  function safelyDeleteFileFromServer(fileInfo: MountedFileInfo) {
+  function safelyDeleteFileFromServer(fileInfo: MountedFileInfo): void {
     if (!loginState) {
       setError({
         message: "Unable to delete files",

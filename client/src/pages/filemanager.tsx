@@ -44,7 +44,7 @@ function FileListItem(props: {
 
   const buttonColor = downloadingFile ? "gray" : "black";
 
-  function downloadVideo(fileName: string) {
+  function downloadVideo(fileName: string): void {
     setDownloadingFile(true);
     downloadVideoFile(fileName).then(() => {
       setDownloadingFile(false);
@@ -160,7 +160,7 @@ function FileManager(): JSX.Element {
     return bytes / 1000000;
   }
 
-  function renderFilesList() {
+  function renderFilesList(): JSX.Element {
     return (
       <List data-cy="files-list">
         {mountedFiles.map((file, idx) => {
@@ -180,7 +180,7 @@ function FileManager(): JSX.Element {
     );
   }
 
-  function renderFooter() {
+  function renderFooter(): JSX.Element {
     return (
       <div>
         {totalSpaceUsedInMb < 1000
