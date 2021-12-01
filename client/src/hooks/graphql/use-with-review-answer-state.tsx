@@ -230,6 +230,7 @@ export function useWithReviewAnswerState(
     const newAnswer = {
       _id: uuid(),
       question: newQuestion._id,
+      hasEditedTranscript: false,
       transcript: "",
       status: Status.INCOMPLETE,
       media: undefined,
