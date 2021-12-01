@@ -10,6 +10,7 @@ import {
   cancelUploadVideo,
   deleteUploadTask,
   fetchUploadTasks,
+  trimExistingUpload,
   uploadVideo,
 } from "api";
 import { UploadTask, UploadTaskStatuses } from "types";
@@ -178,7 +179,7 @@ export function useWithUploadStatus(
   function upload(
     mentorId: string,
     question: string,
-    video: File,
+    video?: File,
     trim?: { start: number; end: number }
   ) {
     const tokenSource = CancelToken.source();
@@ -194,28 +195,53 @@ export function useWithUploadStatus(
       uploadProgress: 0,
       tokenSource: tokenSource,
     });
-    uploadVideo(mentorId, video, question, tokenSource, trim)
-      .then((task) => {
-        addOrEditTask({
-          question,
-          taskList: task.taskList,
-          uploadProgress: 100,
+    if (video) {
+      uploadVideo(mentorId, video, question, tokenSource, trim)
+        .then((task) => {
+          addOrEditTask({
+            question,
+            taskList: task.taskList,
+            uploadProgress: 100,
+          });
+        })
+        .catch((err) => {
+          addOrEditTask({
+            question,
+            taskList: [
+              {
+                task_name: "trim_upload",
+                task_id: "",
+                status: UploadTaskStatuses.FAILED,
+              },
+            ],
+            errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
+            uploadProgress: 0,
+          });
         });
-      })
-      .catch((err) => {
-        addOrEditTask({
-          question,
-          taskList: [
-            {
-              task_name: "trim_upload",
-              task_id: "",
-              status: UploadTaskStatuses.FAILED,
-            },
-          ],
-          errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
-          uploadProgress: 0,
+    } else {
+      trimExistingUpload(mentorId, question, trim)
+        .then((task) => {
+          addOrEditTask({
+            question,
+            taskList: task.taskList,
+            uploadProgress: 100,
+          });
+        })
+        .catch((err) => {
+          addOrEditTask({
+            question,
+            taskList: [
+              {
+                task_name: "trim_upload",
+                task_id: "",
+                status: UploadTaskStatuses.FAILED,
+              },
+            ],
+            errorMessage: `Failed to upload file: Error ${err.response.status}: ${err.response.statusText}`,
+            uploadProgress: 0,
+          });
         });
-      });
+    }
   }
 
   function cancelUpload(mentorId: string, task: UploadTask) {
@@ -280,7 +306,7 @@ export interface UseWithUploadStatus {
   upload: (
     mentorId: string,
     question: string,
-    video: File,
+    video?: File,
     trim?: { start: number; end: number }
   ) => void;
   cancelUpload: (mentorId: string, task: UploadTask) => void;

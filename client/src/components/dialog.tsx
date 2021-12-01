@@ -49,6 +49,33 @@ export function ErrorDialog(props: {
   );
 }
 
+export function NotificationDialog(props: {
+  title?: string;
+  open: boolean;
+  closeDialog: () => void;
+}): JSX.Element {
+  const { title } = props;
+  return (
+    <Dialog
+      data-cy="notification-dialog"
+      maxWidth="sm"
+      fullWidth={true}
+      open={Boolean(title) && props.open}
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <Button
+          onClick={() => {
+            props.closeDialog();
+          }}
+        >
+          Close
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function LoadingDialog(props: { title: string }): JSX.Element {
   const { title } = props;
   return (

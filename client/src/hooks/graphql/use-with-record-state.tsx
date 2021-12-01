@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import {
   fetchVideoBlobFromServer,
   fetchVideoBlobFromUrl,
+  regenerateVTTForQuestion,
   updateAnswer,
 } from "api";
 import {
@@ -71,6 +72,7 @@ export function useWithRecordState(
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const [isDownloadingVideo, setIsDownloadingVideo] = useState<boolean>(false);
+  const [notifyDialogOpen, setNotifyDialogOpen] = useState<boolean>(false);
   const [error, setError] = useState<RecordStateError>();
 
   const pollingInterval = parseInt(filter.poll || "");
@@ -368,8 +370,11 @@ export function useWithRecordState(
             setIsSaving(false);
             return;
           }
-          updateAnswerState({ answer: editedAnswer });
           setIsSaving(false);
+          updateAnswerState({ answer: editedAnswer });
+          if (editedAnswer.hasEditedTranscript) {
+            regenerateVTTForQuestion(editedAnswer.question, mentorId);
+          }
         })
         .catch((err) => {
           setIsSaving(false);
@@ -381,10 +386,28 @@ export function useWithRecordState(
     }
   }
 
-  function uploadVideo(trim?: { start: number; end: number }) {
+  async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
-    if (!mentorId || !answer.answer.question || !answer.recordedVideo) {
+    if (!mentorId || !answer.answer.question) {
       return;
+    }
+    if (
+      trim &&
+      (answer.editedAnswer.hasEditedTranscript ||
+        answer.answer.hasEditedTranscript)
+    ) {
+      setNotifyDialogOpen(true);
+      if (answer.editedAnswer.hasEditedTranscript) {
+        try {
+          await updateAnswer(answer.editedAnswer, accessToken, mentorId);
+          updateAnswerState({ answer: answer.editedAnswer });
+        } catch (err) {
+          setError({
+            message: "Failed to update answer with edited transcript",
+            error: String(err),
+          });
+        }
+      }
     }
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
@@ -491,6 +514,8 @@ export function useWithRecordState(
     isSaving: isSaving || questionsSaving,
     error: mentorError || error,
     isDownloadingVideo,
+    notifyDialogOpen,
+    setNotifyDialogOpen,
     prevAnswer,
     nextAnswer,
     setAnswerIdx,
@@ -524,6 +549,8 @@ export interface UseWithRecordState {
   isSaving: boolean;
   error?: LoadingError;
   isDownloadingVideo: boolean;
+  notifyDialogOpen: boolean;
+  setNotifyDialogOpen: (open: boolean) => void;
   prevAnswer: () => void;
   reloadMentorData: () => void;
   nextAnswer: () => void;
