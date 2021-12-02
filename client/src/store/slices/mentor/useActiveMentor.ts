@@ -38,7 +38,7 @@ export function useActiveMentor(): UseActiveMentor {
     if (
       mentor &&
       mentor.userLoadedBy === loginUser?._id &&
-      mentor.data?._id === activeMentorId
+      mentor.data?._id === (activeMentorId || loginUser?.defaultMentor._id)
     ) {
       return;
     }

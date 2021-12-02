@@ -69,12 +69,12 @@ function FollowupsPage(props: {
     curSubject,
     curCategory,
     followUpQuestions,
+    toRecordFollowUpQs,
+    followupPageState,
     saveAndLoadSelectedFollowups,
     setToRecordFollowUpQs,
-    toRecordFollowUpQs,
     navigateToMyMentorPage,
     fetchFollowups,
-    followupPageState,
   } = useWithFollowups({ categoryId: category, subjectId: subject });
   const classes = useStyles();
   const subjectTitle = curSubject?.name || "";
