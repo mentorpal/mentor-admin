@@ -143,7 +143,9 @@ function SubjectPage(props: {
             classes={classes}
             categories={editedSubject.categories}
             questions={editedSubject.questions.filter(
-              (q) => !q.question.mentor || q.question.mentor === mentorId
+              (q) =>
+                q.question &&
+                (!q.question.mentor || q.question.mentor === mentorId)
             )}
             topics={editedSubject.topics}
             addCategory={addCategory}
