@@ -131,6 +131,11 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface MentorInfo {
+  _id: string;
+  name: string;
+}
+
 export interface FollowUpQuestion {
   question: string;
   entityType?: string;
