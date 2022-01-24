@@ -1071,12 +1071,8 @@ export async function removeMountedFileFromServer(
 ): Promise<UploadProcessAsyncJob> {
   const result = await uploadRequest.post(
     `/answer/remove_mounted_file/${fileName}`,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
+    {},
+    { headers: { Authorization: `Bearer ${accessToken}` } }
   );
   return getDataFromAxiosResponse(result, ["fileRemoved"]);
 }
