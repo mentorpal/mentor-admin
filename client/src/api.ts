@@ -933,7 +933,8 @@ export async function updateMentorSubjects(
 
 export async function regenerateVTTForQuestion(
   questionId: string,
-  mentorId: string
+  mentorId: string,
+  accessToken: string
 ): Promise<boolean> {
   const data = new FormData();
   data.append(
@@ -943,6 +944,7 @@ export async function regenerateVTTForQuestion(
   const result = await uploadRequest.post("/answer/regen_vtt/", data, {
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${accessToken}`,
     },
   });
   return getDataFromAxiosResponse(result, ["regen_vtt"]);
@@ -1018,6 +1020,7 @@ export async function transferMedia(
 export async function trimExistingUpload(
   mentorId: string,
   question: string,
+  accessToken: string,
   trim?: { start: number; end: number }
 ): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
@@ -1031,6 +1034,7 @@ export async function trimExistingUpload(
     {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${accessToken}`,
       },
     }
   );
@@ -1042,6 +1046,7 @@ export async function uploadVideo(
   video: File,
   question: string,
   tokenSource: CancelTokenSource,
+  accessToken: string,
   trim?: { start: number; end: number }
 ): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
@@ -1053,6 +1058,7 @@ export async function uploadVideo(
   const result = await uploadRequest.post("/answer", data, {
     headers: {
       "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${accessToken}`,
     },
     cancelToken: tokenSource.token,
   });
@@ -1060,30 +1066,42 @@ export async function uploadVideo(
 }
 
 export async function removeMountedFileFromServer(
-  fileName: string
+  fileName: string,
+  accessToken: string
 ): Promise<UploadProcessAsyncJob> {
   const result = await uploadRequest.post(
     `/answer/remove_mounted_file/${fileName}`,
     {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${accessToken}`,
       },
     }
   );
   return getDataFromAxiosResponse(result, ["fileRemoved"]);
 }
 
-export async function fetchMountedFilesStatus(): Promise<FileOnServer[]> {
-  const result = await uploadRequest.get(`/answer/mounted_files/`);
+export async function fetchMountedFilesStatus(
+  accessToken: string
+): Promise<FileOnServer[]> {
+  const result = await uploadRequest.get(`/answer/mounted_files/`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
   return getDataFromAxiosResponse(result, ["mountedFiles"]);
 }
 
 export async function downloadMountedFileAsBlob(
-  fileName: string
+  fileName: string,
+  accessToken: string
 ): Promise<Blob> {
   const result = await uploadRequest.get(
     `/answer/download_mounted_file/${fileName}/`,
-    { responseType: "blob" }
+    {
+      responseType: "blob",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
   );
   throwErrorsInAxiosResponse(result);
   return result.data;
@@ -1110,13 +1128,22 @@ export async function fetchVideoBlobFromUrl(url: string): Promise<Blob> {
 export async function cancelUploadVideo(
   mentorId: string,
   question: string,
-  taskIds: string[]
+  taskIds: string[],
+  accessToken: string
 ): Promise<CancelJob> {
-  const result = await uploadRequest.post("/answer/cancel", {
-    mentor: mentorId,
-    question: question,
-    task_ids_to_cancel: taskIds,
-  });
+  const result = await uploadRequest.post(
+    "/answer/cancel",
+    {
+      mentor: mentorId,
+      question: question,
+      task_ids_to_cancel: taskIds,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
   return getDataFromAxiosResponse(result, []);
 }
 
