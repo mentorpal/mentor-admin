@@ -373,7 +373,11 @@ export function useWithRecordState(
           setIsSaving(false);
           updateAnswerState({ answer: editedAnswer });
           if (editedAnswer.hasEditedTranscript) {
-            regenerateVTTForQuestion(editedAnswer.question, mentorId);
+            regenerateVTTForQuestion(
+              editedAnswer.question,
+              mentorId,
+              accessToken
+            );
           }
         })
         .catch((err) => {
