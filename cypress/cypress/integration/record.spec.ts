@@ -4845,7 +4845,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
-    cy.get("[data-cy=video-recorder]").first().invoke("mouseover").click();
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
     cy.get("[data-cy=controls]").invoke("mouseover").click();
     cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
   });
@@ -4861,7 +4861,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
-    cy.get("[data-cy=video-recorder]").first().invoke("mouseover").click();
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
     cy.get("[data-cy=controls]").invoke("mouseover").click();
     cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
     cy.get("body").trigger("keydown", { keyCode: 32 });
@@ -4882,7 +4882,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
-    cy.get("[data-cy=video-recorder]").first().invoke("mouseover").click();
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
     cy.get("[data-cy=controls]").invoke("mouseover").click();
     cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
     cy.get("[data-cy=transcript-overlay]").invoke("mouseover").click();
