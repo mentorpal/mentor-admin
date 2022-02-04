@@ -141,7 +141,7 @@ export function convertSubjectGQL(gql: SubjectGQL): Subject {
     ...gql,
     questions: gql.questions?.map((sq) => ({
       ...sq,
-      question: sq.question._id,
+      question: sq.question?._id,
     })),
   };
 }

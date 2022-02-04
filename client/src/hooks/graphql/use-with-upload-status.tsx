@@ -196,7 +196,7 @@ export function useWithUploadStatus(
       tokenSource: tokenSource,
     });
     if (video) {
-      uploadVideo(mentorId, video, question, tokenSource, trim)
+      uploadVideo(mentorId, video, question, tokenSource, accessToken, trim)
         .then((task) => {
           addOrEditTask({
             question,
@@ -219,7 +219,7 @@ export function useWithUploadStatus(
           });
         });
     } else {
-      trimExistingUpload(mentorId, question, trim)
+      trimExistingUpload(mentorId, question, accessToken, trim)
         .then((task) => {
           addOrEditTask({
             question,
@@ -264,7 +264,12 @@ export function useWithUploadStatus(
       ...task,
       isCancelling: true,
     });
-    cancelUploadVideo(mentorId, task.question, fetchIncompleteTaskIds(task))
+    cancelUploadVideo(
+      mentorId,
+      task.question,
+      fetchIncompleteTaskIds(task),
+      accessToken
+    )
       .then(() => {
         addOrEditTask({
           ...task,

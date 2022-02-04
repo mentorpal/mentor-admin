@@ -44,9 +44,13 @@ export function useWithServerFilePage(): useWithServerFilePage {
   const [unsafeDeletionFile, setUnsafeDeletionFile] =
     useState<MountedFileInfo>();
   const { state: loginState } = useWithLogin();
+  const { accessToken } = loginState;
 
   useEffect(() => {
-    fetchMountedFilesStatus()
+    if (!accessToken) {
+      return;
+    }
+    fetchMountedFilesStatus(accessToken)
       .then((mountedFiles) => {
         hydrateFileInfo(mountedFiles);
       })
@@ -57,7 +61,7 @@ export function useWithServerFilePage(): useWithServerFilePage {
           error: String(err),
         });
       });
-  }, []);
+  }, [accessToken]);
 
   async function hydrateFileInfo(files: FileOnServer[]): Promise<void> {
     const mountedFileInfo: MountedFileInfo[] = [];
@@ -124,7 +128,14 @@ export function useWithServerFilePage(): useWithServerFilePage {
   }
 
   async function downloadVideoFile(fileName: string): Promise<void> {
-    return downloadMountedFileAsBlob(fileName)
+    if (!accessToken) {
+      setError({
+        message: `Failed to download file ${fileName} from server`,
+        error: "No access token found.",
+      });
+      return;
+    }
+    return downloadMountedFileAsBlob(fileName, accessToken)
       .then((videoBlob) => {
         downloadVideoBlob(videoBlob, fileName, document);
       })
@@ -137,7 +148,14 @@ export function useWithServerFilePage(): useWithServerFilePage {
   }
 
   function removeVideoFileFromServer(fileName: string): void {
-    removeMountedFileFromServer(fileName)
+    if (!loginState.accessToken) {
+      setError({
+        message: `Failed to remove file ${fileName} from server`,
+        error: "No access token found",
+      });
+      return;
+    }
+    removeMountedFileFromServer(fileName, loginState.accessToken)
       .then((fileRemoved) => {
         if (fileRemoved) {
           const fileIdx = mountedFiles.findIndex(
