@@ -4833,4 +4833,65 @@ describe("Record", () => {
       cy.get("textarea").should("have.text", "How old are you now?");
     });
   });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("while recording, stop recording indicator is visible", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+  });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("press spacebar to stop recording", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+    cy.get("body").trigger("keydown", { keyCode: 32 });
+    cy.get("[data-cy=countdown-message]").should(
+      "contain.text",
+      "Recording ends in"
+    );
+  });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("press transcript overlay to stop recording", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+    cy.get("[data-cy=transcript-overlay]").invoke("mouseover").click();
+    cy.get("[data-cy=countdown-message]").should(
+      "contain.text",
+      "Recording ends in"
+    );
+  });
 });

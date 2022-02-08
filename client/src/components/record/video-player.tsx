@@ -22,6 +22,7 @@ function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
   videoRecorderMaxLength: number;
+  stopRequests: number;
 }): JSX.Element {
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
@@ -108,6 +109,7 @@ function VideoPlayer(props: {
         width={width}
         recordState={recordState}
         videoRecorderMaxLength={props.videoRecorderMaxLength}
+        stopRequests={props.stopRequests}
       />
       <div
         style={{
