@@ -30,6 +30,8 @@ function AnswerItem(props: {
   const [inputEvent, setInputEvent] =
     useState<React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>>();
 
+  const [waitingForId, setWaitingForId] = useState<boolean>(false);
+
   useEffect(() => {
     const timeOutId = setTimeout(() => {
       if (inputEvent && question) {
@@ -55,6 +57,20 @@ function AnswerItem(props: {
       }
     }
   }, [question]);
+
+  useEffect(() => {
+    if (!waitingForId) {
+      return;
+    }
+  }, [waitingForId]);
+
+  function recordOne(qId?: string) {
+    if (qId) {
+      onRecordOne(qId);
+    } else {
+      setWaitingForId(true);
+    }
+  }
 
   return (
     <div>
@@ -85,7 +101,7 @@ function AnswerItem(props: {
           data-cy="record-one"
           variant="outlined"
           endIcon={<PlayArrowIcon />}
-          onClick={() => onRecordOne(question?._id || "")}
+          onClick={() => recordOne(question?._id)}
         >
           Record
         </Button>

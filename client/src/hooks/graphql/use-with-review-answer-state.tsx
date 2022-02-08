@@ -179,8 +179,6 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }, [mentorSubjects, mentorAnswers, selectedSubject]);
 
-
-
   function clearError() {
     setSaveError(undefined);
   }

@@ -6,8 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "store/hooks";
+import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
 import { Question } from "types";
 import {
@@ -87,7 +86,7 @@ export function useQuestions<T>(
 }
 
 export function useQuestionActions(): QuestionActions {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const data = useAppSelector((state) => {
     return state.questions.questions;
   });

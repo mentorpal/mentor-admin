@@ -11,6 +11,7 @@ import {
   Button,
   CircularProgress,
   Dialog,
+  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -42,6 +43,7 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import { LeaveConfirmation } from "pages/record";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -125,6 +127,7 @@ function HomePage(props: {
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -145,8 +148,28 @@ function HomePage(props: {
     navigate("/setup");
   }
 
-  // TODO: Make a function that wraps the review states recordOne with a prompt to save unrecorded stuff.
-  console.log(reviewAnswerState.unsavedChanges)
+  function onNav(cb: () => void) {
+    if (reviewAnswerState.unsavedChanges) {
+      setConfirmLeave({
+        message:
+          "You have unsaved changes, would you like to save them before leaving this page?",
+        callback: cb,
+      });
+    } else {
+      cb();
+    }
+  }
+  function confirmLeavingPage() {
+    if (!confirmLeave) {
+      return;
+    }
+    if (reviewAnswerState.unsavedChanges) {
+      reviewAnswerState.saveChanges();
+    }
+    confirmLeave.callback();
+    setConfirmLeave(undefined);
+  }
+
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget
@@ -167,6 +190,7 @@ function HomePage(props: {
           uploads={recordState.uploads}
           uploadsButtonVisible={uploadingWidgetVisible}
           toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+          onNav={onNav}
         />
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}
@@ -347,6 +371,17 @@ function HomePage(props: {
             No
           </Button>
         </DialogContent>
+      </Dialog>
+      <Dialog open={confirmLeave !== undefined}>
+        <DialogContent>
+          <DialogContentText>{confirmLeave?.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={confirmLeavingPage}>Yes</Button>
+          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
+            No
+          </Button>
+        </DialogActions>
       </Dialog>
     </div>
   );

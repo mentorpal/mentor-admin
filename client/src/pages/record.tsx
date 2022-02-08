@@ -102,7 +102,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface LeaveConfirmation {
+export interface LeaveConfirmation {
   message: string;
   callback: () => void;
 }

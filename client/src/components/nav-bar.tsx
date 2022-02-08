@@ -222,7 +222,11 @@ function NavMenu(props: {
         button
         disabled={!props.mentorId}
         onClick={() => {
-          launchMentor(props.mentorId);
+          if (props.onNav) {
+            props.onNav(() => launchMentor(props.mentorId));
+          } else {
+            launchMentor(props.mentorId);
+          }
         }}
       >
         <ListItemIcon>

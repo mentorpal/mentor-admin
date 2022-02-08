@@ -5,9 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
-import { useAppSelector } from "store/hooks";
+import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import * as mentorActions from ".";
@@ -31,7 +30,7 @@ export interface SelectFromMentorStateFunc<T> {
 export function useActiveMentor(): UseActiveMentor {
   const loginUser = useAppSelector((state) => state.login.user);
   const mentor = useAppSelector((state) => state.mentor);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
