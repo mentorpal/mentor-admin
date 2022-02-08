@@ -20,6 +20,7 @@ function VideoRecorder({
   width,
   recordState,
   videoRecorderMaxLength,
+  stopRequests,
 }) {
   const videoJsOptions = {
     controls: true,
@@ -46,10 +47,21 @@ function VideoRecorder({
   // snapshot recordState from when player first initializes and doesn't
   // update when changing answers
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
-  const [recordStopCountdown, setRecordStopCountdown] = useState(0);
+  const [recordStopCountdown, _setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
+
+  //Using refs to access states variables in event handler
+  const recordStopCountdownRef = React.useRef(recordStopCountdown);
+  const setRecordStopCountdown = (n) => {
+    recordStopCountdownRef.current = n;
+    _setRecordStopCountdown(n);
+  };
+  const isRecordingRef = React.useRef(recordState.isRecording);
+  useEffect(() => {
+    isRecordingRef.current = recordState.isRecording;
+  }, [recordState.isRecording]);
 
   useEffect(() => {
     if (!videoRef || videoRecorderRef) {
@@ -116,6 +128,7 @@ function VideoRecorder({
       const counter = recordStartCountdown - 1;
       setRecordStartCountdown(counter);
       if (counter <= 0) {
+        recordState.startRecording();
         videoRecorderRef?.record().start();
       }
     },
@@ -136,14 +149,49 @@ function VideoRecorder({
     recordStopCountdown > 0 ? 1000 : null
   );
 
+  const countdownInProgress =
+    recordStartCountdown > 0 ||
+    (recordStopCountdown > 0 && recordState.isRecording);
+
+  useEffect(() => {
+    if (stopRequests == 0) {
+      return;
+    }
+    stopRecording();
+  }, [stopRequests]);
+
   function startRecording() {
-    recordState.startRecording();
+    if (countdownInProgress) {
+      return;
+    }
     setRecordStartCountdown(3);
   }
 
   function stopRecording() {
+    if (countdownInProgress) {
+      return;
+    }
     setRecordStopCountdown(2);
   }
+
+  const spaceBarStopRecording = (event) => {
+    event.preventDefault();
+    if (
+      event.keyCode === 32 &&
+      recordStopCountdownRef.current == 0 &&
+      isRecordingRef.current
+    ) {
+      stopRecording();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", spaceBarStopRecording, false);
+
+    return () => {
+      document.removeEventListener("keydown", spaceBarStopRecording, false);
+    };
+  }, []);
 
   return (
     <div
@@ -201,7 +249,7 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: countdownInProgress ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown
@@ -229,7 +277,7 @@ function VideoRecorder({
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: recordState.isRecording ? "visible" : "hidden",
+            visibility: countdownInProgress ? "visible" : "hidden",
           }}
         >
           {recordStartCountdown ||
