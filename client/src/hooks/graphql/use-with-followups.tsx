@@ -112,25 +112,20 @@ export function useWithFollowups(props: {
       }
     );
 
-    //subject
-    const oldSubjectQs = curSubject.questions;
     addOrUpdateSubjectQuestions(
       curSubject._id,
       newQuestions,
       loginState.accessToken
     )
-      .then((subjectGQL) => {
-        const subject = convertSubjectGQL(subjectGQL);
-        //compare new subject questions to old subject questions
-        const newQuestionIds: string[] = subject.questions
-          .filter(
-            (newQuestionId) =>
-              !oldSubjectQs.find(
-                (oldId) => oldId.question === newQuestionId.question
-              )
-          )
-          .map((question) => question.question);
-        //TODO: The reason we have to wait for mentor to reload first is because the new Q's won't be there
+      .then((newSubjectQuestions) => {
+        console.log("new subject questions");
+        console.log(newSubjectQuestions);
+        const newQuestionIds: string[] = newSubjectQuestions.map(
+          (question) => question.question
+        );
+        console.log("new question ids");
+        console.log(newQuestionIds);
+        // The reason we have to wait for mentor to reload first is because the new Q's won't be there
         if (newQuestionIds.length) {
           loadMentor();
           navigate(

@@ -145,6 +145,8 @@ function HomePage(props: {
     navigate("/setup");
   }
 
+  // TODO: Make a function that wraps the review states recordOne with a prompt to save unrecorded stuff.
+  console.log(reviewAnswerState.unsavedChanges)
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget

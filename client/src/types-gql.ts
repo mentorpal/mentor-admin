@@ -73,6 +73,12 @@ export interface SubjectQuestionGQL {
   topics: Topic[];
 }
 
+export interface AddOrUpdateQuestionGQL {
+  question: string;
+  category?: string;
+  topics: string[];
+}
+
 export interface AnswerGQL {
   _id: string;
   question: Question;

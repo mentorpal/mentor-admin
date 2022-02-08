@@ -42,6 +42,7 @@ interface UseWithReviewAnswerState {
   selectedSubject?: string;
   progress: Progress;
   isSaving: boolean;
+  unsavedChanges: boolean;
   error?: LoadingError;
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
@@ -69,6 +70,7 @@ export function useWithReviewAnswerState(
   const [subjects, setSubjects] = useState<Subject[]>();
   const [answers, setAnswers] = useState<Answer[]>();
   const [questions, setQuestions] = useState<Question[]>();
+  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
   const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
@@ -177,6 +179,8 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }, [mentorSubjects, mentorAnswers, selectedSubject]);
 
+
+
   function clearError() {
     setSaveError(undefined);
   }
@@ -275,6 +279,7 @@ export function useWithReviewAnswerState(
       return;
     }
     setQuestions(copyAndSet(questions, questionIdx, question));
+    setUnsavedChanges(true);
   }
 
   function saveChanges() {
@@ -320,6 +325,7 @@ export function useWithReviewAnswerState(
       .then(() => {
         loadMentor();
         setIsSaving(false);
+        setUnsavedChanges(false);
       })
       .catch((err) => {
         console.error(err);
@@ -345,7 +351,7 @@ export function useWithReviewAnswerState(
     selectedSubject,
     isSaving,
     error: saveError,
-
+    unsavedChanges,
     getBlocks,
     getAnswers,
     getQuestions,
