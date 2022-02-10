@@ -13,7 +13,7 @@ import { urlBuild, copyAndSet } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
-  useQuestionActions
+  useQuestionActions,
 } from "store/slices/questions/useQuestions";
 import {
   Answer,
@@ -96,7 +96,7 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    console.log("mentor answers have changed")
+    console.log("mentor answers have changed");
     setAnswers(mentorAnswers?.map((a) => ({ ...a })));
   }, [mentorAnswers]);
 
@@ -104,7 +104,10 @@ export function useWithReviewAnswerState(
     setQuestions(
       Object.values(mentorQuestions)
         .filter((q) => q.question)
-        .map((q) => ({ question: q.question!, newQuestionText: q.question!.question }))
+        .map((q) => ({
+          question: q.question!,
+          newQuestionText: q.question!.question,
+        }))
     );
   }, [mentorQuestions, questionsLoading]);
 
@@ -307,7 +310,7 @@ export function useWithReviewAnswerState(
     setIsSaving(true);
     const editedQuestions = questions
       .filter((q) => q.question.mentor === mentorId)
-      .map((q) => ({...q.question, question:q.newQuestionText}));
+      .map((q) => ({ ...q.question, question: q.newQuestionText }));
     const editedQuestionIds = editedQuestions.map((q) => q._id);
     return Promise.all(
       subjects
@@ -357,13 +360,19 @@ export function useWithReviewAnswerState(
   }
 
   function unsavedChanges(): boolean {
-    return Boolean(questions?.find((question) => question.newQuestionText !== question.question.question));
+    return Boolean(
+      questions?.find(
+        (question) => question.newQuestionText !== question.question.question
+      )
+    );
   }
 
-  function reloadQuestions(){
-    const qIds = questions?.filter((q)=>q.question.question !== q.newQuestionText).map((q)=> q.question._id)
-    if(qIds){
-      return loadQuestions(qIds, true)
+  function reloadQuestions() {
+    const qIds = questions
+      ?.filter((q) => q.question.question !== q.newQuestionText)
+      .map((q) => q.question._id);
+    if (qIds) {
+      return loadQuestions(qIds, true);
     }
   }
 
@@ -383,6 +392,6 @@ export function useWithReviewAnswerState(
     recordAnswer,
     addNewQuestion,
     editQuestion,
-    reloadQuestions
+    reloadQuestions,
   };
 }

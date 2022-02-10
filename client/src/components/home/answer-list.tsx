@@ -70,7 +70,6 @@ function AnswerList(props: {
             {header} ({answers.length})
           </Typography>
           <CardActions>
-
             <Button
               data-cy="record-all"
               variant="outlined"

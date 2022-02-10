@@ -91,7 +91,7 @@ export function useQuestionActions(): QuestionActions {
     return state.questions.questions;
   });
 
-  function loadQuestions(ids: string[], reload = false){
+  function loadQuestions(ids: string[], reload = false) {
     if (!reload) {
       const qIds = Object.keys(data);
       ids = ids.filter((i) => !qIds.includes(i));

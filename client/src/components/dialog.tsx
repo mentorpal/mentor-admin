@@ -93,9 +93,9 @@ export function LoadingDialog(props: { title: string }): JSX.Element {
   );
 }
 
-interface Option{
-  display:string;
-  onClick: ()=>void;
+interface Option {
+  display: string;
+  onClick: () => void;
 }
 
 export function TwoOptionDialog(props: {
@@ -114,7 +114,7 @@ export function TwoOptionDialog(props: {
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-      <Button
+        <Button
           onClick={() => {
             option1.onClick();
           }}

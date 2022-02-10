@@ -24,7 +24,9 @@ function AnswerItem(props: {
   onRecordOne: (question: string) => void;
 }): JSX.Element {
   const { mentorId, answer, question, onEditQuestion, onRecordOne } = props;
-  const [questionInput, setQuestionInput] = useState<string>(question.newQuestionText);
+  const [questionInput, setQuestionInput] = useState<string>(
+    question.newQuestionText
+  );
   const [inputEvent, setInputEvent] =
     useState<React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>>();
 
@@ -35,7 +37,7 @@ function AnswerItem(props: {
         onTextInputChanged(inputEvent, () => {
           onEditQuestion({
             question: question.question,
-            newQuestionText: questionInput
+            newQuestionText: questionInput,
           });
         });
       }
@@ -43,7 +45,8 @@ function AnswerItem(props: {
     return () => clearTimeout(timeOutId);
   }, [questionInput]);
 
-  const unsavedChanges = question.question.question !== question.newQuestionText;
+  const unsavedChanges =
+    question.question.question !== question.newQuestionText;
 
   return (
     <div>

@@ -137,7 +137,6 @@ function HomePage(props: {
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSaveOnLeave>();
 
-
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
@@ -189,23 +188,31 @@ function HomePage(props: {
     }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
   }
 
-  function recordAnswer(questionIdOrText: string, isId: boolean, questionNeedsToBeSaved: boolean){
-    if(isId && !questionNeedsToBeSaved && !reviewAnswerState.unsavedChanges()){
+  function recordAnswer(
+    questionIdOrText: string,
+    isId: boolean,
+    questionNeedsToBeSaved: boolean
+  ) {
+    if (
+      isId &&
+      !questionNeedsToBeSaved &&
+      !reviewAnswerState.unsavedChanges()
+    ) {
       reviewAnswerState.recordAnswer(questionIdOrText);
-    }else if(isId){
-        saveBeforeRecordAnswerById(questionIdOrText);
-    }else{
+    } else if (isId) {
+      saveBeforeRecordAnswerById(questionIdOrText);
+    } else {
       saveBeforeRecordAnswerByText(questionIdOrText);
     }
   }
 
-  function saveBeforeRecordAnswerByText(questionText: string){
+  function saveBeforeRecordAnswerByText(questionText: string) {
     // No doubt the question needs to be saved here because it's just text that needs to be found after saving
-    }
+  }
 
   function saveBeforeRecordAnswerById(questionId: string) {
     // Question needs to be saved, but we already have it's ID
-    if(questionNeedsToBeSaved || reviewAnswerState.unsavedChanges()){
+    if (questionNeedsToBeSaved || reviewAnswerState.unsavedChanges()) {
       // TODO: ask if want to save and continue to record? If yes, save all questions and record this question, else stay where we are
 
       // I Believe this function just needs to be updated to do all the aboce
@@ -420,20 +427,26 @@ function HomePage(props: {
           </Button>
         </DialogContent>
       </Dialog>
-          
-      <TwoOptionDialog
-    open={Boolean(confirmSaveOnLeave)}
-    title={confirmSaveOnLeave?.message || ""}
-    option1={{display: "Yes",onClick:()=>saveBeforeCallback()}}
-    option2={{display: "No",onClick:()=>confirmSaveOnLeave?.callback()}} />
 
       <TwoOptionDialog
-    open={Boolean(confirmSaveOnRecordOne)}
-    title={confirmSaveOnRecordOne?.message || ""}
-    option1={{display: "Yes",onClick:()=>saveBeforeCallback()}}
-    option2={{display: "No",onClick:()=>setConfirmSaveOnLeave(undefined)}} />
-    
+        open={Boolean(confirmSaveOnLeave)}
+        title={confirmSaveOnLeave?.message || ""}
+        option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
+        option2={{
+          display: "No",
+          onClick: () => confirmSaveOnLeave?.callback(),
+        }}
+      />
 
+      <TwoOptionDialog
+        open={Boolean(confirmSaveOnRecordOne)}
+        title={confirmSaveOnRecordOne?.message || ""}
+        option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
+        option2={{
+          display: "No",
+          onClick: () => setConfirmSaveOnLeave(undefined),
+        }}
+      />
     </div>
   );
 }
