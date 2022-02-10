@@ -92,3 +92,43 @@ export function LoadingDialog(props: { title: string }): JSX.Element {
     </Dialog>
   );
 }
+
+interface Option{
+  display:string;
+  onClick: ()=>void;
+}
+
+export function TwoOptionDialog(props: {
+  title: string;
+  open: boolean;
+  option1: Option;
+  option2: Option;
+}): JSX.Element {
+  const { title, option1, option2, open } = props;
+  return (
+    <Dialog
+      data-cy="notification-dialog"
+      maxWidth="sm"
+      fullWidth={true}
+      open={open}
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+      <Button
+          onClick={() => {
+            option1.onClick();
+          }}
+        >
+          {option1.display}
+        </Button>
+        <Button
+          onClick={() => {
+            option2.onClick();
+          }}
+        >
+          {option2.display}
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}

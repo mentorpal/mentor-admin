@@ -25,7 +25,7 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { LoadingDialog, ErrorDialog } from "components/dialog";
+import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import parseMentor, {
   defaultMentorInfo,
@@ -38,12 +38,11 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole } from "types";
+import { User, Subject, UserRole, Status } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
-import { LeaveConfirmation } from "pages/record";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -84,6 +83,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface ConfirmSaveOnLeave {
+  message: string;
+  callback: () => void;
+}
+
 function HomePage(props: {
   accessToken: string;
   search: { subject?: string };
@@ -106,6 +110,7 @@ function HomePage(props: {
     switchActiveMentor,
     isLoading: mentorLoading,
     error: mentorError,
+    loadMentor,
   } = useActiveMentor();
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
@@ -127,7 +132,11 @@ function HomePage(props: {
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
-  const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+  const [confirmSaveOnLeave, setConfirmSaveOnLeave] =
+    useState<ConfirmSaveOnLeave>();
+  const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
+    useState<ConfirmSaveOnLeave>();
+
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -148,10 +157,11 @@ function HomePage(props: {
     navigate("/setup");
   }
 
-  function onNav(cb: () => void) {
-    if (reviewAnswerState.unsavedChanges) {
-      setConfirmLeave({
+  function onNav(cb: () => void, msg?: string) {
+    if (reviewAnswerState.unsavedChanges()) {
+      setConfirmSaveOnLeave({
         message:
+          msg ||
           "You have unsaved changes, would you like to save them before leaving this page?",
         callback: cb,
       });
@@ -159,15 +169,51 @@ function HomePage(props: {
       cb();
     }
   }
-  function confirmLeavingPage() {
-    if (!confirmLeave) {
+
+  async function saveBeforeCallback() {
+    if (!confirmSaveOnLeave) {
       return;
     }
-    if (reviewAnswerState.unsavedChanges) {
-      reviewAnswerState.saveChanges();
+    if (reviewAnswerState.unsavedChanges()) {
+      await reviewAnswerState.saveChanges();
+      await loadMentor();
+      await reviewAnswerState.reloadQuestions();
     }
-    confirmLeave.callback();
-    setConfirmLeave(undefined);
+    confirmSaveOnLeave.callback();
+    setConfirmSaveOnLeave(undefined);
+  }
+
+  function recordAnswers(status: Status, subject: string, category: string) {
+    onNav(() => {
+      reviewAnswerState.recordAnswers(status, subject, category);
+    }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
+  }
+
+  function recordAnswer(questionIdOrText: string, isId: boolean, questionNeedsToBeSaved: boolean){
+    if(isId && !questionNeedsToBeSaved && !reviewAnswerState.unsavedChanges()){
+      reviewAnswerState.recordAnswer(questionIdOrText);
+    }else if(isId){
+        saveBeforeRecordAnswerById(questionIdOrText);
+    }else{
+      saveBeforeRecordAnswerByText(questionIdOrText);
+    }
+  }
+
+  function saveBeforeRecordAnswerByText(questionText: string){
+    // No doubt the question needs to be saved here because it's just text that needs to be found after saving
+    }
+
+  function saveBeforeRecordAnswerById(questionId: string) {
+    // Question needs to be saved, but we already have it's ID
+    if(questionNeedsToBeSaved || reviewAnswerState.unsavedChanges()){
+      // TODO: ask if want to save and continue to record? If yes, save all questions and record this question, else stay where we are
+
+      // I Believe this function just needs to be updated to do all the aboce
+      onNav(
+        () => reviewAnswerState.recordAnswer(questionId),
+        "You have unsaved changes to questions. Would you like to save and proceed to recording?"
+      );
+    }
   }
 
   return (
@@ -256,8 +302,8 @@ function HomePage(props: {
               block={b}
               getAnswers={reviewAnswerState.getAnswers}
               getQuestions={reviewAnswerState.getQuestions}
-              recordAnswers={reviewAnswerState.recordAnswers}
-              recordAnswer={reviewAnswerState.recordAnswer}
+              recordAnswers={recordAnswers}
+              recordAnswer={recordAnswer}
               addNewQuestion={reviewAnswerState.addNewQuestion}
               editQuestion={reviewAnswerState.editQuestion}
             />
@@ -288,8 +334,10 @@ function HomePage(props: {
               data-cy="save-button"
               variant="extended"
               color="secondary"
-              onClick={() => {
-                reviewAnswerState.saveChanges();
+              onClick={async () => {
+                await reviewAnswerState.saveChanges();
+                await loadMentor();
+                await reviewAnswerState.reloadQuestions();
                 if (useMentor.isMentorEdited) {
                   useMentor.saveMentorDetails();
                 }
@@ -372,17 +420,20 @@ function HomePage(props: {
           </Button>
         </DialogContent>
       </Dialog>
-      <Dialog open={confirmLeave !== undefined}>
-        <DialogContent>
-          <DialogContentText>{confirmLeave?.message}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={confirmLeavingPage}>Yes</Button>
-          <Button color="primary" onClick={() => setConfirmLeave(undefined)}>
-            No
-          </Button>
-        </DialogActions>
-      </Dialog>
+          
+      <TwoOptionDialog
+    open={Boolean(confirmSaveOnLeave)}
+    title={confirmSaveOnLeave?.message || ""}
+    option1={{display: "Yes",onClick:()=>saveBeforeCallback()}}
+    option2={{display: "No",onClick:()=>confirmSaveOnLeave?.callback()}} />
+
+      <TwoOptionDialog
+    open={Boolean(confirmSaveOnRecordOne)}
+    title={confirmSaveOnRecordOne?.message || ""}
+    option1={{display: "Yes",onClick:()=>saveBeforeCallback()}}
+    option2={{display: "No",onClick:()=>setConfirmSaveOnLeave(undefined)}} />
+    
+
     </div>
   );
 }

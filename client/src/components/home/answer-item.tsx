@@ -14,31 +14,28 @@ import {
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer, Question } from "types";
 import { onTextInputChanged } from "helpers";
+import { EditableQuestion } from "hooks/graphql/use-with-review-answer-state";
 
 function AnswerItem(props: {
   mentorId: string;
   answer: Answer;
-  question: Question | undefined;
-  onEditQuestion: (question: Question) => void;
+  question: EditableQuestion;
+  onEditQuestion: (question: EditableQuestion) => void;
   onRecordOne: (question: string) => void;
 }): JSX.Element {
   const { mentorId, answer, question, onEditQuestion, onRecordOne } = props;
-  const [questionId, setQuestionId] = useState<string>("");
-  const [questionInput, setQuestionInput] = useState<string>(
-    question?.question || ""
-  );
+  const [questionInput, setQuestionInput] = useState<string>(question.newQuestionText);
   const [inputEvent, setInputEvent] =
     useState<React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>>();
 
   const [waitingForId, setWaitingForId] = useState<boolean>(false);
-
   useEffect(() => {
     const timeOutId = setTimeout(() => {
       if (inputEvent && question) {
         onTextInputChanged(inputEvent, () => {
           onEditQuestion({
-            ...question,
-            question: questionInput,
+            question: question.question,
+            newQuestionText: questionInput
           });
         });
       }
@@ -46,50 +43,38 @@ function AnswerItem(props: {
     return () => clearTimeout(timeOutId);
   }, [questionInput]);
 
-  useEffect(() => {
-    if (question) {
-      if (questionId === question._id && questionInput !== question.question) {
-        setQuestionInput(question.question);
-      }
-      if (questionId !== question._id) {
-        setQuestionId(question._id);
-        setQuestionInput(question.question);
-      }
-    }
-  }, [question]);
-
-  useEffect(() => {
-    if (!waitingForId) {
-      return;
-    }
-  }, [waitingForId]);
-
-  function recordOne(qId?: string) {
-    if (qId) {
-      onRecordOne(qId);
-    } else {
-      setWaitingForId(true);
-    }
-  }
+  const unsavedChanges = question.question.question !== question.newQuestionText;
 
   return (
     <div>
-      {question?.mentor === mentorId ? (
-        <TextField
-          data-cy="edit-question"
-          placeholder="New question"
-          fullWidth
-          multiline
-          value={questionInput}
-          style={{ marginRight: 100 }}
-          onChange={(e) => {
-            setQuestionInput(e.target.value);
-            setInputEvent(e);
+      {question.question.mentor === mentorId ? (
+        <span
+          style={{
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
           }}
-        />
+        >
+          <TextField
+            data-cy="edit-question"
+            placeholder="New question"
+            fullWidth
+            multiline
+            value={questionInput}
+            onChange={(e) => {
+              setQuestionInput(e.target.value);
+              setInputEvent(e);
+            }}
+          />
+          {unsavedChanges ? (
+            <span style={{ color: "red", whiteSpace: "nowrap" }}>
+              Unsaved changes
+            </span>
+          ) : undefined}
+        </span>
       ) : (
         <ListItemText
-          primary={question?.question}
+          primary={question?.question.question}
           secondary={`${answer.transcript.substring(0, 100)}${
             answer.transcript.length > 100 ? "..." : ""
           }`}
@@ -101,7 +86,8 @@ function AnswerItem(props: {
           data-cy="record-one"
           variant="outlined"
           endIcon={<PlayArrowIcon />}
-          onClick={() => recordOne(question?._id)}
+          // we can detect here if saving is required..
+          onClick={() => onRecordOne(question.question._id)}
         >
           Record
         </Button>

@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
 import { Question } from "types";
@@ -22,7 +22,7 @@ export interface SelectFromQuestionStateFunc<T> {
 }
 
 export interface QuestionActions {
-  loadQuestions: (ids: string[], reload?: boolean) => void;
+  loadQuestions: (ids: string[], reload?: boolean) => Promise<any> | void;
   saveQuestion: (data: Question) => void;
   clearQuestionError: (id: string) => void;
   clearQuestionErrors: () => void;
@@ -91,7 +91,7 @@ export function useQuestionActions(): QuestionActions {
     return state.questions.questions;
   });
 
-  function loadQuestions(ids: string[], reload = false): void {
+  function loadQuestions(ids: string[], reload = false){
     if (!reload) {
       const qIds = Object.keys(data);
       ids = ids.filter((i) => !qIds.includes(i));
@@ -99,7 +99,7 @@ export function useQuestionActions(): QuestionActions {
     if (ids.length === 0) {
       return;
     }
-    dispatch(loadQuestionsById({ ids, reload }));
+    return dispatch(loadQuestionsById({ ids, reload }));
   }
 
   function saveQuestion(data: Question): void {

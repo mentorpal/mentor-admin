@@ -13,6 +13,7 @@ import { urlBuild, copyAndSet } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
+  useQuestionActions
 } from "store/slices/questions/useQuestions";
 import {
   Answer,
@@ -42,18 +43,24 @@ interface UseWithReviewAnswerState {
   selectedSubject?: string;
   progress: Progress;
   isSaving: boolean;
-  unsavedChanges: boolean;
+  unsavedChanges: () => boolean;
   error?: LoadingError;
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
-  getQuestions: () => Question[];
+  getQuestions: () => EditableQuestion[];
   clearError: () => void;
   selectSubject: (sId?: string) => void;
-  saveChanges: () => void;
+  saveChanges: () => Promise<void> | void;
   recordAnswers: (status: Status, subject: string, category: string) => void;
   recordAnswer: (question: string) => void;
   addNewQuestion: (subject: string, category?: string) => void;
-  editQuestion: (question: Question) => void;
+  editQuestion: (question: EditableQuestion) => void;
+  reloadQuestions: () => Promise<void> | void;
+}
+
+export interface EditableQuestion {
+  question: Question;
+  newQuestionText: string;
 }
 
 export function useWithReviewAnswerState(
@@ -69,9 +76,8 @@ export function useWithReviewAnswerState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [subjects, setSubjects] = useState<Subject[]>();
   const [answers, setAnswers] = useState<Answer[]>();
-  const [questions, setQuestions] = useState<Question[]>();
-  const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
-  const { getData, loadMentor, isLoading: isMentorLoading } = useActiveMentor();
+  const [questions, setQuestions] = useState<EditableQuestion[]>();
+  const { getData, isLoading: isMentorLoading } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
@@ -83,12 +89,14 @@ export function useWithReviewAnswerState(
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
+  const { loadQuestions } = useQuestionActions();
 
   useEffect(() => {
     setSubjects(mentorSubjects?.map((s) => ({ ...s })));
   }, [mentorSubjects]);
 
   useEffect(() => {
+    console.log("mentor answers have changed")
     setAnswers(mentorAnswers?.map((a) => ({ ...a })));
   }, [mentorAnswers]);
 
@@ -96,7 +104,7 @@ export function useWithReviewAnswerState(
     setQuestions(
       Object.values(mentorQuestions)
         .filter((q) => q.question)
-        .map((q) => q.question!)
+        .map((q) => ({ question: q.question!, newQuestionText: q.question!.question }))
     );
   }, [mentorQuestions, questionsLoading]);
 
@@ -221,7 +229,7 @@ export function useWithReviewAnswerState(
     if (subjectIdx === -1) {
       return;
     }
-    const newQuestion = {
+    const newQuestion: Question = {
       _id: uuid(),
       question: "",
       paraphrases: [],
@@ -229,7 +237,7 @@ export function useWithReviewAnswerState(
       name: UtteranceName.NONE,
       mentor: mentorId,
     };
-    const newAnswer = {
+    const newAnswer: Answer = {
       _id: uuid(),
       question: newQuestion._id,
       hasEditedTranscript: false,
@@ -248,7 +256,10 @@ export function useWithReviewAnswerState(
         questions: [newQuestion._id, ..._blocks[idx].questions],
       });
     }
-    setQuestions([newQuestion, ...questions]);
+    setQuestions([
+      { question: newQuestion, newQuestionText: newQuestion.question },
+      ...questions,
+    ]);
     setSubjects(
       copyAndSet(subjects, subjectIdx, {
         ...subjects[subjectIdx],
@@ -268,16 +279,17 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }
 
-  function editQuestion(question: Question) {
+  function editQuestion(question: EditableQuestion) {
     if (!subjects || !answers || !questions || isSaving) {
       return;
     }
-    const questionIdx = questions.findIndex((q) => q._id === question._id);
+    const questionIdx = questions.findIndex(
+      (q) => q.question._id === question.question._id
+    );
     if (questionIdx === -1) {
       return;
     }
     setQuestions(copyAndSet(questions, questionIdx, question));
-    setUnsavedChanges(true);
   }
 
   function saveChanges() {
@@ -293,9 +305,11 @@ export function useWithReviewAnswerState(
       return;
     }
     setIsSaving(true);
-    const editedQuestions = questions.filter((q) => q.mentor === mentorId);
+    const editedQuestions = questions
+      .filter((q) => q.question.mentor === mentorId)
+      .map((q) => ({...q.question, question:q.newQuestionText}));
     const editedQuestionIds = editedQuestions.map((q) => q._id);
-    Promise.all(
+    return Promise.all(
       subjects
         // only update subjects that have mentor questions since we can only edit mentor questions on home screen
         ?.filter((subject) =>
@@ -321,9 +335,7 @@ export function useWithReviewAnswerState(
         })
     )
       .then(() => {
-        loadMentor();
         setIsSaving(false);
-        setUnsavedChanges(false);
       })
       .catch((err) => {
         console.error(err);
@@ -344,6 +356,17 @@ export function useWithReviewAnswerState(
     return questions || [];
   }
 
+  function unsavedChanges(): boolean {
+    return Boolean(questions?.find((question) => question.newQuestionText !== question.question.question));
+  }
+
+  function reloadQuestions(){
+    const qIds = questions?.filter((q)=>q.question.question !== q.newQuestionText).map((q)=> q.question._id)
+    if(qIds){
+      return loadQuestions(qIds, true)
+    }
+  }
+
   return {
     progress,
     selectedSubject,
@@ -360,5 +383,6 @@ export function useWithReviewAnswerState(
     recordAnswer,
     addNewQuestion,
     editQuestion,
+    reloadQuestions
   };
 }

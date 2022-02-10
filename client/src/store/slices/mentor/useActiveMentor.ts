@@ -65,12 +65,13 @@ export function useActiveMentor(): UseActiveMentor {
     loadMentor();
   }
 
-  function loadMentor(): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function loadMentor(): Promise<any> {
     const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
     if (activeMentorId) {
-      dispatch(mentorActions.loadMentor({ mentorId: activeMentorId }));
+      return dispatch(mentorActions.loadMentor({ mentorId: activeMentorId }));
     } else {
-      dispatch(mentorActions.loadMentor({}));
+      return dispatch(mentorActions.loadMentor({}));
     }
   }
 
@@ -107,7 +108,7 @@ interface UseActiveMentor {
   error: LoadingError | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getData: (selector: SelectFromMentorStateFunc<any>) => any;
-  loadMentor: () => void;
+  loadMentor: () => Promise<void>;
   switchActiveMentor: (id?: string) => void;
   saveMentorDetails: (d: Mentor) => void;
   saveMentorSubjects: (d: Mentor) => void;
