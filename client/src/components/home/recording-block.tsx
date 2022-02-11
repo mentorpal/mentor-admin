@@ -21,7 +21,7 @@ export default function RecordingBlockItem(props: {
   getAnswers: () => Answer[];
   getQuestions: () => EditableQuestion[];
   recordAnswers: (status: Status, subject: string, category: string) => void;
-  recordAnswer: (question: string) => void;
+  recordAnswer: (question: EditableQuestion) => void;
   addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: EditableQuestion) => void;
 }): JSX.Element {

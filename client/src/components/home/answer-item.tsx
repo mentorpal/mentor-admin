@@ -21,7 +21,7 @@ function AnswerItem(props: {
   answer: Answer;
   question: EditableQuestion;
   onEditQuestion: (question: EditableQuestion) => void;
-  onRecordOne: (question: string) => void;
+  onRecordOne: (question: EditableQuestion) => void;
 }): JSX.Element {
   const { mentorId, answer, question, onEditQuestion, onRecordOne } = props;
   const [questionInput, setQuestionInput] = useState<string>(
@@ -38,15 +38,13 @@ function AnswerItem(props: {
           onEditQuestion({
             question: question.question,
             newQuestionText: questionInput,
+            unsavedChanges: questionInput !== question.question.question
           });
         });
       }
     }, 500);
     return () => clearTimeout(timeOutId);
   }, [questionInput]);
-
-  const unsavedChanges =
-    question.question.question !== question.newQuestionText;
 
   return (
     <div>
@@ -69,7 +67,7 @@ function AnswerItem(props: {
               setInputEvent(e);
             }}
           />
-          {unsavedChanges ? (
+          {question.unsavedChanges ? (
             <span style={{ color: "red", whiteSpace: "nowrap" }}>
               Unsaved changes
             </span>
@@ -88,9 +86,9 @@ function AnswerItem(props: {
         <Button
           data-cy="record-one"
           variant="outlined"
+          disabled={!Boolean(question.newQuestionText)}
           endIcon={<PlayArrowIcon />}
-          // we can detect here if saving is required..
-          onClick={() => onRecordOne(question.question._id)}
+          onClick={() => onRecordOne(question)}
         >
           Record
         </Button>

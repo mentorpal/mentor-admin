@@ -30,7 +30,7 @@ function AnswerList(props: {
   answers: Answer[];
   questions: EditableQuestion[];
   onRecordAll: () => void;
-  onRecordOne: (question: string) => void;
+  onRecordOne: (question: EditableQuestion) => void;
   onEditQuestion: (question: EditableQuestion) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {

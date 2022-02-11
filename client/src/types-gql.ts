@@ -131,6 +131,11 @@ export interface MentorImportPreview {
   answers: ImportPreview<AnswerGQL>[];
 }
 
+export interface QuestionGQL{
+  _id: string,
+  clientId: string
+}
+
 export function convertMentorGQL(gql: MentorGQL): Mentor {
   return {
     ...gql,
@@ -147,7 +152,10 @@ export function convertSubjectGQL(gql: SubjectGQL): Subject {
     ...gql,
     questions: gql.questions?.map((sq) => ({
       ...sq,
-      question: sq.question?._id,
+      question: {
+        _id: sq.question?._id,
+        clientId: sq.question?.clientId
+      } 
     })),
   };
 }
@@ -155,7 +163,10 @@ export function convertSubjectGQL(gql: SubjectGQL): Subject {
 export function convertAnswerGQL(gql: AnswerGQL): Answer {
   return {
     ...gql,
-    question: gql?.question?._id,
+    question: {
+      _id: gql.question?._id,
+      clientId: gql.question?.clientId
+    } 
   };
 }
 

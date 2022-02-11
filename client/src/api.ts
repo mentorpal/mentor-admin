@@ -572,6 +572,7 @@ export async function fetchQuestionsById(ids: string[]): Promise<Question[]> {
             question
             type
             name
+            clientId
             paraphrases
             mentor
             mentorType
@@ -802,6 +803,7 @@ export async function fetchMentorById(
             questions {
               question {
                 _id
+                clientId
               }
               category {
                 id
@@ -819,6 +821,7 @@ export async function fetchMentorById(
             _id
             question {
               _id
+              clientId
             }
             hasEditedTranscript
             transcript

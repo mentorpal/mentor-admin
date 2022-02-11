@@ -32,7 +32,7 @@ import parseMentor, {
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
 import { launchMentor } from "helpers";
-import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
+import { EditableQuestion, useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface ConfirmSaveOnLeave {
+interface ConfirmSave {
   message: string;
   callback: () => void;
 }
@@ -110,7 +110,6 @@ function HomePage(props: {
     switchActiveMentor,
     isLoading: mentorLoading,
     error: mentorError,
-    loadMentor,
   } = useActiveMentor();
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
@@ -132,10 +131,10 @@ function HomePage(props: {
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
-  const [confirmSaveOnLeave, setConfirmSaveOnLeave] =
-    useState<ConfirmSaveOnLeave>();
+  const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
+    useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
-    useState<ConfirmSaveOnLeave>();
+    useState<ConfirmSave>();
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -156,9 +155,9 @@ function HomePage(props: {
     navigate("/setup");
   }
 
-  function onNav(cb: () => void, msg?: string) {
+  function onLeave(cb: () => void, msg?: string) {
     if (reviewAnswerState.unsavedChanges()) {
-      setConfirmSaveOnLeave({
+      setConfirmSaveBeforeCallback({
         message:
           msg ||
           "You have unsaved changes, would you like to save them before leaving this page?",
@@ -170,56 +169,60 @@ function HomePage(props: {
   }
 
   async function saveBeforeCallback() {
-    if (!confirmSaveOnLeave) {
+    if (!confirmSaveBeforeCallback) {
       return;
     }
     if (reviewAnswerState.unsavedChanges()) {
       await reviewAnswerState.saveChanges();
-      await loadMentor();
-      await reviewAnswerState.reloadQuestions();
     }
-    confirmSaveOnLeave.callback();
-    setConfirmSaveOnLeave(undefined);
+    confirmSaveBeforeCallback.callback();
+    setConfirmSaveBeforeCallback(undefined);
   }
 
   function recordAnswers(status: Status, subject: string, category: string) {
-    onNav(() => {
+    onLeave(() => {
       reviewAnswerState.recordAnswers(status, subject, category);
     }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
   }
 
-  function recordAnswer(
-    questionIdOrText: string,
-    isId: boolean,
-    questionNeedsToBeSaved: boolean
-  ) {
-    if (
-      isId &&
-      !questionNeedsToBeSaved &&
-      !reviewAnswerState.unsavedChanges()
-    ) {
-      reviewAnswerState.recordAnswer(questionIdOrText);
-    } else if (isId) {
-      saveBeforeRecordAnswerById(questionIdOrText);
-    } else {
-      saveBeforeRecordAnswerByText(questionIdOrText);
+  function getQuestionMongoIdFromClientId(questionClientId: string){
+    const questions = reviewAnswerState.getQuestions();
+    const foundQuestion = questions.find((q)=>q.question.clientId === questionClientId);
+    if(!foundQuestion){
+      reviewAnswerState.setError({message:"Failed to find question.", error:`No question with clientId: ${questionClientId}`})
+      return;
     }
+    return foundQuestion.question._id
   }
 
-  function saveBeforeRecordAnswerByText(questionText: string) {
-    // No doubt the question needs to be saved here because it's just text that needs to be found after saving
-  }
-
-  function saveBeforeRecordAnswerById(questionId: string) {
-    // Question needs to be saved, but we already have it's ID
-    if (questionNeedsToBeSaved || reviewAnswerState.unsavedChanges()) {
-      // TODO: ask if want to save and continue to record? If yes, save all questions and record this question, else stay where we are
-
-      // I Believe this function just needs to be updated to do all the aboce
-      onNav(
-        () => reviewAnswerState.recordAnswer(questionId),
-        "You have unsaved changes to questions. Would you like to save and proceed to recording?"
-      );
+  function recordAnswer(
+    question: EditableQuestion
+  ) {
+    console.log("In record answer")
+    console.log(question)
+    if (reviewAnswerState.unsavedChanges() || question.unsavedChanges) {
+      console.log("unsaved changes")
+      setConfirmSaveOnRecordOne({
+        message:
+          "You have unsaved question changes, would you like to save your changes and proceed to recording?",
+        callback: () => reviewAnswerState.saveChanges()?.then(()=>{
+            const qId = getQuestionMongoIdFromClientId(question.question.clientId)
+            if(!qId){
+              console.log(`No qId found: ${qId}`)
+              return;
+            }
+            reviewAnswerState.recordAnswer(qId)
+          })
+        ,
+      });
+    } else {
+      console.log("no unsaved changes, going to record answer")
+      const qId = getQuestionMongoIdFromClientId(question.question.clientId)
+      if(!qId){
+        console.log(`No qId found: ${qId}`)
+        return;
+      }
+      reviewAnswerState.recordAnswer(qId);
     }
   }
 
@@ -243,7 +246,7 @@ function HomePage(props: {
           uploads={recordState.uploads}
           uploadsButtonVisible={uploadingWidgetVisible}
           toggleUploadsButtonVisibility={setUploadingWidgetVisible}
-          onNav={onNav}
+          onNav={onLeave}
         />
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}
@@ -343,8 +346,6 @@ function HomePage(props: {
               color="secondary"
               onClick={async () => {
                 await reviewAnswerState.saveChanges();
-                await loadMentor();
-                await reviewAnswerState.reloadQuestions();
                 if (useMentor.isMentorEdited) {
                   useMentor.saveMentorDetails();
                 }
@@ -429,22 +430,22 @@ function HomePage(props: {
       </Dialog>
 
       <TwoOptionDialog
-        open={Boolean(confirmSaveOnLeave)}
-        title={confirmSaveOnLeave?.message || ""}
+        open={Boolean(confirmSaveBeforeCallback)}
+        title={confirmSaveBeforeCallback?.message || ""}
         option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
         option2={{
           display: "No",
-          onClick: () => confirmSaveOnLeave?.callback(),
+          onClick: () => confirmSaveBeforeCallback?.callback(),
         }}
       />
 
       <TwoOptionDialog
         open={Boolean(confirmSaveOnRecordOne)}
         title={confirmSaveOnRecordOne?.message || ""}
-        option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
+        option1={{ display: "Yes", onClick: () => confirmSaveOnRecordOne?.callback() }}
         option2={{
           display: "No",
-          onClick: () => setConfirmSaveOnLeave(undefined),
+          onClick: () => setConfirmSaveOnRecordOne(undefined),
         }}
       />
     </div>
