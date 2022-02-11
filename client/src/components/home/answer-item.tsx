@@ -14,14 +14,14 @@ import {
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { Answer } from "types";
 import { onTextInputChanged } from "helpers";
-import { EditableQuestion } from "hooks/graphql/use-with-review-answer-state";
+import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";
 
 function AnswerItem(props: {
   mentorId: string;
   answer: Answer;
-  question: EditableQuestion;
-  onEditQuestion: (question: EditableQuestion) => void;
-  onRecordOne: (question: EditableQuestion) => void;
+  question: QuestionEdits;
+  onEditQuestion: (question: QuestionEdits) => void;
+  onRecordOne: (question: QuestionEdits) => void;
 }): JSX.Element {
   const { mentorId, answer, question, onEditQuestion, onRecordOne } = props;
   const [questionInput, setQuestionInput] = useState<string>(
@@ -35,9 +35,10 @@ function AnswerItem(props: {
       if (inputEvent && question) {
         onTextInputChanged(inputEvent, () => {
           onEditQuestion({
-            question: question.question,
+            originalQuestion: question.originalQuestion,
             newQuestionText: questionInput,
-            unsavedChanges: questionInput !== question.question.question,
+            unsavedChanges:
+              questionInput !== question.originalQuestion.question,
           });
         });
       }
@@ -47,7 +48,7 @@ function AnswerItem(props: {
 
   return (
     <div>
-      {question.question.mentor === mentorId ? (
+      {question.originalQuestion.mentor === mentorId ? (
         <span
           style={{
             display: "flex",
@@ -74,7 +75,7 @@ function AnswerItem(props: {
         </span>
       ) : (
         <ListItemText
-          primary={question?.question.question}
+          primary={question?.originalQuestion.question}
           secondary={`${answer.transcript.substring(0, 100)}${
             answer.transcript.length > 100 ? "..." : ""
           }`}

@@ -32,7 +32,7 @@ import parseMentor, {
 import NavBar from "components/nav-bar";
 import { launchMentor } from "helpers";
 import {
-  EditableQuestion,
+  QuestionEdits,
   useWithReviewAnswerState,
 } from "hooks/graphql/use-with-review-answer-state";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
@@ -187,22 +187,18 @@ function HomePage(props: {
     }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
   }
 
-  function recordAnswer(question: EditableQuestion) {
-    console.log("In record answer");
-    console.log(question);
+  function recordAnswer(question: QuestionEdits) {
     if (reviewAnswerState.unsavedChanges() || question.unsavedChanges) {
-      console.log("unsaved changes");
       setConfirmSaveOnRecordOne({
         message:
           "You have unsaved question changes, would you like to save your changes and proceed to recording?",
         callback: () =>
           reviewAnswerState.saveChanges()?.then(() => {
-            reviewAnswerState.recordAnswer(question.question.clientId);
+            reviewAnswerState.recordAnswer(question.originalQuestion.clientId);
           }),
       });
     } else {
-      console.log(`no unsaved changes, going to record answer`);
-      reviewAnswerState.recordAnswer(question.question.clientId);
+      reviewAnswerState.recordAnswer(question.originalQuestion.clientId);
     }
   }
 
@@ -324,8 +320,8 @@ function HomePage(props: {
               data-cy="save-button"
               variant="extended"
               color="secondary"
-              onClick={async () => {
-                await reviewAnswerState.saveChanges();
+              onClick={() => {
+                reviewAnswerState.saveChanges();
                 if (useMentor.isMentorEdited) {
                   useMentor.saveMentorDetails();
                 }

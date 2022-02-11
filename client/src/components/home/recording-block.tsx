@@ -10,7 +10,7 @@ import { Answer, Status } from "types";
 import AnswerList from "components/home/answer-list";
 import ProgressChecks from "components/progress-checks";
 import {
-  EditableQuestion,
+  QuestionEdits,
   RecordingBlock,
 } from "hooks/graphql/use-with-review-answer-state";
 
@@ -19,11 +19,11 @@ export default function RecordingBlockItem(props: {
   block: RecordingBlock;
   mentorId: string;
   getAnswers: () => Answer[];
-  getQuestions: () => EditableQuestion[];
+  getQuestions: () => QuestionEdits[];
   recordAnswers: (status: Status, subject: string, category: string) => void;
-  recordAnswer: (question: EditableQuestion) => void;
+  recordAnswer: (question: QuestionEdits) => void;
   addNewQuestion: (subject: string, category?: string) => void;
-  editQuestion: (question: EditableQuestion) => void;
+  editQuestion: (question: QuestionEdits) => void;
 }): JSX.Element {
   const { classes, block } = props;
   const answers = props

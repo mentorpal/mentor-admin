@@ -47,7 +47,7 @@ interface UseWithReviewAnswerState {
   error?: LoadingError;
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
-  getQuestions: () => EditableQuestion[];
+  getQuestions: () => QuestionEdits[];
   clearError: () => void;
   setError: (error: LoadingError) => void;
   selectSubject: (sId?: string) => void;
@@ -55,11 +55,11 @@ interface UseWithReviewAnswerState {
   recordAnswers: (status: Status, subject: string, category: string) => void;
   recordAnswer: (question: string) => void;
   addNewQuestion: (subject: string, category?: string) => void;
-  editQuestion: (question: EditableQuestion) => void;
+  editQuestion: (question: QuestionEdits) => void;
 }
 
-export interface EditableQuestion {
-  question: Question;
+export interface QuestionEdits {
+  originalQuestion: Question;
   newQuestionText: string;
   unsavedChanges: boolean;
 }
@@ -77,7 +77,7 @@ export function useWithReviewAnswerState(
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [subjects, setSubjects] = useState<Subject[]>();
   const [answers, setAnswers] = useState<Answer[]>();
-  const [questions, setQuestions] = useState<EditableQuestion[]>();
+  const [questions, setQuestions] = useState<QuestionEdits[]>();
   const { getData, isLoading: isMentorLoading, loadMentor } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
@@ -105,7 +105,7 @@ export function useWithReviewAnswerState(
       Object.values(mentorQuestions)
         .filter((q) => q.question)
         .map((q) => ({
-          question: q.question!,
+          originalQuestion: q.question!,
           newQuestionText: q.question!.question,
           // freshly loaded questions cannot have unsaved changes
           unsavedChanges: false,
@@ -215,7 +215,6 @@ export function useWithReviewAnswerState(
   }
 
   function recordAnswer(question: string) {
-    console.log(`inside recordAnswer with qid: ${question}`);
     navigate(
       urlBuild("/record", {
         videoId: question,
@@ -266,7 +265,7 @@ export function useWithReviewAnswerState(
     }
     setQuestions([
       {
-        question: newQuestion,
+        originalQuestion: newQuestion,
         newQuestionText: newQuestion.question,
         unsavedChanges: false,
       },
@@ -291,20 +290,22 @@ export function useWithReviewAnswerState(
     setBlocks(_blocks);
   }
 
-  function editQuestion(question: EditableQuestion) {
+  function editQuestion(questionEdits: QuestionEdits) {
     if (!subjects || !answers || !questions || isSaving) {
       return;
     }
     const questionIdx = questions.findIndex(
-      (q) => q.question._id === question.question._id
+      (q) => q.originalQuestion._id === questionEdits.originalQuestion._id
     );
     if (questionIdx === -1) {
       return;
     }
-    if (question.newQuestionText !== question.question.question) {
-      question.unsavedChanges = true;
+    if (
+      questionEdits.newQuestionText !== questionEdits.originalQuestion.question
+    ) {
+      questionEdits.unsavedChanges = true;
     }
-    setQuestions(copyAndSet(questions, questionIdx, question));
+    setQuestions(copyAndSet(questions, questionIdx, questionEdits));
   }
 
   async function saveChanges() {
@@ -321,10 +322,10 @@ export function useWithReviewAnswerState(
     }
     setIsSaving(true);
     const editedQuestions = questions
-      .filter((q) => q.question.mentor === mentorId)
-      .map((q) => ({ ...q.question, question: q.newQuestionText }));
+      .filter((q) => q.originalQuestion.mentor === mentorId)
+      .map((q) => ({ ...q.originalQuestion, question: q.newQuestionText }));
     const editedQuestionIds = editedQuestions.map((q) => q._id);
-    await Promise.all(
+    return Promise.all(
       subjects
         // only update subjects that have mentor questions since we can only edit mentor questions on home screen
         ?.filter((subject) =>
@@ -348,11 +349,17 @@ export function useWithReviewAnswerState(
             accessToken
           );
         })
-    );
-    await loadMentor();
-    await reloadQuestions();
-    setIsSaving(false);
-    // TODO: revert this back to the then and catch error clause, because it doesn't fix the issue
+    )
+      .then(async () => {
+        await loadMentor();
+        await reloadQuestions();
+        setIsSaving(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError({ message: "Failed to save", error: err.message });
+        setIsSaving(false);
+      });
   }
 
   function getBlocks() {
@@ -370,15 +377,17 @@ export function useWithReviewAnswerState(
   function unsavedChanges(): boolean {
     return Boolean(
       questions?.find(
-        (question) => question.newQuestionText !== question.question.question
+        (questionEdits) =>
+          questionEdits.newQuestionText !==
+          questionEdits.originalQuestion.question
       )
     );
   }
 
   function reloadQuestions() {
     const qIds = questions
-      ?.filter((q) => q.question.question !== q.newQuestionText)
-      .map((q) => q.question._id);
+      ?.filter((q) => q.originalQuestion.question !== q.newQuestionText)
+      .map((q) => q.originalQuestion._id);
     if (qIds) {
       return loadQuestions(qIds, true);
     }

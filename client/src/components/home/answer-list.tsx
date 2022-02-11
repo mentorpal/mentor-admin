@@ -21,17 +21,17 @@ import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { Answer } from "types";
 import AnswerItem from "./answer-item";
-import { EditableQuestion } from "hooks/graphql/use-with-review-answer-state";
+import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
   answers: Answer[];
-  questions: EditableQuestion[];
+  questions: QuestionEdits[];
   onRecordAll: () => void;
-  onRecordOne: (question: EditableQuestion) => void;
-  onEditQuestion: (question: EditableQuestion) => void;
+  onRecordOne: (question: QuestionEdits) => void;
+  onEditQuestion: (question: QuestionEdits) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
   const {
@@ -102,32 +102,29 @@ function AnswerList(props: {
           style={{ paddingLeft: 15, paddingTop: 10 }}
         >
           <List data-cy="answer-list" style={{ border: 1 }}>
-            {answers
-              // .slice(0)
-              // .reverse()
-              .map((answer, i) => {
-                const question = props.questions.find(
-                  (q) => q.question._id === answer.question
-                );
-                if (!question) {
-                  return;
-                }
-                return (
-                  <ListItem
-                    data-cy={`answer-${i}`}
-                    key={`item-${i}-${question.question._id}`}
-                    style={{ backgroundColor: "#eee" }}
-                  >
-                    <AnswerItem
-                      mentorId={props.mentorId}
-                      answer={answer}
-                      question={question}
-                      onEditQuestion={onEditQuestion}
-                      onRecordOne={onRecordOne}
-                    />
-                  </ListItem>
-                );
-              })}
+            {answers.map((answer, i) => {
+              const question = props.questions.find(
+                (q) => q.originalQuestion._id === answer.question
+              );
+              if (!question) {
+                return;
+              }
+              return (
+                <ListItem
+                  data-cy={`answer-${i}`}
+                  key={`item-${i}-${question.originalQuestion._id}`}
+                  style={{ backgroundColor: "#eee" }}
+                >
+                  <AnswerItem
+                    mentorId={props.mentorId}
+                    answer={answer}
+                    question={question}
+                    onEditQuestion={onEditQuestion}
+                    onRecordOne={onRecordOne}
+                  />
+                </ListItem>
+              );
+            })}
           </List>
         </Collapse>
       </CardContent>
