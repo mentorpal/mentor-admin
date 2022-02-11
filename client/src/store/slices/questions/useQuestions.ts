@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
 import { Question } from "types";
@@ -22,6 +22,7 @@ export interface SelectFromQuestionStateFunc<T> {
 }
 
 export interface QuestionActions {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadQuestions: (ids: string[], reload?: boolean) => Promise<any> | void;
   saveQuestion: (data: Question) => void;
   clearQuestionError: (id: string) => void;

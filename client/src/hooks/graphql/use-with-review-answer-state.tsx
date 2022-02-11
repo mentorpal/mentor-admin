@@ -97,7 +97,6 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    console.log("mentor answers have changed");
     setAnswers(mentorAnswers?.map((a) => ({ ...a })));
   }, [mentorAnswers]);
 
@@ -109,7 +108,7 @@ export function useWithReviewAnswerState(
           question: q.question!,
           newQuestionText: q.question!.question,
           // freshly loaded questions cannot have unsaved changes
-          unsavedChanges: false
+          unsavedChanges: false,
         }))
     );
   }, [mentorQuestions, questionsLoading]);
@@ -216,7 +215,7 @@ export function useWithReviewAnswerState(
   }
 
   function recordAnswer(question: string) {
-    console.log(`inside recordAnswer with qid: ${question}`)
+    console.log(`inside recordAnswer with qid: ${question}`);
     navigate(
       urlBuild("/record", {
         videoId: question,
@@ -248,6 +247,7 @@ export function useWithReviewAnswerState(
     const newAnswer: Answer = {
       _id: uuid(),
       question: newQuestion._id,
+      questionClientId: newQuestion.clientId,
       hasEditedTranscript: false,
       transcript: "",
       status: Status.INCOMPLETE,
@@ -265,7 +265,11 @@ export function useWithReviewAnswerState(
       });
     }
     setQuestions([
-      { question: newQuestion, newQuestionText: newQuestion.question, unsavedChanges: false },
+      {
+        question: newQuestion,
+        newQuestionText: newQuestion.question,
+        unsavedChanges: false,
+      },
       ...questions,
     ]);
     setSubjects(
@@ -297,7 +301,7 @@ export function useWithReviewAnswerState(
     if (questionIdx === -1) {
       return;
     }
-    if(question.newQuestionText !== question.question.question){
+    if (question.newQuestionText !== question.question.question) {
       question.unsavedChanges = true;
     }
     setQuestions(copyAndSet(questions, questionIdx, question));
@@ -344,17 +348,11 @@ export function useWithReviewAnswerState(
             accessToken
           );
         })
-    )
+    );
     await loadMentor();
     await reloadQuestions();
-    console.log("save and reload complete with questions")
-    console.log(questions)
     setIsSaving(false);
-      // .catch((err) => {
-      //   console.error(err);
-      //   setError({ message: "Failed to save", error: err.message });
-      //   setIsSaving(false);
-      // });
+    // TODO: revert this back to the then and catch error clause, because it doesn't fix the issue
   }
 
   function getBlocks() {

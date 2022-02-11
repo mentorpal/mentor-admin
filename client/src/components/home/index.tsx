@@ -11,7 +11,6 @@ import {
   Button,
   CircularProgress,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
@@ -32,7 +31,10 @@ import parseMentor, {
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
 import { launchMentor } from "helpers";
-import { EditableQuestion, useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
+import {
+  EditableQuestion,
+  useWithReviewAnswerState,
+} from "hooks/graphql/use-with-review-answer-state";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -185,44 +187,22 @@ function HomePage(props: {
     }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
   }
 
-  function getQuestionMongoIdFromClientId(questionClientId: string){
-    const questions = reviewAnswerState.getQuestions();
-    const foundQuestion = questions.find((q)=>q.question.clientId === questionClientId);
-    if(!foundQuestion){
-      reviewAnswerState.setError({message:"Failed to find question.", error:`No question with clientId: ${questionClientId}`})
-      return;
-    }
-    return foundQuestion.question._id
-  }
-
-  function recordAnswer(
-    question: EditableQuestion
-  ) {
-    console.log("In record answer")
-    console.log(question)
+  function recordAnswer(question: EditableQuestion) {
+    console.log("In record answer");
+    console.log(question);
     if (reviewAnswerState.unsavedChanges() || question.unsavedChanges) {
-      console.log("unsaved changes")
+      console.log("unsaved changes");
       setConfirmSaveOnRecordOne({
         message:
           "You have unsaved question changes, would you like to save your changes and proceed to recording?",
-        callback: () => reviewAnswerState.saveChanges()?.then(()=>{
-            const qId = getQuestionMongoIdFromClientId(question.question.clientId)
-            if(!qId){
-              console.log(`No qId found: ${qId}`)
-              return;
-            }
-            reviewAnswerState.recordAnswer(qId)
-          })
-        ,
+        callback: () =>
+          reviewAnswerState.saveChanges()?.then(() => {
+            reviewAnswerState.recordAnswer(question.question.clientId);
+          }),
       });
     } else {
-      console.log("no unsaved changes, going to record answer")
-      const qId = getQuestionMongoIdFromClientId(question.question.clientId)
-      if(!qId){
-        console.log(`No qId found: ${qId}`)
-        return;
-      }
-      reviewAnswerState.recordAnswer(qId);
+      console.log(`no unsaved changes, going to record answer`);
+      reviewAnswerState.recordAnswer(question.question.clientId);
     }
   }
 
@@ -442,7 +422,10 @@ function HomePage(props: {
       <TwoOptionDialog
         open={Boolean(confirmSaveOnRecordOne)}
         title={confirmSaveOnRecordOne?.message || ""}
-        option1={{ display: "Yes", onClick: () => confirmSaveOnRecordOne?.callback() }}
+        option1={{
+          display: "Yes",
+          onClick: () => confirmSaveOnRecordOne?.callback(),
+        }}
         option2={{
           display: "No",
           onClick: () => setConfirmSaveOnRecordOne(undefined),

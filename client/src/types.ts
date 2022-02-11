@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import { CancelTokenSource } from "axios";
-import { AnswerGQL, QuestionGQL, SubjectGQL } from "types-gql";
+import { AnswerGQL, SubjectGQL } from "types-gql";
 
 export interface Config {
   googleClientId: string;
@@ -73,7 +73,7 @@ export interface Subject {
 }
 
 export interface SubjectQuestion {
-  question: QuestionGQL;
+  question: string;
   category?: Category;
   topics: Topic[];
 }
@@ -111,7 +111,8 @@ export interface Media {
 
 export interface Answer {
   _id: string;
-  question: QuestionGQL;
+  question: string;
+  questionClientId: string;
   hasEditedTranscript: boolean;
   transcript: string;
   status: Status;

@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@material-ui/core";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import { Answer, Question } from "types";
+import { Answer } from "types";
 import { onTextInputChanged } from "helpers";
 import { EditableQuestion } from "hooks/graphql/use-with-review-answer-state";
 
@@ -30,7 +30,6 @@ function AnswerItem(props: {
   const [inputEvent, setInputEvent] =
     useState<React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>>();
 
-  const [waitingForId, setWaitingForId] = useState<boolean>(false);
   useEffect(() => {
     const timeOutId = setTimeout(() => {
       if (inputEvent && question) {
@@ -38,7 +37,7 @@ function AnswerItem(props: {
           onEditQuestion({
             question: question.question,
             newQuestionText: questionInput,
-            unsavedChanges: questionInput !== question.question.question
+            unsavedChanges: questionInput !== question.question.question,
           });
         });
       }
@@ -86,7 +85,7 @@ function AnswerItem(props: {
         <Button
           data-cy="record-one"
           variant="outlined"
-          disabled={!Boolean(question.newQuestionText)}
+          disabled={!question.newQuestionText}
           endIcon={<PlayArrowIcon />}
           onClick={() => onRecordOne(question)}
         >

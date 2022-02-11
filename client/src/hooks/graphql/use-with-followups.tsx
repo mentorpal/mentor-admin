@@ -100,6 +100,7 @@ export function useWithFollowups(props: {
         return {
           question: {
             _id: uuid(),
+            clientId: uuid(),
             question: followUp,
             paraphrases: [],
             type: QuestionType.QUESTION,
@@ -118,13 +119,9 @@ export function useWithFollowups(props: {
       loginState.accessToken
     )
       .then((newSubjectQuestions) => {
-        console.log("new subject questions");
-        console.log(newSubjectQuestions);
         const newQuestionIds: string[] = newSubjectQuestions.map(
           (question) => question.question
         );
-        console.log("new question ids");
-        console.log(newQuestionIds);
         // The reason we have to wait for mentor to reload first is because the new Q's won't be there
         if (newQuestionIds.length) {
           loadMentor();

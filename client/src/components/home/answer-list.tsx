@@ -19,7 +19,7 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Answer, Question } from "types";
+import { Answer } from "types";
 import AnswerItem from "./answer-item";
 import { EditableQuestion } from "hooks/graphql/use-with-review-answer-state";
 

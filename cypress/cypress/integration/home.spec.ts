@@ -391,7 +391,7 @@ describe("My Mentor Page", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/record")
     );
-    cy.location("search").should("equal", "?videoId=A1_1_1&back=%2F");
+    cy.location("search").should("equal", "?videoId=C_A1_1_1&back=%2F");
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
       cy.get("textarea").should("have.attr", "disabled");
@@ -501,7 +501,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?videoId=A1_1_1&back=%2F%3Fsubject%3Dbackground"
+      "?videoId=C_A1_1_1&back=%2F%3Fsubject%3Dbackground"
     );
     cy.get("[data-cy=question-input]").within(($input) => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
@@ -567,44 +567,6 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=add-question]").trigger("mouseover").click();
           cy.get("[data-cy=answer-list]").children().should("have.length", 2);
           cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-1]").within(($answer) => {
-              cy.get("textarea").should("have.value", "");
-              cy.get("textarea").should("not.have.attr", "disabled");
-              cy.get("[data-cy=edit-question]").type("test");
-              cy.get("textarea").should("have.value", "test");
-            });
-            cy.get("[data-cy=answer-0]").contains(
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
-            );
-          });
-        });
-      });
-    });
-    cy.get("[data-cy=save-button]").should("not.be.disabled");
-  });
-
-  it.only("testing", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
-    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
-    // cy.get("[data-cy=save-button]").should("be.disabled");
-    cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Category2");
-        cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
-          cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
-          cy.get("[data-cy=add-question]").should("exist");
-          cy.get("[data-cy=answer-list]").children().should("have.length", 1);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").contains(
-              "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
-            );
-          });
-          cy.get("[data-cy=add-question]").trigger("mouseover").click();
-          cy.get("[data-cy=answer-list]").children().should("have.length", 2);
-          cy.get("[data-cy=answer-list]").within(($answers) => {
             cy.get("[data-cy=answer-0]").within(($answer) => {
               cy.get("textarea").should("have.value", "");
               cy.get("textarea").should("not.have.attr", "disabled");
@@ -618,7 +580,7 @@ describe("My Mentor Page", () => {
         });
       });
     });
-    cyMockDefault(cy, { mentor: clint });
+    cy.get("[data-cy=save-button]").should("not.be.disabled");
   });
 
   it("fails to train mentor", () => {
