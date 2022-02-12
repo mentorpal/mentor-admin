@@ -107,7 +107,7 @@ export function TwoOptionDialog(props: {
   const { title, option1, option2, open } = props;
   return (
     <Dialog
-      data-cy="notification-dialog"
+      data-cy="two-option-dialog"
       maxWidth="sm"
       fullWidth={true}
       open={open}
@@ -115,6 +115,7 @@ export function TwoOptionDialog(props: {
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Button
+          data-cy="option-1"
           onClick={() => {
             option1.onClick();
           }}
@@ -122,6 +123,7 @@ export function TwoOptionDialog(props: {
           {option1.display}
         </Button>
         <Button
+          data-cy="option-2"
           onClick={() => {
             option2.onClick();
           }}

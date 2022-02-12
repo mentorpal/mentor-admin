@@ -765,5 +765,123 @@ describe("My Mentor Page", () => {
           });
         });
     });
+
+    it("Leaving page without saving prompts user to save", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [clint, clintNewAnswers],
+        gqlQueries: [
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+        ],
+      });
+      cy.visit("/?subject=repeat_after_me");
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=recording-blocks]").within(($blocks) => {
+        cy.get("[data-cy=block-1]").within(($block) => {
+          cy.get("[data-cy=block-name]").should("have.text", "Category2");
+          cy.get("[data-cy=answers-Incomplete]").within(
+            ($incompleteAnswers) => {
+              cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+              cy.get("[data-cy=add-question]").should("exist");
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 1);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+              cy.get("[data-cy=add-question]").trigger("mouseover").click();
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 2);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-1]").within(($answer) => {
+                  cy.get("textarea").should("have.value", "");
+                  cy.get("textarea").should("not.have.attr", "disabled");
+                  cy.get("[data-cy=edit-question]").type("test");
+                  cy.get("textarea").should("have.value", "test");
+                });
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+            }
+          );
+        });
+      });
+      cy.get("[data-cy=unsaved-changes-warning]").should("exist");
+      cy.get("[data-cy=menu-button]").invoke("mouseover").click();
+      cy.get("[data-cy=Setup-menu-button]").invoke("mouseover").click();
+      cy.get("[data-cy=two-option-dialog]").should(
+        "contain.text",
+        "You have unsaved changes"
+      );
+    });
+
+    it("Recording question without saving prompts user to save before continuing", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [clint, clintNewAnswers],
+        gqlQueries: [
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+        ],
+      });
+      cy.visit("/?subject=repeat_after_me");
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=recording-blocks]").within(($blocks) => {
+        cy.get("[data-cy=block-1]").within(($block) => {
+          cy.get("[data-cy=block-name]").should("have.text", "Category2");
+          cy.get("[data-cy=answers-Incomplete]").within(
+            ($incompleteAnswers) => {
+              cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+              cy.get("[data-cy=add-question]").should("exist");
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 1);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+              cy.get("[data-cy=add-question]").trigger("mouseover").click();
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 2);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-1]").within(($answer) => {
+                  cy.get("textarea").should("have.value", "");
+                  cy.get("textarea").should("not.have.attr", "disabled");
+                  cy.get("[data-cy=edit-question]").type("test");
+                  cy.get("textarea").should("have.value", "test");
+                });
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+            }
+          );
+        });
+      });
+      cy.get("[data-cy=unsaved-changes-warning]").should("exist");
+      cy.get("[data-cy=block-1]").within(($block) => {
+        cy.get("[data-cy=block-name]").should("have.text", "Category2");
+        cy.get("[data-cy=answers-Incomplete]").within(() => {
+          cy.get("[data-cy=answer-1]").within(($within) => {
+            cy.get("[data-cy=record-one]").invoke("mouseover").click();
+          });
+        });
+      });
+      cy.get("[data-cy=two-option-dialog]").should(
+        "contain.text",
+        "You have unsaved question changes"
+      );
+    });
   });
 });
