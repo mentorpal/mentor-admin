@@ -9,10 +9,13 @@ import {
   cyMockDefault,
   cyMockTrain,
   cyMockTrainStatus,
+  mockGQL,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import { JobState, Status } from "../support/types";
+import clintNewAnswers from "../fixtures/mentor/clint_home_new_questions";
+import { JobState, QuestionType, Status } from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
+import questions from "../fixtures/questions";
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
@@ -531,11 +534,11 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=add-question]").trigger("mouseover").click();
           cy.get("[data-cy=answer-list]").children().should("have.length", 2);
           cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").within(($answer) => {
+            cy.get("[data-cy=answer-1]").within(($answer) => {
               cy.get("textarea").should("have.value", "");
               cy.get("textarea").should("not.have.attr", "disabled");
             });
-            cy.get("[data-cy=answer-1]").contains(
+            cy.get("[data-cy=answer-0]").contains(
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
             );
           });
@@ -567,13 +570,13 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=add-question]").trigger("mouseover").click();
           cy.get("[data-cy=answer-list]").children().should("have.length", 2);
           cy.get("[data-cy=answer-list]").within(($answers) => {
-            cy.get("[data-cy=answer-0]").within(($answer) => {
+            cy.get("[data-cy=answer-1]").within(($answer) => {
               cy.get("textarea").should("have.value", "");
               cy.get("textarea").should("not.have.attr", "disabled");
               cy.get("[data-cy=edit-question]").type("test");
               cy.get("textarea").should("have.value", "test");
             });
-            cy.get("[data-cy=answer-1]").contains(
+            cy.get("[data-cy=answer-0]").contains(
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
             );
           });
@@ -686,6 +689,81 @@ describe("My Mentor Page", () => {
         assert($el.replace("/admin", ""), "/setup");
       });
       cy.location("search").should("contain", "?i=7");
+    });
+
+    it("can create a mentor question and save it", () => {
+      cySetup(cy);
+      const newQuestion = {
+        _id: "A8_1_1",
+        clientId: "C_A8_1_1",
+        question: "test",
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
+        mentor: "clintanderson",
+      };
+      const newQuestions = [...questions, newQuestion];
+      cyMockDefault(cy, {
+        mentor: [clint, clintNewAnswers],
+        questions: [questions, newQuestions],
+        gqlQueries: [
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+        ],
+      });
+      cy.visit("/?subject=repeat_after_me");
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=recording-blocks]").within(($blocks) => {
+        cy.get("[data-cy=block-1]").within(($block) => {
+          cy.get("[data-cy=block-name]").should("have.text", "Category2");
+          cy.get("[data-cy=answers-Incomplete]").within(
+            ($incompleteAnswers) => {
+              cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
+              cy.get("[data-cy=add-question]").should("exist");
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 1);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+              cy.get("[data-cy=add-question]").trigger("mouseover").click();
+              cy.get("[data-cy=answer-list]")
+                .children()
+                .should("have.length", 2);
+              cy.get("[data-cy=answer-list]").within(($answers) => {
+                cy.get("[data-cy=answer-1]").within(($answer) => {
+                  cy.get("textarea").should("have.value", "");
+                  cy.get("textarea").should("not.have.attr", "disabled");
+                  cy.get("[data-cy=edit-question]").type("test");
+                  cy.get("textarea").should("have.value", "test");
+                });
+                cy.get("[data-cy=answer-0]").contains(
+                  "Please repeat the following: 'I couldn't understand the question. Try asking me something else."
+                );
+              });
+            }
+          );
+        });
+      });
+      cy.get("[data-cy=unsaved-changes-warning]").should("exist");
+      cy.get("[data-cy=save-button]").should("not.be.disabled");
+      cy.get("[data-cy=save-button]")
+        .invoke("mouseover")
+        .click()
+        .then(() => {
+          cy.get("[data-cy=select-subject]").contains(
+            "Repeat After Me (2 / 4)"
+          );
+          cy.get("[data-cy=block-1]").within(($block) => {
+            cy.get("[data-cy=unsaved-changes-warning]").should("not.exist");
+            cy.get("[data-cy=answer-1]").should("contain.text", "test");
+            cy.get("[data-cy=edit-question]").should("exist");
+          });
+        });
     });
   });
 });

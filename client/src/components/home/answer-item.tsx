@@ -68,7 +68,10 @@ function AnswerItem(props: {
             }}
           />
           {question.unsavedChanges ? (
-            <span style={{ color: "red", whiteSpace: "nowrap" }}>
+            <span
+              data-cy="unsaved-changes-warning"
+              style={{ color: "red", whiteSpace: "nowrap" }}
+            >
               Unsaved changes
             </span>
           ) : undefined}

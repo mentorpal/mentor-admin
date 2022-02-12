@@ -264,12 +264,12 @@ export function useWithReviewAnswerState(
       });
     }
     setQuestions([
+      ...questions,
       {
         originalQuestion: newQuestion,
         newQuestionText: newQuestion.question,
         unsavedChanges: false,
       },
-      ...questions,
     ]);
     setSubjects(
       copyAndSet(subjects, subjectIdx, {
@@ -286,7 +286,7 @@ export function useWithReviewAnswerState(
         ],
       })
     );
-    setAnswers([newAnswer, ...answers]);
+    setAnswers([...answers, newAnswer]);
     setBlocks(_blocks);
   }
 
