@@ -100,6 +100,22 @@ const useStyles = makeStyles((theme) => ({
     left: 0,
     right: 0,
   },
+  transcriptOverlay: {
+    position: "absolute",
+    width: "90%",
+    height: "100%",
+    top: 0,
+    left: "5%",
+    backgroundColor: "rgba(0,0,0,0.8)",
+    zIndex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "white",
+    fontWeight: "bold",
+    fontSize: "24px",
+    cursor: "pointer",
+  },
 }));
 
 export interface LeaveConfirmation {
@@ -121,6 +137,7 @@ function RecordPage(props: {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
+  const [stopRequests, setStopRequests] = useState<number>(0);
 
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, reloadMentorData, notifyDialogOpen, setNotifyDialogOpen } =
@@ -207,6 +224,78 @@ function RecordPage(props: {
     );
   }
 
+  function transcriptDisplay() {
+    if (!curAnswer) {
+      return;
+    }
+    const { isRecording } = recordState;
+    return (
+      // relative so overlay can fit
+      <div
+        data-cy="transcript"
+        className={classes.block}
+        style={{ position: "relative" }}
+      >
+        {isRecording ? (
+          <div
+            data-cy="transcript-overlay"
+            className={classes.transcriptOverlay}
+            onClick={() => setStopRequests(stopRequests + 1)}
+          >
+            Click here or press spacebar to stop recording.
+          </div>
+        ) : undefined}
+        <Typography className={classes.title}>
+          Answer Transcript:{" "}
+          {warnEmptyTranscript ? (
+            <text
+              data-cy="warn-empty-transcript"
+              style={{ fontWeight: "normal" }}
+            >
+              No video transcript available. Would you like to manually enter a
+              transcript?
+            </text>
+          ) : undefined}
+        </Typography>
+        <FormControl className={classes.inputField} variant="outlined">
+          <OutlinedInput
+            data-cy="transcript-input"
+            multiline
+            value={curAnswer.editedAnswer.transcript}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                recordState.editAnswer({
+                  transcript: e.target.value,
+                  hasEditedTranscript:
+                    e.target.value !== curAnswer.answer.transcript,
+                });
+              })
+            }
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  data-cy="undo-transcript-btn"
+                  disabled={
+                    curAnswer.editedAnswer.transcript ===
+                    curAnswer.answer.transcript
+                  }
+                  onClick={() =>
+                    recordState.editAnswer({
+                      transcript: curAnswer.answer.transcript,
+                      hasEditedTranscript: false,
+                    })
+                  }
+                >
+                  <UndoIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
+      </div>
+    );
+  }
+
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -251,6 +340,7 @@ function RecordPage(props: {
             classes={classes}
             recordState={recordState}
             videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
+            stopRequests={stopRequests}
           />
         ) : undefined}
         <div data-cy="question" className={classes.block}>
@@ -320,55 +410,7 @@ function RecordPage(props: {
             </Select>
           </div>
         ) : (
-          <div data-cy="transcript" className={classes.block}>
-            <Typography className={classes.title}>
-              Answer Transcript:{" "}
-              {warnEmptyTranscript ? (
-                <text
-                  data-cy="warn-empty-transcript"
-                  style={{ fontWeight: "normal" }}
-                >
-                  No video transcript available. Would you like to manually
-                  enter a transcript?
-                </text>
-              ) : undefined}
-            </Typography>
-            <FormControl className={classes.inputField} variant="outlined">
-              <OutlinedInput
-                data-cy="transcript-input"
-                multiline
-                value={curAnswer.editedAnswer.transcript}
-                onChange={(e) =>
-                  onTextInputChanged(e, () => {
-                    recordState.editAnswer({
-                      transcript: e.target.value,
-                      hasEditedTranscript:
-                        e.target.value !== curAnswer.answer.transcript,
-                    });
-                  })
-                }
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      data-cy="undo-transcript-btn"
-                      disabled={
-                        curAnswer.editedAnswer.transcript ===
-                        curAnswer.answer.transcript
-                      }
-                      onClick={() =>
-                        recordState.editAnswer({
-                          transcript: curAnswer.answer.transcript,
-                          hasEditedTranscript: false,
-                        })
-                      }
-                    >
-                      <UndoIcon />
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
-          </div>
+          transcriptDisplay()
         )}
         <div
           data-cy="status"
