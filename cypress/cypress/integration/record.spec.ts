@@ -4894,4 +4894,21 @@ describe("Record", () => {
       "Recording ends in"
     );
   });
+
+  it.only("can edit video mentor transcripts", ()=>{
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "37");
+    });
+  })
 });

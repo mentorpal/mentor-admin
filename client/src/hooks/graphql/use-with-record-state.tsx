@@ -336,6 +336,8 @@ export function useWithRecordState(
 
   function editAnswer(edits: Partial<Answer>) {
     const answer = answers[answerIdx];
+    console.log("edited answer")
+    console.log({ ...answer.editedAnswer, ...edits })
     updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
   }
 

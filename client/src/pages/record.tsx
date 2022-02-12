@@ -223,7 +223,8 @@ function RecordPage(props: {
       </div>
     );
   }
-
+  console.log(curAnswer)
+  const { isRecording } = recordState;
   function transcriptDisplay() {
     if (!curAnswer) {
       return;
@@ -410,7 +411,59 @@ function RecordPage(props: {
             </Select>
           </div>
         ) : (
-          transcriptDisplay()
+          <div
+        data-cy="transcript"
+        className={classes.block}
+        style={{ position: "relative" }}
+      >
+        <Typography className={classes.title}>
+          Answer Transcript:{" "}
+          {warnEmptyTranscript ? (
+            <text
+              data-cy="warn-empty-transcript"
+              style={{ fontWeight: "normal" }}
+            >
+              No video transcript available. Would you like to manually enter a
+              transcript?
+            </text>
+          ) : undefined}
+        </Typography>
+        <FormControl className={classes.inputField} variant="outlined">
+          <OutlinedInput
+            data-cy="transcript-input"
+            multiline
+            value={curAnswer.editedAnswer.transcript}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                recordState.editAnswer({
+                  transcript: e.target.value,
+                  hasEditedTranscript:
+                    e.target.value !== curAnswer.answer.transcript,
+                });
+              })
+            }
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  data-cy="undo-transcript-btn"
+                  disabled={
+                    curAnswer.editedAnswer.transcript ===
+                    curAnswer.answer.transcript
+                  }
+                  onClick={() =>
+                    recordState.editAnswer({
+                      transcript: curAnswer.answer.transcript,
+                      hasEditedTranscript: false,
+                    })
+                  }
+                >
+                  <UndoIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+          />
+        </FormControl>
+      </div>
         )}
         <div
           data-cy="status"
