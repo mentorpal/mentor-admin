@@ -4895,7 +4895,7 @@ describe("Record", () => {
     );
   });
 
-  it.only("can edit video mentor transcripts", ()=>{
+  it("can edit video mentor transcripts", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       gqlQueries: [
@@ -4910,5 +4910,5 @@ describe("Record", () => {
     cy.get("[data-cy=transcript-input]").within(($input) => {
       cy.get("textarea").should("have.text", "37");
     });
-  })
+  });
 });
