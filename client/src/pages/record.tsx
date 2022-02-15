@@ -223,7 +223,6 @@ function RecordPage(props: {
       </div>
     );
   }
-
   function transcriptDisplay() {
     if (!curAnswer) {
       return;
