@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import {
-  fetchVideoBlobFromServer,
   fetchVideoBlobFromUrl,
   regenerateVTTForQuestion,
   updateAnswer,
@@ -106,7 +105,7 @@ export function useWithRecordState(
     pollStatusCount,
     upload,
     cancelUpload,
-    removeCompletedTask,
+    removeCompletedOrFailedTask,
   } = useWithUploadStatus(
     accessToken,
     onAnswerUploaded,
@@ -424,22 +423,6 @@ export function useWithRecordState(
     link.click();
   }
 
-  async function downloadAnswerVideoFromServer(answer: Answer) {
-    if (!mentorId) return;
-    try {
-      const videoBlob = await fetchVideoBlobFromServer(
-        mentorId,
-        answer.question
-      );
-      downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
-    } catch (error) {
-      setError({
-        message: "Failed to download video from server",
-        error: String(error),
-      });
-    }
-  }
-
   async function downloadAnswerSrcVideo(answer: AnswerState) {
     const videoSrc = getVideoSrc(answer);
     if (!videoSrc) {
@@ -460,6 +443,27 @@ export function useWithRecordState(
     }
   }
 
+  function getAnswerVideoFileUrl(answer: Answer): string {
+    const staticUrl = process.env.STATIC_URL_BASE || "";
+    if (!staticUrl) {
+      setError({
+        message: "Failed to find url base for video",
+        error: "",
+      });
+      return "";
+    }
+    return `${staticUrl}/videos/${mentorId}/${answer.question}/original.mp4`;
+  }
+
+  async function downloadVideoFromAnswer(answer: Answer) {
+    const url = getAnswerVideoFileUrl(answer);
+    if (!url) {
+      return;
+    }
+    const videoBlob = await fetchVideoBlobFromUrl(url);
+    downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
+  }
+
   async function downloadVideoForQuestion(question: string) {
     if (!mentorId) return;
     setIsDownloadingVideo(true);
@@ -472,7 +476,7 @@ export function useWithRecordState(
           document
         );
       } else if (isAnswerUploading(answer.answer)) {
-        downloadAnswerVideoFromServer(answer.answer);
+        await downloadVideoFromAnswer(answer.answer);
       } else {
         const videoSrc = getVideoSrc(answer);
         if (videoSrc) downloadAnswerSrcVideo(answer);
@@ -486,7 +490,7 @@ export function useWithRecordState(
         });
       } else {
         if (isAnswerUploading(answer)) {
-          downloadAnswerVideoFromServer(answer);
+          await downloadVideoFromAnswer(answer);
         }
       }
     }
@@ -526,7 +530,7 @@ export function useWithRecordState(
     editQuestion,
     editAnswer,
     saveAnswer,
-    removeCompletedTask,
+    removeCompletedOrFailedTask,
     rerecord,
     reloadMentorData: loadMentor,
     startRecording,
@@ -562,7 +566,7 @@ export interface UseWithRecordState {
   editAnswer: (edits: Partial<Answer>) => void;
   editQuestion: (edits: Partial<Question>) => void;
   saveAnswer: () => void;
-  removeCompletedTask: (tasks: UploadTask) => void;
+  removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;

@@ -40,10 +40,8 @@ export function useWithUploadListItem(
 
   const needsAttention = Boolean(answer?.attentionNeeded);
   function onClose() {
-    if (isJobDone()) {
-      recordState.removeCompletedTask(upload);
-    } else {
-      recordState.cancelUpload(upload);
+    if (isJobDone() || isJobFailed()) {
+      recordState.removeCompletedOrFailedTask(upload);
     }
   }
 

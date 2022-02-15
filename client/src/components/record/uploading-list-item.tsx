@@ -125,7 +125,7 @@ function UploadingListItem(props: {
         title={"Cancel Upload"}
         style={{
           minWidth: 0,
-          visibility: isJobFailed() || cancelling ? "hidden" : "visible",
+          visibility: isJobDone() || isJobFailed() ? "visible" : "hidden",
           color: "gray",
         }}
         data-cy="cancel-upload"
