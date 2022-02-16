@@ -6,21 +6,24 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Paper, Typography } from "@material-ui/core";
-import { Answer, Question, Status } from "types";
+import { Answer, Status } from "types";
 import AnswerList from "components/home/answer-list";
 import ProgressChecks from "components/progress-checks";
-import { RecordingBlock } from "hooks/graphql/use-with-review-answer-state";
+import {
+  QuestionEdits,
+  RecordingBlock,
+} from "hooks/graphql/use-with-review-answer-state";
 
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
   mentorId: string;
   getAnswers: () => Answer[];
-  getQuestions: () => Question[];
+  getQuestions: () => QuestionEdits[];
   recordAnswers: (status: Status, subject: string, category: string) => void;
-  recordAnswer: (question: string) => void;
+  recordAnswer: (question: QuestionEdits) => void;
   addNewQuestion: (subject: string, category?: string) => void;
-  editQuestion: (question: Question) => void;
+  editQuestion: (question: QuestionEdits) => void;
 }): JSX.Element {
   const { classes, block } = props;
   const answers = props

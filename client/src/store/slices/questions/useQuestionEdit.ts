@@ -20,6 +20,7 @@ interface UseQuestionEdit {
 
 const DEFAULT_QUESTION = {
   _id: uuid(),
+  clientId: uuid(),
   question: "",
   paraphrases: [],
   type: QuestionType.QUESTION,

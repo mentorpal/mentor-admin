@@ -33,6 +33,7 @@ import {
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
+  AddOrUpdateQuestionGQL,
   convertConnectionGQL,
   convertMentorGQL,
   convertUploadTaskGQL,
@@ -489,49 +490,16 @@ export async function addOrUpdateSubjectQuestions(
   subject: string,
   questions: SubjectQuestionGQL[],
   accessToken: string
-): Promise<SubjectGQL> {
-  return await execGql<SubjectGQL>(
+): Promise<AddOrUpdateQuestionGQL[]> {
+  return await execGql<AddOrUpdateQuestionGQL[]>(
     {
       query: `
       mutation SubjectAddOrUpdateQuestions($subject: ID!, $questions: [SubjectQuestionInputType]!) {
         me {
           subjectAddOrUpdateQuestions(subject: $subject, questions: $questions) {
-            _id
-            name
-            description
-            isRequired
-            categories {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            questions {
-              question {
-                _id
-                question
-                type
-                name
-                paraphrases
-                mentor
-                mentorType
-                minVideoLength
-              }
-              category {
-                id
-                name
-                description
-              }
-              topics {
-                id
-                name
-                description
-              }
-            }
+            question
+            category
+            topics
           }
         }
       }
@@ -604,6 +572,7 @@ export async function fetchQuestionsById(ids: string[]): Promise<Question[]> {
             question
             type
             name
+            clientId
             paraphrases
             mentor
             mentorType
@@ -834,6 +803,7 @@ export async function fetchMentorById(
             questions {
               question {
                 _id
+                clientId
               }
               category {
                 id
@@ -851,6 +821,7 @@ export async function fetchMentorById(
             _id
             question {
               _id
+              clientId
             }
             hasEditedTranscript
             transcript

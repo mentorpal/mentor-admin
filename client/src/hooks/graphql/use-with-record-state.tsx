@@ -122,9 +122,11 @@ export function useWithRecordState(
     let answers = mentorAnswers;
     if (videoId && !subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      answers = answers.filter((a) => ids.includes(a.question));
+      answers = answers.filter(
+        (a) => ids.includes(a.question) || ids.includes(a.questionClientId)
+      );
     } else if (subject) {
-      const s = mentorSubjects.find((a) => a._id === subject);
+      const s = mentorSubjects.find((ms) => ms._id === subject);
       if (s) {
         const sQuestions = s.questions.filter(
           (q) => !category || `${q.category?.id}` === category
@@ -134,6 +136,7 @@ export function useWithRecordState(
         );
       }
     }
+
     const answerStates: AnswerState[] = [];
     for (const a of answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
@@ -198,7 +201,10 @@ export function useWithRecordState(
 
   function retrieveAnswerIdx(answerstates: AnswerState[], id: string) {
     for (let i = 0; i < answerstates?.length; i++) {
-      if (answerstates[i].answer.question == id) {
+      if (
+        answerstates[i].answer.question == id ||
+        answerstates[i].answer.questionClientId == id
+      ) {
         return i;
       }
     }

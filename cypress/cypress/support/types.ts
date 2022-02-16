@@ -100,6 +100,7 @@ export interface Question {
   question: string;
   type: QuestionType;
   name: string;
+  clientId: string;
   paraphrases: string[];
   mentor?: string;
   mentorType?: string;

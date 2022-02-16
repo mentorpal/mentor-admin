@@ -15,6 +15,7 @@ import { MentorType, QuestionType, UtteranceName } from "../support/types";
 export const questions = [
   {
     _id: "A1_1_1",
+    clientId: "C_A1_1_1",
     question: "Who are you and what do you do?",
     type: QuestionType.QUESTION,
     name: null,
@@ -22,6 +23,7 @@ export const questions = [
   },
   {
     _id: "A2_1_1",
+    clientId: "C_A2_1_1",
     question: "How old are you now?",
     type: QuestionType.QUESTION,
     name: null,
@@ -29,6 +31,7 @@ export const questions = [
   },
   {
     _id: "A3_1_1",
+    clientId: "C_A3_1_1",
     question:
       "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
     type: QuestionType.UTTERANCE,
@@ -39,6 +42,7 @@ export const questions = [
   },
   {
     _id: "A4_1_1",
+    clientId: "C_A4_1_1",
     question:
       "Please give a short introduction of yourself, which includes your name, current job, and title.",
     type: QuestionType.UTTERANCE,
@@ -47,6 +51,7 @@ export const questions = [
   },
   {
     _id: "A5_1_1",
+    clientId: "C_A5_1_1",
     question:
       "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
     type: QuestionType.UTTERANCE,
@@ -55,6 +60,7 @@ export const questions = [
   },
   {
     _id: "A7_1_1",
+    clientId: "C_A7_1_1",
     question: "What's the hardest decision you've had to make as a leader?",
     type: QuestionType.QUESTION,
     name: null,

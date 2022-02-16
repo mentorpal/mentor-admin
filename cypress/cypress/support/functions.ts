@@ -213,6 +213,21 @@ export function cyMockDefault(
     }
   }
 
+  const questionsResList = [];
+  if (args.questions) {
+    if (
+      Array.isArray(args.questions) &&
+      args.questions.length &&
+      Array.isArray(args.questions[0])
+    ) {
+      args.questions.forEach((questionList) => {
+        questionsResList.push({ questionsById: questionList });
+      });
+    } else {
+      questionsResList.push({ questionsById: args.questions });
+    }
+  }
+
   cyInterceptGraphQL(cy, [
     mockGQLConfig(config),
     mockGQL("Login", { login: args.login || loginDefault }),
@@ -223,7 +238,7 @@ export function cyMockDefault(
     ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
     ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
     ...(args.questions
-      ? [mockGQL("QuestionsById", { questionsById: args.questions })]
+      ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
     ...gqlQueries,
   ]);
