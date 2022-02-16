@@ -36,6 +36,7 @@ function UploadingListItem(props: {
     isJobFailed,
     isJobDone,
     isJobQueued,
+    hasOriginalUrl,
     downloadVideo,
     isDownloadingVideo,
     onClose,
@@ -62,6 +63,45 @@ function UploadingListItem(props: {
     : needsAttention
     ? "Needs Attention"
     : "Tap to preview";
+
+  function downloadButton() {
+    return (
+      <Button
+        disabled={isDownloadingVideo}
+        title={"Download Video"}
+        style={{
+          minWidth: 0,
+          visibility:
+            !hasOriginalUrl() || isJobDone() || cancelling
+              ? "hidden"
+              : "visible",
+        }}
+        data-cy="download-video-from-list"
+        onClick={downloadVideo}
+      >
+        <PublishRounded
+          style={{ cursor: "pointer", transform: "scaleY(-1)", color: "gray" }}
+        />
+      </Button>
+    );
+  }
+
+  function clearButton() {
+    return (
+      <Button
+        title={"Clear Upload"}
+        style={{
+          minWidth: 0,
+          color: "gray",
+        }}
+        data-cy="clear-upload"
+        onClick={onClose}
+      >
+        <CloseIcon />
+      </Button>
+    );
+  }
+
   return (
     <ListItem divider={true} dense={true} alignItems={"center"}>
       <ListItemIcon
@@ -106,33 +146,8 @@ function UploadingListItem(props: {
         }
         secondary={progressTitle}
       />
-
-      <Button
-        disabled={isDownloadingVideo}
-        title={"Download Video"}
-        style={{
-          minWidth: 0,
-          visibility: isJobDone() || cancelling ? "hidden" : "visible",
-        }}
-        data-cy="download-video-from-list"
-        onClick={downloadVideo}
-      >
-        <PublishRounded
-          style={{ cursor: "pointer", transform: "scaleY(-1)", color: "gray" }}
-        />
-      </Button>
-      <Button
-        title={"Cancel Upload"}
-        style={{
-          minWidth: 0,
-          visibility: isJobDone() || isJobFailed() ? "visible" : "hidden",
-          color: "gray",
-        }}
-        data-cy="cancel-upload"
-        onClick={onClose}
-      >
-        <CloseIcon />
-      </Button>
+      {hasOriginalUrl() && !isJobDone() && downloadButton()}
+      {(isJobDone() || isJobFailed()) && clearButton()}
     </ListItem>
   );
 }

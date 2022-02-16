@@ -1002,11 +1002,11 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=active-upload-card-2]").within(($within) => {
-      cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
     });
     cy.get("[data-cy=active-upload-card-2]").should("not.exist");
     cy.get("[data-cy=active-upload-card-1]").within(($within) => {
-      cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
     });
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
@@ -4063,7 +4063,7 @@ describe("Record", () => {
     });
   });
 
-  it("download button visible for upload items in progress", () => {
+  it("download button visible for upload items with original url avaialble", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -4108,7 +4108,7 @@ describe("Record", () => {
                     {
                       type: "video",
                       tag: "web",
-                      url: "http://google.mp4",
+                      url: "http://google.mp4/original.mp4",
                     },
                   ],
                 },
@@ -4181,7 +4181,7 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
-      cy.get("[data-cy=download-video-from-list]").should("not.be.visible");
+      cy.get("[data-cy=download-video-from-list]").should("not.exist");
     });
   });
 
