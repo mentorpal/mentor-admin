@@ -5,9 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
-import { useAppSelector } from "store/hooks";
+import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import * as mentorActions from ".";
@@ -31,7 +30,7 @@ export interface SelectFromMentorStateFunc<T> {
 export function useActiveMentor(): UseActiveMentor {
   const loginUser = useAppSelector((state) => state.login.user);
   const mentor = useAppSelector((state) => state.mentor);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
@@ -66,12 +65,13 @@ export function useActiveMentor(): UseActiveMentor {
     loadMentor();
   }
 
-  function loadMentor(): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function loadMentor(): Promise<any> {
     const activeMentorId = sessionStorageGet(ACTIVE_MENTOR_KEY);
     if (activeMentorId) {
-      dispatch(mentorActions.loadMentor({ mentorId: activeMentorId }));
+      return dispatch(mentorActions.loadMentor({ mentorId: activeMentorId }));
     } else {
-      dispatch(mentorActions.loadMentor({}));
+      return dispatch(mentorActions.loadMentor({}));
     }
   }
 
@@ -108,7 +108,7 @@ interface UseActiveMentor {
   error: LoadingError | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getData: (selector: SelectFromMentorStateFunc<any>) => any;
-  loadMentor: () => void;
+  loadMentor: () => Promise<void>;
   switchActiveMentor: (id?: string) => void;
   saveMentorDetails: (d: Mentor) => void;
   saveMentorSubjects: (d: Mentor) => void;

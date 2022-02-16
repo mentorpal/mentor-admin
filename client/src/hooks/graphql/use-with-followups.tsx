@@ -13,7 +13,7 @@ import { urlBuild } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Category, QuestionType, Subject, UtteranceName } from "types";
-import { convertSubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { SubjectQuestionGQL } from "types-gql";
 import {
   FollowupsPageStatusType,
   FollowupsPageState,
@@ -100,6 +100,7 @@ export function useWithFollowups(props: {
         return {
           question: {
             _id: uuid(),
+            clientId: uuid(),
             question: followUp,
             paraphrases: [],
             type: QuestionType.QUESTION,
@@ -112,25 +113,16 @@ export function useWithFollowups(props: {
       }
     );
 
-    //subject
-    const oldSubjectQs = curSubject.questions;
     addOrUpdateSubjectQuestions(
       curSubject._id,
       newQuestions,
       loginState.accessToken
     )
-      .then((subjectGQL) => {
-        const subject = convertSubjectGQL(subjectGQL);
-        //compare new subject questions to old subject questions
-        const newQuestionIds: string[] = subject.questions
-          .filter(
-            (newQuestionId) =>
-              !oldSubjectQs.find(
-                (oldId) => oldId.question === newQuestionId.question
-              )
-          )
-          .map((question) => question.question);
-        //TODO: The reason we have to wait for mentor to reload first is because the new Q's won't be there
+      .then((newSubjectQuestions) => {
+        const newQuestionIds: string[] = newSubjectQuestions.map(
+          (question) => question.question
+        );
+        // The reason we have to wait for mentor to reload first is because the new Q's won't be there
         if (newQuestionIds.length) {
           loadMentor();
           navigate(

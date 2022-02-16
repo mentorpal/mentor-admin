@@ -190,6 +190,7 @@ export function useWithSubject(
         {
           question: args?.question || {
             _id: uuid(),
+            clientId: uuid(),
             question: "",
             paraphrases: [],
             type: QuestionType.QUESTION,

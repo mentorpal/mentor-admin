@@ -175,12 +175,12 @@ function VideoRecorder({
   }
 
   const spaceBarStopRecording = (event) => {
-    event.preventDefault();
     if (
       event.keyCode === 32 &&
       recordStopCountdownRef.current == 0 &&
       isRecordingRef.current
     ) {
+      event.preventDefault();
       stopRecording();
     }
   };

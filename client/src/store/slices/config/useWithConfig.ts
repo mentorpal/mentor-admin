@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { useAppSelector } from "store/hooks";
+import { useAppSelector, useAppDispatch } from "store/hooks";
 import * as config from ".";
 
 interface UseWithConfig {
@@ -16,7 +15,7 @@ interface UseWithConfig {
 }
 
 export function useWithConfig(): UseWithConfig {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const state = useAppSelector((state) => state.config);
 
   useEffect(() => {
