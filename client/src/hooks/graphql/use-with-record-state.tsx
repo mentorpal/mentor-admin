@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import {
-  fetchVideoBlobFromServer,
   fetchVideoBlobFromUrl,
   regenerateVTTForQuestion,
   updateAnswer,
@@ -106,7 +105,7 @@ export function useWithRecordState(
     pollStatusCount,
     upload,
     cancelUpload,
-    removeCompletedTask,
+    removeCompletedOrFailedTask,
   } = useWithUploadStatus(
     accessToken,
     onAnswerUploaded,
@@ -422,68 +421,94 @@ export function useWithRecordState(
     upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
   }
 
-  function downloadVideoBlob(blob: Blob, filename: string, document: Document) {
+  function downloadVideoBlob(
+    blob: Blob,
+    filename: string,
+    document: Document
+  ): boolean {
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
     link.setAttribute("download", `${filename}.mp4`);
     link.click();
+    return true;
   }
 
-  async function downloadAnswerVideoFromServer(answer: Answer) {
-    if (!mentorId) return;
-    try {
-      const videoBlob = await fetchVideoBlobFromServer(
-        mentorId,
-        answer.question
-      );
-      downloadVideoBlob(videoBlob, `${answer.question}_video`, document);
-    } catch (error) {
-      setError({
-        message: "Failed to download video from server",
-        error: String(error),
-      });
-    }
-  }
-
-  async function downloadAnswerSrcVideo(answer: AnswerState) {
+  function downloadVideoFromAnswer(answer: AnswerState): boolean {
     const videoSrc = getVideoSrc(answer);
     if (!videoSrc) {
       setError({
         message: "No video source file available for download",
         error: "",
       });
-      return;
+      return false;
     }
-    try {
-      const videoBlob = await fetchVideoBlobFromUrl(videoSrc);
-      downloadVideoBlob(videoBlob, `${answer.answer.question}_video`, document);
-    } catch (error) {
-      setError({
-        message: `Failed to download video from url: ${videoSrc}`,
-        error: String(error),
+    fetchVideoBlobFromUrl(videoSrc)
+      .then((videoBlob) => {
+        return downloadVideoBlob(
+          videoBlob,
+          `${answer.answer.question}_video`,
+          document
+        );
+      })
+      .catch((error) => {
+        setError({
+          message: `Failed to download video from url: ${videoSrc}`,
+          error: String(error),
+        });
       });
-    }
+    return false;
   }
 
-  async function downloadVideoForQuestion(question: string) {
+  function downloadVideoFromUpload(upload: UploadTask): boolean {
+    const url = upload.media?.find(
+      (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
+    )?.url;
+    if (url) {
+      fetchVideoBlobFromUrl(url)
+        .then((videoBlob) => {
+          downloadVideoBlob(
+            videoBlob,
+            `${upload.question}_video.mp4`,
+            document
+          );
+          return true;
+        })
+        .catch((error) => {
+          setError({
+            message: "Failed to fetch video blob from url",
+            error: String(error),
+          });
+        });
+    }
+    return false;
+  }
+
+  function downloadVideoForQuestion(question: string) {
     if (!mentorId) return;
     setIsDownloadingVideo(true);
+    let downloaded = false;
     const answer = answers.find((a) => a.answer.question === question);
     if (answer) {
       if (answer.recordedVideo) {
-        downloadVideoBlob(
+        downloaded = downloadVideoBlob(
           answer.recordedVideo,
           `${answer.answer.question}_video`,
           document
         );
       } else if (isAnswerUploading(answer.answer)) {
-        downloadAnswerVideoFromServer(answer.answer);
+        const upload = uploads.find((u) => u.question === question);
+        if (upload) {
+          downloaded = downloadVideoFromUpload(upload);
+        }
       } else {
         const videoSrc = getVideoSrc(answer);
-        if (videoSrc) downloadAnswerSrcVideo(answer);
+        if (videoSrc) {
+          downloaded = downloadVideoFromAnswer(answer);
+        }
       }
-    } else {
+    }
+    if (!downloaded) {
       const answer = mentorAnswers?.find((a) => a.question === question);
       if (!answer) {
         setError({
@@ -492,7 +517,10 @@ export function useWithRecordState(
         });
       } else {
         if (isAnswerUploading(answer)) {
-          downloadAnswerVideoFromServer(answer);
+          const upload = uploads.find((u) => u.question === question);
+          if (upload) {
+            downloadVideoFromUpload(upload);
+          }
         }
       }
     }
@@ -532,14 +560,14 @@ export function useWithRecordState(
     editQuestion,
     editAnswer,
     saveAnswer,
-    removeCompletedTask,
+    removeCompletedOrFailedTask,
     rerecord,
     reloadMentorData: loadMentor,
     startRecording,
     stopRecording,
     uploadVideo,
     downloadCurAnswerVideo,
-    downloadVideoForQuestion,
+    downloadVideoFromUpload,
     cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
@@ -568,13 +596,13 @@ export interface UseWithRecordState {
   editAnswer: (edits: Partial<Answer>) => void;
   editQuestion: (edits: Partial<Question>) => void;
   saveAnswer: () => void;
-  removeCompletedTask: (tasks: UploadTask) => void;
+  removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
   stopRecording: (video: File) => void;
   uploadVideo: (trim?: { start: number; end: number }) => void;
   downloadCurAnswerVideo: () => void;
-  downloadVideoForQuestion: (question: string) => void;
+  downloadVideoFromUpload: (upload: UploadTask) => void;
   cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;

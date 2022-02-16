@@ -248,30 +248,26 @@ function VideoPlayer(props: {
             disableElevation
             disabled={
               isUploading
-                ? false
+                ? true
                 : isTrimming
                 ? false
                 : !recordState.curAnswer?.recordedVideo
             }
             className={classes.button}
             onClick={() => {
-              if (isUploading && upload) {
-                recordState.cancelUpload(upload);
-              } else {
-                recordState.uploadVideo(
-                  isTrimming
-                    ? {
-                        start: (trim[0] / 100) * videoLength,
-                        end: (trim[1] / 100) * videoLength,
-                      }
-                    : undefined
-                );
-              }
+              recordState.uploadVideo(
+                isTrimming
+                  ? {
+                      start: (trim[0] / 100) * videoLength,
+                      end: (trim[1] / 100) * videoLength,
+                    }
+                  : undefined
+              );
             }}
             style={{ marginRight: 15 }}
           >
             {isUploading
-              ? "Cancel"
+              ? "Processing"
               : isTrimming
               ? "Trim Video"
               : "Upload Video"}
