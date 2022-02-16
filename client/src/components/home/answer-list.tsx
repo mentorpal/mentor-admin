@@ -19,18 +19,19 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { Answer, Question } from "types";
+import { Answer } from "types";
 import AnswerItem from "./answer-item";
+import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";
 
 function AnswerList(props: {
   classes: Record<string, string>;
   mentorId: string;
   header: string;
   answers: Answer[];
-  questions: Question[];
+  questions: QuestionEdits[];
   onRecordAll: () => void;
-  onRecordOne: (question: string) => void;
-  onEditQuestion: (question: Question) => void;
+  onRecordOne: (question: QuestionEdits) => void;
+  onEditQuestion: (question: QuestionEdits) => void;
   onAddQuestion?: () => void;
 }): JSX.Element {
   const {
@@ -103,12 +104,15 @@ function AnswerList(props: {
           <List data-cy="answer-list" style={{ border: 1 }}>
             {answers.map((answer, i) => {
               const question = props.questions.find(
-                (q) => q._id === answer.question
+                (q) => q.originalQuestion._id === answer.question
               );
+              if (!question) {
+                return;
+              }
               return (
                 <ListItem
                   data-cy={`answer-${i}`}
-                  key={`item-${i}`}
+                  key={`item-${i}-${question.originalQuestion._id}`}
                   style={{ backgroundColor: "#eee" }}
                 >
                   <AnswerItem

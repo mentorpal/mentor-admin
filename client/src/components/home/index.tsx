@@ -24,20 +24,23 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { LoadingDialog, ErrorDialog } from "components/dialog";
+import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
 import { launchMentor } from "helpers";
-import { useWithReviewAnswerState } from "hooks/graphql/use-with-review-answer-state";
+import {
+  QuestionEdits,
+  useWithReviewAnswerState,
+} from "hooks/graphql/use-with-review-answer-state";
 import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole } from "types";
+import { User, Subject, UserRole, Status } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -82,6 +85,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+interface ConfirmSave {
+  message: string;
+  callback: () => void;
+}
+
 function HomePage(props: {
   accessToken: string;
   search: { subject?: string };
@@ -125,6 +133,10 @@ function HomePage(props: {
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
+  const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
+    useState<ConfirmSave>();
+  const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
+    useState<ConfirmSave>();
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -143,6 +155,51 @@ function HomePage(props: {
   }
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
+  }
+
+  function onLeave(cb: () => void, msg?: string) {
+    if (reviewAnswerState.unsavedChanges()) {
+      setConfirmSaveBeforeCallback({
+        message:
+          msg ||
+          "You have unsaved changes, would you like to save them before leaving this page?",
+        callback: cb,
+      });
+    } else {
+      cb();
+    }
+  }
+
+  async function saveBeforeCallback() {
+    if (!confirmSaveBeforeCallback) {
+      return;
+    }
+    if (reviewAnswerState.unsavedChanges()) {
+      await reviewAnswerState.saveChanges();
+    }
+    confirmSaveBeforeCallback.callback();
+    setConfirmSaveBeforeCallback(undefined);
+  }
+
+  function recordAnswers(status: Status, subject: string, category: string) {
+    onLeave(() => {
+      reviewAnswerState.recordAnswers(status, subject, category);
+    }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
+  }
+
+  function recordAnswer(question: QuestionEdits) {
+    if (reviewAnswerState.unsavedChanges() || question.unsavedChanges) {
+      setConfirmSaveOnRecordOne({
+        message:
+          "You have unsaved question changes, would you like to save your changes and proceed to recording?",
+        callback: () =>
+          reviewAnswerState.saveChanges()?.then(() => {
+            reviewAnswerState.recordAnswer(question.originalQuestion.clientId);
+          }),
+      });
+    } else {
+      reviewAnswerState.recordAnswer(question.originalQuestion.clientId);
+    }
   }
 
   return (
@@ -165,6 +222,7 @@ function HomePage(props: {
           uploads={recordState.uploads}
           uploadsButtonVisible={uploadingWidgetVisible}
           toggleUploadsButtonVisibility={setUploadingWidgetVisible}
+          onNav={onLeave}
         />
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}
@@ -230,8 +288,8 @@ function HomePage(props: {
               block={b}
               getAnswers={reviewAnswerState.getAnswers}
               getQuestions={reviewAnswerState.getQuestions}
-              recordAnswers={reviewAnswerState.recordAnswers}
-              recordAnswer={reviewAnswerState.recordAnswer}
+              recordAnswers={recordAnswers}
+              recordAnswer={recordAnswer}
               addNewQuestion={reviewAnswerState.addNewQuestion}
               editQuestion={reviewAnswerState.editQuestion}
             />
@@ -346,6 +404,29 @@ function HomePage(props: {
           </Button>
         </DialogContent>
       </Dialog>
+
+      <TwoOptionDialog
+        open={Boolean(confirmSaveBeforeCallback)}
+        title={confirmSaveBeforeCallback?.message || ""}
+        option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
+        option2={{
+          display: "No",
+          onClick: () => confirmSaveBeforeCallback?.callback(),
+        }}
+      />
+
+      <TwoOptionDialog
+        open={Boolean(confirmSaveOnRecordOne)}
+        title={confirmSaveOnRecordOne?.message || ""}
+        option1={{
+          display: "Yes",
+          onClick: () => confirmSaveOnRecordOne?.callback(),
+        }}
+        option2={{
+          display: "No",
+          onClick: () => setConfirmSaveOnRecordOne(undefined),
+        }}
+      />
     </div>
   );
 }

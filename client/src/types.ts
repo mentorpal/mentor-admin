@@ -95,6 +95,7 @@ export interface Question {
   question: string;
   type: QuestionType;
   name: UtteranceName;
+  clientId: string;
   paraphrases: string[];
   mentor?: string;
   mentorType?: string;
@@ -111,6 +112,7 @@ export interface Media {
 export interface Answer {
   _id: string;
   question: string;
+  questionClientId: string;
   hasEditedTranscript: boolean;
   transcript: string;
   status: Status;

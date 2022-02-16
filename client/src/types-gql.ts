@@ -73,6 +73,12 @@ export interface SubjectQuestionGQL {
   topics: Topic[];
 }
 
+export interface AddOrUpdateQuestionGQL {
+  question: string;
+  category?: string;
+  topics: string[];
+}
+
 export interface AnswerGQL {
   _id: string;
   question: Question;
@@ -149,7 +155,8 @@ export function convertSubjectGQL(gql: SubjectGQL): Subject {
 export function convertAnswerGQL(gql: AnswerGQL): Answer {
   return {
     ...gql,
-    question: gql?.question?._id,
+    question: gql.question?._id,
+    questionClientId: gql.question?.clientId,
   };
 }
 
