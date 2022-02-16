@@ -132,9 +132,9 @@ export function useWithUploadStatus(
     isPolling ? pollingInterval : null
   );
 
-  function removeCompletedTask(task: UploadTask) {
+  function removeCompletedOrFailedTask(task: UploadTask) {
     const idx = uploads.findIndex((u) => u.question === task.question);
-    if (idx !== -1 && areAllTasksDone(uploads[idx])) {
+    if (idx !== -1 && areAllTasksDoneOrOneFailed(uploads[idx])) {
       const newArray = uploads.filter((u) => u.question !== task.question);
       setUploads(newArray);
     }
@@ -300,7 +300,7 @@ export function useWithUploadStatus(
     isUploading,
     upload,
     cancelUpload,
-    removeCompletedTask,
+    removeCompletedOrFailedTask,
   };
 }
 
@@ -315,5 +315,5 @@ export interface UseWithUploadStatus {
     trim?: { start: number; end: number }
   ) => void;
   cancelUpload: (mentorId: string, task: UploadTask) => void;
-  removeCompletedTask: (tasks: UploadTask) => void;
+  removeCompletedOrFailedTask: (tasks: UploadTask) => void;
 }

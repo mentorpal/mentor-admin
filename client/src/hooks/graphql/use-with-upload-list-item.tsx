@@ -34,16 +34,22 @@ export function useWithUploadListItem(
     return isATaskFailed(upload);
   }
 
-  function downloadVideo() {
-    recordState.downloadVideoForQuestion(upload.question);
+  function downloadVideo(): void {
+    recordState.downloadVideoFromUpload(upload);
+  }
+
+  function hasOriginalUrl(): boolean {
+    return Boolean(
+      upload.media?.find(
+        (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
+      )?.url
+    );
   }
 
   const needsAttention = Boolean(answer?.attentionNeeded);
   function onClose() {
-    if (isJobDone()) {
-      recordState.removeCompletedTask(upload);
-    } else {
-      recordState.cancelUpload(upload);
+    if (isJobDone() || isJobFailed()) {
+      recordState.removeCompletedOrFailedTask(upload);
     }
   }
 
@@ -53,6 +59,7 @@ export function useWithUploadListItem(
     isJobFailed,
     isJobQueued,
     downloadVideo,
+    hasOriginalUrl,
     isDownloadingVideo: recordState.isDownloadingVideo,
     cancelling,
     needsAttention,
@@ -70,6 +77,7 @@ export interface UseWithUploadListItem {
   isJobFailed: () => boolean;
   isJobQueued: () => boolean;
   downloadVideo: () => void;
+  hasOriginalUrl: () => boolean;
   isDownloadingVideo: boolean;
   cancelling: boolean;
   needsAttention: boolean;

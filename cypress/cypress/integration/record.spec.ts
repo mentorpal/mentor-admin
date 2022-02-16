@@ -731,270 +731,14 @@ describe("Record", () => {
     cy.visit("/record");
     //upload in progress
     cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("contain.text", "Cancel");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=upload-video]").should("contain.text", "Processing");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("not.be.visible");
     //upload complete, should swap to video view
     cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
     cy.get("[data-cy=upload-video]").should("contain.text", "Upload Video");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("be.visible");
-  });
-
-  it("A successfully cancelled upload item should disappear from the list of uploads", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[2].question._id,
-                    question: videoMentor.answers[2].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "CANCELLED",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "CANCELLED",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[2].question._id,
-                    question: videoMentor.answers[2].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "CANCELLED",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=active-upload-card-0]").should("exist");
-    cy.get("[data-cy=active-upload-card-1]").should("exist");
-    cy.get("[data-cy=active-upload-card-2]").should("exist");
-    //after next poll, these cards should be gone since they were cancelled
-    cy.get("[data-cy=active-upload-card-0]").should("not.exist");
-    cy.get("[data-cy=active-upload-card-1]").should("not.exist");
-    cy.get("[data-cy=active-upload-card-2]").should("not.exist");
-    cy.get("[data-cy=upload-video]").should("exist");
   });
 
   //Test that once you click the title card, it goes to that card appropriate answer
@@ -1258,16 +1002,16 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=active-upload-card-2]").within(($within) => {
-      cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
     });
     cy.get("[data-cy=active-upload-card-2]").should("not.exist");
     cy.get("[data-cy=active-upload-card-1]").within(($within) => {
-      cy.get("[data-cy=cancel-upload]").trigger("mouseover").click();
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
     });
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
-  it("upload button changes to cancel while an upload is in progress", () => {
+  it("upload button changes to process while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1360,8 +1104,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
-    cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=upload-video]").should("have.text", "Processing");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=upload-video]").should("be.visible");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
@@ -1391,111 +1135,6 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("not.be.disabled");
     cy.get("[data-cy=upload-video]").should("have.text", "Trim Video");
-  });
-
-  it("Option to cancel upload is available when returning to page with an upload in progress", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-video]").should("be.disabled");
-    cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
   });
 
   it("the upload card corresponding to current question should be highlighted", () => {
@@ -2750,110 +2389,6 @@ describe("Record", () => {
     });
   });
 
-  it("When an upload gets cancelled, should return user back to recording page", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "CANCELLED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "CANCELLED",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
-    //after poll, should be back to upload video/file stage because upload was cancelled
-    cy.get("[data-cy=upload-file]").should("be.visible");
-  });
-
   it("Header shows a count of N of M uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -3281,67 +2816,6 @@ describe("Record", () => {
         .get("p")
         .should("contain.text", "Processing");
     });
-  });
-
-  it("pressing cancel button removes item from upload list", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=active-upload-card-0]").should("exist");
-    cy.get("[data-cy=upload-video]").should("have.text", "Cancel");
-    cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-    cy.get("[data-cy=active-upload-card-0]").should("not.exist");
   });
 
   it("hides video if mentor type is CHAT", () => {
@@ -4589,7 +4063,7 @@ describe("Record", () => {
     });
   });
 
-  it("download button visible for upload items in progress", () => {
+  it("download button visible for upload items with original url avaialble", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -4634,7 +4108,7 @@ describe("Record", () => {
                     {
                       type: "video",
                       tag: "web",
-                      url: "http://google.mp4",
+                      url: "http://google.mp4/original.mp4",
                     },
                   ],
                 },
@@ -4707,7 +4181,7 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
-      cy.get("[data-cy=download-video-from-list]").should("not.be.visible");
+      cy.get("[data-cy=download-video-from-list]").should("not.exist");
     });
   });
 
