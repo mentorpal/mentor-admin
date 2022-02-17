@@ -411,7 +411,10 @@ function HomePage(props: {
         option1={{ display: "Yes", onClick: () => saveBeforeCallback() }}
         option2={{
           display: "No",
-          onClick: () => confirmSaveBeforeCallback?.callback(),
+          onClick: () => {
+            confirmSaveBeforeCallback?.callback();
+            setConfirmSaveBeforeCallback(undefined);
+          },
         }}
       />
 
