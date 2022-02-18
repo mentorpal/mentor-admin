@@ -1018,12 +1018,18 @@ export async function uploadVideo(
   question: string,
   tokenSource: CancelTokenSource,
   accessToken: string,
-  trim?: { start: number; end: number }
+  trim?: { start: number; end: number },
+  hasEditedTranscript?: boolean
 ): Promise<UploadProcessAsyncJob> {
   const data = new FormData();
   data.append(
     "body",
-    JSON.stringify({ mentor: mentorId, question: question, trim })
+    JSON.stringify({
+      mentor: mentorId,
+      question: question,
+      trim,
+      hasEditedTranscript,
+    })
   );
   data.append("video", video);
   const result = await uploadRequest.post("/answer", data, {
