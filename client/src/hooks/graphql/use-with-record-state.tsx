@@ -418,7 +418,37 @@ export function useWithRecordState(
         }
       }
     }
-    upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
+    if (!answer.recordedVideo) {
+      const url = answer.answer.media?.find(
+        (u) => u.url.length > 15 && u.url.slice(-7) == "web.mp4"
+      )?.url;
+      if (url) {
+        fetchVideoBlobFromUrl(url)
+          .then((videoBlob) => {
+            const videoFile = new File([videoBlob], "web.mp4", {
+              type: "video/mp4",
+            });
+            upload(
+              mentorId,
+              answer.answer.question,
+              videoFile,
+              trim,
+              answer.editedAnswer.hasEditedTranscript ||
+                answer.answer.hasEditedTranscript
+            );
+          })
+          .catch((error) => {
+            setError({
+              message: `Failed to fetch video blob from url: ${url}`,
+              error: String(error),
+            });
+          });
+      } else {
+        setError({ message: "Failed to find url for answer media", error: "" });
+      }
+    } else {
+      upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
+    }
   }
 
   function downloadVideoBlob(
