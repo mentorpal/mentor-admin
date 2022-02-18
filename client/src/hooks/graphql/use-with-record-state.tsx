@@ -418,7 +418,6 @@ export function useWithRecordState(
         }
       }
     }
-    // TODO: if (!answer.recordedVideo), then fetch existing video (check how the uploader fetches the video) here and turn it from blob --> file and send it over
     if (!answer.recordedVideo) {
       const url = answer.answer.media?.find(
         (u) => u.url.length > 15 && u.url.slice(-7) == "web.mp4"

@@ -195,7 +195,6 @@ export function useWithUploadStatus(
       uploadProgress: 0,
       tokenSource: tokenSource,
     });
-    // TODO: this should ALWAYS receive a video, uploadVideo just needs to be updated to also receive hasEditedTranscript
     uploadVideo(
       mentorId,
       video,
