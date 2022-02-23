@@ -171,9 +171,14 @@ export function useWithRecordState(
     if (!curAnswer) return;
     setCurAnswer({
       ...curAnswer,
-      videoSrc: getVideoSrc(curAnswer),
+      videoSrc: getUniqueCurAnswerUrl(),
     });
   }, [curAnswer?.answer.media]);
+
+  function getUniqueCurAnswerUrl() {
+    if (!curAnswer) return;
+    return `${getVideoSrc(curAnswer)}?v=${Math.random()}`;
+  }
 
   useEffect(() => {
     setIsRecording(false);
