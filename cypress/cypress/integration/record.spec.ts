@@ -4385,4 +4385,206 @@ describe("Record", () => {
       cy.get("textarea").should("have.text", "37");
     });
   });
+
+  it("emtpy transcript upload results replace current transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  transcript: "",
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-input]").should("have.value", "");
+  });
+
+  it("uploads with no transcript does not replace current transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "IN_PROGRESS",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "IN_PROGRESS",
+                    },
+                  ],
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  taskList: [
+                    {
+                      task_name: "trim_upload",
+                      task_id: "trim_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcribe",
+                      task_id: "transcribe_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "transcode",
+                      task_id: "transcode_id",
+                      status: "DONE",
+                    },
+                    {
+                      task_name: "finalization",
+                      task_id: "finalization_id",
+                      status: "DONE",
+                    },
+                  ],
+                  media: [
+                    {
+                      type: "video",
+                      tag: "web",
+                      url: "http://google.mp4",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    //wait for upload to complete
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=transcript]").contains("I'm 37 years old");
+  });
 });
