@@ -244,17 +244,21 @@ export function useWithRecordState(
     const idx = answers.findIndex((a) => a.answer.question === upload.question);
     if (idx !== -1) {
       const answer = answers[idx];
+      const newTranscript =
+        upload.transcript || upload.transcript === ""
+          ? upload.transcript
+          : answer.editedAnswer.transcript;
       updateAnswerState(
         {
           recordedVideo: undefined,
           answer: {
             ...answer.answer,
-            transcript: upload.transcript || "",
+            transcript: newTranscript,
             media: upload.media || [],
           },
           editedAnswer: {
             ...answer.editedAnswer,
-            transcript: upload.transcript || "",
+            transcript: newTranscript,
             media: upload.media || [],
           },
         },
