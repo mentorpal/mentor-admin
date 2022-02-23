@@ -245,7 +245,7 @@ export function useWithRecordState(
     if (idx !== -1) {
       const answer = answers[idx];
       const newTranscript =
-        upload.transcript || upload.transcript === ""
+        upload.transcript !== undefined
           ? upload.transcript
           : answer.editedAnswer.transcript;
       updateAnswerState(
