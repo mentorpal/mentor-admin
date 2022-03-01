@@ -177,7 +177,8 @@ export function useWithRecordState(
 
   function getUniqueCurAnswerUrl() {
     if (!curAnswer) return;
-    return `${getVideoSrc(curAnswer)}?v=${Math.random()}`;
+    const videoSrc = getVideoSrc(curAnswer)
+    return videoSrc ? `${videoSrc}?v=${Math.random()}` : "";
   }
 
   useEffect(() => {
