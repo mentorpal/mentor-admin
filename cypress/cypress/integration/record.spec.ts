@@ -4185,7 +4185,7 @@ describe("Record", () => {
     });
   });
 
-  it.only("does not warn user of empty transcript if idle video", () => {
+  it("does not warn user of empty transcript if idle video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
