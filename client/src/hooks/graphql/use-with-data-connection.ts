@@ -59,13 +59,14 @@ export function useWithDataConnection<T>(
     if (isLoading) {
       return;
     }
-    searchParams.cursor = "";
+    const newSearchParams = { ...searchParams, cursor: "" };
     if (searchParams.sortBy === id) {
-      searchParams.sortAscending = !searchParams.sortAscending;
+      newSearchParams["sortAscending"] = !searchParams.sortAscending;
     } else {
-      searchParams.sortBy = id;
+      newSearchParams["sortBy"] = id;
     }
-    setSearchParams({ ...searchParams });
+
+    setSearchParams(newSearchParams);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,16 +78,20 @@ export function useWithDataConnection<T>(
     if (!data || isLoading) {
       return;
     }
-    searchParams.cursor = "next__" + data.pageInfo.endCursor;
-    setSearchParams({ ...searchParams });
+    setSearchParams({
+      ...searchParams,
+      cursor: "next__" + data.pageInfo.endCursor,
+    });
   }
 
   function prevPage() {
     if (!data || isLoading) {
       return;
     }
-    searchParams.cursor = "prev__" + data.pageInfo.startCursor;
-    setSearchParams({ ...searchParams });
+    setSearchParams({
+      ...searchParams,
+      cursor: "prev__" + data.pageInfo.startCursor,
+    });
   }
 
   return {
