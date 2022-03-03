@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Fab,
@@ -234,10 +234,16 @@ function FeedbackPage(): JSX.Element {
 
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
   );
+  const {
+    isPolling: isTraining,
+    error: trainError,
+    startTask: startTraining,
+  } = useWithTraining();
 
   const {
     data: feedback,
@@ -249,17 +255,23 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
-  const {
-    isPolling: isTraining,
-    error: trainError,
-    startTask: startTraining,
-  } = useWithTraining();
 
   useEffect(() => {
     if (mentorId) {
-      filterFeedback({ mentor: mentorId });
+      if (!isFeedbackLoading) {
+        filterFeedback({ mentor: mentorId });
+      } else {
+        setNeedsFiltering(true);
+      }
     }
   }, [mentorId]);
+
+  useEffect(() => {
+    if (!isFeedbackLoading && needsFiltering) {
+      filterFeedback({ mentor: mentorId });
+      setNeedsFiltering(false);
+    }
+  }, [needsFiltering, isFeedbackLoading]);
 
   return (
     <div>
