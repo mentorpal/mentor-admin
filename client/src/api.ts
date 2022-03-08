@@ -800,7 +800,7 @@ export async function fetchMentorById(
               name
               description
             }
-            questions {
+            questions(mentor:$mentor) {
               question {
                 _id
                 clientId
