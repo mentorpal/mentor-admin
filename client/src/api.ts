@@ -205,11 +205,18 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
 
 export async function fetchFollowUpQuestions(
   categoryId: string,
+  mentorId: string,
   accessToken: string
 ): Promise<FollowUpQuestion[]> {
   return execHttp<FollowUpQuestion[]>(
     "POST",
-    urljoin(CLASSIFIER_ENTRYPOINT, "me", "followups", "category", categoryId),
+    urljoin(
+      CLASSIFIER_ENTRYPOINT,
+      "followups",
+      "category",
+      categoryId,
+      mentorId
+    ),
     { accessToken, dataPath: "followups" }
   );
 }
