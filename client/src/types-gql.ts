@@ -132,8 +132,9 @@ export interface MentorImportPreview {
 }
 
 export function convertMentorGQL(gql: MentorGQL): Mentor {
-  const answersWithoutMentor = gql.answers.filter((a) => !a.question.mentor);
-  const answersWithMentor = gql.answers.filter((a) => a.question.mentor);
+  const answersWithoutMentor =
+    gql.answers?.filter((a) => !a.question.mentor) || [];
+  const answersWithMentor = gql.answers?.filter((a) => a.question.mentor) || [];
   const gqlAnswers = [...answersWithoutMentor, ...answersWithMentor];
   return {
     ...gql,
