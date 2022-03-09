@@ -822,6 +822,7 @@ export async function fetchMentorById(
             question {
               _id
               clientId
+              mentor
             }
             hasEditedTranscript
             transcript
