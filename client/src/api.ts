@@ -800,7 +800,7 @@ export async function fetchMentorById(
               name
               description
             }
-            questions {
+            questions(mentor:$mentor) {
               question {
                 _id
                 clientId
@@ -822,6 +822,7 @@ export async function fetchMentorById(
             question {
               _id
               clientId
+              mentor
             }
             hasEditedTranscript
             transcript

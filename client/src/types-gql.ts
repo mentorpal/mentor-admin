@@ -132,13 +132,17 @@ export interface MentorImportPreview {
 }
 
 export function convertMentorGQL(gql: MentorGQL): Mentor {
+  const answersWithoutMentor =
+    gql.answers?.filter((a) => !a.question.mentor) || [];
+  const answersWithMentor = gql.answers?.filter((a) => a.question.mentor) || [];
+  const gqlAnswers = [...answersWithoutMentor, ...answersWithMentor];
   return {
     ...gql,
     defaultSubject: gql.defaultSubject
       ? convertSubjectGQL(gql.defaultSubject)
       : undefined,
     subjects: gql.subjects?.map((s) => convertSubjectGQL(s)),
-    answers: gql.answers?.map((a) => convertAnswerGQL(a)),
+    answers: gqlAnswers.map((a) => convertAnswerGQL(a)),
   };
 }
 
