@@ -198,7 +198,9 @@ function HomePage(props: {
           }),
       });
     } else {
-      reviewAnswerState.recordAnswer(question.originalQuestion.clientId);
+      reviewAnswerState.recordAnswer(
+        question.originalQuestion.clientId || question.originalQuestion._id
+      );
     }
   }
 
