@@ -350,6 +350,7 @@ function RecordPage(props: {
               multiline
               value={curEditedQuestion?.question}
               disabled={!curAnswerBelongsToMentor}
+              style={{ color: curAnswerBelongsToMentor ? "black" : "#474747" }}
               onChange={(e) => {
                 if (curEditedQuestion) {
                   const caret = e?.target.selectionStart;
@@ -368,6 +369,11 @@ function RecordPage(props: {
                 <InputAdornment position="end">
                   <IconButton
                     data-cy="undo-question-btn"
+                    style={{
+                      visibility: curAnswerBelongsToMentor
+                        ? "visible"
+                        : "hidden",
+                    }}
                     disabled={
                       curEditedQuestion?.question ===
                       curQuestion?.question?.question
