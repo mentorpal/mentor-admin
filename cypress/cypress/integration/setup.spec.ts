@@ -570,7 +570,16 @@ describe("Setup", () => {
       ...baseMock,
       mentor: [setup6, setup8],
       subject: repeatAfterMe,
-      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
+      gqlQueries: [
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [],
+            },
+          },
+        ]),
+      ],
     });
     cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
