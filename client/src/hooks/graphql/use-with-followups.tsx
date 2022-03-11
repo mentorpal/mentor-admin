@@ -54,11 +54,11 @@ export function useWithFollowups(props: {
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   function fetchFollowups() {
-    if (!loginState.accessToken) {
+    if (!loginState.accessToken || !mentorId) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
-    fetchFollowUpQuestions(categoryId, loginState.accessToken)
+    fetchFollowUpQuestions(categoryId, mentorId, loginState.accessToken)
       .then((data) => {
         const followUps = data
           ? data.map((d) => {
