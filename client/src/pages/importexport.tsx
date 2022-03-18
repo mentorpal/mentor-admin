@@ -14,6 +14,7 @@ import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Answer } from "types";
+import ImportInProgressDialog from "components/import-export/import-in-progress";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -25,6 +26,7 @@ const useStyles = makeStyles(() => ({
 function ImportPage(): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport();
+  const { importInProgress, importTask } = useImportExport;
   const { getData } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
@@ -37,6 +39,12 @@ function ImportPage(): JSX.Element {
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
+      {importTask ? (
+        <ImportInProgressDialog
+          importInProgress={importInProgress}
+          importTask={importTask}
+        />
+      ) : undefined}
       <ImportView useImportExport={useImportExport} />
       <div style={{ padding: 10 }}>
         <Button

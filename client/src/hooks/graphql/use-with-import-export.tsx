@@ -6,11 +6,18 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useState } from "react";
 import * as api from "api";
-import { Answer, MentorExportJson, MentorImportPreview, Question } from "types";
+import {
+  Answer,
+  ImportTask,
+  MentorExportJson,
+  MentorImportPreview,
+  Question,
+} from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
+import { useWithImportStatus } from "./use-with-import-status";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -22,6 +29,8 @@ export interface UseWithImportExport {
   onTransferMedia: () => void;
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  importInProgress: boolean;
+  importTask: ImportTask | undefined;
 }
 
 export function useWithImportExport(): UseWithImportExport {
@@ -32,6 +41,8 @@ export function useWithImportExport(): UseWithImportExport {
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
+  const { importTask, importInProgress, setImportInProgress } =
+    useWithImportStatus();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -72,11 +83,12 @@ export function useWithImportExport(): UseWithImportExport {
       return;
     }
     setIsUpdating(true);
-    api.importMentor(mentorId, importedJson, accessToken).then(() => {
+    api._importMentor(mentorId, importedJson, accessToken).then(() => {
       setImportJson(undefined);
       setImportPreview(undefined);
       setIsUpdating(true);
       loadMentor();
+      setImportInProgress(true); //starts the polling
     });
   }
 
@@ -173,6 +185,8 @@ export function useWithImportExport(): UseWithImportExport {
     onTransferMedia,
     onMapSubject,
     onMapQuestion,
+    importInProgress,
+    importTask,
   };
 }
 

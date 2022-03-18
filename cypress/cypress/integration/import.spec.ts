@@ -88,6 +88,47 @@ describe("Import", () => {
     cy.get("[data-cy=upload-mentor]");
   });
 
+  it.only("Import in progress UI", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("ImportTask", {
+          importTask: {
+            graphQLUpdate: {
+              status: "FAILED",
+              errorMessage: "Failed because, that's why.",
+            },
+            s3VideoMigrate: {
+              status: "IN_PROGRESS",
+              answerMediaMigrations: [
+                {
+                  question: "q1",
+                  status: "DONE",
+                },
+                {
+                  question: "q2",
+                  status: "DONE",
+                },
+                {
+                  question: "q3",
+                  status: "QUEUED",
+                },
+                {
+                  question: "q4",
+                  status: "FAILED",
+                  errorMessage: "HTTP error: 404",
+                },
+              ],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/importexport");
+  });
+
   it("uploads import json and views import preview", () => {
     cySetup(cy);
     cyMockDefault(cy, {

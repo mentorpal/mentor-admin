@@ -180,8 +180,20 @@ export interface VideoInfo {
   transcript: string;
 }
 
+interface ExportedMentorInfo {
+  name: string;
+  firstName: string;
+  title: string;
+  email: string;
+  thumbnail: string;
+  allowContact: boolean;
+  defaultSubject: string;
+  mentorType: string;
+}
+
 export interface MentorExportJson {
   id: string;
+  mentorInfo: ExportedMentorInfo;
   subjects: SubjectGQL[];
   questions: Question[];
   answers: AnswerGQL[];
@@ -308,4 +320,32 @@ export enum MediaType {
 export enum MediaTag {
   WEB = "web",
   MOBILE = "mobile",
+}
+
+export enum ImportTaskStatus {
+  QUEUED = "QUEUED",
+  IN_PROGRESS = "IN_PROGRESS",
+  FAILED = "FAILED",
+  DONE = "DONE",
+}
+
+export interface ImportGraphQLUpdate {
+  status: ImportTaskStatus;
+  errorMessage: string;
+}
+
+export interface ImportAnswerMediaMigrations {
+  status: ImportTaskStatus;
+  question: string;
+  errorMessage: string;
+}
+
+export interface ImportS3VideoMigrate {
+  status: ImportTaskStatus;
+  answerMediaMigrations: ImportAnswerMediaMigrations[];
+}
+
+export interface ImportTask {
+  graphQLUpdate: ImportGraphQLUpdate;
+  s3VideoMigrate: ImportS3VideoMigrate;
 }

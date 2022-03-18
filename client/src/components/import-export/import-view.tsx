@@ -52,6 +52,8 @@ export default function ImportView(props: {
     onConfirmImport: confirmImport,
     onMapSubject: mapSubject,
     onMapQuestion: mapQuestion,
+    importInProgress,
+    importTask,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
   const { data: questions } = useWithQuestions();

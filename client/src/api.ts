@@ -30,6 +30,7 @@ import {
   MentorImportPreview,
   UploadTask,
   UploadProcessAsyncJob,
+  ImportTask,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -71,7 +72,7 @@ function isValidObjectID(id: string) {
   return id.match(/^[0-9a-fA-F]{24}$/);
 }
 
-const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
+const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 60000;
 
 /**
  * Middleware function takes some action on an axios instance
@@ -1231,6 +1232,16 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
         query MentorExport($mentor: ID!) {
           mentorExport(mentor: $mentor) {
             id
+            mentorInfo{
+              name
+              firstName
+              title
+              email
+              thumbnail
+              allowContact
+              defaultSubject
+              mentorType
+            }
             subjects {
               _id
               name
@@ -1478,6 +1489,36 @@ export async function importMentorPreview(
   );
 }
 
+export async function fetchImportTask(
+  mentorId: string,
+  accessToken: string
+): Promise<ImportTask> {
+  return execGql<ImportTask>(
+    {
+      query: `
+        query ImportTask($mentorId: ID!){
+          importTask(mentorId:$mentorId){
+            graphQLUpdate{
+              status
+              errorMessage
+            }
+            s3VideoMigrate{
+              status
+              answerMediaMigrations{
+                status
+                question
+                errorMessage
+              }
+            }
+          }
+        }
+      `,
+      variables: { mentorId },
+    },
+    { accessToken, dataPath: ["importTask"] }
+  );
+}
+
 export async function importMentor(
   mentor: string,
   json: MentorExportJson,
@@ -1576,4 +1617,25 @@ export async function importMentor(
     },
     { accessToken, dataPath: ["me", "mentorImport"] }
   );
+}
+
+export async function _importMentor(
+  mentor: string,
+  json: MentorExportJson,
+  accessToken: string
+): Promise<MentorGQL> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({ mentor: mentor, mentorExportJson: json })
+  );
+  const result = await uploadRequest.post("/transfer/mentor/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  console.log("result from import mentor call");
+  console.log(result);
+  return getDataFromAxiosResponse(result, "");
 }
