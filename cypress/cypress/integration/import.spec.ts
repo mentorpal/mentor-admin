@@ -88,7 +88,7 @@ describe("Import", () => {
     cy.get("[data-cy=upload-mentor]");
   });
 
-  it.only("Import in progress UI", () => {
+  it.only("Displays close when import complete", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clintNew,
@@ -97,11 +97,10 @@ describe("Import", () => {
         mockGQL("ImportTask", {
           importTask: {
             graphQLUpdate: {
-              status: "FAILED",
-              errorMessage: "Failed because, that's why.",
+              status: "DONE",
             },
             s3VideoMigrate: {
-              status: "IN_PROGRESS",
+              status: "DONE",
               answerMediaMigrations: [
                 {
                   question: "q1",
@@ -113,17 +112,17 @@ describe("Import", () => {
                 },
                 {
                   question: "q3",
-                  status: "QUEUED",
+                  status: "DONE",
                 },
                 {
                   question: "q4",
-                  status: "FAILED",
-                  errorMessage: "HTTP error: 404",
+                  status: "DONE",
                 },
               ],
             },
           },
         }),
+        mockGQL("ImportTaskDelete", { me: { importTaskDelete: true } }),
       ],
     });
     cy.visit("/importexport");

@@ -957,6 +957,25 @@ export async function updateAnswer(
   );
 }
 
+export async function deleteImportTask(
+  accessToken: string,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+        mutation ImportTaskDelete($mentorId: ID!){
+          me{
+            importTaskDelete(mentorId:$mentorId)
+          }
+        }
+      `,
+      variables: { mentorId },
+    },
+    { accessToken, dataPath: ["me", "importTaskDelete"] }
+  );
+}
+
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     axiosConfig: {

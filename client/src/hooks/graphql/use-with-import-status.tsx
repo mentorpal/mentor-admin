@@ -4,17 +4,28 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchImportTask } from "api";
+import { deleteImportTask, fetchImportTask } from "api";
 import useInterval from "hooks/task/use-interval";
 import { useEffect, useState } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { ImportTask } from "types";
+import { ImportTask, ImportTaskStatus } from "types";
 
 export interface UseWithImportStatus {
   importTask: ImportTask | undefined;
   importInProgress: boolean;
   setImportInProgress: (b: boolean) => void;
+}
+
+export function isImportComplete(task: ImportTask) {
+  const gqlUpdateStatus = task.graphQLUpdate.status;
+  const mediaTransferStatus = task.s3VideoMigrate.status;
+  return (
+    (gqlUpdateStatus === ImportTaskStatus.DONE ||
+      gqlUpdateStatus === ImportTaskStatus.FAILED) &&
+    (mediaTransferStatus === ImportTaskStatus.DONE ||
+      mediaTransferStatus === ImportTaskStatus.FAILED)
+  );
 }
 
 export function useWithImportStatus(
@@ -37,8 +48,12 @@ export function useWithImportStatus(
         if (!mounted) {
           return;
         }
-        setImportTask(task);
-        setImportInProgress(Boolean(task));
+        if (isImportComplete(task)) {
+          deleteImportTask(accessToken, mentorId);
+        } else {
+          setImportTask(task);
+          setImportInProgress(Boolean(task));
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -55,8 +70,14 @@ export function useWithImportStatus(
       }
       fetchImportTask(mentorId, accessToken)
         .then((task) => {
-          setImportTask(task);
-          setImportInProgress(Boolean(task));
+          if (task) {
+            setImportTask(task);
+            setImportInProgress(Boolean(task));
+            if (isImportComplete(task)) {
+              deleteImportTask(accessToken, mentorId);
+              setImportInProgress(false);
+            }
+          }
         })
         .catch((err) => {
           console.error(err);

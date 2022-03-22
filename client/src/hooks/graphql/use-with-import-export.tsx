@@ -29,7 +29,6 @@ export interface UseWithImportExport {
   onTransferMedia: () => void;
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
-  importInProgress: boolean;
   importTask: ImportTask | undefined;
 }
 
@@ -185,7 +184,6 @@ export function useWithImportExport(): UseWithImportExport {
     onTransferMedia,
     onMapSubject,
     onMapQuestion,
-    importInProgress,
     importTask,
   };
 }

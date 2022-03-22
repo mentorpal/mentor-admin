@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Dialog,
@@ -26,6 +26,8 @@ import {
   ImportTaskStatus,
 } from "types";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { isImportComplete } from "hooks/graphql/use-with-import-status";
 
 const useStyles = makeStyles((theme) => ({
   progressIcon: {
@@ -46,11 +48,18 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function ImportInProgressDialog(props: {
-  importInProgress: boolean;
   importTask: ImportTask;
 }): JSX.Element {
   const { logout } = useWithLogin();
   const classes = useStyles();
+  const { loadMentor } = useActiveMentor();
+  const { importTask } = props;
+  const [open, setOpen] = useState<boolean>(true);
+
+  useEffect(() => {
+    setOpen(Boolean(importTask));
+  }, [importTask]);
+
   function getIcon(status: ImportTaskStatus) {
     switch (status) {
       case ImportTaskStatus.QUEUED:
@@ -139,20 +148,32 @@ export default function ImportInProgressDialog(props: {
     );
   }
 
+  function onClose() {
+    loadMentor();
+    setOpen(false);
+  }
+
   return (
-    <Dialog open={props.importInProgress} fullWidth={true} maxWidth={"sm"}>
+    <Dialog open={open} fullWidth={true} maxWidth={"sm"}>
       <DialogContent>
         <Typography
           style={{ fontWeight: "bold", fontSize: "18px", marginBottom: "10px" }}
         >
-          Mentor import in progress
+          Mentor import{" "}
+          {isImportComplete(props.importTask) ? " complete" : " in progress"}
         </Typography>
         {GraphQLUpdateDisplay(props.importTask.graphQLUpdate)}
         {VideoMigrationDisplay(props.importTask.s3VideoMigrate)}
 
-        <Button onClick={() => logout()} style={{ marginTop: "20px" }}>
-          Logout
-        </Button>
+        {isImportComplete(props.importTask) ? (
+          <Button onClick={() => onClose()} style={{ marginTop: "20px" }}>
+            Close
+          </Button>
+        ) : (
+          <Button onClick={() => logout()} style={{ marginTop: "20px" }}>
+            Logout
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );

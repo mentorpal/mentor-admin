@@ -26,7 +26,7 @@ const useStyles = makeStyles(() => ({
 function ImportPage(): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport();
-  const { importInProgress, importTask } = useImportExport;
+  const { importTask } = useImportExport;
   const { getData } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
@@ -40,10 +40,7 @@ function ImportPage(): JSX.Element {
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
       {importTask ? (
-        <ImportInProgressDialog
-          importInProgress={importInProgress}
-          importTask={importTask}
-        />
+        <ImportInProgressDialog importTask={importTask} />
       ) : undefined}
       <ImportView useImportExport={useImportExport} />
       <div style={{ padding: 10 }}>
