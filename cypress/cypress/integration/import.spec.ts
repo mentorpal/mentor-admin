@@ -88,7 +88,80 @@ describe("Import", () => {
     cy.get("[data-cy=upload-mentor]");
   });
 
-  it.only("Displays close when import complete", () => {
+  it("Displays close when import complete", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("ImportTask", [
+          {
+            importTask: {
+              graphQLUpdate: {
+                status: "DONE",
+              },
+              s3VideoMigrate: {
+                status: "IN_PROGRESS",
+                answerMediaMigrations: [
+                  {
+                    question: "q1",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q2",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q3",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q4",
+                    status: "IN_PROGRESS",
+                  },
+                ],
+              },
+            },
+          },
+          {
+            importTask: {
+              graphQLUpdate: {
+                status: "DONE",
+              },
+              s3VideoMigrate: {
+                status: "DONE",
+                answerMediaMigrations: [
+                  {
+                    question: "q1",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q2",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q3",
+                    status: "DONE",
+                  },
+                  {
+                    question: "q4",
+                    status: "DONE",
+                  },
+                ],
+              },
+            },
+          },
+        ]),
+        mockGQL("ImportTaskDelete", { me: { importTaskDelete: true } }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.get("[data-cy=import-progress-dialog]").within(($within) => {
+      cy.get("[data-cy=close-button]").should("be.visible");
+    });
+  });
+
+  it("Displays logout when import in progress", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clintNew,
@@ -100,7 +173,7 @@ describe("Import", () => {
               status: "DONE",
             },
             s3VideoMigrate: {
-              status: "DONE",
+              status: "IN_PROGRESS",
               answerMediaMigrations: [
                 {
                   question: "q1",
@@ -116,7 +189,7 @@ describe("Import", () => {
                 },
                 {
                   question: "q4",
-                  status: "DONE",
+                  status: "IN_PROGRESS",
                 },
               ],
             },
@@ -126,6 +199,49 @@ describe("Import", () => {
       ],
     });
     cy.visit("/importexport");
+    cy.get("[data-cy=import-progress-dialog]").within(($within) => {
+      cy.get("[data-cy=logout-button]").should("be.visible");
+    });
+  });
+
+  it.only("nav bar catches", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("ImportTask", {
+          importTask: {
+            graphQLUpdate: {
+              status: "DONE",
+            },
+            s3VideoMigrate: {
+              status: "IN_PROGRESS",
+              answerMediaMigrations: [
+                {
+                  question: "q1",
+                  status: "DONE",
+                },
+                {
+                  question: "q2",
+                  status: "DONE",
+                },
+                {
+                  question: "q3",
+                  status: "DONE",
+                },
+                {
+                  question: "q4",
+                  status: "IN_PROGRESS",
+                },
+              ],
+            },
+          },
+        }),
+        mockGQL("ImportTaskDelete", { me: { importTaskDelete: true } }),
+      ],
+    });
+    cy.visit("/");
   });
 
   it("uploads import json and views import preview", () => {

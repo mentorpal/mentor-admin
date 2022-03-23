@@ -48,11 +48,10 @@ export function useWithImportStatus(
         if (!mounted) {
           return;
         }
-        if (isImportComplete(task)) {
+        setImportTask(task);
+        setImportInProgress(Boolean(task));
+        if (task && isImportComplete(task)) {
           deleteImportTask(accessToken, mentorId);
-        } else {
-          setImportTask(task);
-          setImportInProgress(Boolean(task));
         }
       })
       .catch((err) => {

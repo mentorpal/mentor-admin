@@ -154,7 +154,12 @@ export default function ImportInProgressDialog(props: {
   }
 
   return (
-    <Dialog open={open} fullWidth={true} maxWidth={"sm"}>
+    <Dialog
+      data-cy="import-progress-dialog"
+      open={open}
+      fullWidth={true}
+      maxWidth={"sm"}
+    >
       <DialogContent>
         <Typography
           style={{ fontWeight: "bold", fontSize: "18px", marginBottom: "10px" }}
@@ -166,11 +171,19 @@ export default function ImportInProgressDialog(props: {
         {VideoMigrationDisplay(props.importTask.s3VideoMigrate)}
 
         {isImportComplete(props.importTask) ? (
-          <Button onClick={() => onClose()} style={{ marginTop: "20px" }}>
+          <Button
+            data-cy="close-button"
+            onClick={() => onClose()}
+            style={{ marginTop: "20px" }}
+          >
             Close
           </Button>
         ) : (
-          <Button onClick={() => logout()} style={{ marginTop: "20px" }}>
+          <Button
+            data-cy="logout-button"
+            onClick={() => logout()}
+            style={{ marginTop: "20px" }}
+          >
             Logout
           </Button>
         )}

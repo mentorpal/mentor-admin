@@ -123,11 +123,26 @@ export function useWithImportExport(): UseWithImportExport {
     }
     // find and replace the "new" subject in import with the replacement subject
     const idx = subjects.findIndex((s) => s._id === subject._id);
+
     if (idx !== -1) {
-      subjects = copyAndSet(subjects, idx, replacement);
+      // The subject that was replaced may have had some questions that were overwritten by the replacement
+      // To handle this, we need to add it to the new subject
+      const subjectBeingReplaced = subjects[idx];
+      const newQuestions = subjectBeingReplaced.questions.filter(
+        (q) =>
+          !Boolean(
+            replacement.questions.find(
+              (rep_q) => rep_q.question._id === q.question._id
+            )
+          )
+      );
+      const replacementSubj: SubjectGQL = {
+        ...replacement,
+        questions: replacement.questions.concat(newQuestions),
+      };
+      subjects = copyAndSet(subjects, idx, replacementSubj);
     }
-    // TODO: if the subject that was replaced had some questions that were overwritten by the replacement
-    // we might need to remap them in imported questions and answers list
+
     updateImport({
       ...importedJson,
       subjects,
