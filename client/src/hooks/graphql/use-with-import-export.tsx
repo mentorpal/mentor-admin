@@ -30,18 +30,18 @@ export interface UseWithImportExport {
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   importTask: ImportTask | undefined;
+  isUpdating: boolean;
 }
 
 export function useWithImportExport(): UseWithImportExport {
   const [importedJson, setImportJson] = useState<MentorExportJson>();
   const [importPreview, setImportPreview] = useState<MentorImportPreview>();
   const [isUpdating, setIsUpdating] = useState(false);
-  const { getData, loadMentor } = useActiveMentor();
+  const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
-  const { importTask, importInProgress, setImportInProgress } =
-    useWithImportStatus();
+  const { importTask, setImportInProgress } = useWithImportStatus();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -85,8 +85,7 @@ export function useWithImportExport(): UseWithImportExport {
     api._importMentor(mentorId, importedJson, accessToken).then(() => {
       setImportJson(undefined);
       setImportPreview(undefined);
-      setIsUpdating(true);
-      loadMentor();
+      setIsUpdating(false);
       setImportInProgress(true); //starts the polling
     });
   }
@@ -200,6 +199,7 @@ export function useWithImportExport(): UseWithImportExport {
     onMapSubject,
     onMapQuestion,
     importTask,
+    isUpdating,
   };
 }
 

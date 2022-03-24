@@ -35,7 +35,7 @@ function ImportPage(): JSX.Element {
   if (!mentorId || !mentorAnswers) {
     return <div />;
   }
-  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
+
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
@@ -67,16 +67,6 @@ function ImportPage(): JSX.Element {
             }}
           />
         </Button>
-        {needsTransfer ? (
-          <Button
-            data-cy="transfer-media"
-            variant="contained"
-            onClick={useImportExport.onTransferMedia}
-            style={{ marginLeft: 10 }}
-          >
-            Transfer Answers
-          </Button>
-        ) : undefined}
       </div>
     </div>
   );

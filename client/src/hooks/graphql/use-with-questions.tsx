@@ -14,7 +14,7 @@ import {
 } from "./use-with-data-connection";
 
 export function useWithQuestions(
-  initalSearchParams?: SearchParams
+  initalSearchParams?: Partial<SearchParams>
 ): UseDataConnection<Question> {
   const {
     data,

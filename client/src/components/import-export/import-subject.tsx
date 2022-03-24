@@ -16,6 +16,7 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
+  Paper,
   TextField,
   Typography,
 } from "@material-ui/core";
@@ -27,6 +28,8 @@ import { Category, EditType, ImportPreview, Question, Topic } from "types";
 import { Autocomplete } from "@material-ui/lab";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL } from "types-gql";
+import QuestionImport from "./import-question";
+import { useWithQuestions } from "hooks/graphql/use-with-questions";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -48,15 +51,23 @@ const useStyles = makeStyles(() => ({
 
 export default function SubjectImport(props: {
   preview: ImportPreview<SubjectGQL>;
+  previewQuestions: ImportPreview<Question>[];
   subjects: SubjectGQL[];
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
+  mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }): JSX.Element {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
-  const { preview, subjects, mapSubject } = props;
+  const { preview, subjects, mapSubject, mapQuestion, previewQuestions } =
+    props;
   const { editType, importData: subject, curData: curSubject } = preview;
-
+  const { data: allQuestions } = useWithQuestions({ limit: 5000 });
+  const subjectQuestions = allQuestions?.edges
+    .map((edge) => edge.node)
+    ?.filter((q) =>
+      Boolean(subject?.questions.find((subjQ) => subjQ.question._id == q._id))
+    );
   if (!subject && !curSubject) {
     return <div />;
   }
@@ -99,17 +110,25 @@ export default function SubjectImport(props: {
         curData: t,
       });
     });
+
   const questions: ImportPreview<Question>[] = [];
+
   subject?.questions?.forEach((q) => {
     const curQuestion = curSubject?.questions?.find(
       (qq) => qq.question?._id === q.question?._id
     );
+
     questions.push({
-      editType: !curQuestion ? EditType.ADDED : EditType.NONE,
+      editType: curQuestion
+        ? EditType.NONE
+        : previewQuestions.find(
+            (prevQ) => prevQ.importData?._id === q.question._id
+          )?.editType || EditType.NONE,
       importData: q.question,
       curData: curQuestion?.question,
     });
   });
+
   curSubject?.questions
     ?.filter(
       (qq) =>
@@ -123,6 +142,16 @@ export default function SubjectImport(props: {
         curData: q.question,
       });
     });
+
+  const unchangedQuestions = questions.filter(
+    (q) => q.editType === EditType.NONE
+  );
+  const newQuestions = questions.filter(
+    (q) => q.editType === EditType.CREATED || q.editType === EditType.ADDED
+  );
+  const removedQuestions = questions.filter(
+    (q) => q.editType === EditType.REMOVED
+  );
 
   return (
     <Card data-cy="subject" className={classes.root}>
@@ -242,22 +271,63 @@ export default function SubjectImport(props: {
         </List>
         <Divider />
         <ListSubheader>Questions</ListSubheader>
-        <List data-cy="subject-questions" dense disablePadding>
-          {questions.map((q, i) => {
-            return (
-              <ListItem
-                key={`subject-question-${i}`}
-                data-cy={`subject-question-${i}`}
+        <List data-cy="subject-questions">
+          {removedQuestions.length ? (
+            <List>
+              Removed
+              {removedQuestions.map((q, i) => {
+                return (
+                  <QuestionImport
+                    key={`question-${i}`}
+                    preview={q}
+                    questions={subjectQuestions || []}
+                    mapQuestion={mapQuestion}
+                  />
+                );
+              })}
+            </List>
+          ) : undefined}
+          {newQuestions.length ? (
+            <List>
+              New
+              {newQuestions.map((q, i) => {
+                return (
+                  <QuestionImport
+                    key={`question-${i}`}
+                    preview={q}
+                    questions={subjectQuestions || []}
+                    mapQuestion={mapQuestion}
+                  />
+                );
+              })}
+            </List>
+          ) : undefined}
+
+          {unchangedQuestions.length ? (
+            <div>
+              Unchanged
+              <Paper
+                style={{
+                  maxHeight: 200,
+                  overflow: "auto",
+                  border: "1px solid lightgrey",
+                }}
               >
-                <ListItemIcon>
-                  <ChangeIcon preview={q} />
-                </ListItemIcon>
-                <ListItemText
-                  primary={q.importData?.question || q.curData?.question}
-                />
-              </ListItem>
-            );
-          })}
+                <List>
+                  {unchangedQuestions.map((q, i) => {
+                    return (
+                      <QuestionImport
+                        key={`question-${i}`}
+                        preview={q}
+                        questions={subjectQuestions || []}
+                        mapQuestion={mapQuestion}
+                      />
+                    );
+                  })}
+                </List>
+              </Paper>
+            </div>
+          ) : undefined}
         </List>
       </Collapse>
     </Card>

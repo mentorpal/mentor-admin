@@ -24,6 +24,7 @@ import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
 import SubjectImport from "./import-subject";
 import QuestionImport from "./import-question";
 import AnswerImport from "./import-answer";
+import { LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,14 +53,12 @@ export default function ImportView(props: {
     onConfirmImport: confirmImport,
     onMapSubject: mapSubject,
     onMapQuestion: mapQuestion,
-    importInProgress,
-    importTask,
+    isUpdating,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
-  const { data: questions } = useWithQuestions();
 
   if (!importedJson || !importPreview) {
-    return <div />;
+    return <LoadingDialog title={isUpdating ? "Loading..." : ""} />;
   }
 
   return (
@@ -106,23 +105,8 @@ export default function ImportView(props: {
                 preview={s}
                 subjects={subjects?.edges.map((e) => e.node) || []}
                 mapSubject={mapSubject}
-              />
-            );
-          })}
-        </List>
-        <p />
-        <List
-          data-cy="questions"
-          className={classes.list}
-          subheader={<ListSubheader>My Questions</ListSubheader>}
-        >
-          {importPreview?.questions?.map((q, i) => {
-            return (
-              <QuestionImport
-                key={`question-${i}`}
-                preview={q}
-                questions={questions?.edges.map((e) => e.node) || []}
                 mapQuestion={mapQuestion}
+                previewQuestions={importPreview.questions}
               />
             );
           })}

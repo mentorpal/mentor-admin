@@ -56,7 +56,7 @@ export default function QuestionImport(props: {
           className={classes.row}
           style={{ position: "absolute", right: 20 }}
         >
-          {editType === EditType.CREATED ? (
+          {editType === EditType.CREATED && questions.length ? (
             <Autocomplete
               data-cy="question-input"
               options={questions}
@@ -77,7 +77,7 @@ export default function QuestionImport(props: {
               )}
             />
           ) : undefined}
-          {editType === EditType.CREATED ? (
+          {editType === EditType.CREATED && questions.length ? (
             <IconButton
               data-cy="replace"
               size="small"
