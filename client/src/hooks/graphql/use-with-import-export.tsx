@@ -18,6 +18,7 @@ import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 import { useWithImportStatus } from "./use-with-import-status";
+import { useWithSubjects } from "./use-with-subjects";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -42,6 +43,7 @@ export function useWithImportExport(): UseWithImportExport {
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
   const { importTask, setImportInProgress } = useWithImportStatus();
+  const { data: unomdifiedSubjects } = useWithSubjects();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -114,9 +116,16 @@ export function useWithImportExport(): UseWithImportExport {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }
+    console.log("is updating is true");
+    const replacementId = replacement._id;
+    // First check importedJson for the subject in case we are modifying it, else use fresh one passed in
+    let replacementSubject =
+      importedJson.subjects.find((subj) => subj._id === replacementId) ||
+      replacement;
+
     let subjects = importedJson.subjects;
     // if the replacement subject is already referenced elsewhere in the import, remove it so we don't include it twice
-    const rIdx = subjects.findIndex((s) => s._id === replacement._id);
+    const rIdx = subjects.findIndex((s) => s._id === replacementSubject?._id);
     if (rIdx !== -1) {
       subjects = copyAndRemove(subjects, rIdx);
     }
@@ -129,15 +138,13 @@ export function useWithImportExport(): UseWithImportExport {
       const subjectBeingReplaced = subjects[idx];
       const newQuestions = subjectBeingReplaced.questions.filter(
         (q) =>
-          !Boolean(
-            replacement.questions.find(
-              (rep_q) => rep_q.question._id === q.question._id
-            )
+          !replacementSubject?.questions.find(
+            (rep_q) => rep_q.question._id === q.question._id
           )
       );
       const replacementSubj: SubjectGQL = {
-        ...replacement,
-        questions: replacement.questions.concat(newQuestions),
+        ...replacementSubject,
+        questions: replacementSubject.questions.concat(newQuestions),
       };
       subjects = copyAndSet(subjects, idx, replacementSubj);
     }
@@ -146,6 +153,7 @@ export function useWithImportExport(): UseWithImportExport {
       ...importedJson,
       subjects,
     });
+    console.log("is updating is false");
   }
 
   function onMapQuestion(question: Question, replacement: Question): void {

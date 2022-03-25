@@ -58,6 +58,7 @@ export default function QuestionImport(props: {
         >
           {editType === EditType.CREATED && questions.length ? (
             <Autocomplete
+              key={preview.importData?._id}
               data-cy="question-input"
               options={questions}
               getOptionLabel={(option: Question) => option.question}

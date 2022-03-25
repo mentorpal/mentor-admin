@@ -30,6 +30,7 @@ import { ChangeIcon } from "./icons";
 import { SubjectGQL } from "types-gql";
 import QuestionImport from "./import-question";
 import { useWithQuestions } from "hooks/graphql/use-with-questions";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -56,6 +57,8 @@ export default function SubjectImport(props: {
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
 }): JSX.Element {
+  const { getData } = useActiveMentor();
+  const mentorId = getData((m) => m.data?._id || "");
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
@@ -129,10 +132,15 @@ export default function SubjectImport(props: {
     });
   });
 
+  // subject is the importingSubject
+  // curSubject is the subject being replaced, which may have some other mentor specific q's visible
   curSubject?.questions
     ?.filter(
       (qq) =>
-        !subject?.questions?.find((q) => q.question?._id === qq.question?._id)
+        !subject?.questions?.find(
+          (q) => q.question?._id === qq.question?._id
+        ) &&
+        (!qq.question.mentor || qq.question.mentor == mentorId)
     )
     .forEach((q) => {
       questions.push({

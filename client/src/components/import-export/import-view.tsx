@@ -19,10 +19,8 @@ import {
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
-import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
 import SubjectImport from "./import-subject";
-import QuestionImport from "./import-question";
 import AnswerImport from "./import-answer";
 import { LoadingDialog } from "components/dialog";
 
@@ -122,6 +120,7 @@ export default function ImportView(props: {
           })}
         </List>
       </DialogContent>
+      <LoadingDialog title={isUpdating ? "Loading..." : ""} />
     </Dialog>
   );
 }

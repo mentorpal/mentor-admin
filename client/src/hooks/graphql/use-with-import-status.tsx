@@ -63,7 +63,7 @@ export function useWithImportStatus(
   }, [mentorId, accessToken]);
 
   useInterval(
-    (isCancelled) => {
+    () => {
       if (!mentorId || !accessToken) {
         return;
       }

@@ -1654,7 +1654,5 @@ export async function _importMentor(
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  console.log("result from import mentor call");
-  console.log(result);
   return getDataFromAxiosResponse(result, "");
 }

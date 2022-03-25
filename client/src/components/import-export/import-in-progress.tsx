@@ -29,7 +29,7 @@ import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { isImportComplete } from "hooks/graphql/use-with-import-status";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   progressIcon: {
     animation: "$spin 3000ms",
     // animationName: "spin",
@@ -137,7 +137,7 @@ export default function ImportInProgressDialog(props: {
             </h4>
             {failedTasks.map((task) => {
               return (
-                <div>
+                <div key={task.question}>
                   {`${task.question} failed with message: ${task.errorMessage}`}
                 </div>
               );
