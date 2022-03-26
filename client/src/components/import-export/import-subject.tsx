@@ -9,7 +9,9 @@ import {
   Card,
   Collapse,
   Divider,
+  FormControl,
   IconButton,
+  Input,
   List,
   ListItem,
   ListItemIcon,
@@ -23,6 +25,7 @@ import {
 import {
   ExpandMore as ExpandMoreIcon,
   FindReplace as FindReplaceIcon,
+  Save as SaveIcon,
 } from "@material-ui/icons";
 import { Category, EditType, ImportPreview, Question, Topic } from "types";
 import { Autocomplete } from "@material-ui/lab";
@@ -56,16 +59,26 @@ export default function SubjectImport(props: {
   subjects: SubjectGQL[];
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  saveSubjectName: (subject: SubjectGQL, newName: string) => void;
 }): JSX.Element {
   const { getData } = useActiveMentor();
   const mentorId = getData((m) => m.data?._id || "");
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
-  const { preview, subjects, mapSubject, mapQuestion, previewQuestions } =
-    props;
+  const {
+    preview,
+    subjects,
+    mapSubject,
+    mapQuestion,
+    mapCategory,
+    previewQuestions,
+    saveSubjectName,
+  } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
   const { data: allQuestions } = useWithQuestions({ limit: 5000 });
+  const [newSubjectName, setNewSubjectName] = useState<string>("");
   const subjectQuestions = allQuestions?.edges
     .map((edge) => edge.node)
     ?.filter((q) =>
@@ -161,18 +174,46 @@ export default function SubjectImport(props: {
     (q) => q.editType === EditType.REMOVED
   );
 
+  const subjCategories = curSubject?.categories;
+
+  const subjectName = subject?.name || curSubject?.name;
   return (
     <Card data-cy="subject" className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <div style={{ marginRight: 10 }}>
-          <Typography align="left" variant="body1">
-            {subject?.name || curSubject?.name}
-          </Typography>
-          <Typography align="left" variant="caption">
-            {subject?.description || curSubject?.description}
-          </Typography>
+          <span style={{ display: "flex", flexDirection: "column" }}>
+            <FormControl variant="outlined">
+              <Input
+                data-cy="subject-title-edit"
+                multiline
+                disabled={editType !== EditType.CREATED}
+                defaultValue={subjectName}
+                disableUnderline={editType !== EditType.CREATED}
+                style={{ color: "black" }}
+                onChange={(e) => {
+                  setNewSubjectName(e.target.value);
+                }}
+              />
+            </FormControl>
+            <Typography align="left" variant="caption">
+              {subject?.description || curSubject?.description}
+            </Typography>
+          </span>
         </div>
+        {newSubjectName && newSubjectName !== subjectName ? (
+          <IconButton
+            data-cy="save-subject-name-icon"
+            size="small"
+            onClick={() => {
+              if (subject) {
+                saveSubjectName(subject, newSubjectName);
+              }
+            }}
+          >
+            <SaveIcon />
+          </IconButton>
+        ) : undefined}
         <div
           className={classes.row}
           style={{ position: "absolute", right: 20 }}
@@ -290,13 +331,15 @@ export default function SubjectImport(props: {
                     preview={q}
                     questions={subjectQuestions || []}
                     mapQuestion={mapQuestion}
+                    mapCategory={mapCategory}
+                    categories={subjCategories || []}
                   />
                 );
               })}
             </List>
           ) : undefined}
           {newQuestions.length ? (
-            <List>
+            <List data-cy="new-questions">
               New
               {newQuestions.map((q, i) => {
                 return (
@@ -305,6 +348,11 @@ export default function SubjectImport(props: {
                     preview={q}
                     questions={subjectQuestions || []}
                     mapQuestion={mapQuestion}
+                    mapCategory={mapCategory}
+                    categories={subjCategories || []}
+                    subjectQuestion={subject?.questions.find(
+                      (subjQ) => subjQ.question._id == q.importData?._id
+                    )}
                   />
                 );
               })}
@@ -329,6 +377,8 @@ export default function SubjectImport(props: {
                         preview={q}
                         questions={subjectQuestions || []}
                         mapQuestion={mapQuestion}
+                        mapCategory={mapCategory}
+                        categories={subjCategories || []}
                       />
                     );
                   })}

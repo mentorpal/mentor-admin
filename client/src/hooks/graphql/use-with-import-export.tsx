@@ -8,6 +8,7 @@ import { useState } from "react";
 import * as api from "api";
 import {
   Answer,
+  Category,
   ImportTask,
   MentorExportJson,
   MentorImportPreview,
@@ -18,7 +19,6 @@ import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { SubjectGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 import { useWithImportStatus } from "./use-with-import-status";
-import { useWithSubjects } from "./use-with-subjects";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -30,6 +30,8 @@ export interface UseWithImportExport {
   onTransferMedia: () => void;
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  onMapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  onSaveSubjectName: (subject: SubjectGQL, newName: string) => void;
   importTask: ImportTask | undefined;
   isUpdating: boolean;
 }
@@ -43,7 +45,6 @@ export function useWithImportExport(): UseWithImportExport {
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
   const { importTask, setImportInProgress } = useWithImportStatus();
-  const { data: unomdifiedSubjects } = useWithSubjects();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -112,14 +113,31 @@ export function useWithImportExport(): UseWithImportExport {
     }
   }
 
+  function onSaveSubjectName(subject: SubjectGQL, newName: string) {
+    if (!importedJson || !importPreview || !mentorId || isUpdating) {
+      return;
+    }
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+
+    const idx = json.subjects.findIndex((s) => s._id === subject._id);
+    if (idx !== -1) {
+      json.subjects[idx].name = newName;
+      updateImport(json);
+    }
+  }
+
   function onMapSubject(subject: SubjectGQL, replacement: SubjectGQL): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }
-    console.log("is updating is true");
     const replacementId = replacement._id;
     // First check importedJson for the subject in case we are modifying it, else use fresh one passed in
-    let replacementSubject =
+    const replacementSubject =
       importedJson.subjects.find((subj) => subj._id === replacementId) ||
       replacement;
 
@@ -153,7 +171,6 @@ export function useWithImportExport(): UseWithImportExport {
       ...importedJson,
       subjects,
     });
-    console.log("is updating is false");
   }
 
   function onMapQuestion(question: Question, replacement: Question): void {
@@ -196,6 +213,29 @@ export function useWithImportExport(): UseWithImportExport {
     updateImport(json);
   }
 
+  function onMapCategory(questionBeingReplaced: Question, category: Category) {
+    if (!importedJson || !importPreview || !mentorId || isUpdating) {
+      return;
+    }
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+
+    for (let i = 0; i < json.subjects.length; i++) {
+      const s = json.subjects[i];
+      const idx = s.questions.findIndex(
+        (q) => q.question._id === questionBeingReplaced._id
+      );
+      if (idx !== -1) {
+        json.subjects[i].questions[idx].category = category;
+      }
+    }
+    updateImport(json);
+  }
+
   return {
     importedJson,
     importPreview,
@@ -206,6 +246,8 @@ export function useWithImportExport(): UseWithImportExport {
     onTransferMedia,
     onMapSubject,
     onMapQuestion,
+    onMapCategory,
+    onSaveSubjectName,
     importTask,
     isUpdating,
   };

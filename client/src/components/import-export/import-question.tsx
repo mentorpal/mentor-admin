@@ -4,19 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React from "react";
 import {
   Card,
-  IconButton,
   ListItemText,
   makeStyles,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { FindReplace as FindReplaceIcon } from "@material-ui/icons";
 import { Autocomplete } from "@material-ui/lab";
-import { Question, ImportPreview, EditType } from "types";
+import { Question, ImportPreview, EditType, Category } from "types";
 import { ChangeIcon } from "./icons";
+import { SubjectQuestionGQL } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -37,14 +36,22 @@ const useStyles = makeStyles(() => ({
 
 export default function QuestionImport(props: {
   preview: ImportPreview<Question>;
+  subjectQuestion?: SubjectQuestionGQL;
   questions: Question[];
+  categories: Category[];
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  mapCategory: (questionBeingReplaced: Question, category: Category) => void;
 }): JSX.Element {
   const classes = useStyles();
-  const [questionSearch, setQuestionSearch] = useState<Question>();
-  const { preview, questions, mapQuestion } = props;
+  const {
+    preview,
+    questions,
+    mapQuestion,
+    mapCategory,
+    categories,
+    subjectQuestion,
+  } = props;
   const { editType, importData: question, curData: curQuestion } = preview;
-
   return (
     <Card data-cy="question" className={classes.root}>
       <div className={classes.row}>
@@ -57,39 +64,49 @@ export default function QuestionImport(props: {
           style={{ position: "absolute", right: 20 }}
         >
           {editType === EditType.CREATED && questions.length ? (
-            <Autocomplete
-              key={preview.importData?._id}
-              data-cy="question-input"
-              options={questions}
-              getOptionLabel={(option: Question) => option.question}
-              onChange={(e, v) => {
-                setQuestionSearch(v || undefined);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  style={{ width: 300 }}
-                  variant="outlined"
-                  placeholder="Remap to existing question?"
-                />
-              )}
-              renderOption={(option) => (
-                <ListItemText primary={option.question} />
-              )}
-            />
-          ) : undefined}
-          {editType === EditType.CREATED && questions.length ? (
-            <IconButton
-              data-cy="replace"
-              size="small"
-              onClick={() => {
-                if (question && questionSearch) {
-                  mapQuestion(question, questionSearch);
-                }
-              }}
-            >
-              <FindReplaceIcon />
-            </IconButton>
+            <>
+              <Autocomplete
+                data-cy="category-remap-input"
+                options={categories}
+                getOptionLabel={(option: Category) => option.name}
+                onChange={(e, v) => {
+                  v && question && mapCategory(question, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: 300 }}
+                    variant="outlined"
+                    placeholder={
+                      subjectQuestion?.category?.name || "Add a category?"
+                    }
+                  />
+                )}
+                renderOption={(option) => (
+                  <ListItemText primary={option.name} />
+                )}
+              />
+              <Autocomplete
+                key={preview.importData?._id}
+                data-cy="question-input"
+                options={questions}
+                getOptionLabel={(option: Question) => option.question}
+                onChange={(e, v) => {
+                  question && v && mapQuestion(question, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: 300 }}
+                    variant="outlined"
+                    placeholder="Remap to existing question?"
+                  />
+                )}
+                renderOption={(option) => (
+                  <ListItemText primary={option.question} />
+                )}
+              />
+            </>
           ) : undefined}
         </div>
       </div>

@@ -51,6 +51,8 @@ export default function ImportView(props: {
     onConfirmImport: confirmImport,
     onMapSubject: mapSubject,
     onMapQuestion: mapQuestion,
+    onMapCategory: mapCategory,
+    onSaveSubjectName: saveSubjectName,
     isUpdating,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
@@ -104,6 +106,8 @@ export default function ImportView(props: {
                 subjects={subjects?.edges.map((e) => e.node) || []}
                 mapSubject={mapSubject}
                 mapQuestion={mapQuestion}
+                mapCategory={mapCategory}
+                saveSubjectName={saveSubjectName}
                 previewQuestions={importPreview.questions}
               />
             );
