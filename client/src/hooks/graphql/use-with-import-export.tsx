@@ -9,16 +9,19 @@ import * as api from "api";
 import {
   Answer,
   Category,
+  EditType,
   ImportTask,
   MentorExportJson,
   MentorImportPreview,
   Question,
+  Topic,
 } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { SubjectGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 import { useWithImportStatus } from "./use-with-import-status";
+import { useWithSubjects } from "./use-with-subjects";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -31,6 +34,11 @@ export interface UseWithImportExport {
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   onMapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  onMapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  onMapQuestionToSubject: (
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) => void;
   onSaveSubjectName: (subject: SubjectGQL, newName: string) => void;
   importTask: ImportTask | undefined;
   isUpdating: boolean;
@@ -45,6 +53,8 @@ export function useWithImportExport(): UseWithImportExport {
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
   const { importTask, setImportInProgress } = useWithImportStatus();
+  const { data: subjectData } = useWithSubjects();
+  const subjects = subjectData?.edges.map((edge) => edge.node);
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -127,10 +137,11 @@ export function useWithImportExport(): UseWithImportExport {
     const idx = json.subjects.findIndex((s) => s._id === subject._id);
     if (idx !== -1) {
       json.subjects[idx].name = newName;
-      updateImport(json);
+      setImportJson(json);
     }
   }
 
+  // Map subject to subject
   function onMapSubject(subject: SubjectGQL, replacement: SubjectGQL): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -160,9 +171,16 @@ export function useWithImportExport(): UseWithImportExport {
             (rep_q) => rep_q.question._id === q.question._id
           )
       );
+      const newQsBarebones: SubjectQuestionGQL[] = newQuestions.map((q) => {
+        return {
+          ...q,
+          category: undefined,
+          topics: [],
+        };
+      });
       const replacementSubj: SubjectGQL = {
         ...replacementSubject,
-        questions: replacementSubject.questions.concat(newQuestions),
+        questions: replacementSubject.questions.concat(newQsBarebones),
       };
       subjects = copyAndSet(subjects, idx, replacementSubj);
     }
@@ -173,6 +191,7 @@ export function useWithImportExport(): UseWithImportExport {
     });
   }
 
+  // Map question to another question within a subject
   function onMapQuestion(question: Question, replacement: Question): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -210,9 +229,25 @@ export function useWithImportExport(): UseWithImportExport {
         ...json.answers[idx],
         question: replacement,
       });
-    updateImport(json);
+    setImportJson(json);
+
+    // Simpley remove question document from importPreview because we mapped the question to an existing question
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    const previewQIdx = preview.questions.findIndex(
+      (q) => q.importData?._id === question._id
+    );
+    if (previewQIdx) {
+      preview.questions.splice(previewQIdx, 1);
+      setImportPreview(preview);
+    }
   }
 
+  // Map a question to a new category
   function onMapCategory(questionBeingReplaced: Question, category: Category) {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -233,7 +268,180 @@ export function useWithImportExport(): UseWithImportExport {
         json.subjects[i].questions[idx].category = category;
       }
     }
-    updateImport(json);
+    setImportJson(json);
+  }
+
+  // Map a question to a new subject
+  function onMapQuestionToSubject(
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) {
+    if (
+      !importedJson ||
+      !importPreview ||
+      !mentorId ||
+      isUpdating ||
+      !subjects
+    ) {
+      return;
+    }
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+
+    // Find and remove the question from current subject in import
+    let questionsRemoved: SubjectQuestionGQL[] = [];
+    for (let i = 0; i < json.subjects.length; i++) {
+      const s = json.subjects[i];
+      const rIdx = s.questions.findIndex(
+        (q) => q.question._id === questionBeingMapped._id
+      );
+      if (rIdx !== -1) {
+        questionsRemoved = json.subjects[i].questions.splice(rIdx, 1);
+      }
+    }
+    if (!questionsRemoved.length) {
+      throw new Error(
+        `Failed to find question with id ${questionBeingMapped._id} among subjects`
+      );
+    }
+    const questionToAdd = questionsRemoved[0];
+    const subjectToAddToIdx = json.subjects.findIndex(
+      (subj) => subj._id === targetSubject._id
+    );
+    // If import json already has subject, simply add question to import json subject
+    if (subjectToAddToIdx !== -1) {
+      json.subjects[subjectToAddToIdx].questions = json.subjects[
+        subjectToAddToIdx
+      ].questions.concat({
+        ...questionToAdd,
+        category: undefined,
+        topics: [],
+      });
+    } else {
+      //  Import json does not have subject, so must find it, update it with new question, then add it to jsons import subjects
+      const subjectToAddIdx = subjects.findIndex(
+        (subj) => subj._id === targetSubject._id
+      );
+      if (subjectToAddIdx !== -1) {
+        const subj: SubjectGQL = { ...subjects[subjectToAddIdx] };
+        const subjAlreadyHasQuestion = subj.questions.find(
+          (subjQ) => subjQ.question._id === questionToAdd.question._id
+        );
+        if (!subjAlreadyHasQuestion) {
+          subj.questions = subj.questions.concat({
+            ...questionToAdd,
+            category: undefined,
+            topics: [],
+          });
+        }
+        json.subjects = json.subjects.concat(subj);
+      } else {
+        throw new Error(`Failed to find subject with id ${targetSubject._id}`);
+      }
+    }
+    setImportJson(json);
+
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    for (const s of preview.subjects) {
+      const targetQIdx =
+        s.importData?.questions.findIndex(
+          (q) => q.question._id === questionBeingMapped._id
+        ) || -1;
+      if (targetQIdx !== -1) {
+        const removedQuestions = s.importData?.questions.splice(targetQIdx, 1);
+        // Succesfully removed question from import data subject
+        if (removedQuestions?.length) {
+          const removedQuestion = removedQuestions[0];
+
+          // Check if subject exists in preview already, then update it if so
+          const targetPreviewSubjectIdx = preview.subjects.findIndex(
+            (prevSubj) => prevSubj.importData?._id === targetSubject._id
+          );
+          if (targetPreviewSubjectIdx !== -1) {
+            // update this subjects
+            const importData =
+              preview.subjects[targetPreviewSubjectIdx].importData;
+            if (importData) {
+              importData.questions =
+                importData.questions.concat(removedQuestion);
+              setImportPreview(preview);
+              return;
+            }
+          } else {
+            // try to find subject through main subject data, then add to importPreview
+            const targetSubjectData = subjects.find(
+              (subj) => subj._id === targetSubject._id
+            );
+            if (targetSubjectData) {
+              preview.subjects = preview.subjects.concat({
+                editType: EditType.ADDED,
+                curData: targetSubjectData,
+                importData: {
+                  ...targetSubjectData,
+                  questions:
+                    targetSubjectData.questions.concat(removedQuestion),
+                },
+              });
+              setImportPreview(preview);
+              return;
+            } else {
+              throw new Error(
+                `Failed to find existing or imported subject with id ${targetSubject._id}`
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Map a question to a new topic
+  function onMapTopic(questionBeingUpdated: Question, topicToMap: Topic) {
+    if (
+      !importedJson ||
+      !importPreview ||
+      !mentorId ||
+      isUpdating ||
+      !subjects
+    ) {
+      return;
+    }
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+
+    for (const s of json.subjects) {
+      const subjQuestionIdx = s.questions.findIndex(
+        (subjQ) => subjQ.question._id === questionBeingUpdated._id
+      );
+      if (subjQuestionIdx !== -1) {
+        // Confirm topic is within subject with target question
+        const isTopicInSubject = s.topics.find(
+          (topic) => topic.id === topicToMap.id
+        );
+        if (!isTopicInSubject) {
+          throw new Error(
+            `Topic ${JSON.stringify(topicToMap)} does not exist in subject ${
+              s.name
+            }`
+          );
+        }
+        s.questions[subjQuestionIdx].topics = [topicToMap];
+      }
+    }
+    setImportJson(json);
   }
 
   return {
@@ -247,6 +455,8 @@ export function useWithImportExport(): UseWithImportExport {
     onMapSubject,
     onMapQuestion,
     onMapCategory,
+    onMapTopic,
+    onMapQuestionToSubject,
     onSaveSubjectName,
     importTask,
     isUpdating,

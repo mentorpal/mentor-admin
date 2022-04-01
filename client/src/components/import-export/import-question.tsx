@@ -13,9 +13,9 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import { Question, ImportPreview, EditType, Category } from "types";
+import { Question, ImportPreview, EditType, Category, Topic } from "types";
 import { ChangeIcon } from "./icons";
-import { SubjectQuestionGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -39,8 +39,15 @@ export default function QuestionImport(props: {
   subjectQuestion?: SubjectQuestionGQL;
   questions: Question[];
   categories: Category[];
+  topics: Topic[];
+  subjects: SubjectGQL[];
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  mapQuestionToSubject: (
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) => void;
 }): JSX.Element {
   const classes = useStyles();
   const {
@@ -48,12 +55,16 @@ export default function QuestionImport(props: {
     questions,
     mapQuestion,
     mapCategory,
+    mapTopic,
+    mapQuestionToSubject,
     categories,
     subjectQuestion,
+    subjects,
+    topics,
   } = props;
   const { editType, importData: question, curData: curQuestion } = preview;
   return (
-    <Card data-cy="question" className={classes.root}>
+    <Card key={question?._id} data-cy="question" className={classes.root}>
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <Typography align="left" variant="body1" style={{ marginRight: 10 }}>
@@ -63,32 +74,78 @@ export default function QuestionImport(props: {
           className={classes.row}
           style={{ position: "absolute", right: 20 }}
         >
+          {editType === EditType.CREATED ? (
+            <Autocomplete
+              data-cy="remap-question-subject-input"
+              options={subjects}
+              getOptionLabel={(option: SubjectGQL) => option.name}
+              onChange={(e, v) => {
+                v && question && mapQuestionToSubject(question, v);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  style={{ width: 300 }}
+                  variant="outlined"
+                  placeholder={"Map to a subject?"}
+                />
+              )}
+              renderOption={(option) => <ListItemText primary={option.name} />}
+            />
+          ) : undefined}
           {editType === EditType.CREATED && questions.length ? (
             <>
-              <Autocomplete
-                data-cy="category-remap-input"
-                options={categories}
-                getOptionLabel={(option: Category) => option.name}
-                onChange={(e, v) => {
-                  v && question && mapCategory(question, v);
-                }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    style={{ width: 300 }}
-                    variant="outlined"
-                    placeholder={
-                      subjectQuestion?.category?.name || "Add a category?"
-                    }
-                  />
-                )}
-                renderOption={(option) => (
-                  <ListItemText primary={option.name} />
-                )}
-              />
+              {categories.length ? (
+                <Autocomplete
+                  data-cy="category-remap-input"
+                  options={categories}
+                  getOptionLabel={(option: Category) => option.name}
+                  onChange={(e, v) => {
+                    v && question && mapCategory(question, v);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      style={{ width: 300 }}
+                      variant="outlined"
+                      placeholder={
+                        subjectQuestion?.category?.name || "Add a category?"
+                      }
+                    />
+                  )}
+                  renderOption={(option) => (
+                    <ListItemText primary={option.name} />
+                  )}
+                />
+              ) : undefined}
+              {topics.length ? (
+                <Autocomplete
+                  data-cy="topic-remap-input"
+                  options={topics}
+                  getOptionLabel={(option: Topic) => option.name}
+                  onChange={(e, v) => {
+                    v && question && mapTopic(question, v);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      style={{ width: 300 }}
+                      variant="outlined"
+                      placeholder={
+                        subjectQuestion?.topics?.length
+                          ? subjectQuestion.topics[0].name
+                          : "Map to a topic?"
+                      }
+                    />
+                  )}
+                  renderOption={(option) => (
+                    <ListItemText primary={option.name} />
+                  )}
+                />
+              ) : undefined}
               <Autocomplete
                 key={preview.importData?._id}
-                data-cy="question-input"
+                data-cy="question-remap-input"
                 options={questions}
                 getOptionLabel={(option: Question) => option.question}
                 onChange={(e, v) => {
@@ -99,7 +156,7 @@ export default function QuestionImport(props: {
                     {...params}
                     style={{ width: 300 }}
                     variant="outlined"
-                    placeholder="Remap to existing question?"
+                    placeholder="Map to existing question?"
                   />
                 )}
                 renderOption={(option) => (

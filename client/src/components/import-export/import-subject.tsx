@@ -60,6 +60,11 @@ export default function SubjectImport(props: {
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  mapQuestionToSubject: (
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) => void;
   saveSubjectName: (subject: SubjectGQL, newName: string) => void;
 }): JSX.Element {
   const { getData } = useActiveMentor();
@@ -75,6 +80,8 @@ export default function SubjectImport(props: {
     mapCategory,
     previewQuestions,
     saveSubjectName,
+    mapQuestionToSubject,
+    mapTopic,
   } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
   const { data: allQuestions } = useWithQuestions({ limit: 5000 });
@@ -129,11 +136,16 @@ export default function SubjectImport(props: {
 
   const questions: ImportPreview<Question>[] = [];
 
+  // for all questions of the importing subject
   subject?.questions?.forEach((q) => {
+    // Check if the imported question already exists in this subject
     const curQuestion = curSubject?.questions?.find(
-      (qq) => qq.question?._id === q.question?._id
+      (qq) =>
+        !q.question.mentor &&
+        (qq.question?._id === q.question?._id ||
+          qq.question.question === q.question.question)
     );
-
+    // If the question is already in this subject, mark as no differences to be made
     questions.push({
       editType: curQuestion
         ? EditType.NONE
@@ -175,10 +187,15 @@ export default function SubjectImport(props: {
   );
 
   const subjCategories = curSubject?.categories;
+  const subjTopics = curSubject?.topics;
 
-  const subjectName = subject?.name || curSubject?.name;
+  const subjectName = curSubject?.name || subject?.name;
   return (
-    <Card data-cy="subject" className={classes.root}>
+    <Card
+      key={`${curSubject?._id}-${subject?._id}`}
+      data-cy="subject"
+      className={classes.root}
+    >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <div style={{ marginRight: 10 }}>
@@ -231,7 +248,7 @@ export default function SubjectImport(props: {
                   {...params}
                   style={{ width: 300 }}
                   variant="outlined"
-                  placeholder="Remap to existing subject?"
+                  placeholder="Map to existing subject?"
                 />
               )}
               renderOption={(option) => (
@@ -331,8 +348,12 @@ export default function SubjectImport(props: {
                     preview={q}
                     questions={subjectQuestions || []}
                     mapQuestion={mapQuestion}
+                    mapQuestionToSubject={mapQuestionToSubject}
                     mapCategory={mapCategory}
+                    mapTopic={mapTopic}
                     categories={subjCategories || []}
+                    topics={subjTopics || []}
+                    subjects={subjects || []}
                   />
                 );
               })}
@@ -349,7 +370,11 @@ export default function SubjectImport(props: {
                     questions={subjectQuestions || []}
                     mapQuestion={mapQuestion}
                     mapCategory={mapCategory}
+                    mapTopic={mapTopic}
+                    mapQuestionToSubject={mapQuestionToSubject}
                     categories={subjCategories || []}
+                    topics={subjTopics || []}
+                    subjects={subjects || []}
                     subjectQuestion={subject?.questions.find(
                       (subjQ) => subjQ.question._id == q.importData?._id
                     )}
@@ -378,7 +403,11 @@ export default function SubjectImport(props: {
                         questions={subjectQuestions || []}
                         mapQuestion={mapQuestion}
                         mapCategory={mapCategory}
+                        mapTopic={mapTopic}
+                        subjects={subjects || []}
+                        mapQuestionToSubject={mapQuestionToSubject}
                         categories={subjCategories || []}
+                        topics={subjTopics || []}
                       />
                     );
                   })}
