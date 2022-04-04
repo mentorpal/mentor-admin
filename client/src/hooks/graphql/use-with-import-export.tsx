@@ -352,52 +352,50 @@ export function useWithImportExport(): UseWithImportExport {
       answers: [...importPreview.answers] || [],
     };
     for (const s of preview.subjects) {
-      const targetQIdx =
-        s.importData?.questions.findIndex(
-          (q) => q.question._id === questionBeingMapped._id
-        ) || -1;
-      if (targetQIdx !== -1) {
-        const removedQuestions = s.importData?.questions.splice(targetQIdx, 1);
-        // Succesfully removed question from import data subject
-        if (removedQuestions?.length) {
-          const removedQuestion = removedQuestions[0];
+      const targetQIdx = s.importData?.questions.findIndex(
+        (q) => `${q.question._id}` === `${questionBeingMapped._id}`
+      );
+      if ((targetQIdx !== 0 && !targetQIdx) || targetQIdx === -1) {
+        continue;
+      }
+      const removedQuestions = s.importData?.questions.splice(targetQIdx, 1);
+      // Succesfully removed question from import data subject
+      if (removedQuestions?.length) {
+        const removedQuestion = removedQuestions[0];
 
-          // Check if subject exists in preview already, then update it if so
-          const targetPreviewSubjectIdx = preview.subjects.findIndex(
-            (prevSubj) => prevSubj.importData?._id === targetSubject._id
+        // Check if subject exists in preview already, then update it if so
+        const targetPreviewSubjectIdx = preview.subjects.findIndex(
+          (prevSubj) => prevSubj.importData?._id === targetSubject._id
+        );
+        if (targetPreviewSubjectIdx !== -1) {
+          // update this subjects
+          const importData =
+            preview.subjects[targetPreviewSubjectIdx].importData;
+          if (importData) {
+            importData.questions = importData.questions.concat(removedQuestion);
+            setImportPreview(preview);
+            return;
+          }
+        } else {
+          // try to find subject through main subject data, then add to importPreview
+          const targetSubjectData = subjects.find(
+            (subj) => subj._id === targetSubject._id
           );
-          if (targetPreviewSubjectIdx !== -1) {
-            // update this subjects
-            const importData =
-              preview.subjects[targetPreviewSubjectIdx].importData;
-            if (importData) {
-              importData.questions =
-                importData.questions.concat(removedQuestion);
-              setImportPreview(preview);
-              return;
-            }
+          if (targetSubjectData) {
+            preview.subjects = preview.subjects.concat({
+              editType: EditType.ADDED,
+              curData: targetSubjectData,
+              importData: {
+                ...targetSubjectData,
+                questions: targetSubjectData.questions.concat(removedQuestion),
+              },
+            });
+            setImportPreview(preview);
+            return;
           } else {
-            // try to find subject through main subject data, then add to importPreview
-            const targetSubjectData = subjects.find(
-              (subj) => subj._id === targetSubject._id
+            throw new Error(
+              `Failed to find existing or imported subject with id ${targetSubject._id}`
             );
-            if (targetSubjectData) {
-              preview.subjects = preview.subjects.concat({
-                editType: EditType.ADDED,
-                curData: targetSubjectData,
-                importData: {
-                  ...targetSubjectData,
-                  questions:
-                    targetSubjectData.questions.concat(removedQuestion),
-                },
-              });
-              setImportPreview(preview);
-              return;
-            } else {
-              throw new Error(
-                `Failed to find existing or imported subject with id ${targetSubject._id}`
-              );
-            }
           }
         }
       }
