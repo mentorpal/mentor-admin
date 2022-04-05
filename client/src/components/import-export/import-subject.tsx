@@ -61,6 +61,8 @@ export default function SubjectImport(props: {
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
   mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  oldQuestionsToRemove: Question[];
+  toggleRemoveOldFollowup: (q: Question) => void;
   mapQuestionToSubject: (
     questionBeingMapped: Question,
     targetSubject: SubjectGQL
@@ -82,6 +84,8 @@ export default function SubjectImport(props: {
     saveSubjectName,
     mapQuestionToSubject,
     mapTopic,
+    toggleRemoveOldFollowup,
+    oldQuestionsToRemove,
   } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
   const { data: allQuestions } = useWithQuestions({ limit: 5000 });
@@ -159,18 +163,23 @@ export default function SubjectImport(props: {
 
   // subject is the importingSubject
   // curSubject is the subject being replaced, which may have some other mentor specific q's visible
+
+  // Check if the current subject has some mentor specific questions that are not in the new subject
   curSubject?.questions
     ?.filter(
       (qq) =>
         !subject?.questions?.find(
           (q) => q.question?._id === qq.question?._id
         ) &&
-        (!qq.question.mentor || qq.question.mentor == mentorId)
+        qq.question.mentor &&
+        qq.question.mentor == mentorId
     )
     .forEach((q) => {
       questions.push({
         editType:
-          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+          editType === EditType.OLD_FOLLOWUP
+            ? EditType.NONE
+            : EditType.OLD_FOLLOWUP,
         importData: undefined,
         curData: q.question,
       });
@@ -182,8 +191,8 @@ export default function SubjectImport(props: {
   const newQuestions = questions.filter(
     (q) => q.editType === EditType.CREATED || q.editType === EditType.ADDED
   );
-  const removedQuestions = questions.filter(
-    (q) => q.editType === EditType.REMOVED
+  const oldFollowups = questions.filter(
+    (q) => q.editType === EditType.OLD_FOLLOWUP
   );
 
   const subjCategories = curSubject?.categories;
@@ -338,10 +347,10 @@ export default function SubjectImport(props: {
         <Divider />
         <ListSubheader>Questions</ListSubheader>
         <List data-cy="subject-questions">
-          {removedQuestions.length ? (
+          {oldFollowups.length ? (
             <List>
-              Removed
-              {removedQuestions.map((q, i) => {
+              Old Followups
+              {oldFollowups.map((q, i) => {
                 return (
                   <QuestionImport
                     key={`question-${i}`}
@@ -350,6 +359,8 @@ export default function SubjectImport(props: {
                     mapQuestion={mapQuestion}
                     mapQuestionToSubject={mapQuestionToSubject}
                     mapCategory={mapCategory}
+                    oldQuestionsToRemove={oldQuestionsToRemove}
+                    toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                     mapTopic={mapTopic}
                     categories={subjCategories || []}
                     topics={subjTopics || []}
@@ -361,7 +372,7 @@ export default function SubjectImport(props: {
           ) : undefined}
           {newQuestions.length ? (
             <List data-cy="new-questions">
-              New
+              New Followups
               {newQuestions.map((q, i) => {
                 return (
                   <QuestionImport
@@ -371,6 +382,8 @@ export default function SubjectImport(props: {
                     mapQuestion={mapQuestion}
                     mapCategory={mapCategory}
                     mapTopic={mapTopic}
+                    oldQuestionsToRemove={oldQuestionsToRemove}
+                    toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                     mapQuestionToSubject={mapQuestionToSubject}
                     categories={subjCategories || []}
                     topics={subjTopics || []}
@@ -404,6 +417,8 @@ export default function SubjectImport(props: {
                         mapQuestion={mapQuestion}
                         mapCategory={mapCategory}
                         mapTopic={mapTopic}
+                        oldQuestionsToRemove={oldQuestionsToRemove}
+                        toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                         subjects={subjects || []}
                         mapQuestionToSubject={mapQuestionToSubject}
                         categories={subjCategories || []}

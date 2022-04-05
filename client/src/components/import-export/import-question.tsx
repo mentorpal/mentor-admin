@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import {
+  Button,
   Card,
   ListItemText,
   makeStyles,
@@ -41,8 +42,10 @@ export default function QuestionImport(props: {
   categories: Category[];
   topics: Topic[];
   subjects: SubjectGQL[];
+  oldQuestionsToRemove: Question[];
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  toggleRemoveOldFollowup: (q: Question) => void;
   mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
   mapQuestionToSubject: (
     questionBeingMapped: Question,
@@ -60,11 +63,21 @@ export default function QuestionImport(props: {
     categories,
     subjectQuestion,
     subjects,
+    toggleRemoveOldFollowup,
+    oldQuestionsToRemove,
     topics,
   } = props;
   const { editType, importData: question, curData: curQuestion } = preview;
+  const questionPendingRemoval = Boolean(
+    oldQuestionsToRemove.find((qToRemove) => qToRemove._id === curQuestion?._id)
+  );
   return (
-    <Card key={question?._id} data-cy="question" className={classes.root}>
+    <Card
+      key={question?._id}
+      data-cy="question"
+      className={classes.root}
+      style={{ opacity: questionPendingRemoval ? 0.5 : 1 }}
+    >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <Typography align="left" variant="body1" style={{ marginRight: 10 }}>
@@ -163,6 +176,24 @@ export default function QuestionImport(props: {
                   <ListItemText primary={option.question} />
                 )}
               />
+            </>
+          ) : undefined}
+          {editType === EditType.OLD_FOLLOWUP && curQuestion ? (
+            <>
+              {questionPendingRemoval ? "Flagged for removal" : ""}
+              <Button
+                variant="contained"
+                style={{
+                  backgroundColor: questionPendingRemoval ? "lightblue" : "red",
+                  padding: "3px",
+                  margin: "3px",
+                }}
+                onClick={() => {
+                  toggleRemoveOldFollowup(curQuestion);
+                }}
+              >
+                {questionPendingRemoval ? "Undo" : "Remove"}
+              </Button>
             </>
           ) : undefined}
         </div>

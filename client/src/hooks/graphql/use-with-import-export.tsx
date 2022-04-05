@@ -9,16 +9,18 @@ import * as api from "api";
 import {
   Answer,
   Category,
+  ChangedMentorData,
   EditType,
   ImportTask,
   MentorExportJson,
   MentorImportPreview,
   Question,
+  ReplacedMentorDataChanges,
   Topic,
 } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
-import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { AnswerGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 import { useWithImportStatus } from "./use-with-import-status";
 import { useWithSubjects } from "./use-with-subjects";
@@ -35,10 +37,17 @@ export interface UseWithImportExport {
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   onMapCategory: (questionBeingReplaced: Question, category: Category) => void;
   onMapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  toggleRemoveOldFollowup: (q: Question) => void;
+  onReplaceNewAnswer: (a: AnswerGQL) => void;
   onMapQuestionToSubject: (
     questionBeingMapped: Question,
     targetSubject: SubjectGQL
   ) => void;
+  onToggleRemoveAllOldAnswers: () => void;
+  oldQuestionsToRemove: Question[];
+  oldAnswersToRemove: AnswerGQL[];
+  toggleRemoveOldAnswer: (a: AnswerGQL) => void;
+  onToggleReplaceEntireMentor: () => void;
   onSaveSubjectName: (subject: SubjectGQL, newName: string) => void;
   importTask: ImportTask | undefined;
   isUpdating: boolean;
@@ -55,6 +64,10 @@ export function useWithImportExport(): UseWithImportExport {
   const { importTask, setImportInProgress } = useWithImportStatus();
   const { data: subjectData } = useWithSubjects();
   const subjects = subjectData?.edges.map((edge) => edge.node);
+  const [oldQuestionsToRemove, setOldQuestionsToRemove] = useState<Question[]>(
+    []
+  );
+  const [oldAnswersToRemove, setOldAnswersToRemove] = useState<AnswerGQL[]>([]);
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -90,17 +103,41 @@ export function useWithImportExport(): UseWithImportExport {
     setIsUpdating(false);
   }
 
+  function getReplacedMentorChanges(): ReplacedMentorDataChanges {
+    const questionChanges: ChangedMentorData<Question>[] =
+      oldQuestionsToRemove.map((q) => ({
+        editType: EditType.REMOVED,
+        data: q,
+      }));
+    const answerChanges: ChangedMentorData<AnswerGQL>[] =
+      oldAnswersToRemove.map((a) => ({
+        editType: EditType.REMOVED,
+        data: a,
+      }));
+    return {
+      questionChanges: questionChanges,
+      answerChanges: answerChanges,
+    };
+  }
+
   function onConfirmImport(): void {
     if (!importedJson || !mentorId || isUpdating || !accessToken) {
       return;
     }
     setIsUpdating(true);
-    api._importMentor(mentorId, importedJson, accessToken).then(() => {
-      setImportJson(undefined);
-      setImportPreview(undefined);
-      setIsUpdating(false);
-      setImportInProgress(true); //starts the polling
-    });
+    api
+      ._importMentor(
+        mentorId,
+        importedJson,
+        getReplacedMentorChanges(),
+        accessToken
+      )
+      .then(() => {
+        setImportJson(undefined);
+        setImportPreview(undefined);
+        setIsUpdating(false);
+        setImportInProgress(true); //starts the polling
+      });
   }
 
   function onCancelImport(): void {
@@ -192,6 +229,8 @@ export function useWithImportExport(): UseWithImportExport {
   }
 
   // Map question to another question within a subject
+  // question answer document needs to stay and be updated with replacement doc
+  // replacement doc needs to go away no matter what
   function onMapQuestion(question: Question, replacement: Question): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -231,20 +270,49 @@ export function useWithImportExport(): UseWithImportExport {
       });
     setImportJson(json);
 
-    // Simpley remove question document from importPreview because we mapped the question to an existing question
     const preview = {
       ...importPreview,
       subjects: [...importPreview.subjects] || [],
       questions: [...importPreview.questions] || [],
       answers: [...importPreview.answers] || [],
     };
+    // Simply remove question document from importPreview because we mapped the question to an existing question
     const previewQIdx = preview.questions.findIndex(
       (q) => q.importData?._id === question._id
     );
     if (previewQIdx) {
       preview.questions.splice(previewQIdx, 1);
-      setImportPreview(preview);
     }
+
+    // We need to check if an answer document exists for the question that is being mapped to and remove it
+    // We need to also check if there is an answer document with "new" data that was part of the question that was mapped
+    //    and update the question to point to the target answer.
+    console.log("here1");
+    const replacementIdx = preview.answers.findIndex(
+      (previewAnswer) =>
+        (previewAnswer.curData || previewAnswer.importData)?.question._id ===
+        replacement._id
+    );
+    if (replacementIdx !== -1) {
+      console.log("here2");
+      preview.answers.splice(replacementIdx, 1);
+    }
+    const newAnswerIdx = preview.answers.findIndex(
+      (previewAnswer) =>
+        (previewAnswer.curData || previewAnswer.importData)?.question._id ===
+        question._id
+    );
+    if (newAnswerIdx !== -1) {
+      console.log("here3");
+      // There is some answer document that has the answer data for the imported question that got mapped
+      const importData = preview.answers[newAnswerIdx].importData;
+      if (importData) {
+        //There is some legitimate data that needs to be mapped to the target question
+        importData.question = replacement;
+        console.log("import data reached");
+      }
+    }
+    setImportPreview(preview);
   }
 
   // Map a question to a new category
@@ -269,6 +337,26 @@ export function useWithImportExport(): UseWithImportExport {
       }
     }
     setImportJson(json);
+
+    // TODO: Update Preview
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    for (const s of preview.subjects) {
+      if (!s.importData) {
+        continue;
+      }
+      const subjQIdx = s.importData.questions.findIndex(
+        (q) => q.question._id === questionBeingReplaced._id
+      );
+      if (subjQIdx !== -1) {
+        s.importData.questions[subjQIdx].category = category;
+      }
+    }
+    setImportPreview(preview);
   }
 
   // Map a question to a new subject
@@ -361,11 +449,16 @@ export function useWithImportExport(): UseWithImportExport {
       const removedQuestions = s.importData?.questions.splice(targetQIdx, 1);
       // Succesfully removed question from import data subject
       if (removedQuestions?.length) {
-        const removedQuestion = removedQuestions[0];
-
+        const removedQuestion: SubjectQuestionGQL = {
+          ...removedQuestions[0],
+          category: undefined,
+          topics: [],
+        };
         // Check if subject exists in preview already, then update it if so
         const targetPreviewSubjectIdx = preview.subjects.findIndex(
-          (prevSubj) => prevSubj.importData?._id === targetSubject._id
+          (prevSubj) =>
+            (prevSubj.importData?._id || prevSubj.curData?._id) ===
+            targetSubject._id
         );
         if (targetPreviewSubjectIdx !== -1) {
           // update this subjects
@@ -373,6 +466,25 @@ export function useWithImportExport(): UseWithImportExport {
             preview.subjects[targetPreviewSubjectIdx].importData;
           if (importData) {
             importData.questions = importData.questions.concat(removedQuestion);
+            setImportPreview(preview);
+            return;
+          } else {
+            // Need to add import data since we are now changing things
+            const currentData =
+              preview.subjects[targetPreviewSubjectIdx].curData;
+            if (!currentData) {
+              throw new Error(
+                "Expected current data to exist since import data did not"
+              );
+            }
+
+            preview.subjects[targetPreviewSubjectIdx].importData = {
+              ...currentData,
+              questions: currentData.questions
+                .filter((q) => !q.question.mentor)
+                .concat(removedQuestion),
+            };
+            preview.subjects[targetPreviewSubjectIdx].editType = EditType.ADDED;
             setImportPreview(preview);
             return;
           }
@@ -419,7 +531,6 @@ export function useWithImportExport(): UseWithImportExport {
       questions: [...importedJson.questions] || [],
       answers: [...importedJson.answers] || [],
     };
-
     for (const s of json.subjects) {
       const subjQuestionIdx = s.questions.findIndex(
         (subjQ) => subjQ.question._id === questionBeingUpdated._id
@@ -440,6 +551,172 @@ export function useWithImportExport(): UseWithImportExport {
       }
     }
     setImportJson(json);
+
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    for (const s of preview.subjects) {
+      if (!s.importData) {
+        continue;
+      }
+      const subjQIdx = s.importData.questions.findIndex(
+        (q) => q.question._id === questionBeingUpdated._id
+      );
+      if (subjQIdx !== -1) {
+        s.importData.questions[subjQIdx].topics = [topicToMap];
+      }
+    }
+    setImportPreview(preview);
+  }
+
+  function toggleRemoveOldFollowup(question: Question) {
+    if (!oldQuestionsToRemove.find((q) => q._id === question._id)) {
+      setOldQuestionsToRemove(oldQuestionsToRemove.concat(question));
+    } else {
+      setOldQuestionsToRemove(
+        oldQuestionsToRemove.filter((q) => q._id !== question._id)
+      );
+    }
+  }
+
+  function toggleRemoveOldAnswer(answer: AnswerGQL) {
+    if (
+      !oldAnswersToRemove.find((a) => a.question._id === answer.question._id)
+    ) {
+      console.log(
+        `couldn't find answer with question id ${
+          answer.question._id
+        } in list ${oldAnswersToRemove.map((a) => a.question._id)}`
+      );
+      setOldAnswersToRemove(oldAnswersToRemove.concat(answer));
+    } else {
+      console.log(
+        `found answer with question id ${
+          answer.question._id
+        } in list ${oldAnswersToRemove.map((a) => a.question._id)}`
+      );
+      setOldAnswersToRemove(
+        oldAnswersToRemove.filter((a) => a.question._id !== answer.question._id)
+      );
+    }
+  }
+
+  function onToggleRemoveAllOldAnswers() {
+    if (!importPreview) {
+      return;
+    }
+    const oldAnswerPreviews = importPreview.answers.filter(
+      (a) => a.editType === EditType.OLD_ANSWER && a.curData
+    );
+    const oldAnswers: AnswerGQL[] = [];
+    oldAnswerPreviews.forEach((oldAnswerPreview) => {
+      if (oldAnswerPreview.curData) {
+        oldAnswers.push(oldAnswerPreview.curData);
+      }
+    });
+    if (oldAnswersToRemove.length === oldAnswers.length) {
+      setOldAnswersToRemove([]);
+    } else {
+      setOldAnswersToRemove(oldAnswers);
+    }
+  }
+
+  function onToggleReplaceEntireMentor() {
+    if (!importPreview) {
+      return;
+    }
+    const oldQuestionPreviews = importPreview.questions.filter(
+      (q) =>
+        q.editType === EditType.OLD_FOLLOWUP && q.curData?.mentor == mentorId
+    );
+    const oldQuestions: Question[] = [];
+    oldQuestionPreviews.forEach((oldQuestionPreview) => {
+      if (oldQuestionPreview.curData) {
+        oldQuestions.push(oldQuestionPreview.curData);
+      }
+    });
+
+    const oldAnswerPreviews = importPreview.answers.filter(
+      (a) => a.editType === EditType.OLD_ANSWER
+    );
+    const oldAnswers: AnswerGQL[] = [];
+    oldAnswerPreviews.forEach((oldAnswerPreview) => {
+      if (oldAnswerPreview.curData) {
+        oldAnswers.push(oldAnswerPreview.curData);
+      }
+    });
+    console.log(
+      `questions flagged for removal ${JSON.stringify(oldQuestions)}`
+    );
+    if (
+      oldQuestionsToRemove.length === oldQuestions.length &&
+      oldAnswersToRemove.length === oldAnswers.length
+    ) {
+      setOldQuestionsToRemove([]);
+      setOldAnswersToRemove([]);
+    } else {
+      setOldQuestionsToRemove(oldQuestions);
+      setOldAnswersToRemove(oldAnswers);
+    }
+  }
+
+  /**
+   *
+   * @param replacingAnswer either the current answer data or importing answer data
+   * @returns
+   */
+  function onReplaceNewAnswer(replacingAnswer: AnswerGQL) {
+    if (
+      !importedJson ||
+      !importPreview ||
+      !mentorId ||
+      isUpdating ||
+      !subjects
+    ) {
+      return;
+    }
+
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    const previewAnswersIdx = preview.answers.findIndex(
+      (a) => a.curData?.question._id === replacingAnswer.question._id
+    );
+    const curAnswer = preview.answers[previewAnswersIdx].curData;
+    const importAnswer = preview.answers[previewAnswersIdx].importData;
+    if (!curAnswer || !importAnswer) {
+      throw new Error(
+        `Old or new answer does not exist for preview answer document corresponding to question id ${replacingAnswer.question._id}`
+      );
+    }
+    preview.answers[previewAnswersIdx] = {
+      ...preview.answers[previewAnswersIdx],
+      importData: replacingAnswer,
+    };
+    setImportPreview(preview);
+
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+    const answerIdx = json.answers.findIndex(
+      (a) => a.question._id === replacingAnswer.question._id
+    );
+    if (answerIdx === -1) {
+      throw new Error(
+        `Import JSON does not have an answer document for answer for question with id ${replacingAnswer.question._id}`
+      );
+    }
+    json.answers.splice(answerIdx, 1, replacingAnswer);
+    setImportJson(json);
   }
 
   return {
@@ -454,8 +731,15 @@ export function useWithImportExport(): UseWithImportExport {
     onMapQuestion,
     onMapCategory,
     onMapTopic,
+    toggleRemoveOldFollowup,
     onMapQuestionToSubject,
     onSaveSubjectName,
+    onReplaceNewAnswer,
+    onToggleRemoveAllOldAnswers,
+    onToggleReplaceEntireMentor,
+    oldQuestionsToRemove,
+    toggleRemoveOldAnswer,
+    oldAnswersToRemove,
     importTask,
     isUpdating,
   };

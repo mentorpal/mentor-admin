@@ -191,6 +191,28 @@ interface ExportedMentorInfo {
   mentorType: string;
 }
 
+export enum MentorDataTypes {
+  QUESTION = "QUESTION",
+  ANSWER = "ANSWER",
+  SUBJECT = "SUBJECT",
+  TOPIC = "TOPIC",
+  CATEGORY = "CATEGORY",
+}
+
+export interface ChangedMentorData<T> {
+  editType: EditType;
+  data: T;
+}
+
+export interface ReplacedMentorDataChanges {
+  questionChanges: ChangedMentorData<Question>[];
+  answerChanges: ChangedMentorData<AnswerGQL>[];
+  // topics: ChangedMentorData<Topic>[];
+  // categories: ChangedMentorData<Category>[];
+  // answers: ChangedMentorData<Answer>[];
+  // subjects: ChangedMentorData<Subject>[];
+}
+
 export interface MentorExportJson {
   id: string;
   mentorInfo: ExportedMentorInfo;
@@ -245,6 +267,8 @@ export enum EditType {
   ADDED = "ADDED",
   REMOVED = "REMOVED",
   CREATED = "CREATED",
+  OLD_FOLLOWUP = "OLD_FOLLOWUP",
+  OLD_ANSWER = "OLD_ANSWER",
 }
 
 export enum LoginStatus {

@@ -23,6 +23,7 @@ import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
 import SubjectImport from "./import-subject";
 import AnswerImport from "./import-answer";
 import { LoadingDialog } from "components/dialog";
+import { EditType } from "types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -54,8 +55,15 @@ export default function ImportView(props: {
     onMapCategory: mapCategory,
     onMapTopic: mapTopic,
     onSaveSubjectName: saveSubjectName,
+    oldQuestionsToRemove,
+    toggleRemoveOldAnswer,
+    oldAnswersToRemove,
+    onToggleRemoveAllOldAnswers,
+    onReplaceNewAnswer: replaceNewAnswer,
+    toggleRemoveOldFollowup: toggleRemoveOldFollowup,
     onMapQuestionToSubject: mapQuestionToSubject,
     isUpdating,
+    onToggleReplaceEntireMentor: replaceEntireMentor,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
 
@@ -63,6 +71,17 @@ export default function ImportView(props: {
     return <LoadingDialog title={isUpdating ? "Loading..." : ""} />;
   }
 
+  const newAnswers = importPreview?.answers?.filter(
+    (a) => a.editType === EditType.ADDED || a.editType === EditType.CREATED
+  );
+
+  const changedAnswers = importPreview?.answers?.filter(
+    (a) => a.editType === EditType.NONE
+  );
+
+  const oldAnswers = importPreview?.answers?.filter(
+    (a) => a.editType === EditType.OLD_ANSWER
+  );
   return (
     <Dialog fullScreen open={Boolean(importPreview)} onClose={cancelImport}>
       <AppBar>
@@ -91,6 +110,17 @@ export default function ImportView(props: {
       </AppBar>
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <DialogContent className={classes.root}>
+        <Button
+          style={{
+            backgroundColor: "#ff8080",
+            padding: "3px",
+            fontWeight: "bold",
+            borderRadius: "10px",
+          }}
+          onClick={() => replaceEntireMentor()}
+        >
+          Toggle Remove All Previous Mentor Data
+        </Button>
         <Typography style={{ marginBottom: 10 }}>
           The following changes will be made to your mentor if you import this
           JSON:
@@ -109,6 +139,8 @@ export default function ImportView(props: {
                 mapSubject={mapSubject}
                 mapQuestion={mapQuestion}
                 mapCategory={mapCategory}
+                toggleRemoveOldFollowup={toggleRemoveOldFollowup}
+                oldQuestionsToRemove={oldQuestionsToRemove}
                 mapTopic={mapTopic}
                 mapQuestionToSubject={mapQuestionToSubject}
                 saveSubjectName={saveSubjectName}
@@ -118,14 +150,64 @@ export default function ImportView(props: {
           })}
         </List>
         <p />
-        <List
-          data-cy="answers"
-          className={classes.list}
-          subheader={<ListSubheader>My Answers</ListSubheader>}
-        >
-          {importPreview?.answers?.map((a, i) => {
-            return <AnswerImport key={`answer-${i}`} preview={a} />;
-          })}
+        <List data-cy="answers" className={classes.list}>
+          <List data-cy="changed-answers">
+            Changed Answers
+            {changedAnswers.map((a, i) => {
+              return (
+                <AnswerImport
+                  key={`answer-${i}`}
+                  preview={a}
+                  oldAnswersToRemove={oldAnswersToRemove}
+                  toggleRemoveOldAnswer={toggleRemoveOldAnswer}
+                  replaceNewAnswer={replaceNewAnswer}
+                />
+              );
+            })}
+          </List>
+          <List data-cy="old-answers">
+            Old Answers
+            {
+              <Button
+                style={{
+                  position: "absolute",
+                  right: 50,
+                  top: 0,
+                  padding: "5px",
+                  backgroundColor: "lightblue",
+                  fontWeight: "bold",
+                }}
+                onClick={() => onToggleRemoveAllOldAnswers()}
+              >
+                Toggle All
+              </Button>
+            }
+            {oldAnswers.map((a, i) => {
+              return (
+                <AnswerImport
+                  key={`answer-${i}`}
+                  preview={a}
+                  oldAnswersToRemove={oldAnswersToRemove}
+                  toggleRemoveOldAnswer={toggleRemoveOldAnswer}
+                  replaceNewAnswer={replaceNewAnswer}
+                />
+              );
+            })}
+          </List>
+          <List data-cy="new-answers">
+            New Followup Answers
+            {newAnswers.map((a, i) => {
+              return (
+                <AnswerImport
+                  key={`answer-${i}`}
+                  preview={a}
+                  oldAnswersToRemove={oldAnswersToRemove}
+                  toggleRemoveOldAnswer={toggleRemoveOldAnswer}
+                  replaceNewAnswer={replaceNewAnswer}
+                />
+              );
+            })}
+          </List>
         </List>
       </DialogContent>
       <LoadingDialog title={isUpdating ? "Loading..." : ""} />

@@ -31,6 +31,7 @@ import {
   UploadTask,
   UploadProcessAsyncJob,
   ImportTask,
+  ReplacedMentorDataChanges,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -1641,12 +1642,17 @@ export async function importMentor(
 export async function _importMentor(
   mentor: string,
   json: MentorExportJson,
+  replacedMentorDataChanges: ReplacedMentorDataChanges,
   accessToken: string
 ): Promise<MentorGQL> {
   const data = new FormData();
   data.append(
     "body",
-    JSON.stringify({ mentor: mentor, mentorExportJson: json })
+    JSON.stringify({
+      mentor: mentor,
+      mentorExportJson: json,
+      replacedMentorDataChanges: replacedMentorDataChanges,
+    })
   );
   const result = await uploadRequest.post("/transfer/mentor/", data, {
     headers: {
