@@ -387,7 +387,10 @@ export function useWithRecordState(
           }
           setIsSaving(false);
           updateAnswerState({ answer: editedAnswer });
-          if (editedAnswer.hasEditedTranscript) {
+          if (
+            editedAnswer.hasEditedTranscript &&
+            mentorType === MentorType.VIDEO
+          ) {
             regenerateVTTForQuestion(
               editedAnswer.question,
               mentorId,
