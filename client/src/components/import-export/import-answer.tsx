@@ -132,19 +132,17 @@ export default function AnswerImport(props: {
                   fontWeight: !newAnswerChosen ? "normal" : "bold",
                 }}
               >
-                NEW:{" "}
-                {`${newTranscript.substring(0, 200)}${
-                  newTranscript.length > 200 ? "..." : ""
-                }`}
+                {newTranscript ?  `${newTranscript.substring(0, 200)}${newTranscript.length > 200 ? "..." : ""}` : "--no transcript--" }
               </Typography>
               <Button
                 variant="contained"
                 style={{
                   backgroundColor: "lightblue",
                   padding: 0,
+                  textTransform:"none",
                   marginTop: "5px",
                   marginBottom: "5px",
-                  width: "20px",
+                  width: "150px",
                 }}
                 onClick={() => {
                   if (newAnswerChosen && originalAnswer) {
@@ -154,7 +152,9 @@ export default function AnswerImport(props: {
                   }
                 }}
               >
-                Switch
+                {
+                  newAnswerChosen ? "Switch to old answer" : "Switch to new answer"
+                }
               </Button>
               <Typography
                 align="left"
@@ -164,10 +164,7 @@ export default function AnswerImport(props: {
                   fontWeight: newAnswerChosen ? "normal" : "bold",
                 }}
               >
-                OLD:{" "}
-                {`${originalTranscript.substring(0, 200)}${
-                  originalTranscript.length > 200 ? "..." : ""
-                }`}
+                { originalTranscript ?  `${originalTranscript.substring(0, 200)}${originalTranscript.length > 200 ? "..." : ""}` : "--no transcript--"}
               </Typography>
             </>
           ) : (

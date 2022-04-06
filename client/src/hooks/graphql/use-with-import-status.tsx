@@ -29,7 +29,7 @@ export function isImportComplete(task: ImportTask) {
 }
 
 export function useWithImportStatus(
-  pollingInterval = 1000
+  pollingInterval = 10000
 ): UseWithImportStatus {
   const { state: loginState } = useWithLogin();
   const { getData } = useActiveMentor();
