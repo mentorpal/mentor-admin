@@ -174,6 +174,7 @@ function FeedbackItem(props: {
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
+              key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
               options={mentorAnswers || []}
               getOptionLabel={(option: Answer) =>
