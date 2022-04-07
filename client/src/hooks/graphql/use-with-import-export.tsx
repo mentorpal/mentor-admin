@@ -228,9 +228,13 @@ export function useWithImportExport(): UseWithImportExport {
     });
   }
 
-  // Map question to another question within a subject
-  // question answer document needs to stay and be updated with replacement doc
-  // replacement doc needs to go away no matter what
+  /**
+   * This function transfers all the data for a new, imported question to a
+   * pre-existing question by updating both the importedJson and the preview so that
+   * every occurence of the new question (in subjects, questions, and answers) instead points to the replacement question.
+   * @param question the imported new question that is going to be replaced
+   * @param replacement the pre-existing question document that will be put in place of the imported question
+   */
   function onMapQuestion(question: Question, replacement: Question): void {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
@@ -270,13 +274,14 @@ export function useWithImportExport(): UseWithImportExport {
       });
     setImportJson(json);
 
+    // Do the same for preview
     const preview = {
       ...importPreview,
       subjects: [...importPreview.subjects] || [],
       questions: [...importPreview.questions] || [],
       answers: [...importPreview.answers] || [],
     };
-    // Simply remove question document from importPreview because we mapped the question to an existing question
+    // Remove imported new question from preview
     const previewQIdx = preview.questions.findIndex(
       (q) => q.importData?._id === question._id
     );
@@ -284,9 +289,7 @@ export function useWithImportExport(): UseWithImportExport {
       preview.questions.splice(previewQIdx, 1);
     }
 
-    // We need to check if an answer document exists for the question that is being mapped to and remove it
-    // We need to also check if there is an answer document with "new" data that was part of the question that was mapped
-    //    and update the question to point to the target answer.
+    // Remove any pre-existing answer data for the question that is taking place of the new imported question
     const replacementIdx = preview.answers.findIndex(
       (previewAnswer) =>
         (previewAnswer.curData || previewAnswer.importData)?.question._id ===
@@ -295,20 +298,21 @@ export function useWithImportExport(): UseWithImportExport {
     if (replacementIdx !== -1) {
       preview.answers.splice(replacementIdx, 1);
     }
+
+    // Find the answer data for the new imported question, and replace the question within the answer document with the replacing question
     const newAnswerIdx = preview.answers.findIndex(
       (previewAnswer) =>
         (previewAnswer.curData || previewAnswer.importData)?.question._id ===
         question._id
     );
     if (newAnswerIdx !== -1) {
-      // There is some answer document that has the answer data for the imported question that got mapped
       const importData = preview.answers[newAnswerIdx].importData;
       if (importData) {
-        //There is some legitimate data that needs to be mapped to the target question
         importData.question = replacement;
       }
     }
-    // Also remove the question from the imported subjects question list
+
+    // Remove the replaced question from the imported subjects question list
     for (const s of preview.subjects) {
       const previewSubjectQuestionIdx =
         s.importData?.questions.findIndex(
@@ -326,6 +330,7 @@ export function useWithImportExport(): UseWithImportExport {
     if (!importedJson || !importPreview || !mentorId || isUpdating) {
       return;
     }
+    // update json with new question category
     const json = {
       ...importedJson,
       subjects: [...importedJson.subjects] || [],
@@ -344,7 +349,7 @@ export function useWithImportExport(): UseWithImportExport {
     }
     setImportJson(json);
 
-    // TODO: Update Preview
+    // update preview with new question category
     const preview = {
       ...importPreview,
       subjects: [...importPreview.subjects] || [],
@@ -412,6 +417,7 @@ export function useWithImportExport(): UseWithImportExport {
         subjectToAddToIdx
       ].questions.concat({
         ...questionToAdd,
+        // Remove category and topic because different subjects have different categories and topics
         category: undefined,
         topics: [],
       });
@@ -439,6 +445,7 @@ export function useWithImportExport(): UseWithImportExport {
     }
     setImportJson(json);
 
+    // Do the same for preview
     const preview = {
       ...importPreview,
       subjects: [...importPreview.subjects] || [],
@@ -467,7 +474,6 @@ export function useWithImportExport(): UseWithImportExport {
             targetSubject._id
         );
         if (targetPreviewSubjectIdx !== -1) {
-          // update this subjects
           const importData =
             preview.subjects[targetPreviewSubjectIdx].importData;
           if (importData) {
@@ -657,9 +663,7 @@ export function useWithImportExport(): UseWithImportExport {
   }
 
   /**
-   *
-   * @param replacingAnswer either the current answer data or importing answer data
-   * @returns
+   * Updates importedJson and preview by replacing imported answer data with replacingAnswer param
    */
   function onReplaceNewAnswer(replacingAnswer: AnswerGQL) {
     if (
@@ -671,13 +675,14 @@ export function useWithImportExport(): UseWithImportExport {
     ) {
       return;
     }
-
+    // update answer previews by
     const preview = {
       ...importPreview,
       subjects: [...importPreview.subjects] || [],
       questions: [...importPreview.questions] || [],
       answers: [...importPreview.answers] || [],
     };
+    // find answer based on unqiue question identifier
     const previewAnswersIdx = preview.answers.findIndex(
       (a) => a.curData?.question._id === replacingAnswer.question._id
     );
@@ -694,6 +699,7 @@ export function useWithImportExport(): UseWithImportExport {
     };
     setImportPreview(preview);
 
+    // update json with new answer
     const json = {
       ...importedJson,
       subjects: [...importedJson.subjects] || [],
