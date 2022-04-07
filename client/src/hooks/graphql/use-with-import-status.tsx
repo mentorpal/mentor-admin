@@ -17,7 +17,7 @@ export interface UseWithImportStatus {
   setImportInProgress: (b: boolean) => void;
 }
 
-export function isImportComplete(task: ImportTask) {
+export function isImportComplete(task: ImportTask): boolean {
   const gqlUpdateStatus = task.graphQLUpdate.status;
   const mediaTransferStatus = task.s3VideoMigrate.status;
   return (
@@ -29,7 +29,7 @@ export function isImportComplete(task: ImportTask) {
 }
 
 export function useWithImportStatus(
-  pollingInterval = 10000
+  pollingInterval = 1000
 ): UseWithImportStatus {
   const { state: loginState } = useWithLogin();
   const { getData } = useActiveMentor();

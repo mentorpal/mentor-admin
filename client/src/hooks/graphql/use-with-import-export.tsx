@@ -126,7 +126,7 @@ export function useWithImportExport(): UseWithImportExport {
     }
     setIsUpdating(true);
     api
-      ._importMentor(
+      .importMentor(
         mentorId,
         importedJson,
         getReplacedMentorChanges(),

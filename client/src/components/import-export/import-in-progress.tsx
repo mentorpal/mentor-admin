@@ -65,7 +65,6 @@ export default function ImportInProgressDialog(props: {
       case ImportTaskStatus.QUEUED:
         return <HourglassEmptyTwoTone />;
       case ImportTaskStatus.IN_PROGRESS:
-        // TODO: make this one rotate 360 with css
         return <Autorenew className={classes.progressIcon} />;
       case ImportTaskStatus.FAILED:
         return <ErrorOutline style={{ color: "red" }} />;

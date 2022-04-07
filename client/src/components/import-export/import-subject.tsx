@@ -161,7 +161,7 @@ export default function SubjectImport(props: {
   });
 
   // subject is the importingSubject
-  // curSubject is the subject being replaced, which may have some other mentor specific q's visible
+  // curSubject is the subject being replaced
 
   // Check if the current subject has some mentor specific questions that are not in the new subject
   curSubject?.questions

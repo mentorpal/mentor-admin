@@ -207,10 +207,6 @@ export interface ChangedMentorData<T> {
 export interface ReplacedMentorDataChanges {
   questionChanges: ChangedMentorData<Question>[];
   answerChanges: ChangedMentorData<AnswerGQL>[];
-  // topics: ChangedMentorData<Topic>[];
-  // categories: ChangedMentorData<Category>[];
-  // answers: ChangedMentorData<Answer>[];
-  // subjects: ChangedMentorData<Subject>[];
 }
 
 export interface MentorExportJson {

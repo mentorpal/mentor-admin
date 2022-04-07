@@ -73,7 +73,7 @@ function isValidObjectID(id: string) {
   return id.match(/^[0-9a-fA-F]{24}$/);
 }
 
-const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 60000;
+const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
 
 /**
  * Middleware function takes some action on an axios instance
@@ -1540,106 +1540,6 @@ export async function fetchImportTask(
 }
 
 export async function importMentor(
-  mentor: string,
-  json: MentorExportJson,
-  accessToken: string
-): Promise<MentorGQL> {
-  return execGql<MentorGQL>(
-    {
-      query: `
-        mutation MentorImport($mentor: ID!, $json: MentorImportJsonType!) {
-          me {
-            mentorImport(mentor: $mentor, json: $json) {
-              _id
-              name
-              firstName
-              title
-              email
-              allowContact
-              mentorType
-              thumbnail
-              lastTrainedAt
-              isDirty
-              defaultSubject {
-                _id
-              }
-              subjects {
-                _id
-                name
-                description
-                isRequired
-                categories {
-                  id
-                  name
-                  description
-                }
-                topics {
-                  id
-                  name
-                  description
-                }
-                questions {
-                  question {
-                    _id
-                    question
-                    type
-                    name
-                    paraphrases
-                    mentor
-                    mentorType
-                    minVideoLength
-                  }
-                  category {
-                    id
-                    name
-                    description
-                  }
-                  topics {
-                    id
-                    name
-                    description
-                  }
-                }
-              }
-              topics {
-                id
-                name
-                description
-              }
-              answers {
-                _id
-                question {
-                  _id
-                  question
-                  paraphrases
-                  type
-                  name
-                  mentor
-                  mentorType
-                  minVideoLength
-                }
-                transcript
-                status
-                hasEditedTranscript
-                hasUntransferredMedia
-                media {
-                  type
-                  tag
-                  url
-                  needsTransfer
-                }
-              }
-            }
-          }
-        }
-      `,
-      variables: { mentor, json },
-    },
-    { accessToken, dataPath: ["me", "mentorImport"] }
-  );
-}
-
-export async function _importMentor(
   mentor: string,
   json: MentorExportJson,
   replacedMentorDataChanges: ReplacedMentorDataChanges,
