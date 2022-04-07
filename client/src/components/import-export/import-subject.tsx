@@ -139,10 +139,9 @@ export default function SubjectImport(props: {
     });
 
   const questions: ImportPreview<Question>[] = [];
-
   // for all questions of the importing subject
   subject?.questions?.forEach((q) => {
-    // Check if the imported question already exists in this subject
+    // Check if the imported subject question already exists in this subject
     const curQuestion = curSubject?.questions?.find(
       (qq) =>
         !q.question.mentor &&

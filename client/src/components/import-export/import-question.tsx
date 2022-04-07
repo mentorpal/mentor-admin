@@ -71,6 +71,7 @@ export default function QuestionImport(props: {
   const questionPendingRemoval = Boolean(
     oldQuestionsToRemove.find((qToRemove) => qToRemove._id === curQuestion?._id)
   );
+  const inputWidth = 300;
   return (
     <Card
       key={question?._id}
@@ -98,7 +99,7 @@ export default function QuestionImport(props: {
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  style={{ width: 300 }}
+                  style={{ width: 200 }}
                   variant="outlined"
                   placeholder={"Map to a subject?"}
                 />
@@ -119,7 +120,7 @@ export default function QuestionImport(props: {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      style={{ width: 300 }}
+                      style={{ width: inputWidth }}
                       variant="outlined"
                       placeholder={
                         subjectQuestion?.category?.name || "Add a category?"
@@ -142,7 +143,7 @@ export default function QuestionImport(props: {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      style={{ width: 300 }}
+                      style={{ width: inputWidth }}
                       variant="outlined"
                       placeholder={
                         subjectQuestion?.topics?.length
@@ -167,7 +168,7 @@ export default function QuestionImport(props: {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    style={{ width: 300 }}
+                    style={{ width: inputWidth }}
                     variant="outlined"
                     placeholder="Map to existing question?"
                   />
@@ -182,6 +183,7 @@ export default function QuestionImport(props: {
             <>
               {questionPendingRemoval ? "Flagged for removal" : ""}
               <Button
+                data-cy="remove-old-question"
                 variant="contained"
                 style={{
                   backgroundColor: questionPendingRemoval ? "lightblue" : "red",

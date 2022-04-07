@@ -286,26 +286,126 @@ describe("Import", { scrollBehavior: "center" }, () => {
     cy.get("[data-cy=subject]").eq(3).contains("Background");
     cy.get("[data-cy=subject]").eq(3).find("[data-cy=remove-icon]");
 
-    cy.get("[data-cy=answers]").scrollIntoView();
-    cy.get("[data-cy=answers]").children().should("have.length", 5);
-    cy.get("[data-cy=answer]").eq(0).contains("Question 1");
-    cy.get("[data-cy=answer]").eq(0).contains("Answer 1");
-    cy.get("[data-cy=answer]")
-      .eq(0)
-      .find("[data-cy=change-icon]")
-      .should("not.be.visible");
-    cy.get("[data-cy=answer]").eq(1).contains("Edited Question 2");
-    cy.get("[data-cy=answer]").eq(1).contains("Edited Answer 2");
-    cy.get("[data-cy=answer]")
-      .eq(1)
-      .find("[data-cy=change-icon]")
-      .should("be.visible");
-    cy.get("[data-cy=answer]").eq(2).contains("A new question being created");
-    cy.get("[data-cy=answer]").eq(2).contains("A new answer");
-    cy.get("[data-cy=answer]").eq(2).find("[data-cy=new-icon]");
-    cy.get("[data-cy=answer]").eq(3).contains("Removed Question 5");
-    cy.get("[data-cy=answer]").eq(3).contains("Removed Answer 5");
-    cy.get("[data-cy=answer]").eq(3).find("[data-cy=remove-icon]");
+    cy.get("[data-cy=changed-answers]").scrollIntoView();
+    cy.get("[data-cy=changed-answers]").children().should("have.length", 2);
+    cy.get("[data-cy=changed-answers]").within(() => {
+      cy.get("[data-cy=answer]").eq(0).contains("Question 1");
+      cy.get("[data-cy=answer]").eq(0).contains("Answer 1");
+      cy.get("[data-cy=answer]").eq(1).contains("Edited Question 2");
+      cy.get("[data-cy=answer]").eq(1).contains("Edited Answer 2");
+    });
+    cy.get("[data-cy=new-answers]").scrollIntoView();
+    cy.get("[data-cy=new-answers]").children().should("have.length", 1);
+    cy.get("[data-cy=new-answers]").within(() => {
+      cy.get("[data-cy=answer]").eq(0).contains("A new question being created");
+      cy.get("[data-cy=answer]").eq(0).contains("A new answer");
+      cy.get("[data-cy=answer]").eq(0).find("[data-cy=new-icon]");
+    });
+    cy.get("[data-cy=old-answers]").scrollIntoView();
+    cy.get("[data-cy=old-answers]").children().should("have.length", 2);
+    cy.get("[data-cy=old-answers]").within(() => {
+      cy.get("[data-cy=answer]").eq(0).contains("Old Question 5");
+      cy.get("[data-cy=answer]").eq(0).contains("Old Answer 5");
+      cy.get("[data-cy=answer]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=remove-old-answer]").should("exist");
+          cy.get("[data-cy=remove-old-answer]").contains("Remove");
+        });
+    });
+  });
+
+  it("can toggle old answers for removal", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("MentorExport", { mentorExport: exportJson }),
+        mockGQL("MentorImport", { me: { mentorImport: clint } }),
+        mockGQL("MentorImportPreview", {
+          mentorImportPreview: {
+            ...importPreview,
+          },
+        }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.fixture("mentor-import.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent,
+        fileName: "mentor-import.json",
+        mimeType: "application/json",
+      });
+    });
+    cy.contains("Confirm Import?");
+    cy.contains(
+      "The following changes will be made to your mentor if you import this JSON:"
+    );
+    cy.get("[data-cy=old-answers]").scrollIntoView();
+    cy.get("[data-cy=old-answers]").within(() => {
+      cy.get("[data-cy=answer]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=remove-old-answer]").should("exist");
+          cy.get("[data-cy=remove-old-answer]").contains("Remove");
+          cy.get("[data-cy=remove-old-answer]").invoke("mouseover").click();
+          cy.get("[data-cy=remove-old-answer]").contains("Undo");
+        });
+      cy.get("[data-cy=answer]").eq(0).contains("Flagged for removal");
+      cy.get("[data-cy=answer]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=remove-old-answer]").should("exist");
+          cy.get("[data-cy=remove-old-answer]").contains("Undo");
+          cy.get("[data-cy=remove-old-answer]").invoke("mouseover").click();
+          cy.get("[data-cy=remove-old-answer]").contains("Remove");
+        });
+      cy.get("[data-cy=answer]")
+        .eq(0)
+        .should("not.have.text", "Flagged for removal");
+    });
+  });
+
+  it("remove all old mentor data flags all old answers for removal", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("MentorExport", { mentorExport: exportJson }),
+        mockGQL("MentorImport", { me: { mentorImport: clint } }),
+        mockGQL("MentorImportPreview", {
+          mentorImportPreview: {
+            ...importPreview,
+          },
+        }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.fixture("mentor-import.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent,
+        fileName: "mentor-import.json",
+        mimeType: "application/json",
+      });
+    });
+    cy.contains("Confirm Import?");
+    cy.contains(
+      "The following changes will be made to your mentor if you import this JSON:"
+    );
+    cy.get("[data-cy=remove-all-old-mentor-data]").invoke("mouseover").click();
+    cy.get("[data-cy=old-answers]").scrollIntoView();
+    cy.get("[data-cy=old-answers]").within(() => {
+      cy.get("[data-cy=answer]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=remove-old-answer]").contains("Undo");
+        });
+      cy.get("[data-cy=answer]").eq(0).contains("Flagged for removal");
+    });
   });
 
   it("new subject names can be edited", () => {
@@ -410,13 +510,149 @@ describe("Import", { scrollBehavior: "center" }, () => {
         .eq(0)
         .within(() => {
           cy.get("[data-cy=toggle]").click();
+          cy.get("[data-cy=new-questions]").scrollIntoView();
           cy.get("[data-cy=new-questions]").within(() => {
             cy.get("[data-cy=question]").within(() => {
               cy.get("[data-cy=category-remap-input]").should("exist");
-              cy.get("[data-cy=question-input]").should("exist");
+              cy.get("[data-cy=question-remap-input]").should("exist");
+              cy.get("[data-cy=category-remap-input]")
+                .invoke("mouseover")
+                .click();
+              cy.get("[data-cy=category-remap-input]").type("Category");
+              cy.get("[data-cy=category-remap-input]").type(
+                "{downarrow}{enter}"
+              );
             });
           });
         });
+    });
+  });
+
+  it("new questions can be mapped to subjects", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("MentorExport", { mentorExport: exportJson }),
+        mockGQL("MentorImport", { me: { mentorImport: clint } }),
+        mockGQL("MentorImportPreview", {
+          mentorImportPreview: {
+            ...importPreview,
+          },
+        }),
+        mockGQL("ImportTask", { importTask: null }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.fixture("mentor-import.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent,
+        fileName: "mentor-import.json",
+        mimeType: "application/json",
+      });
+    });
+    cy.contains("Confirm Import?");
+    cy.get("[data-cy=subjects]").within(($within) => {
+      cy.get("[data-cy=subject]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=toggle]").click();
+          cy.get("[data-cy=new-questions]").scrollIntoView();
+          cy.get("[data-cy=new-questions]").within(() => {
+            cy.get("[data-cy=question]").contains(
+              "A new question being created"
+            );
+            cy.get("[data-cy=question]").within(() => {
+              cy.get("[data-cy=remap-question-subject-input]").should("exist");
+              cy.get("[data-cy=remap-question-subject-input]")
+                .invoke("mouseover")
+                .click();
+              cy.get("[data-cy=remap-question-subject-input]").type(
+                "{downarrow}{enter}"
+              );
+            });
+          });
+        });
+      //Question moved to other subject
+      cy.get("[data-cy=subject]")
+        .eq(3)
+        .within(() => {
+          cy.get("[data-cy=toggle]").click();
+          cy.get("[data-cy=new-questions]").scrollIntoView();
+          cy.get("[data-cy=new-questions]").within(() => {
+            cy.get("[data-cy=question]").should("exist");
+            cy.get("[data-cy=question]").contains(
+              "A new question being created"
+            );
+          });
+        });
+    });
+  });
+
+  it.only("new questions can be mapped to existing questions", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("Questions", { questions: questions }),
+        mockGQL("MentorExport", { mentorExport: exportJson }),
+        mockGQL("MentorImport", { me: { mentorImport: clint } }),
+        mockGQL("MentorImportPreview", {
+          mentorImportPreview: {
+            ...importPreview,
+          },
+        }),
+        mockGQL("ImportTask", { importTask: null }),
+      ],
+    });
+    cy.visit("/importexport");
+    cy.fixture("mentor-import.json").then((fileContent) => {
+      cy.get("[data-cy=upload-mentor]").attachFile({
+        fileContent: fileContent,
+        fileName: "mentor-import.json",
+        mimeType: "application/json",
+      });
+    });
+    // Before mapping, new question + answer should exist
+    cy.get("[data-cy=new-answers]").scrollIntoView();
+    cy.get("[data-cy=new-answers]").within(() => {
+      cy.get("[data-cy=answer]").eq(0).should("exist");
+      cy.get("[data-cy=answer]").eq(0).contains("A new question being created");
+      cy.get("[data-cy=answer]").eq(0).contains("A new answer");
+    });
+
+    cy.contains("Confirm Import?");
+    cy.get("[data-cy=subjects]").within(($within) => {
+      cy.get("[data-cy=subject]")
+        .eq(0)
+        .within(() => {
+          cy.get("[data-cy=toggle]").click();
+          cy.get("[data-cy=new-questions]").scrollIntoView();
+          cy.get("[data-cy=new-questions]").within(() => {
+            cy.get("[data-cy=question]").contains(
+              "A new question being created"
+            );
+            cy.get("[data-cy=question]").within(() => {
+              cy.get("[data-cy=question-remap-input]").should("exist");
+              cy.get("[data-cy=question-remap-input]")
+                .invoke("mouseover")
+                .click();
+              cy.get("[data-cy=question-remap-input]").type(
+                "{downarrow}{enter}"
+              );
+            });
+          });
+        });
+    });
+    // After mapping, new answer should be shown for old question that it got mapped to
+    cy.get("[data-cy=new-answers]").scrollIntoView();
+    cy.get("[data-cy=new-answers]").within(() => {
+      cy.get("[data-cy=answer]").eq(0).should("exist");
+      cy.get("[data-cy=answer]").eq(0).contains("Question 1");
+      cy.get("[data-cy=answer]").eq(0).contains("A new answer");
     });
   });
 });

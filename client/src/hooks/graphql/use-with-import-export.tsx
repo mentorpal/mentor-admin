@@ -287,14 +287,12 @@ export function useWithImportExport(): UseWithImportExport {
     // We need to check if an answer document exists for the question that is being mapped to and remove it
     // We need to also check if there is an answer document with "new" data that was part of the question that was mapped
     //    and update the question to point to the target answer.
-    console.log("here1");
     const replacementIdx = preview.answers.findIndex(
       (previewAnswer) =>
         (previewAnswer.curData || previewAnswer.importData)?.question._id ===
         replacement._id
     );
     if (replacementIdx !== -1) {
-      console.log("here2");
       preview.answers.splice(replacementIdx, 1);
     }
     const newAnswerIdx = preview.answers.findIndex(
@@ -303,13 +301,21 @@ export function useWithImportExport(): UseWithImportExport {
         question._id
     );
     if (newAnswerIdx !== -1) {
-      console.log("here3");
       // There is some answer document that has the answer data for the imported question that got mapped
       const importData = preview.answers[newAnswerIdx].importData;
       if (importData) {
         //There is some legitimate data that needs to be mapped to the target question
         importData.question = replacement;
-        console.log("import data reached");
+      }
+    }
+    // Also remove the question from the imported subjects question list
+    for (const s of preview.subjects) {
+      const previewSubjectQuestionIdx =
+        s.importData?.questions.findIndex(
+          (q) => q.question._id === question._id
+        ) || -1;
+      if (previewSubjectQuestionIdx !== -1) {
+        s.importData?.questions.splice(previewSubjectQuestionIdx, 1);
       }
     }
     setImportPreview(preview);
@@ -586,18 +592,8 @@ export function useWithImportExport(): UseWithImportExport {
     if (
       !oldAnswersToRemove.find((a) => a.question._id === answer.question._id)
     ) {
-      console.log(
-        `couldn't find answer with question id ${
-          answer.question._id
-        } in list ${oldAnswersToRemove.map((a) => a.question._id)}`
-      );
       setOldAnswersToRemove(oldAnswersToRemove.concat(answer));
     } else {
-      console.log(
-        `found answer with question id ${
-          answer.question._id
-        } in list ${oldAnswersToRemove.map((a) => a.question._id)}`
-      );
       setOldAnswersToRemove(
         oldAnswersToRemove.filter((a) => a.question._id !== answer.question._id)
       );
@@ -648,9 +644,6 @@ export function useWithImportExport(): UseWithImportExport {
         oldAnswers.push(oldAnswerPreview.curData);
       }
     });
-    console.log(
-      `questions flagged for removal ${JSON.stringify(oldQuestions)}`
-    );
     if (
       oldQuestionsToRemove.length === oldQuestions.length &&
       oldAnswersToRemove.length === oldAnswers.length

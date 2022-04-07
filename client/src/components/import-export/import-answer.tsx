@@ -132,14 +132,18 @@ export default function AnswerImport(props: {
                   fontWeight: !newAnswerChosen ? "normal" : "bold",
                 }}
               >
-                {newTranscript ?  `${newTranscript.substring(0, 200)}${newTranscript.length > 200 ? "..." : ""}` : "--no transcript--" }
+                {newTranscript
+                  ? `${newTranscript.substring(0, 200)}${
+                      newTranscript.length > 200 ? "..." : ""
+                    }`
+                  : "--no transcript--"}
               </Typography>
               <Button
                 variant="contained"
                 style={{
                   backgroundColor: "lightblue",
                   padding: 0,
-                  textTransform:"none",
+                  textTransform: "none",
                   marginTop: "5px",
                   marginBottom: "5px",
                   width: "150px",
@@ -152,9 +156,9 @@ export default function AnswerImport(props: {
                   }
                 }}
               >
-                {
-                  newAnswerChosen ? "Switch to old answer" : "Switch to new answer"
-                }
+                {newAnswerChosen
+                  ? "Switch to old answer"
+                  : "Switch to new answer"}
               </Button>
               <Typography
                 align="left"
@@ -164,7 +168,11 @@ export default function AnswerImport(props: {
                   fontWeight: newAnswerChosen ? "normal" : "bold",
                 }}
               >
-                { originalTranscript ?  `${originalTranscript.substring(0, 200)}${originalTranscript.length > 200 ? "..." : ""}` : "--no transcript--"}
+                {originalTranscript
+                  ? `${originalTranscript.substring(0, 200)}${
+                      originalTranscript.length > 200 ? "..." : ""
+                    }`
+                  : "--no transcript--"}
               </Typography>
             </>
           ) : (
@@ -179,6 +187,7 @@ export default function AnswerImport(props: {
           <>
             {answerPendingRemoval ? "Flagged for removal" : ""}
             <Button
+              data-cy="remove-old-answer"
               variant="contained"
               style={{
                 backgroundColor: answerPendingRemoval ? "lightblue" : "red",

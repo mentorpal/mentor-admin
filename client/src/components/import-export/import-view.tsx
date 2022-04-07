@@ -111,6 +111,7 @@ export default function ImportView(props: {
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <DialogContent className={classes.root}>
         <Button
+          data-cy="remove-all-old-mentor-data"
           style={{
             backgroundColor: "#ff8080",
             padding: "3px",
@@ -195,7 +196,7 @@ export default function ImportView(props: {
             })}
           </List>
           <List data-cy="new-answers">
-            New Followup Answers
+            New Answers
             {newAnswers.map((a, i) => {
               return (
                 <AnswerImport
