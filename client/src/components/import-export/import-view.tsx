@@ -43,6 +43,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ImportView(props: {
   useImportExport: UseWithImportExport;
+  mentorName: string;
+  mentorId: string;
 }): JSX.Element {
   const classes = useStyles();
   const {
@@ -66,7 +68,7 @@ export default function ImportView(props: {
     onToggleReplaceEntireMentor: replaceEntireMentor,
   } = props.useImportExport;
   const { data: subjects } = useWithSubjects();
-
+  const { mentorName, mentorId } = props;
   if (!importedJson || !importPreview) {
     return <LoadingDialog title={isUpdating ? "Loading..." : ""} />;
   }
@@ -110,6 +112,13 @@ export default function ImportView(props: {
       </AppBar>
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <DialogContent className={classes.root}>
+        <Typography data-cy="mentor-name">
+          <p>
+            Mentor being replaced: {<br />}
+            {mentorName ? `Name: ${mentorName}` : ""} {<br />}
+            {mentorId ? `Mentor ID: ${mentorId}` : ""}
+          </p>
+        </Typography>
         <Button
           data-cy="remove-all-old-mentor-data"
           style={{

@@ -86,6 +86,9 @@ describe("Import", { scrollBehavior: "center" }, () => {
     cy.contains("Export Mentor");
     cy.get("[data-cy=download-mentor]");
     cy.get("[data-cy=upload-mentor]");
+    cy.get("[data-cy=mentor-name]").contains("Mentor being replaced:");
+    cy.get("[data-cy=mentor-name]").contains("Name: Clint Anderson");
+    cy.get("[data-cy=mentor-name]").contains("Mentor ID: clintanderson");
   });
 
   it("Displays close when import complete", () => {
@@ -591,7 +594,7 @@ describe("Import", { scrollBehavior: "center" }, () => {
     });
   });
 
-  it.only("new questions can be mapped to existing questions", () => {
+  it("new questions can be mapped to existing questions", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clintNew,

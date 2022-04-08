@@ -14,7 +14,7 @@ import {
 
 export const mentor: Mentor = {
   _id: "clintanderson",
-  name: "",
+  name: "Clint Anderson",
   firstName: "",
   title: "",
   mentorType: MentorType.VIDEO,

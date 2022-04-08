@@ -28,6 +28,7 @@ import {
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
   Launch as LaunchIcon,
+  ImportExport,
 } from "@material-ui/icons";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
@@ -205,6 +206,18 @@ function UserItem(props: {
             className={styles.normalButton}
           >
             <LaunchIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Import" arrow>
+          <IconButton
+            data-cy="import-button"
+            onClick={() => {
+              switchActiveMentor(edge.node.defaultMentor._id);
+              navigate("/importexport");
+            }}
+            className={styles.normalButton}
+          >
+            <ImportExport />
           </IconButton>
         </Tooltip>
         <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
