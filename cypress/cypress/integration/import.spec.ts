@@ -66,7 +66,7 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Import", { scrollBehavior: "center" }, () => {
-  it("shows page", () => {
+  it.only("shows page", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clintNew,

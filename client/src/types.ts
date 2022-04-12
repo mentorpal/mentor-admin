@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import { CancelTokenSource } from "axios";
-import { AnswerGQL, SubjectGQL } from "types-gql";
+import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 
 export interface Config {
   googleClientId: string;
@@ -215,6 +215,7 @@ export interface MentorExportJson {
   subjects: SubjectGQL[];
   questions: Question[];
   answers: AnswerGQL[];
+  userQuestions: UserQuestionGQL[];
 }
 
 export interface ImportPreview<T> {

@@ -1332,6 +1332,33 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
                 minVideoLength
               }
             }
+            userQuestions{
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              mentor{
+                _id
+                name
+              }
+              classifierAnswer{
+                _id
+                question{
+                  _id
+                  question
+                }
+                transcript
+              }
+              graderAnswer{
+                _id
+                question{
+                  _id
+                  question
+                }
+                transcript
+              }
+            }
           }
         }
       `,

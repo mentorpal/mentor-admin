@@ -31,6 +31,7 @@ function ImportPage(): JSX.Element {
 
   const mentorId = getData((state) => state.data?._id);
   const mentorName = getData((state) => state.data?.name) || "";
+  const mentorTitle = getData((state) => state.data?.title) || "";
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
 
   if (!mentorId || !mentorAnswers || isLoading) {
@@ -58,6 +59,7 @@ function ImportPage(): JSX.Element {
           <p>
             Mentor being replaced: {<br />}
             {mentorName ? `Name: ${mentorName}` : ""} {<br />}
+            {mentorTitle ? `Title: ${mentorTitle}` : ""} {<br />}
             {mentorId ? `Mentor ID: ${mentorId}` : ""}
           </p>
         </Typography>
