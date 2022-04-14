@@ -30,7 +30,7 @@ import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 export function useWithUploadStatus(
   accessToken: string,
   onUploadedCallback?: (task: UploadTask) => void,
-  pollingInterval = 1000
+  pollingInterval = 3000
 ): UseWithUploadStatus {
   const [uploads, setUploads] = useState<UploadTask[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
