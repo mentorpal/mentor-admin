@@ -27,7 +27,7 @@ export default function MyMentorCard(props: {
     isSaving: isMentorSaving,
     getData,
   } = useActiveMentor();
-  const { editedMentor, editMentor } = props.useMentor;
+  const { editedMentor, editMentor, saveMentorDetails } = props.useMentor;
   const mentorId = getData((ms) => ms.data?._id || "");
   const [thumbnail, updateThumbnail] = useWithThumbnail();
 
@@ -45,6 +45,7 @@ export default function MyMentorCard(props: {
 
   const handleClose = () => {
     setOpen(false);
+    saveMentorDetails();
   };
 
   return (

@@ -69,7 +69,7 @@ describe("My Mentor Page", () => {
         //  open modal
         cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
-          cy.get("input").should("have.value", "dClinton Anderson");
+          cy.get("input").should("have.value", "Clinton Anderson");
         });
         cy.get("[data-cy=mentor-first-name]").within(($input) => {
           cy.get("input").should("have.value", "d");
@@ -88,10 +88,10 @@ describe("My Mentor Page", () => {
         //  open modal
         cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
-          cy.get("input").should("have.value", "dClinton Anderson");
+          cy.get("input").should("have.value", "Clinton Anderson");
         });
         cy.get("[data-cy=mentor-first-name]").within(($input) => {
-          cy.get("input").should("have.value", "dClint");
+          cy.get("input").should("have.value", "Clint");
         });
         cy.get("[data-cy=mentor-job-title]").within(($input) => {
           cy.get("input").should("have.value", "d");
@@ -107,13 +107,13 @@ describe("My Mentor Page", () => {
         //  open modal
         cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
         cy.get("[data-cy=mentor-name]").within(($input) => {
-          cy.get("input").should("have.value", "dClinton Anderson");
+          cy.get("input").should("have.value", "Clinton Anderson");
         });
         cy.get("[data-cy=mentor-first-name]").within(($input) => {
-          cy.get("input").should("have.value", "dClint");
+          cy.get("input").should("have.value", "Clint");
         });
         cy.get("[data-cy=mentor-job-title]").within(($input) => {
-          cy.get("input").should("have.value", "dNuclear Electrician's Mate");
+          cy.get("input").should("have.value", "Nuclear Electrician's Mate");
         });
         cy.get("[data-cy=close-modal]").trigger("mouseover").click();
 
