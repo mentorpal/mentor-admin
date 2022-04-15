@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import allSubjects from "../fixtures/subjects/all-subjects";
 import { mockGQL, cyMockDefault, cySetup } from "../support/functions";
+import { SubjectTypes } from "../support/types";
 
 const mentor = {
   _id: "clintanderson",
@@ -13,6 +14,7 @@ const mentor = {
     {
       _id: "background",
       name: "Background",
+      type: SubjectTypes.TOPIC_GROUP,
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
@@ -20,6 +22,7 @@ const mentor = {
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
+      type: SubjectTypes.UTTERANCE_GROUP,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
     },
@@ -113,6 +116,7 @@ describe("Select Subjects", () => {
             {
               _id: "leadership",
               name: "Leadership",
+              type: SubjectTypes.TOPIC_GROUP,
               description:
                 "These questions will ask about being in a leadership role.",
               isRequired: false,

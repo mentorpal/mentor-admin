@@ -9,7 +9,14 @@ import { v4 as uuid } from "uuid";
 import { fetchSubject, updateSubject } from "api";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
-import { Category, Topic, QuestionType, UtteranceName, Question } from "types";
+import {
+  Category,
+  Topic,
+  QuestionType,
+  UtteranceName,
+  Question,
+  SubjectTypes,
+} from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -62,6 +69,7 @@ export function useWithSubject(
         resolve({
           _id: "",
           name: "",
+          type: SubjectTypes.TOPIC_GROUP,
           description: "",
           isRequired: false,
           categories: [],

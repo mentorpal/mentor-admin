@@ -23,7 +23,7 @@ import {
 } from "../fixtures/mentor";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, JobState } from "../support/types";
+import { MentorType, JobState, SubjectTypes } from "../support/types";
 
 const baseMock = {
   mentor: setup0,
@@ -388,6 +388,7 @@ describe("Setup", () => {
             {
               _id: "leadership",
               name: "Leadership",
+              type: SubjectTypes.TOPIC_GROUP,
               description:
                 "These questions will ask about being in a leadership role.",
               isRequired: false,

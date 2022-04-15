@@ -8,6 +8,7 @@ import {
   Connection,
   QuestionType,
   Subject,
+  SubjectTypes,
   UtteranceName,
 } from "../../support/types";
 
@@ -18,6 +19,7 @@ export const subjects: Connection<Subject> = {
       node: {
         _id: "repeat_after_me",
         name: "Repeat After Me",
+        type: SubjectTypes.UTTERANCE_GROUP,
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
         isRequired: true,

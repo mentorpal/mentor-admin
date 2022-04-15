@@ -24,6 +24,7 @@ import {
   UploadTask,
   UserQuestion,
   TaskInfo,
+  SubjectTypes,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -60,6 +61,7 @@ export interface MentorGQL {
 export interface SubjectGQL {
   _id: string;
   name: string;
+  type: SubjectTypes;
   description: string;
   isRequired: boolean;
   categories: Category[];

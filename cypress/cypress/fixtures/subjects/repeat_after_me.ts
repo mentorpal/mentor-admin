@@ -4,11 +4,17 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { QuestionType, Subject, UtteranceName } from "../../support/types";
+import {
+  QuestionType,
+  Subject,
+  SubjectTypes,
+  UtteranceName,
+} from "../../support/types";
 
 export const subject: Partial<Subject> = {
   _id: "repeat_after_me",
   name: "Repeat After Me",
+  type: SubjectTypes.UTTERANCE_GROUP,
   description: "These are miscellaneous phrases you'll be asked to repeat.",
   isRequired: true,
   categories: [],

@@ -12,7 +12,12 @@ import {
   cyAttachInputFile,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import { Status, QuestionType, UtteranceName } from "../support/types";
+import {
+  Status,
+  QuestionType,
+  UtteranceName,
+  SubjectTypes,
+} from "../support/types";
 
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
@@ -337,6 +342,7 @@ describe("My Mentor Page", () => {
             {
               _id: "extra",
               name: "extra",
+              type: SubjectTypes.TOPIC_GROUP,
               description: "extra",
               categories: [],
               questions: [

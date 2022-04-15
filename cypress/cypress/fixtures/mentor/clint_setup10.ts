@@ -4,7 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, QuestionType, Status } from "../../support/types";
+import {
+  Mentor,
+  QuestionType,
+  Status,
+  SubjectTypes,
+} from "../../support/types";
 import clint_prev from "./clint_setup9";
 
 export const mentor: Mentor = {
@@ -14,6 +19,7 @@ export const mentor: Mentor = {
     {
       _id: "leadership",
       name: "Leadership",
+      type: SubjectTypes.TOPIC_GROUP,
       description: "These questions will ask about being in a leadership role.",
       isRequired: false,
       categories: [],

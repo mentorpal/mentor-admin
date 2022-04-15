@@ -62,9 +62,15 @@ export interface Mentor {
   answers: Answer[];
 }
 
+export enum SubjectTypes {
+  TOPIC_GROUP = "TOPIC_GROUP",
+  UTTERANCE_GROUP = "UTTERANCE_GROUP",
+}
+
 export interface Subject {
   _id: string;
   name: string;
+  type: SubjectTypes;
   description: string;
   isRequired: boolean;
   categories: Category[];
