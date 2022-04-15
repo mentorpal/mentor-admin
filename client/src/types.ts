@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import { CancelTokenSource } from "axios";
-import { AnswerGQL, SubjectGQL } from "types-gql";
+import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 
 export interface Config {
   googleClientId: string;
@@ -180,11 +180,42 @@ export interface VideoInfo {
   transcript: string;
 }
 
+interface ExportedMentorInfo {
+  name: string;
+  firstName: string;
+  title: string;
+  email: string;
+  thumbnail: string;
+  allowContact: boolean;
+  defaultSubject: string;
+  mentorType: string;
+}
+
+export enum MentorDataTypes {
+  QUESTION = "QUESTION",
+  ANSWER = "ANSWER",
+  SUBJECT = "SUBJECT",
+  TOPIC = "TOPIC",
+  CATEGORY = "CATEGORY",
+}
+
+export interface ChangedMentorData<T> {
+  editType: EditType;
+  data: T;
+}
+
+export interface ReplacedMentorDataChanges {
+  questionChanges: ChangedMentorData<Question>[];
+  answerChanges: ChangedMentorData<AnswerGQL>[];
+}
+
 export interface MentorExportJson {
   id: string;
+  mentorInfo: ExportedMentorInfo;
   subjects: SubjectGQL[];
   questions: Question[];
   answers: AnswerGQL[];
+  userQuestions: UserQuestionGQL[];
 }
 
 export interface ImportPreview<T> {
@@ -233,6 +264,8 @@ export enum EditType {
   ADDED = "ADDED",
   REMOVED = "REMOVED",
   CREATED = "CREATED",
+  OLD_FOLLOWUP = "OLD_FOLLOWUP",
+  OLD_ANSWER = "OLD_ANSWER",
 }
 
 export enum LoginStatus {
@@ -308,4 +341,32 @@ export enum MediaType {
 export enum MediaTag {
   WEB = "web",
   MOBILE = "mobile",
+}
+
+export enum ImportTaskStatus {
+  QUEUED = "QUEUED",
+  IN_PROGRESS = "IN_PROGRESS",
+  FAILED = "FAILED",
+  DONE = "DONE",
+}
+
+export interface ImportGraphQLUpdate {
+  status: ImportTaskStatus;
+  errorMessage: string;
+}
+
+export interface ImportAnswerMediaMigrations {
+  status: ImportTaskStatus;
+  question: string;
+  errorMessage: string;
+}
+
+export interface ImportS3VideoMigrate {
+  status: ImportTaskStatus;
+  answerMediaMigrations: ImportAnswerMediaMigrations[];
+}
+
+export interface ImportTask {
+  graphQLUpdate: ImportGraphQLUpdate;
+  s3VideoMigrate: ImportS3VideoMigrate;
 }

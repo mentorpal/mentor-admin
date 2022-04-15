@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Button } from "@material-ui/core";
+import { Button, CircularProgress, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import NavBar from "components/nav-bar";
@@ -14,6 +14,7 @@ import { useWithImportExport } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Answer } from "types";
+import ImportInProgressDialog from "components/import-export/import-in-progress";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -25,20 +26,43 @@ const useStyles = makeStyles(() => ({
 function ImportPage(): JSX.Element {
   const classes = useStyles();
   const useImportExport = useWithImportExport();
-  const { getData } = useActiveMentor();
+  const { importTask } = useImportExport;
+  const { getData, isLoading } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
+  const mentorName = getData((state) => state.data?.name) || "";
+  const mentorTitle = getData((state) => state.data?.title) || "";
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
 
-  if (!mentorId || !mentorAnswers) {
-    return <div />;
+  if (!mentorId || !mentorAnswers || isLoading) {
+    return (
+      <div>
+        <NavBar title="Mentor Studio" mentorId="" />
+        <CircularProgress />
+      </div>
+    );
   }
-  const needsTransfer = mentorAnswers.some((a) => a.hasUntransferredMedia);
+
   return (
     <div className={classes.root}>
       <NavBar title="Export Mentor" mentorId={mentorId} />
-      <ImportView useImportExport={useImportExport} />
+      {importTask ? (
+        <ImportInProgressDialog importTask={importTask} />
+      ) : undefined}
+      <ImportView
+        useImportExport={useImportExport}
+        mentorName={mentorName}
+        mentorId={mentorId}
+      />
       <div style={{ padding: 10 }}>
+        <Typography data-cy="mentor-name">
+          <p>
+            Mentor being replaced: {<br />}
+            {mentorName ? `Name: ${mentorName}` : ""} {<br />}
+            {mentorTitle ? `Title: ${mentorTitle}` : ""} {<br />}
+            {mentorId ? `Mentor ID: ${mentorId}` : ""}
+          </p>
+        </Typography>
         <Button
           data-cy="download-mentor"
           color="primary"
@@ -62,16 +86,6 @@ function ImportPage(): JSX.Element {
             }}
           />
         </Button>
-        {needsTransfer ? (
-          <Button
-            data-cy="transfer-media"
-            variant="contained"
-            onClick={useImportExport.onTransferMedia}
-            style={{ marginLeft: 10 }}
-          >
-            Transfer Answers
-          </Button>
-        ) : undefined}
       </div>
     </div>
   );

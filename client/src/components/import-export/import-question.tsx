@@ -4,19 +4,19 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React from "react";
 import {
+  Button,
   Card,
-  IconButton,
   ListItemText,
   makeStyles,
   TextField,
   Typography,
 } from "@material-ui/core";
-import { FindReplace as FindReplaceIcon } from "@material-ui/icons";
 import { Autocomplete } from "@material-ui/lab";
-import { Question, ImportPreview, EditType } from "types";
+import { Question, ImportPreview, EditType, Category, Topic } from "types";
 import { ChangeIcon } from "./icons";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -37,16 +37,48 @@ const useStyles = makeStyles(() => ({
 
 export default function QuestionImport(props: {
   preview: ImportPreview<Question>;
+  subjectQuestion?: SubjectQuestionGQL;
   questions: Question[];
+  categories: Category[];
+  topics: Topic[];
+  subjects: SubjectGQL[];
+  oldQuestionsToRemove: Question[];
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  toggleRemoveOldFollowup: (q: Question) => void;
+  mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  mapQuestionToSubject: (
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) => void;
 }): JSX.Element {
   const classes = useStyles();
-  const [questionSearch, setQuestionSearch] = useState<Question>();
-  const { preview, questions, mapQuestion } = props;
+  const {
+    preview,
+    questions,
+    mapQuestion,
+    mapCategory,
+    mapTopic,
+    mapQuestionToSubject,
+    categories,
+    subjectQuestion,
+    subjects,
+    toggleRemoveOldFollowup,
+    oldQuestionsToRemove,
+    topics,
+  } = props;
   const { editType, importData: question, curData: curQuestion } = preview;
-
+  const questionPendingRemoval = Boolean(
+    oldQuestionsToRemove.find((qToRemove) => qToRemove._id === curQuestion?._id)
+  );
+  const inputWidth = 300;
   return (
-    <Card data-cy="question" className={classes.root}>
+    <Card
+      key={question?._id}
+      data-cy="question"
+      className={classes.root}
+      style={{ opacity: questionPendingRemoval ? 0.5 : 1 }}
+    >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <Typography align="left" variant="body1" style={{ marginRight: 10 }}>
@@ -58,37 +90,113 @@ export default function QuestionImport(props: {
         >
           {editType === EditType.CREATED ? (
             <Autocomplete
-              data-cy="question-input"
-              options={questions}
-              getOptionLabel={(option: Question) => option.question}
+              data-cy="remap-question-subject-input"
+              options={subjects}
+              getOptionLabel={(option: SubjectGQL) => option.name}
               onChange={(e, v) => {
-                setQuestionSearch(v || undefined);
+                v && question && mapQuestionToSubject(question, v);
               }}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  style={{ width: 300 }}
+                  style={{ width: 200 }}
                   variant="outlined"
-                  placeholder="Remap to existing question?"
+                  placeholder={"Map to a subject?"}
                 />
               )}
-              renderOption={(option) => (
-                <ListItemText primary={option.question} />
-              )}
+              renderOption={(option) => <ListItemText primary={option.name} />}
             />
           ) : undefined}
-          {editType === EditType.CREATED ? (
-            <IconButton
-              data-cy="replace"
-              size="small"
-              onClick={() => {
-                if (question && questionSearch) {
-                  mapQuestion(question, questionSearch);
-                }
-              }}
-            >
-              <FindReplaceIcon />
-            </IconButton>
+          {editType === EditType.CREATED && questions.length ? (
+            <>
+              {categories.length ? (
+                <Autocomplete
+                  data-cy="category-remap-input"
+                  options={categories}
+                  getOptionLabel={(option: Category) => option.name}
+                  onChange={(e, v) => {
+                    v && question && mapCategory(question, v);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      style={{ width: inputWidth }}
+                      variant="outlined"
+                      placeholder={
+                        subjectQuestion?.category?.name || "Add a category?"
+                      }
+                    />
+                  )}
+                  renderOption={(option) => (
+                    <ListItemText primary={option.name} />
+                  )}
+                />
+              ) : undefined}
+              {topics.length ? (
+                <Autocomplete
+                  data-cy="topic-remap-input"
+                  options={topics}
+                  getOptionLabel={(option: Topic) => option.name}
+                  onChange={(e, v) => {
+                    v && question && mapTopic(question, v);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      style={{ width: inputWidth }}
+                      variant="outlined"
+                      placeholder={
+                        subjectQuestion?.topics?.length
+                          ? subjectQuestion.topics[0].name
+                          : "Map to a topic?"
+                      }
+                    />
+                  )}
+                  renderOption={(option) => (
+                    <ListItemText primary={option.name} />
+                  )}
+                />
+              ) : undefined}
+              <Autocomplete
+                key={preview.importData?._id}
+                data-cy="question-remap-input"
+                options={questions}
+                getOptionLabel={(option: Question) => option.question}
+                onChange={(e, v) => {
+                  question && v && mapQuestion(question, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: inputWidth }}
+                    variant="outlined"
+                    placeholder="Map to existing question?"
+                  />
+                )}
+                renderOption={(option) => (
+                  <ListItemText primary={option.question} />
+                )}
+              />
+            </>
+          ) : undefined}
+          {editType === EditType.OLD_FOLLOWUP && curQuestion ? (
+            <>
+              {questionPendingRemoval ? "Flagged for removal" : ""}
+              <Button
+                data-cy="remove-old-question"
+                variant="contained"
+                style={{
+                  backgroundColor: questionPendingRemoval ? "lightblue" : "red",
+                  padding: "3px",
+                  margin: "3px",
+                }}
+                onClick={() => {
+                  toggleRemoveOldFollowup(curQuestion);
+                }}
+              >
+                {questionPendingRemoval ? "Undo" : "Remove"}
+              </Button>
+            </>
           ) : undefined}
         </div>
       </div>

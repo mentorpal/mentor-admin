@@ -9,24 +9,31 @@ import {
   Card,
   Collapse,
   Divider,
+  FormControl,
   IconButton,
+  Input,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
   makeStyles,
+  Paper,
   TextField,
   Typography,
 } from "@material-ui/core";
 import {
   ExpandMore as ExpandMoreIcon,
   FindReplace as FindReplaceIcon,
+  Save as SaveIcon,
 } from "@material-ui/icons";
 import { Category, EditType, ImportPreview, Question, Topic } from "types";
 import { Autocomplete } from "@material-ui/lab";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL } from "types-gql";
+import QuestionImport from "./import-question";
+import { useWithQuestions } from "hooks/graphql/use-with-questions";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -48,15 +55,46 @@ const useStyles = makeStyles(() => ({
 
 export default function SubjectImport(props: {
   preview: ImportPreview<SubjectGQL>;
+  previewQuestions: ImportPreview<Question>[];
   subjects: SubjectGQL[];
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
+  mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  mapCategory: (questionBeingReplaced: Question, category: Category) => void;
+  mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
+  oldQuestionsToRemove: Question[];
+  toggleRemoveOldFollowup: (q: Question) => void;
+  mapQuestionToSubject: (
+    questionBeingMapped: Question,
+    targetSubject: SubjectGQL
+  ) => void;
+  saveSubjectName: (subject: SubjectGQL, newName: string) => void;
 }): JSX.Element {
+  const { getData } = useActiveMentor();
+  const mentorId = getData((m) => m.data?._id || "");
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
-  const { preview, subjects, mapSubject } = props;
+  const {
+    preview,
+    subjects,
+    mapSubject,
+    mapQuestion,
+    mapCategory,
+    previewQuestions,
+    saveSubjectName,
+    mapQuestionToSubject,
+    mapTopic,
+    toggleRemoveOldFollowup,
+    oldQuestionsToRemove,
+  } = props;
   const { editType, importData: subject, curData: curSubject } = preview;
-
+  const { data: allQuestions } = useWithQuestions({ limit: 5000 });
+  const [newSubjectName, setNewSubjectName] = useState<string>("");
+  const subjectQuestions = allQuestions?.edges
+    .map((edge) => edge.node)
+    ?.filter((q) =>
+      Boolean(subject?.questions.find((subjQ) => subjQ.question._id == q._id))
+    );
   if (!subject && !curSubject) {
     return <div />;
   }
@@ -99,43 +137,108 @@ export default function SubjectImport(props: {
         curData: t,
       });
     });
+
   const questions: ImportPreview<Question>[] = [];
+  // for all questions of the importing subject
   subject?.questions?.forEach((q) => {
+    // Check if the imported subject question already exists in this subject
     const curQuestion = curSubject?.questions?.find(
-      (qq) => qq.question?._id === q.question?._id
+      (qq) =>
+        !q.question.mentor &&
+        (qq.question?._id === q.question?._id ||
+          qq.question.question === q.question.question)
     );
+    // If the question is already in this subject, mark as no differences to be made
     questions.push({
-      editType: !curQuestion ? EditType.ADDED : EditType.NONE,
+      editType: curQuestion
+        ? EditType.NONE
+        : previewQuestions.find(
+            (prevQ) => prevQ.importData?._id === q.question._id
+          )?.editType || EditType.NONE,
       importData: q.question,
       curData: curQuestion?.question,
     });
   });
+
+  // subject is the importingSubject
+  // curSubject is the subject being replaced
+
+  // Check if the current subject has some mentor specific questions that are not in the new subject
   curSubject?.questions
     ?.filter(
       (qq) =>
-        !subject?.questions?.find((q) => q.question?._id === qq.question?._id)
+        !subject?.questions?.find(
+          (q) => q.question?._id === qq.question?._id
+        ) &&
+        qq.question.mentor &&
+        qq.question.mentor == mentorId
     )
     .forEach((q) => {
       questions.push({
         editType:
-          editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
+          editType === EditType.OLD_FOLLOWUP
+            ? EditType.NONE
+            : EditType.OLD_FOLLOWUP,
         importData: undefined,
         curData: q.question,
       });
     });
 
+  const unchangedQuestions = questions.filter(
+    (q) => q.editType === EditType.NONE
+  );
+  const newQuestions = questions.filter(
+    (q) => q.editType === EditType.CREATED || q.editType === EditType.ADDED
+  );
+  const oldFollowups = questions.filter(
+    (q) => q.editType === EditType.OLD_FOLLOWUP
+  );
+
+  const subjCategories = curSubject?.categories;
+  const subjTopics = curSubject?.topics;
+
+  const subjectName = curSubject?.name || subject?.name;
   return (
-    <Card data-cy="subject" className={classes.root}>
+    <Card
+      key={`${curSubject?._id}-${subject?._id}`}
+      data-cy="subject"
+      className={classes.root}
+    >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
         <div style={{ marginRight: 10 }}>
-          <Typography align="left" variant="body1">
-            {subject?.name || curSubject?.name}
-          </Typography>
-          <Typography align="left" variant="caption">
-            {subject?.description || curSubject?.description}
-          </Typography>
+          <span style={{ display: "flex", flexDirection: "column" }}>
+            <FormControl variant="outlined">
+              <Input
+                data-cy="subject-title-edit"
+                multiline
+                disabled={editType !== EditType.CREATED}
+                defaultValue={subjectName}
+                disableUnderline={editType !== EditType.CREATED}
+                style={{ color: "black" }}
+                onChange={(e) => {
+                  setNewSubjectName(e.target.value);
+                }}
+              />
+            </FormControl>
+            <Typography align="left" variant="caption">
+              {subject?.description || curSubject?.description}
+            </Typography>
+          </span>
         </div>
+        {newSubjectName && newSubjectName !== subjectName ? (
+          <IconButton
+            data-cy="save-subject-name-icon"
+            size="small"
+            onClick={() => {
+              if (subject) {
+                saveSubjectName(subject, newSubjectName);
+              }
+            }}
+          >
+            <SaveIcon />
+          </IconButton>
+        ) : undefined}
         <div
           className={classes.row}
           style={{ position: "absolute", right: 20 }}
@@ -153,7 +256,7 @@ export default function SubjectImport(props: {
                   {...params}
                   style={{ width: 300 }}
                   variant="outlined"
-                  placeholder="Remap to existing subject?"
+                  placeholder="Map to existing subject?"
                 />
               )}
               renderOption={(option) => (
@@ -242,22 +345,90 @@ export default function SubjectImport(props: {
         </List>
         <Divider />
         <ListSubheader>Questions</ListSubheader>
-        <List data-cy="subject-questions" dense disablePadding>
-          {questions.map((q, i) => {
-            return (
-              <ListItem
-                key={`subject-question-${i}`}
-                data-cy={`subject-question-${i}`}
+        <List data-cy="subject-questions">
+          {oldFollowups.length ? (
+            <List>
+              Old Followups
+              {oldFollowups.map((q, i) => {
+                return (
+                  <QuestionImport
+                    key={`question-${i}`}
+                    preview={q}
+                    questions={subjectQuestions || []}
+                    mapQuestion={mapQuestion}
+                    mapQuestionToSubject={mapQuestionToSubject}
+                    mapCategory={mapCategory}
+                    oldQuestionsToRemove={oldQuestionsToRemove}
+                    toggleRemoveOldFollowup={toggleRemoveOldFollowup}
+                    mapTopic={mapTopic}
+                    categories={subjCategories || []}
+                    topics={subjTopics || []}
+                    subjects={subjects || []}
+                  />
+                );
+              })}
+            </List>
+          ) : undefined}
+          {newQuestions.length ? (
+            <List data-cy="new-questions">
+              New Followups
+              {newQuestions.map((q, i) => {
+                return (
+                  <QuestionImport
+                    key={`question-${i}`}
+                    preview={q}
+                    questions={subjectQuestions || []}
+                    mapQuestion={mapQuestion}
+                    mapCategory={mapCategory}
+                    mapTopic={mapTopic}
+                    oldQuestionsToRemove={oldQuestionsToRemove}
+                    toggleRemoveOldFollowup={toggleRemoveOldFollowup}
+                    mapQuestionToSubject={mapQuestionToSubject}
+                    categories={subjCategories || []}
+                    topics={subjTopics || []}
+                    subjects={subjects || []}
+                    subjectQuestion={subject?.questions.find(
+                      (subjQ) => subjQ.question._id == q.importData?._id
+                    )}
+                  />
+                );
+              })}
+            </List>
+          ) : undefined}
+
+          {unchangedQuestions.length ? (
+            <div>
+              Unchanged
+              <Paper
+                style={{
+                  maxHeight: 200,
+                  overflow: "auto",
+                  border: "1px solid lightgrey",
+                }}
               >
-                <ListItemIcon>
-                  <ChangeIcon preview={q} />
-                </ListItemIcon>
-                <ListItemText
-                  primary={q.importData?.question || q.curData?.question}
-                />
-              </ListItem>
-            );
-          })}
+                <List>
+                  {unchangedQuestions.map((q, i) => {
+                    return (
+                      <QuestionImport
+                        key={`question-${i}`}
+                        preview={q}
+                        questions={subjectQuestions || []}
+                        mapQuestion={mapQuestion}
+                        mapCategory={mapCategory}
+                        mapTopic={mapTopic}
+                        oldQuestionsToRemove={oldQuestionsToRemove}
+                        toggleRemoveOldFollowup={toggleRemoveOldFollowup}
+                        subjects={subjects || []}
+                        mapQuestionToSubject={mapQuestionToSubject}
+                        categories={subjCategories || []}
+                        topics={subjTopics || []}
+                      />
+                    );
+                  })}
+                </List>
+              </Paper>
+            </div>
+          ) : undefined}
         </List>
       </Collapse>
     </Card>

@@ -43,11 +43,12 @@ const defaultSearchParams: SearchParams = {
 
 export function useWithDataConnection<T>(
   fetch: () => Promise<Connection<T>>,
-  initalSearchParams?: SearchParams
+  initalSearchParams?: Partial<SearchParams>
 ): UseDataConnection<T> {
-  const [searchParams, setSearchParams] = useState<SearchParams>(
-    initalSearchParams || defaultSearchParams
-  );
+  const [searchParams, setSearchParams] = useState<SearchParams>({
+    ...defaultSearchParams,
+    ...initalSearchParams,
+  });
   const { data, isLoading, error, editData, saveData, reloadData } =
     useWithData<Connection<T>>(fetch);
 

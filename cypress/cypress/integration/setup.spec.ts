@@ -217,7 +217,7 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
-        setup0,
+        { ...setup0, name: "", title: "" },
         setup1,
         setup2,
         setup3,
