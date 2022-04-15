@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useState } from "react";
 import {
+  Button,
   Card,
   Collapse,
   IconButton,
@@ -39,18 +40,30 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-evenly",
+    width: "100%",
   },
 }));
 
 export default function AnswerImport(props: {
   preview: ImportPreview<AnswerGQL>;
+  oldAnswersToRemove: AnswerGQL[];
+  toggleRemoveOldAnswer: (a: AnswerGQL) => void;
+  replaceNewAnswer: (a: AnswerGQL) => void;
 }): JSX.Element {
   const classes = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
-  const { preview } = props;
+  const {
+    preview,
+    oldAnswersToRemove,
+    toggleRemoveOldAnswer,
+    replaceNewAnswer,
+  } = props;
   const { editType, importData: answer, curData: curAnswer } = preview;
-  const transcript = answer?.transcript || curAnswer?.transcript || "";
+  const [originalAnswer] = useState<AnswerGQL | undefined>(curAnswer);
+  const [newAnswer] = useState<AnswerGQL | undefined>(answer);
+  const originalTranscript = originalAnswer?.transcript || "";
+  const newTranscript = newAnswer?.transcript || "";
   if (!(answer || curAnswer)) {
     return <div />;
   }
@@ -79,27 +92,121 @@ export default function AnswerImport(props: {
         curData: m,
       });
     });
-
+  const answerPendingRemoval = Boolean(
+    oldAnswersToRemove.find(
+      (oldAnswer) => oldAnswer.question._id === curAnswer?.question._id
+    )
+  );
+  const changedAnswer = Boolean(
+    originalAnswer &&
+      newAnswer &&
+      originalAnswer?.transcript !== newAnswer?.transcript
+  );
+  const newAnswerChosen = answer?.transcript !== originalAnswer?.transcript;
   return (
-    <Card data-cy="answer" className={classes.root}>
+    <Card
+      data-cy="answer"
+      className={classes.root}
+      style={{ opacity: answerPendingRemoval ? 0.5 : 1 }}
+    >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
-        <div style={{ marginRight: 10, width: "100%" }}>
+        <div
+          style={{
+            marginRight: 10,
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <Typography align="left" variant="body1">
             {answer?.question?.question || curAnswer?.question?.question}
           </Typography>
-          <Typography align="left" variant="caption">
-            {`${transcript.substring(0, 100)}${
-              transcript.length > 100 ? "..." : ""
-            }`}
-          </Typography>
+          {changedAnswer ? (
+            <>
+              <Typography
+                align="left"
+                variant="caption"
+                style={{
+                  opacity: !newAnswerChosen ? 0.5 : 1,
+                  fontWeight: !newAnswerChosen ? "normal" : "bold",
+                }}
+              >
+                {newTranscript
+                  ? `${newTranscript.substring(0, 200)}${
+                      newTranscript.length > 200 ? "..." : ""
+                    }`
+                  : "--no transcript--"}
+              </Typography>
+              <Button
+                variant="contained"
+                style={{
+                  backgroundColor: "lightblue",
+                  padding: 0,
+                  textTransform: "none",
+                  marginTop: "5px",
+                  marginBottom: "5px",
+                  width: "150px",
+                }}
+                onClick={() => {
+                  if (newAnswerChosen && originalAnswer) {
+                    replaceNewAnswer(originalAnswer);
+                  } else if (!newAnswerChosen && newAnswer) {
+                    replaceNewAnswer(newAnswer);
+                  }
+                }}
+              >
+                {newAnswerChosen
+                  ? "Switch to old answer"
+                  : "Switch to new answer"}
+              </Button>
+              <Typography
+                align="left"
+                variant="caption"
+                style={{
+                  opacity: newAnswerChosen ? 0.5 : 1,
+                  fontWeight: newAnswerChosen ? "normal" : "bold",
+                }}
+              >
+                {originalTranscript
+                  ? `${originalTranscript.substring(0, 200)}${
+                      originalTranscript.length > 200 ? "..." : ""
+                    }`
+                  : "--no transcript--"}
+              </Typography>
+            </>
+          ) : (
+            <Typography align="left" variant="caption">
+              {`${(newTranscript || originalTranscript).substring(0, 200)}${
+                (newTranscript || originalTranscript).length > 200 ? "..." : ""
+              }`}
+            </Typography>
+          )}
         </div>
+        {editType === EditType.OLD_ANSWER && curAnswer ? (
+          <>
+            {answerPendingRemoval ? "Flagged for removal" : ""}
+            <Button
+              data-cy="remove-old-answer"
+              variant="contained"
+              style={{
+                backgroundColor: answerPendingRemoval ? "lightblue" : "red",
+                padding: "3px",
+                fontWeight: "bold",
+              }}
+              onClick={() => {
+                toggleRemoveOldAnswer(curAnswer);
+              }}
+            >
+              {answerPendingRemoval ? "Undo" : "Remove"}
+            </Button>
+          </>
+        ) : undefined}
         <IconButton
           data-cy="toggle"
           size="small"
           aria-expanded={isExpanded}
           onClick={() => setIsExpanded(!isExpanded)}
-          style={{ position: "absolute", right: 20 }}
         >
           <ExpandMoreIcon
             style={{

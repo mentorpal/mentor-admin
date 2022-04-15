@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core";
 import {
   Add as AddIcon,
@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
 export function ChangeIcon<T>(props: {
   preview: ImportPreview<T>;
 }): JSX.Element {
-  const { preview } = props;
+  const [preview] = useState<ImportPreview<T>>(props.preview);
   const classes = useStyles();
   const editType = preview.editType;
 

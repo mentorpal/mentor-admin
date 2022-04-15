@@ -253,11 +253,11 @@ export const importPreview = {
       },
     },
     {
-      editType: "REMOVED",
+      editType: "OLD_FOLLOWUP",
       importData: null,
       curData: {
         _id: "q5",
-        question: "Removed Question 5",
+        question: "Old followup Question 5",
       },
     },
   ],
@@ -313,14 +313,14 @@ export const importPreview = {
       curData: null,
     },
     {
-      editType: "REMOVED",
+      editType: "OLD_ANSWER",
       importData: null,
       curData: {
-        transcript: "Removed Answer 5",
+        transcript: "Old Answer 5",
         status: "COMPLETE",
         question: {
           _id: "q5",
-          question: "Removed Question 5",
+          question: "Old Question 5",
         },
       },
     },

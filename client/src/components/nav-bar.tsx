@@ -48,6 +48,8 @@ import {
   areAllTasksDone,
   isATaskCancelled,
 } from "hooks/graphql/upload-status-helpers";
+import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
+import ImportInProgressDialog from "./import-export/import-in-progress";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -290,6 +292,8 @@ export function NavBar(props: {
     onNav,
     onBack,
   } = props;
+  const importStatus = useWithImportStatus();
+  const { importTask } = importStatus;
   const numUploadsInProgress =
     uploads?.filter(
       (upload) => !areAllTasksDone(upload) && !isATaskCancelled(upload)
@@ -369,6 +373,9 @@ export function NavBar(props: {
         <Toolbar />
         <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
       </SwipeableDrawer>
+      {importTask ? (
+        <ImportInProgressDialog importTask={importTask} />
+      ) : undefined}
       <div className={classes.toolbar} /> {/* create space below app bar */}
     </div>
   );

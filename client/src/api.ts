@@ -30,6 +30,8 @@ import {
   MentorImportPreview,
   UploadTask,
   UploadProcessAsyncJob,
+  ImportTask,
+  ReplacedMentorDataChanges,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -961,6 +963,25 @@ export async function updateAnswer(
   );
 }
 
+export async function deleteImportTask(
+  accessToken: string,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+        mutation ImportTaskDelete($mentorId: ID!){
+          me{
+            importTaskDelete(mentorId:$mentorId)
+          }
+        }
+      `,
+      variables: { mentorId },
+    },
+    { accessToken, dataPath: ["me", "importTaskDelete"] }
+  );
+}
+
 export async function trainMentor(mentorId: string): Promise<AsyncJob> {
   return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
     axiosConfig: {
@@ -1236,6 +1257,16 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
         query MentorExport($mentor: ID!) {
           mentorExport(mentor: $mentor) {
             id
+            mentorInfo{
+              name
+              firstName
+              title
+              email
+              thumbnail
+              allowContact
+              defaultSubject
+              mentorType
+            }
             subjects {
               _id
               name
@@ -1305,6 +1336,33 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
                 mentor
                 mentorType
                 minVideoLength
+              }
+            }
+            userQuestions{
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              mentor{
+                _id
+                name
+              }
+              classifierAnswer{
+                _id
+                question{
+                  _id
+                  question
+                }
+                transcript
+              }
+              graderAnswer{
+                _id
+                question{
+                  _id
+                  question
+                }
+                transcript
               }
             }
           }
@@ -1486,103 +1544,56 @@ export async function importMentorPreview(
   );
 }
 
-export async function importMentor(
-  mentor: string,
-  json: MentorExportJson,
+export async function fetchImportTask(
+  mentorId: string,
   accessToken: string
-): Promise<MentorGQL> {
-  return execGql<MentorGQL>(
+): Promise<ImportTask> {
+  return execGql<ImportTask>(
     {
       query: `
-        mutation MentorImport($mentor: ID!, $json: MentorImportJsonType!) {
-          me {
-            mentorImport(mentor: $mentor, json: $json) {
-              _id
-              name
-              firstName
-              title
-              email
-              allowContact
-              mentorType
-              thumbnail
-              lastTrainedAt
-              isDirty
-              defaultSubject {
-                _id
-              }
-              subjects {
-                _id
-                name
-                type
-                description
-                isRequired
-                categories {
-                  id
-                  name
-                  description
-                }
-                topics {
-                  id
-                  name
-                  description
-                }
-                questions {
-                  question {
-                    _id
-                    question
-                    type
-                    name
-                    paraphrases
-                    mentor
-                    mentorType
-                    minVideoLength
-                  }
-                  category {
-                    id
-                    name
-                    description
-                  }
-                  topics {
-                    id
-                    name
-                    description
-                  }
-                }
-              }
-              topics {
-                id
-                name
-                description
-              }
-              answers {
-                _id
-                question {
-                  _id
-                  question
-                  paraphrases
-                  type
-                  name
-                  mentor
-                  mentorType
-                  minVideoLength
-                }
-                transcript
+        query ImportTask($mentorId: ID!){
+          importTask(mentorId:$mentorId){
+            graphQLUpdate{
+              status
+              errorMessage
+            }
+            s3VideoMigrate{
+              status
+              answerMediaMigrations{
                 status
-                hasEditedTranscript
-                hasUntransferredMedia
-                media {
-                  type
-                  tag
-                  url
-                  needsTransfer
-                }
+                question
+                errorMessage
               }
             }
           }
         }
       `,
-      variables: { mentor, json },
+      variables: { mentorId },
     },
-    { accessToken, dataPath: ["me", "mentorImport"] }
+    { accessToken, dataPath: ["importTask"] }
   );
+}
+
+export async function importMentor(
+  mentor: string,
+  json: MentorExportJson,
+  replacedMentorDataChanges: ReplacedMentorDataChanges,
+  accessToken: string
+): Promise<MentorGQL> {
+  const data = new FormData();
+  data.append(
+    "body",
+    JSON.stringify({
+      mentor: mentor,
+      mentorExportJson: json,
+      replacedMentorDataChanges: replacedMentorDataChanges,
+    })
+  );
+  const result = await uploadRequest.post("/transfer/mentor/", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return getDataFromAxiosResponse(result, "");
 }

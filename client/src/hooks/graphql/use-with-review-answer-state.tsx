@@ -130,7 +130,7 @@ export function useWithReviewAnswerState(
         _blocks.push({
           subject: subject._id,
           category: undefined,
-          name: subject.name,
+          name: `${subject.name} (Uncategorized)`,
           description: subject.description,
           questions: uncategorizedQuestions,
         });
@@ -163,7 +163,7 @@ export function useWithReviewAnswerState(
           _blocks.push({
             subject: subject._id,
             category: undefined,
-            name: subject.name,
+            name: `${subject.name} (Uncategorized)`,
             description: subject.description,
             questions: uncategorizedQuestions,
           });

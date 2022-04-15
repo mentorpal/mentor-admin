@@ -27,7 +27,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 4);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
@@ -56,7 +56,10 @@ describe("My Mentor Page", () => {
         });
       });
       cy.get("[data-cy=block-2]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=block-name]").should(
+          "contain.text",
+          "Repeat After Me"
+        );
         cy.get("[data-cy=block-progress]").should("have.text", "2 / 2 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
@@ -191,7 +194,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
@@ -261,7 +264,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
           "have.text",
@@ -330,7 +333,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-0]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Background");
+        cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
         });
@@ -410,7 +413,10 @@ describe("My Mentor Page", () => {
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-2]").within(($block) => {
-        cy.get("[data-cy=block-name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=block-name]").should(
+          "contain.text",
+          "Repeat After Me"
+        );
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
           cy.get("[data-cy=add-question]").should("exist");
