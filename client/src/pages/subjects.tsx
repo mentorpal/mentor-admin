@@ -21,7 +21,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject } from "types";
+import { Subject, SubjectTypes } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
@@ -64,6 +64,13 @@ const columns: ColumnDef[] = [
   {
     id: "name",
     label: "Name",
+    minWidth: 200,
+    align: "left",
+    sortable: true,
+  },
+  {
+    id: "type",
+    label: "Type",
     minWidth: 200,
     align: "left",
     sortable: true,
@@ -172,6 +179,11 @@ function SubjectsPage(props: {
                     >
                       <TableCell data-cy="name" align="left">
                         {subject.name}
+                      </TableCell>
+                      <TableCell data-cy="type" align="left">
+                        {subject.type === SubjectTypes.UTTERANCE_GROUP
+                          ? "Utterances"
+                          : "Topic Questions"}
                       </TableCell>
                       <TableCell data-cy="description" align="left">
                         {subject.description}

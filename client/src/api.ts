@@ -485,6 +485,7 @@ export async function updateSubject(
         subject: {
           _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
           name: subject?.name,
+          type: subject?.type,
           description: subject?.description,
           categories: subject?.categories,
           topics: subject?.topics,

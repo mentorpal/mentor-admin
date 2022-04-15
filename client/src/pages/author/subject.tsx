@@ -5,9 +5,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useState } from "react";
-import { Button, CircularProgress, Tab, TextField } from "@material-ui/core";
+import {
+  Button,
+  CircularProgress,
+  ListItemText,
+  Tab,
+  TextField,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { TabContext, TabList, TabPanel } from "@material-ui/lab";
+import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
@@ -19,6 +25,7 @@ import { useWithSubject } from "hooks/graphql/use-with-subject";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
+import { SubjectTypes } from "types";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,18 +91,26 @@ function SubjectPage(props: {
     );
   }
 
+  const isUtteranceSubject =
+    editedSubject.type === SubjectTypes.UTTERANCE_GROUP;
+
   return (
     <div className={classes.root}>
       <NavBar title="Edit Subject" mentorId={mentorId} />
       <TabContext value={tab}>
         <TabList onChange={(event, newValue) => setTab(newValue)}>
           <Tab label="Subject Info" value="1" data-cy="toggle-info" />
-          <Tab label="Topics" value="2" data-cy="toggle-topics" />
+          <Tab
+            label="Topics"
+            style={{ display: isUtteranceSubject ? "none" : "block" }}
+            value="2"
+            data-cy="toggle-topics"
+          />
           <Tab label="Questions" value="3" data-cy="toggle-questions" />
         </TabList>
         <TabPanel
           className={classes.tab}
-          style={{ height: windowHeight - 250, overflow: "auto" }}
+          style={{ height: windowHeight - 450, overflow: "auto" }}
           value="1"
         >
           <TextField
@@ -126,6 +141,27 @@ function SubjectPage(props: {
             }
             fullWidth
             multiline
+          />
+          <Autocomplete
+            data-cy="subject-type-map"
+            style={{ marginTop: "15px" }}
+            options={Object.values(SubjectTypes)}
+            getOptionLabel={(option: string) => option}
+            onChange={(e, v) => {
+              if (v) {
+                console.log("editing data to have type");
+                editSubject({ type: v });
+              }
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                style={{ width: 300 }}
+                variant="outlined"
+                placeholder={editedSubject.type || SubjectTypes.TOPIC_GROUP}
+              />
+            )}
+            renderOption={(option) => <ListItemText primary={option} />}
           />
         </TabPanel>
         <TabPanel className={classes.tab} value="2">

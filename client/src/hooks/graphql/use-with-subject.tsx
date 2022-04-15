@@ -63,6 +63,8 @@ export function useWithSubject(
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
 
+  const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCE_GROUP;
+
   function fetch() {
     if (!subjectId) {
       return new Promise<SubjectGQL>((resolve) => {
@@ -201,7 +203,9 @@ export function useWithSubject(
             clientId: uuid(),
             question: "",
             paraphrases: [],
-            type: QuestionType.QUESTION,
+            type: isUtteranceSubject
+              ? QuestionType.UTTERANCE
+              : QuestionType.QUESTION,
             name: UtteranceName.NONE,
           },
           category: args?.categoryId
