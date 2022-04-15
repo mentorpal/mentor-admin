@@ -14,7 +14,14 @@ import {
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-import { Question, ImportPreview, EditType, Category, Topic } from "types";
+import {
+  Question,
+  ImportPreview,
+  EditType,
+  Category,
+  Topic,
+  QuestionType,
+} from "types";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
@@ -44,6 +51,10 @@ export default function QuestionImport(props: {
   subjects: SubjectGQL[];
   oldQuestionsToRemove: Question[];
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  onMapQuestionType: (
+    questionToUpdate: Question,
+    newType: QuestionType
+  ) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
   toggleRemoveOldFollowup: (q: Question) => void;
   mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
@@ -62,6 +73,7 @@ export default function QuestionImport(props: {
     mapQuestionToSubject,
     categories,
     subjectQuestion,
+    onMapQuestionType,
     subjects,
     toggleRemoveOldFollowup,
     oldQuestionsToRemove,
@@ -72,6 +84,10 @@ export default function QuestionImport(props: {
     oldQuestionsToRemove.find((qToRemove) => qToRemove._id === curQuestion?._id)
   );
   const inputWidth = 300;
+
+  if (question?.question == "What was California like?") {
+    console.log(question);
+  }
   return (
     <Card
       key={question?._id}
@@ -79,33 +95,65 @@ export default function QuestionImport(props: {
       className={classes.root}
       style={{ opacity: questionPendingRemoval ? 0.5 : 1 }}
     >
-      <div className={classes.row}>
-        <ChangeIcon preview={preview} />
-        <Typography align="left" variant="body1" style={{ marginRight: 10 }}>
-          {question?.question || curQuestion?.question}
-        </Typography>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignContent: "space-between",
+          width: "100%",
+          alignItems: "space-between",
+          justifyContent: "space-between",
+        }}
+      >
+        <span className={classes.row}>
+          <ChangeIcon preview={preview} />
+          <Typography align="left" variant="body1">
+            {question?.question || curQuestion?.question}
+          </Typography>
+        </span>
         <div
           className={classes.row}
-          style={{ position: "absolute", right: 20 }}
+          style={{ display: "flex", width: "700px", flexWrap: "wrap" }}
         >
           {editType === EditType.CREATED ? (
-            <Autocomplete
-              data-cy="remap-question-subject-input"
-              options={subjects}
-              getOptionLabel={(option: SubjectGQL) => option.name}
-              onChange={(e, v) => {
-                v && question && mapQuestionToSubject(question, v);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  style={{ width: 200 }}
-                  variant="outlined"
-                  placeholder={"Map to a subject?"}
-                />
-              )}
-              renderOption={(option) => <ListItemText primary={option.name} />}
-            />
+            <>
+              <Autocomplete
+                data-cy="remap-question-subject-input"
+                options={subjects}
+                getOptionLabel={(option: SubjectGQL) => option.name}
+                onChange={(e, v) => {
+                  v && question && mapQuestionToSubject(question, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: inputWidth }}
+                    variant="outlined"
+                    placeholder={"Map to a subject?"}
+                  />
+                )}
+                renderOption={(option) => (
+                  <ListItemText primary={option.name} />
+                )}
+              />
+              <Autocomplete
+                data-cy="remap-question-type-input"
+                options={Object.values(QuestionType)}
+                getOptionLabel={(option: string) => option}
+                onChange={(e, v) => {
+                  v && question && onMapQuestionType(question, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: inputWidth }}
+                    variant="outlined"
+                    placeholder={question?.type || "Map to a question type?"}
+                  />
+                )}
+                renderOption={(option) => <ListItemText primary={option} />}
+              />
+            </>
           ) : undefined}
           {editType === EditType.CREATED && questions.length ? (
             <>

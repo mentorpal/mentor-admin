@@ -149,7 +149,6 @@ function SubjectPage(props: {
             getOptionLabel={(option: string) => option}
             onChange={(e, v) => {
               if (v) {
-                console.log("editing data to have type");
                 editSubject({ type: v });
               }
             }}

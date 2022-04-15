@@ -27,7 +27,15 @@ import {
   FindReplace as FindReplaceIcon,
   Save as SaveIcon,
 } from "@material-ui/icons";
-import { Category, EditType, ImportPreview, Question, Topic } from "types";
+import {
+  Category,
+  EditType,
+  ImportPreview,
+  Question,
+  QuestionType,
+  SubjectTypes,
+  Topic,
+} from "types";
 import { Autocomplete } from "@material-ui/lab";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL } from "types-gql";
@@ -59,6 +67,14 @@ export default function SubjectImport(props: {
   subjects: SubjectGQL[];
   mapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   mapQuestion: (curQuestion: Question, newQuestion: Question) => void;
+  onMapSubjectType: (
+    subjectToUpdate: SubjectGQL,
+    newType: SubjectTypes
+  ) => void;
+  onMapQuestionType: (
+    questionToUpdate: Question,
+    newType: QuestionType
+  ) => void;
   mapCategory: (questionBeingReplaced: Question, category: Category) => void;
   mapTopic: (questionBeingUpdated: Question, topic: Topic) => void;
   oldQuestionsToRemove: Question[];
@@ -83,6 +99,8 @@ export default function SubjectImport(props: {
     previewQuestions,
     saveSubjectName,
     mapQuestionToSubject,
+    onMapSubjectType,
+    onMapQuestionType,
     mapTopic,
     toggleRemoveOldFollowup,
     oldQuestionsToRemove,
@@ -198,6 +216,8 @@ export default function SubjectImport(props: {
   const subjTopics = curSubject?.topics;
 
   const subjectName = curSubject?.name || subject?.name;
+
+  console.log(JSON.stringify(previewQuestions));
   return (
     <Card
       key={`${curSubject?._id}-${subject?._id}`}
@@ -206,7 +226,7 @@ export default function SubjectImport(props: {
     >
       <div className={classes.row}>
         <ChangeIcon preview={preview} />
-        <div style={{ marginRight: 10 }}>
+        <div style={{ marginRight: 10, width: "100%" }}>
           <span style={{ display: "flex", flexDirection: "column" }}>
             <FormControl variant="outlined">
               <Input
@@ -244,28 +264,47 @@ export default function SubjectImport(props: {
           style={{ position: "absolute", right: 20 }}
         >
           {editType === EditType.CREATED ? (
-            <Autocomplete
-              data-cy="subject-input"
-              options={subjects}
-              getOptionLabel={(option: SubjectGQL) => option.name}
-              onChange={(e, v) => {
-                setSubjectSearch(v || undefined);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  style={{ width: 300 }}
-                  variant="outlined"
-                  placeholder="Map to existing subject?"
-                />
-              )}
-              renderOption={(option) => (
-                <ListItemText
-                  primary={option.name}
-                  secondary={option.description}
-                />
-              )}
-            />
+            <>
+              <Autocomplete
+                data-cy="subject-input"
+                options={subjects}
+                getOptionLabel={(option: SubjectGQL) => option.name}
+                onChange={(e, v) => {
+                  setSubjectSearch(v || undefined);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: 300 }}
+                    variant="outlined"
+                    placeholder="Map to existing subject?"
+                  />
+                )}
+                renderOption={(option) => (
+                  <ListItemText
+                    primary={option.name}
+                    secondary={option.description}
+                  />
+                )}
+              />
+              <Autocomplete
+                data-cy="remap-subject-type-input"
+                options={Object.values(SubjectTypes)}
+                getOptionLabel={(option: string) => option}
+                onChange={(e, v) => {
+                  v && subject && onMapSubjectType(subject, v);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    style={{ width: 300 }}
+                    variant="outlined"
+                    placeholder={subject?.type || SubjectTypes.TOPIC_GROUP}
+                  />
+                )}
+                renderOption={(option) => <ListItemText primary={option} />}
+              />
+            </>
           ) : undefined}
           {editType === EditType.CREATED ? (
             <IconButton
@@ -358,6 +397,7 @@ export default function SubjectImport(props: {
                     mapQuestion={mapQuestion}
                     mapQuestionToSubject={mapQuestionToSubject}
                     mapCategory={mapCategory}
+                    onMapQuestionType={onMapQuestionType}
                     oldQuestionsToRemove={oldQuestionsToRemove}
                     toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                     mapTopic={mapTopic}
@@ -381,6 +421,7 @@ export default function SubjectImport(props: {
                     mapQuestion={mapQuestion}
                     mapCategory={mapCategory}
                     mapTopic={mapTopic}
+                    onMapQuestionType={onMapQuestionType}
                     oldQuestionsToRemove={oldQuestionsToRemove}
                     toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                     mapQuestionToSubject={mapQuestionToSubject}
@@ -416,6 +457,7 @@ export default function SubjectImport(props: {
                         mapQuestion={mapQuestion}
                         mapCategory={mapCategory}
                         mapTopic={mapTopic}
+                        onMapQuestionType={onMapQuestionType}
                         oldQuestionsToRemove={oldQuestionsToRemove}
                         toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                         subjects={subjects || []}
