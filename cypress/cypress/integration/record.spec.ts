@@ -3944,6 +3944,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
+    cy.wait(3000);
     cy.get("[data-cy=active-upload-card-0]").should("exist");
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
