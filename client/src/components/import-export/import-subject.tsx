@@ -299,7 +299,7 @@ export default function SubjectImport(props: {
                     {...params}
                     style={{ width: 300 }}
                     variant="outlined"
-                    placeholder={subject?.type || SubjectTypes.TOPIC_GROUP}
+                    placeholder={subject?.type || SubjectTypes.SUBJECT}
                   />
                 )}
                 renderOption={(option) => <ListItemText primary={option} />}

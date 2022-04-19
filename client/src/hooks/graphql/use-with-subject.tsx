@@ -63,7 +63,7 @@ export function useWithSubject(
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
 
-  const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCE_GROUP;
+  const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCES;
 
   function fetch() {
     if (!subjectId) {
@@ -71,7 +71,7 @@ export function useWithSubject(
         resolve({
           _id: "",
           name: "",
-          type: SubjectTypes.TOPIC_GROUP,
+          type: SubjectTypes.SUBJECT,
           description: "",
           isRequired: false,
           categories: [],

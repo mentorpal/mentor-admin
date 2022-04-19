@@ -342,7 +342,7 @@ describe("My Mentor Page", () => {
             {
               _id: "extra",
               name: "extra",
-              type: SubjectTypes.TOPIC_GROUP,
+              type: SubjectTypes.SUBJECT,
               description: "extra",
               categories: [],
               questions: [

@@ -9,7 +9,7 @@ import { Subject, SubjectTypes } from "../../support/types";
 export const subject: Partial<Subject> = {
   _id: "background",
   name: "Background",
-  type: SubjectTypes.TOPIC_GROUP,
+  type: SubjectTypes.SUBJECT,
   description:
     "These questions will ask general questions about your background that might be relevant to how people understand your career.",
   isRequired: true,

@@ -14,7 +14,7 @@ const mentor = {
 const subject = {
   _id: "background",
   name: "Background",
-  type: SubjectTypes.TOPIC_GROUP,
+  type: SubjectTypes.SUBJECT,
   description:
     "These questions will ask general questions about your background that might be relevant to how people understand your career.",
   isRequired: false,
@@ -72,6 +72,11 @@ const subject = {
   ],
 };
 
+const utteranceSubject = {
+  ...subject,
+  type: SubjectTypes.UTTERANCES,
+};
+
 const questions: Connection<Partial<Question>> = {
   edges: [
     {
@@ -126,13 +131,14 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Edit subject", () => {
-  it("can open different sections", () => {
+  it("can open topics and questions for loaded regular subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      subject,
       gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
-    cy.visit("/author/subject");
+    cy.visit("/author/subject?id=background");
     // info opened by default
     cy.get("[data-cy=subject-name]").should("exist");
     cy.get("[data-cy=subject-description]").should("exist");
@@ -168,11 +174,8 @@ describe("Edit subject", () => {
     cy.get("[data-cy=subject-description]").within(($input) => {
       cy.get("textarea").should("have.value", "");
     });
-    cy.get("[data-cy=toggle-topics]").trigger("mouseover").click();
-    cy.get("[data-cy=topics-list]").children().should("have.length", 0);
-    cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
-    cy.get("[data-cy=categories]").children().should("have.length", 0);
-    cy.get("[data-cy=questions]").children().should("have.length", 0);
+    cy.get("[data-cy=toggle-questions]").should("not.be.visible");
+    cy.get("[data-cy=toggle-topics]").should("not.be.visible");
   });
 
   it("loads subject with default and mentor-specific questions", () => {
@@ -302,9 +305,10 @@ describe("Edit subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      subject,
       gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
-    cy.visit("/author/subject");
+    cy.visit("/author/subject?id=background");
     cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
     cy.get("[data-cy=add-question]").trigger("mouseover").click();
     cy.get("[data-cy=questions]").within(($questions) => {
@@ -312,8 +316,12 @@ describe("Edit subject", () => {
         cy.get("[data-cy=question]").trigger("mouseover").click();
       });
     });
-    cy.get("[data-cy=select-type]").should("have.attr", "cy-value", "QUESTION");
-    cy.get("[data-cy=select-name]").should("not.exist");
+    cy.get("[data-cy=select-type]").should(
+      "have.attr",
+      "cy-value",
+      "UTTERANCE"
+    );
+    cy.get("[data-cy=select-name]").should("exist");
     cy.get("[data-cy=select-type]").trigger("mouseover").click();
     cy.get("[data-cy=utterance-type]").trigger("mouseover").click();
     cy.get("[data-cy=select-type]").should(
@@ -331,9 +339,10 @@ describe("Edit subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
+      subject,
       gqlQueries: [mockGQL("Questions", { questions: questions })],
     });
-    cy.visit("/author/subject");
+    cy.visit("/author/subject?id=background");
     cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
     cy.get("[data-cy=add-question]").trigger("mouseover").click();
     cy.get("[data-cy=questions]").within(($questions) => {
@@ -1069,5 +1078,62 @@ describe("Edit subject", () => {
       cy.get("textarea").should("have.value", "Backgroundedit");
     });
     cy.get("[data-cy=save-button]").should("not.be.disabled");
+  });
+
+  describe("Utterance subject", () => {
+    it("Utterance subjects cannot add topics to the subject nor questions", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        subject: utteranceSubject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      // info opened by default
+      cy.get("[data-cy=subject-name]").should("exist");
+      cy.get("[data-cy=subject-description]").should("exist");
+      cy.get("[data-cy=topics-list]").should("not.exist");
+      cy.get("[data-cy=categories]").should("not.exist");
+      cy.get("[data-cy=questions]").should("not.exist");
+      // subject topics tab not visible for utterance subjects
+      cy.get("[data-cy=toggle-topics]").should("not.be.visible");
+      // open questions
+      cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").should("not.exist");
+      cy.get("[data-cy=category-0]").within(() => {
+        cy.get("[data-cy=category-question-0]").click();
+      });
+      cy.get("[data-cy=edit-question]").within(() => {
+        cy.get("[data-cy=question-topics-list]").should("not.exist");
+      });
+      //  cy.get("[data-cy=question-topics-list]").should("not.exist");
+    });
+
+    it("Questions added to utterance subjects are fixed to Utterance type", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        subject: utteranceSubject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      // info opened by default
+      cy.get("[data-cy=subject-name]").should("exist");
+      cy.get("[data-cy=subject-description]").should("exist");
+      cy.get("[data-cy=topics-list]").should("not.exist");
+      cy.get("[data-cy=categories]").should("not.exist");
+      cy.get("[data-cy=questions]").should("not.exist");
+      // open questions
+      cy.get("[data-cy=toggle-questions]").trigger("mouseover").click();
+      cy.get("[data-cy=topics-list]").should("not.exist");
+
+      // add question and check that it's input is disabled and set to Utterance
+      cy.get("[data-cy=add-question]").click();
+      cy.get("[data-cy=question-1]").click();
+      cy.get("[data-cy=edit-question]").within(() => {
+        cy.get("[data-cy=select-type]").should("have.class", "Mui-disabled");
+        cy.get("[data-cy=select-type]").should("contain.text", "Utterance");
+      });
+    });
   });
 });

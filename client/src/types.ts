@@ -63,8 +63,8 @@ export interface Mentor {
 }
 
 export enum SubjectTypes {
-  TOPIC_GROUP = "TOPIC_GROUP",
-  UTTERANCE_GROUP = "UTTERANCE_GROUP",
+  SUBJECT = "SUBJECT",
+  UTTERANCES = "UTTERANCES",
 }
 
 export interface Subject {
@@ -332,7 +332,7 @@ export enum UtteranceName {
   FEEDBACK = "_FEEDBACK_",
   REPEAT = "_REPEAT_",
   REPEAT_BUMP = "_REPEAT_BUMP_",
-  PROFANIY = "_PROFANITY_",
+  PROFANITY = "_PROFANITY_",
 }
 
 export enum AnswerAttentionNeeded {

@@ -85,28 +85,39 @@ function SubjectPage(props: {
   if (!mentorId || !editedSubject) {
     return (
       <div>
-        <NavBar title="Edit Subject" />
+        <NavBar title="Create Subject" />
         <CircularProgress />
       </div>
     );
   }
 
-  const isUtteranceSubject =
-    editedSubject.type === SubjectTypes.UTTERANCE_GROUP;
+  const isUtteranceSubject = editedSubject.type === SubjectTypes.UTTERANCES;
+
+  const subjectExists = Boolean(editedSubject._id);
 
   return (
     <div className={classes.root}>
-      <NavBar title="Edit Subject" mentorId={mentorId} />
+      <NavBar
+        title={!subjectExists ? "Create Subject" : "Edit Subject"}
+        mentorId={mentorId}
+      />
       <TabContext value={tab}>
         <TabList onChange={(event, newValue) => setTab(newValue)}>
           <Tab label="Subject Info" value="1" data-cy="toggle-info" />
           <Tab
             label="Topics"
-            style={{ display: isUtteranceSubject ? "none" : "block" }}
+            style={{
+              display: isUtteranceSubject || !subjectExists ? "none" : "block",
+            }}
             value="2"
             data-cy="toggle-topics"
           />
-          <Tab label="Questions" value="3" data-cy="toggle-questions" />
+          <Tab
+            style={{ display: !subjectExists ? "none" : "block" }}
+            label="Questions"
+            value="3"
+            data-cy="toggle-questions"
+          />
         </TabList>
         <TabPanel
           className={classes.tab}
@@ -142,7 +153,9 @@ function SubjectPage(props: {
             fullWidth
             multiline
           />
+          <p style={{ marginTop: "15px" }}>Subject Type</p>
           <Autocomplete
+            disabled={subjectExists}
             data-cy="subject-type-map"
             style={{ marginTop: "15px" }}
             options={Object.values(SubjectTypes)}
@@ -157,7 +170,7 @@ function SubjectPage(props: {
                 {...params}
                 style={{ width: 300 }}
                 variant="outlined"
-                placeholder={editedSubject.type || SubjectTypes.TOPIC_GROUP}
+                placeholder={editedSubject.type || SubjectTypes.SUBJECT}
               />
             )}
             renderOption={(option) => <ListItemText primary={option} />}
@@ -175,6 +188,7 @@ function SubjectPage(props: {
         </TabPanel>
         <TabPanel className={classes.tab} value="3">
           <QuestionsList
+            subjectType={editedSubject.type}
             classes={classes}
             categories={editedSubject.categories}
             questions={editedSubject.questions.filter(
@@ -201,7 +215,7 @@ function SubjectPage(props: {
         disabled={!isSubjectEdited}
         onClick={() => saveSubject()}
       >
-        Save
+        {subjectExists ? "Save" : "Create"}
       </Button>
       <LoadingDialog
         title={

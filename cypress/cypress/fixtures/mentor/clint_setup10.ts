@@ -19,7 +19,7 @@ export const mentor: Mentor = {
     {
       _id: "leadership",
       name: "Leadership",
-      type: SubjectTypes.TOPIC_GROUP,
+      type: SubjectTypes.SUBJECT,
       description: "These questions will ask about being in a leadership role.",
       isRequired: false,
       categories: [],

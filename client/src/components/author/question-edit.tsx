@@ -16,22 +16,30 @@ import {
   Grid,
 } from "@material-ui/core";
 import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import { QuestionType, Topic, MentorType, UtteranceName } from "types";
+import {
+  QuestionType,
+  Topic,
+  MentorType,
+  UtteranceName,
+  SubjectTypes,
+} from "types";
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 import { SubjectQuestionGQL } from "types-gql";
 
 export function QuestionEditCard(props: {
+  subjectType: SubjectTypes;
   classes: Record<string, string>;
   question?: SubjectQuestionGQL;
   topics: Topic[];
   updateQuestion: (val: SubjectQuestionGQL) => void;
   onDeselect: () => void;
 }): JSX.Element {
-  const { classes, question } = props;
+  const { classes, question, subjectType } = props;
   if (!question) {
     return <div />;
   }
+  const isUtteranceSubject = subjectType === SubjectTypes.UTTERANCES;
   return (
     <div data-cy="edit-question" style={{ padding: 20 }}>
       <CardHeader
@@ -49,6 +57,7 @@ export function QuestionEditCard(props: {
           <FormControl variant="outlined" fullWidth>
             <InputLabel>Question Type</InputLabel>
             <Select
+              disabled={isUtteranceSubject}
               data-cy="select-type"
               label="Question Type"
               value={question.question.type}
@@ -170,16 +179,18 @@ export function QuestionEditCard(props: {
           </Grid>
         ) : undefined}
       </Grid>
-      <TopicsList
-        classes={classes}
-        allTopics={props.topics}
-        questionTopics={question.topics.filter((t) =>
-          props.topics.map((t) => t.id).includes(t.id)
-        )}
-        updateTopics={(t: Topic[]) =>
-          props.updateQuestion({ ...question, topics: t })
-        }
-      />
+      {!isUtteranceSubject ? (
+        <TopicsList
+          classes={classes}
+          allTopics={props.topics}
+          questionTopics={question.topics.filter((t) =>
+            props.topics.map((t) => t.id).includes(t.id)
+          )}
+          updateTopics={(t: Topic[]) =>
+            props.updateQuestion({ ...question, topics: t })
+          }
+        />
+      ) : undefined}
       <ParaphraseList
         classes={classes}
         paraphrases={question.question.paraphrases}

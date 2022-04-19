@@ -14,7 +14,7 @@ const mentor = {
     {
       _id: "background",
       name: "Background",
-      type: SubjectTypes.TOPIC_GROUP,
+      type: SubjectTypes.SUBJECT,
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
@@ -22,7 +22,7 @@ const mentor = {
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
-      type: SubjectTypes.UTTERANCE_GROUP,
+      type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
     },
@@ -116,7 +116,7 @@ describe("Select Subjects", () => {
             {
               _id: "leadership",
               name: "Leadership",
-              type: SubjectTypes.TOPIC_GROUP,
+              type: SubjectTypes.SUBJECT,
               description:
                 "These questions will ask about being in a leadership role.",
               isRequired: false,

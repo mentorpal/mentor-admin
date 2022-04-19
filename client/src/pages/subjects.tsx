@@ -4,12 +4,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Checkbox,
   IconButton,
   Paper,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -39,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
+    height: "100vh",
   },
   container: {
     flex: 1,
@@ -51,6 +53,10 @@ const useStyles = makeStyles((theme) => ({
     height: "10%",
     top: "auto",
     bottom: 0,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   fab: {
     position: "absolute",
@@ -64,13 +70,6 @@ const columns: ColumnDef[] = [
   {
     id: "name",
     label: "Name",
-    minWidth: 200,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "type",
-    label: "Type",
     minWidth: 200,
     align: "left",
     sortable: true,
@@ -109,6 +108,8 @@ function SubjectsPage(props: {
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
+  const [viewUtteranceSubjects, setViewUtteranceSubjects] =
+    useState<boolean>(false);
 
   const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
     useMentorEdits();
@@ -149,10 +150,21 @@ function SubjectsPage(props: {
     });
   }
 
+  function onToggleViewSubjectType(event: React.ChangeEvent<HTMLInputElement>) {
+    setViewUtteranceSubjects(event.target.checked);
+  }
+
   const onBack = () => {
     props.search.back ? navigate(decodeURI(props.search.back)) : navigate("/");
   };
 
+  const subjectToDisplay = subjects?.edges.filter(
+    (edge) =>
+      edge.node.type ===
+      (viewUtteranceSubjects ? SubjectTypes.UTTERANCES : SubjectTypes.SUBJECT)
+  );
+  const label = { inputProps: { "aria-label": "Switch demo" } };
+  // const subjectExists
   return (
     <div>
       <NavBar title="Subjects" mentor={editedMentor?._id} onBack={onBack} />
@@ -167,7 +179,7 @@ function SubjectsPage(props: {
                 onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {subjects?.edges.map((edge, i) => {
+                {subjectToDisplay?.map((edge, i) => {
                   const subject = edge.node;
                   return (
                     <TableRow
@@ -179,11 +191,6 @@ function SubjectsPage(props: {
                     >
                       <TableCell data-cy="name" align="left">
                         {subject.name}
-                      </TableCell>
-                      <TableCell data-cy="type" align="left">
-                        {subject.type === SubjectTypes.UTTERANCE_GROUP
-                          ? "Utterances"
-                          : "Topic Questions"}
                       </TableCell>
                       <TableCell data-cy="description" align="left">
                         {subject.description}
@@ -226,7 +233,7 @@ function SubjectsPage(props: {
           </TableContainer>
         </Paper>
         <AppBar position="sticky" color="default" className={classes.appBar}>
-          <Toolbar>
+          <Toolbar style={{ width: "fit-content" }}>
             <IconButton
               data-cy="prev-page"
               disabled={!subjects?.pageInfo.hasPreviousPage}
@@ -242,8 +249,14 @@ function SubjectsPage(props: {
               <KeyboardArrowRightIcon />
             </IconButton>
           </Toolbar>
+          <span style={{ margin: "15px" }}>
+            <span>
+              Subjects
+              <Switch {...label} onChange={onToggleViewSubjectType} />
+              Utterances
+            </span>
+          </span>
           <ButtonGroupDropdown
-            styles={{ position: "absolute", top: "25%", right: 10 }}
             dropdownItems={[
               {
                 title: "Exit",
