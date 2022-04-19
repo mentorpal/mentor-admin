@@ -43,7 +43,7 @@ describe("Select Subjects", () => {
     cy.location("pathname").then(($el) => {
       assert($el.replace("/admin", ""), "/subjects");
     });
-    cy.get("[data-cy=subjects]").children().should("have.length", 3);
+    cy.get("[data-cy=subjects]").children().should("have.length", 2);
     // required subject background is selected and cannot be deselected
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -60,9 +60,19 @@ describe("Select Subjects", () => {
           .and("not.be.checked");
       });
     });
-    // required subject repeat_after_me is selected and cannot be deselected
+    // non-required subject leadership is selected and can be deselected
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-1]").within(($subject) => {
+        cy.get('[data-cy=select] [type="checkbox"]')
+          .check()
+          .should("be.checked");
+        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
+      });
+    });
+    // Check utterances
+    cy.get("[data-cy=subject-type-switch]").click();
+    cy.get("[data-cy=subjects]").within(($subjects) => {
+      cy.get("[data-cy=subject-0]").within(($subject) => {
         cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
         cy.get("[data-cy=description]").should(
           "have.text",
@@ -76,31 +86,6 @@ describe("Select Subjects", () => {
           .and("not.be.checked");
       });
     });
-    // non-required subject leadership is not selected and can be selected
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Leadership");
-        cy.get("[data-cy=description]").should(
-          "have.text",
-          "These questions will ask about being in a leadership role."
-        );
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .should("not.be.disabled")
-          .and("not.be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]')
-          .should("be.disabled")
-          .and("not.be.checked");
-      });
-    });
-    // non-required subject leadership is selected and can be deselected
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .check()
-          .should("be.checked");
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
-      });
-    });
   });
 
   it("can select subject + primary subject and save", () => {
@@ -110,7 +95,7 @@ describe("Select Subjects", () => {
         mentor,
         {
           ...mentor,
-          defaultSubject: { _id: "leadership" },
+          defaultSubject: { _id: "background" },
           subjects: [
             ...mentor.subjects,
             {
@@ -144,35 +129,23 @@ describe("Select Subjects", () => {
       cy.get("[data-cy=subject-1]").within(($subject) => {
         cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
       });
-      cy.get("[data-cy=subject-2]").within(($subject) => {
+    });
+    cy.get("[data-cy=subject-type-switch]").click();
+    cy.get("[data-cy=subjects]").within(($subjects) => {
+      cy.get("[data-cy=subject-0]").within(($subject) => {
         cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
-      });
-      // select repeat_after_me as primary subject
-      cy.get("[data-cy=subject-1]").within(($subject) => {
         cy.get('[data-cy=default] [type="checkbox"]')
           .check()
           .should("be.checked");
       });
+    });
+    cy.get("[data-cy=subject-type-switch]").click();
+    cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
         cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
-      });
-      cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
-      });
-      // select leadership as primary subject
-      cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .check()
-          .should("be.checked");
         cy.get('[data-cy=default] [type="checkbox"]')
           .check()
           .should("be.checked");
-      });
-      cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
-      });
-      cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
       });
     });
     // save changes
@@ -189,23 +162,21 @@ describe("Select Subjects", () => {
           .and("be.checked");
         cy.get('[data-cy=default] [type="checkbox"]')
           .should("not.be.disabled")
-          .and("not.be.checked");
+          .and("be.checked");
       });
       cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .should("be.disabled")
-          .and("be.checked");
         cy.get('[data-cy=default] [type="checkbox"]')
           .should("not.be.disabled")
           .and("not.be.checked");
       });
-      cy.get("[data-cy=subject-2]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .should("not.be.disabled")
-          .and("be.checked");
+    });
+    // make sure primary in utterance got unset
+    cy.get("[data-cy=subject-type-switch]").click();
+    cy.get("[data-cy=subjects]").within(($subjects) => {
+      cy.get("[data-cy=subject-0]").within(($subject) => {
         cy.get('[data-cy=default] [type="checkbox"]')
           .should("not.be.disabled")
-          .and("be.checked");
+          .and("not.be.checked");
       });
     });
   });
@@ -228,7 +199,7 @@ describe("Dropdown button list", () => {
       subjects: [allSubjects],
     });
     cy.visit("/subjects");
-    cy.get("[data-cy=subject-2]").within(($within) => {
+    cy.get("[data-cy=subject-1]").within(($within) => {
       cy.get("[data-cy=select]").invoke("mouseover").click();
     });
     cy.get("[data-cy=dropdown-button-list]").should("have.text", "Save");
@@ -259,7 +230,7 @@ describe("Dropdown button list", () => {
       ],
     });
     cy.visit("/subjects");
-    cy.get("[data-cy=subject-2]").within(($within) => {
+    cy.get("[data-cy=subject-1]").within(($within) => {
       cy.get("[data-cy=select]").invoke("mouseover").click();
     });
     cy.get("[data-cy=dropdown-button-list]")

@@ -252,7 +252,11 @@ function SubjectsPage(props: {
           <span style={{ margin: "15px" }}>
             <span>
               Subjects
-              <Switch {...label} onChange={onToggleViewSubjectType} />
+              <Switch
+                data-cy="subject-type-switch"
+                {...label}
+                onChange={onToggleViewSubjectType}
+              />
               Utterances
             </span>
           </span>
