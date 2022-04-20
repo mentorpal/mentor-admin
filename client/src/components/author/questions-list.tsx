@@ -22,7 +22,7 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import { Autocomplete } from "@material-ui/lab";
 
-import { Category, Question, Topic } from "types";
+import { Category, Question, SubjectTypes, Topic } from "types";
 import CategoryListItem from "./category-list-item";
 import QuestionListItem from "./question-list-item";
 import QuestionEditCard from "./question-edit";
@@ -33,6 +33,7 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 
 export function QuestionsList(props: {
+  subjectType: SubjectTypes;
   classes: Record<string, string>;
   categories: Category[];
   topics: Topic[];
@@ -45,7 +46,7 @@ export function QuestionsList(props: {
   removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
 }): JSX.Element {
-  const { classes, questions } = props;
+  const { classes, questions, subjectType } = props;
   const [searchInput, setSearchInput] = useState<Question>();
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const [selectedCategory, setSelectedCategory] = useState<string>();
@@ -188,6 +189,7 @@ export function QuestionsList(props: {
             }}
           >
             <QuestionEditCard
+              subjectType={subjectType}
               classes={classes}
               topics={props.topics}
               question={questions.find(

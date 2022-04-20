@@ -9,6 +9,7 @@ import {
   MentorType,
   QuestionType,
   Status,
+  SubjectTypes,
   UtteranceName,
 } from "../../support/types";
 
@@ -61,6 +62,7 @@ export const mentor: Mentor = {
     {
       _id: "repeat_after_me",
       name: "Repeat After Me",
+      type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
       categories: [

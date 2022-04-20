@@ -66,7 +66,7 @@ const questions: Connection<Partial<Question>> = {
 };
 
 describe("Import", { scrollBehavior: "center" }, () => {
-  it.only("shows page", () => {
+  it("shows page", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clintNew,
@@ -203,7 +203,7 @@ describe("Import", { scrollBehavior: "center" }, () => {
     });
     cy.visit("/importexport");
     cy.get("[data-cy=import-progress-dialog]").within(($within) => {
-      cy.get("[data-cy=logout-button]").should("be.visible");
+      cy.get("[data-cy=import-logout-button]").should("be.visible");
     });
   });
 

@@ -179,7 +179,7 @@ export default function ImportInProgressDialog(props: {
           </Button>
         ) : (
           <Button
-            data-cy="logout-button"
+            data-cy="import-logout-button"
             onClick={() => logout()}
             style={{ marginTop: "20px" }}
           >

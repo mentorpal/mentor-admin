@@ -9,6 +9,7 @@ import {
   MentorType,
   QuestionType,
   Status,
+  SubjectTypes,
   UtteranceName,
 } from "../support/types";
 import { status1 } from "../fixtures/mentor";
@@ -134,6 +135,7 @@ describe("My Mentor Card", () => {
           {
             _id: "repeat_after_me",
             name: "Repeat After Me",
+            type: SubjectTypes.UTTERANCES,
             isRequired: true,
             description:
               "These are miscellaneous phrases you'll be asked to repeat.",

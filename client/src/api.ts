@@ -309,6 +309,7 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
           subject(id: $id) {
             _id
             name
+            type
             description
             isRequired
             categories {
@@ -373,6 +374,7 @@ export async function fetchSubjects(
             node {
               _id
               name
+              type
               description
               isRequired
               categories {
@@ -442,6 +444,7 @@ export async function updateSubject(
           updateSubject(subject: $subject) {
             _id
             name
+            type
             description
             isRequired
             categories {
@@ -484,6 +487,7 @@ export async function updateSubject(
         subject: {
           _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
           name: subject?.name,
+          type: subject?.type,
           description: subject?.description,
           categories: subject?.categories,
           topics: subject?.topics,
@@ -797,6 +801,7 @@ export async function fetchMentorById(
           subjects {
             _id
             name
+            type
             description
             isRequired
             categories {
@@ -1265,6 +1270,7 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
             subjects {
               _id
               name
+              type
               description
               isRequired
               topics {
@@ -1383,6 +1389,7 @@ export async function importMentorPreview(
               importData {
                 _id
                 name
+                type
                 description
                 isRequired
                 topics {
@@ -1421,6 +1428,7 @@ export async function importMentorPreview(
               curData {
                 _id
                 name
+                type
                 description
                 isRequired
                 topics {

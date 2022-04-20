@@ -9,7 +9,14 @@ import { v4 as uuid } from "uuid";
 import { fetchSubject, updateSubject } from "api";
 import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
-import { Category, Topic, QuestionType, UtteranceName, Question } from "types";
+import {
+  Category,
+  Topic,
+  QuestionType,
+  UtteranceName,
+  Question,
+  SubjectTypes,
+} from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -56,12 +63,15 @@ export function useWithSubject(
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
 
+  const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCES;
+
   function fetch() {
     if (!subjectId) {
       return new Promise<SubjectGQL>((resolve) => {
         resolve({
           _id: "",
           name: "",
+          type: SubjectTypes.SUBJECT,
           description: "",
           isRequired: false,
           categories: [],
@@ -193,7 +203,9 @@ export function useWithSubject(
             clientId: uuid(),
             question: "",
             paraphrases: [],
-            type: QuestionType.QUESTION,
+            type: isUtteranceSubject
+              ? QuestionType.UTTERANCE
+              : QuestionType.QUESTION,
             name: UtteranceName.NONE,
           },
           category: args?.categoryId

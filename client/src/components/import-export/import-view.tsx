@@ -64,6 +64,8 @@ export default function ImportView(props: {
     onReplaceNewAnswer: replaceNewAnswer,
     toggleRemoveOldFollowup: toggleRemoveOldFollowup,
     onMapQuestionToSubject: mapQuestionToSubject,
+    onMapSubjectType,
+    onMapQuestionType,
     isUpdating,
     onToggleReplaceEntireMentor: replaceEntireMentor,
   } = props.useImportExport;
@@ -152,6 +154,8 @@ export default function ImportView(props: {
                 toggleRemoveOldFollowup={toggleRemoveOldFollowup}
                 oldQuestionsToRemove={oldQuestionsToRemove}
                 mapTopic={mapTopic}
+                onMapSubjectType={onMapSubjectType}
+                onMapQuestionType={onMapQuestionType}
                 mapQuestionToSubject={mapQuestionToSubject}
                 saveSubjectName={saveSubjectName}
                 previewQuestions={importPreview.questions}

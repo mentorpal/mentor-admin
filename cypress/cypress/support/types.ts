@@ -67,9 +67,15 @@ export interface Mentor {
   questions: SubjectQuestion[];
 }
 
+export enum SubjectTypes {
+  SUBJECT = "SUBJECT",
+  UTTERANCES = "UTTERANCES",
+}
+
 export interface Subject {
   _id: string;
   name: string;
+  type: SubjectTypes;
   description: string;
   isRequired: boolean;
   categories: Category[];
@@ -184,7 +190,7 @@ export enum UtteranceName {
   FEEDBACK = "_FEEDBACK_",
   REPEAT = "_REPEAT_",
   REPEAT_BUMP = "_REPEAT_BUMP_",
-  PROFANIY = "_PROFANITY_",
+  PROFANITY = "_PROFANITY_",
 }
 
 export interface AsyncJob {

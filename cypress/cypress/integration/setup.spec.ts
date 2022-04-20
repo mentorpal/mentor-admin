@@ -23,7 +23,7 @@ import {
 } from "../fixtures/mentor";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, JobState } from "../support/types";
+import { MentorType, JobState, SubjectTypes } from "../support/types";
 
 const baseMock = {
   mentor: setup0,
@@ -388,6 +388,7 @@ describe("Setup", () => {
             {
               _id: "leadership",
               name: "Leadership",
+              type: SubjectTypes.SUBJECT,
               description:
                 "These questions will ask about being in a leadership role.",
               isRequired: false,
@@ -425,7 +426,7 @@ describe("Setup", () => {
       assert($el.replace("/admin", ""), "/subjects")
     );
     cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D3");
-    cy.get("[data-cy=subjects]").children().should("have.length", 3);
+    cy.get("[data-cy=subjects]").children().should("have.length", 2);
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
         cy.get("[data-cy=name]").should("have.text", "Background");
@@ -441,19 +442,6 @@ describe("Setup", () => {
     });
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
-        cy.get("[data-cy=description]").should(
-          "have.text",
-          "These are miscellaneous phrases you'll be asked to repeat."
-        );
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
-      });
-    });
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-2]").within(($subject) => {
         cy.get("[data-cy=name]").should("have.text", "Leadership");
         cy.get("[data-cy=description]").should(
           "have.text",
@@ -472,7 +460,7 @@ describe("Setup", () => {
           .check()
           .should("be.checked");
       });
-      cy.get("[data-cy=subject-2]").within(($subject) => {
+      cy.get("[data-cy=subject-1]").within(($subject) => {
         cy.get('[data-cy=select] [type="checkbox"]')
           .check()
           .should("be.checked");

@@ -734,6 +734,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("contain.text", "Processing");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("not.be.visible");
+    cy.wait(3000);
     //upload complete, should swap to video view
     cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
     cy.get("[data-cy=upload-video]").should("contain.text", "Upload Video");

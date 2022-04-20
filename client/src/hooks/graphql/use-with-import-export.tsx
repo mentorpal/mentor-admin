@@ -15,7 +15,9 @@ import {
   MentorExportJson,
   MentorImportPreview,
   Question,
+  QuestionType,
   ReplacedMentorDataChanges,
+  SubjectTypes,
   Topic,
 } from "types";
 import { copyAndRemove, copyAndSet } from "helpers";
@@ -33,6 +35,14 @@ export interface UseWithImportExport {
   onConfirmImport: () => void;
   onCancelImport: () => void;
   onTransferMedia: () => void;
+  onMapSubjectType: (
+    subjectToUpdate: SubjectGQL,
+    newType: SubjectTypes
+  ) => void;
+  onMapQuestionType: (
+    questionToUpdate: Question,
+    newType: QuestionType
+  ) => void;
   onMapSubject: (curSubject: SubjectGQL, newSubject: SubjectGQL) => void;
   onMapQuestion: (curQuestion: Question, newQuestion: Question) => void;
   onMapCategory: (questionBeingReplaced: Question, category: Category) => void;
@@ -718,6 +728,111 @@ export function useWithImportExport(): UseWithImportExport {
     setImportJson(json);
   }
 
+  function onMapSubjectType(
+    subjectToUpdate: SubjectGQL,
+    newType: SubjectTypes
+  ) {
+    if (
+      !importedJson ||
+      !importPreview ||
+      !mentorId ||
+      isUpdating ||
+      !subjects
+    ) {
+      return;
+    }
+    // update json with new subject type
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+    for (const s of json.subjects) {
+      if (s._id === subjectToUpdate._id) {
+        s.type = newType;
+      }
+    }
+    setImportJson(json);
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    for (const s of preview.subjects) {
+      if (s.importData?._id === subjectToUpdate._id) {
+        s.importData.type = newType;
+      }
+    }
+    setImportPreview(preview);
+  }
+
+  function onMapQuestionType(
+    questionToUpdate: Question,
+    newType: QuestionType
+  ) {
+    if (
+      !importedJson ||
+      !importPreview ||
+      !mentorId ||
+      isUpdating ||
+      !subjects
+    ) {
+      return;
+    }
+    const json = {
+      ...importedJson,
+      subjects: [...importedJson.subjects] || [],
+      questions: [...importedJson.questions] || [],
+      answers: [...importedJson.answers] || [],
+    };
+    for (const q of json.questions) {
+      if (q._id === questionToUpdate._id) {
+        q.type = newType;
+      }
+    }
+    for (const s of json.subjects) {
+      const subjectQIdx = s.questions.findIndex(
+        (q) => q.question._id === questionToUpdate._id
+      );
+      if (subjectQIdx !== -1) {
+        s.questions[subjectQIdx].question.type = newType;
+      }
+    }
+    setImportJson(json);
+    const preview = {
+      ...importPreview,
+      subjects: [...importPreview.subjects] || [],
+      questions: [...importPreview.questions] || [],
+      answers: [...importPreview.answers] || [],
+    };
+    const qIdx = preview.questions.findIndex(
+      (q) => q.importData?._id === questionToUpdate._id
+    );
+    if (qIdx !== -1) {
+      const importData = preview.questions[qIdx].importData;
+      if (importData) {
+        preview.questions[qIdx].importData = {
+          ...importData,
+          type: newType,
+        };
+      }
+    }
+    for (const s of preview.subjects) {
+      const subjectQIdx = s.importData?.questions.findIndex(
+        (q) => q.question._id === questionToUpdate._id
+      );
+      if (subjectQIdx !== undefined && subjectQIdx !== -1) {
+        const importData = s.importData;
+        if (importData)
+          importData.questions[subjectQIdx].question.type = newType;
+      }
+    }
+
+    setImportPreview(preview);
+  }
+
   return {
     importedJson,
     importPreview,
@@ -730,6 +845,8 @@ export function useWithImportExport(): UseWithImportExport {
     onMapQuestion,
     onMapCategory,
     onMapTopic,
+    onMapSubjectType,
+    onMapQuestionType,
     toggleRemoveOldFollowup,
     onMapQuestionToSubject,
     onSaveSubjectName,
