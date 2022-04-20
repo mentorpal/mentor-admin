@@ -283,6 +283,7 @@ export function NavBar(props: {
   toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
+  checkForImportTask?: boolean;
 }): JSX.Element {
   const classes = useStyles();
   const {
@@ -291,6 +292,7 @@ export function NavBar(props: {
     toggleUploadsButtonVisibility,
     onNav,
     onBack,
+    checkForImportTask = true,
   } = props;
   const importStatus = useWithImportStatus();
   const { importTask } = importStatus;
@@ -373,7 +375,7 @@ export function NavBar(props: {
         <Toolbar />
         <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
       </SwipeableDrawer>
-      {importTask ? (
+      {checkForImportTask && importTask ? (
         <ImportInProgressDialog importTask={importTask} />
       ) : undefined}
       <div className={classes.toolbar} /> {/* create space below app bar */}

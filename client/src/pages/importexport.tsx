@@ -45,7 +45,11 @@ function ImportPage(): JSX.Element {
 
   return (
     <div className={classes.root}>
-      <NavBar title="Export Mentor" mentorId={mentorId} />
+      <NavBar
+        title="Export Mentor"
+        mentorId={mentorId}
+        checkForImportTask={false}
+      />
       {importTask ? (
         <ImportInProgressDialog importTask={importTask} />
       ) : undefined}
