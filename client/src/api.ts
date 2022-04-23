@@ -842,7 +842,19 @@ export async function fetchMentorById(
             transcript
             status
             hasUntransferredMedia
-            media {
+            webMedia {
+              type
+              tag
+              url
+              needsTransfer
+            }
+            mobileMedia{
+              type
+              tag
+              url
+              needsTransfer
+            }
+            vttMedia{
               type
               tag
               url
@@ -1215,7 +1227,17 @@ export async function fetchUploadTasks(
                 status
               }
               transcript
-              media {
+              webMedia {
+                type
+                tag
+                url
+              }
+              mobileMedia{
+                type
+                tag
+                url
+              }
+              vttMedia{
                 type
                 tag
                 url
@@ -1321,7 +1343,19 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
               transcript
               status
               hasUntransferredMedia
-              media {
+              webMedia {
+                type
+                tag
+                url
+                needsTransfer
+              }
+              mobileMedia{
+                type
+                tag
+                url
+                needsTransfer
+              }
+              vttMedia{
                 type
                 tag
                 url
@@ -1495,7 +1529,19 @@ export async function importMentorPreview(
                 transcript
                 status
                 hasUntransferredMedia
-                media {
+                webMedia {
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
+                mobileMedia{
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
+                vttMedia{
                   type
                   tag
                   url
@@ -1517,7 +1563,19 @@ export async function importMentorPreview(
                 status
                 hasEditedTranscript
                 hasUntransferredMedia
-                media {
+                webMedia {
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
+                mobileMedia{
+                  type
+                  tag
+                  url
+                  needsTransfer
+                }
+                vttMedia{
                   type
                   tag
                   url

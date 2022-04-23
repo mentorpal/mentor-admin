@@ -87,7 +87,9 @@ export interface AnswerGQL {
   hasEditedTranscript: boolean;
   transcript: string;
   status: Status;
-  media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
   hasUntransferredMedia: boolean;
 }
 
@@ -112,7 +114,7 @@ export interface UploadTaskGQL {
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
-  media?: Media[];
+  originalMedia: Media;
 }
 
 export interface MentorExportJson {

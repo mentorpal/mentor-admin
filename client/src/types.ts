@@ -123,7 +123,9 @@ export interface Answer {
   transcript: string;
   status: Status;
   hasUntransferredMedia: boolean;
-  media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export interface UserQuestion {
@@ -262,7 +264,7 @@ export interface UploadTask {
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
-  media?: Media[];
+  originalMedia: Media;
 }
 
 export enum EditType {
