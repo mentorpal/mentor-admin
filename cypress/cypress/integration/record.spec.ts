@@ -660,6 +660,21 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
                   ...taskListBuild("DONE"),
                   transcript: "i am kayla",
                   ...uploadTaskMediaBuild(),
