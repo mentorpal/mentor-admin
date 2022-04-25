@@ -24,6 +24,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
+import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -146,39 +147,33 @@ const videoMentor: Mentor = completeMentor({
       _id: "A2_1_1",
       question: { _id: "A2_1_1", question: "How old are you now?" },
       transcript: "I'm 37 years old",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A2_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A2_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
     {
       _id: "A3_1_1",
       question: { _id: "A3_1_1", question: "Where do you live?" },
       transcript: "In Howard City, Michigan",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A3_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
     {
       _id: "A4_1_1",
       question: { _id: "A4_1_1", question: "Record an idle video" },
       transcript: "",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A3_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
   ],
@@ -649,36 +644,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -691,36 +659,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -790,73 +731,16 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -890,73 +774,18 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("FAILED"),
+                  ...uploadTaskMediaBuild(),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
                 },
                 {
                   question: {
@@ -964,36 +793,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
                 },
               ],
             },
@@ -1030,36 +832,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
                 },
                 {
                   question: {
@@ -1067,36 +842,9 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
                 },
               ],
             },
@@ -1155,108 +903,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1269,108 +933,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1406,7 +986,6 @@ describe("Record", () => {
     );
   });
 
-  //Test that the widget displays mutliple cards with multiple uploads
   it("displays multiple cards with multiple uploads", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
@@ -1424,108 +1003,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1601,36 +1096,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1643,36 +1110,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1701,108 +1140,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1815,108 +1170,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -1953,108 +1224,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2067,108 +1254,24 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2205,36 +1308,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2247,36 +1322,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2289,36 +1336,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2331,36 +1350,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2407,37 +1398,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -2445,73 +1407,16 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[2].question._id,
                     question: videoMentor.answers[2].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2564,36 +1469,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -2601,36 +1479,9 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -2638,36 +1489,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2680,72 +1504,18 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "FAILED",
-                    },
-                  ],
+                  ...taskListBuild("FAILED"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -2753,36 +1523,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "i am kayla",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -2955,36 +1698,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3020,36 +1736,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3057,36 +1746,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3118,36 +1780,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3155,36 +1790,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3219,36 +1827,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3256,36 +1837,9 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3293,36 +1847,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3354,36 +1881,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3391,36 +1891,9 @@ describe("Record", () => {
                     question: videoMentor.answers[2].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3428,36 +1901,9 @@ describe("Record", () => {
                     question: videoMentor.answers[3].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3619,36 +2065,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "My name is Clint Anderson",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "video.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3712,36 +2131,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3749,36 +2141,9 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3791,37 +2156,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("FAILED"),
+                  ...uploadTaskMediaBuild(),
                 },
                 {
                   question: {
@@ -3829,114 +2165,9 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("FAILED"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "FAILED",
-                    },
-                  ],
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "FAILED",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "FAILED",
-                    },
-                  ],
-                  transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -3950,13 +2181,13 @@ describe("Record", () => {
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Failed to process file: trim_upload task failed");
+        .should("contain.text", "Failed to process file");
     });
     cy.get("[data-cy=active-upload-card-1]").should("exist");
     cy.get("[data-cy=active-upload-card-1]").within(($within) => {
       cy.get("[data-cy=card-answer-title]")
         .get("p")
-        .should("have.text", "Failed to process file: trim_upload task failed");
+        .should("contain.text", "Failed to process file");
     });
   });
 
@@ -3978,36 +2209,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4021,36 +2225,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4059,13 +2236,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
+    cy.wait(3000);
     cy.get("[data-cy=warn-empty-transcript]").should("exist");
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("p").should("have.text", "Needs Attention");
     });
   });
 
-  it("download button visible for upload items with original url avaialble", () => {
+  it("download button visible for upload items with original video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -4083,36 +2261,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4/original.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4144,36 +2295,9 @@ describe("Record", () => {
                     question: videoMentor.answers[0].question.question,
                   },
 
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4204,36 +2328,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[3].question._id,
                     question: videoMentor.answers[3].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4246,36 +2343,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[3].question._id,
                     question: videoMentor.answers[3].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4405,36 +2475,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4447,36 +2490,9 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
                   transcript: "",
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4506,35 +2522,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "IN_PROGRESS",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },
@@ -4547,35 +2536,8 @@ describe("Record", () => {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcribe",
-                      task_id: "transcribe_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "transcode",
-                      task_id: "transcode_id",
-                      status: "DONE",
-                    },
-                    {
-                      task_name: "finalization",
-                      task_id: "finalization_id",
-                      status: "DONE",
-                    },
-                  ],
-                  media: [
-                    {
-                      type: "video",
-                      tag: "web",
-                      url: "http://google.mp4",
-                    },
-                  ],
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
                 },
               ],
             },

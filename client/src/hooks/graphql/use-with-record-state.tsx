@@ -104,7 +104,6 @@ export function useWithRecordState(
     isUploading,
     pollStatusCount,
     upload,
-    cancelUpload,
     removeCompletedOrFailedTask,
   } = useWithUploadStatus(
     accessToken,
@@ -575,13 +574,6 @@ export function useWithRecordState(
     downloadVideoForQuestion(curAnswer?.answer.question);
   }
 
-  function cancelUploadVideo(task: UploadTask) {
-    if (!mentorId) {
-      return;
-    }
-    cancelUpload(mentorId, task);
-  }
-
   return {
     mentorQuestions,
     mentorSubjects,
@@ -611,7 +603,6 @@ export function useWithRecordState(
     uploadVideo,
     downloadCurAnswerVideo,
     downloadVideoFromUpload,
-    cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
   };
@@ -646,7 +637,6 @@ export interface UseWithRecordState {
   uploadVideo: (trim?: { start: number; end: number }) => void;
   downloadCurAnswerVideo: () => void;
   downloadVideoFromUpload: (upload: UploadTask) => void;
-  cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
 }

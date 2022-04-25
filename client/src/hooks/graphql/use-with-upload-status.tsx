@@ -6,12 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {
-  cancelUploadVideo,
-  deleteUploadTask,
-  fetchUploadTasks,
-  uploadVideo,
-} from "api";
+import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
 import { UploadTask, UploadTaskStatuses } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
@@ -23,7 +18,6 @@ import {
   isATaskFailed,
   areAllTasksDoneOrOneFailed,
   whichTaskFailed,
-  fetchIncompleteTaskIds,
 } from "./upload-status-helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 
@@ -227,62 +221,11 @@ export function useWithUploadStatus(
       });
   }
 
-  function cancelUpload(mentorId: string, task: UploadTask) {
-    if (!task.taskList.length) {
-      task.tokenSource?.cancel(UploadTaskStatuses.CANCELLED);
-      addOrEditTask({
-        ...task,
-        taskList: [
-          {
-            task_name: "trim_upload",
-            task_id: "",
-            status: UploadTaskStatuses.CANCELLED,
-          },
-        ],
-        isCancelling: true,
-      });
-      return;
-    }
-    addOrEditTask({
-      ...task,
-      isCancelling: true,
-    });
-    cancelUploadVideo(
-      mentorId,
-      task.question,
-      fetchIncompleteTaskIds(task),
-      accessToken
-    )
-      .then(() => {
-        addOrEditTask({
-          ...task,
-          taskList: [
-            {
-              task_name: "trim_upload",
-              task_id: "",
-              status: UploadTaskStatuses.CANCELLED,
-            },
-          ],
-          isCancelling: true,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        addOrEditTask({
-          ...task,
-          isCancelling: true,
-        });
-      });
-  }
-
-  // function deleteUpload() {}
-
   return {
     pollStatusCount,
     uploads,
     isUploading,
     upload,
-    cancelUpload,
     removeCompletedOrFailedTask,
   };
 }
@@ -298,6 +241,5 @@ export interface UseWithUploadStatus {
     trim?: { start: number; end: number },
     hasEditedTranscript?: boolean
   ) => void;
-  cancelUpload: (mentorId: string, task: UploadTask) => void;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
 }

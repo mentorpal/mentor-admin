@@ -8,31 +8,52 @@ import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
 import { login as loginDefault } from "../fixtures/login";
-import { UserRole } from "../support/types";
+import { TaskInfo, UserRole } from "../support/types";
 
-function taskListBuild(progressForAllTasks) {
-  return [
-    {
+export function taskListBuild(progressForAllTasks) {
+  return {
+    trimUploadTask: {
       task_name: "trim_upload",
-      task_id: "trim_id",
       status: progressForAllTasks,
     },
-    {
+    transcodeWebTask: {
+      task_name: "transcode-web",
+      status: progressForAllTasks,
+    },
+    tanscodeMobileTask: {
+      task_name: "transcode-mobile",
+      status: progressForAllTasks,
+    },
+    transcribeTask: {
       task_name: "transcribe",
-      task_id: "transcribe_id",
       status: progressForAllTasks,
     },
-    {
-      task_name: "transcode",
-      task_id: "transcode_id",
-      status: progressForAllTasks,
+  };
+}
+
+export function uploadTaskMediaBuild() {
+  return {
+    originalMedia: {
+      type: "video",
+      tag: "original",
+      url: "http://google.mp4/original.mp4",
     },
-    {
-      task_name: "finalization",
-      task_id: "finalization_id",
-      status: progressForAllTasks,
+    webMedia: {
+      type: "video",
+      tag: "web",
+      url: "http://google.mp4",
     },
-  ];
+    mobileMedia: {
+      type: "video",
+      tag: "mobile",
+      url: "http://google.mp4",
+    },
+    vttMedia: {
+      type: "vtt",
+      tag: "en",
+      url: "http://google.mp4",
+    },
+  };
 }
 
 describe("Index page", () => {
@@ -121,7 +142,7 @@ describe("Index page", () => {
                     question: clint.answers[0].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -137,7 +158,7 @@ describe("Index page", () => {
                     question: clint.answers[1].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -153,7 +174,7 @@ describe("Index page", () => {
                     question: clint.answers[2].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -193,7 +214,7 @@ describe("Index page", () => {
                     question: clint.answers[0].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -209,7 +230,7 @@ describe("Index page", () => {
                     question: clint.answers[1].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
@@ -225,7 +246,7 @@ describe("Index page", () => {
                     question: clint.answers[2].question.question,
                   },
 
-                  taskList: taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("IN_PROGRESS"),
                   transcript: "My name is Clint Anderson",
                   media: [
                     {
