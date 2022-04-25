@@ -635,6 +635,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -671,13 +672,11 @@ describe("Record", () => {
     });
     cy.visit("/record");
     //upload in progress
-    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
     cy.get("[data-cy=upload-video]").should("contain.text", "Processing");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("not.be.visible");
     cy.wait(3000);
     //upload complete, should swap to video view
-    cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
     cy.get("[data-cy=upload-video]").should("contain.text", "Upload Video");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=video-player]").should("be.visible");
@@ -692,6 +691,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -722,6 +722,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -764,6 +765,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -822,6 +824,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -870,6 +873,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -894,6 +898,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -994,6 +999,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1041,7 +1047,9 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/record");
@@ -1056,7 +1064,9 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
@@ -1087,6 +1097,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1131,6 +1142,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1215,6 +1227,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1299,6 +1312,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1389,6 +1403,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1439,6 +1454,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -1459,6 +1475,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1570,6 +1587,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -1586,6 +1604,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -1609,6 +1628,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -1647,6 +1667,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -1668,6 +1689,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -1688,6 +1710,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1726,6 +1749,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1770,6 +1794,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1817,6 +1842,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1871,6 +1897,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1931,6 +1958,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -1974,6 +2002,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
@@ -2055,6 +2084,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           { me: { uploadTasks: [] } },
           {
@@ -2121,6 +2151,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2199,6 +2230,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2251,6 +2283,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2285,6 +2318,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2319,6 +2353,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2367,6 +2402,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -2388,6 +2424,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -2405,6 +2442,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -2427,6 +2465,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -2448,6 +2487,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", []),
       ],
     });
@@ -2466,6 +2506,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2513,6 +2554,7 @@ describe("Record", () => {
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
