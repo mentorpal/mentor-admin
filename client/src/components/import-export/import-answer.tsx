@@ -68,24 +68,35 @@ export default function AnswerImport(props: {
     return <div />;
   }
 
-  const media: ImportPreview<Media>[] = [];
-  answer?.media?.forEach((m) => {
-    const curMedia = curAnswer?.media?.find(
+  const mediaPreview: ImportPreview<Media>[] = [];
+  const importAnswerMedia: Media[] = [];
+  if (answer?.webMedia) importAnswerMedia.push(answer.webMedia);
+  if (answer?.mobileMedia) importAnswerMedia.push(answer.mobileMedia);
+  if (answer?.vttMedia) importAnswerMedia.push(answer.vttMedia);
+
+  const curAnswerMedia: Media[] = [];
+  if (curAnswer?.webMedia) curAnswerMedia.push(curAnswer.webMedia);
+  if (curAnswer?.mobileMedia) curAnswerMedia.push(curAnswer.mobileMedia);
+  if (curAnswer?.vttMedia) curAnswerMedia.push(curAnswer.vttMedia);
+
+  importAnswerMedia?.forEach((m) => {
+    const curMedia = curAnswerMedia?.find(
       (mm) => mm.tag === m.tag && mm.type === m.type
     );
-    media.push({
-      editType: !curMedia ? EditType.ADDED : EditType.NONE,
+    mediaPreview.push({
+      editType: !m ? EditType.ADDED : EditType.NONE,
       importData: m,
       curData: curMedia,
     });
   });
-  curAnswer?.media
+
+  curAnswerMedia
     ?.filter(
       (mm) =>
-        !answer?.media?.find((m) => m.type === mm.type && m.tag === mm.tag)
+        !importAnswerMedia.find((m) => m.type === mm.type && m.tag === mm.tag)
     )
     .forEach((m) => {
-      media.push({
+      mediaPreview.push({
         editType:
           editType === EditType.REMOVED ? EditType.NONE : EditType.REMOVED,
         importData: undefined,
@@ -222,10 +233,11 @@ export default function AnswerImport(props: {
         style={{ width: "100%" }}
       >
         <ListSubheader>Media</ListSubheader>
-        {media?.filter((m) => m.importData?.needsTransfer)?.length || 0} needs
-        transferring
+        {mediaPreview?.filter((m) => m.importData?.needsTransfer)?.length ||
+          0}{" "}
+        needs transferring
         <List data-cy="answer-media" dense disablePadding>
-          {media.map((m, i) => {
+          {mediaPreview.map((m, i) => {
             return (
               <ListItem key={`media-${i}`} data-cy={`media-${i}`}>
                 <ListItemIcon>

@@ -157,13 +157,11 @@ export interface AsyncJob {
 }
 
 export interface UploadProcessAsyncJob {
-  taskList: TaskInfo[];
+  trimUploadTask?: TaskInfo;
+  transcodeWebTask?: TaskInfo;
+  transcodeMobileTask?: TaskInfo;
+  transcribeTask?: TaskInfo;
   statusUrl: string;
-}
-
-export interface CancelJob {
-  id: string;
-  cancelledId: string;
 }
 
 export interface TaskStatus<T> {
@@ -252,19 +250,24 @@ export enum UploadTaskStatuses {
 
 export interface TaskInfo {
   task_name: string;
-  task_id: string;
   status: UploadTaskStatuses;
 }
 
 export interface UploadTask {
   question: string;
   uploadProgress: number;
-  taskList: TaskInfo[];
+  trimUploadTask?: TaskInfo;
+  transcodeWebTask?: TaskInfo;
+  transcodeMobileTask?: TaskInfo;
+  transcribeTask?: TaskInfo;
   errorMessage?: string;
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
-  originalMedia: Media;
+  originalMedia?: Media;
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export enum EditType {

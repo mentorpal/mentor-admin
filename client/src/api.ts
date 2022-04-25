@@ -22,7 +22,6 @@ import {
   TaskStatus,
   TrainingInfo,
   VideoInfo,
-  CancelJob,
   FollowUpQuestion,
   User,
   Config,
@@ -1132,28 +1131,6 @@ export async function fetchVideoBlobFromUrl(url: string): Promise<Blob> {
   return result.data;
 }
 
-export async function cancelUploadVideo(
-  mentorId: string,
-  question: string,
-  taskIds: string[],
-  accessToken: string
-): Promise<CancelJob> {
-  const result = await uploadRequest.post(
-    "/answer/cancel",
-    {
-      mentor: mentorId,
-      question: question,
-      task_ids_to_cancel: taskIds,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  return getDataFromAxiosResponse(result, []);
-}
-
 export async function fetchUploadVideoStatus(
   statusUrl: string
 ): Promise<TaskStatus<VideoInfo>> {
@@ -1221,12 +1198,28 @@ export async function fetchUploadTasks(
                 _id
                 question
               }
-              taskList{
+              trimUploadTask{
                 task_name
-                task_id
+                status
+              }
+              transcodeWebTask{
+                task_name
+                status
+              }
+              transcodeMobileTask{
+                task_name
+                status
+              }
+              transcribeTask{
+                task_name
                 status
               }
               transcript
+              originalMedia {
+                type
+                tag
+                url
+              }
               webMedia {
                 type
                 tag

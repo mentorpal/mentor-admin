@@ -108,7 +108,10 @@ export interface UserQuestionGQL {
 
 export interface UploadTaskGQL {
   question: Question;
-  taskList: TaskInfo[];
+  trimUploadTask?: TaskInfo;
+  transcodeWebTask?: TaskInfo;
+  transcodeMobileTask?: TaskInfo;
+  transcribeTask?: TaskInfo;
   uploadProgress: number;
   errorMessage?: string;
   isCancelling?: boolean;

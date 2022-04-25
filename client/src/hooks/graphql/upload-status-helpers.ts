@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { UploadTask, UploadTaskStatuses } from "types";
+import { Media, TaskInfo, UploadTask, UploadTaskStatuses } from "types";
 
 export function areAllTasksDoneOrOneFailed(task: UploadTask): boolean {
   return isATaskCancelled(task) || isATaskFailed(task) || areAllTasksDone(task);
@@ -15,10 +15,15 @@ export function isATaskFailed(task: UploadTask): boolean {
 }
 
 export function whichTaskFailed(upload: UploadTask): string {
-  return (
-    upload.taskList.find((task) => task.status === UploadTaskStatuses.FAILED)
-      ?.task_name || ""
-  );
+  return upload.transcodeMobileTask?.status === UploadTaskStatuses.FAILED
+    ? upload.transcodeMobileTask.task_name
+    : upload.transcodeWebTask?.status === UploadTaskStatuses.FAILED
+    ? upload.transcodeWebTask.task_name
+    : upload.trimUploadTask?.status === UploadTaskStatuses.FAILED
+    ? upload.trimUploadTask.task_name
+    : upload.transcribeTask?.status === UploadTaskStatuses.FAILED
+    ? upload.transcribeTask.task_name
+    : "";
 }
 
 export function isATaskCancelled(task: UploadTask): boolean {
@@ -34,19 +39,7 @@ export function isATaskPending(task: UploadTask): boolean {
 }
 
 export function areAllTasksDone(task: UploadTask): boolean {
-  if (!task.taskList.length) return true;
   return compareTaskStatusesToValue(task, UploadTaskStatuses.DONE, true);
-}
-
-export function fetchIncompleteTaskIds(task: UploadTask): string[] {
-  if (!task.taskList.length) return [];
-  return task.taskList
-    .filter(
-      (task) =>
-        task.status !== UploadTaskStatuses.FAILED &&
-        task.status !== UploadTaskStatuses.DONE
-    )
-    .map((task) => task.task_id);
 }
 
 export function compareTaskStatusesToValue(
@@ -54,10 +47,34 @@ export function compareTaskStatusesToValue(
   value: UploadTaskStatuses,
   allEqual: boolean
 ): boolean {
-  if (!task.taskList.length) return false;
+  const taskList = getListOfTasksFromUploadTask(task);
+  if (!taskList.length) return false;
   if (allEqual) {
-    return task.taskList.every((task) => task.status === value);
+    return taskList.every((task) => task.status === value);
   } else {
-    return task.taskList.some((task) => task.status === value);
+    return taskList.some((task) => task.status === value);
   }
+}
+
+export function getListOfTasksFromUploadTask(task: UploadTask): TaskInfo[] {
+  const taskList: TaskInfo[] = [];
+  if (task.transcodeMobileTask) taskList.push(task.transcodeMobileTask);
+  if (task.transcodeWebTask) taskList.push(task.transcodeWebTask);
+  if (task.transcribeTask) taskList.push(task.transcribeTask);
+  if (task.trimUploadTask) taskList.push(task.trimUploadTask);
+  return taskList;
+}
+
+export interface MediaExtract {
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
+}
+
+export function getListOfMediaFromUploadTask(task: UploadTask): MediaExtract {
+  return {
+    webMedia: task.webMedia,
+    mobileMedia: task.mobileMedia,
+    vttMedia: task.vttMedia,
+  };
 }

@@ -173,13 +173,11 @@ export const exportJson = {
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
       },
-      media: [
-        {
-          url: "video.mp4",
-          tag: "idle",
-          type: "video",
-        },
-      ],
+      webMedia: {
+        url: "video.mp4",
+        tag: "idle",
+        type: "video",
+      },
       transcript: "",
       status: "COMPLETE",
     },

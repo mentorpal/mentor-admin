@@ -40,9 +40,7 @@ export function useWithUploadListItem(
 
   function hasOriginalUrl(): boolean {
     return Boolean(
-      upload.media?.find(
-        (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
-      )?.url
+      upload.originalMedia && upload.originalMedia.url.length > 15
     );
   }
 

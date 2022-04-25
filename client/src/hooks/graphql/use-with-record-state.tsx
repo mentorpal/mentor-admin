@@ -13,8 +13,6 @@ import {
 import {
   Answer,
   AnswerAttentionNeeded,
-  MediaTag,
-  MediaType,
   MentorType,
   Question,
   Subject,
@@ -32,7 +30,10 @@ import { LoadingError } from "./loading-reducer";
 import { useWithUploadStatus } from "./use-with-upload-status";
 import { QuestionState } from "store/slices/questions";
 import { navigate } from "gatsby";
-import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
+import {
+  areAllTasksDoneOrOneFailed,
+  getListOfMediaFromUploadTask,
+} from "./upload-status-helpers";
 
 export interface AnswerState {
   answer: Answer;
@@ -104,7 +105,6 @@ export function useWithRecordState(
     isUploading,
     pollStatusCount,
     upload,
-    cancelUpload,
     removeCompletedOrFailedTask,
   } = useWithUploadStatus(
     accessToken,
@@ -173,7 +173,7 @@ export function useWithRecordState(
       ...curAnswer,
       videoSrc: getUniqueCurAnswerUrl(),
     });
-  }, [curAnswer?.answer.media]);
+  }, [curAnswer?.answer.webMedia, curAnswer?.answer.mobileMedia]);
 
   function getUniqueCurAnswerUrl() {
     if (!curAnswer) return;
@@ -230,8 +230,13 @@ export function useWithRecordState(
   }
 
   function doesAnswerNeedAttention(answer: Answer): AnswerAttentionNeeded {
+    // TODO: This is a pseudo way of checking if the answer is finished uploading
+    const answerHasAllMedia =
+      Boolean(answer.webMedia) &&
+      Boolean(answer.mobileMedia) &&
+      Boolean(answer.vttMedia);
     if (
-      answer.media?.length &&
+      answerHasAllMedia &&
       !answer.transcript &&
       getValueIfKeyExists(answer.question, mentorQuestions)?.question?.name !==
         UtteranceName.IDLE
@@ -249,18 +254,19 @@ export function useWithRecordState(
         upload.transcript || upload.transcript === ""
           ? upload.transcript
           : answer.editedAnswer.transcript;
+      const uploadTaskMedia = getListOfMediaFromUploadTask(upload);
       updateAnswerState(
         {
           recordedVideo: undefined,
           answer: {
             ...answer.answer,
             transcript: newTranscript,
-            media: upload.media || [],
+            ...uploadTaskMedia,
           },
           editedAnswer: {
             ...answer.editedAnswer,
             transcript: newTranscript,
-            media: upload.media || [],
+            ...uploadTaskMedia,
           },
         },
         idx
@@ -278,16 +284,16 @@ export function useWithRecordState(
     setError(undefined);
   }
 
+  console.log(curAnswer);
   function getVideoSrc(answer: AnswerState) {
     if (!mentorAnswers) {
       return undefined;
     }
+    console.log(answer);
     if (answer.recordedVideo) {
       return URL.createObjectURL(answer.recordedVideo);
     }
-    return answer.editedAnswer?.media?.find(
-      (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
-    )?.url;
+    return answer.editedAnswer?.webMedia?.url;
   }
 
   function isAnswerValid() {
@@ -301,7 +307,7 @@ export function useWithRecordState(
     }
     if (mentorType === MentorType.VIDEO) {
       return Boolean(
-        editedAnswer?.media?.find((m) => m.type === MediaType.VIDEO)?.url &&
+        editedAnswer?.webMedia?.url &&
           (editedQuestion?.name === UtteranceName.IDLE ||
             editedAnswer.transcript)
       );
@@ -332,7 +338,12 @@ export function useWithRecordState(
     });
     updateAnswerState({
       recordedVideo: undefined,
-      editedAnswer: { ...answer.editedAnswer, media: [] },
+      editedAnswer: {
+        ...answer.editedAnswer,
+        webMedia: undefined,
+        mobileMedia: undefined,
+        vttMedia: undefined,
+      },
     });
   }
 
@@ -432,9 +443,10 @@ export function useWithRecordState(
       }
     }
     if (!answer.recordedVideo) {
-      const url = answer.answer.media?.find(
-        (u) => u.url.length > 15 && u.url.slice(-7) == "web.mp4"
-      )?.url;
+      const url =
+        answer.answer.webMedia && answer.answer.webMedia.url.length > 15
+          ? answer.answer.webMedia.url
+          : "";
       if (url) {
         fetchVideoBlobFromUrl(url)
           .then((videoBlob) => {
@@ -504,9 +516,10 @@ export function useWithRecordState(
   }
 
   function downloadVideoFromUpload(upload: UploadTask): boolean {
-    const url = upload.media?.find(
-      (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
-    )?.url;
+    const url =
+      upload.originalMedia && upload.originalMedia.url.length > 15
+        ? upload.originalMedia.url
+        : "";
     if (url) {
       fetchVideoBlobFromUrl(url)
         .then((videoBlob) => {
@@ -575,13 +588,6 @@ export function useWithRecordState(
     downloadVideoForQuestion(curAnswer?.answer.question);
   }
 
-  function cancelUploadVideo(task: UploadTask) {
-    if (!mentorId) {
-      return;
-    }
-    cancelUpload(mentorId, task);
-  }
-
   return {
     mentorQuestions,
     mentorSubjects,
@@ -611,7 +617,6 @@ export function useWithRecordState(
     uploadVideo,
     downloadCurAnswerVideo,
     downloadVideoFromUpload,
-    cancelUpload: cancelUploadVideo,
     setMinVideoLength,
     clearError,
   };
@@ -646,7 +651,6 @@ export interface UseWithRecordState {
   uploadVideo: (trim?: { start: number; end: number }) => void;
   downloadCurAnswerVideo: () => void;
   downloadVideoFromUpload: (upload: UploadTask) => void;
-  cancelUpload: (task: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
 }

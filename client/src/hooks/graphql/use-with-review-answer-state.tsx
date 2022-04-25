@@ -250,7 +250,6 @@ export function useWithReviewAnswerState(
       hasEditedTranscript: false,
       transcript: "",
       status: Status.INCOMPLETE,
-      media: undefined,
       hasUntransferredMedia: false,
     };
     let _blocks = blocks;

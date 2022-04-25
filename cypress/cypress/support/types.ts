@@ -128,7 +128,9 @@ export interface Answer {
   question: Question;
   transcript: string;
   status: Status;
-  media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export interface UserQuestion {
@@ -219,7 +221,6 @@ export enum UploadTaskStatuses {
 
 export interface TaskInfo {
   task_name: string;
-  task_id: string;
   status: UploadTaskStatuses;
 }
 

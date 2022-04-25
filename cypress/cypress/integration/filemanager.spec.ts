@@ -129,14 +129,10 @@ describe("file manager page", () => {
                     _id: "A1_1_1",
                     question: "Tell me about yourself",
                   },
-
-                  taskList: [
-                    {
-                      task_name: "trim_upload",
-                      task_id: "trim_id",
-                      status: "IN_PROGRESS",
-                    },
-                  ],
+                  trimUploadTask: {
+                    task_name: "trim_upload",
+                    status: "IN_PROGRESS",
+                  },
                   transcript: "i am kayla",
                   media: [
                     {
