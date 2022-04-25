@@ -250,7 +250,6 @@ export enum UploadTaskStatuses {
 
 export interface TaskInfo {
   task_name: string;
-  task_id: string;
   status: UploadTaskStatuses;
 }
 

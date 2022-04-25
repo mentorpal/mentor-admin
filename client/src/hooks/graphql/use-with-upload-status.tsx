@@ -182,7 +182,6 @@ export function useWithUploadStatus(
       taskList: [
         {
           task_name: "upload",
-          task_id: "",
           status: UploadTaskStatuses.QUEUED,
         },
       ],
@@ -211,7 +210,6 @@ export function useWithUploadStatus(
           taskList: [
             {
               task_name: "trim_upload",
-              task_id: "",
               status: UploadTaskStatuses.FAILED,
             },
           ],

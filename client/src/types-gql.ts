@@ -180,7 +180,7 @@ export function convertAnswerGQL(gql: AnswerGQL): Answer {
   };
 }
 
-export function getAnswerGQLMediaList(answerGql: AnswerGQL) {
+export function getAnswerGQLMediaList(answerGql: AnswerGQL): Media[] {
   const mediaList = [];
   if (answerGql.webMedia) {
     mediaList.push(answerGql.webMedia);
@@ -225,7 +225,9 @@ export function convertConnectionGQL<T, U>(
   };
 }
 
-export function getTaskListFromUploadTask(uploadTaskGql: UploadTaskGQL) {
+export function getTaskListFromUploadTask(
+  uploadTaskGql: UploadTaskGQL
+): TaskInfo[] {
   const taskList = [];
   if (uploadTaskGql.trimUploadTask) {
     taskList.push(uploadTaskGql.trimUploadTask);
@@ -242,7 +244,9 @@ export function getTaskListFromUploadTask(uploadTaskGql: UploadTaskGQL) {
   return taskList;
 }
 
-export function getMediaListFromUploadTask(uploadTaskGql: UploadTaskGQL) {
+export function getMediaListFromUploadTask(
+  uploadTaskGql: UploadTaskGQL
+): Media[] {
   const mediaList = [];
   if (uploadTaskGql.webMedia) {
     mediaList.push(uploadTaskGql.webMedia);
