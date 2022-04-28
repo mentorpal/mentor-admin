@@ -24,7 +24,7 @@ import {
 } from "@material-ui/icons";
 import { EditType, ImportPreview, Media } from "types";
 import { ChangeIcon } from "./icons";
-import { AnswerGQL } from "types-gql";
+import { AnswerGQL, getAnswerGQLMediaList } from "types-gql";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -69,8 +69,10 @@ export default function AnswerImport(props: {
   }
 
   const media: ImportPreview<Media>[] = [];
-  answer?.media?.forEach((m) => {
-    const curMedia = curAnswer?.media?.find(
+  const importAnswerMedia = answer ? getAnswerGQLMediaList(answer) : [];
+  const curAnswerMedia = curAnswer ? getAnswerGQLMediaList(curAnswer) : [];
+  importAnswerMedia.forEach((m) => {
+    const curMedia = curAnswerMedia.find(
       (mm) => mm.tag === m.tag && mm.type === m.type
     );
     media.push({
@@ -79,10 +81,10 @@ export default function AnswerImport(props: {
       curData: curMedia,
     });
   });
-  curAnswer?.media
-    ?.filter(
+  curAnswerMedia
+    .filter(
       (mm) =>
-        !answer?.media?.find((m) => m.type === mm.type && m.tag === mm.tag)
+        !importAnswerMedia.find((m) => m.type === mm.type && m.tag === mm.tag)
     )
     .forEach((m) => {
       media.push({

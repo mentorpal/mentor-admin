@@ -38,17 +38,6 @@ export function areAllTasksDone(task: UploadTask): boolean {
   return compareTaskStatusesToValue(task, UploadTaskStatuses.DONE, true);
 }
 
-export function fetchIncompleteTaskIds(task: UploadTask): string[] {
-  if (!task.taskList.length) return [];
-  return task.taskList
-    .filter(
-      (task) =>
-        task.status !== UploadTaskStatuses.FAILED &&
-        task.status !== UploadTaskStatuses.DONE
-    )
-    .map((task) => task.task_id);
-}
-
 export function compareTaskStatusesToValue(
   task: UploadTask,
   value: UploadTaskStatuses,

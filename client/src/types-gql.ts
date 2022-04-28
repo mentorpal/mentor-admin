@@ -4,6 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 
 import { CancelTokenSource } from "axios";
 import {
@@ -87,7 +92,9 @@ export interface AnswerGQL {
   hasEditedTranscript: boolean;
   transcript: string;
   status: Status;
-  media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
   hasUntransferredMedia: boolean;
 }
 
@@ -106,13 +113,19 @@ export interface UserQuestionGQL {
 
 export interface UploadTaskGQL {
   question: Question;
-  taskList: TaskInfo[];
+  trimUploadTask?: TaskInfo;
+  transcodeWebTask?: TaskInfo;
+  transcodeMobileTask?: TaskInfo;
+  transcribeTask?: TaskInfo;
   uploadProgress: number;
   errorMessage?: string;
   isCancelling?: boolean;
   tokenSource?: CancelTokenSource;
   transcript?: string;
-  media?: Media[];
+  originalMedia?: Media;
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export interface MentorExportJson {
@@ -163,7 +176,22 @@ export function convertAnswerGQL(gql: AnswerGQL): Answer {
     ...gql,
     question: gql?.question?._id,
     questionClientId: gql?.question?.clientId,
+    media: getAnswerGQLMediaList(gql),
   };
+}
+
+export function getAnswerGQLMediaList(answerGql: AnswerGQL): Media[] {
+  const mediaList = [];
+  if (answerGql.webMedia) {
+    mediaList.push(answerGql.webMedia);
+  }
+  if (answerGql.mobileMedia) {
+    mediaList.push(answerGql.mobileMedia);
+  }
+  if (answerGql.vttMedia) {
+    mediaList.push(answerGql.vttMedia);
+  }
+  return mediaList;
 }
 
 export function convertUserQuestionGQL(gql: UserQuestionGQL): UserQuestion {
@@ -179,6 +207,8 @@ export function convertUploadTaskGQL(gql: UploadTaskGQL): UploadTask {
   return {
     ...gql,
     question: gql.question._id,
+    taskList: getTaskListFromUploadTask(gql),
+    media: getMediaListFromUploadTask(gql),
   };
 }
 
@@ -193,4 +223,42 @@ export function convertConnectionGQL<T, U>(
       node: convert(edge.node),
     })),
   };
+}
+
+export function getTaskListFromUploadTask(
+  uploadTaskGql: UploadTaskGQL
+): TaskInfo[] {
+  const taskList = [];
+  if (uploadTaskGql.trimUploadTask) {
+    taskList.push(uploadTaskGql.trimUploadTask);
+  }
+  if (uploadTaskGql.transcodeMobileTask) {
+    taskList.push(uploadTaskGql.transcodeMobileTask);
+  }
+  if (uploadTaskGql.transcodeWebTask) {
+    taskList.push(uploadTaskGql.transcodeWebTask);
+  }
+  if (uploadTaskGql.transcribeTask) {
+    taskList.push(uploadTaskGql.transcribeTask);
+  }
+  return taskList;
+}
+
+export function getMediaListFromUploadTask(
+  uploadTaskGql: UploadTaskGQL
+): Media[] {
+  const mediaList = [];
+  if (uploadTaskGql.webMedia) {
+    mediaList.push(uploadTaskGql.webMedia);
+  }
+  if (uploadTaskGql.mobileMedia) {
+    mediaList.push(uploadTaskGql.mobileMedia);
+  }
+  if (uploadTaskGql.vttMedia) {
+    mediaList.push(uploadTaskGql.vttMedia);
+  }
+  if (uploadTaskGql.originalMedia) {
+    mediaList.push(uploadTaskGql.originalMedia);
+  }
+  return mediaList;
 }
