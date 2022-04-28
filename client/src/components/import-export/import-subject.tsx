@@ -188,8 +188,8 @@ export default function SubjectImport(props: {
         !subject?.questions?.find(
           (q) => q.question?._id === qq.question?._id
         ) &&
-        qq.question.mentor &&
-        qq.question.mentor == mentorId
+        qq.question?.mentor &&
+        qq.question?.mentor == mentorId
     )
     .forEach((q) => {
       questions.push({
@@ -217,7 +217,6 @@ export default function SubjectImport(props: {
 
   const subjectName = curSubject?.name || subject?.name;
 
-  console.log(JSON.stringify(previewQuestions));
   return (
     <Card
       key={`${curSubject?._id}-${subject?._id}`}

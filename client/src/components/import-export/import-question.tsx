@@ -85,9 +85,6 @@ export default function QuestionImport(props: {
   );
   const inputWidth = 300;
 
-  if (question?.question == "What was California like?") {
-    console.log(question);
-  }
   return (
     <Card
       key={question?._id}
