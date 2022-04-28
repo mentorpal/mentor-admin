@@ -213,7 +213,7 @@ export function useWithUploadStatus(
               status: UploadTaskStatuses.FAILED,
             },
           ],
-          errorMessage: `Failed to upload file: Error ${JSON.stringify(err)}`,
+          errorMessage: `Failed to upload file: Error ${err?.response?.status}: ${err?.response?.statusText}`,
           uploadProgress: 0,
         });
       });

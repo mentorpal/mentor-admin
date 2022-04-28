@@ -310,7 +310,7 @@ export function cyMockTrainStatus(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept(`/${params.statusUrl || TRAIN_STATUS_URL}`, (req) => {
+  cy.intercept(`/${params.statusUrl || TRAIN_STATUS_URL}*`, (req) => {
     req.reply(
       staticResponse({
         statusCode: params.statusCode || 200,
