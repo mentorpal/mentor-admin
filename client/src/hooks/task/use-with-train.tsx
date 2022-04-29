@@ -28,10 +28,11 @@ export function useWithTraining(
   }, [status]);
 
   function train(mentorId: string) {
-    if(!loginState.accessToken){
-      return
-    }
-    return trainMentor(mentorId, loginState.accessToken, configState?.config?.classifierLambdaEndpoint);
+    return trainMentor(
+      mentorId,
+      loginState.accessToken || "",
+      configState?.config?.classifierLambdaEndpoint
+    );
   }
 
   function poll(statusUrl: string) {
