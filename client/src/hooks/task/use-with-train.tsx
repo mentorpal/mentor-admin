@@ -36,7 +36,11 @@ export function useWithTraining(
   }
 
   function poll(statusUrl: string) {
-    return fetchTrainingStatus(statusUrl);
+    return fetchTrainingStatus(
+      statusUrl,
+      loginState.accessToken,
+      configState?.config?.classifierLambdaEndpoint
+    );
   }
 
   return {

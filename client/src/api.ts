@@ -1018,9 +1018,15 @@ export async function trainMentor(
 }
 
 export async function fetchTrainingStatus(
-  statusUrl: string
+  statusUrl: string,
+  accessToken?: string,
+  classifierLambdaEndpoint?: string
 ): Promise<TaskStatus<TrainingInfo>> {
-  return execHttp("GET", `${statusUrl}?v=${Math.random()}`);
+  return execHttp(
+    "GET",
+    `${classifierLambdaEndpoint || ""}${statusUrl}?v=${Math.random()}`,
+    { accessToken }
+  );
 }
 
 export async function uploadThumbnail(
