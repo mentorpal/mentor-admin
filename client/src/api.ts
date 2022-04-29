@@ -212,12 +212,13 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
 export async function fetchFollowUpQuestions(
   categoryId: string,
   mentorId: string,
-  accessToken: string
+  accessToken: string,
+  classifierLambdaEndpoint?: string
 ): Promise<FollowUpQuestion[]> {
   return execHttp<FollowUpQuestion[]>(
     "POST",
     urljoin(
-      CLASSIFIER_ENTRYPOINT,
+      classifierLambdaEndpoint || CLASSIFIER_ENTRYPOINT,
       "followups",
       "category",
       categoryId,
@@ -236,6 +237,7 @@ export async function fetchConfig(): Promise<Config> {
           googleClientId
           urlVideoIdleTips
           videoRecorderMaxLength
+          classifierLambdaEndpoint
         }
       }
   `,
@@ -998,12 +1000,19 @@ export async function deleteImportTask(
   );
 }
 
-export async function trainMentor(mentorId: string): Promise<AsyncJob> {
-  return execHttp("POST", urljoin(CLASSIFIER_ENTRYPOINT, "train"), {
-    axiosConfig: {
-      data: { mentor: mentorId },
-    },
-  });
+export async function trainMentor(
+  mentorId: string,
+  classifierLambdaEndpoint?: string
+): Promise<AsyncJob> {
+  return execHttp(
+    "POST",
+    urljoin(classifierLambdaEndpoint || CLASSIFIER_ENTRYPOINT, "train"),
+    {
+      axiosConfig: {
+        data: { mentor: mentorId },
+      },
+    }
+  );
 }
 
 export async function fetchTrainingStatus(

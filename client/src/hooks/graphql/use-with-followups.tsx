@@ -20,6 +20,7 @@ import {
   FollowupsReducer,
   FollowupsActionType,
 } from "./followups-reducer";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export interface UseWithFollowups {
   mentorId?: string;
@@ -46,6 +47,7 @@ export function useWithFollowups(props: {
   const [toRecordFollowUpQs, setToRecordFollowUpQs] = useState<string[]>([]);
   const { state: loginState } = useWithLogin();
   const { getData, loadMentor } = useActiveMentor();
+  const { state: configState } = useWithConfig();
   const { categoryId, subjectId } = props;
   const mentorId = getData((state) => state.data?._id);
   const curSubject: Subject = getData((state) =>
@@ -58,7 +60,12 @@ export function useWithFollowups(props: {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
-    fetchFollowUpQuestions(categoryId, mentorId, loginState.accessToken)
+    fetchFollowUpQuestions(
+      categoryId,
+      mentorId,
+      loginState.accessToken,
+      configState?.config?.classifierLambdaEndpoint
+    )
       .then((data) => {
         const followUps = data
           ? data.map((d) => {
