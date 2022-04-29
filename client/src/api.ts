@@ -1002,7 +1002,8 @@ export async function deleteImportTask(
 
 export async function trainMentor(
   mentorId: string,
-  classifierLambdaEndpoint?: string
+  accessToken: string,
+  classifierLambdaEndpoint?: string,
 ): Promise<AsyncJob> {
   return execHttp(
     "POST",
@@ -1011,6 +1012,7 @@ export async function trainMentor(
       axiosConfig: {
         data: { mentor: mentorId },
       },
+      accessToken
     }
   );
 }
