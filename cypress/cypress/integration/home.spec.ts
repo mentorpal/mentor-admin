@@ -694,7 +694,7 @@ describe("My Mentor Page", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/setup");
       });
-      cy.location("search").should("contain", "?i=7");
+      cy.contains("Repeat After Me questions");
     });
 
     it("can create a mentor question and save it", () => {
