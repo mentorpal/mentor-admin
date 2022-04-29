@@ -181,6 +181,9 @@ export function convertAnswerGQL(gql: AnswerGQL): Answer {
 }
 
 export function getAnswerGQLMediaList(answerGql: AnswerGQL): Media[] {
+  if (!answerGql) {
+    return [];
+  }
   const mediaList = [];
   if (answerGql.webMedia) {
     mediaList.push(answerGql.webMedia);

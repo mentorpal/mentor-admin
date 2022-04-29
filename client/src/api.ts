@@ -1009,7 +1009,7 @@ export async function trainMentor(mentorId: string): Promise<AsyncJob> {
 export async function fetchTrainingStatus(
   statusUrl: string
 ): Promise<TaskStatus<TrainingInfo>> {
-  return execHttp("GET", statusUrl);
+  return execHttp("GET", `${statusUrl}?v=${Math.random()}`);
 }
 
 export async function uploadThumbnail(
