@@ -6,6 +6,8 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { fetchTrainingStatus, trainMentor } from "api";
 import { useEffect } from "react";
+import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { JobState, TrainingInfo } from "types";
 import { Task, useWithTask } from "./use-with-task";
@@ -13,6 +15,8 @@ import { Task, useWithTask } from "./use-with-task";
 export function useWithTraining(
   pollingInterval = 1000
 ): Task<TrainingInfo, string> {
+  const { state: configState } = useWithConfig();
+  const { state: loginState } = useWithLogin();
   const { status, statusUrl, error, isPolling, startTask, clearError } =
     useWithTask<TrainingInfo, string>(train, poll, pollingInterval);
   const { loadMentor } = useActiveMentor();
@@ -24,11 +28,19 @@ export function useWithTraining(
   }, [status]);
 
   function train(mentorId: string) {
-    return trainMentor(mentorId);
+    return trainMentor(
+      mentorId,
+      loginState.accessToken || "",
+      configState?.config?.classifierLambdaEndpoint
+    );
   }
 
   function poll(statusUrl: string) {
-    return fetchTrainingStatus(statusUrl);
+    return fetchTrainingStatus(
+      statusUrl,
+      loginState.accessToken,
+      configState?.config?.classifierLambdaEndpoint
+    );
   }
 
   return {

@@ -12,6 +12,7 @@ export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
+  classifierLambdaEndpoint: string;
 }
 
 export interface Connection<T> {

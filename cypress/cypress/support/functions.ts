@@ -81,12 +81,14 @@ export interface Config {
   googleClientId: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
+  classifierLambdaEndpoint: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
+  classifierLambdaEndpoint: "",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
