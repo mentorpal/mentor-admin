@@ -56,13 +56,12 @@ export function useWithFollowups(props: {
   const curCategory = curSubject?.categories.find((c) => c.id === categoryId);
 
   function fetchFollowups() {
-    if (!loginState.accessToken || !mentorId) {
+    if (!loginState.accessToken) {
       return;
     }
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
     fetchFollowUpQuestions(
       categoryId,
-      mentorId,
       loginState.accessToken,
       configState?.config?.classifierLambdaEndpoint
     )
