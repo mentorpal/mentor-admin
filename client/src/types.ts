@@ -13,6 +13,7 @@ export interface Config {
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
+  uploadLambdaEndpoint: string;
 }
 
 export interface Connection<T> {

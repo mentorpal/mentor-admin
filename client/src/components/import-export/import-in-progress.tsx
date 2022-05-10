@@ -28,6 +28,7 @@ import {
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { isImportComplete } from "hooks/graphql/use-with-import-status";
+import { navigate } from "@reach/router";
 
 const useStyles = makeStyles(() => ({
   progressIcon: {
@@ -150,6 +151,7 @@ export default function ImportInProgressDialog(props: {
   function onClose() {
     loadMentor();
     setOpen(false);
+    navigate("/");
   }
 
   return (

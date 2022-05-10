@@ -238,6 +238,7 @@ export async function fetchConfig(): Promise<Config> {
           urlVideoIdleTips
           videoRecorderMaxLength
           classifierLambdaEndpoint
+          uploadLambdaEndpoint
         }
       }
   `,
@@ -1651,22 +1652,24 @@ export async function importMentor(
   mentor: string,
   json: MentorExportJson,
   replacedMentorDataChanges: ReplacedMentorDataChanges,
-  accessToken: string
-): Promise<MentorGQL> {
-  const data = new FormData();
-  data.append(
-    "body",
-    JSON.stringify({
-      mentor: mentor,
-      mentorExportJson: json,
-      replacedMentorDataChanges: replacedMentorDataChanges,
-    })
+  accessToken: string,
+  uploadLambdaEndpoint?: string
+): Promise<void> {
+  return execHttp(
+    "POST",
+    urljoin(uploadLambdaEndpoint || UPLOAD_ENTRYPOINT, "/transfer/mentor"),
+    {
+      axiosConfig: {
+        data: JSON.stringify({
+          mentor: mentor,
+          mentorExportJson: json,
+          replacedMentorDataChanges: replacedMentorDataChanges,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+      accessToken,
+    }
   );
-  const result = await uploadRequest.post("/transfer/mentor/", data, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  return getDataFromAxiosResponse(result, "");
 }
