@@ -446,7 +446,7 @@ export function cyMockFollowUpQuestions(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("POST", "/classifier/followups/*/*/*", (req) => {
+  cy.intercept("POST", "/classifier/me/followups/*/*", (req) => {
     req.alias = "followups";
     req.reply(
       staticResponse({
