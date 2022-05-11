@@ -82,6 +82,7 @@ export interface Config {
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
+  uploadLambdaEndpoint: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
@@ -89,6 +90,7 @@ export const CONFIG_DEFAULT: Config = {
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "",
+  uploadLambdaEndpoint: "",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
