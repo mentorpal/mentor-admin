@@ -151,7 +151,7 @@ export default function ImportInProgressDialog(props: {
   function onClose() {
     loadMentor();
     setOpen(false);
-    navigate("/");
+    navigate("/admin/");
   }
 
   return (
