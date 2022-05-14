@@ -12,20 +12,21 @@ phases:
       # to use node 16:
       # - n 16 # workaround https://github.com/aws/aws-codebuild-docker-images/issues/490
       - NODE_ENV=dev npm ci
-      - cd client && npm ci
+      - (cd client && npm ci)
   pre_build:
     on-failure: ABORT # or CONTINUE
     commands:
       - npm run test:format
       - npm run test:license
-      # - cd client && npm run test:audit
-      - cd client && npm run test:lint
-      - cd client && npm run test:types
+      - cd client
+      # - npm run test:audit
+      - npm run test:lint
+      - npm run test:types
       # # cypress tests - its cheaper to run them in github actions
 
   build:
     commands:
-      - cd client && npm run build
+      - npm run build
 
 artifacts:
   files:
