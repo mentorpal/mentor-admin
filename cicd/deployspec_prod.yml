@@ -20,5 +20,5 @@ phases:
     commands:
       - echo need to rebuild for env change
       - cd client && npm run build
-      - aws s3 sync ./client/public s3://$S3_DEPLOY_BUCKET/admin
+      - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET/admin
       - aws cloudfront create-invalidation --distribution-id $CDN_ID --paths "/admin*"
