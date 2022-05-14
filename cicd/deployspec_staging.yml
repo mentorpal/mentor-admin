@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
+    GRAPHQL_ENDPOINT: 'https://v2.mentorpal.org/graphql'
 
     # TODO these 2 depend on https://github.com/mentorpal/aws-beanstalk-terraform/pull/24
     S3_DEPLOY_BUCKET: "tmp-test-deploy-us-east-1"
