@@ -1,0 +1,23 @@
+version: 0.2
+
+env:
+  variables:
+    GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
+
+    # TODO these 2 depend on https://github.com/mentorpal/aws-beanstalk-terraform/pull/24
+    S3_DEPLOY_BUCKET: "tmp-test-deploy-us-east-1"
+    CDN_ID: "E2C2QY58LUF5RL"
+  # parameter-store:
+  #   S3_DEPLOY_BUCKET: "/mentorpal/v2/s3-websites/NAME"
+  #   CDN_ID: "/mentorpal/v2/CLOUDFRONT_DISTRIBUTION_ID"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+
+  build:
+    commands:
+      - echo Deploying to $S3_DEPLOY_BUCKET
+      - aws s3 sync ./client/public s3://$S3_DEPLOY_BUCKET/admin
+      - aws cloudfront create-invalidation --distribution-id $CDN_ID --paths "/admin*"
