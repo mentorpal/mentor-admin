@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket         = "mentor-admin-tf-state-us-east-1"
-    region         = "us-east-1"
-    key            = "terraform.tfstate"
+    bucket = "mentor-admin-tf-state-us-east-1"
+    region = "us-east-1"
+    key    = "terraform.tfstate"
   }
 }
 

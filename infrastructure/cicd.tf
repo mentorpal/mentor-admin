@@ -8,11 +8,12 @@ module "pipeline" {
   build_compute_type      = "BUILD_GENERAL1_MEDIUM"
   deploys_compute_type    = "BUILD_GENERAL1_MEDIUM"
 
-  build_buildspec          = "cicd/buildspec.yml"
-  deploy_staging_buildspec = "cicd/deployspec_staging.yml"
-  deploy_prod_buildspec    = "cicd/deployspec_prod.yml"
-  deploys_privileged_mode  = true
-  export_pipeline_info     = true
+  build_buildspec             = "cicd/buildspec.yml"
+  deploy_staging_buildspec    = "cicd/deployspec_staging.yml"
+  deploy_prod_buildspec       = "cicd/deployspec_prod.yml"
+  deploys_privileged_mode     = true
+  export_pipeline_info        = true
+  enable_status_notifications = true
 
   tags = {
     Source  = "terraform"
