@@ -51,3 +51,8 @@ typings/
 .DS_Store
 
 .cypress-*
+
+# infrastructure
+.terraform
+secret.tfvars
+infrastructure/*.out
