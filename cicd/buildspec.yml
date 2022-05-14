@@ -1,0 +1,34 @@
+version: 0.2
+
+env:
+  variables:
+    GRAPHQL_ENDPOINT: 'https://v2.mentorpal.org/graphql'
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      # to use node 16:
+      # - n 16 # workaround https://github.com/aws/aws-codebuild-docker-images/issues/490
+      - NODE_ENV=dev npm ci
+      - (cd client && npm ci)
+  pre_build:
+    on-failure: ABORT # or CONTINUE
+    commands:
+      - npm run test:format
+      - npm run test:license
+      - cd client
+      # - npm run test:audit
+      - npm run test:lint
+      - npm run test:types
+      # # cypress tests - its cheaper to run them in github actions
+
+  build:
+    commands:
+      - npm run build
+
+artifacts:
+  files:
+    - '**/*'
+  enable-symlinks: yes
