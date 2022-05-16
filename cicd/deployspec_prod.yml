@@ -3,13 +3,9 @@ version: 0.2
 env:
   variables:
     GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
-
-    # TODO these 2 depend on https://github.com/mentorpal/aws-beanstalk-terraform/pull/24
-    S3_DEPLOY_BUCKET: "tmp-test-deploy-us-east-1"
-    CDN_ID: "E2C2QY58LUF5RL"
-  # parameter-store:
-  #   S3_DEPLOY_BUCKET: "/mentorpal/cf/s3-websites/NAME"
-  #   CDN_ID: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
+  parameter-store:
+    S3_DEPLOY_BUCKET: "/mentorpal/cf/s3-websites/NAME"
+    CDN_ID: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
 
 phases:
   install:
