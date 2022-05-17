@@ -36,6 +36,7 @@ import {
   UploadProcessAsyncJob,
   ImportTask,
   ReplacedMentorDataChanges,
+  PresignedUrlResponse,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -1029,21 +1030,6 @@ export async function fetchTrainingStatus(
   );
 }
 
-export async function uploadThumbnail(
-  mentorId: string,
-  thumbnail: File
-): Promise<string> {
-  const data = new FormData();
-  data.append("body", JSON.stringify({ mentor: mentorId }));
-  data.append("thumbnail", thumbnail);
-  const result = await uploadRequest.post("/thumbnail", data, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  return getDataFromAxiosResponse(result, ["thumbnail"]);
-}
-
 export async function transferMedia(
   mentorId: string,
   questionId: string
@@ -1079,34 +1065,101 @@ export async function trimExistingUpload(
   return getDataFromAxiosResponse(result, []);
 }
 
+export async function uploadThumbnail(
+  mentorId: string,
+  thumbnail: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentor: mentorId }));
+  data.append("thumbnail", thumbnail);
+  return execHttp(
+    "POST",
+    urljoin(uploadLambdaEndpoint || UPLOAD_ENTRYPOINT, "/thumbnail"),
+    {
+      axiosConfig: {
+        data: data,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+      accessToken,
+      dataPath: ["data", "thumbnail"],
+    }
+  );
+}
+
 export async function uploadVideo(
   mentorId: string,
   video: File,
   question: string,
   tokenSource: CancelTokenSource,
   accessToken: string,
+  uploadLambdaEndpoint: string,
   trim?: { start: number; end: number },
   hasEditedTranscript?: boolean
 ): Promise<UploadProcessAsyncJob> {
-  const data = new FormData();
-  data.append(
-    "body",
-    JSON.stringify({
-      mentor: mentorId,
-      question: question,
-      trim,
-      hasEditedTranscript,
-    })
+  const presignedUrl: PresignedUrlResponse = await execHttp(
+    "GET",
+    urljoin(uploadLambdaEndpoint, "/upload/url"),
+    {
+      accessToken,
+    }
   );
-  data.append("video", video);
-  const result = await uploadRequest.post("/answer", data, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${accessToken}`,
-    },
-    cancelToken: tokenSource.token,
+  const fields = presignedUrl.fields;
+  const form = new FormData();
+  if (fields.AWSAccessKeyId) {
+    form.append("AWSAccessKeyId", fields.AWSAccessKeyId);
+  }
+  if (fields.bucket) {
+    form.append("bucket", fields.bucket);
+  }
+  if (fields.key) {
+    form.append("key", fields.key);
+  }
+  if (fields.policy) {
+    form.append("policy", fields.policy);
+  }
+  if (fields.signature) {
+    form.append("signature", fields.signature);
+  }
+  if (fields["x-amz-algorithm"]) {
+    form.append("x-amz-algorithm", fields["x-amz-algorithm"]);
+  }
+  if (fields["x-amz-credential"]) {
+    form.append("x-amz-credential", fields["x-amz-credential"]);
+  }
+  if (fields["x-amz-date"]) {
+    form.append("x-amz-date", fields["x-amz-date"]);
+  }
+  if (fields["x-amz-security-token"]) {
+    form.append("x-amz-security-token", fields["x-amz-security-token"]);
+  }
+  if (fields["x-amz-signature"]) {
+    form.append("x-amz-signature", fields["x-amz-signature"]);
+  }
+  form.append("file", video);
+
+  await fetch(presignedUrl.url, { method: "POST", body: form }).catch((err) => {
+    throw new Error(`Failed to upload video: ${err}`);
   });
-  return getDataFromAxiosResponse(result, []);
+
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/upload/answer"), {
+    axiosConfig: {
+      data: JSON.stringify({
+        mentor: mentorId,
+        question: question,
+        video: presignedUrl.fields.key,
+        trim: trim,
+        hasEditedTranscript: hasEditedTranscript,
+      }),
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+  });
 }
 
 export async function removeMountedFileFromServer(

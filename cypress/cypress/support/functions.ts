@@ -90,7 +90,7 @@ export const CONFIG_DEFAULT: Config = {
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "",
-  uploadLambdaEndpoint: "",
+  uploadLambdaEndpoint: "https://lambdaendpoint.com",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -338,6 +338,35 @@ export function cyMockUpload(
     statusCode?: number;
   } = {}
 ): void {
+  // First: intercept the presigned url request
+  cy.intercept("/upload/url", (req) => {
+    req.alias = "upload_url";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            url: "https://fakesigneduploadurl.com",
+            fields: {
+              key: "video/bucket/path",
+            },
+          },
+          errors: null,
+        },
+      })
+    );
+  });
+  // Second: intercept the upload request to the presigned url
+  cy.intercept("https://fakesigneduploadurl.com", (req) => {
+    req.alias = "presigned_url_upload";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+      })
+    );
+  });
+
+  // Third: intercept the actual answer upload request
   params = params || {};
   cy.intercept("/upload/answer", (req) => {
     req.alias = "upload";
@@ -390,14 +419,16 @@ export function cyMockUploadThumbnail(
   }
 ): void {
   const { thumbnail } = args;
-  cy.intercept("/upload/thumbnail", (req) => {
+  cy.intercept("/thumbnail", (req) => {
     req.alias = "uploadThumbnail";
     req.reply(
       staticResponse({
         statusCode: 200,
         body: {
           data: {
-            thumbnail,
+            data: {
+              thumbnail,
+            },
           },
         },
         headers: {

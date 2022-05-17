@@ -707,25 +707,31 @@ describe("Record", () => {
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
       ],
     });
     cy.visit("/record");
-    cyAttachUpload(cy).then(() => {
-      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-      cy.get("[data-cy=uploading-widget]").should("be.visible");
-
-      //go to next answer page and then press card 0
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=active-upload-card-0]").within(($i) => {
-        cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
-      });
-      cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
-          "have.text",
-          "Who are you and what do you do?"
-        );
-      });
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=active-upload-card-0]").within(($i) => {
+      cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
     });
   });
 
@@ -2135,6 +2141,7 @@ describe("Record", () => {
       cy.get("[data-cy=trim-video]").should("not.exist");
       // upload video
       cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.wait(3000);
       cy.get("[data-cy=transcript-input]").within(($input) => {
         cy.get("textarea").should("have.text", "My name is Clint Anderson");
       });
@@ -2153,7 +2160,7 @@ describe("Record", () => {
       cy.get("[data-cy=active-upload-card-0]").within(($within) => {
         cy.get("[data-cy=card-answer-title]")
           .get("p")
-          .should("have.text", "Failed to upload file: Error 400: Bad Request");
+          .should("contain.text", "Failed to upload file");
       });
     });
   });
