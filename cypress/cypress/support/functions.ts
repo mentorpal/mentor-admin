@@ -90,7 +90,7 @@ export const CONFIG_DEFAULT: Config = {
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "",
-  uploadLambdaEndpoint: "",
+  uploadLambdaEndpoint: "https://lambdaendpoint.com",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -419,14 +419,16 @@ export function cyMockUploadThumbnail(
   }
 ): void {
   const { thumbnail } = args;
-  cy.intercept("/upload/thumbnail", (req) => {
+  cy.intercept("/thumbnail", (req) => {
     req.alias = "uploadThumbnail";
     req.reply(
       staticResponse({
         statusCode: 200,
         body: {
           data: {
-            thumbnail,
+            data: {
+              thumbnail,
+            },
           },
         },
         headers: {
