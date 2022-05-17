@@ -338,6 +338,35 @@ export function cyMockUpload(
     statusCode?: number;
   } = {}
 ): void {
+  // First: intercept the presigned url request
+  cy.intercept("/upload/url", (req) => {
+    req.alias = "upload_url";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            url: "https://fakesigneduploadurl.com",
+            fields: {
+              key: "video/bucket/path",
+            },
+          },
+          errors: null,
+        },
+      })
+    );
+  });
+  // Second: intercept the upload request to the presigned url
+  cy.intercept("https://fakesigneduploadurl.com", (req) => {
+    req.alias = "presigned_url_upload";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+      })
+    );
+  });
+
+  // Third: intercept the actual answer upload request
   params = params || {};
   cy.intercept("/upload/answer", (req) => {
     req.alias = "upload";

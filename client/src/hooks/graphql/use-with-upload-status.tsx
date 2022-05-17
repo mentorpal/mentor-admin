@@ -20,6 +20,7 @@ import {
   whichTaskFailed,
 } from "./upload-status-helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -31,6 +32,7 @@ export function useWithUploadStatus(
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
   const { getData } = useActiveMentor();
+  const { state: configState } = useWithConfig();
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
@@ -194,6 +196,7 @@ export function useWithUploadStatus(
       question,
       tokenSource,
       accessToken,
+      configState.config?.uploadLambdaEndpoint || "",
       trim,
       hasEditedTranscript
     )

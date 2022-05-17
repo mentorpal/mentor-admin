@@ -377,3 +377,21 @@ export interface ImportTask {
   graphQLUpdate: ImportGraphQLUpdate;
   s3VideoMigrate: ImportS3VideoMigrate;
 }
+
+export interface PresignedUrlResponse {
+  url: string;
+  fields: PresignedUrlFields;
+}
+
+export interface PresignedUrlFields {
+  key?: string;
+  bucket?: string;
+  "x-amz-algorithm"?: string;
+  "x-amz-credential"?: string;
+  "x-amz-date"?: string;
+  "x-amz-security-token"?: string;
+  "x-amz-signature"?: string;
+  policy?: string;
+  AWSAccessKeyId?: string;
+  signature?: string;
+}
