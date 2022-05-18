@@ -10,9 +10,11 @@ import LoginPage from "components/login";
 import HomePage from "components/home";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { LoginStatus } from "store/slices/login";
+import { loadSentry } from "helpers";
 
 function IndexPage(): JSX.Element {
   const { state: loginState } = useWithLogin();
+  loadSentry();
   if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
     return <HomePage />;
   } else {

@@ -5,6 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { CLIENT_ENDPOINT } from "api";
+import * as Sentry from "@sentry/react";
+import { BrowserTracing } from "@sentry/tracing";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -94,4 +96,15 @@ export function onTextInputChanged(
     element.selectionEnd = caret;
   });
   update();
+}
+
+export function loadSentry() {
+  Sentry.init({
+    dsn: "https://d137124c5ac546639e2536f860a92798@o1081855.ingest.sentry.io/6419221",
+    integrations: [new BrowserTracing()],
+
+    // We recommend adjusting this value in production, or using tracesSampler
+    // for finer control
+    tracesSampleRate: 0.1,
+  });
 }
