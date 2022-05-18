@@ -98,7 +98,7 @@ export function onTextInputChanged(
   update();
 }
 
-export function loadSentry() {
+export function loadSentry(): void {
   Sentry.init({
     dsn: "https://d137124c5ac546639e2536f860a92798@o1081855.ingest.sentry.io/6419221",
     integrations: [new BrowserTracing()],
