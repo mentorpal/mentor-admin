@@ -144,16 +144,6 @@ export interface UserQuestion {
   createdAt: string;
 }
 
-export interface FileOnServer {
-  fileName: string;
-  size: number;
-  uploadDate: string;
-}
-
-export interface MountedFilesStatus {
-  mountedFiles: FileOnServer[];
-}
-
 export enum MentorType {
   VIDEO = "VIDEO",
   CHAT = "CHAT",
