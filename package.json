@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Top level package list for mentor-admin",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "@sentry/gatsby": "^6.19.7"
+  },
   "devDependencies": {
     "license-check-and-add": "^4.0.2",
     "prettier": "^2.3.0"
