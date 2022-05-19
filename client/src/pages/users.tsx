@@ -317,6 +317,13 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   return (
     <div>
       <NavBar title="Manage Users" />
+      <button
+        onClick={() => {
+          throw new Error("Hello from users page");
+        }}
+      >
+        Cause Error
+      </button>
       <UsersTable
         userRole={props.user.userRole}
         userData={userPagin.data}
