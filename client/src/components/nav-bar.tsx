@@ -37,7 +37,6 @@ import {
   RateReview as RateReviewIcon,
   Subject as SubjectIcon,
   PublishRounded as PublishRoundedIcon,
-  InsertDriveFileOutlined as FileIcon,
 } from "@material-ui/icons";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -251,13 +250,6 @@ function NavMenu(props: {
             text={"Users"}
             link={"/users"}
             icon={<Group />}
-            onNav={props.onNav}
-          />
-          <NavItem
-            data-cy="files-manager-link"
-            text={"Files"}
-            link={"/filemanager"}
-            icon={<FileIcon />}
             onNav={props.onNav}
           />
         </>
