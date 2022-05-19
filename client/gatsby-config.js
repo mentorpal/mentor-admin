@@ -7,6 +7,13 @@ module.exports = {
     siteUrl: `https://uscquestions.mentorpal.org/admin`,
   },
   plugins: [
+    {
+      resolve: "@sentry/gatsby",
+      options: {
+        dsn: "https://d137124c5ac546639e2536f860a92798@o1081855.ingest.sentry.io/6419221",
+        tracesSampleRate: 0.1,
+      },
+    },
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
     {
