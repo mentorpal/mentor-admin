@@ -51,7 +51,6 @@ import {
   UploadTaskGQL,
   UserQuestionGQL,
 } from "types-gql";
-import { FileOnServer } from "hooks/graphql/use-with-server-file-page";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const urljoin = require("url-join");
 
@@ -1160,44 +1159,6 @@ export async function uploadVideo(
     },
     accessToken,
   });
-}
-
-export async function removeMountedFileFromServer(
-  fileName: string,
-  accessToken: string
-): Promise<UploadProcessAsyncJob> {
-  const result = await uploadRequest.post(
-    `/answer/remove_mounted_file/${fileName}`,
-    {},
-    { headers: { Authorization: `Bearer ${accessToken}` } }
-  );
-  return getDataFromAxiosResponse(result, ["fileRemoved"]);
-}
-
-export async function fetchMountedFilesStatus(
-  accessToken: string
-): Promise<FileOnServer[]> {
-  const result = await uploadRequest.get(`/answer/mounted_files/`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-  return getDataFromAxiosResponse(result, ["mountedFiles"]);
-}
-
-export async function downloadMountedFileAsBlob(
-  fileName: string,
-  accessToken: string
-): Promise<Blob> {
-  const result = await uploadRequest.get(
-    `/answer/download_mounted_file/${fileName}/`,
-    {
-      responseType: "blob",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  throwErrorsInAxiosResponse(result);
-  return result.data;
 }
 
 export async function fetchVideoBlobFromUrl(url: string): Promise<Blob> {
