@@ -15,7 +15,9 @@ import Record from "videojs-record/dist/videojs.record.js";
 import "styles/layout.css";
 import { loadSentry } from "./src/helpers";
 
-loadSentry();
+if (process.env.NODE_ENV === "production") {
+  loadSentry();
+}
 
 const theme = createTheme({
   palette: {
