@@ -935,25 +935,6 @@ export async function updateMentorSubjects(
   );
 }
 
-export async function regenerateVTTForQuestion(
-  questionId: string,
-  mentorId: string,
-  accessToken: string
-): Promise<boolean> {
-  const data = new FormData();
-  data.append(
-    "body",
-    JSON.stringify({ mentor: mentorId, question: questionId })
-  );
-  const result = await uploadRequest.post("/answer/regen_vtt/", data, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  return getDataFromAxiosResponse(result, ["regen_vtt"]);
-}
-
 export async function updateAnswer(
   answer: Answer,
   accessToken: string,
@@ -1085,6 +1066,28 @@ export async function uploadThumbnail(
       },
       accessToken,
       dataPath: ["data", "thumbnail"],
+    }
+  );
+}
+
+export async function regenerateVTTForQuestion(
+  questionId: string,
+  mentorId: string,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<boolean> {
+  return execHttp<boolean>(
+    "POST",
+    urljoin(uploadLambdaEndpoint, "/regen_vtt"),
+    {
+      axiosConfig: {
+        data: JSON.stringify({
+          mentor: mentorId,
+          question: questionId,
+        }),
+      },
+      accessToken,
+      dataPath: "regen_vtt",
     }
   );
 }
