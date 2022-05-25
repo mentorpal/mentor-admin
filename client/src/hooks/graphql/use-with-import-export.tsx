@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { useState } from "react";
 import * as api from "api";
 import {
-  Answer,
   Category,
   ChangedMentorData,
   EditType,
@@ -35,7 +34,6 @@ export interface UseWithImportExport {
   onMentorUploaded: (file: File) => void;
   onConfirmImport: () => void;
   onCancelImport: () => void;
-  onTransferMedia: () => void;
   onMapSubjectType: (
     subjectToUpdate: SubjectGQL,
     newType: SubjectTypes
@@ -70,7 +68,6 @@ export function useWithImportExport(): UseWithImportExport {
   const [isUpdating, setIsUpdating] = useState(false);
   const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
-  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const accessToken = useAppSelector((state) => state.login.accessToken);
   const { importTask, setImportInProgress } = useWithImportStatus();
   const { data: subjectData } = useWithSubjects();
@@ -159,18 +156,6 @@ export function useWithImportExport(): UseWithImportExport {
     }
     setImportJson(undefined);
     setImportPreview(undefined);
-  }
-
-  function onTransferMedia(): void {
-    if (!mentorId || !mentorAnswers || isUpdating) {
-      return;
-    }
-    for (const answer of mentorAnswers) {
-      if (!answer.hasUntransferredMedia) {
-        continue;
-      }
-      api.transferMedia(mentorId, answer.question);
-    }
   }
 
   function onSaveSubjectName(subject: SubjectGQL, newName: string) {
@@ -843,7 +828,6 @@ export function useWithImportExport(): UseWithImportExport {
     onMentorUploaded: onImportUploaded,
     onConfirmImport,
     onCancelImport,
-    onTransferMedia,
     onMapSubject,
     onMapQuestion,
     onMapCategory,

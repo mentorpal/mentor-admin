@@ -56,9 +56,6 @@ const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
-export const CLASSIFIER_ENTRYPOINT =
-  process.env.CLASSIFIER_ENTRYPOINT || "/classifier";
-export const UPLOAD_ENTRYPOINT = process.env.UPLOAD_ENTRYPOINT || "/upload";
 
 const defaultSearchParams = {
   limit: 1000,
@@ -130,11 +127,6 @@ interface HttpRequestConfig {
    */
   dataPath?: string | string[];
 }
-
-const uploadRequest = axios.create({
-  withCredentials: true,
-  baseURL: UPLOAD_ENTRYPOINT,
-});
 
 async function execGql<T>(
   query: GQLQuery,
@@ -217,7 +209,7 @@ export async function fetchFollowUpQuestions(
   return execHttp<FollowUpQuestion[]>(
     "POST",
     urljoin(
-      classifierLambdaEndpoint || CLASSIFIER_ENTRYPOINT,
+      classifierLambdaEndpoint,
       "me",
       "followups",
       "category",
@@ -605,30 +597,6 @@ export async function fetchQuestionsById(ids: string[]): Promise<Question[]> {
   );
 }
 
-export async function fetchBasicMentorInfo(): Promise<Connection<Mentor>> {
-  const gql = await execGql<Connection<MentorGQL>>(
-    {
-      query: `
-      query Mentors($limit: Int!){
-        mentors(limit: $limit) {
-          edges {
-            node {
-              _id
-              name
-            }
-          }
-        }
-      }
-    `,
-      variables: {
-        limit: 1000,
-      },
-    },
-    { dataPath: "mentors" }
-  );
-  return convertConnectionGQL(gql, convertMentorGQL);
-}
-
 export async function updateQuestion(
   updateQuestion: Question,
   accessToken: string
@@ -986,16 +954,12 @@ export async function trainMentor(
   accessToken: string,
   classifierLambdaEndpoint?: string
 ): Promise<AsyncJob> {
-  return execHttp(
-    "POST",
-    urljoin(classifierLambdaEndpoint || CLASSIFIER_ENTRYPOINT, "train"),
-    {
-      axiosConfig: {
-        data: { mentor: mentorId },
-      },
-      accessToken,
-    }
-  );
+  return execHttp("POST", urljoin(classifierLambdaEndpoint, "train"), {
+    axiosConfig: {
+      data: { mentor: mentorId },
+    },
+    accessToken,
+  });
 }
 
 export async function fetchTrainingStatus(
@@ -1010,41 +974,6 @@ export async function fetchTrainingStatus(
   );
 }
 
-export async function transferMedia(
-  mentorId: string,
-  questionId: string
-): Promise<AsyncJob> {
-  const result = await uploadRequest.post("/transfer", {
-    mentor: mentorId,
-    question: questionId,
-  });
-  return getDataFromAxiosResponse(result, []);
-}
-
-export async function trimExistingUpload(
-  mentorId: string,
-  question: string,
-  accessToken: string,
-  trim?: { start: number; end: number }
-): Promise<UploadProcessAsyncJob> {
-  const data = new FormData();
-  data.append(
-    "body",
-    JSON.stringify({ mentor: mentorId, question: question, trim })
-  );
-  const result = await uploadRequest.post(
-    "/answer/trim_existing_upload",
-    data,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-  return getDataFromAxiosResponse(result, []);
-}
-
 export async function uploadThumbnail(
   mentorId: string,
   thumbnail: File,
@@ -1054,20 +983,16 @@ export async function uploadThumbnail(
   const data = new FormData();
   data.append("body", JSON.stringify({ mentor: mentorId }));
   data.append("thumbnail", thumbnail);
-  return execHttp(
-    "POST",
-    urljoin(uploadLambdaEndpoint || UPLOAD_ENTRYPOINT, "/thumbnail"),
-    {
-      axiosConfig: {
-        data: data,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/thumbnail"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
-      accessToken,
-      dataPath: ["data", "thumbnail"],
-    }
-  );
+    },
+    accessToken,
+    dataPath: ["data", "thumbnail"],
+  });
 }
 
 export async function regenerateVTTForQuestion(
@@ -1671,21 +1596,17 @@ export async function importMentor(
   accessToken: string,
   uploadLambdaEndpoint?: string
 ): Promise<void> {
-  return execHttp(
-    "POST",
-    urljoin(uploadLambdaEndpoint || UPLOAD_ENTRYPOINT, "/transfer/mentor"),
-    {
-      axiosConfig: {
-        data: JSON.stringify({
-          mentor: mentor,
-          mentorExportJson: json,
-          replacedMentorDataChanges: replacedMentorDataChanges,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/transfer/mentor"), {
+    axiosConfig: {
+      data: JSON.stringify({
+        mentor: mentor,
+        mentorExportJson: json,
+        replacedMentorDataChanges: replacedMentorDataChanges,
+      }),
+      headers: {
+        "Content-Type": "application/json",
       },
-      accessToken,
-    }
-  );
+    },
+    accessToken,
+  });
 }
