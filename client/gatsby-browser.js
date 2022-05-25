@@ -13,6 +13,11 @@ import "videojs-record/dist/css/videojs.record.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Record from "videojs-record/dist/videojs.record.js";
 import "styles/layout.css";
+import { loadSentry } from "./src/helpers";
+
+if (process.env.IS_SENTRY_ENABLED) {
+  loadSentry();
+}
 
 const theme = createTheme({
   palette: {

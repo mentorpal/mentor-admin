@@ -3,6 +3,8 @@ version: 0.2
 env:
   variables:
     GRAPHQL_ENDPOINT: 'https://v2.mentorpal.org/graphql'
+    STAGE: 'v2'
+    IS_SENTRY_ENABLED: true
   parameter-store:
     S3_DEPLOY_BUCKET: "/mentorpal/v2/s3-websites/NAME"
     CDN_ID: "/mentorpal/v2/CLOUDFRONT_DISTRIBUTION_ID"
