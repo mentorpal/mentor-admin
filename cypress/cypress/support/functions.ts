@@ -333,7 +333,7 @@ export function cyMockUpload(
   } = {}
 ): void {
   // First: intercept the presigned url request
-  cy.intercept("/upload/url", (req) => {
+  cy.intercept("/upload/upload/url", (req) => {
     req.alias = "upload_url";
     req.reply(
       staticResponse({
@@ -362,7 +362,7 @@ export function cyMockUpload(
 
   // Third: intercept the actual answer upload request
   params = params || {};
-  cy.intercept("/upload/answer", (req) => {
+  cy.intercept("/upload/upload/answer", (req) => {
     req.alias = "upload";
     req.reply(
       staticResponse({
@@ -413,7 +413,7 @@ export function cyMockUploadThumbnail(
   }
 ): void {
   const { thumbnail } = args;
-  cy.intercept("/thumbnail", (req) => {
+  cy.intercept("/upload/thumbnail", (req) => {
     req.alias = "uploadThumbnail";
     req.reply(
       staticResponse({
