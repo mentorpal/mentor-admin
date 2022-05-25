@@ -33,6 +33,7 @@ import { useWithUploadStatus } from "./use-with-upload-status";
 import { QuestionState } from "store/slices/questions";
 import { navigate } from "gatsby";
 import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export interface AnswerState {
   answer: Answer;
@@ -82,6 +83,7 @@ export function useWithRecordState(
     isLoading: isMentorLoading,
     error: mentorError,
   } = useActiveMentor();
+  const { state: configState } = useWithConfig();
 
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
@@ -388,12 +390,14 @@ export function useWithRecordState(
           updateAnswerState({ answer: editedAnswer });
           if (
             editedAnswer.hasEditedTranscript &&
-            mentorType === MentorType.VIDEO
+            mentorType === MentorType.VIDEO &&
+            configState.config?.uploadLambdaEndpoint
           ) {
             regenerateVTTForQuestion(
               editedAnswer.question,
               mentorId,
-              accessToken
+              accessToken,
+              configState.config.uploadLambdaEndpoint
             );
           }
         })
