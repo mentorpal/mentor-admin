@@ -10,7 +10,7 @@ import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
 import questions from "../fixtures/questions";
 
-const TRAIN_STATUS_URL = `/classifier/train/status`;
+const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
 
 interface StaticResponse {
@@ -83,8 +83,8 @@ export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
-  classifierLambdaEndpoint: "",
-  uploadLambdaEndpoint: "https://lambdaendpoint.com",
+  classifierLambdaEndpoint: "https://classifierendpoint.com/classifier",
+  uploadLambdaEndpoint: "https://lambdaendpoint.com/upload",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -308,7 +308,7 @@ export function cyMockTrainStatus(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept(`/${params.statusUrl || TRAIN_STATUS_URL}*`, (req) => {
+  cy.intercept(`/classifier/${TRAIN_STATUS_URL}*`, (req) => {
     req.reply(
       staticResponse({
         statusCode: params.statusCode || 200,
@@ -333,7 +333,7 @@ export function cyMockUpload(
   } = {}
 ): void {
   // First: intercept the presigned url request
-  cy.intercept("/upload/url", (req) => {
+  cy.intercept("/upload/upload/url", (req) => {
     req.alias = "upload_url";
     req.reply(
       staticResponse({
@@ -362,7 +362,7 @@ export function cyMockUpload(
 
   // Third: intercept the actual answer upload request
   params = params || {};
-  cy.intercept("/upload/answer", (req) => {
+  cy.intercept("/upload/upload/answer", (req) => {
     req.alias = "upload";
     req.reply(
       staticResponse({
@@ -413,7 +413,7 @@ export function cyMockUploadThumbnail(
   }
 ): void {
   const { thumbnail } = args;
-  cy.intercept("/thumbnail", (req) => {
+  cy.intercept("/upload/thumbnail", (req) => {
     req.alias = "uploadThumbnail";
     req.reply(
       staticResponse({
