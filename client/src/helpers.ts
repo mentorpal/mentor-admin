@@ -103,6 +103,6 @@ export function loadSentry(): void {
     dsn: "https://d137124c5ac546639e2536f860a92798@o1081855.ingest.sentry.io/6419221",
     integrations: [new BrowserTracing()],
     tracesSampleRate: process.env.STAGE == "cf" ? 0.2 : 0.0,
-    environment: process.env.STAGE
+    environment: process.env.STAGE,
   });
 }

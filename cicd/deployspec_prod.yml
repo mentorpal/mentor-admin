@@ -4,6 +4,7 @@ env:
   variables:
     GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
     STAGE: 'cf'
+    IS_SENTRY_ENABLED: true
   parameter-store:
     S3_DEPLOY_BUCKET: "/mentorpal/cf/s3-websites/NAME"
     CDN_ID: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
