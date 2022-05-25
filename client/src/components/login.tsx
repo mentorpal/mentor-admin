@@ -45,7 +45,6 @@ function LoginPage(): JSX.Element {
   const classes = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
   const { loginWithGoogle, login } = useWithLogin();
-
   function onGoogleLogin(
     response: GoogleLoginResponse | GoogleLoginResponseOffline
   ): void {

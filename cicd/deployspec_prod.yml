@@ -3,6 +3,7 @@ version: 0.2
 env:
   variables:
     GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
+    STAGE: 'cf'
   parameter-store:
     S3_DEPLOY_BUCKET: "/mentorpal/cf/s3-websites/NAME"
     CDN_ID: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
