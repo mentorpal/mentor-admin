@@ -16,6 +16,7 @@ import "styles/layout.css";
 import { loadSentry } from "./src/helpers";
 
 if (process.env.IS_SENTRY_ENABLED) {
+  console.log("Loading sentry");
   loadSentry();
 }
 
