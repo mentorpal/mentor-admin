@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "store/hooks";
-import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { saveThumbnail } from "store/slices/mentor";
 import { selectActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -18,14 +17,12 @@ export function useWithThumbnail(): [string, (file: File) => void] {
   });
   const dispatch = useAppDispatch();
   const { state: loginState } = useWithLogin();
-  const { state: configState } = useWithConfig();
 
   function updateThumbnail(file: File) {
     dispatch(
       saveThumbnail({
         file,
         accessToken: loginState.accessToken || "",
-        uploadLambdaUrl: configState.config?.uploadLambdaEndpoint || "",
       })
     );
   }

@@ -60,8 +60,6 @@ interface UseWithSetup {
   setupStep: number;
   setupSteps: SetupStep[];
   idleTipsVideoUrl: string;
-  classifierLambdaEndpoint: string;
-  uploadLambdaEndpoint: string;
   mentor?: Mentor;
   isEdited: boolean;
   isLoading: boolean;
@@ -257,9 +255,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStep: idx,
     setupSteps: steps,
     idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
-    classifierLambdaEndpoint:
-      configState.config?.classifierLambdaEndpoint || "",
-    uploadLambdaEndpoint: configState.config?.uploadLambdaEndpoint || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,

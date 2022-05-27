@@ -109,7 +109,6 @@ export const saveThumbnail = createAsyncThunk(
     headers: {
       file: File;
       accessToken: string;
-      uploadLambdaUrl: string;
     },
     thunkAPI
   ): Promise<string | unknown> => {
@@ -119,7 +118,7 @@ export const saveThumbnail = createAsyncThunk(
       if (!mentorId) {
         return Promise.reject("upload api called with no active mentor");
       }
-      if (!headers.accessToken || !headers.uploadLambdaUrl || !headers.file) {
+      if (!headers.accessToken || !headers.file) {
         return Promise.reject(
           `upload thumbnail called without proper header: ${JSON.stringify(
             headers
@@ -129,8 +128,7 @@ export const saveThumbnail = createAsyncThunk(
       return await api.uploadThumbnail(
         mentorId,
         headers.file,
-        headers.accessToken,
-        headers.uploadLambdaUrl
+        headers.accessToken
       );
     } catch (err) {
       return err.response.data;

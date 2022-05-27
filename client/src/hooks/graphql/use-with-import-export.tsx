@@ -25,7 +25,6 @@ import { AnswerGQL, SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { useAppSelector } from "store/hooks";
 import { useWithImportStatus } from "./use-with-import-status";
 import { useWithSubjects } from "./use-with-subjects";
-import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export interface UseWithImportExport {
   importedJson?: MentorExportJson;
@@ -76,7 +75,6 @@ export function useWithImportExport(): UseWithImportExport {
     []
   );
   const [oldAnswersToRemove, setOldAnswersToRemove] = useState<AnswerGQL[]>([]);
-  const { state: configState } = useWithConfig();
 
   async function onMentorExported(): Promise<void> {
     if (!mentorId || isUpdating) {
@@ -139,8 +137,7 @@ export function useWithImportExport(): UseWithImportExport {
         mentorId,
         importedJson,
         getReplacedMentorChanges(),
-        accessToken,
-        configState.config?.uploadLambdaEndpoint
+        accessToken
       )
       .then(() => {
         setImportJson(undefined);

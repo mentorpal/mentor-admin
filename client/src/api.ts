@@ -55,7 +55,9 @@ import {
 const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
-export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+export const UPLOAD_LAMBDA_ENDPOINT = `https://api-${process.env.STAGE}.mentorpal.org/upload/`;
+export const CLASSIFIER_LAMBDA_ENDPOINT = `https://api-${process.env.STAGE}.mentorpal.org/classifier/`;
+export const GRAPHQL_LAMBDA_ENDPOINT = `https://api-${process.env.STAGE}.mentorpal.org/graphql/`;
 
 const defaultSearchParams = {
   limit: 1000,
@@ -132,7 +134,7 @@ async function execGql<T>(
   query: GQLQuery,
   opts?: HttpRequestConfig
 ): Promise<T> {
-  return execHttp<T>("POST", GRAPHQL_ENDPOINT, {
+  return execHttp<T>("POST", GRAPHQL_LAMBDA_ENDPOINT, {
     axiosMiddleware: extractAndStoreAccessToken,
     ...(opts || {}),
     axiosConfig: {
@@ -203,13 +205,12 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
 
 export async function fetchFollowUpQuestions(
   categoryId: string,
-  accessToken: string,
-  classifierLambdaEndpoint?: string
+  accessToken: string
 ): Promise<FollowUpQuestion[]> {
   return execHttp<FollowUpQuestion[]>(
     "POST",
     urljoin(
-      classifierLambdaEndpoint,
+      CLASSIFIER_LAMBDA_ENDPOINT,
       "me",
       "followups",
       "category",
@@ -228,8 +229,6 @@ export async function fetchConfig(): Promise<Config> {
           googleClientId
           urlVideoIdleTips
           videoRecorderMaxLength
-          classifierLambdaEndpoint
-          uploadLambdaEndpoint
         }
       }
   `,
@@ -951,10 +950,9 @@ export async function deleteImportTask(
 
 export async function trainMentor(
   mentorId: string,
-  accessToken: string,
-  classifierLambdaEndpoint?: string
+  accessToken: string
 ): Promise<AsyncJob> {
-  return execHttp("POST", urljoin(classifierLambdaEndpoint, "train"), {
+  return execHttp("POST", urljoin(CLASSIFIER_LAMBDA_ENDPOINT, "train"), {
     axiosConfig: {
       data: { mentor: mentorId },
     },
@@ -964,12 +962,11 @@ export async function trainMentor(
 
 export async function fetchTrainingStatus(
   statusUrl: string,
-  accessToken?: string,
-  classifierLambdaEndpoint?: string
+  accessToken?: string
 ): Promise<TaskStatus<TrainingInfo>> {
   return execHttp(
     "GET",
-    `${classifierLambdaEndpoint || ""}${statusUrl}?v=${Math.random()}`,
+    `${CLASSIFIER_LAMBDA_ENDPOINT}${statusUrl}?v=${Math.random()}`,
     { accessToken }
   );
 }
@@ -977,13 +974,12 @@ export async function fetchTrainingStatus(
 export async function uploadThumbnail(
   mentorId: string,
   thumbnail: File,
-  accessToken: string,
-  uploadLambdaEndpoint: string
+  accessToken: string
 ): Promise<string> {
   const data = new FormData();
   data.append("body", JSON.stringify({ mentor: mentorId }));
   data.append("thumbnail", thumbnail);
-  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/thumbnail"), {
+  return execHttp("POST", urljoin(UPLOAD_LAMBDA_ENDPOINT, "/thumbnail"), {
     axiosConfig: {
       data: data,
       headers: {
@@ -998,12 +994,11 @@ export async function uploadThumbnail(
 export async function regenerateVTTForQuestion(
   questionId: string,
   mentorId: string,
-  accessToken: string,
-  uploadLambdaEndpoint: string
+  accessToken: string
 ): Promise<boolean> {
   return execHttp<boolean>(
     "POST",
-    urljoin(uploadLambdaEndpoint, "/regen_vtt"),
+    urljoin(UPLOAD_LAMBDA_ENDPOINT, "/regen_vtt"),
     {
       axiosConfig: {
         data: JSON.stringify({
@@ -1023,13 +1018,12 @@ export async function uploadVideo(
   question: string,
   tokenSource: CancelTokenSource,
   accessToken: string,
-  uploadLambdaEndpoint: string,
   trim?: { start: number; end: number },
   hasEditedTranscript?: boolean
 ): Promise<UploadProcessAsyncJob> {
   const presignedUrl: PresignedUrlResponse = await execHttp(
     "GET",
-    urljoin(uploadLambdaEndpoint, "/upload/url"),
+    urljoin(UPLOAD_LAMBDA_ENDPOINT, "/upload/url"),
     {
       accessToken,
     }
@@ -1072,7 +1066,7 @@ export async function uploadVideo(
     throw new Error(`Failed to upload video: ${err}`);
   });
 
-  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/upload/answer"), {
+  return execHttp("POST", urljoin(UPLOAD_LAMBDA_ENDPOINT, "/upload/answer"), {
     axiosConfig: {
       data: JSON.stringify({
         mentor: mentorId,
@@ -1593,10 +1587,9 @@ export async function importMentor(
   mentor: string,
   json: MentorExportJson,
   replacedMentorDataChanges: ReplacedMentorDataChanges,
-  accessToken: string,
-  uploadLambdaEndpoint?: string
+  accessToken: string
 ): Promise<void> {
-  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/transfer/mentor"), {
+  return execHttp("POST", urljoin(UPLOAD_LAMBDA_ENDPOINT, "/transfer/mentor"), {
     axiosConfig: {
       data: JSON.stringify({
         mentor: mentor,
