@@ -638,9 +638,7 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup8],
       });
-      cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=back-btn]").should("be.enabled");
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
     });
