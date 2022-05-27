@@ -639,6 +639,7 @@ describe("Setup", () => {
         mentor: [setup8],
       });
       cyVisitSetupScreen(cy, SetupScreen.Welcome);
+      cy.get("[data-cy=back-btn]").should("be.enabled");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
