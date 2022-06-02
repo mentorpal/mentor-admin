@@ -25,6 +25,13 @@ export function WelcomeSlide(props: {
           <Typography variant="h6" className={classes.text}>
             Let&apos;s get started setting up your new mentor.
           </Typography>
+          <Typography variant="h6" className={classes.text}>
+            {"If you'd like to view a walkthrough, "}
+            <a data-cy="click-here-url" href="https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing" target="blank">
+                click here.
+            </a>
+          </Typography>
+         
         </div>
       }
     />
