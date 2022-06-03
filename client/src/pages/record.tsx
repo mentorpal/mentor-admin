@@ -92,7 +92,6 @@ const useStyles = makeStyles((theme) => ({
   nextBtn: {
     position: "absolute",
     right: 0,
-    color: "primary",
   },
   overlay: {
     position: "absolute",

@@ -59,7 +59,6 @@ const useStyles = makeStyles(() => ({
     alignContent: "center",
     height: "100%",
     width: "100%",
-    infinite: false,
   },
   card: {
     minHeight: 450,
@@ -77,10 +76,8 @@ const useStyles = makeStyles(() => ({
     margin: 10,
   },
   button: {
-    width: 200,
-    height: 500,
+    width: 100,
     margin: 5,
-    backgroundColor: "#492949"
   },
   navButton: {
     top: "calc(50% - 20px) !important",
@@ -89,11 +86,12 @@ const useStyles = makeStyles(() => ({
   },
   avatar:{
     width:"50px", 
-    height:"50px"
+    height:"50px",
+    backgroundColor: "",
   },
   arrow:{
     width:"40px", 
-    height:"40px"
+    height:"40px",
   },
   progress: {
     position: "fixed",
@@ -222,11 +220,13 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 <IconButton
                 data-cy="next-btn-firstSlide-2"
                 onClick={() => onClick()}
-                style={{display: prev ? "none" : "block"}}
+                style={{
+                  display: prev ? "none" : "block",
+                }}
                 size="medium"
                 className={classes.navButton}
                 >
-                  {next &&  <Avatar className = {classes.avatar} style={style}> <ArrowForwardIcon className={classes.arrow} style={style}/></Avatar>}
+                  {next &&  <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}> <ArrowForwardIcon className={classes.arrow} style={style}/></Avatar>}
                 </IconButton>
             );
           }
@@ -238,10 +238,9 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               className={classes.navButton}
             >
-              <Avatar className = {classes.avatar} style={style}>
+              <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}>
               {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
               </Avatar>
-             
             </IconButton>
             );
           }
@@ -252,7 +251,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               style={style}
               className={classes.navButton}
             >
-              <Avatar  className = {classes.avatar} style={style}>
+              <Avatar  className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}>
                 {next && <ArrowForwardIcon className={classes.arrow}/>}
                 {prev && <ArrowBackIcon className={classes.arrow}/>}
               </Avatar>
