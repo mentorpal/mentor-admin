@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    GRAPHQL_ENDPOINT: 'https://api-qa.mentorpal.org/graphql/graphql'
+    GRAPHQL_ENDPOINT: 'https://v2.mentorpal.org/graphql/'
     STAGE: 'v2'
     IS_SENTRY_ENABLED: true
   parameter-store:
