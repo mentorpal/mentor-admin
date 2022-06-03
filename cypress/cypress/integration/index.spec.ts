@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
+import clint11 from '../fixtures/mentor/clint_setup11'
 import { login as loginDefault } from "../fixtures/login";
 import { TaskInfo, UserRole } from "../support/types";
 
@@ -94,12 +95,19 @@ describe("Index page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
+
     cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/");
-    });
-    cy.get("[data-cy=select-subject]").should("exist");
+    cy.get("[data-cy=my-mentor-card]").should("contain.text", "Clinton Anderson");
   });
+
+
+  it.only("skip button are all enabled", ()=>{
+    cyMockDefault(cy, {
+      mentor: clint11,
+    });
+    cy.visit("/");
+    cy.get("")
+  })
 
   it('admins see the "Users" option in hamburger menu', () => {
     cyMockDefault(cy, {

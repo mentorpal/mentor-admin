@@ -15,7 +15,7 @@ export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
 }): JSX.Element {
-  const [recommendedAction, skipRecommendation] = UseWithRecommendedAction(
+  const [recommendedAction, skipRecommendation, recListLength] = UseWithRecommendedAction(
     props.continueAction
   );
   const { getData } = useActiveMentor();
@@ -24,7 +24,7 @@ export default function RecommendedActionButton(props: {
   );
 
   return (
-    <div>
+    <div data-cy="rec-action-btn">
       <div className="next-status-text-wrapper">
         <Typography
           variant="h6"
@@ -76,6 +76,7 @@ export default function RecommendedActionButton(props: {
               onClick={skipRecommendation}
               className="skip-btn"
               data-cy="skip-action-button"
+              style={{cursor: recListLength == 0 ? "default" : "pointer"}}
             >
               skip
             </Link>
