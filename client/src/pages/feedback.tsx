@@ -116,11 +116,11 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-function GetCompleteAnswers(mentorAnswers: Answer[]){
+function GetCompleteAnswers(mentorAnswers: Answer[]) {
   // filters mentorAnswers with COMPLETE status
   const completes: Answer[] = [];
-  for (let i = 0; i < mentorAnswers.length; i++){
-    if (mentorAnswers[i].status == "COMPLETE"){
+  for (let i = 0; i < mentorAnswers.length; i++) {
+    if (mentorAnswers[i].status == "COMPLETE") {
       completes.push(mentorAnswers[i]);
     }
   }

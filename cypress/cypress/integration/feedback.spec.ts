@@ -6,18 +6,15 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
-import {feedback as userQuestions} from '../fixtures/feedback/feedback'
+import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 
-describe("Feedback", ()=>{
-
-  it("feedback test", ()=>{
+describe("Feedback", () => {
+  it("feedback test", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor,
-      gqlQueries: [
-        mockGQL("UserQuestions", userQuestions)
-      ]
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [mockGQL("UserQuestions", userQuestions)],
     });
-    cy.visit("/feedback")
-  })
-
-})
+    cy.visit("/feedback");
+  });
+});
