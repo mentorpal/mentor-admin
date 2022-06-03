@@ -140,7 +140,7 @@ function FeedbackItem(props: {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
-
+  console.log(GetCompleteAnswers(mentorAnswers || []));
   return (
     <TableRow hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="grade" align="center">
@@ -187,7 +187,7 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={mentorAnswers || []}
+              options={GetCompleteAnswers(mentorAnswers || [])}
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -201,7 +201,7 @@ function FeedbackItem(props: {
                 flexGrow: 1,
               }}
               renderOption={(option) => (
-                <Typography align="left">
+                <Typography data-cy={`Drop-down-qu-${option._id}`} align="left">
                   {getValueIfKeyExists(option.question, mentorQuestions)
                     ?.question?.question || ""}
                 </Typography>

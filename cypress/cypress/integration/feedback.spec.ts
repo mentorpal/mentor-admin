@@ -7,14 +7,18 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
+import { getSyntheticLeadingComments } from "typescript";
 
 describe("Feedback", () => {
-  it("feedback test", () => {
+  it("only show answered questions as options", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
       gqlQueries: [mockGQL("UserQuestions", userQuestions)],
     });
     cy.visit("/feedback");
+    cy.get("[data-cy=select-answer]").click();
+    cy.get("[data-cy=Drop-down-qu-A6_1_1]").should("be.visible");
+    cy.get("[data-cy=Drop-down-qu-A5_1_1]").should("not.exist");
   });
 });
