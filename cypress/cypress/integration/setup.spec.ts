@@ -202,7 +202,7 @@ describe("Setup", () => {
     });
   });
 
-  it("shows welcome slide", () => {
+  it.only("shows welcome slide", () => {
     cyMockDefault(cy, baseMock);
     cyVisitSetupScreen(cy, SetupScreen.Welcome);
     cy.get("[data-cy=slide]").within(($slide) => {
