@@ -210,10 +210,13 @@ describe("Setup", () => {
       cy.contains("It's nice to meet you, Clinton Anderson!");
       cy.contains("Let's get started setting up your new mentor.");
       cy.contains("If you'd like to view a walkthrough,");
-      cy.get("[data-cy=click-here-url]").contains('click here').click();
-      cy.get("[data-cy=click-here-url]").should("attr", "href").and("include", "https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing");
-
-
+      cy.get("[data-cy=click-here-url]").contains("click here");
+      cy.get("[data-cy=click-here-url]")
+        .should("attr", "href")
+        .and(
+          "include",
+          "https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing"
+        );
     });
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
