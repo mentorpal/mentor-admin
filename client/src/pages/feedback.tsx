@@ -176,7 +176,11 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={mentorAnswers?.filter(mentorAnswer => mentorAnswer.status == "COMPLETE") || []}
+              options={
+                mentorAnswers?.filter(
+                  (mentorAnswer) => mentorAnswer.status == "COMPLETE"
+                ) || []
+              }
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
