@@ -116,17 +116,6 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-function GetCompleteAnswers(mentorAnswers: Answer[]) {
-  // filters mentorAnswers with COMPLETE status
-  const completes: Answer[] = [];
-  for (let i = 0; i < mentorAnswers.length; i++) {
-    if (mentorAnswers[i].status == "COMPLETE") {
-      completes.push(mentorAnswers[i]);
-    }
-  }
-  return completes;
-}
-
 function FeedbackItem(props: {
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
@@ -140,7 +129,7 @@ function FeedbackItem(props: {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
-  console.log(GetCompleteAnswers(mentorAnswers || []));
+
   return (
     <TableRow hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="grade" align="center">
@@ -187,7 +176,7 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={GetCompleteAnswers(mentorAnswers || [])}
+              options={mentorAnswers?.filter(mentorAnswer => mentorAnswer.status == "COMPLETE") || []}
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
