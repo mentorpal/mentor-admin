@@ -1122,7 +1122,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
     `,
       variables: { accessToken },
     },
-    { dataPath: "login" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "login", axiosConfig: { withCredentials: true } }
   );
 }
 
@@ -1145,7 +1146,8 @@ export async function loginGoogle(
     `,
       variables: { accessToken },
     },
-    { dataPath: "loginGoogle" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "loginGoogle", axiosConfig: { withCredentials: true } }
   );
 }
 
