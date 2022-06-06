@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import Carousel from "react-material-ui-carousel";
-import { Avatar, Button, IconButton } from "@material-ui/core";
+import { Avatar, IconButton } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
@@ -83,11 +83,11 @@ const useStyles = makeStyles(() => ({
     top: "calc(50% - 20px) !important",
     width: 100,
     height: 100,
+    color: "grey",
   },
   avatar:{
     width:"50px", 
     height:"50px",
-    backgroundColor: "",
   },
   arrow:{
     width:"40px", 
@@ -218,7 +218,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
           if(idx == 0){
             return(
                 <IconButton
-                data-cy="next-btn-firstSlide-2"
+                data-cy={next ? "next-btn" : "back-btn"}
                 onClick={() => onClick()}
                 style={{
                   display: prev ? "none" : "block",
@@ -226,19 +226,23 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 size="medium"
                 className={classes.navButton}
                 >
-                  {next &&  <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}> <ArrowForwardIcon className={classes.arrow} style={style}/></Avatar>}
+                  <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red"}}> 
+                  {next &&  <ArrowForwardIcon className={classes.arrow} style={style}/>}
+                  </Avatar>
                 </IconButton>
             );
           }
-          if(idx == 8){
+          if(idx == steps.length-1){
             return(
               <IconButton
-              data-cy="back-btn-finalSlide"
-              style={{display: next ? "none" : "block"}}
+              data-cy={next ? "next-btn" : "back-btn"}
+              style={{
+                display: next ? "none" : "block",
+              }}
               onClick={() => onClick()}
               className={classes.navButton}
             >
-              <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}>
+              <Avatar className = {classes.avatar}>
               {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
               </Avatar>
             </IconButton>
@@ -251,9 +255,11 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               style={style}
               className={classes.navButton}
             >
-              <Avatar  className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red",}}>
-                {next && <ArrowForwardIcon className={classes.arrow}/>}
-                {prev && <ArrowBackIcon className={classes.arrow}/>}
+              <Avatar  className = {classes.avatar} style={{
+                backgroundColor: next ? (steps[idx]?.complete ? "green" : "red") : prev ? "rgb(189, 189, 189)" : "block" 
+                }}>
+                {next && <ArrowForwardIcon className={classes.arrow} style={style}/>}
+                {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
               </Avatar>
             </IconButton>
           );

@@ -94,19 +94,15 @@ describe("Setup", () => {
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Welcome to MentorStudio!"
-      );
+      cy.get("[data-cy=next-btn]").should("not.be.visible");
     });
 
     it("with back button", () => {
       cyMockDefault(cy, baseMock);
-      cy.visit("/setup");
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor,);
+      cy.get("[data-cy=next-btn]").should("not.be.visible");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Repeat After Me questions"
@@ -140,8 +136,8 @@ describe("Setup", () => {
         "have.text",
         "Welcome to MentorStudio!"
       );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=back-btn]").should("not.be.visible");
+    
     });
 
     it("with radio buttons", () => {
@@ -202,7 +198,7 @@ describe("Setup", () => {
     });
   });
 
-  it.only("shows welcome slide", () => {
+  it("shows welcome slide", () => {
     cyMockDefault(cy, baseMock);
     cyVisitSetupScreen(cy, SetupScreen.Welcome);
     cy.get("[data-cy=slide]").within(($slide) => {
@@ -576,6 +572,7 @@ describe("Setup", () => {
       ],
     });
     cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
+    cy.contains("Idle");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Repeat After Me questions");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
@@ -633,8 +630,7 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup7],
       });
-      +cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      +cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
     });
@@ -643,8 +639,7 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup8],
       });
-      cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
     });
