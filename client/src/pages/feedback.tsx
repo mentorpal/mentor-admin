@@ -32,7 +32,13 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 import { updateUserQuestion } from "api";
-import { Answer, ClassifierAnswerType, Feedback, Status, UserQuestion } from "types";
+import {
+  Answer,
+  ClassifierAnswerType,
+  Feedback,
+  Status,
+  UserQuestion,
+} from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -180,7 +186,7 @@ function FeedbackItem(props: {
               options={
                 mentorAnswers?.filter(
                   (mentorAnswer) => mentorAnswer.status == Status.COMPLETE
-                  ) || []
+                ) || []
               }
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
