@@ -49,7 +49,6 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
-import { Reorder } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
