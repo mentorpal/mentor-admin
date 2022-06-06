@@ -126,6 +126,7 @@ interface HttpRequestConfig {
    * { "foo": { "bar": "barvalue" } }
    */
   dataPath?: string | string[];
+  withCredentials?: boolean;
 }
 
 async function execGql<T>(
@@ -1121,7 +1122,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
     `,
       variables: { accessToken },
     },
-    { dataPath: "login" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "login", withCredentials: true }
   );
 }
 
