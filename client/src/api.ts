@@ -1146,7 +1146,8 @@ export async function loginGoogle(
     `,
       variables: { accessToken },
     },
-    { dataPath: "loginGoogle" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "loginGoogle", withCredentials: true }
   );
 }
 
