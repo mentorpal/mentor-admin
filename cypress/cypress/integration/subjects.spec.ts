@@ -192,7 +192,6 @@ describe("Dropdown button list", () => {
     cy.visit("/subjects");
   });
 
-
   it.only("", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -201,7 +200,6 @@ describe("Dropdown button list", () => {
     });
     cy.visit("/subjects");
   });
-
 
   it("Primary button set to Save with edits", () => {
     cySetup(cy);

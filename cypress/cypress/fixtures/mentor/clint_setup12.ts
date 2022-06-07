@@ -4,14 +4,20 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { updateMentorAnswer } from "../../support/helpers";
-import { Mentor, Status } from "../../support/types";
+import {
+  Mentor,
+  QuestionType,
+  Status,
+  SubjectTypes,
+} from "../../support/types";
 import clint_prev from "./clint_setup11";
 
-export const mentor: Mentor = updateMentorAnswer(clint_prev, "email", {
+export const mentor: Mentor = {
   ...clint_prev,
   email: "clintiscool@aol.com",
-  thumbnail: "\\wsl.localhost\\Ubuntu\\home\\lwoluke\\pictures",
-  status: Status.COMPLETE,
-});
+  thumbnail:
+    "https://cdn.britannica.com/75/152975-050-99123EE6/Clint-Eastwood-2008.jpg?w=400&h=300&c=crop",
+  isDirty: false,
+  lastTrainedAt: "6/6/2022",
+};
 export default mentor;

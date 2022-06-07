@@ -7,7 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
-import clint12 from '../fixtures/mentor/clint_setup12'
+import clint1 from "../fixtures/mentor/clint_setup1";
+import clint10 from "../fixtures/mentor/clint_setup10";
+import clint12 from "../fixtures/mentor/clint_setup12";
 import { login as loginDefault } from "../fixtures/login";
 import { TaskInfo, UserRole } from "../support/types";
 
@@ -97,38 +99,47 @@ describe("Index page", () => {
     });
 
     cy.visit("/");
-    cy.get("[data-cy=my-mentor-card]").should("contain.text", "Clinton Anderson");
+    cy.get("[data-cy=my-mentor-card]").should(
+      "contain.text",
+      "Clinton Anderson"
+    );
   });
 
-
-  it.only("skip button are all enabled", ()=>{
+  it("skip button is disabled when only one recommendation", () => {
     cyMockDefault(cy, {
       mentor: clint12,
     });
     cy.visit("/");
-  
-    // cy.get("[data-cy=edit-mentor-data]").click();
-    // cy.get("[data-cy=mentor-email]").click().type('clintiscool@aol.com');
-    // cy.get("[data-cy=allow-contact-btn]").click();
-    // cy.get("[data-cy=close-modal]").click();
-    // cy.pause();
 
-    // for (let i = 0; i < 10; i++) {
-    //   cy.contains("skip").click();
-    // }
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.disabled");
+  });
 
-    // cy.url().should('include', '/')
+  it("skip button cycles through properly", () => {
+    cyMockDefault(cy, {
+      mentor: clint10,
+    });
+    cy.visit("/");
 
-    // cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
-    // cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
 
-    // for (let i = 0; i < 6; i++) {
-    //   //Place code inside the loop that you want to repeat
-    //   cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
-    //   cy.get("[data-cy=skip-action-button]").should("exist");
-    // }  
+    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").should("exist");
 
-  })
+    cy.get("[data-cy=recommended-action]").contains(
+      "Answer Leadership Questions"
+    );
+
+    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").should("exist");
+
+    cy.get("[data-cy=recommended-action]").contains("Add a Subject");
+
+    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").should("exist");
+
+    cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
+  });
 
   it('admins see the "Users" option in hamburger menu', () => {
     cyMockDefault(cy, {

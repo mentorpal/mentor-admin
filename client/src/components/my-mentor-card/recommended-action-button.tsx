@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Button, Link, Tooltip, Typography } from "@material-ui/core";
+import { Button, Tooltip, Typography } from "@material-ui/core";
 import { HelpOutline } from "@material-ui/icons";
 import React from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -15,9 +15,8 @@ export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
 }): JSX.Element {
-  const [recommendedAction, skipRecommendation, recListLength] = UseWithRecommendedAction(
-    props.continueAction
-  );
+  const [recommendedAction, skipRecommendation, recListLength] =
+    UseWithRecommendedAction(props.continueAction);
   const { getData } = useActiveMentor();
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
@@ -69,69 +68,72 @@ export default function RecommendedActionButton(props: {
         </div>
       </Typography>
       <div className="recommended-action-btns">
-        {recommendedAction.input ? (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Link
-              href="#"
-              onClick={skipRecommendation}
-              className="skip-btn"
-              data-cy="skip-action-button"
-              style={{cursor: recListLength == 0 ? "default" : "pointer"}}
-            >
-              skip
-            </Link>
-
-            <input
-              accept="image/*"
-              style={{ display: "none" }}
-              id="thumbnail-upload"
-              data-cy="recommended-action-upload"
-              type="file"
-              onChange={(e) => {
-                e.target.files instanceof FileList
-                  ? props.setThumbnail(e.target.files[0])
-                  : undefined;
-              }}
-            />
-            <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <Typography
-                  variant="h6"
-                  color="textPrimary"
-                  data-cy="recommended-action"
-                  style={{ marginBottom: 5 }}
-                >
-                  <p className="recommended-action-text">
-                    <b>{recommendedAction.text}</b>
-                  </p>
-                </Typography>
-                <Button
-                  size="medium"
-                  fullWidth
-                  color="primary"
-                  variant="contained"
-                  component="span"
-                  data-cy="recommended-action-thumbnail"
-                  startIcon={recommendedAction.icon}
-                  className={
-                    recommendedAction.input ? "go-btn-label" : "go-btn"
-                  }
-                >
-                  Go
-                </Button>
-              </div>
-            </label>
-          </div>
-        ) : (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Link
-              href="#"
-              onClick={skipRecommendation}
-              className="skip-btn"
-              data-cy="skip-action-button"
-            >
-              skip
-            </Link>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "240px",
+            height: "120px",
+          }}
+        >
+          <Button
+            onClick={skipRecommendation}
+            className="skip-btn"
+            data-cy="skip-action-button"
+            disabled={recListLength <= 1}
+            style={{
+              width: "40px",
+              height: "40px",
+              textTransform: "capitalize",
+            }}
+          >
+            skip
+          </Button>
+          {recommendedAction.input ? (
+            <>
+              <input
+                accept="image/*"
+                style={{ display: "none" }}
+                id="thumbnail-upload"
+                data-cy="recommended-action-upload"
+                type="file"
+                onChange={(e) => {
+                  e.target.files instanceof FileList
+                    ? props.setThumbnail(e.target.files[0])
+                    : undefined;
+                }}
+              />
+              <label htmlFor="thumbnail-upload" style={{ width: "50%" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <Typography
+                    variant="h6"
+                    color="textPrimary"
+                    data-cy="recommended-action"
+                    style={{ marginBottom: 5 }}
+                  >
+                    <p className="recommended-action-text">
+                      <b>{recommendedAction.text}</b>
+                    </p>
+                  </Typography>
+                  <Button
+                    size="medium"
+                    fullWidth
+                    color="primary"
+                    variant="contained"
+                    component="span"
+                    data-cy="recommended-action-thumbnail"
+                    startIcon={recommendedAction.icon}
+                    className={
+                      recommendedAction.input ? "go-btn-label" : "go-btn"
+                    }
+                  >
+                    Go
+                  </Button>
+                </div>
+              </label>
+            </>
+          ) : (
             <div
               style={{
                 display: "flex",
@@ -163,8 +165,8 @@ export default function RecommendedActionButton(props: {
                 Go
               </Button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
