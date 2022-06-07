@@ -27,7 +27,7 @@ describe("Edit subjects", () => {
         );
       });
       cy.get("[data-cy=subject-repeat_after_me]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=name]").should("have.text", "Idle and Initial Recordings");
         cy.get("[data-cy=description]").should(
           "have.text",
           "These are miscellaneous phrases you'll be asked to repeat."

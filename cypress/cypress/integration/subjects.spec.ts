@@ -20,8 +20,8 @@ const mentor = {
       isRequired: true,
     },
     {
-      _id: "repeat_after_me",
-      name: "Repeat After Me",
+      _id: "idle_and_initial_recordings",
+      name: "Idle and Intial Recordings",
       type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
@@ -73,7 +73,7 @@ describe("Select Subjects", () => {
     cy.get("[data-cy=subject-type-switch]").click();
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Repeat After Me");
+        cy.get("[data-cy=name]").should("have.text", "Idle and Initial Recordings");
         cy.get("[data-cy=description]").should(
           "have.text",
           "These are miscellaneous phrases you'll be asked to repeat."

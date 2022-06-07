@@ -90,7 +90,7 @@ describe("Setup", () => {
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
-        "Repeat After Me questions"
+        "Idle and Initial Recordings questions"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
@@ -105,7 +105,7 @@ describe("Setup", () => {
 
       cy.get("[data-cy=slide-title]").should(
         "have.text",
-        "Repeat After Me questions"
+        "Idle and Initial Recordings questions"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Idle");
@@ -157,7 +157,7 @@ describe("Setup", () => {
       cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
       cy.contains("Idle");
       cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
-      cy.contains("Repeat After Me questions");
+      cy.contains("Idle and Initial Recordings questions");
       cy.get("[data-cy=radio]").eq(8).trigger("mouseover").click();
       cy.contains("Oops!");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
@@ -181,7 +181,7 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Record_Idle);
       cy.get("[data-cy=slide]").contains("Idle");
       cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
-      cy.get("[data-cy=slide]").contains("Repeat After Me questions");
+      cy.get("[data-cy=slide]").contains("Idle and Initial Recordings questions");
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide]").contains("Oops!");
     });
@@ -550,11 +550,11 @@ describe("Setup", () => {
     });
     cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Repeat After Me questions");
+      cy.contains("Idle and Initial Recordings questions");
     });
   });
 
-  it("shows required subject, repeat after me, questions slide", () => {
+  it("shows required subject, idle and initial recordings, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [setup6, setup8],
@@ -574,7 +574,7 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
     cy.contains("Idle");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Repeat After Me questions");
+    cy.contains("Idle and Initial Recordings questions");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
     cy.contains("1 / 3");
     cy.getSettled("[data-cy=record-btn]", { retries: 4 })
@@ -586,7 +586,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=repeat_after_me&back=%2Fsetup%3Fi%3D7"
+      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D7"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -621,7 +621,7 @@ describe("Setup", () => {
     );
     cy.location("search").should("contain", "?i=7");
     cy.get("[data-cy=slide]").contains("3 / 3");
-    cy.contains("Repeat After Me questions");
+    cy.contains("Idle and Initial Recordings questions");
   });
 
   describe("shows setup complete slide after completing setup", () => {
