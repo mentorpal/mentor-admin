@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    GRAPHQL_ENDPOINT: 'https://careerfair.mentorpal.org/graphql'
+    GRAPHQL_ENDPOINT: 'https://api.mentorpal.org/graphql/graphql'
     STAGE: 'cf'
     IS_SENTRY_ENABLED: true
   parameter-store:

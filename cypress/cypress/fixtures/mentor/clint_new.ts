@@ -21,7 +21,19 @@ export const mentor: Mentor = {
   title: "The Original Clint",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
-  questions: [],
+  questions: [
+    {
+      question: {
+        _id: "A6_1_1",
+        question: "Complete",
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
+      },
+      topics: [],
+      category: null,
+    },
+  ],
   subjects: [
     {
       _id: "background",
@@ -180,6 +192,18 @@ export const mentor: Mentor = {
       },
       transcript: "",
       status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A6_1_1",
+      question: {
+        _id: "A6_1_1",
+        question: "Complete answer",
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
+      },
+      transcript: "Complete answer",
+      status: Status.COMPLETE,
     },
   ],
 };

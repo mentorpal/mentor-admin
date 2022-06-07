@@ -32,7 +32,13 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 import { updateUserQuestion } from "api";
-import { Answer, ClassifierAnswerType, Feedback, UserQuestion } from "types";
+import {
+  Answer,
+  ClassifierAnswerType,
+  Feedback,
+  Status,
+  UserQuestion,
+} from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -176,7 +182,11 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={mentorAnswers || []}
+              options={
+                mentorAnswers?.filter(
+                  (mentorAnswer) => mentorAnswer.status == Status.COMPLETE
+                ) || []
+              }
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -190,7 +200,7 @@ function FeedbackItem(props: {
                 flexGrow: 1,
               }}
               renderOption={(option) => (
-                <Typography align="left">
+                <Typography data-cy={`Drop-down-qu-${option._id}`} align="left">
                   {getValueIfKeyExists(option.question, mentorQuestions)
                     ?.question?.question || ""}
                 </Typography>
