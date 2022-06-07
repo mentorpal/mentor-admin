@@ -12,7 +12,7 @@ import {
 } from "../../support/types";
 
 export const subject: Partial<Subject> = {
-  _id: "ide_and_initial_recordings",
+  _id: "idle_and_initial_recordings",
   name: "Idle and Initial Recordings",
   type: SubjectTypes.UTTERANCES,
   description: "These are miscellaneous phrases you'll be asked to repeat.",

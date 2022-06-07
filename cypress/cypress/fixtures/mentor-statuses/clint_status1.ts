@@ -62,7 +62,7 @@ export const mentor: Mentor = {
       ],
     },
     {
-      _id: "ide_and_initial_recordings",
+      _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
       isRequired: true,
