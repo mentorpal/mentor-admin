@@ -89,6 +89,7 @@ export function MentorInfoSlide(props: {
               />
             }
             label="Allow people to contact me"
+            style={{ width: "100%", alignSelf: 'left'}}
           />
         </div>
       }
