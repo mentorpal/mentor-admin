@@ -97,12 +97,6 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=recommended-action-button]").should("exist");
   });
 
-  it.only("go to page", () => {
-    cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
-    cy.visit("/");
-  });
-
   it("shows placeholder when no thumbnail", () => {
     cySetup(cy);
     cyMockDefault(cy, {
