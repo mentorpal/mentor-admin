@@ -66,7 +66,7 @@ export function FinalSetupSlide(props: {
                   navigate("/admin");
                 }}
               >
-                My Mentor
+                Done
               </Button>
             ) : undefined}
           </div>
