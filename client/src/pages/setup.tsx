@@ -32,8 +32,10 @@ const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
+    alignItems:"center",
     height: "100vh",
     backgroundColor: "#eee",
+    overflow:"visible"
   },
   row: {
     display: "flex",
@@ -58,7 +60,8 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     alignContent: "center",
     height: "100%",
-    width: "100%",
+    width: "fit-content",
+    overflow:"visible"
   },
   card: {
     minHeight: 450,
@@ -79,11 +82,13 @@ const useStyles = makeStyles(() => ({
     width: 100,
     margin: 5,
   },
+  prev: {
+    left: "10%",
+  },
   navButton: {
     top: "calc(50% - 20px) !important",
     width: 100,
     height: 100,
-    color: "grey",
   },
   avatar:{
     width:"50px", 
@@ -213,11 +218,15 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 onClick={() => onClick()}
                 style={{
                   display: prev ? "none" : "block",
+                  right: next ? "-80px" : "",
                 }}
                 size="medium"
                 className={classes.navButton}
                 >
-                  <Avatar className = {classes.avatar} style={{backgroundColor: steps[idx]?.complete ? "green" : "red"}}> 
+                  <Avatar className = {classes.avatar} style={{
+                    backgroundColor: steps[idx]?.complete ? "green" : "red",
+                    padding: "10px",
+                    }}> 
                   {next &&  <ArrowForwardIcon className={classes.arrow} style={style}/>}
                   </Avatar>
                 </IconButton>
@@ -229,11 +238,12 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               data-cy={next ? "next-btn" : "back-btn"}
               style={{
                 display: next ? "none" : "block",
+                left: prev ? "-80px" : ""
               }}
               onClick={() => onClick()}
               className={classes.navButton}
             >
-              <Avatar className = {classes.avatar}>
+              <Avatar className = {classes.avatar} style={{padding: "10px"}}>
               {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
               </Avatar>
             </IconButton>
@@ -243,11 +253,17 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}
               onClick={() => onClick()}
-              style={style}
+              style={{
+                position: "relative",
+                right: next ? "-80px" : "",
+                left: prev ? "-80px" : ""
+              }}
               className={classes.navButton}
             >
               <Avatar  className = {classes.avatar} style={{
-                backgroundColor: next ? (steps[idx]?.complete ? "green" : "red") : prev ? "rgb(189, 189, 189)" : "block" 
+                backgroundColor: next ? (steps[idx]?.complete ? "green" : "red") : prev ? "rgb(189, 189, 189)" : "block",
+                padding: "10px",
+                
                 }}>
                 {next && <ArrowForwardIcon className={classes.arrow} style={style}/>}
                 {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
@@ -255,6 +271,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             </IconButton>
           );
         }}
+        navButtonsWrapperProps={{style:{
+        },className:''}}
 
         IndicatorIcon={
           <FiberManualRecordIcon data-cy="radio" fontSize="small" />
