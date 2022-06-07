@@ -367,7 +367,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F"
+      "?status=INCOMPLETE&subject=idle_and_initial_recordings&category=category2&back=%2F"
     );
   });
 
@@ -462,7 +462,7 @@ describe("My Mentor Page", () => {
   it("can record all incomplete for a category", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -521,7 +521,7 @@ describe("My Mentor Page", () => {
   it("can add a mentor question to a category", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
     // cy.get("[data-cy=save-button]").should("be.disabled");
@@ -557,7 +557,7 @@ describe("My Mentor Page", () => {
   it("can edit a mentor question", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
     // cy.get("[data-cy=save-button]").should("be.disabled");
@@ -719,7 +719,7 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -783,7 +783,7 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
@@ -839,7 +839,7 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {

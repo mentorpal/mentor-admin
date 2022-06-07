@@ -45,9 +45,8 @@ enum SetupScreen {
   Select_Subjects = 3,
   Start_Recordin = 4,
   Idle_Video_Tips = 5,
-  Record_Idle = 6,
-  Repeat_After_Me = 7,
-  Build_Mentor = 8,
+  Idle_And_Initial_Recordings = 6,
+  Build_Mentor = 7,
 }
 
 function cyVisitSetupScreen(cy, screen: SetupScreen) {
@@ -86,8 +85,7 @@ describe("Setup", () => {
         "Recording an idle video."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Idle");
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should("not.have.text", "Let's record a short idle calibration video");
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Idle and Initial Recordings questions"
@@ -107,8 +105,6 @@ describe("Setup", () => {
         "have.text",
         "Idle and Initial Recordings questions"
       );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Idle");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -155,10 +151,8 @@ describe("Setup", () => {
       cy.get("[data-cy=radio]").eq(5).trigger("mouseover").click();
       cy.contains("Recording an idle video.");
       cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
-      cy.contains("Idle");
-      cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
       cy.contains("Idle and Initial Recordings questions");
-      cy.get("[data-cy=radio]").eq(8).trigger("mouseover").click();
+      cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
       cy.contains("Oops!");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
       cy.contains("Welcome to MentorStudio!");
@@ -178,9 +172,7 @@ describe("Setup", () => {
       cy.get("[data-cy=slide]").contains("Let's start recording!");
       cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
       cy.get("[data-cy=slide]").contains("Recording an idle video.");
-      cyVisitSetupScreen(cy, SetupScreen.Record_Idle);
-      cy.get("[data-cy=slide]").contains("Idle");
-      cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
+      cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings);
       cy.get("[data-cy=slide]").contains("Idle and Initial Recordings questions");
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide]").contains("Oops!");
@@ -371,7 +363,7 @@ describe("Setup", () => {
     cy.contains("Select subjects?");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
-    cy.get("[data-cy=radio]").should("have.length", 9);
+    cy.get("[data-cy=radio]").should("have.length", 8);
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
 
@@ -495,54 +487,6 @@ describe("Setup", () => {
     });
   });
 
-  it("video mentor shows idle slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setup3, setup3, setup4, setup4],
-      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Record_Idle);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Idle");
-      cy.contains("Let's record a short idle calibration video.");
-      cy.contains(
-        "Click the record button and you'll be taken to a recording screen."
-      );
-    });
-    cy.contains("Idle");
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=record-btn]", { retries: 4 })
-        .trigger("mouseover")
-        .click();
-    });
-    // go to record idle
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D6"
-    );
-    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get("[data-cy=transcript-input]").should("not.exist");
-    cy.get("[data-cy=idle]").should("exist");
-    cy.get("[data-cy=idle-duration]").contains("10 seconds");
-    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    // back to setup
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
-    cy.contains("Idle");
-  });
-
   it("chat mentor does not show idle slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
@@ -571,8 +515,8 @@ describe("Setup", () => {
         ]),
       ],
     });
-    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
-    cy.contains("Idle");
+    cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings - 1);
+    cy.contains("Recording an idle video");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Idle and Initial Recordings questions");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
@@ -586,7 +530,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D7"
+      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D6"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -619,7 +563,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=7");
+    cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Idle and Initial Recordings questions");
   });

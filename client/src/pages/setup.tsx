@@ -20,7 +20,7 @@ import { MentorInfoSlide } from "components/setup/mentor-info-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
-import { RecordIdleSlide } from "components/setup/record-idle-slide";
+//import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { FinalSetupSlide } from "components/setup/final-setup-slide";
@@ -160,15 +160,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
           <IdleTipsSlide
             classes={classes}
             idleTipsVideoUrl={idleTipsVideoUrl}
-          />
-        );
-      case SetupStepType.IDLE:
-        return (
-          <RecordIdleSlide
-            key="idle"
-            classes={classes}
-            idle={status.idle!.idle}
-            i={idx}
           />
         );
       case SetupStepType.REQUIRED_SUBJECT:

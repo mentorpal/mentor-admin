@@ -26,7 +26,7 @@ describe("Edit subjects", () => {
           "These questions will ask general questions about your background that might be relevant to how people understand your career."
         );
       });
-      cy.get("[data-cy=subject-repeat_after_me]").within(($subject) => {
+      cy.get("[data-cy=subject-idle_and_initial_recordings]").within(($subject) => {
         cy.get("[data-cy=name]").should("have.text", "Idle and Initial Recordings");
         cy.get("[data-cy=description]").should(
           "have.text",
