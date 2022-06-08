@@ -59,7 +59,7 @@ export function uploadTaskMediaBuild() {
   };
 }
 
-describe("Index page", { scrollBehavior: "center" }, () => {
+describe("Index page", () => {
   it("if not logged in, show login page", () => {
     cyMockDefault(cy, {
       noAccessTokenStored: true,
@@ -115,7 +115,7 @@ describe("Index page", { scrollBehavior: "center" }, () => {
     cy.get("[data-cy=skip-action-button]").should("be.disabled");
   });
 
-  it("skip button cycles through properly", () => {
+  it("skip button cycles through properly", { scrollBehavior: false }, () => {
     cyMockDefault(cy, {
       mentor: clint10,
     });
@@ -124,10 +124,7 @@ describe("Index page", { scrollBehavior: "center" }, () => {
     cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
     cy.get("[data-cy=skip-action-button]").should("exist");
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]")
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
@@ -135,10 +132,7 @@ describe("Index page", { scrollBehavior: "center" }, () => {
     );
     cy.get("[data-cy=skip-action-button]").should("exist");
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]")
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
@@ -146,10 +140,7 @@ describe("Index page", { scrollBehavior: "center" }, () => {
     );
     cy.get("[data-cy=skip-action-button]").should("exist");
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]")
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
