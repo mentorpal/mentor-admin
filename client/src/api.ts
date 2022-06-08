@@ -55,7 +55,8 @@ import {
 const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
-export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+export const GRAPHQL_ENDPOINT =
+  process.env.GRAPHQL_ENDPOINT || "/graphql/graphql";
 
 const defaultSearchParams = {
   limit: 1000,
