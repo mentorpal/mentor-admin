@@ -67,7 +67,10 @@ export default function RecommendedActionButton(props: {
           <p>{recommendedAction.reason}</p>
         </div>
       </Typography>
-      <div className="recommended-action-btns">
+      <div
+        className="recommended-action-btns"
+        data-cy="recommended-btn-wrapper"
+      >
         <div
           style={{
             display: "flex",
@@ -88,7 +91,7 @@ export default function RecommendedActionButton(props: {
               textTransform: "capitalize",
             }}
           >
-            skip
+            skip{" "}
           </Button>
           {recommendedAction.input ? (
             <>

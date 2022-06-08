@@ -127,7 +127,8 @@ describe("Index page", () => {
     cy.get("[data-cy=skip-action-button]").should("be.visible");
     cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
 
-    cy.get("[data-cy=recommended-action]").contains(
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
       "Answer Leadership Questions"
     );
     cy.get("[data-cy=skip-action-button]").should("exist");
@@ -135,12 +136,18 @@ describe("Index page", () => {
     cy.get("[data-cy=skip-action-button]").should("be.visible");
     cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
 
-    cy.get("[data-cy=recommended-action]").contains("Add a Subject");
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Add a Subject"
+    );
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
     cy.get("[data-cy=skip-action-button]").should("be.visible");
     cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
 
-    cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Add a Thumbnail"
+    );
   });
 
   it('admins see the "Users" option in hamburger menu', () => {
