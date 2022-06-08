@@ -16,6 +16,7 @@ export function RecordSubjectSlide(props: {
   subject: Subject;
   questions: Answer[];
   i: number;
+  customTitle?: string; // pass in optional slide title
 }): JSX.Element {
   const { classes, subject, questions, i } = props;
   const recorded = questions.filter((q) => q.status === Status.COMPLETE);
@@ -33,7 +34,7 @@ export function RecordSubjectSlide(props: {
   return (
     <Slide
       classes={classes}
-      title={`${subject.name} questions`}
+      title={props.customTitle ? props.customTitle : `${subject.name} questions`}
       content={
         <div>
           <Typography variant="h6" className={classes.text}>
@@ -42,7 +43,7 @@ export function RecordSubjectSlide(props: {
           <Button
             data-cy="record-btn"
             variant="contained"
-            color={isRecorded ? "secondary" : "primary"}
+            color={isRecorded ? "primary" : "secondary"}
             onClick={onRecord}
             className={classes.button}
           >
