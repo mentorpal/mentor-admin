@@ -464,7 +464,9 @@ describe("My Mentor Page", () => {
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -523,7 +525,9 @@ describe("My Mentor Page", () => {
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -559,7 +563,9 @@ describe("My Mentor Page", () => {
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -721,7 +727,9 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -785,7 +793,9 @@ describe("My Mentor Page", () => {
       });
       cy.visit("?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -841,7 +851,9 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Idle and Initial Recordings (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");

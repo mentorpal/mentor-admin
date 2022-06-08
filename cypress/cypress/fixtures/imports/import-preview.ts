@@ -10,7 +10,7 @@ export const importPreview = {
       editType: "NONE",
       importData: {
         _id: "idle_and_initial_recordings",
-      name: "Idle and Initial Recordings",
+        name: "Idle and Initial Recordings",
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
         categories: [
@@ -60,7 +60,7 @@ export const importPreview = {
       },
       curData: {
         _id: "idle_and_initial_recordings",
-      name: "Idle and Initial Recordings",
+        name: "Idle and Initial Recordings",
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
         categories: [

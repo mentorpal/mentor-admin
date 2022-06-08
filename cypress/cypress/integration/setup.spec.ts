@@ -85,7 +85,10 @@ describe("Setup", () => {
         "Recording an idle video."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("not.have.text", "Let's record a short idle calibration video");
+      cy.get("[data-cy=slide-title]").should(
+        "not.have.text",
+        "Let's record a short idle calibration video"
+      );
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Idle and Initial Recordings questions"
@@ -97,7 +100,7 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, baseMock);
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor,);
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=next-btn]").should("not.be.visible");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
 
@@ -133,7 +136,6 @@ describe("Setup", () => {
         "Welcome to MentorStudio!"
       );
       cy.get("[data-cy=back-btn]").should("not.be.visible");
-    
     });
 
     it("with radio buttons", () => {
@@ -173,7 +175,9 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
       cy.get("[data-cy=slide]").contains("Recording an idle video.");
       cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings);
-      cy.get("[data-cy=slide]").contains("Idle and Initial Recordings questions");
+      cy.get("[data-cy=slide]").contains(
+        "Idle and Initial Recordings questions"
+      );
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide]").contains("Oops!");
     });
@@ -198,10 +202,13 @@ describe("Setup", () => {
       cy.contains("It's nice to meet you, Clinton Anderson!");
       cy.contains("Let's get started setting up your new mentor.");
       cy.contains("If you'd like to view a walkthrough,");
-      cy.get("[data-cy=click-here-url]").contains('click here').click();
-      cy.get("[data-cy=click-here-url]").should("attr", "href").and("include", "https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing");
-
-
+      cy.get("[data-cy=click-here-url]").contains("click here");
+      cy.get("[data-cy=click-here-url]")
+        .should("attr", "href")
+        .and(
+          "include",
+          "https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing"
+        );
     });
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
@@ -226,18 +233,21 @@ describe("Setup", () => {
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=name]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=mentor-title]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
@@ -246,23 +256,27 @@ describe("Setup", () => {
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=name]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=mentor-title]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
@@ -286,8 +300,9 @@ describe("Setup", () => {
     cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
     cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
@@ -310,8 +325,9 @@ describe("Setup", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     // fill out email and save
     cy.getSettled("[data-cy=email]", { retries: 4 }).type("clint@anderson.com");
     cy.get("[data-cy=first-name]").within(($input) => {
@@ -330,8 +346,9 @@ describe("Setup", () => {
     cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     cy.matchImageSnapshot(snapname("mentor-slide-4"));
   });
 
@@ -381,12 +398,14 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("type-slide-3"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Select subjects?");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     cy.get("[data-cy=radio]").should("have.length", 8);
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
@@ -433,8 +452,9 @@ describe("Setup", () => {
       );
     });
     cy.contains("Pick the ones you feel qualified to mentor in!");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     // go to subjects page
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.getSettled("[data-cy=button]", { retries: 4 })
@@ -511,8 +531,9 @@ describe("Setup", () => {
       cy.contains("You'll be asked to answer some generic questions.");
       cy.contains("Once you're done, you can build and preview your mentor.");
     });
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
   });
 
   it("chat mentor does not show idle slide", () => {
@@ -548,8 +569,9 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Idle and Initial Recordings questions");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.contains("1 / 3");
     cy.getSettled("[data-cy=record-btn]", { retries: 4 })
       .trigger("mouseover")
@@ -596,8 +618,9 @@ describe("Setup", () => {
     cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Idle and Initial Recordings questions");
-    cy.get("[data-cy=next-btn]").get("[data-cy=nav-btn-avatar]")
-    .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.get("[data-cy=next-btn]")
+      .get("[data-cy=nav-btn-avatar]")
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
   });
 
   describe("shows setup complete slide after completing setup", () => {

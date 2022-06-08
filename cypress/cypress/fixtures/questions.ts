@@ -59,6 +59,14 @@ export const questions = [
     paraphrases: [],
   },
   {
+    _id: "A6_1_1",
+    clientId: "C_A6_1_1",
+    question: "Complete Question?",
+    type: QuestionType.QUESTION,
+    name: null,
+    paraphrases: [],
+  },
+  {
     _id: "A7_1_1",
     clientId: "C_A7_1_1",
     question: "What's the hardest decision you've had to make as a leader?",

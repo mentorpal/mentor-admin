@@ -633,55 +633,56 @@ export async function fetchUserQuestions(
   const gql = await execGql<Connection<UserQuestionGQL>>(
     {
       query: `
-      query {
-        userQuestions(
-          filter:${stringifyObject(params.filter)},
-          limit:${params.limit},
-          cursor:"${params.cursor}",
-          sortBy:"${params.sortBy}",
-          sortAscending:${params.sortAscending}
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              question
-              confidence
-              classifierAnswerType
-              feedback
-              updatedAt
-              createdAt
-              mentor {
-                _id
-                name
-              }
-              classifierAnswer {
-                _id
-                transcript
-                question {
-                  _id
-                  question
+      query UserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+        userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+           edges {
+                  cursor
+                  node {
+                    _id
+                    question
+                    confidence
+                    classifierAnswerType
+                    feedback
+                    updatedAt
+                    createdAt
+                    mentor {
+                      _id
+                      name
+                    }
+                    classifierAnswer {
+                      _id
+                      transcript
+                      question {
+                        _id
+                        question
+                      }
+                    }
+                    graderAnswer {
+                      _id
+                      transcript
+                      question {
+                        _id
+                        question
+                      }
+                    }
+                  }
                 }
-              }
-              graderAnswer {
-                _id
-                transcript
-                question {
-                  _id
-                  question
+                pageInfo {
+                  startCursor
+                  endCursor
+                  hasPreviousPage
+                  hasNextPage
                 }
-              }
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
         }
       }
     `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
     },
     { dataPath: "userQuestions" }
   );
@@ -1121,7 +1122,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
     `,
       variables: { accessToken },
     },
-    { dataPath: "login" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "login", axiosConfig: { withCredentials: true } }
   );
 }
 
@@ -1144,7 +1146,8 @@ export async function loginGoogle(
     `,
       variables: { accessToken },
     },
-    { dataPath: "loginGoogle" }
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "loginGoogle", axiosConfig: { withCredentials: true } }
   );
 }
 

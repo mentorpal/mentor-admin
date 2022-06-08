@@ -32,10 +32,10 @@ const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    alignItems:"center",
+    alignItems: "center",
     height: "100vh",
     backgroundColor: "#eee",
-    overflow:"visible"
+    overflow: "visible",
   },
   row: {
     display: "flex",
@@ -61,7 +61,7 @@ const useStyles = makeStyles(() => ({
     alignContent: "center",
     height: "100%",
     width: "fit-content",
-    overflow:"visible"
+    overflow: "visible",
   },
   card: {
     minHeight: 450,
@@ -90,13 +90,13 @@ const useStyles = makeStyles(() => ({
     width: 100,
     height: 100,
   },
-  avatar:{
-    width:"50px", 
-    height:"50px",
+  avatar: {
+    width: "50px",
+    height: "50px",
   },
-  arrow:{
-    width:"40px", 
-    height:"40px",
+  arrow: {
+    width: "40px",
+    height: "40px",
   },
   progress: {
     position: "fixed",
@@ -120,7 +120,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     editMentor,
     toStep,
   } = useWithSetup(props.search);
-
 
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
@@ -209,11 +208,10 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
           exit: 100,
         }}
         onChange={(idx: number) => toStep(idx)}
-        
         NavButton={({ onClick, style, next, prev }) => {
-          if(idx == 0){
-            return(
-                <IconButton
+          if (idx == 0) {
+            return (
+              <IconButton
                 data-cy={next ? "next-btn" : "back-btn"}
                 onClick={() => onClick()}
                 style={{
@@ -222,59 +220,81 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 }}
                 size="medium"
                 className={classes.navButton}
-                >
-                  <Avatar data-cy="nav-btn-avatar" className = {classes.avatar} style={{
+              >
+                <Avatar
+                  data-cy="nav-btn-avatar"
+                  className={classes.avatar}
+                  style={{
                     backgroundColor: steps[idx]?.complete ? "green" : "red",
                     padding: "10px",
-                    }}> 
-                  {next &&  <ArrowForwardIcon className={classes.arrow} style={style}/>}
-                  </Avatar>
-                </IconButton>
+                  }}
+                >
+                  {next && (
+                    <ArrowForwardIcon className={classes.arrow} style={style} />
+                  )}
+                </Avatar>
+              </IconButton>
             );
           }
-          if(idx == steps.length-1){
-            return(
+          if (idx == steps.length - 1) {
+            return (
               <IconButton
-              data-cy={next ? "next-btn" : "back-btn"}
-              style={{
-                display: next ? "none" : "block",
-                left: prev ? "-80px" : ""
-              }}
-              onClick={() => onClick()}
-              className={classes.navButton}
-            >
-              <Avatar data-cy="nav-btn-avatar" 
-              className = {classes.avatar} style={{padding: "10px"}}>
-              {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
-              </Avatar>
-            </IconButton>
+                data-cy={next ? "next-btn" : "back-btn"}
+                style={{
+                  display: next ? "none" : "block",
+                  left: prev ? "-80px" : "",
+                }}
+                onClick={() => onClick()}
+                className={classes.navButton}
+              >
+                <Avatar
+                  data-cy="nav-btn-avatar"
+                  className={classes.avatar}
+                  style={{ padding: "10px" }}
+                >
+                  {prev && (
+                    <ArrowBackIcon className={classes.arrow} style={style} />
+                  )}
+                </Avatar>
+              </IconButton>
             );
           }
-          return(
+          return (
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}
               onClick={() => onClick()}
               style={{
                 position: "relative",
                 right: next ? "-80px" : "",
-                left: prev ? "-80px" : ""
+                left: prev ? "-80px" : "",
               }}
               className={classes.navButton}
             >
-              <Avatar  data-cy="nav-btn-avatar" className = {classes.avatar} style={{
-                backgroundColor: next ? (steps[idx]?.complete ? "green" : "red") : prev ? "rgb(189, 189, 189)" : "block",
-                padding: "10px",
-                
-                }}>
-                {next && <ArrowForwardIcon className={classes.arrow} style={style}/>}
-                {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
+              <Avatar
+                data-cy="nav-btn-avatar"
+                className={classes.avatar}
+                style={{
+                  backgroundColor: next
+                    ? steps[idx]?.complete
+                      ? "green"
+                      : "red"
+                    : prev
+                    ? "rgb(189, 189, 189)"
+                    : "block",
+                  padding: "10px",
+                }}
+              >
+                {next && (
+                  <ArrowForwardIcon className={classes.arrow} style={style} />
+                )}
+                {prev && (
+                  <ArrowBackIcon className={classes.arrow} style={style} />
+                )}
               </Avatar>
             </IconButton>
           );
         }}
-        navButtonsWrapperProps={{style:{
-        },className:''}}
-
+        navButtonsWrapperProps={{ style: {}, className: "" }}
         IndicatorIcon={
           <FiberManualRecordIcon data-cy="radio" fontSize="small" />
         }
@@ -292,7 +312,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         ))}
       </Carousel>
 
-      
       <LoadingDialog
         title={isLoading ? "Loading..." : isSaving ? "Saving..." : ""}
       />
