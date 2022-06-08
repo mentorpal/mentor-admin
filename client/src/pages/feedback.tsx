@@ -49,7 +49,6 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
-import { Reorder } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -123,6 +122,38 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
+//
+function FormatMentorQu(
+  mentorAnswers: Answer[],
+  mentorQuestions: Record<string, QuestionState>
+) {
+  const completeAnswers = mentorAnswers
+    .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
+    .sort((a, b) =>
+      (mentorQuestions[a._id].question?.question || "") >
+      (mentorQuestions[b._id].question?.question || "")
+        ? 1
+        : (mentorQuestions[a._id].question?.question || "") <
+          (mentorQuestions[b._id].question?.question || "")
+        ? -1
+        : 0
+    );
+
+  const incompleteAnswers = mentorAnswers
+    .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
+    .sort((a, b) =>
+      (mentorQuestions[a._id].question?.question || "") >
+      (mentorQuestions[b._id].question?.question || "")
+        ? 1
+        : (mentorQuestions[a._id].question?.question || "") <
+          (mentorQuestions[b._id].question?.question || "")
+        ? -1
+        : 0
+    );
+
+  return completeAnswers.concat(incompleteAnswers);
+}
+
 function FeedbackItem(props: {
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
@@ -130,7 +161,6 @@ function FeedbackItem(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
-
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
     await updateUserQuestion(feedback._id, answerId || "");
@@ -183,11 +213,7 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={
-                mentorAnswers?.filter(
-                  (mentorAnswer) => mentorAnswer.status == Status.COMPLETE
-                ) || []
-              }
+              options={FormatMentorQu(mentorAnswers || [], mentorQuestions)}
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -201,7 +227,14 @@ function FeedbackItem(props: {
                 flexGrow: 1,
               }}
               renderOption={(option) => (
-                <Typography data-cy={`Drop-down-qu-${option._id}`} align="left">
+                <Typography
+                  style={{
+                    color:
+                      option.status == Status.INCOMPLETE ? "grey" : "black",
+                  }}
+                  data-cy={`Drop-down-qu-${option._id}`}
+                  align="left"
+                >
                   {getValueIfKeyExists(option.question, mentorQuestions)
                     ?.question?.question || ""}
                 </Typography>
