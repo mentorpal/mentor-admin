@@ -122,27 +122,31 @@ describe("Index page", () => {
     cy.visit("/");
 
     cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
+    cy.get("[data-cy=skip-action-button]").scrollIntoView();
     cy.get("[data-cy=skip-action-button]").should("exist");
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
     cy.get("[data-cy=skip-action-button]").should("be.visible");
-    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
       "Answer Leadership Questions"
     );
     cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").scrollIntoView();
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
     cy.get("[data-cy=skip-action-button]").should("be.visible");
-    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
       "Add a Subject"
     );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").scrollIntoView();
     cy.get("[data-cy=skip-action-button]").should("be.enabled");
     cy.get("[data-cy=skip-action-button]").should("be.visible");
-    cy.get("[data-cy=skip-action-button]").trigger("mouseover").click();
+    cy.get("[data-cy=skip-action-button]").click();
 
     cy.get("[data-cy=recommended-btn-wrapper]").should(
       "contain.text",
