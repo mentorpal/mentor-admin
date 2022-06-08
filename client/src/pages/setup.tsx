@@ -223,7 +223,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 size="medium"
                 className={classes.navButton}
                 >
-                  <Avatar className = {classes.avatar} style={{
+                  <Avatar data-cy="nav-btn-avatar" className = {classes.avatar} style={{
                     backgroundColor: steps[idx]?.complete ? "green" : "red",
                     padding: "10px",
                     }}> 
@@ -243,7 +243,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               className={classes.navButton}
             >
-              <Avatar className = {classes.avatar} style={{padding: "10px"}}>
+              <Avatar data-cy="nav-btn-avatar" 
+              className = {classes.avatar} style={{padding: "10px"}}>
               {prev && <ArrowBackIcon className={classes.arrow} style={style}/>}
               </Avatar>
             </IconButton>
@@ -260,7 +261,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               }}
               className={classes.navButton}
             >
-              <Avatar  className = {classes.avatar} style={{
+              <Avatar  data-cy="nav-btn-avatar" className = {classes.avatar} style={{
                 backgroundColor: next ? (steps[idx]?.complete ? "green" : "red") : prev ? "rgb(189, 189, 189)" : "block",
                 padding: "10px",
                 
