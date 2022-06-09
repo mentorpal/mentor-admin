@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
-import clint1 from "../fixtures/mentor/clint_setup1";
 import clint5 from "../fixtures/mentor/clint_setup3";
 import clint10 from "../fixtures/mentor/clint_setup10";
 import clint12 from "../fixtures/mentor/clint_setup12";
@@ -116,7 +115,7 @@ describe("Index page", () => {
     cy.get("[data-cy=skip-action-button]").should("be.disabled");
   });
 
-  it.only("build mentor recommendation doesn't appear when mentor has answered less than 5 questions", () => {
+  it("build mentor recommendation doesn't appear when mentor has answered less than 5 questions", () => {
     cyMockDefault(cy, {
       mentor: clint5,
     });
