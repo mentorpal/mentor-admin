@@ -140,9 +140,7 @@ function createAllRecommendations(
       },
     });
 
-  const condition = !conditions.neverBuilt && conditions.totalAnswers >= 5;
-
-  if (conditions.isDirty && continueAction && condition)
+  if (conditions.isDirty && conditions.completedAnswers >= 5 && continueAction)
     reccomendationList.push({
       text: "Build Your Mentor",
       reason:
