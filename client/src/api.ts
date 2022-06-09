@@ -55,7 +55,8 @@ import {
 const urljoin = require("url-join");
 
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
-export const GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT || "/graphql";
+export const GRAPHQL_ENDPOINT =
+  process.env.GRAPHQL_ENDPOINT || "/graphql/graphql";
 
 const defaultSearchParams = {
   limit: 1000,
@@ -1210,6 +1211,65 @@ export async function fetchUploadTasks(
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
   return gql.map((u) => convertUploadTaskGQL(u));
+}
+
+//Fetches the record queue for the mentor that is logged in (using the accessToken to know which mentor to fetch from)
+export async function fetchMentorRecordQueue(
+  accessToken: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        query FetchMentorRecordQueue {
+          me {
+            mentorRecordQueue
+          }
+        }`,
+    },
+    { accessToken, dataPath: ["me", "mentorRecordQueue"] }
+  );
+}
+
+//Returns the new list after the addition
+export async function addQuestionToRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation AddQuestionToRecordQueue($questionId: String!) {
+          me {
+            addQuestionToRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "addQuestionToRecordQueue"] }
+  );
+}
+
+//Returns the new list after the removal
+export async function removeQuestionFromRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation RemoveQuestionFromRecordQueue($questionId: String!) {
+          me {
+            removeQuestionFromRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
+  );
 }
 
 export async function deleteUploadTask(
