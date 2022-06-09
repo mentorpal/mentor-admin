@@ -259,8 +259,7 @@ function HomePage(props: {
               {reviewAnswerState.progress.total})
             </Typography>
           )}
-          
-            //start somewhere here
+          //start somewhere here
 
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
