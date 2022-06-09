@@ -19,10 +19,17 @@ describe("Feedback", () => {
     cy.visit("/feedback");
     cy.get("[data-cy=select-answer]").click();
     cy.get("[data-cy=Drop-down-qu-A6_1_1]").should("be.visible");
+    cy.get("[data-cy=Drop-down-qu-A6_1_1]").should(
+      "have.css",
+      "color",
+      "rgb(0, 0, 0)"
+    );
     cy.get("[data-cy=Drop-down-qu-A5_1_1]").should("be.visible");
-    cy.get("[data-cy=Drop-down-qu-A5_1_1]")
-      .should("have.css", "background-color")
-      .and("be.colored", "grey");
+    cy.get("[data-cy=Drop-down-qu-A5_1_1]").should(
+      "have.css",
+      "color",
+      "rgb(128, 128, 128)"
+    );
     //cy.get("[data-cy={`Drop-down-qu-${option._id}`}]").should;
   });
 });

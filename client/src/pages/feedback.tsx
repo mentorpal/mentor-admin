@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useEffect, useState } from "react";
 import {
   AppBar,
+  Button,
   Fab,
   IconButton,
   MenuItem,
@@ -122,7 +123,6 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-//
 function FormatMentorQu(
   mentorAnswers: Answer[],
   mentorQuestions: Record<string, QuestionState>
@@ -161,6 +161,11 @@ function FeedbackItem(props: {
   onUpdated: () => void;
 }): JSX.Element {
   const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
+  const [answerStatus, setStatus] = React.useState<Status>(); // USE STATE HERE FOR DISABLING
+  //const [buttonText, setButtonText] = React.useState('Click'); // CHNAGE TO UNADD FROM QUEUE
+  function handleClick() {
+    //setButtonText('Remove from Queue');
+  }
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
     await updateUserQuestion(feedback._id, answerId || "");
@@ -219,6 +224,7 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
+                setStatus(v?.status);
                 onUpdateAnswer(v?._id);
               }}
               style={{
@@ -246,6 +252,14 @@ function FeedbackItem(props: {
             <IconButton onClick={() => onUpdateAnswer(undefined)}>
               <CloseIcon />
             </IconButton>
+            <Button
+              data-cy="queue-btn"
+              color="primary"
+              disabled={answerStatus == Status.INCOMPLETE}
+              onClick={handleClick}
+            >
+              Add to Queue
+            </Button>
           </div>
         )}
         <Tooltip
