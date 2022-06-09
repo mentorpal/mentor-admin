@@ -7,8 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
-import clint5 from "../fixtures/mentor/clint_setup3";
-import clint10 from "../fixtures/mentor/clint_setup10";
+import clint3 from "../fixtures/mentor/clint_setup3";
 import clint12 from "../fixtures/mentor/clint_setup12";
 import { login as loginDefault } from "../fixtures/login";
 import { TaskInfo, UserRole } from "../support/types";
@@ -117,7 +116,7 @@ describe("Index page", () => {
 
   it("build mentor recommendation doesn't appear when mentor has answered less than 5 questions", () => {
     cyMockDefault(cy, {
-      mentor: clint5,
+      mentor: clint3,
     });
     cy.visit("/");
 
@@ -174,38 +173,62 @@ describe("Index page", () => {
     );
   });
 
-  it("skip button cycles through properly", { scrollBehavior: false }, () => {
-    cyMockDefault(cy, {
-      mentor: clint10,
-    });
-    cy.visit("/");
+  it.only(
+    "skip button cycles through properly",
+    { scrollBehavior: false },
+    () => {
+      cyMockDefault(cy, {
+        mentor: clint,
+      });
+      cy.visit("/");
 
-    cy.get("[data-cy=recommended-action]").contains("Add a Thumbnail");
-    cy.get("[data-cy=skip-action-button]").should("exist");
-    cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
 
-    cy.get("[data-cy=recommended-btn-wrapper]").should(
-      "contain.text",
-      "Answer Leadership Questions"
-    );
-    cy.get("[data-cy=skip-action-button]").should("exist");
-    cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+      cy.get("[data-cy=recommended-action]").contains(
+        "Add an Off Topic Response"
+      );
+      cy.get("[data-cy=skip-action-button]").should("exist");
+      cy.get("[data-cy=skip-action-button]").should("be.enabled");
+      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-    cy.get("[data-cy=recommended-btn-wrapper]").should(
-      "contain.text",
-      "Add a Subject"
-    );
-    cy.get("[data-cy=skip-action-button]").should("exist");
-    cy.get("[data-cy=skip-action-button]").should("be.enabled");
-    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+      cy.get("[data-cy=recommended-btn-wrapper]").should(
+        "contain.text",
+        "Finish Required Questions"
+      );
+      cy.get("[data-cy=skip-action-button]").should("exist");
+      cy.get("[data-cy=skip-action-button]").should("be.enabled");
+      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-    cy.get("[data-cy=recommended-btn-wrapper]").should(
-      "contain.text",
-      "Add a Thumbnail"
-    );
-  });
+      cy.get("[data-cy=recommended-btn-wrapper]").should(
+        "contain.text",
+        "Answer More Questions"
+      );
+      cy.get("[data-cy=skip-action-button]").should("exist");
+      cy.get("[data-cy=skip-action-button]").should("be.enabled");
+      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+
+      cy.get("[data-cy=recommended-btn-wrapper]").should(
+        "contain.text",
+        "Answer Category2 Questions"
+      );
+      cy.get("[data-cy=skip-action-button]").should("exist");
+      cy.get("[data-cy=skip-action-button]").should("be.enabled");
+      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+
+      cy.get("[data-cy=recommended-btn-wrapper]").should(
+        "contain.text",
+        "Add a Subject"
+      );
+      cy.get("[data-cy=skip-action-button]").should("exist");
+      cy.get("[data-cy=skip-action-button]").should("be.enabled");
+      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+
+      cy.get("[data-cy=recommended-btn-wrapper]").should(
+        "contain.text",
+        "Add an Off Topic Response"
+      );
+    }
+  );
 
   it('admins see the "Users" option in hamburger menu', () => {
     cyMockDefault(cy, {
