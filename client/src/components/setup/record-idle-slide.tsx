@@ -44,7 +44,7 @@ export function RecordIdleSlide(props: {
           <Button
             data-cy="record-btn"
             variant="contained"
-            color = "primary"
+            color="primary"
             //color={isRecorded ? "primary" : "secondary"}
             onClick={onRecord}
             className={classes.button}

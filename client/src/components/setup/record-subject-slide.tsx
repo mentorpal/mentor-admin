@@ -34,7 +34,9 @@ export function RecordSubjectSlide(props: {
   return (
     <Slide
       classes={classes}
-      title={props.customTitle ? props.customTitle : `${subject.name} questions`}
+      title={
+        props.customTitle ? props.customTitle : `${subject.name} questions`
+      }
       content={
         <div>
           <Typography variant="h6" className={classes.text}>

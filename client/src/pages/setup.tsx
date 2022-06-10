@@ -176,8 +176,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             subject={status.requiredSubjects[steps.length - idx - 2].subject}
             questions={status.requiredSubjects[steps.length - idx - 2].answers}
             i={idx}
-            customTitle = 'Idle and Initial Recordings'
-
+            customTitle="Idle and Initial Recordings"
           />
         );
       case SetupStepType.FINISH_SETUP:
