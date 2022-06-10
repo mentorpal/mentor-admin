@@ -161,28 +161,31 @@ function FormatMentorQu(
 }
 
 function FeedbackItem(props: {
-  accessToken?: string; // 
+  accessToken?: string;
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
 }): JSX.Element {
-  const { feedback, mentorAnswers, mentorQuestions, onUpdated, accessToken } = props;
-  const [currentAnswer, setAnswer] = React.useState<Status>(); // USE STATE HERE FOR DISABLING
-  let current: Answer;
-  //const [buttonText, setButtonText] = React.useState('Click'); // CHNAGE TO UNADD FROM QUEUE
-  function handleClick(selectedAnswer: Answer, accessToken: string) { 
-    if (selectedAnswer._id == "0"){
-      removeQuestionFromRecordQueue(selectedAnswer._id, accessToken);
+  const { accessToken, feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
+  const [currentStatus, setcurrentStatus] = React.useState<Status>(); // USE STATE FOR DISABLING
+  const [currentID, setCurrentID] = React.useState<string>(); // grab ID of the selected option
+  // figure out whether to remove from queue
+  /**
+  function handleClick(currentID: string, accessToken: string) { 
+    if ((fetchMentorRecordQueue(accessToken)).includes(currentID)){
+      removeQuestionFromRecordQueue(currentID, accessToken);
     }
     else{
-      addQuestionToRecordQueue(accessToken, selectedAnswer._id);
+      addQuestionToRecordQueue(currentID, accessToken);
     }
   }
+  */
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
+    setCurrentID(answerId); // update ID
   }
 
   return (
@@ -237,11 +240,23 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                  setAnswer(v?.status);
-                  if (v != null){
-                    current = v;
-                  }
+
+
+
+
+
+
+
+                setcurrentStatus(v?.status);
+                //setCurrentID(v?._id);
                 onUpdateAnswer(v?._id);
+
+
+
+
+
+
+
               }}
               style={{
                 minWidth: 300,
@@ -270,20 +285,27 @@ function FeedbackItem(props: {
             </IconButton>
 
 
+
+
+
                 {accessToken? 
                 
 
             <Button
               data-cy="queue-btn"
               color="primary"
-              disabled={currentAnswer == Status.INCOMPLETE}
-              onClick={() => handleClick(current, accessToken)}
+              disabled={currentStatus == Status.COMPLETE}
+             // onClick={() => handleClick(currentID || "", accessToken)}
+
             >
-    
-              Add to Queue
+            {//(await fetchMentorRecordQueue(accessToken)).includes(currentID || "") ? "Remove from Queue" : "Add to Queue"}
             </Button>
 
             : undefined}
+
+
+
+
 
 
 
@@ -319,6 +341,7 @@ function FeedbackPage(): JSX.Element {
     error: mentorError,
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
+  //const queueList = fetchMentorRecordQueue(loginState.accessToken || ""); FIX THIS
 
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
