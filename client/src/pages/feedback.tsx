@@ -33,6 +33,10 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 import { updateUserQuestion } from "api";
+//IMPORT FUNCTIONS
+import { addQuestionToRecordQueue } from "api";
+import { removeQuestionFromRecordQueue } from "api";
+import { fetchMentorRecordQueue } from "api";
 import {
   Answer,
   ClassifierAnswerType,
@@ -50,6 +54,8 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+ 
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -155,16 +161,23 @@ function FormatMentorQu(
 }
 
 function FeedbackItem(props: {
+  accessToken?: string; // 
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
 }): JSX.Element {
-  const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
-  const [answerStatus, setStatus] = React.useState<Status>(); // USE STATE HERE FOR DISABLING
+  const { feedback, mentorAnswers, mentorQuestions, onUpdated, accessToken } = props;
+  const [currentAnswer, setAnswer] = React.useState<Status>(); // USE STATE HERE FOR DISABLING
+  let current: Answer;
   //const [buttonText, setButtonText] = React.useState('Click'); // CHNAGE TO UNADD FROM QUEUE
-  function handleClick() {
-    //setButtonText('Remove from Queue');
+  function handleClick(selectedAnswer: Answer, accessToken: string) { 
+    if (selectedAnswer._id == "0"){
+      removeQuestionFromRecordQueue(selectedAnswer._id, accessToken);
+    }
+    else{
+      addQuestionToRecordQueue(accessToken, selectedAnswer._id);
+    }
   }
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
@@ -224,7 +237,10 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                setStatus(v?.status);
+                  setAnswer(v?.status);
+                  if (v != null){
+                    current = v;
+                  }
                 onUpdateAnswer(v?._id);
               }}
               style={{
@@ -252,14 +268,26 @@ function FeedbackItem(props: {
             <IconButton onClick={() => onUpdateAnswer(undefined)}>
               <CloseIcon />
             </IconButton>
+
+
+                {accessToken? 
+                
+
             <Button
               data-cy="queue-btn"
               color="primary"
-              disabled={answerStatus == Status.INCOMPLETE}
-              onClick={handleClick}
+              disabled={currentAnswer == Status.INCOMPLETE}
+              onClick={() => handleClick(current, accessToken)}
             >
+    
               Add to Queue
             </Button>
+
+            : undefined}
+
+
+
+
           </div>
         )}
         <Tooltip
@@ -290,6 +318,7 @@ function FeedbackPage(): JSX.Element {
     isLoading: isMentorLoading,
     error: mentorError,
   } = useActiveMentor();
+  const { state: loginState } = useWithLogin();
 
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
@@ -485,6 +514,7 @@ function FeedbackPage(): JSX.Element {
                 {feedback?.edges.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
+                    accessToken={loginState.accessToken}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
                     mentorAnswers={mentorAnswers}

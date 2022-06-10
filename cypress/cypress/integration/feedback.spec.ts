@@ -10,7 +10,7 @@ import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import { getSyntheticLeadingComments } from "typescript";
 
 describe("Feedback", () => {
-  it("only show answered questions as options", () => {
+  it("Format dropdown options", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
@@ -30,6 +30,5 @@ describe("Feedback", () => {
       "color",
       "rgb(128, 128, 128)"
     );
-    //cy.get("[data-cy={`Drop-down-qu-${option._id}`}]").should;
   });
 });
