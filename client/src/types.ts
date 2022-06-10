@@ -41,6 +41,7 @@ export interface UserAccessToken {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  myMentorSplashOpen: (open: boolean) => void;
 }
 
 export interface User {
