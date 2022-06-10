@@ -480,7 +480,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F%3Fsubject%3Drepeat_after_me"
+      "?status=INCOMPLETE&subject=idle_and_initial_recordings&category=category2&back=%2F%3Fsubject%3Didle_and_initial_recordings"
     );
   });
 
