@@ -16,6 +16,7 @@ interface UseWithLogin {
   logout: () => void;
 }
 
+// Gives you a way to interface with the redux store (which has the user information)
 export function useWithLogin(): UseWithLogin {
   const dispatch = useAppDispatch();
   const state = useAppSelector((state) => state.login);

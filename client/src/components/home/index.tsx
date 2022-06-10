@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
+import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import parseMentor, {
@@ -45,6 +45,8 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -138,6 +140,9 @@ function HomePage(props: {
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
 
+  const loginState = useWithLogin();
+  const hasSeenSplash = Boolean(loginState.state.user?.firstTimeTracking.myMentorSplash);
+
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
@@ -212,6 +217,13 @@ function HomePage(props: {
         onRecordPage={false}
         recordState={recordState}
       />
+       <NotificationDialog
+        title={
+          "Hi hi hi hi hi hi"
+        }
+        open={hasSeenSplash}
+        closeDialog={() => setNotifyDialogOpen(false)}
+      />
       <div>
         <NavBar
           title={
@@ -259,8 +271,6 @@ function HomePage(props: {
               {reviewAnswerState.progress.total})
             </Typography>
           )}
-          //start somewhere here
-
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
           ) => {
@@ -437,5 +447,7 @@ function HomePage(props: {
     </div>
   );
 }
+
+
 
 export default withAuthorizationOnly(withLocation(HomePage));
