@@ -120,6 +120,7 @@ function EditMentorInfoModal(props: {
                     className={classes.inputField}
                   />
                   <FormControlLabel
+                    data-cy="allow-contact-btn"
                     control={
                       <Checkbox
                         checked={editedMentor.allowContact}
