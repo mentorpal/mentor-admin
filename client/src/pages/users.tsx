@@ -153,7 +153,7 @@ function UserItem(props: {
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
-        {edge.node.name}
+        {edge.node.defaultMentor?.name || edge.node.name}
       </TableCell>
       <TableCell data-cy="email" align="left">
         {edge.node.email}

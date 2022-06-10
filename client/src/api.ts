@@ -256,6 +256,7 @@ export async function fetchUsers(
               userRole
               defaultMentor {
                 _id
+                name
               }
             }
           }
