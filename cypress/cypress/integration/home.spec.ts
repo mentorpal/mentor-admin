@@ -701,7 +701,7 @@ describe("My Mentor Page", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/setup");
       });
-      cy.contains("Idle and Initial Recordings questions");
+      cy.contains("Idle and Initial Recordings");
     });
 
     it("can create a mentor question and save it", () => {

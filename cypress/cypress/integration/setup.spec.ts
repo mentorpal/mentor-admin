@@ -91,7 +91,7 @@ describe("Setup", () => {
       );
       cy.get("[data-cy=slide-title]").should(
         "have.text",
-        "Idle and Initial Recordings questions"
+        "Idle and Initial Recordings"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
@@ -106,7 +106,7 @@ describe("Setup", () => {
 
       cy.get("[data-cy=slide-title]").should(
         "have.text",
-        "Idle and Initial Recordings questions"
+        "Idle and Initial Recordings"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
@@ -153,7 +153,7 @@ describe("Setup", () => {
       cy.get("[data-cy=radio]").eq(5).trigger("mouseover").click();
       cy.contains("Recording an idle video.");
       cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
-      cy.contains("Idle and Initial Recordings questions");
+      cy.contains("Idle and Initial Recordings");
       cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
       cy.contains("Oops!");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
@@ -175,9 +175,7 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
       cy.get("[data-cy=slide]").contains("Recording an idle video.");
       cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings);
-      cy.get("[data-cy=slide]").contains(
-        "Idle and Initial Recordings questions"
-      );
+      cy.get("[data-cy=slide]").contains("Idle and Initial Recordings");
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide]").contains("Oops!");
     });
@@ -543,7 +541,7 @@ describe("Setup", () => {
     });
     cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
     cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Idle and Initial Recordings questions");
+      cy.contains("Idle and Initial Recordings");
     });
   });
 
@@ -567,7 +565,7 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings - 1);
     cy.contains("Recording an idle video");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Idle and Initial Recordings questions");
+    cy.contains("Idle and Initial Recordings");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
@@ -617,7 +615,7 @@ describe("Setup", () => {
     );
     cy.location("search").should("contain", "?i=6");
     cy.get("[data-cy=slide]").contains("3 / 3");
-    cy.contains("Idle and Initial Recordings questions");
+    cy.contains("Idle and Initial Recordings");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
