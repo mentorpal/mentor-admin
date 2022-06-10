@@ -257,6 +257,7 @@ export async function fetchUsers(
               defaultMentor {
                 _id
                 name
+                isPrivate
               }
             }
           }
@@ -277,6 +278,24 @@ export async function fetchUsers(
       },
     },
     { dataPath: "users" }
+  );
+}
+
+export async function updateMentorPrivacy(
+  mentorId: string,
+  isPrivate: boolean,
+  accessToken: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!) {
+        me {
+          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate)
+        }
+      }`,
+      variables: { mentorId, isPrivate },
+    },
+    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
   );
 }
 

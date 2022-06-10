@@ -150,6 +150,10 @@ function UserItem(props: {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
+  function handlePrivacyChange(mentor: string, isPrivate: boolean): void {
+    props.userPagin.onUpdateMentorPrivacy(mentor, isPrivate);
+  }
+
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
@@ -192,6 +196,36 @@ function UserItem(props: {
                 Admin
               </MenuItem>
             ) : undefined}
+          </Select>
+        )}
+      </TableCell>
+      <TableCell data-cy="privacy" align="left">
+        {noEditPermission ? (
+          edge.node.defaultMentor?.isPrivate ? (
+            "Private"
+          ) : (
+            "Public"
+          )
+        ) : (
+          <Select
+            data-cy="select-privacy"
+            value={edge.node.defaultMentor.isPrivate ? "true" : "false"}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              handlePrivacyChange(
+                edge.node.defaultMentor._id,
+                (event.target.value as string) === "true"
+              );
+            }}
+            className={styles.dropdown}
+          >
+            <MenuItem data-cy={`privacy-dropdown-public`} value={"false"}>
+              Public
+            </MenuItem>
+            <MenuItem data-cy={`privacy-dropdown-private`} value={"true"}>
+              Private
+            </MenuItem>
           </Select>
         )}
       </TableCell>
