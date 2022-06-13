@@ -55,7 +55,6 @@ import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
- 
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -166,21 +165,27 @@ function FeedbackItem(props: {
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
+  queueList: string[]; // qeueu
 }): JSX.Element {
-  const { accessToken, feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
-  const [currentStatus, setcurrentStatus] = React.useState<Status>(); // USE STATE FOR DISABLING
+  const {
+    accessToken,
+    feedback,
+    mentorAnswers,
+    mentorQuestions,
+    onUpdated,
+    queueList,
+  } = props;
+  const [currentStatus, setcurrentStatus] = React.useState<Status>(); // for disabling/enabling queue button
   const [currentID, setCurrentID] = React.useState<string>(); // grab ID of the selected option
-  // figure out whether to remove from queue
-  /**
-  function handleClick(currentID: string, accessToken: string) { 
-    if ((fetchMentorRecordQueue(accessToken)).includes(currentID)){
+  // function to add/remove from queue
+  function handleClick(currentID: string, accessToken: string) {
+    if (queueList.includes(currentID)) {
       removeQuestionFromRecordQueue(currentID, accessToken);
-    }
-    else{
+    } else {
       addQuestionToRecordQueue(currentID, accessToken);
     }
   }
-  */
+
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
     await updateUserQuestion(feedback._id, answerId || "");
@@ -240,23 +245,8 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-
-
-
-
-
-
-
                 setcurrentStatus(v?.status);
-                //setCurrentID(v?._id);
                 onUpdateAnswer(v?._id);
-
-
-
-
-
-
-
               }}
               style={{
                 minWidth: 300,
@@ -284,32 +274,18 @@ function FeedbackItem(props: {
               <CloseIcon />
             </IconButton>
 
-
-
-
-
-                {accessToken? 
-                
-
-            <Button
-              data-cy="queue-btn"
-              color="primary"
-              disabled={currentStatus == Status.COMPLETE}
-             // onClick={() => handleClick(currentID || "", accessToken)}
-
-            >
-            {//(await fetchMentorRecordQueue(accessToken)).includes(currentID || "") ? "Remove from Queue" : "Add to Queue"}
-            </Button>
-
-            : undefined}
-
-
-
-
-
-
-
-
+            {accessToken ? (
+              <Button
+                data-cy="queue-btn"
+                color="primary"
+                disabled={currentStatus == Status.COMPLETE}
+                onClick={() => handleClick(currentID || "", accessToken)}
+              >
+                {queueList?.includes(currentID || "")
+                  ? "Remove from Queue"
+                  : "Add to Queue"}
+              </Button>
+            ) : undefined}
           </div>
         )}
         <Tooltip
@@ -341,7 +317,7 @@ function FeedbackPage(): JSX.Element {
     error: mentorError,
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
-  //const queueList = fetchMentorRecordQueue(loginState.accessToken || ""); FIX THIS
+  const queueList = fetchMentorRecordQueue(loginState.accessToken || "");
 
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
