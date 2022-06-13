@@ -891,6 +891,7 @@ export async function updateMentorDetails(
           email: mentor.email,
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
+          isPrivate: mentor.isPrivate,
         },
       },
     },
