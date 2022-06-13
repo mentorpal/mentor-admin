@@ -90,7 +90,16 @@ describe("My Mentor Page", () => {
 
   it.only("shows splash if mentor has not seen before", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: clint, login: loginUserNotSeenSplash }); //Default login is set to already have seen the
+    cyMockDefault(cy, {
+      mentor: clint,
+      login: loginUserNotSeenSplash,
+      gqlQueries: [
+        // This intercepts any call to FirstTimeTrackingUpdate and returns with the data below
+        mockGQL("FirstTimeTrackingUpdate", {
+          me: { firstTimeTrackingUpdate: { myMentorSplash: true } },
+        }),
+      ],
+    });
     cy.visit("/");
   });
 

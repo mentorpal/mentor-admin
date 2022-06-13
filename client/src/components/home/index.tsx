@@ -47,7 +47,6 @@ import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
-
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
@@ -141,7 +140,9 @@ function HomePage(props: {
     useState<ConfirmSave>();
 
   const loginState = useWithLogin();
-  const hasSeenSplash = Boolean(loginState.state.user?.firstTimeTracking.myMentorSplash);
+  const hasSeenSplash = Boolean(
+    loginState.state.user?.firstTimeTracking.myMentorSplash
+  );
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -217,10 +218,8 @@ function HomePage(props: {
         onRecordPage={false}
         recordState={recordState}
       />
-       <NotificationDialog
-        title={
-          "Hi hi hi hi hi hi"
-        }
+      <NotificationDialog
+        title={"Hi hi hi hi hi hi"}
         open={hasSeenSplash}
         closeDialog={() => setNotifyDialogOpen(false)}
       />
@@ -447,7 +446,5 @@ function HomePage(props: {
     </div>
   );
 }
-
-
 
 export default withAuthorizationOnly(withLocation(HomePage));
