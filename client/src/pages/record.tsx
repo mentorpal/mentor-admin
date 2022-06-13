@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useState, Component } from "react";
 import {
   AppBar,
   Button,
@@ -51,6 +51,8 @@ import {
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -117,6 +119,17 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
 }));
+
+// //Want to use this in functional component I think
+// const Post = () => {
+//   const handleMouseUp = (): React.DOMAttributes<HTMLDivElement> | void => {
+//       console.log(`Selected text: ${window.getSelection().toString()}`);
+//   }
+//   return (
+//       <div onMouseUp={handleMouseUp}>Text</div>
+//   );
+// }
+
 
 export interface LeaveConfirmation {
   message: string;
@@ -256,41 +269,60 @@ function RecordPage(props: {
             </text>
           ) : undefined}
         </Typography>
+        
+        
+        <Editor
+          wrapperClassName="wrapper-class"
+          editorClassName="editor-class"
+          toolbarClassName="toolbar-class"
+          toolbar={{
+            inline: { inDropdown: true },
+            list: { inDropdown: true },
+            textAlign: { inDropdown: true },
+            link: { inDropdown: true },
+            history: { inDropdown: true },
+          }}
+        
+        />
+
         <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="transcript-input"
-            multiline
-            value={curAnswer.editedAnswer.transcript}
-            onChange={(e) =>
-              onTextInputChanged(e, () => {
-                recordState.editAnswer({
-                  transcript: e.target.value,
-                  hasEditedTranscript:
-                    e.target.value !== curAnswer.answer.transcript,
-                });
-              })
-            }
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-transcript-btn"
-                  disabled={
-                    curAnswer.editedAnswer.transcript ===
-                    curAnswer.answer.transcript
-                  }
-                  onClick={() =>
-                    recordState.editAnswer({
-                      transcript: curAnswer.answer.transcript,
-                      hasEditedTranscript: false,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
+            <OutlinedInput
+              data-cy="transcript-input"
+              multiline
+              value={curAnswer.editedAnswer.transcript}
+              onChange={(e) =>
+                onTextInputChanged(e, () => {
+                  recordState.editAnswer({
+                    transcript: e.target.value,
+                    hasEditedTranscript:
+                      e.target.value !== curAnswer.answer.transcript,
+                  });
+                })
+              }
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    data-cy="undo-transcript-btn"
+                    disabled={
+                      curAnswer.editedAnswer.transcript ===
+                      curAnswer.answer.transcript
+                    }
+                    onClick={() =>
+                      recordState.editAnswer({
+                        transcript: curAnswer.answer.transcript,
+                        hasEditedTranscript: false,
+                      })
+                    }
+                  >
+                    <UndoIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
         </FormControl>
+
+
+        
       </div>
     );
   }

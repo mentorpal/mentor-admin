@@ -4,7 +4,10 @@
   "description": "Top level package list for mentor-admin",
   "main": "index.js",
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/react-draft-wysiwyg": "^1.13.4",
     "license-check-and-add": "^4.0.2",
+    "lodash": "^4.17.21",
     "prettier": "^2.3.0"
   },
   "scripts": {
@@ -23,5 +26,9 @@
   "bugs": {
     "url": "https://github.com/mentorpal/mentor-admin/issues"
   },
-  "homepage": "https://github.com/mentorpal/mentor-admin#readme"
+  "homepage": "https://github.com/mentorpal/mentor-admin#readme",
+  "dependencies": {
+    "draft-js": "^0.11.7",
+    "react-draft-wysiwyg": "^1.14.7"
+  }
 }
