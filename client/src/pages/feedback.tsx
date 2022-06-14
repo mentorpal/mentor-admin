@@ -165,7 +165,7 @@ function FeedbackItem(props: {
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
-  queueList: string[]; // qeueu
+  queueList: string[];
 }): JSX.Element {
   const {
     accessToken,
@@ -174,15 +174,18 @@ function FeedbackItem(props: {
     mentorQuestions,
     onUpdated,
     queueList,
+    setQueueList,
   } = props;
   const [currentStatus, setcurrentStatus] = React.useState<Status>(); // for disabling/enabling queue button
   const [currentID, setCurrentID] = React.useState<string>(); // grab ID of the selected option
+  //const [queueList, setQueueList] = React.useState<string[]>();
+
   // function to add/remove from queue
-  function handleClick(currentID: string, accessToken: string) {
-    if (queueList.includes(currentID)) {
-      removeQuestionFromRecordQueue(currentID, accessToken);
+  async function handleClick(currentID: string, accessToken: string) {
+    if (queueList?.includes(currentID)) {
+      setQueueList(await removeQuestionFromRecordQueue(currentID, accessToken));
     } else {
-      addQuestionToRecordQueue(currentID, accessToken);
+      setQueueList(await addQuestionToRecordQueue(currentID, accessToken));
     }
   }
 
@@ -309,7 +312,7 @@ function FeedbackItem(props: {
   );
 }
 
-function FeedbackPage(): JSX.Element {
+async function FeedbackPage(): Promise<JSX.Element> {
   const classes = useStyles();
   const {
     getData,
@@ -317,8 +320,6 @@ function FeedbackPage(): JSX.Element {
     error: mentorError,
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
-  const queueList = fetchMentorRecordQueue(loginState.accessToken || "");
-
   const mentorId = getData((state) => state.data?._id);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
@@ -331,7 +332,6 @@ function FeedbackPage(): JSX.Element {
     error: trainError,
     startTask: startTraining,
   } = useWithTraining();
-
   const {
     data: feedback,
     isLoading: isFeedbackLoading,
@@ -342,6 +342,13 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
+
+  const [queueList, setQueueList] = useState<string[]>([]);
+  useEffect(() => {
+    fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
+      setQueueList(queueList);
+    });
+  }, []);
 
   useEffect(() => {
     if (mentorId) {
@@ -519,6 +526,8 @@ function FeedbackPage(): JSX.Element {
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
                     onUpdated={reloadFeedback}
+                    queueList={queueList}
+                    setQueueList={setQueueList}
                   />
                 ))}
               </TableBody>
