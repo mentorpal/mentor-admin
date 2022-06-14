@@ -312,7 +312,7 @@ function FeedbackItem(props: {
   );
 }
 
-async function FeedbackPage(): Promise<JSX.Element> {
+function FeedbackPage(): JSX.Element {
   const classes = useStyles();
   const {
     getData,
