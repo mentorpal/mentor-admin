@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState, Component } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Button,
@@ -122,16 +122,13 @@ const useStyles = makeStyles((theme) => ({
 
 const toolBarOpts = {
   options: ["inline", "fontSize", "fontFamily", "list", "link", "history"],
-
   inline: {
     options: ["bold", "italic", "underline"],
   },
-
   fontSize: {
     icon: "fontSize",
     options: [8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96],
   },
-
   fontFamily: {
     options: [
       "Arial",
@@ -142,16 +139,13 @@ const toolBarOpts = {
       "Verdana",
     ],
   },
-
   list: {
     options: ["unordered", "ordered"],
   },
-
   link: {
     inDropdown: true,
     showOpenOptionOnHover: true,
   },
-
   history: {
     options: ["undo", "redo"],
   },
