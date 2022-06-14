@@ -100,6 +100,7 @@ describe("My Mentor Page", () => {
         }),
       ],
     });
+
     cy.visit("/");
   });
 

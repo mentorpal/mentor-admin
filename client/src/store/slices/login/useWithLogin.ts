@@ -53,6 +53,11 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
+  // Call this function when user clicks close on the dialog
+  function userSawSplashScreen() {
+    // Dispatch userSawSplashScreen action here
+  }
+
   function logout() {
     if (state.loginStatus === loginActions.LoginStatus.AUTHENTICATED) {
       dispatch(loginActions.logout());
