@@ -121,16 +121,33 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const toolBarOpts = {
-  options: ["fontSize", "link"],
+  options: ["inline", "fontSize", "fontFamily", "list", "link", "history"],
+
+  inline: {
+    options: ['bold', 'italic', 'underline'],
+  },
 
   fontSize: {
     icon: "fontSize",
     options: [8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96],
   },
 
+  fontFamily: {
+    options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'],
+  },
+
+  
+  list: {
+    options: ['unordered', 'ordered'],
+  },
+  
   link: {
     inDropdown: true,
     showOpenOptionOnHover: true,
+  },
+
+  history: {
+    options: ['undo', 'redo'],
   },
 };
 
@@ -279,6 +296,16 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
+          // value={curAnswer.editedAnswer.transcript}
+          // onChange={(e) =>
+          //   onTextInputChanged(e, () => {
+          //     recordState.editAnswer({
+          //       transcript: e.target.value,
+          //       hasEditedTranscript:
+          //         e.target.value !== curAnswer.answer.transcript,
+          //     });
+          //   })
+          // }
         />
 
         <FormControl className={classes.inputField} variant="outlined">
