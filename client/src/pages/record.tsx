@@ -121,32 +121,31 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const toolBarOpts = {
-  options: ["inline", "fontSize", "fontFamily", "list", "link", "history"],
+  options: ["inline", "list", "link", 'image', "history"],
   inline: {
+    className: "toolbar-inline",
     options: ["bold", "italic", "underline"],
   },
-  fontSize: {
-    icon: "fontSize",
-    options: [8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96],
-  },
-  fontFamily: {
-    options: [
-      "Arial",
-      "Georgia",
-      "Impact",
-      "Tahoma",
-      "Times New Roman",
-      "Verdana",
-    ],
-  },
   list: {
+    className: "toolbar-list",
     options: ["unordered", "ordered"],
   },
   link: {
+    className: "toolbar-link",
     inDropdown: true,
     showOpenOptionOnHover: true,
   },
+  image: {
+    className: "toolbar-image",
+    popupClassName: "toolbar-image-popup",
+    urlEnabled: true,
+    uploadEnabled: true,
+    alignmentEnabled: true,
+    previewImage: true,
+    inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
+  },
   history: {
+    className: "toolbar-history",
     options: ["undo", "redo"],
   },
 };
@@ -295,6 +294,16 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
+          // editorState={"Howdy"}
+          // onEditorStateChange= Function = (editorState) => {
+          //   this.setState({
+          //     editorState,
+          //   });
+          // };
+          // onEditorStateChange={newState => {
+          //   setEditorState(curAnswer.editedAnswer.transcript);
+          // }}
+
           // value={curAnswer.editedAnswer.transcript}
           // onChange={(e) =>
           //   onTextInputChanged(e, () => {
@@ -305,43 +314,16 @@ function RecordPage(props: {
           //     });
           //   })
           // }
+
+          // onClick={() =>
+          //   recordState.editAnswer({
+          //     transcript: curAnswer.answer.transcript,
+          //     hasEditedTranscript: false,
+          //   })
+          // }
         />
 
-        <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="transcript-input"
-            multiline
-            value={curAnswer.editedAnswer.transcript}
-            onChange={(e) =>
-              onTextInputChanged(e, () => {
-                recordState.editAnswer({
-                  transcript: e.target.value,
-                  hasEditedTranscript:
-                    e.target.value !== curAnswer.answer.transcript,
-                });
-              })
-            }
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-transcript-btn"
-                  disabled={
-                    curAnswer.editedAnswer.transcript ===
-                    curAnswer.answer.transcript
-                  }
-                  onClick={() =>
-                    recordState.editAnswer({
-                      transcript: curAnswer.answer.transcript,
-                      hasEditedTranscript: false,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
+        {curAnswer.editedAnswer.transcript}
       </div>
     );
   }
