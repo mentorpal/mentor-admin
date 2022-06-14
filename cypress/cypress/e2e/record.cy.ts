@@ -24,7 +24,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
-import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
+import { taskListBuild, uploadTaskMediaBuild } from "./index.cy";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
