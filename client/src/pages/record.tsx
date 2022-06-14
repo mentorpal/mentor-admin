@@ -52,6 +52,7 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
+import { EditorState } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -168,6 +169,9 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+  const [editorState, setEditorState] = useState(
+    () => EditorState.createEmpty(),
+  );
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
 
@@ -260,6 +264,10 @@ function RecordPage(props: {
       return;
     }
     const { isRecording } = recordState;
+    const onEditorChange = (editorState: any) => {
+      const text = editorState.blocks.map((block) => block.text);
+      console.log(text);
+    };
     return (
       // relative so overlay can fit
       <div
@@ -294,7 +302,7 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
-          // editorState={"Howdy"}
+          editorState={editorState}
           // onEditorStateChange= Function = (editorState) => {
           //   this.setState({
           //     editorState,
