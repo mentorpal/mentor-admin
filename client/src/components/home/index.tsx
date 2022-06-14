@@ -143,7 +143,7 @@ function HomePage(props: {
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash
   );
-  const {userSawSplashScreen} = loginState;
+  const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -385,11 +385,10 @@ function HomePage(props: {
           reviewAnswerState.clearError();
         }}
       />
-       <NotificationDialog
+      <NotificationDialog
         title={"This page is for setting up your mentor!"}
         //this logic needs to be looked into further
         open={!hasSeenSplash}
-
         closeDialog={() => userSawSplashScreen()}
       />
       <Dialog
