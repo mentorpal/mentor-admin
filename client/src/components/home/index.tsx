@@ -143,6 +143,7 @@ function HomePage(props: {
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash
   );
+  const {userSawSplashScreen} = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -217,11 +218,6 @@ function HomePage(props: {
         setUploadWidgetVisible={setUploadingWidgetVisible}
         onRecordPage={false}
         recordState={recordState}
-      />
-      <NotificationDialog
-        title={"Hi hi hi hi hi hi"}
-        open={hasSeenSplash}
-        closeDialog={() => setNotifyDialogOpen(false)}
       />
       <div>
         <NavBar
@@ -388,6 +384,13 @@ function HomePage(props: {
           clearMentorError();
           reviewAnswerState.clearError();
         }}
+      />
+       <NotificationDialog
+        title={"This page is for setting up your mentor!"}
+        //this logic needs to be looked into further
+        open={!hasSeenSplash}
+
+        closeDialog={() => userSawSplashScreen()}
       />
       <Dialog
         data-cy="setup-dialog"

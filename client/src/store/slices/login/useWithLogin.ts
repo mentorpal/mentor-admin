@@ -12,6 +12,7 @@ import * as loginActions from ".";
 interface UseWithLogin {
   state: loginActions.LoginState;
   login: (accessToken: string) => void;
+  userSawSplashScreen: () => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
 }
@@ -56,6 +57,7 @@ export function useWithLogin(): UseWithLogin {
   // Call this function when user clicks close on the dialog
   function userSawSplashScreen() {
     // Dispatch userSawSplashScreen action here
+    dispatch(userSawSplashScreen);
   }
 
   function logout() {
@@ -68,6 +70,7 @@ export function useWithLogin(): UseWithLogin {
     state,
     login,
     loginWithGoogle,
+    userSawSplashScreen,
     logout,
   };
 }
