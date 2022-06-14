@@ -120,16 +120,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// //Want to use this in functional component I think
-// const Post = () => {
-//   const handleMouseUp = (): React.DOMAttributes<HTMLDivElement> | void => {
-//       console.log(`Selected text: ${window.getSelection().toString()}`);
-//   }
-//   return (
-//       <div onMouseUp={handleMouseUp}>Text</div>
-//   );
-// }
+const toolBarOpts = {
+  options: ["fontSize", "link"],
 
+  fontSize: {
+    icon: "fontSize",
+    options: [8, 9, 10, 11, 12, 14, 16, 18, 24, 30, 36, 48, 60, 72, 96],
+  },
+
+  link: {
+    inDropdown: true,
+    showOpenOptionOnHover: true,
+  },
+};
 
 export interface LeaveConfirmation {
   message: string;
@@ -275,14 +278,7 @@ function RecordPage(props: {
           wrapperClassName="wrapper-class"
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
-          toolbar={{
-            inline: { inDropdown: true },
-            list: { inDropdown: true },
-            textAlign: { inDropdown: true },
-            link: { inDropdown: true },
-            history: { inDropdown: true },
-          }}
-        
+          toolbar={toolBarOpts}
         />
 
         <FormControl className={classes.inputField} variant="outlined">
