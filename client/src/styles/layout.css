@@ -223,3 +223,16 @@ div.jsoneditor {
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(139, 139, 139);
 }
+
+.wrapper-class {
+  padding: 1rem;
+  border: 1px solid rgb(204, 204, 204);
+}
+.editor-class {
+  background-color:rgb(255, 255, 255);
+  padding: 1rem;
+  border: 1px solid rgb(204, 204, 204);
+}
+.toolbar-class {
+  border: 1px solid rgb(204, 204, 204);
+}

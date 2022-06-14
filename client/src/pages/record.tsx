@@ -52,7 +52,7 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState } from 'draft-js';
+import { EditorState, ContentState } from 'draft-js';
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -170,7 +170,7 @@ function RecordPage(props: {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [editorState, setEditorState] = useState(
-    () => EditorState.createEmpty(),
+    () => EditorState.createWithContent(ContentState.createFromText(initialEditorText()))
   );
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
@@ -202,6 +202,14 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+
+  function initialEditorText() {
+    if (typeof curAnswer.answer.transcript !== "undefined" && curAnswer.answer.transcript != null) {
+      return EditorState.createWithContent(ContentState.createFromText(curAnswer.answer.transcript));
+    } else {
+      return EditorState.createEmpty();
+    }
+  }
 
   function onBack() {
     reloadMentorData();
@@ -303,6 +311,7 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           editorState={editorState}
+          onEditorStateChange={setEditorState}
           // onEditorStateChange= Function = (editorState) => {
           //   this.setState({
           //     editorState,
