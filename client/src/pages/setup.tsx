@@ -20,7 +20,6 @@ import { MentorInfoSlide } from "components/setup/mentor-info-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
-//import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { FinalSetupSlide } from "components/setup/final-setup-slide";
@@ -65,7 +64,9 @@ const useStyles = makeStyles(() => ({
   },
   card: {
     minHeight: 450,
-    padding: 25,
+    maxWidth: "95%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontWeight: "bold",
@@ -266,7 +267,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               style={{
                 position: "relative",
-                right: next ? "-80px" : "",
+                right: next ? "-50px" : "",
                 left: prev ? "-80px" : "",
               }}
               className={classes.navButton}
@@ -295,7 +296,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             </IconButton>
           );
         }}
-        navButtonsWrapperProps={{ style: {}, className: "" }}
         IndicatorIcon={
           <FiberManualRecordIcon data-cy="radio" fontSize="small" />
         }

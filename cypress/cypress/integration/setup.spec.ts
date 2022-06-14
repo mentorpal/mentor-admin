@@ -98,7 +98,7 @@ describe("Setup", () => {
       cy.get("[data-cy=next-btn]").should("not.be.visible");
     });
 
-    it("with back button", () => {
+    it.only("with back button", () => {
       cyMockDefault(cy, baseMock);
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=next-btn]").should("not.be.visible");
