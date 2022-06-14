@@ -124,7 +124,7 @@ const toolBarOpts = {
   options: ["inline", "fontSize", "fontFamily", "list", "link", "history"],
 
   inline: {
-    options: ['bold', 'italic', 'underline'],
+    options: ["bold", "italic", "underline"],
   },
 
   fontSize: {
@@ -133,21 +133,27 @@ const toolBarOpts = {
   },
 
   fontFamily: {
-    options: ['Arial', 'Georgia', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'],
+    options: [
+      "Arial",
+      "Georgia",
+      "Impact",
+      "Tahoma",
+      "Times New Roman",
+      "Verdana",
+    ],
   },
 
-  
   list: {
-    options: ['unordered', 'ordered'],
+    options: ["unordered", "ordered"],
   },
-  
+
   link: {
     inDropdown: true,
     showOpenOptionOnHover: true,
   },
 
   history: {
-    options: ['undo', 'redo'],
+    options: ["undo", "redo"],
   },
 };
 
@@ -289,8 +295,7 @@ function RecordPage(props: {
             </text>
           ) : undefined}
         </Typography>
-        
-        
+
         <Editor
           wrapperClassName="wrapper-class"
           editorClassName="editor-class"
@@ -309,43 +314,40 @@ function RecordPage(props: {
         />
 
         <FormControl className={classes.inputField} variant="outlined">
-            <OutlinedInput
-              data-cy="transcript-input"
-              multiline
-              value={curAnswer.editedAnswer.transcript}
-              onChange={(e) =>
-                onTextInputChanged(e, () => {
-                  recordState.editAnswer({
-                    transcript: e.target.value,
-                    hasEditedTranscript:
-                      e.target.value !== curAnswer.answer.transcript,
-                  });
-                })
-              }
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    data-cy="undo-transcript-btn"
-                    disabled={
-                      curAnswer.editedAnswer.transcript ===
-                      curAnswer.answer.transcript
-                    }
-                    onClick={() =>
-                      recordState.editAnswer({
-                        transcript: curAnswer.answer.transcript,
-                        hasEditedTranscript: false,
-                      })
-                    }
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
+          <OutlinedInput
+            data-cy="transcript-input"
+            multiline
+            value={curAnswer.editedAnswer.transcript}
+            onChange={(e) =>
+              onTextInputChanged(e, () => {
+                recordState.editAnswer({
+                  transcript: e.target.value,
+                  hasEditedTranscript:
+                    e.target.value !== curAnswer.answer.transcript,
+                });
+              })
+            }
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  data-cy="undo-transcript-btn"
+                  disabled={
+                    curAnswer.editedAnswer.transcript ===
+                    curAnswer.answer.transcript
+                  }
+                  onClick={() =>
+                    recordState.editAnswer({
+                      transcript: curAnswer.answer.transcript,
+                      hasEditedTranscript: false,
+                    })
+                  }
+                >
+                  <UndoIcon />
+                </IconButton>
+              </InputAdornment>
+            }
+          />
         </FormControl>
-
-
-        
       </div>
     );
   }
