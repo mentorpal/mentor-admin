@@ -204,7 +204,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   function initialEditorText() {
-    if (typeof curAnswer.answer.transcript !== "undefined" && curAnswer.answer.transcript != null) {
+    if (typeof curAnswer.answer.transcript !== "undefined" && curAnswer.answer.transcript !== null) {
       return EditorState.createWithContent(ContentState.createFromText(curAnswer.answer.transcript));
     } else {
       return EditorState.createEmpty();
