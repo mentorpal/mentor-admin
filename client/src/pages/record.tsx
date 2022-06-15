@@ -1,11 +1,10 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Button,
@@ -52,7 +51,12 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState, ContentState } from 'draft-js';
+import {
+  EditorState,
+  ContentState,
+  convertToRaw,
+  RawDraftContentState,
+} from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -122,7 +126,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const toolBarOpts = {
-  options: ["inline", "list", "link", 'image', "history"],
+  options: ["inline", "list", "link", "image", "history"],
   inline: {
     className: "toolbar-inline",
     options: ["bold", "italic", "underline"],
@@ -143,7 +147,7 @@ const toolBarOpts = {
     uploadEnabled: true,
     alignmentEnabled: true,
     previewImage: true,
-    inputAccept: 'image/gif,image/jpeg,image/jpg,image/png,image/svg',
+    inputAccept: "image/gif,image/jpeg,image/jpg,image/png,image/svg",
   },
   history: {
     className: "toolbar-history",
@@ -169,9 +173,7 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-  const [editorState, setEditorState] = useState(
-    () => EditorState.createWithContent(ContentState.createFromText(initialEditorText()))
-  );
+
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
 
@@ -203,13 +205,46 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-  function initialEditorText() {
-    if (typeof curAnswer.answer.transcript !== "undefined" && curAnswer.answer.transcript !== null) {
-      return EditorState.createWithContent(ContentState.createFromText(curAnswer.answer.transcript));
-    } else {
-      return EditorState.createEmpty();
+  // const [editorState, setEditorState] = useState(() => {
+  //   return curAnswer?.answer?.transcript
+  //     ? ContentState.createFromText(curAnswer?.answer?.transcript || "Hello")
+  //     : EditorState.createEmpty();
+  // });
+
+  const [transcriptText, setTranscriptText] = useState<string>("");
+  const [raw, setRaw] = useState<RawDraftContentState>();
+
+  // let _contentState = !curAnswer
+  //   ? ContentState.createFromText("")
+  //   : ContentState.createFromText(transcriptText);
+  // const raw = convertToRaw(_contentState);
+  const [contentState, setContentState] = useState(raw);
+
+  useEffect(() => {
+    if (!curAnswer) {
+      return;
     }
-  }
+    console.log(curAnswer.answer.transcript);
+    setTranscriptText(curAnswer.answer.transcript);
+
+    let _contentState = !curAnswer
+      ? ContentState.createFromText("hello")
+      : ContentState.createFromText(transcriptText);
+
+    console.log("_contentState:", _contentState);
+
+    setRaw(convertToRaw(_contentState));
+  }, [curAnswer]);
+
+  useEffect(() => {
+    console.log("raw:", raw);
+    // console.log("contentState:", contentState);
+    setContentState(raw);
+  }, [raw]);
+
+  useEffect(() => {
+    console.log("contentState:", contentState);
+  }, [contentState]);
 
   function onBack() {
     reloadMentorData();
@@ -267,15 +302,25 @@ function RecordPage(props: {
       </div>
     );
   }
+
+  function initialEditorText(curAnswer: any) {
+    console.log("curAnswer:", curAnswer);
+
+    if (!curAnswer) {
+      return EditorState.createEmpty();
+    }
+    return ContentState.createFromText(curAnswer.answer.transcript);
+  }
+
   function transcriptDisplay() {
     if (!curAnswer) {
       return;
     }
     const { isRecording } = recordState;
-    const onEditorChange = (editorState: any) => {
-      const text = editorState.blocks.map((block) => block.text);
-      console.log(text);
-    };
+    // const onEditorChange = (editorState: any) => {
+    //   const text = editorState.blocks.map((block) => block.text);
+    //   console.log(text);
+    // };
     return (
       // relative so overlay can fit
       <div
@@ -310,34 +355,8 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
-          editorState={editorState}
-          onEditorStateChange={setEditorState}
-          // onEditorStateChange= Function = (editorState) => {
-          //   this.setState({
-          //     editorState,
-          //   });
-          // };
-          // onEditorStateChange={newState => {
-          //   setEditorState(curAnswer.editedAnswer.transcript);
-          // }}
-
-          // value={curAnswer.editedAnswer.transcript}
-          // onChange={(e) =>
-          //   onTextInputChanged(e, () => {
-          //     recordState.editAnswer({
-          //       transcript: e.target.value,
-          //       hasEditedTranscript:
-          //         e.target.value !== curAnswer.answer.transcript,
-          //     });
-          //   })
-          // }
-
-          // onClick={() =>
-          //   recordState.editAnswer({
-          //     transcript: curAnswer.answer.transcript,
-          //     hasEditedTranscript: false,
-          //   })
-          // }
+          defaultContentState={contentState}
+          onContentStateChange={setContentState}
         />
 
         {curAnswer.editedAnswer.transcript}
