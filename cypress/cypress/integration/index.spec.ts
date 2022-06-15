@@ -173,62 +173,58 @@ describe("Index page", () => {
     );
   });
 
-  it.only(
-    "skip button cycles through properly",
-    { scrollBehavior: false },
-    () => {
-      cyMockDefault(cy, {
-        mentor: clint,
-      });
-      cy.visit("/");
+  it("skip button cycles through properly", { scrollBehavior: false }, () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+    });
+    cy.visit("/");
 
-      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
 
-      cy.get("[data-cy=recommended-action]").contains(
-        "Add an Off Topic Response"
-      );
-      cy.get("[data-cy=skip-action-button]").should("exist");
-      cy.get("[data-cy=skip-action-button]").should("be.enabled");
-      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+    cy.get("[data-cy=recommended-action]").contains(
+      "Add an Off Topic Response"
+    );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.enabled");
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-      cy.get("[data-cy=recommended-btn-wrapper]").should(
-        "contain.text",
-        "Finish Required Questions"
-      );
-      cy.get("[data-cy=skip-action-button]").should("exist");
-      cy.get("[data-cy=skip-action-button]").should("be.enabled");
-      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Finish Required Questions"
+    );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.enabled");
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-      cy.get("[data-cy=recommended-btn-wrapper]").should(
-        "contain.text",
-        "Answer More Questions"
-      );
-      cy.get("[data-cy=skip-action-button]").should("exist");
-      cy.get("[data-cy=skip-action-button]").should("be.enabled");
-      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Answer More Questions"
+    );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.enabled");
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-      cy.get("[data-cy=recommended-btn-wrapper]").should(
-        "contain.text",
-        "Answer Category2 Questions"
-      );
-      cy.get("[data-cy=skip-action-button]").should("exist");
-      cy.get("[data-cy=skip-action-button]").should("be.enabled");
-      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Answer Category2 Questions"
+    );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.enabled");
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-      cy.get("[data-cy=recommended-btn-wrapper]").should(
-        "contain.text",
-        "Add a Subject"
-      );
-      cy.get("[data-cy=skip-action-button]").should("exist");
-      cy.get("[data-cy=skip-action-button]").should("be.enabled");
-      cy.get("[data-cy=skip-action-button]").should("be.visible").click();
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Add a Subject"
+    );
+    cy.get("[data-cy=skip-action-button]").should("exist");
+    cy.get("[data-cy=skip-action-button]").should("be.enabled");
+    cy.get("[data-cy=skip-action-button]").should("be.visible").click();
 
-      cy.get("[data-cy=recommended-btn-wrapper]").should(
-        "contain.text",
-        "Add an Off Topic Response"
-      );
-    }
-  );
+    cy.get("[data-cy=recommended-btn-wrapper]").should(
+      "contain.text",
+      "Add an Off Topic Response"
+    );
+  });
 
   it('admins see the "Users" option in hamburger menu', () => {
     cyMockDefault(cy, {

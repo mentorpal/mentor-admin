@@ -1,6 +1,12 @@
 /*
 This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
 Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
@@ -55,6 +61,7 @@ import {
   EditorState,
   ContentState,
   convertToRaw,
+  convertFromRaw,
   RawDraftContentState,
 } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -205,20 +212,10 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-  // const [editorState, setEditorState] = useState(() => {
-  //   return curAnswer?.answer?.transcript
-  //     ? ContentState.createFromText(curAnswer?.answer?.transcript || "Hello")
-  //     : EditorState.createEmpty();
-  // });
-
   const [transcriptText, setTranscriptText] = useState<string>("");
-  const [raw, setRaw] = useState<RawDraftContentState>();
-
-  // let _contentState = !curAnswer
-  //   ? ContentState.createFromText("")
-  //   : ContentState.createFromText(transcriptText);
-  // const raw = convertToRaw(_contentState);
-  const [contentState, setContentState] = useState(raw);
+  const [editorState, setEditorState] = useState<EditorState>(
+    EditorState.createWithContent(ContentState.createFromText(""))
+  );
 
   useEffect(() => {
     if (!curAnswer) {
@@ -227,24 +224,11 @@ function RecordPage(props: {
     console.log(curAnswer.answer.transcript);
     setTranscriptText(curAnswer.answer.transcript);
 
-    let _contentState = !curAnswer
-      ? ContentState.createFromText("hello")
-      : ContentState.createFromText(transcriptText);
-
-    console.log("_contentState:", _contentState);
-
-    setRaw(convertToRaw(_contentState));
+    let _editorState = EditorState.createWithContent(
+      ContentState.createFromText(curAnswer.answer.transcript)
+    );
+    setEditorState(_editorState);
   }, [curAnswer]);
-
-  useEffect(() => {
-    console.log("raw:", raw);
-    // console.log("contentState:", contentState);
-    setContentState(raw);
-  }, [raw]);
-
-  useEffect(() => {
-    console.log("contentState:", contentState);
-  }, [contentState]);
 
   function onBack() {
     reloadMentorData();
@@ -302,16 +286,7 @@ function RecordPage(props: {
       </div>
     );
   }
-
-  function initialEditorText(curAnswer: any) {
-    console.log("curAnswer:", curAnswer);
-
-    if (!curAnswer) {
-      return EditorState.createEmpty();
-    }
-    return ContentState.createFromText(curAnswer.answer.transcript);
-  }
-
+  
   function transcriptDisplay() {
     if (!curAnswer) {
       return;
@@ -355,8 +330,10 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
-          defaultContentState={contentState}
-          onContentStateChange={setContentState}
+          onEditorStateChange={(editorState) => {
+            setEditorState(editorState);
+          }}
+          editorState={editorState}
         />
 
         {curAnswer.editedAnswer.transcript}
