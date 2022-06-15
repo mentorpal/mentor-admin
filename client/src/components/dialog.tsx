@@ -62,9 +62,10 @@ export function NotificationDialog(props: {
       fullWidth={true}
       open={Boolean(title) && props.open}
     >
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle data-cy="notification-dialog-title">{title}</DialogTitle>
       <DialogContent>
         <Button
+          data-cy="notification-dialog-button"
           onClick={() => {
             props.closeDialog();
           }}

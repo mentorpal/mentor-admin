@@ -137,9 +137,9 @@ export const loginSlice = createSlice({
       })
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
       .addCase(userSawSplashScreen.fulfilled, (state, action) => {
-        
         if (state.user != undefined) {
-          state.user.firstTimeTracking.myMentorSplash = true;
+          state.user.firstTimeTracking.myMentorSplash =
+            action.payload.myMentorSplash;
         }
       });
   },
