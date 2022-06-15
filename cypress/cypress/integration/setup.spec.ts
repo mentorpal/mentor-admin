@@ -102,8 +102,9 @@ describe("Setup", () => {
       cyMockDefault(cy, baseMock);
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=next-btn]").should("not.be.visible");
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
 
+      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Idle and Initial Recordings"
