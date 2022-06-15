@@ -267,8 +267,9 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               style={{
                 position: "relative",
-                right: next ? "-50px" : "",
-                left: prev ? "-80px" : "",
+                // right: next ? "-50px" : "",
+                right: next ? "50px" : "",
+                left: prev ? "50px" : "",
               }}
               className={classes.navButton}
             >
