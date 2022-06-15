@@ -187,7 +187,6 @@ function FeedbackItem(props: {
     } else {
       setQueueList(await addQuestionToRecordQueue(currentID, accessToken));
     }
-    console.log(queueList);
   }
 
   // TODO: MOVE THIS TO A HOOK
