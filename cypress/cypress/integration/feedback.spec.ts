@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
-import { getSyntheticLeadingComments } from "typescript";
 
 describe("Feedback", () => {
   it("Format dropdown options", () => {

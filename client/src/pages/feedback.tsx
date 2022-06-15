@@ -166,6 +166,7 @@ function FeedbackItem(props: {
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
   queueList: string[];
+  setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
     accessToken,
@@ -178,7 +179,6 @@ function FeedbackItem(props: {
   } = props;
   const [currentStatus, setcurrentStatus] = React.useState<Status>(); // for disabling/enabling queue button
   const [currentID, setCurrentID] = React.useState<string>(); // grab ID of the selected option
-  //const [queueList, setQueueList] = React.useState<string[]>();
 
   // function to add/remove from queue
   async function handleClick(currentID: string, accessToken: string) {
@@ -187,13 +187,14 @@ function FeedbackItem(props: {
     } else {
       setQueueList(await addQuestionToRecordQueue(currentID, accessToken));
     }
+    console.log(queueList);
   }
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
+    setCurrentID(answerId); // update ID
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
-    setCurrentID(answerId); // update ID
   }
 
   return (

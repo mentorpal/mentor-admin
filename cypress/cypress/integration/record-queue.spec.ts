@@ -12,9 +12,8 @@ import {
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
 
-describe("Mentor Recod Queue", () => {
-
-  describe("Feedback Page", ()=>{
+describe("Mentor Record Queue", () => {
+  describe("Feedback Page", () => {
     it.only("Testing record queue on feedback page", () => {
       cyMockDefault(cy, {
         mentor,
@@ -30,9 +29,9 @@ describe("Mentor Recod Queue", () => {
           mockGQL("FetchMentorRecordQueue", {
             me: {
               mentorRecordQueue: [
-                "question_id_1",
-                "question_id_2",
-                "question_id_3",
+                "A3_1_1", // Please look at the camera...
+                "A4_1_1", // Please give a short introduction...
+                "A5_1_1", // Please repeat the following...
               ],
             },
           }),
@@ -40,29 +39,28 @@ describe("Mentor Recod Queue", () => {
           mockGQL("AddQuestionToRecordQueue", {
             me: {
               addQuestionToRecordQueue: [
-                "question_id_1",
-                "question_id_2",
-                "question_id_3",
-                "question_id_4",
+                "A3_1_1", // Please look at the camera...
+                "A4_1_1", // Please give a short introduction...
+                "A5_1_1", // Please repeat the following...
+                "A1_1_1", // Who are you...
               ],
             },
           }),
-          // This intercepts the RemoveQuestionFromRecordQueue and returns data as if there was a request to remove question_id_2 from the list
+          // This intercepts the RemoveQuestionFromRecordQueue and returns data as if there was a request to remove "A4_1_1" from the list
           mockGQL("RemoveQuestionFromRecordQueue", {
             me: {
               removeQuestionFromRecordQueue: [
-                "question_id_1",
-                "question_id_3",
-                "question_id_4",
+                "A3_1_1", // Please look at the camera...
+                "A5_1_1", // Please repeat the following...
+                "A1_1_1", // Who are you...
               ],
             },
           }),
+          mockGQL("UserQuestionSetAnswer", {}),
         ],
       });
       cy.visit("/feedback");
       // start testing stuff here
     });
-  })
-
-
+  });
 });
