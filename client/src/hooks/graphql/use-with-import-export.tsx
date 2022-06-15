@@ -83,7 +83,7 @@ export function useWithImportExport(): UseWithImportExport {
       return;
     }
     setIsUpdating(true);
-    await exportMentor(mentorId);
+    await exportMentor(mentorId, accessToken);
     setIsUpdating(false);
   }
 
@@ -102,11 +102,11 @@ export function useWithImportExport(): UseWithImportExport {
   }
 
   async function updateImport(json: MentorExportJson) {
-    if (!mentorId || isUpdating) {
+    if (!mentorId || !accessToken || isUpdating) {
       return;
     }
     setIsUpdating(true);
-    const preview = await api.importMentorPreview(mentorId, json);
+    const preview = await api.importMentorPreview(mentorId, json, accessToken);
     setImportJson(json);
     setImportPreview(preview);
     setIsUpdating(false);
@@ -848,9 +848,12 @@ export function useWithImportExport(): UseWithImportExport {
   };
 }
 
-export function exportMentor(mentorId: string): Promise<void> {
+export function exportMentor(
+  mentorId: string,
+  accessToken: string
+): Promise<void> {
   return api
-    .exportMentor(mentorId)
+    .exportMentor(mentorId, accessToken)
     .then((m) => {
       const element = document.createElement("a");
       element.setAttribute(

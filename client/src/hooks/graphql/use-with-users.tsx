@@ -36,7 +36,7 @@ export function useWithUsers(accessToken: string): UseUserData {
   } = useWithDataConnection<User>(fetch);
 
   function fetch(): Promise<Connection<User>> {
-    return fetchUsers(searchParams);
+    return fetchUsers(accessToken, searchParams);
   }
 
   function onUpdateUserPermissions(
