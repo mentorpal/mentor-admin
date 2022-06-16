@@ -13,7 +13,19 @@ describe("Feedback", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
-      gqlQueries: [mockGQL("UserQuestions", userQuestions)],
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            mentorRecordQueue: [
+              "A3_1_1", // Please look at the camera...
+              "A4_1_1", // Please give a short introduction...
+              "A5_1_1", // Please repeat the following...
+            ],
+          },
+        }),
+      ],
     });
     cy.visit("/feedback");
     cy.get("[data-cy=select-answer]").click();

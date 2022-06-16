@@ -57,6 +57,7 @@ describe("Mentor Record Queue", () => {
             },
           }),
           mockGQL("UserQuestionSetAnswer", {}),
+          mockGQL("UserQuestionSetAnswer", {}),
         ],
       });
       cy.visit("/feedback");
