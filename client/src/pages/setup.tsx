@@ -17,6 +17,7 @@ import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { WelcomeSlide } from "components/setup/welcome-slide";
 import { MentorInfoSlide } from "components/setup/mentor-info-slide";
+import { MentorGoalSlide } from "components/setup/mentor-goal-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
@@ -123,6 +124,16 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         return (
           <MentorInfoSlide
             key="mentor-info"
+            classes={classes}
+            mentor={mentor}
+            isMentorLoading={isLoading || isSaving}
+            editMentor={editMentor}
+          />
+        );
+        case SetupStepType.MENTOR_GOAL:
+        return (
+          <MentorGoalSlide
+            key="mentor-goal"
             classes={classes}
             mentor={mentor}
             isMentorLoading={isLoading || isSaving}

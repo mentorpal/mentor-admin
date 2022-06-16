@@ -56,6 +56,7 @@ export interface Mentor {
   title: string;
   email: string;
   allowContact: boolean;
+  goal: string;
   thumbnail: string;
   mentorType: MentorType;
   lastTrainedAt: string;

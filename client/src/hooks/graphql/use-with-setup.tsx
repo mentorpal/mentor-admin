@@ -26,13 +26,14 @@ import useQuestions, {
 export enum SetupStepType {
   WELCOME = 0,
   MENTOR_INFO = 1,
-  MENTOR_TYPE = 2,
-  INTRODUCTION = 3,
-  SELECT_SUBJECTS = 4,
-  IDLE_TIPS = 5,
-  IDLE = 6,
-  REQUIRED_SUBJECT = 7,
-  FINISH_SETUP = 8,
+  MENTOR_GOAL = 2,
+  MENTOR_TYPE = 3,
+  INTRODUCTION = 4,
+  SELECT_SUBJECTS = 5,
+  IDLE_TIPS = 6,
+  IDLE = 7,
+  REQUIRED_SUBJECT = 8,
+  FINISH_SETUP = 9,
 }
 
 interface SetupStep {
@@ -42,6 +43,7 @@ interface SetupStep {
 
 interface SetupStatus {
   isMentorInfoDone: boolean;
+  isMentorGoalDone: boolean;
   isMentorTypeChosen: boolean;
   idle?: {
     idle: Answer;
@@ -114,6 +116,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     const isMentorInfoDone = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
+    const isMentorGoalDone = Boolean(
+      mentor.goal
+    );
     const isMentorTypeChosen = Boolean(mentor.mentorType);
     const idleAnswer = mentor.answers.find(
       (a: Answer) =>
@@ -143,6 +148,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       });
     const isSetupComplete =
       isMentorInfoDone &&
+      isMentorGoalDone &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
       requiredSubjects.every(
@@ -151,6 +157,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       );
     setStatus({
       isMentorInfoDone,
+      isMentorGoalDone,
       isMentorTypeChosen,
       idle,
       requiredSubjects,
@@ -160,6 +167,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
+      { type: SetupStepType.MENTOR_GOAL, complete: isMentorGoalDone },
       { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
       { type: SetupStepType.INTRODUCTION, complete: true },
@@ -234,7 +242,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     }
     if (!status.isMentorInfoDone) {
       navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_INFO) }));
-    } else if (!status.isMentorTypeChosen) {
+    } 
+    else if(!status.isMentorGoalDone){
+      navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_GOAL) }));
+    }
+    else if (!status.isMentorTypeChosen) {
       navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_TYPE) }));
     } else if (status.idle && !status.idle.complete) {
       navigate(urlBuild("/setup", { i: String(SetupStepType.IDLE) }));
