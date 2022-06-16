@@ -224,23 +224,41 @@ function RecordPage(props: {
     emptyLineBeforeBlock: true,
   };
 
+  // Used to get the initial plain text 
+  function generateTranscriptText(text: string) {
+    setTranscriptText(text);
+    const _editorState = EditorState.createWithContent(
+      ContentState.createFromText(text)
+    );
+    setEditorState(_editorState);
+  }
+
+  // Used to get the initial markdown text 
+  function generateMarkdown(text: string) {
+    setTranscriptText(text);
+    const rawContentState = convertToRaw(editorState.getCurrentContent());
+    const markdown = draftToMarkdown(rawContentState, markdownConfig);
+    const _markdownState = EditorState.createWithContent(
+      ContentState.createFromText(markdown)
+    );
+    console.log("markdown: " + markdown)
+    console.log("_markdownState: " + _markdownState)
+    setEditorState(_markdownState);
+  }
+
   useEffect(() => {
     if (!curAnswer) {
       return;
     }
-    setTranscriptText(curAnswer.answer.transcript);
-
-    const _editorState = EditorState.createWithContent(
-      ContentState.createFromText(curAnswer.answer.transcript)
-    );
-    setEditorState(_editorState);
+    generateTranscriptText(curAnswer.answer.transcript)
+    //generateMarkdown(curAnswer.answer.transcript)
   }, [curAnswer]);
 
   useEffect(() => {
     let rawContentState = convertToRaw(editorState.getCurrentContent());
     let markup = draftToMarkdown(rawContentState, markdownConfig);
     console.log("markup: " + markup);
-  }, [editorState]);
+  }, [editorState]); 
 
   function onBack() {
     reloadMentorData();
