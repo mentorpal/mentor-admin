@@ -226,7 +226,6 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    console.log(curAnswer.answer.transcript);
     setTranscriptText(curAnswer.answer.transcript);
 
     const _editorState = EditorState.createWithContent(
@@ -234,11 +233,14 @@ function RecordPage(props: {
     );
     setEditorState(_editorState);
 
-    const rawContentState = convertToRaw(editorState.getCurrentContent());
-    const markup = draftToMarkdown(rawContentState, markdownConfig);
-    console.log(markup);
-
   }, [curAnswer]);
+
+  useEffect(() => {
+    let rawContentState = convertToRaw(editorState.getCurrentContent());
+    let markup = draftToMarkdown(rawContentState, markdownConfig);
+    console.log("rawContentState: " + rawContentState);
+    console.log("markup: " + markup);
+  }, [editorState])
 
   function onBack() {
     reloadMentorData();
