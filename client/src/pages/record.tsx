@@ -231,6 +231,14 @@ function RecordPage(props: {
       ContentState.createFromText(text)
     );
     setEditorState(_editorState);
+    const rawContentState = convertToRaw(editorState.getCurrentContent());
+    const markdown = draftToMarkdown(rawContentState, markdownConfig);
+    const _markdownState = EditorState.createWithContent(
+      ContentState.createFromText(markdown)
+    );
+    console.log("markdown: " + markdown)
+    console.log("_markdownState: " + _markdownState)
+    setEditorState(_markdownState);
   }
 
   // Used to get the initial markdown text 
@@ -253,12 +261,6 @@ function RecordPage(props: {
     generateTranscriptText(curAnswer.answer.transcript)
     //generateMarkdown(curAnswer.answer.transcript)
   }, [curAnswer]);
-
-  useEffect(() => {
-    let rawContentState = convertToRaw(editorState.getCurrentContent());
-    let markup = draftToMarkdown(rawContentState, markdownConfig);
-    console.log("markup: " + markup);
-  }, [editorState]); 
 
   function onBack() {
     reloadMentorData();
@@ -362,6 +364,9 @@ function RecordPage(props: {
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState) => {
             setEditorState(editorState);
+            let rawContentState = convertToRaw(editorState.getCurrentContent());
+            let markup = draftToMarkdown(rawContentState, markdownConfig);
+            console.log("markup: " + markup);
           }}
           editorState={editorState}
         />
