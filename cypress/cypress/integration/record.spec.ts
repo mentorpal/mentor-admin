@@ -2209,7 +2209,7 @@ describe("Record", () => {
     });
   });
 
-  it.only("failed gql process displays error message in upload widget", () => {
+  it("failed gql process displays error message in upload widget", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -2232,46 +2232,6 @@ describe("Record", () => {
                 },
                 {
                   question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
                     _id: videoMentor.answers[1].question._id,
                     question: videoMentor.answers[1].question.question,
                   },
@@ -2291,47 +2251,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-                  ...taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("FAILED"),
                   ...uploadTaskMediaBuild(),
                 },
                 {
@@ -2340,7 +2260,7 @@ describe("Record", () => {
                     question: videoMentor.answers[1].question.question,
                   },
 
-                  ...taskListBuild("IN_PROGRESS"),
+                  ...taskListBuild("FAILED"),
                   transcript: "",
                   ...uploadTaskMediaBuild(),
                 },
@@ -2351,6 +2271,19 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
+    cy.wait(3000);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("contain.text", "Failed to process file");
+    });
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("contain.text", "Failed to process file");
+    });
   });
 
   it("warns user of empty transcript", () => {
