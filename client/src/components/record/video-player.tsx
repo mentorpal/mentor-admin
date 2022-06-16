@@ -13,10 +13,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
+
 import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
+import { UseWithRecordState } from "types";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;

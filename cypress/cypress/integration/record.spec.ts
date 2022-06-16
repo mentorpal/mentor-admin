@@ -24,7 +24,51 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
-import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
+export function taskListBuild(progressForAllTasks) {
+  return {
+    trimUploadTask: {
+      task_name: "trim_upload",
+      status: progressForAllTasks,
+    },
+    transcodeWebTask: {
+      task_name: "transcode-web",
+      status: progressForAllTasks,
+    },
+    tanscodeMobileTask: {
+      task_name: "transcode-mobile",
+      status: progressForAllTasks,
+    },
+    transcribeTask: {
+      task_name: "transcribe",
+      status: progressForAllTasks,
+    },
+  };
+}
+
+export function uploadTaskMediaBuild() {
+  return {
+    originalMedia: {
+      type: "video",
+      tag: "original",
+      url: "http://google.mp4/original.mp4",
+    },
+    webMedia: {
+      type: "video",
+      tag: "web",
+      url: "http://google.mp4",
+    },
+    mobileMedia: {
+      type: "video",
+      tag: "mobile",
+      url: "http://google.mp4",
+    },
+    vttMedia: {
+      type: "vtt",
+      tag: "en",
+      url: "http://google.mp4",
+    },
+  };
+}
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -2183,9 +2227,7 @@ describe("Record", () => {
                     _id: videoMentor.answers[0].question._id,
                     question: videoMentor.answers[0].question.question,
                   },
-
                   ...taskListBuild("IN_PROGRESS"),
-                  transcript: "",
                   ...uploadTaskMediaBuild(),
                 },
                 {
