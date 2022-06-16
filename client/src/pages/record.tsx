@@ -65,6 +65,7 @@ import {
   RawDraftContentState,
 } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import draftToMarkdown from 'draftjs-to-markdown';
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -216,6 +217,10 @@ function RecordPage(props: {
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(ContentState.createFromText(""))
   );
+  const markdownConfig = {
+    blockTypesMapping : {/* mappings */},
+    emptyLineBeforeBlock : true
+  }
 
   useEffect(() => {
     if (!curAnswer) {
@@ -224,10 +229,15 @@ function RecordPage(props: {
     console.log(curAnswer.answer.transcript);
     setTranscriptText(curAnswer.answer.transcript);
 
-    let _editorState = EditorState.createWithContent(
+    const _editorState = EditorState.createWithContent(
       ContentState.createFromText(curAnswer.answer.transcript)
     );
     setEditorState(_editorState);
+
+    const rawContentState = convertToRaw(editorState.getCurrentContent());
+    const markup = draftToMarkdown(rawContentState, markdownConfig);
+    console.log(markup);
+
   }, [curAnswer]);
 
   function onBack() {
@@ -335,8 +345,6 @@ function RecordPage(props: {
           }}
           editorState={editorState}
         />
-
-        {curAnswer.editedAnswer.transcript}
       </div>
     );
   }
