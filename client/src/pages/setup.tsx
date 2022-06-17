@@ -272,7 +272,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               style={{
                 position: "relative",
                 right: next ? "-45px" : "",
-                left: prev ? "-80px" : "",
+                left: prev ? "-75px" : "",
               }}
               className={classes.navButton}
             >
