@@ -7,6 +7,8 @@ The full terms of this copyright and license should always be found in the root 
 
 import { CancelTokenSource } from "axios";
 import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
+import { QuestionState } from "store/slices/questions";
+import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export interface Config {
   googleClientId: string;
@@ -394,4 +396,58 @@ export interface PresignedUrlFields {
   policy?: string;
   AWSAccessKeyId?: string;
   signature?: string;
+}
+
+export interface UseWithRecordState {
+  mentorQuestions: Record<string, QuestionState>;
+  mentorSubjects: Subject[];
+  answers: AnswerState[];
+  answerIdx: number;
+  curAnswer?: CurAnswerState;
+  uploads: UploadTask[];
+  pollStatusCount: number;
+  isUploading: boolean;
+  isRecording: boolean;
+  isSaving: boolean;
+  error?: LoadingError;
+  isDownloadingVideo: boolean;
+  notifyDialogOpen: boolean;
+  setNotifyDialogOpen: (open: boolean) => void;
+  prevAnswer: () => void;
+  reloadMentorData: () => void;
+  nextAnswer: () => void;
+  setAnswerIdx: (id: number) => void;
+  editAnswer: (edits: Partial<Answer>) => void;
+  editQuestion: (edits: Partial<Question>) => void;
+  saveAnswer: () => void;
+  removeCompletedOrFailedTask: (tasks: UploadTask) => void;
+  rerecord: () => void;
+  startRecording: () => void;
+  stopRecording: (video: File) => void;
+  uploadVideo: (trim?: { start: number; end: number }) => void;
+  downloadCurAnswerVideo: () => void;
+  downloadVideoFromUpload: (upload: UploadTask) => void;
+  setMinVideoLength: (length: number) => void;
+  clearError: () => void;
+}
+
+export interface AnswerState {
+  answer: Answer;
+  editedAnswer: Answer;
+  editedQuestion: Question;
+  attentionNeeded: AnswerAttentionNeeded;
+  recordedVideo?: File;
+  minVideoLength?: number;
+}
+
+export interface CurAnswerState extends AnswerState {
+  isEdited: boolean;
+  isValid: boolean;
+  isUploading: boolean;
+  videoSrc?: string;
+}
+
+export interface RecordStateError {
+  message: string;
+  error: string;
 }

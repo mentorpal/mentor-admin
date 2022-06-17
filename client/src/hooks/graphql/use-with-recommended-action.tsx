@@ -56,72 +56,62 @@ interface Recommendation {
   icon: JSX.Element;
   input?: boolean;
   action: () => void;
-  skip?: Conditions;
 }
 
-function recommend(
-  conditions?: Conditions,
+function createAllRecommendations(
+  conditions: Conditions,
   continueAction?: () => void
-): Recommendation {
-  if (!conditions)
-    return {
-      text: "no recommendation",
-      reason: "invalid mentor",
-      icon: <CheckCircleOutlined />,
-      action: () => undefined,
-    };
+) {
+  const reccomendationList: Recommendation[] = [];
+
   if (!conditions.hasThumbnail)
-    return {
+    reccomendationList.push({
       text: "Add a Thumbnail",
       reason:
         "A thumbnail helps a user pick out your mentor from other mentors.",
       icon: <Image />,
       input: true,
       action: () => undefined,
-
-      skip: { ...conditions, hasThumbnail: true },
-    };
+    });
 
   if (conditions.introIncomplete)
-    return {
+    reccomendationList.push({
       text: "Add Your Intro",
       reason: "Your mentor's introduction is what they say when a user starts.",
       icon: <CheckCircleOutlined />,
       input: false,
       action: () => {
-        if (conditions.intro)
+        if (conditions.intro) {
           navigate(
             urlBuild("/record", {
               subject: "",
               videoId: conditions.intro?.question,
             })
           );
+        }
       },
+    });
 
-      skip: { ...conditions, introIncomplete: true },
-    };
-  if (conditions.idleIncomplete && conditions.isVideo) {
-    return {
+  if (conditions.idleIncomplete && conditions.isVideo)
+    reccomendationList.push({
       text: "Record an Idle Video",
       reason: "Users see your idle video while typing a question",
       icon: <AccountBox />,
       input: false,
       action: () => {
-        if (conditions.idle)
+        if (conditions.idle) {
           navigate(
             urlBuild("/record", {
               subject: "",
               videoId: conditions.idle?.question,
             })
           );
+        }
       },
-
-      skip: { ...conditions, idleIncomplete: false },
-    };
-  }
+    });
 
   if (conditions.offTopicIncomplete)
-    return {
+    reccomendationList.push({
       text: "Add an Off Topic Response",
       reason:
         "The off topic response helps tell the user that the AI didn't understand their question.",
@@ -136,12 +126,10 @@ function recommend(
             })
           );
       },
-
-      skip: { ...conditions, offTopicIncomplete: true },
-    };
+    });
 
   if (conditions.needSubject)
-    return {
+    reccomendationList.push({
       text: "Add a subject",
       reason:
         "Your mentor doesn't have any subject areas. Subjects give you sets of questions to record.",
@@ -150,38 +138,27 @@ function recommend(
       action: () => {
         navigate("/subjects");
       },
+    });
 
-      skip: { ...conditions, offTopicIncomplete: true },
-    };
-
-  const condition =
-    (!conditions.neverBuilt && conditions.totalAnswers > 0) ||
-    conditions.completedAnswers > 5;
-  if (condition && continueAction)
-    return {
+  if (
+    (conditions.isDirty &&
+      conditions.completedAnswers >= 5 &&
+      continueAction) ||
+    (!conditions.neverBuilt &&
+      conditions.completedAnswers >= 5 &&
+      continueAction)
+  )
+    reccomendationList.push({
       text: "Build Your Mentor",
       reason:
         "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
       icon: <CheckCircleOutlined />,
       input: false,
       action: continueAction,
-
-      skip: { ...conditions, neverBuilt: true },
-    };
-
-  if (conditions.completedAnswers > 5 && continueAction)
-    return {
-      text: "Build Your Mentor",
-      reason:
-        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
-      icon: <CheckCircleOutlined />,
-      input: false,
-      action: continueAction,
-      skip: { ...conditions, completedAnswers: 6 },
-    };
+    });
 
   if (conditions.incompleteRequirement)
-    return {
+    reccomendationList.push({
       text: "Finish Required Questions",
       reason:
         "You can't build your mentor until you record all required subjects.",
@@ -197,11 +174,10 @@ function recommend(
             })
           );
       },
+    });
 
-      skip: { ...conditions, incompleteRequirement: undefined },
-    };
   if (conditions.completedAnswers < 5)
-    return {
+    reccomendationList.push({
       text:
         conditions.completedAnswers < 5
           ? "Answer More Questions"
@@ -221,12 +197,10 @@ function recommend(
               })
             );
       },
-
-      skip: { ...conditions, completedAnswers: 5 },
-    };
+    });
 
   if (conditions.firstIncomplete)
-    return {
+    reccomendationList.push({
       text: `Answer ${conditions.firstIncomplete?.categoryName} Questions`,
       reason: `You have unanswered questions in the ${conditions.firstIncomplete?.subjectName} subject`,
       icon: <FiberManualRecord />,
@@ -241,27 +215,17 @@ function recommend(
             })
           );
       },
+    });
 
-      skip: { ...conditions, firstIncomplete: undefined },
-    };
-  if (conditions.isDirty && continueAction)
-    return {
-      text: "Build Your Mentor",
-      reason:
-        "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
-      icon: <FiberManualRecord />,
-      input: false,
-      action: continueAction,
-      skip: { ...conditions, isDirty: false },
-    };
-  return {
+  reccomendationList.push({
     text: "Add a Subject",
     reason: "Add a subject to answer more questions",
     icon: <NoteAdd />,
     input: false,
     action: () => navigate("/subjects"),
-    skip: conditions,
-  };
+  });
+
+  return reccomendationList;
 }
 
 function parseMentorConditions(
@@ -375,7 +339,7 @@ function unique(array: Category[]) {
 
 export function UseWithRecommendedAction(
   continueAction?: () => void
-): [Recommendation, () => void] {
+): [Recommendation, () => void, number] {
   const { getData } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((ms) => ms.data?.answers);
   const mentorQuestions = useQuestions(
@@ -387,18 +351,46 @@ export function UseWithRecommendedAction(
     parseMentorConditions(mentorQuestions, ms.data)
   );
 
-  const [recommendedAction, setRecommendedAction] = useState<Recommendation>(
-    recommend(conditions, continueAction)
-  );
+  const finalRecommendation: Recommendation = {
+    text: "Add a Subject",
+    reason: "Add a subject to answer more questions",
+    icon: <NoteAdd />,
+    input: false,
+    action: () => navigate("/subjects"),
+  };
+
+  const [reccomendationList, setRecommendationList] = useState<
+    Recommendation[]
+  >([finalRecommendation]);
+  const [recommendedAction, setRecommendedAction] =
+    useState<Recommendation>(finalRecommendation);
+  const [recListIndex, setRecListIndex] = useState<number>(0);
 
   React.useEffect(() => {
-    const action = recommend(conditions, continueAction);
-    setRecommendedAction(action);
+    const generatedReccomendationsList = createAllRecommendations(
+      conditions,
+      continueAction
+    );
+    setRecommendationList(generatedReccomendationsList);
   }, [mentorQuestions]);
 
+  React.useEffect(() => {
+    setRecommendedAction(reccomendationList[0]);
+  }, [reccomendationList]);
+
+  React.useEffect(() => {
+    setRecommendedAction(reccomendationList[recListIndex]);
+  }, [recListIndex]);
+
+  const recListLength = reccomendationList.length;
+
   function skipRecommendation() {
-    const skip = recommend(recommendedAction.skip, continueAction);
-    setRecommendedAction(skip);
+    if (recListIndex >= recListLength - 1) {
+      setRecListIndex(0);
+    } else {
+      setRecListIndex(recListIndex + 1);
+    }
   }
-  return [recommendedAction, skipRecommendation];
+
+  return [recommendedAction, skipRecommendation, recListLength];
 }
