@@ -64,8 +64,8 @@ export function NotificationDialog(props: {
       PaperProps={{
         style: {
           borderRadius: "20px",
-          borderWidth: "#1c6a9c",
-          borderColor: "3px",
+          borderWidth: "3px",
+          borderColor: "#1c6a9c",
           borderStyle: "solid",
         },
       }}
