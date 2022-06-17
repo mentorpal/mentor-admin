@@ -9,7 +9,7 @@ import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 
 describe("Feedback", () => {
-  it("Format dropdown options", () => {
+  it("dropdown un-recorded questions are greyed out", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,

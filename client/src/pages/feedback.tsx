@@ -128,7 +128,7 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-function FormatMentorQu(
+function formatMentorQuestions(
   mentorAnswers: Answer[],
   mentorQuestions: Record<string, QuestionState>
 ) {
@@ -177,21 +177,29 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [currentStatus, setcurrentStatus] = React.useState<Status>(); // for disabling/enabling queue button
-  const [currentID, setCurrentID] = React.useState<string>(); // grab ID of the selected option
+  const [selectedAnswerStatus, setSelectedAnswerStatus] =
+    React.useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>(); // grab ID of the selected option
 
   // function to add/remove from queue
-  async function handleClick(currentID: string, accessToken: string) {
-    if (queueList?.includes(currentID)) {
-      setQueueList(await removeQuestionFromRecordQueue(currentID, accessToken));
+  async function queueButtonClicked(
+    selectedAnswerID: string,
+    accessToken: string
+  ) {
+    if (queueList?.includes(selectedAnswerID)) {
+      setQueueList(
+        await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
+      );
     } else {
-      setQueueList(await addQuestionToRecordQueue(currentID, accessToken));
+      setQueueList(
+        await addQuestionToRecordQueue(selectedAnswerID, accessToken)
+      );
     }
   }
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
-    setCurrentID(answerId); // update ID
+    setSelectedAnswerID(answerId); // update ID
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -242,13 +250,16 @@ function FeedbackItem(props: {
             <Autocomplete
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
-              options={FormatMentorQu(mentorAnswers || [], mentorQuestions)}
+              options={formatMentorQuestions(
+                mentorAnswers || [],
+                mentorQuestions
+              )}
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
               }
               onChange={(e, v) => {
-                setcurrentStatus(v?.status);
+                setSelectedAnswerStatus(v?.status);
                 onUpdateAnswer(v?._id);
               }}
               style={{
@@ -260,7 +271,7 @@ function FeedbackItem(props: {
                 <Typography
                   style={{
                     color:
-                      option.status == Status.INCOMPLETE ? "grey" : "black",
+                      option.status === Status.INCOMPLETE ? "grey" : "black",
                   }}
                   data-cy={`Drop-down-qu-${option._id}`}
                   align="left"
@@ -281,10 +292,12 @@ function FeedbackItem(props: {
               <Button
                 data-cy="queue-btn"
                 color="primary"
-                disabled={currentStatus == Status.COMPLETE}
-                onClick={() => handleClick(currentID || "", accessToken)}
+                disabled={selectedAnswerStatus == Status.COMPLETE}
+                onClick={() =>
+                  queueButtonClicked(selectedAnswerID || "", accessToken)
+                }
               >
-                {queueList?.includes(currentID || "")
+                {queueList?.includes(selectedAnswerID || "")
                   ? "Remove from Queue"
                   : "Add to Queue"}
               </Button>

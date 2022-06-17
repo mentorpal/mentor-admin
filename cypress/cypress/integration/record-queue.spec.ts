@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import {
   cyMockDefault,
   mockGQL,
+  cySetup,
   cyMockFollowUpQuestions,
 } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
@@ -14,7 +15,41 @@ import mentor from "../fixtures/mentor/clint_new";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
-    it.only("Testing record queue on feedback page", () => {
+    it("dropdown un-recorded questions are greyed out", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        gqlQueries: [
+          mockGQL("UserQuestions", userQuestions),
+          mockGQL("ImportTask", { importTask: null }),
+          mockGQL("FetchMentorRecordQueue", {
+            me: {
+              mentorRecordQueue: [
+                "A3_1_1", // Please look at the camera...
+                "A4_1_1", // Please give a short introduction...
+                "A5_1_1", // Please repeat the following...
+              ],
+            },
+          }),
+        ],
+      });
+      cy.visit("/feedback");
+      cy.get("[data-cy=select-answer]").click();
+      cy.get("[data-cy=Drop-down-qu-A6_1_1]").should("be.visible");
+      cy.get("[data-cy=Drop-down-qu-A6_1_1]").should(
+        "have.css",
+        "color",
+        "rgb(0, 0, 0)"
+      );
+      cy.get("[data-cy=Drop-down-qu-A5_1_1]").should("be.visible");
+      cy.get("[data-cy=Drop-down-qu-A5_1_1]").should(
+        "have.css",
+        "color",
+        "rgb(128, 128, 128)"
+      );
+    });
+    /**
+    it("Testing record queue on feedback page", () => {
       cyMockDefault(cy, {
         mentor,
         // This is where you tell cypress to intercept the GraphQL calls and provide it with what data to return with
@@ -63,5 +98,6 @@ describe("Mentor Record Queue", () => {
       cy.visit("/feedback");
       // start testing stuff here
     });
+    */
   });
 });
