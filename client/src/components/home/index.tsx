@@ -392,8 +392,8 @@ function HomePage(props: {
         open={!hasSeenSplash}
         closeDialog={() => userSawSplashScreen("")}
         curve={"20px"}
-        borderColor={"secondary"}
-        width={"5px"}
+        borderColor={"#1c6a9c"}
+        width={"3px"}
         typeBorder={"solid"}
       />
       <Dialog
