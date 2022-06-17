@@ -53,14 +53,26 @@ export function NotificationDialog(props: {
   title?: string;
   open: boolean;
   closeDialog: () => void;
+  curve?: string;
+  borderColor?: string;
+  width?: string;
+  typeBorder?: string;
 }): JSX.Element {
-  const { title } = props;
+  const { title, curve, borderColor, width, typeBorder } = props;
   return (
     <Dialog
       data-cy="notification-dialog"
       maxWidth="sm"
       fullWidth={true}
       open={Boolean(title) && props.open}
+      PaperProps={{
+        style: {
+          borderRadius: curve,
+          borderWidth: width,
+          borderColor: borderColor,
+          borderStyle: typeBorder,
+        },
+      }}
     >
       <DialogTitle data-cy="notification-dialog-title">{title}</DialogTitle>
       <DialogContent>
