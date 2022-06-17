@@ -391,10 +391,6 @@ function HomePage(props: {
         title={"This page is for setting up your mentor!"}
         open={!hasSeenSplash}
         closeDialog={() => userSawSplashScreen("")}
-        curve={"20px"}
-        borderColor={"#1c6a9c"}
-        width={"3px"}
-        typeBorder={"solid"}
       />
       <Dialog
         data-cy="setup-dialog"
