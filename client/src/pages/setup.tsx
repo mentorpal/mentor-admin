@@ -64,9 +64,8 @@ const useStyles = makeStyles(() => ({
   },
   card: {
     minHeight: 450,
-    maxWidth: "95%",
-    alignItems: "center",
-    justifyContent: "center",
+    maxWidth: "90%",
+    padding: 10,
   },
   title: {
     fontWeight: "bold",
@@ -248,7 +247,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 data-cy={next ? "next-btn" : "back-btn"}
                 style={{
                   display: next ? "none" : "block",
-                  left: prev ? "-80px" : "",
+                  left: prev ? "-45px" : "",
                 }}
                 onClick={() => onClick()}
                 className={classes.navButton}
@@ -272,7 +271,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               style={{
                 position: "relative",
                 right: next ? "-45px" : "",
-                left: prev ? "-75px" : "",
+                left: prev ? "-45px" : "",
               }}
               className={classes.navButton}
             >
@@ -311,7 +310,13 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         }}
       >
         {steps.map((s, i) => (
-          <div data-cy="slide" key={`slide-${i}`}>
+          <div data-cy="slide" key={`slide-${i}`} style={
+            {display: "flex",
+            justifyItems: "center",
+            justifyContent: "center",
+            alignItems: "center",
+            alignContent: "center", }
+            }>
             {renderSlide(idx)}
           </div>
         ))}
