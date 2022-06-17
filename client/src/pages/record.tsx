@@ -59,8 +59,8 @@ import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
 import { EditorState, ContentState, convertToRaw } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import draftToMarkdown from "draftjs-to-markdown";
 
-const draftToMarkdown = require("draftjs-to-markdown");
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
