@@ -66,6 +66,7 @@ import {
 } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToMarkdown from "draftjs-to-markdown";
+import { marked } from 'marked';
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -238,8 +239,8 @@ function RecordPage(props: {
       return;
     }
     generateTranscriptText(curAnswer.answer.transcript)
-    //generateMarkdown(curAnswer.answer.transcript)
-  }, [curAnswer]);
+    console.log("curAnswer.answer.transcript: " + curAnswer.answer.transcript);
+  }, [curAnswer?.answer]);
 
   function onBack() {
     reloadMentorData();
@@ -342,13 +343,19 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState) => {
-            setEditorState(editorState);
+
+            let text = editorState.getCurrentContent().getPlainText();
             let rawContentState = convertToRaw(editorState.getCurrentContent());
-            let markup = draftToMarkdown(rawContentState, markdownConfig);
-            setTranscriptText(markup);
-            console.log("markup: " + markup);
-            console.log("transcriptText: " + transcriptText);
-            recordState.editAnswer({transcript: markup})
+            let markdown = draftToMarkdown(rawContentState, markdownConfig);
+            console.log("markdown: " + markdown);
+            console.log("text: " + text);
+
+            setEditorState(editorState);
+            setTranscriptText(text);
+
+            //Triggers curAnswer useEffect each time
+            recordState.editAnswer({transcript: markdown});
+            
           }}
           editorState={editorState}
         />
