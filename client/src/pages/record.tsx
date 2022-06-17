@@ -341,8 +341,6 @@ function RecordPage(props: {
               editorState.getCurrentContent()
             );
             const markdown = draftToMarkdown(rawContentState, markdownConfig);
-            //console.log("markdown: " + markdown);
-            //console.log("text: " + text);
             setEditorState(editorState);
             setTranscriptText(text);
             recordState.editAnswer({ transcript: markdown });
