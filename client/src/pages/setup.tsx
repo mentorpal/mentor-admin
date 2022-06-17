@@ -64,7 +64,7 @@ const useStyles = makeStyles(() => ({
   },
   card: {
     minHeight: 450,
-    maxWidth: "90%",
+    maxWidth: "85%",
     padding: 10,
   },
   title: {
@@ -221,7 +221,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 onClick={() => onClick()}
                 style={{
                   display: prev ? "none" : "block",
-                  right: next ? "-45px" : "",
+                  right: next ? "-35px" : "",
                 }}
                 size="medium"
                 className={classes.navButton}
@@ -247,7 +247,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 data-cy={next ? "next-btn" : "back-btn"}
                 style={{
                   display: next ? "none" : "block",
-                  left: prev ? "-45px" : "",
+                  left: prev ? "-35px" : "",
                 }}
                 onClick={() => onClick()}
                 className={classes.navButton}
@@ -270,8 +270,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               style={{
                 position: "relative",
-                right: next ? "-45px" : "",
-                left: prev ? "-45px" : "",
+                right: next ? "-35px" : "",
+                left: prev ? "-35px" : "",
               }}
               className={classes.navButton}
             >
@@ -310,13 +310,17 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         }}
       >
         {steps.map((s, i) => (
-          <div data-cy="slide" key={`slide-${i}`} style={
-            {display: "flex",
-            justifyItems: "center",
-            justifyContent: "center",
-            alignItems: "center",
-            alignContent: "center", }
-            }>
+          <div
+            data-cy="slide"
+            key={`slide-${i}`}
+            style={{
+              display: "flex",
+              justifyItems: "center",
+              justifyContent: "center",
+              alignItems: "center",
+              alignContent: "center",
+            }}
+          >
             {renderSlide(idx)}
           </div>
         ))}
