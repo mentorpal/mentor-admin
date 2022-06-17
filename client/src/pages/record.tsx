@@ -231,27 +231,6 @@ function RecordPage(props: {
       ContentState.createFromText(text)
     );
     setEditorState(_editorState);
-    const rawContentState = convertToRaw(editorState.getCurrentContent());
-    const markdown = draftToMarkdown(rawContentState, markdownConfig);
-    const _markdownState = EditorState.createWithContent(
-      ContentState.createFromText(markdown)
-    );
-    console.log("markdown: " + markdown)
-    console.log("_markdownState: " + _markdownState)
-    setEditorState(_markdownState);
-  }
-
-  // Used to get the initial markdown text 
-  function generateMarkdown(text: string) {
-    setTranscriptText(text);
-    const rawContentState = convertToRaw(editorState.getCurrentContent());
-    const markdown = draftToMarkdown(rawContentState, markdownConfig);
-    const _markdownState = EditorState.createWithContent(
-      ContentState.createFromText(markdown)
-    );
-    console.log("markdown: " + markdown)
-    console.log("_markdownState: " + _markdownState)
-    setEditorState(_markdownState);
   }
 
   useEffect(() => {
@@ -366,7 +345,10 @@ function RecordPage(props: {
             setEditorState(editorState);
             let rawContentState = convertToRaw(editorState.getCurrentContent());
             let markup = draftToMarkdown(rawContentState, markdownConfig);
+            setTranscriptText(markup);
             console.log("markup: " + markup);
+            console.log("transcriptText: " + transcriptText);
+            recordState.editAnswer({transcript: markup})
           }}
           editorState={editorState}
         />
