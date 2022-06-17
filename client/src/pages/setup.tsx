@@ -83,9 +83,6 @@ const useStyles = makeStyles(() => ({
     width: 100,
     margin: 5,
   },
-  prev: {
-    left: "10%",
-  },
   navButton: {
     top: "calc(50% - 20px) !important",
     width: 100,
@@ -225,7 +222,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
                 onClick={() => onClick()}
                 style={{
                   display: prev ? "none" : "block",
-                  right: next ? "-80px" : "",
+                  right: next ? "-45px" : "",
                 }}
                 size="medium"
                 className={classes.navButton}
@@ -274,9 +271,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               onClick={() => onClick()}
               style={{
                 position: "relative",
-                // right: next ? "-50px" : "",
-                right: next ? "50px" : "",
-                left: prev ? "50px" : "",
+                right: next ? "-45px" : "",
+                left: prev ? "-80px" : "",
               }}
               className={classes.navButton}
             >
