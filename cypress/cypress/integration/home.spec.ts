@@ -87,7 +87,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it("shows my mentor card", () => {
+  it.only("shows my mentor card", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
