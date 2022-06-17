@@ -41,13 +41,14 @@ function snapname(n) {
 enum SetupScreen {
   Welcome = 0,
   Tell_Us_About_Yourself = 1,
-  Pick_Mentor_Type = 2,
-  Select_Subjects = 3,
-  Start_Recordin = 4,
-  Idle_Video_Tips = 5,
-  Record_Idle = 6,
-  Repeat_After_Me = 7,
-  Build_Mentor = 8,
+  Goal = 2,
+  Pick_Mentor_Type = 3,
+  Select_Subjects = 4,
+  Start_Recordin = 5,
+  Idle_Video_Tips = 6,
+  Record_Idle = 7,
+  Repeat_After_Me = 8,
+  Build_Mentor = 9,
 }
 
 function cyVisitSetupScreen(cy, screen: SetupScreen) {
@@ -68,6 +69,13 @@ describe("Setup", () => {
         "have.text",
         "Tell us a little about yourself."
       );
+
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
+        "Goal"
+      );
+
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -103,7 +111,7 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, baseMock);
-      cy.visit("/setup");
+      cy.visit("/setup").pause();
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
@@ -129,17 +137,23 @@ describe("Setup", () => {
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Pick a mentor type."
-      );
+      )
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
+        "Goal"
+      )
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Tell us a little about yourself."
-      );
+      )
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Welcome to MentorStudio!"
-      );
+      )
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
     });
@@ -265,7 +279,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
+    cy.contains("Goal");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
@@ -284,7 +298,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
+    cy.contains("Goal");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
@@ -305,7 +319,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
+    cy.contains("Goal");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-3"));
@@ -324,7 +338,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "clint@anderson.com");
     });
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
+    cy.contains("Goal");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-4"));
@@ -358,7 +372,7 @@ describe("Setup", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-2"));
-    cy.get("[data-cy=radio]").should("have.length", 7);
+    cy.get("[data-cy=radio]").should("have.length", 8);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
@@ -378,7 +392,7 @@ describe("Setup", () => {
     cy.contains("Select subjects?");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
-    cy.get("[data-cy=radio]").should("have.length", 9);
+    cy.get("[data-cy=radio]").should("have.length", 10);
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
 
@@ -433,7 +447,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/subjects")
     );
-    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D3");
+    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D4");
     cy.get("[data-cy=subjects]").children().should("have.length", 2);
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -486,7 +500,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=3");
+    cy.location("search").should("contain", "?i=4");
   });
 
   it("shows introduction slide", () => {
@@ -528,7 +542,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D6"
+      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D7"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -546,7 +560,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=6");
+    cy.location("search").should("contain", "?i=7");
     cy.contains("Idle");
   });
 
@@ -578,7 +592,7 @@ describe("Setup", () => {
         ]),
       ],
     });
-    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me - 1);
+    cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me-1);
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Repeat After Me questions");
     cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
@@ -631,13 +645,13 @@ describe("Setup", () => {
   });
 
   describe("shows setup complete slide after completing setup", () => {
-    it("cannot go to my mentor if setup incomplete", () => {
+    it.only("cannot go to my mentor if setup incomplete", () => {
       cyMockDefault(cy, {
         ...baseMock,
         mentor: [setup7],
       });
-      +cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      +cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
     });
@@ -646,8 +660,8 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup8],
       });
-      cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
     });
