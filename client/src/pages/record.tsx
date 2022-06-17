@@ -41,7 +41,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists, onTextInputChanged } from "helpers";
+import { getValueIfKeyExists } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -57,17 +57,10 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import {
-  EditorState,
-  ContentState,
-  convertToRaw,
-  convertFromRaw,
-  RawDraftContentState,
-} from "draft-js";
+import { EditorState, ContentState, convertToRaw } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import draftToMarkdown from "draftjs-to-markdown";
-import { marked } from 'marked';
 
+const draftToMarkdown = require("draftjs-to-markdown");
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
@@ -225,21 +218,21 @@ function RecordPage(props: {
     emptyLineBeforeBlock: true,
   };
 
-  // Used to get the initial plain text 
+  // Used to get the initial plain text
   function generateTranscriptText(text: string) {
     setTranscriptText(text);
     const _editorState = EditorState.createWithContent(
       ContentState.createFromText(text)
     );
     setEditorState(_editorState);
+    return transcriptText;
   }
 
   useEffect(() => {
     if (!curAnswer) {
       return;
     }
-    generateTranscriptText(curAnswer.answer.transcript)
-    console.log("curAnswer.answer.transcript: " + curAnswer.answer.transcript);
+    generateTranscriptText(curAnswer.answer.transcript);
   }, [curAnswer?.answer]);
 
   function onBack() {
@@ -343,19 +336,16 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState) => {
-
-            let text = editorState.getCurrentContent().getPlainText();
-            let rawContentState = convertToRaw(editorState.getCurrentContent());
-            let markdown = draftToMarkdown(rawContentState, markdownConfig);
-            console.log("markdown: " + markdown);
-            console.log("text: " + text);
-
+            const text = editorState.getCurrentContent().getPlainText();
+            const rawContentState = convertToRaw(
+              editorState.getCurrentContent()
+            );
+            const markdown = draftToMarkdown(rawContentState, markdownConfig);
+            //console.log("markdown: " + markdown);
+            //console.log("text: " + text);
             setEditorState(editorState);
             setTranscriptText(text);
-
-            //Triggers curAnswer useEffect each time
-            recordState.editAnswer({transcript: markdown});
-            
+            recordState.editAnswer({ transcript: markdown });
           }}
           editorState={editorState}
         />
