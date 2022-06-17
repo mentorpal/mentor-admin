@@ -194,9 +194,16 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     }
   }
 
+  if (!readyToDisplay) {
+    return (
+      <div className={classes.root}>
+        <LoadingDialog title="Loading..." />
+        <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      </div>
+    );
+  }
   return (
     <div className={classes.root}>
-      <LoadingDialog title={!readyToDisplay ? "Loading..." : ""} />
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         animation="slide"
@@ -313,7 +320,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
           </div>
         ))}
       </Carousel>
-
       <LoadingDialog
         title={isLoading ? "Loading..." : isSaving ? "Saving..." : ""}
       />

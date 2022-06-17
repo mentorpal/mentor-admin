@@ -98,7 +98,7 @@ describe("Setup", () => {
       cy.get("[data-cy=next-btn]").should("not.be.visible");
     });
 
-    it.only("with back button", () => {
+    it("with back button", () => {
       cyMockDefault(cy, {
         mentor: setup0,
         gqlQueries: [mockGQL("ImportTask", {})],
