@@ -136,7 +136,8 @@ export const mentor: Mentor = {
         name: null,
         paraphrases: [],
       },
-      transcript: "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.INCOMPLETE,
     },
     {
@@ -176,7 +177,8 @@ export const mentor: Mentor = {
         name: UtteranceName.INTRO,
         paraphrases: [],
       },
-      transcript: "My name is Clint Anderson. I work for the Navy as a Nuclear Electrician's Mate",
+      transcript:
+        "My name is Clint Anderson. I work for the Navy as a Nuclear Electrician's Mate",
       status: Status.INCOMPLETE,
     },
     {
@@ -189,7 +191,8 @@ export const mentor: Mentor = {
         name: UtteranceName.OFF_TOPIC,
         paraphrases: [],
       },
-      transcript: "I couldn't understand the question. Try asking me something else.",
+      transcript:
+        "I couldn't understand the question. Try asking me something else.",
       status: Status.INCOMPLETE,
     },
     {
