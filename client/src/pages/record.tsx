@@ -335,7 +335,7 @@ function RecordPage(props: {
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
-          onEditorStateChange={(editorState) => {
+          onEditorStateChange={(editorState: EditorState) => {
             const text = editorState.getCurrentContent().getPlainText();
             const rawContentState = convertToRaw(
               editorState.getCurrentContent()
