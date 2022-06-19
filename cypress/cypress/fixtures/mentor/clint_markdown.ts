@@ -137,7 +137,7 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+        "My __name__ is **Clint Anderson** and I'm a *Nuclear Electrician's Mate*",
       status: Status.INCOMPLETE,
     },
     {
@@ -149,7 +149,8 @@ export const mentor: Mentor = {
         name: null,
         paraphrases: [],
       },
-      transcript: "I'm 37 years old",
+      transcript:
+        "I'm[37](https://en.wikipedia.org/wiki/37_(number)) years old",
       status: Status.INCOMPLETE,
     },
     {
@@ -178,7 +179,8 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "My name is Clint Anderson. I work for the Navy as a Nuclear Electrician's Mate",
+        "- My name is Clint Anderson. I work for the Navy as a Nuclear Electrician's \
+        Mate ![](https://www.cool.osd.mil/usn/images/sideImage1_em_150324-N-WO404-020.png)",
       status: Status.INCOMPLETE,
     },
     {
@@ -192,7 +194,8 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "I couldn't understand the question. Try asking me something else.",
+        "1. I couldn't understand the[question](https://en.wikipedia.org/wiki/Question). \
+        Try asking **me** something else.",
       status: Status.INCOMPLETE,
     },
     {
