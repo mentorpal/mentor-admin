@@ -12,10 +12,12 @@ import * as loginActions from ".";
 interface UseWithLogin {
   state: loginActions.LoginState;
   login: (accessToken: string) => void;
+  userSawSplashScreen: (myMentorSplash: string) => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
 }
 
+// Gives you a way to interface with the redux store (which has the user information)
 export function useWithLogin(): UseWithLogin {
   const dispatch = useAppDispatch();
   const state = useAppSelector((state) => state.login);
@@ -52,6 +54,12 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
+  // Call this function when user clicks close on the dialog
+  function userSawSplashScreen(firstTimeTracking: string) {
+    // Dispatch userSawSplashScreen action here
+    dispatch(loginActions.userSawSplashScreen(firstTimeTracking));
+  }
+
   function logout() {
     if (state.loginStatus === loginActions.LoginStatus.AUTHENTICATED) {
       dispatch(loginActions.logout());
@@ -62,6 +70,7 @@ export function useWithLogin(): UseWithLogin {
     state,
     login,
     loginWithGoogle,
+    userSawSplashScreen,
     logout,
   };
 }
