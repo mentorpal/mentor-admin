@@ -1,4 +1,11 @@
-import { Avatar, Grid, IconButton, Typography } from "@material-ui/core";
+import {
+  Avatar,
+  Button,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import React from "react";
 import CreateIcon from "@material-ui/icons/Create";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
@@ -81,6 +88,7 @@ function MentorThumbnail(props: {
           className="mentorName"
         >
           <div style={{ display: "flex" }}>
+            {/* this is the pencil editing icon */}
             <div style={{ margin: "10px 0 0 0" }}>
               <IconButton
                 data-cy="edit-mentor-data"
@@ -92,9 +100,25 @@ function MentorThumbnail(props: {
               >
                 <CreateIcon />
               </IconButton>
-              <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
+
+              <Tooltip
+                arrow
+                placement="right"
+                // onClose = {{}}
+                title={
+                  <React.Fragment>
+                    <Typography color="inherit">
+                      <b>Profile</b>
+                    </Typography>
+                    <p>More description about what this should do.</p>
+                    <Button>Close</Button>
+                  </React.Fragment>
+                }
+              >
+                <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
+              </Tooltip>
             </div>
-            {/* {modal} */}
+
             <EditMentorInfoModal
               handleClose={handleClose}
               editMentor={editMentor}

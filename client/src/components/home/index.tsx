@@ -20,6 +20,7 @@ import {
   MenuItem,
   Select,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
@@ -45,6 +46,7 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import { HelpOutline } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -251,13 +253,28 @@ function HomePage(props: {
           }
           displayEmpty
           renderValue={() => (
-            <Typography variant="h6" className={classes.title}>
-              {reviewAnswerState.selectedSubject
-                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-                : "All Answers"}{" "}
-              ({reviewAnswerState.progress.complete} /{" "}
-              {reviewAnswerState.progress.total})
-            </Typography>
+            <Tooltip
+              //contains all text inside tooltip
+              title={
+                <React.Fragment>
+                  <Typography>
+                    <b>Categories and manually choosing questions to record</b>
+                  </Typography>
+                  <p>More description about what this should do.</p>
+                </React.Fragment>
+              }
+              //to make the tooltip have an arrow
+              arrow
+              placement="left"
+            >
+              <Typography variant="h6" className={classes.title}>
+                {reviewAnswerState.selectedSubject
+                  ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
+                  : "All Answers"}{" "}
+                ({reviewAnswerState.progress.complete} /{" "}
+                {reviewAnswerState.progress.total})
+              </Typography>
+            </Tooltip>
           )}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -318,44 +335,82 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
-            <Fab
-              data-cy="save-button"
-              variant="extended"
-              color="secondary"
-              onClick={() => {
-                reviewAnswerState.saveChanges();
-                if (useMentor.isMentorEdited) {
-                  useMentor.saveMentorDetails();
-                }
-              }}
-              className={[classes.fab, "secondary-btn"].join(" ")}
-            >
-              Save Changes
-            </Fab>
-            <Fab
-              data-cy="train-button"
-              variant="extended"
-              color="primary"
-              disabled={
-                !mentorId ||
-                isTraining ||
-                mentorLoading ||
-                reviewAnswerState.isSaving
+            <Tooltip
+              title={
+                <React.Fragment>
+                  <Typography color="inherit">
+                    <b>Profile</b>
+                  </Typography>
+                  <p>More description about what this should do.</p>
+                </React.Fragment>
               }
-              onClick={() => startTraining(mentorId)}
-              className={classes.fab}
+              arrow
             >
-              Build Mentor
-            </Fab>
-            <Fab
-              data-cy="preview-button"
-              variant="extended"
-              color="secondary"
-              onClick={() => launchMentor(mentorId, true)}
-              className={classes.fab}
+              <Fab
+                data-cy="save-button"
+                variant="extended"
+                color="secondary"
+                onClick={() => {
+                  reviewAnswerState.saveChanges();
+                  if (useMentor.isMentorEdited) {
+                    useMentor.saveMentorDetails();
+                  }
+                }}
+                className={[classes.fab, "secondary-btn"].join(" ")}
+              >
+                Save Changes
+              </Fab>
+            </Tooltip>
+
+            <Tooltip
+              title={
+                <React.Fragment>
+                  <Typography color="inherit">
+                    <b>Profile</b>
+                  </Typography>
+                  <p>More description about what this should do.</p>
+                </React.Fragment>
+              }
+              arrow
             >
-              Preview Mentor
-            </Fab>
+              <Fab
+                data-cy="train-button"
+                variant="extended"
+                color="primary"
+                disabled={
+                  !mentorId ||
+                  isTraining ||
+                  mentorLoading ||
+                  reviewAnswerState.isSaving
+                }
+                onClick={() => startTraining(mentorId)}
+                className={classes.fab}
+              >
+                Build Mentor
+              </Fab>
+            </Tooltip>
+
+            <Tooltip
+              title={
+                <React.Fragment>
+                  <Typography color="inherit">
+                    <b>Profile</b>
+                  </Typography>
+                  <p>More description about what this should do.</p>
+                </React.Fragment>
+              }
+              arrow
+            >
+              <Fab
+                data-cy="preview-button"
+                variant="extended"
+                color="secondary"
+                onClick={() => launchMentor(mentorId, true)}
+                className={classes.fab}
+              >
+                Preview Mentor
+              </Fab>
+            </Tooltip>
           </div>
         </Toolbar>
       </AppBar>

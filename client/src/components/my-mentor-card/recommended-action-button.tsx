@@ -44,8 +44,6 @@ export default function RecommendedActionButton(props: {
           <b>{mentorInfo.currentStage.next.name}</b>
           {"   "}
 
-          {/* START HERE */}
-          
           <Tooltip
             title={
               <React.Fragment>
@@ -122,20 +120,33 @@ export default function RecommendedActionButton(props: {
                       <b>{recommendedAction.text}</b>
                     </p>
                   </Typography>
-                  <Button
-                    size="medium"
-                    fullWidth
-                    color="primary"
-                    variant="contained"
-                    component="span"
-                    data-cy="recommended-action-thumbnail"
-                    startIcon={recommendedAction.icon}
-                    className={
-                      recommendedAction.input ? "go-btn-label" : "go-btn"
+
+                  <Tooltip
+                    title={
+                      <React.Fragment>
+                        <Typography color="inherit">
+                          <b>Recommender</b>
+                        </Typography>
+                        <p>More description about what this should do.</p>
+                      </React.Fragment>
                     }
+                    arrow
                   >
-                    Go
-                  </Button>
+                    <Button
+                      size="medium"
+                      fullWidth
+                      color="primary"
+                      variant="contained"
+                      component="span"
+                      data-cy="recommended-action-thumbnail"
+                      startIcon={recommendedAction.icon}
+                      className={
+                        recommendedAction.input ? "go-btn-label" : "go-btn"
+                      }
+                    >
+                      Go
+                    </Button>
+                  </Tooltip>
                 </div>
               </label>
             </>
@@ -158,18 +169,31 @@ export default function RecommendedActionButton(props: {
                   <b>{recommendedAction.text}</b>
                 </p>
               </Typography>
-              <Button
-                size="medium"
-                fullWidth
-                color="primary"
-                variant="contained"
-                data-cy="recommended-action-button"
-                onClick={recommendedAction.action}
-                startIcon={recommendedAction.icon}
-                className="go-btn"
+
+              <Tooltip
+                title={
+                  <React.Fragment>
+                    <Typography color="inherit">
+                      <b>Recommender</b>
+                    </Typography>
+                    <p>More description about what this should do.</p>
+                  </React.Fragment>
+                }
+                arrow
               >
-                Go
-              </Button>
+                <Button
+                  size="medium"
+                  fullWidth
+                  color="primary"
+                  variant="contained"
+                  data-cy="recommended-action-button"
+                  onClick={recommendedAction.action}
+                  startIcon={recommendedAction.icon}
+                  className="go-btn"
+                >
+                  Go
+                </Button>
+              </Tooltip>
             </div>
           )}
         </div>

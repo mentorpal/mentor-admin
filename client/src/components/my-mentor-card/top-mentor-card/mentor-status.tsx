@@ -1,11 +1,12 @@
 import React from "react";
-import { Grid, Typography } from "@material-ui/core";
+import { Button, Grid, Tooltip, Typography } from "@material-ui/core";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
 
 import "styles/layout.css";
+import { HelpOutline } from "@material-ui/icons";
 
 function MentorStatus(props: {
   continueAction: () => void;
@@ -74,10 +75,26 @@ function MentorStatus(props: {
     <>
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
-          <Typography variant="h5">
-            <b>Improve your Mentor</b>
-          </Typography>
+          <Tooltip
+            //contains all text inside tooltip
+            title={
+              <React.Fragment>
+                <Typography>
+                  <b>Current Status</b>
+                </Typography>
+                <p>More description about what this should do.</p>
+              </React.Fragment>
+            }
+            //to make the tooltip have an arrow
+            arrow
+            placement="left"
+          >
+            <Typography variant="h5">
+              <b>Improve your Mentor</b>
+            </Typography>
+          </Tooltip>
         </Grid>
+
         <Grid container spacing={2} className="status-container">
           <Grid item xs={12} sm={6} md={6} className="current-status-wrapper">
             {currentStatus}
