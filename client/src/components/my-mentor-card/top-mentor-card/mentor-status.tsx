@@ -12,6 +12,12 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@material-ui/icons/Close";
 
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "#A7C7E7",
+  },
+})(Tooltip);
+
 function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
@@ -79,7 +85,7 @@ function MentorStatus(props: {
     <>
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
-          <Tooltip
+          <ColorTooltip
             //contains all text inside tooltip
             title={
               <React.Fragment>
@@ -103,7 +109,7 @@ function MentorStatus(props: {
             <Typography variant="h5">
               <b>Improve your Mentor</b>
             </Typography>
-          </Tooltip>
+          </ColorTooltip>
         </Grid>
 
         <Grid container spacing={2} className="status-container">

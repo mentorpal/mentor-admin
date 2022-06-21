@@ -50,6 +50,12 @@ import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "#A7C7E7",
+  },
+})(Tooltip);
+
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
@@ -266,7 +272,7 @@ function HomePage(props: {
           }
           displayEmpty
           renderValue={() => (
-            <Tooltip
+            <ColorTooltip
               //contains all text inside tooltip
               title={
                 <React.Fragment>
@@ -295,7 +301,7 @@ function HomePage(props: {
                 ({reviewAnswerState.progress.complete} /{" "}
                 {reviewAnswerState.progress.total})
               </Typography>
-            </Tooltip>
+            </ColorTooltip>
           )}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -356,7 +362,7 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
-            <Tooltip
+            <ColorTooltip
               title={
                 <React.Fragment>
                   <IconButton
@@ -389,9 +395,9 @@ function HomePage(props: {
               >
                 Save Changes
               </Fab>
-            </Tooltip>
+            </ColorTooltip>
 
-            <Tooltip
+            <ColorTooltip
               title={
                 <React.Fragment>
                   <IconButton
@@ -425,9 +431,9 @@ function HomePage(props: {
               >
                 Build Mentor
               </Fab>
-            </Tooltip>
+            </ColorTooltip>
 
-            <Tooltip
+            <ColorTooltip
               title={
                 <React.Fragment>
                   <IconButton
@@ -455,7 +461,7 @@ function HomePage(props: {
               >
                 Preview Mentor
               </Fab>
-            </Tooltip>
+            </ColorTooltip>
           </div>
         </Toolbar>
       </AppBar>

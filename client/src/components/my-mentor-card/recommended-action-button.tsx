@@ -23,6 +23,12 @@ export default function RecommendedActionButton(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
 
+  const ColorTooltip = withStyles({
+    tooltip: {
+      backgroundColor: "#A7C7E7",
+    },
+  })(Tooltip);
+
   return (
     <div data-cy="rec-action-btn">
       <div className="next-status-text-wrapper">
@@ -122,7 +128,7 @@ export default function RecommendedActionButton(props: {
                     </p>
                   </Typography>
 
-                  <Tooltip
+                  <ColorTooltip
                     title={
                       <React.Fragment>
                         <IconButton
@@ -155,7 +161,7 @@ export default function RecommendedActionButton(props: {
                     >
                       Go
                     </Button>
-                  </Tooltip>
+                  </ColorTooltip>
                 </div>
               </label>
             </>
@@ -179,7 +185,7 @@ export default function RecommendedActionButton(props: {
                 </p>
               </Typography>
 
-              <Tooltip
+              <ColorTooltip
                 title={
                   <React.Fragment>
                     <IconButton
@@ -210,7 +216,7 @@ export default function RecommendedActionButton(props: {
                 >
                   Go
                 </Button>
-              </Tooltip>
+              </ColorTooltip>
             </div>
           )}
         </div>

@@ -91,7 +91,6 @@ function MentorThumbnail(props: {
     return <div />;
   }
 
-  console.log(hasSeenNameSplash);
 
   return (
     <Grid item container alignItems="center" justify="center" xs={3} md={12}>
