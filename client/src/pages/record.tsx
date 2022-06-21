@@ -57,9 +57,15 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState, ContentState, convertToRaw } from "draft-js";
+import {
+  EditorState,
+  ContentState,
+  convertToRaw,
+  convertFromRaw,
+} from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToMarkdown from "draftjs-to-markdown";
+import { stateFromMarkdown } from "draft-js-import-markdown";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -217,6 +223,20 @@ function RecordPage(props: {
     },
     emptyLineBeforeBlock: true,
   };
+  const content = {
+    entityMap: {},
+    blocks: [
+      {
+        key: "637gr",
+        text: "Initialized from content state.",
+        type: "unstyled",
+        depth: 0,
+        inlineStyleRanges: [],
+        entityRanges: [],
+        data: {},
+      },
+    ],
+  };
 
   // Used to get the initial plain text
   function generateTranscriptText(text: string) {
@@ -226,6 +246,36 @@ function RecordPage(props: {
     );
     setEditorState(_editorState);
     return transcriptText;
+  }
+
+  // Adaptor function to convert draftjs to markdown
+  function draftToMarkdown(contentState: ContentState, config: any) {
+    let contentState = stateFromMarkdown(markdown);
+  }
+
+  // Generate the markdown text from the editor state
+  function getTranscriptMarkdown() {
+    const jsonRaw = convertToRaw(editorState.getCurrentContent());
+    const ContentState = convertFromRaw(jsonRaw);
+    const markdown = draftToMarkdown(ContentState, markdownConfig);
+    return markdown;
+  }
+
+  // Update the the transcript markdown text
+  function updateTranscriptMarkdown() {
+    const transcriptMarkdown = getTranscriptMarkdown();
+    recordState.editAnswer({ transcript: transcriptMarkdown });
+  }
+
+  // Set the markdown text from the editor state
+  function setTranscriptMarkdown(markdown: string) {
+    const contentState = convertFromRaw(content);
+    setEditorState(EditorState.createWithContent(contentState));
+    const _editorState = EditorState.createWithContent(
+      ContentState.createFromText(markdown)
+    );
+    setEditorState(_editorState);
+    setTranscriptText(markdown);
   }
 
   useEffect(() => {
@@ -339,11 +389,15 @@ function RecordPage(props: {
             const rawContentState = convertToRaw(
               editorState.getCurrentContent()
             );
-            const markdown = draftToMarkdown(rawContentState, markdownConfig);
+            const ContentState = convertFromRaw(content);
+            // console.log(ContentState);
+
+            const markdown = draftToMarkdown(ContentState, markdownConfig);
+
             setEditorState(editorState);
             setTranscriptText(text);
-            console.log("markdown: " + markdown);
-            recordState.editAnswer({ transcript: markdown });
+            // console.log("markdown: " + markdown);
+            // recordState.editAnswer({ transcript: markdown });
           }}
           editorState={editorState}
         />

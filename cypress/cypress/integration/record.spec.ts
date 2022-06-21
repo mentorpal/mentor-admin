@@ -2034,6 +2034,21 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
+  it.only("", () => {
+    cyMockDefault(cy, {
+      mentor: chatMentor,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+  });
+
   it("Make changes to transcript using WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
