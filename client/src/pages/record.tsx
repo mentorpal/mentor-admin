@@ -64,8 +64,7 @@ import {
   convertFromRaw,
 } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import draftToMarkdown from "draftjs-to-markdown";
-import { stateFromMarkdown } from "draft-js-import-markdown";
+import { stateToMarkdown, stateFromMarkdown } from "draft-js-import-markdown";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -249,15 +248,21 @@ function RecordPage(props: {
   }
 
   // Adaptor function to convert draftjs to markdown
-  function draftToMarkdown(contentState: ContentState, config: any) {
-    let contentState = stateFromMarkdown(markdown);
+  function draftToMarkdown(draft: any) {
+    return stateFromMarkdown(draft, markdownConfig);
+  }
+
+  // Adaptor function to convert markdown to draftjs
+  function markdownToDraft(markdown: string) {
+    const markdownOuput = stateToMarkdown(editorState.getCurrentContent());
+    return markdownOuput;
   }
 
   // Generate the markdown text from the editor state
   function getTranscriptMarkdown() {
     const jsonRaw = convertToRaw(editorState.getCurrentContent());
     const ContentState = convertFromRaw(jsonRaw);
-    const markdown = draftToMarkdown(ContentState, markdownConfig);
+    const markdown = draftToMarkdown(ContentState);
     return markdown;
   }
 
@@ -269,13 +274,12 @@ function RecordPage(props: {
 
   // Set the markdown text from the editor state
   function setTranscriptMarkdown(markdown: string) {
-    const contentState = convertFromRaw(content);
-    setEditorState(EditorState.createWithContent(contentState));
-    const _editorState = EditorState.createWithContent(
-      ContentState.createFromText(markdown)
-    );
+    const jsonRaw = convertToRaw(editorState.getCurrentContent());
+    const ContentState = convertFromRaw(jsonRaw);
+    const _editorState = EditorState.createWithContent(ContentState);
     setEditorState(_editorState);
     setTranscriptText(markdown);
+    updateTranscriptMarkdown();
   }
 
   useEffect(() => {
@@ -385,19 +389,24 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState: EditorState) => {
+            // NEW METHOD FOR 2 WAY CONVERSION
+            // const text = editorState.getCurrentContent().getPlainText();
+            // setTranscriptText(text);
+            // const markdown = getTranscriptMarkdown();
+            // setTranscriptMarkdown(markdown);
+            // setEditorState(editorState);
+
+            // OLD METHOD FOR 1 WAY CONVERSION
             const text = editorState.getCurrentContent().getPlainText();
             const rawContentState = convertToRaw(
               editorState.getCurrentContent()
             );
-            const ContentState = convertFromRaw(content);
-            // console.log(ContentState);
-
-            const markdown = draftToMarkdown(ContentState, markdownConfig);
-
+            const contentState = editorState.getCurrentContent();
+            const markdown = draftToMarkdown(contentState);
             setEditorState(editorState);
             setTranscriptText(text);
-            // console.log("markdown: " + markdown);
-            // recordState.editAnswer({ transcript: markdown });
+            console.log("markdown: " + markdown);
+            recordState.editAnswer({ transcript: markdown });
           }}
           editorState={editorState}
         />
