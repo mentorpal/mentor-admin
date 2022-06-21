@@ -41,6 +41,8 @@ import {
   Answer,
   ClassifierAnswerType,
   Feedback,
+  Mentor,
+  Question,
   Status,
   UserQuestion,
 } from "types";
@@ -55,6 +57,10 @@ import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import {
+  editQuestionForQueueModal,
+  openModal,
+} from "components/feedback/edit-question-for-queue-modal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -160,6 +166,11 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
+  open: boolean;
+  handleClose: () => void;
+  UserQuestion: UserQuestion; //
+  Mentor: Mentor;
+  customQuestion: Question; // create new question
   accessToken?: string;
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
@@ -176,10 +187,16 @@ function FeedbackItem(props: {
     onUpdated,
     queueList,
     setQueueList,
+    open,
+    handleClose,
+    UserQuestion,
+    Mentor,
+    customQuestion,
   } = props;
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>(); // grab ID of the selected option
+  //const [openModal, setOpenModal] = React.useState<boolean>(false); // condition for modal
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -293,9 +310,31 @@ function FeedbackItem(props: {
                 data-cy="queue-btn"
                 color="primary"
                 disabled={selectedAnswerStatus == Status.COMPLETE}
-                onClick={() =>
-                  queueButtonClicked(selectedAnswerID || "", accessToken)
-                }
+                onClick={() => {
+                  if (openModal == true) {
+                    // IF STATEMENT
+                    <Typography
+                      gutterBottom
+                      variant="h5"
+                      component="h2"
+                      className="mentorName"
+                    >
+                      <div style={{ display: "flex" }}>
+                        {/* {modal} */}
+                        <editQuestionForQueueModal
+                          open={open}
+                          handleClose={handleClose}
+                          UserQuestion={UserQuestion}
+                          mentorQuestions={mentorQuestions}
+                          Mentor={Mentor}
+                          customQuestion={customQuestion}
+                        />
+                      </div>
+                    </Typography>;
+                  } else {
+                    queueButtonClicked(selectedAnswerID || "", accessToken);
+                  }
+                }}
               >
                 {queueList?.includes(selectedAnswerID || "")
                   ? "Remove from Queue"
