@@ -10,6 +10,7 @@ import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
+import * as Sentry from "@sentry/react";
 
 /** Store */
 
@@ -168,6 +169,9 @@ export const mentorSlice = createSlice({
           error: loadMentor.rejected.name,
         };
         state.mentorStatus = LoadingStatus.FAILED;
+        Sentry.captureException(
+          `Failed to load mentor: ${loadMentor.rejected.name}`
+        );
       })
       .addCase(saveMentor.pending, (state) => {
         state.mentorStatus = LoadingStatus.SAVING;
@@ -182,6 +186,9 @@ export const mentorSlice = createSlice({
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
+        Sentry.captureException(
+          `Failed to save mentor: ${saveMentor.rejected.name}`
+        );
       })
       .addCase(saveThumbnail.pending, (state) => {
         state.mentorStatus = LoadingStatus.SAVING;
@@ -195,9 +202,12 @@ export const mentorSlice = createSlice({
       .addCase(saveThumbnail.rejected, (state) => {
         state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
-          message: "failed to save mentor",
+          message: "failed to save thumbnail",
           error: saveThumbnail.rejected.name,
         };
+        Sentry.captureException(
+          `Failed to save thumbnail: ${saveThumbnail.rejected.name}`
+        );
       })
       .addCase(saveMentorSubjects.pending, (state) => {
         state.mentorStatus = LoadingStatus.SAVING;
@@ -212,6 +222,9 @@ export const mentorSlice = createSlice({
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,
         };
+        Sentry.captureException(
+          `Failed to save subjects: ${saveMentorSubjects.rejected.name}`
+        );
       });
   },
 });

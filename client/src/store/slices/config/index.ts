@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import * as api from "api";
 import { Config } from "types";
+import * as Sentry from "@sentry/react";
 
 export enum ConfigStatus {
   NONE = 0,
@@ -43,6 +44,9 @@ export const configSlice = createSlice({
       })
       .addCase(getConfig.rejected, (state) => {
         state.status = ConfigStatus.FAILED;
+        Sentry.captureException(
+          `Failed to load config: ${getConfig.rejected.name}`
+        );
       });
   },
 });

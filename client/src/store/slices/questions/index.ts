@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchQuestionsById, updateQuestion } from "api";
 import { getValueIfKeyExists } from "helpers";
+import * as Sentry from "@sentry/react";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Question } from "types";
@@ -132,6 +133,9 @@ export const questionsSlice = createSlice({
               error: loadQuestionsById.rejected.name,
             },
           };
+          Sentry.captureException(
+            `Failed to load question: ${loadQuestionsById.rejected.name}`
+          );
         }
       })
       // saveQuestion
@@ -155,6 +159,9 @@ export const questionsSlice = createSlice({
             error: saveQuestion.rejected.name,
           },
         };
+        Sentry.captureException(
+          `Failed to save question: ${saveQuestion.rejected.name}`
+        );
       });
   },
 });

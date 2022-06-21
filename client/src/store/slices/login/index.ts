@@ -15,6 +15,7 @@ import {
   sessionStorageStore,
 } from "store/local-storage";
 import { User } from "types";
+import * as Sentry from "@sentry/react";
 
 /** Store */
 
@@ -102,6 +103,7 @@ export const loginSlice = createSlice({
       .addCase(login.rejected, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
+        Sentry.captureException(`Failed to login: ${login.rejected.name}`);
       })
       .addCase(googleLogin.pending, (state) => {
         delete state.user;
@@ -115,6 +117,9 @@ export const loginSlice = createSlice({
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
+        Sentry.captureException(
+          `Failed to google login: ${googleLogin.rejected.name}`
+        );
       });
   },
 });
