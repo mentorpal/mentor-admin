@@ -2034,7 +2034,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it.only("", () => {
+  it("Make changes to transcript using WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
@@ -2047,6 +2047,35 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
+
+    cy.get("[data-cy=transcript]").should("be.visible");
+    cy.get(".editor-class").within(() => {
+      cy.get("[data-text]").type("{selectall}");
+    });
+
+    cy.get(".rdw-option-wrapper").eq(0).click().click();
+    cy.get(".rdw-option-wrapper").eq(1).click().click();
+    cy.get(".rdw-option-wrapper").eq(2).click().click();
+    cy.get(".rdw-option-wrapper").eq(3).click().click();
+    cy.get(".rdw-option-wrapper").eq(4).click().click();
+
+    cy.get(".editor-class").within(() => {
+      cy.get("[data-text]").type("{selectall}");
+    });
+    cy.get(".rdw-option-wrapper").eq(5).click();
+    cy.get(".rdw-image-modal-url-input").type("https://google.com");
+    cy.get(".rdw-image-modal-btn").eq(0).click();
+
+    cy.get(".rdw-option-wrapper").eq(6).click();
+
+    cy.get(".rdw-image-wrapper").eq(0).click();
+    cy.get(".rdw-image-modal-url-input").type(
+      "https://en.wikipedia.org/wiki/Main_Page"
+    );
+    cy.get(".rdw-image-modal-btn").eq(0).click();
+
+    cy.get(".rdw-option-wrapper").eq(6).click();
+    cy.get(".rdw-option-wrapper").eq(7).click();
   });
 
   it("can update question for a question belonging to mentor", () => {

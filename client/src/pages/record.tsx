@@ -329,7 +329,6 @@ function RecordPage(props: {
             </text>
           ) : undefined}
         </Typography>
-
         <Editor
           wrapperClassName="wrapper-class"
           editorClassName="editor-class"
@@ -380,6 +379,7 @@ function RecordPage(props: {
       <div>
         <div data-cy="progress" className={classes.block}>
           <Typography
+            data-cy="heading"
             variant="h6"
             className={classes.title}
             style={{ textAlign: "center" }}
