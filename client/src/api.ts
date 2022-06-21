@@ -509,7 +509,14 @@ export async function updateMyFirstTimeTracking(
       mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
         me{
           firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash
+            myMentorSplash,
+            nameSplash,
+            statusSplash,
+            categoriesSplash,
+            saveSplash, 
+            buildSplash, 
+            previewSplash,
+            recommenderSplash
           }
         }
       }
@@ -1141,7 +1148,14 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
               _id
             }
             firstTimeTracking{
-              myMentorSplash
+              myMentorSplash,
+              nameSplash,
+            statusSplash,
+            categoriesSplash,
+            saveSplash, 
+            buildSplash, 
+            previewSplash,
+            recommenderSplash
             }
           }
           accessToken

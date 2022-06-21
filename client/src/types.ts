@@ -43,6 +43,13 @@ export interface UserAccessToken {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  nameSplash: boolean;
+  // statusSplash: boolean;
+  // categoriesSplash: boolean;
+  // saveSplash: boolean;
+  // buildSplash: boolean;
+  // previewSplash: boolean;
+  // recommenderSplash: boolean;
 }
 
 export interface User {

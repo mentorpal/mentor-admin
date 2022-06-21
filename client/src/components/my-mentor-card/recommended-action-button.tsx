@@ -4,13 +4,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Button, Tooltip, Typography } from "@material-ui/core";
+import { IconButton, Button, Tooltip, Typography } from "@material-ui/core";
 import { HelpOutline } from "@material-ui/icons";
 import React from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { UseWithRecommendedAction } from "../../hooks/graphql/use-with-recommended-action";
+import CloseIcon from "@material-ui/icons/Close";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
@@ -124,6 +125,14 @@ export default function RecommendedActionButton(props: {
                   <Tooltip
                     title={
                       <React.Fragment>
+                        <IconButton
+                          color="inherit"
+                          size="small"
+                          text-align="right"
+                          align-content="right"
+                        >
+                          <CloseIcon />
+                        </IconButton>
                         <Typography color="inherit">
                           <b>Recommender</b>
                         </Typography>
@@ -173,6 +182,14 @@ export default function RecommendedActionButton(props: {
               <Tooltip
                 title={
                   <React.Fragment>
+                    <IconButton
+                      color="inherit"
+                      size="small"
+                      text-align="right"
+                      align-content="right"
+                    >
+                      <CloseIcon />
+                    </IconButton>
                     <Typography color="inherit">
                       <b>Recommender</b>
                     </Typography>

@@ -1,12 +1,16 @@
 import React from "react";
-import { Button, Grid, Tooltip, Typography } from "@material-ui/core";
+import {
+  Button,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
-
-import "styles/layout.css";
-import { HelpOutline } from "@material-ui/icons";
+import CloseIcon from "@material-ui/icons/Close";
 
 function MentorStatus(props: {
   continueAction: () => void;
@@ -79,6 +83,14 @@ function MentorStatus(props: {
             //contains all text inside tooltip
             title={
               <React.Fragment>
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  text-align="right"
+                  align-content="right"
+                >
+                  <CloseIcon />
+                </IconButton>
                 <Typography>
                   <b>Current Status</b>
                 </Typography>
@@ -87,7 +99,6 @@ function MentorStatus(props: {
             }
             //to make the tooltip have an arrow
             arrow
-            placement="left"
           >
             <Typography variant="h5">
               <b>Improve your Mentor</b>

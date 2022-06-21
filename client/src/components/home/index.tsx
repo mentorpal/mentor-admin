@@ -15,6 +15,7 @@ import {
   DialogContentText,
   DialogTitle,
   Fab,
+  IconButton,
   List,
   ListItem,
   MenuItem,
@@ -24,6 +25,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import CloseIcon from "@material-ui/icons/Close";
 import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
@@ -144,9 +146,7 @@ function HomePage(props: {
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash
   );
-  console.log(hasSeenSplash);
-  console.log("HELLOOOOOOO");
-  const { userSawSplashScreen } = loginState;
+  const { userSawSplashScreen, userSawNameSplash } = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -214,6 +214,11 @@ function HomePage(props: {
     }
   }
 
+  function closeDialog() {
+    userSawSplashScreen("");
+    userSawNameSplash("");
+  }
+
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget
@@ -265,6 +270,14 @@ function HomePage(props: {
               //contains all text inside tooltip
               title={
                 <React.Fragment>
+                  <IconButton
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                  >
+                    <CloseIcon />
+                  </IconButton>
                   <Typography>
                     <b>Categories and manually choosing questions to record</b>
                   </Typography>
@@ -346,8 +359,16 @@ function HomePage(props: {
             <Tooltip
               title={
                 <React.Fragment>
+                  <IconButton
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                  >
+                    <CloseIcon />
+                  </IconButton>
                   <Typography color="inherit">
-                    <b>Profile</b>
+                    <b>Save Me</b>
                   </Typography>
                   <p>More description about what this should do.</p>
                 </React.Fragment>
@@ -373,8 +394,16 @@ function HomePage(props: {
             <Tooltip
               title={
                 <React.Fragment>
+                  <IconButton
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                  >
+                    <CloseIcon />
+                  </IconButton>
                   <Typography color="inherit">
-                    <b>Profile</b>
+                    <b>Build Me</b>
                   </Typography>
                   <p>More description about what this should do.</p>
                 </React.Fragment>
@@ -401,8 +430,16 @@ function HomePage(props: {
             <Tooltip
               title={
                 <React.Fragment>
+                  <IconButton
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                  >
+                    <CloseIcon />
+                  </IconButton>
                   <Typography color="inherit">
-                    <b>Profile</b>
+                    <b>Preview Me</b>
                   </Typography>
                   <p>More description about what this should do.</p>
                 </React.Fragment>
@@ -444,7 +481,7 @@ function HomePage(props: {
       <NotificationDialog
         title={"This page is for setting up your mentor!"}
         open={!hasSeenSplash}
-        closeDialog={() => userSawSplashScreen("")}
+        closeDialog={() => closeDialog()}
       />
       <Dialog
         data-cy="setup-dialog"

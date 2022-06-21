@@ -1,6 +1,5 @@
 import {
   Avatar,
-  Button,
   Grid,
   IconButton,
   Tooltip,
@@ -8,11 +7,22 @@ import {
 } from "@material-ui/core";
 import React from "react";
 import CreateIcon from "@material-ui/icons/Create";
+import CloseIcon from "@material-ui/icons/Close";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+
+const loginState = useWithLogin();
+const { userSawNameSplash } = loginState;
+
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "#A7C7E7",
+  },
+})(Tooltip);
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -67,9 +77,21 @@ function MentorThumbnail(props: {
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
 
+  const loginState = useWithLogin();
+  const hasSeenNameSplash = Boolean(
+    loginState.state.user?.firstTimeTracking.nameSplash
+  );
+  let closeTooltip = false;
+
+  function testClose() {
+    closeTooltip = true;
+  }
+
   if (!mentorId || !editedMentor) {
     return <div />;
   }
+
+  console.log(hasSeenNameSplash);
 
   return (
     <Grid item container alignItems="center" justify="center" xs={3} md={12}>
@@ -101,22 +123,35 @@ function MentorThumbnail(props: {
                 <CreateIcon />
               </IconButton>
 
-              <Tooltip
+              <ColorTooltip
+                open={!hasSeenNameSplash}
                 arrow
                 placement="right"
-                // onClose = {{}}
+                //.onClose = {closeTooltip}
                 title={
                   <React.Fragment>
-                    <Typography color="inherit">
-                      <b>Profile</b>
-                    </Typography>
-                    <p>More description about what this should do.</p>
-                    <Button>Close</Button>
+                    <IconButton
+                      color="inherit"
+                      size="small"
+                      text-align="right"
+                      align-content="right"
+                      onClick={}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                    <Typography color="inherit">Profile</Typography>
+                    <p>
+                      This is where you can set how you will be displayed (name,
+                      job title, thumbnail).
+                    </p>
                   </React.Fragment>
                 }
+                PopperProps={{
+                  style: { maxWidth: 250 },
+                }}
               >
                 <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
-              </Tooltip>
+              </ColorTooltip>
             </div>
 
             <EditMentorInfoModal

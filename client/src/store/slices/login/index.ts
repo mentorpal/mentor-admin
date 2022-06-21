@@ -69,6 +69,131 @@ export const userSawSplashScreen = createAsyncThunk(
   }
 );
 
+// This is the action that calls the api and sets the userSawSplashScreen action in motion
+export const userSawNameSplash = createAsyncThunk(
+  "login/userSawNameSplash", //action
+  //callback function
+  async (accessToken: string, { rejectWithValue }) => {
+    try {
+      //promise
+      return await api.updateMyFirstTimeTracking(
+        { nameSplash: showTip },
+        accessToken
+      );
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+// // This is the action that calls the api and sets the userSawSplashScreen action in motion
+// export const userSawStatusSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { statusSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
+// // This is the action that calls the api and sets the userSawSplashScreen action in motion
+// export const userSawCategoriesSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { categoriesSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
+// // This is the action that calls the api and sets the userSawSplashScreen action in motion
+// export const userSawSaveSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { saveSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
+// // This is the action that calls the api and sets the userSawSplashScreen action in motion
+// export const userSawBuildSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { buildSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
+// // This is the action that calls the api and sets the userSawSplashScreen action in motion
+// export const userSawPreviewSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { previewSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
+// export const userSawRecommenderSplash = createAsyncThunk(
+//   "login/userSawSplashScreen", //action
+//   //callback function
+//   async (accessToken: string, { rejectWithValue }) => {
+//     try {
+//       //promise
+//       return await api.updateMyFirstTimeTracking(
+//         { recommenderSplash: true },
+//         accessToken
+//       );
+//     } catch (err) {
+//       console.error(err.response.data);
+//       return rejectWithValue(err.response.data);
+//     }
+//   }
+// );
+
 export const login = createAsyncThunk(
   "login/login",
   async (accessToken: string, { rejectWithValue }) => {
@@ -141,7 +266,18 @@ export const loginSlice = createSlice({
           state.user.firstTimeTracking.myMentorSplash =
             action.payload.myMentorSplash;
         }
+      })
+      .addCase(userSawNameSplash.fulfilled, (state, action) => {
+        if (state.user != undefined) {
+          state.user.firstTimeTracking.nameSplash = action.payload.nameSplash;
+        }
       });
+    // .addCase(userSawStatusSplash.fulfilled, (state, action) => {
+    //   if (state.user != undefined) {
+    //     state.user.firstTimeTracking.nameSplash =
+    //       action.payload.nameSplash;
+    //   }
+    // });
   },
 });
 
