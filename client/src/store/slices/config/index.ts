@@ -42,11 +42,9 @@ export const configSlice = createSlice({
         state.config = action.payload;
         state.status = ConfigStatus.SUCCEEDED;
       })
-      .addCase(getConfig.rejected, (state) => {
+      .addCase(getConfig.rejected, (state, action) => {
         state.status = ConfigStatus.FAILED;
-        Sentry.captureException(
-          `Failed to load config: ${getConfig.rejected.name}`
-        );
+        Sentry.captureException(action.error)
       });
   },
 });
