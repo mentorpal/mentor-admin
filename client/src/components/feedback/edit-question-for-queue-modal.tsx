@@ -7,21 +7,18 @@ The full terms of this copyright and license should always be found in the root 
 import {
   Backdrop,
   Button,
-  Checkbox,
   Fade,
   FormControl,
-  FormControlLabel,
   Grid,
   InputLabel,
   makeStyles,
-  MenuItem,
   Modal,
   Select,
   TextField,
   Theme,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 import {
   Category,
   Mentor,
@@ -29,13 +26,13 @@ import {
   QuestionType,
   Subject,
   Topic,
-  UserQuestion,
   UtteranceName,
 } from "types";
-import { getValueIfKeyExists, onTextInputChanged } from "helpers";
-import { QuestionState } from "store/slices/questions";
+import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
+import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
+import { SubjectQuestionGQL } from "types-gql";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -69,36 +66,56 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function editQuestionForQueueModal(props: {
-  open: boolean;
-  handleClose: () => void;
-  UserQuestion: UserQuestion; //
-  mentorQuestions: Record<string, QuestionState>;
-  Mentor: Mentor;
-  customQuestion: Question; // create new question
+  open?: boolean;
+  mentor: Mentor;
+  userQuestion?: string;
+  accessToken: string
 }): JSX.Element {
   const {
-    handleClose,
     open,
-    UserQuestion,
-    mentorQuestions,
-    Mentor,
-    customQuestion,
+    userQuestion,
+    mentor,
+    accessToken,
   } = props;
   const classes = useStyles();
-  const mentorSubjects = Mentor.subjects;
-  const [openModal, setOpenModal] = React.useState<boolean>(false); // condition for modal
+  const mentorSubjects = mentor.subjects;
   const [selectedSubject, setSelectedSubject] = React.useState<Subject>();
   const [selectedCategory, setSelectedCategory] = React.useState<Category>();
-  const [selectedTopic, setSelectedTopic] = React.useState<Category>();
+  const [selectedTopic, setSelectedTopic] = React.useState<Topic>();
+  const [customQuestion, setCustomQuestion] = React.useState<string>();
 
-  function okButtonClicked(customQuestion: Question) {
-    //create the new question w/ attributes
-    customQuestion.type = QuestionType.QUESTION; // default to question?
-    (customQuestion._id = uuid()),
-      (customQuestion.clientId = uuid()),
-      (customQuestion.paraphrases = []),
-      (customQuestion.name = UtteranceName.NONE),
-      (customQuestion.mentor = Mentor._id);
+  function okButtonClicked(customQuestion: string) {
+    // create new question
+    const newQuestion: Question = {
+    _id: uuid(),
+    question: customQuestion,
+    type: QuestionType.QUESTION,
+    name: UtteranceName.NONE,
+    clientId: uuid(),
+    paraphrases: [],
+    mentor: mentor._id,
+    }
+    // create newSubjectQuestion : to add to db
+    const emptyTopic: Topic = {id: "",
+      name: "",
+      description: ""}
+    const newSubjectQuestion: SubjectQuestionGQL = {
+      question: newQuestion,
+      topics: (selectedTopic!=undefined ? [selectedTopic] : [emptyTopic]),
+      category: selectedCategory //can be null
+     }
+
+    // add to DB
+    addOrUpdateSubjectQuestions(
+      selectedSubject?._id || "", 
+      [newSubjectQuestion],
+      accessToken
+    );
+    // add to record queue
+    addQuestionToRecordQueue(newQuestion._id, accessToken);
+  }
+
+  function handleClose(){
   }
 
   return (
@@ -123,11 +140,11 @@ function editQuestionForQueueModal(props: {
                   <TextField
                     // user-asked question (editable)
                     label="Edit Question:"
-                    value={UserQuestion.question} // fill in with OG user question
+                    value={userQuestion} // fill in with OG user question
                     // create a new question for mentor with (un)edited string
                     onChange={(e) =>
                       onTextInputChanged(e, () => {
-                        customQuestion.question = e.target.value;
+                        setCustomQuestion(e.target.value);
                       })
                     }
                     className={classes.inputField}
@@ -194,7 +211,11 @@ function editQuestionForQueueModal(props: {
                       data-cy="topic-selector"
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
-                      onChange={} // FIX THIS
+
+                      onChange={(e, v) => {
+                        setSelectedTopic(v || undefined);
+                      }} // FIX THIS 
+
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">{option.name}</Typography>
@@ -206,7 +227,7 @@ function editQuestionForQueueModal(props: {
                   </div>
                 </Grid>
                 <Button
-                  onClick={handleClose}
+                  onClick={() => handleClose}
                   data-cy="close-modal"
                   variant="contained"
                   color="primary"
@@ -215,7 +236,7 @@ function editQuestionForQueueModal(props: {
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => okButtonClicked(customQuestion)}
+                  onClick={() => okButtonClicked(customQuestion || "")}
                   data-cy="close-modal"
                   variant="contained"
                   color="primary"

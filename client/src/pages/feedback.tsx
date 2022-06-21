@@ -57,10 +57,7 @@ import { useQuestions } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import {
-  editQuestionForQueueModal,
-  openModal,
-} from "components/feedback/edit-question-for-queue-modal";
+import editQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -166,11 +163,9 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
-  open: boolean;
-  handleClose: () => void;
-  UserQuestion: UserQuestion; //
-  Mentor: Mentor;
-  customQuestion: Question; // create new question
+  openModal: boolean; // for opening the modal 
+  setOpenModal: (openModal: boolean) => void;
+  mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
   mentorAnswers?: Answer[];
@@ -180,6 +175,9 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
+    openModal, 
+    setOpenModal,
+    mentor,
     accessToken,
     feedback,
     mentorAnswers,
@@ -187,16 +185,10 @@ function FeedbackItem(props: {
     onUpdated,
     queueList,
     setQueueList,
-    open,
-    handleClose,
-    UserQuestion,
-    Mentor,
-    customQuestion,
   } = props;
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>(); // grab ID of the selected option
-  //const [openModal, setOpenModal] = React.useState<boolean>(false); // condition for modal
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -304,37 +296,16 @@ function FeedbackItem(props: {
             <IconButton onClick={() => onUpdateAnswer(undefined)}>
               <CloseIcon />
             </IconButton>
-
+            
             {accessToken ? (
               <Button
                 data-cy="queue-btn"
                 color="primary"
                 disabled={selectedAnswerStatus == Status.COMPLETE}
                 onClick={() => {
-                  if (openModal == true) {
-                    // IF STATEMENT
-                    <Typography
-                      gutterBottom
-                      variant="h5"
-                      component="h2"
-                      className="mentorName"
-                    >
-                      <div style={{ display: "flex" }}>
-                        {/* {modal} */}
-                        <editQuestionForQueueModal
-                          open={open}
-                          handleClose={handleClose}
-                          UserQuestion={UserQuestion}
-                          mentorQuestions={mentorQuestions}
-                          Mentor={Mentor}
-                          customQuestion={customQuestion}
-                        />
-                      </div>
-                    </Typography>;
-                  } else {
-                    queueButtonClicked(selectedAnswerID || "", accessToken);
+                  queueButtonClicked(selectedAnswerID || "", accessToken);
                   }
-                }}
+                }
               >
                 {queueList?.includes(selectedAnswerID || "")
                   ? "Remove from Queue"
@@ -373,8 +344,11 @@ function FeedbackPage(): JSX.Element {
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
+  const Mentor = getData((state) => state.data);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+
+
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -394,6 +368,8 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
+
+  const [openModal, setOpenModal] = React.useState<boolean>(false); // condition for opening modal
 
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
@@ -580,6 +556,9 @@ function FeedbackPage(): JSX.Element {
                     onUpdated={reloadFeedback}
                     queueList={queueList}
                     setQueueList={setQueueList}
+                    setOpenModal={setOpenModal}
+                    openModal={openModal}
+                    mentor={Mentor}
                   />
                 ))}
               </TableBody>
