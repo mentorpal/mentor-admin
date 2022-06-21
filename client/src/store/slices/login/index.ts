@@ -100,10 +100,10 @@ export const loginSlice = createSlice({
           action.payload.user.defaultMentor._id
         );
       })
-      .addCase(login.rejected, (state) => {
+      .addCase(login.rejected, (state, action) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
-        Sentry.captureException(`Failed to login: ${login.rejected.name}`);
+        Sentry.captureException(`Failed to login: ${action.error.message}`);
       })
       .addCase(googleLogin.pending, (state) => {
         delete state.user;
@@ -114,11 +114,11 @@ export const loginSlice = createSlice({
         state.accessToken = action.payload.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
       })
-      .addCase(googleLogin.rejected, (state) => {
+      .addCase(googleLogin.rejected, (state, action) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
         Sentry.captureException(
-          `Failed to google login: ${googleLogin.rejected.name}`
+          `Failed to google login: ${action.error.message}`
         );
       });
   },

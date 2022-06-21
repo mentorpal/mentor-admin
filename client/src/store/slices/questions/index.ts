@@ -134,7 +134,7 @@ export const questionsSlice = createSlice({
             },
           };
           Sentry.captureException(
-            `Failed to load question: ${loadQuestionsById.rejected.name}`
+            `Failed to load question: ${action.error.message}`
           );
         }
       })
@@ -160,7 +160,7 @@ export const questionsSlice = createSlice({
           },
         };
         Sentry.captureException(
-          `Failed to save question: ${saveQuestion.rejected.name}`
+          `Failed to save question: ${action.error.message}`
         );
       });
   },

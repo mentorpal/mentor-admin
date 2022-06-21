@@ -44,7 +44,7 @@ export const configSlice = createSlice({
       })
       .addCase(getConfig.rejected, (state, action) => {
         state.status = ConfigStatus.FAILED;
-        Sentry.captureException(action.error)
+        Sentry.captureException(action.error.message);
       });
   },
 });

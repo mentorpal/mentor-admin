@@ -133,7 +133,6 @@ async function execGql<T>(
   query: GQLQuery,
   opts?: HttpRequestConfig
 ): Promise<T> {
-  throw new Error("TEST: failed gql call");
   return execHttp<T>("POST", GRAPHQL_ENDPOINT, {
     axiosMiddleware: extractAndStoreAccessToken,
     ...(opts || {}),

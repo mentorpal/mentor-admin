@@ -162,7 +162,7 @@ export const mentorSlice = createSlice({
         state.data = action.payload.result;
         state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
-      .addCase(loadMentor.rejected, (state) => {
+      .addCase(loadMentor.rejected, (state, action) => {
         delete state.data;
         state.error = {
           message: "failed to load mentor",
@@ -170,7 +170,7 @@ export const mentorSlice = createSlice({
         };
         state.mentorStatus = LoadingStatus.FAILED;
         Sentry.captureException(
-          `Failed to load mentor: ${loadMentor.rejected.name}`
+          `Failed to load mentor: ${action.error.message}`
         );
       })
       .addCase(saveMentor.pending, (state) => {
@@ -180,14 +180,14 @@ export const mentorSlice = createSlice({
         state.data = action.payload as Mentor;
         state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
-      .addCase(saveMentor.rejected, (state) => {
+      .addCase(saveMentor.rejected, (state, action) => {
         state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save mentor",
           error: saveMentor.rejected.name,
         };
         Sentry.captureException(
-          `Failed to save mentor: ${saveMentor.rejected.name}`
+          `Failed to save mentor: ${action.error.message}`
         );
       })
       .addCase(saveThumbnail.pending, (state) => {
@@ -199,14 +199,14 @@ export const mentorSlice = createSlice({
         }
         state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
-      .addCase(saveThumbnail.rejected, (state) => {
+      .addCase(saveThumbnail.rejected, (state, action) => {
         state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save thumbnail",
           error: saveThumbnail.rejected.name,
         };
         Sentry.captureException(
-          `Failed to save thumbnail: ${saveThumbnail.rejected.name}`
+          `Failed to save thumbnail: ${action.error.message}`
         );
       })
       .addCase(saveMentorSubjects.pending, (state) => {
@@ -216,14 +216,14 @@ export const mentorSlice = createSlice({
         state.data = action.payload as Mentor;
         state.mentorStatus = LoadingStatus.SUCCEEDED;
       })
-      .addCase(saveMentorSubjects.rejected, (state) => {
+      .addCase(saveMentorSubjects.rejected, (state, action) => {
         state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,
         };
         Sentry.captureException(
-          `Failed to save subjects: ${saveMentorSubjects.rejected.name}`
+          `Failed to save subjects: ${action.error.message}`
         );
       });
   },
