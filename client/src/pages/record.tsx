@@ -261,8 +261,7 @@ function RecordPage(props: {
   }
 
   // Update the the transcript markdown text
-  function updateMarkdown(contentState: ContentState) {
-    const markdown = getMarkdown(contentState);
+  function updateMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
   }
 
@@ -373,24 +372,17 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState: EditorState) => {
-            // NEW METHOD FOR 2 WAY CONVERSION
+            // METHOD FOR 2 WAY CONVERSION
             // const text = editorState.getCurrentContent().getPlainText();
             // setTranscriptText(text);
             // const markdown = getTranscriptMarkdown();
             // setTranscriptMarkdown(markdown);
             // setEditorState(editorState);
 
-            // OLD METHOD FOR 1 WAY CONVERSION
-            // const rawContentState = convertToRaw(
-            //   editorState.getCurrentContent()
-            // );
-            // const contentState = editorState.getCurrentContent();
-            // const markdown = draftToMarkdown();
+            const contentState = editorState.getCurrentContent();
+            const markdown = draftToMarkdown(contentState);
+            updateMarkdown(markdown);
             setEditorState(editorState);
-            // console.log("markdown: " + markdown);
-            const markdown = getMarkdown(editorState.getCurrentContent());
-            recordState.editAnswer({ transcript: markdown });
-            console.log("transcript text: " + transcriptText);
           }}
           editorState={editorState}
         />
