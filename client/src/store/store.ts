@@ -15,7 +15,7 @@ import * as Sentry from "@sentry/react";
 const sentryEnhancer = Sentry.createReduxEnhancer({
   actionTransformer: (action) => {
     if (action.error) {
-      Sentry.captureException(action.error.message);
+      Sentry.captureException(Error(JSON.stringify(action.error)));
     }
     return action;
   },
