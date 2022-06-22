@@ -9,3 +9,4 @@ declare module "*.png";
 declare module "*.jpeg";
 declare module "*.gif";
 declare module "draft-js-import-markdown";
+declare module "draft-js-export-markdown";

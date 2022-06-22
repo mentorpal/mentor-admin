@@ -64,7 +64,8 @@ import {
   convertFromRaw,
 } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { stateToMarkdown, stateFromMarkdown } from "draft-js-import-markdown";
+import { stateFromMarkdown } from "draft-js-import-markdown";
+import { stateToMarkdown } from "draft-js-export-markdown";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -248,9 +249,9 @@ function RecordPage(props: {
   }
 
   // Get markdown from editor state
-  function getMarkdown() {
+  function getMarkdown(contentState: ContentState) {
     const markdown = stateToMarkdown(
-      editorState.getCurrentContent(),
+      contentState, //editorState.getCurrentContent()
       markdownConfig
     );
     return markdown;
@@ -265,14 +266,14 @@ function RecordPage(props: {
   // Adaptor function to convert draftjs to markdown
   function draftToMarkdown() {
     const rawDraftContent = getRawContent();
-    return stateFromMarkdown(rawDraftContent);
+    return stateToMarkdown(rawDraftContent);
   }
 
-  // Adaptor function to convert markdown to draftjs
-  function markdownToDraft() {
-    const markdown = getMarkdown();
-    return stateFromMarkdown(markdown);
-  }
+  // // Adaptor function to convert markdown to draftjs
+  // function markdownToDraft() {
+  //   const markdown = getMarkdown();
+  //   return stateFromMarkdown(markdown);
+  // }
 
   // Generate the markdown text from the editor state
   function getTranscriptMarkdown(): any {
@@ -417,9 +418,10 @@ function RecordPage(props: {
             //   editorState.getCurrentContent()
             // );
             // const contentState = editorState.getCurrentContent();
-            const markdown = draftToMarkdown();
+            // const markdown = draftToMarkdown();
             setEditorState(editorState);
             // console.log("markdown: " + markdown);
+            const markdown = getMarkdown(editorState.getCurrentContent());
             recordState.editAnswer({ transcript: markdown });
           }}
           editorState={editorState}
