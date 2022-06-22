@@ -247,22 +247,38 @@ function RecordPage(props: {
     return transcriptText;
   }
 
+  // Get markdown from editor state
+  function getMarkdown() {
+    const markdown = stateToMarkdown(
+      editorState.getCurrentContent(),
+      markdownConfig
+    );
+    return markdown;
+  }
+
+  // Get draftjs raw content from editor state
+  function getRawContent() {
+    const rawDraftContent = convertToRaw(editorState.getCurrentContent());
+    return rawDraftContent;
+  }
+
   // Adaptor function to convert draftjs to markdown
-  function draftToMarkdown(draft: any) {
-    return stateFromMarkdown(draft, markdownConfig);
+  function draftToMarkdown() {
+    const rawDraftContent = getRawContent();
+    return stateFromMarkdown(rawDraftContent);
   }
 
   // Adaptor function to convert markdown to draftjs
-  function markdownToDraft(markdown: string) {
-    const markdownOuput = stateToMarkdown(editorState.getCurrentContent());
-    return markdownOuput;
+  function markdownToDraft() {
+    const markdown = getMarkdown();
+    return stateFromMarkdown(markdown);
   }
 
   // Generate the markdown text from the editor state
-  function getTranscriptMarkdown() {
-    const jsonRaw = convertToRaw(editorState.getCurrentContent());
-    const ContentState = convertFromRaw(jsonRaw);
-    const markdown = draftToMarkdown(ContentState);
+  function getTranscriptMarkdown(): any {
+    const contentState = editorState.getCurrentContent();
+    const jsonRaw = convertToRaw(contentState);
+    const markdown = draftToMarkdown();
     return markdown;
   }
 
@@ -397,15 +413,13 @@ function RecordPage(props: {
             // setEditorState(editorState);
 
             // OLD METHOD FOR 1 WAY CONVERSION
-            const text = editorState.getCurrentContent().getPlainText();
-            const rawContentState = convertToRaw(
-              editorState.getCurrentContent()
-            );
-            const contentState = editorState.getCurrentContent();
-            const markdown = draftToMarkdown(contentState);
+            // const rawContentState = convertToRaw(
+            //   editorState.getCurrentContent()
+            // );
+            // const contentState = editorState.getCurrentContent();
+            const markdown = draftToMarkdown();
             setEditorState(editorState);
-            setTranscriptText(text);
-            console.log("markdown: " + markdown);
+            // console.log("markdown: " + markdown);
             recordState.editAnswer({ transcript: markdown });
           }}
           editorState={editorState}
