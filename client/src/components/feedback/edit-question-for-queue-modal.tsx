@@ -65,13 +65,15 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function editQuestionForQueueModal(props: {
-  open?: boolean;
+function EditQuestionForQueueModal(props: {
+  handleClose?: () => void;
+  open: boolean;
   mentor: Mentor;
   userQuestion?: string;
   accessToken: string
 }): JSX.Element {
   const {
+    handleClose,
     open,
     userQuestion,
     mentor,
@@ -115,8 +117,6 @@ function editQuestionForQueueModal(props: {
     addQuestionToRecordQueue(newQuestion._id, accessToken);
   }
 
-  function handleClose(){
-  }
 
   return (
     <div>
@@ -227,7 +227,7 @@ function editQuestionForQueueModal(props: {
                   </div>
                 </Grid>
                 <Button
-                  onClick={() => handleClose}
+                  onClick={handleClose}
                   data-cy="close-modal"
                   variant="contained"
                   color="primary"
@@ -252,4 +252,4 @@ function editQuestionForQueueModal(props: {
     </div>
   );
 }
-export default editQuestionForQueueModal;
+export default EditQuestionForQueueModal;
