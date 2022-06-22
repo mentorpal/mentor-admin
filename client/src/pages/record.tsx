@@ -225,8 +225,8 @@ function RecordPage(props: {
     emptyLineBeforeBlock: true,
   };
 
-  // Used to get the initial plain text
-  function getTranscriptText(text: string) {
+  // Used to set the initial plain text
+  function updateTranscriptText(text: string) {
     setTranscriptText(text);
     const _editorState = EditorState.createWithContent(
       ContentState.createFromText(text)
@@ -236,7 +236,7 @@ function RecordPage(props: {
   }
 
   // Get markdown from editor state
-  function getMarkdown(contentState: ContentState) {
+  function getMarkdownFromEditor(contentState: ContentState) {
     const markdown = stateToMarkdown(
       contentState, //editorState.getCurrentContent()
       markdownConfig
@@ -250,16 +250,6 @@ function RecordPage(props: {
     return draftContent;
   }
 
-  // Adaptor function to convert draftjs to markdown
-  function draftToMarkdown(contentState: ContentState) {
-    return stateToMarkdown(contentState);
-  }
-
-  // Adaptor function to convert markdown to draftjs
-  function markdownToDraft(markdown: string) {
-    return stateFromMarkdown(markdown);
-  }
-
   // Update the the transcript markdown text
   function updateMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
@@ -269,7 +259,7 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    getTranscriptText(curAnswer.answer.transcript);
+    updateTranscriptText(curAnswer.answer.transcript);
   }, [curAnswer?.answer]);
 
   function onBack() {
@@ -380,7 +370,7 @@ function RecordPage(props: {
             // setEditorState(editorState);
 
             const contentState = editorState.getCurrentContent();
-            const markdown = draftToMarkdown(contentState);
+            const markdown = getMarkdownFromEditor(contentState);
             updateMarkdown(markdown);
             setEditorState(editorState);
           }}
