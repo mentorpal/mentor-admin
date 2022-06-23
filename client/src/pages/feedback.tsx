@@ -209,8 +209,9 @@ function FeedbackItem(props: {
     }
     console.log(queueList);
   }
-
+  
   const handleClose = () => {
+    console.log(queueList);
     setOpenModal(false);
   };
 
@@ -412,7 +413,7 @@ function FeedbackPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentorId} />
+      <NavBar title="Feedback" mentorId={mentorId}/>
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
