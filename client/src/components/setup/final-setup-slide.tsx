@@ -6,26 +6,25 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Mentor } from "types";
+import { Mentor, SetupStatus } from "types";
 import { Slide } from "./slide";
 import { navigate } from "@reach/router";
 
 export function FinalSetupSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
-  isSetupComplete: boolean;
+  setupStatus: SetupStatus;
 }): JSX.Element {
-  const { classes, mentor, isSetupComplete } = props;
-
+  const { classes, mentor, setupStatus } = props;
   function renderMessage(): JSX.Element {
-    if (!isSetupComplete) {
+    if (!setupStatus.isMentorInfoDone) {
       return (
         <div>
           <Typography variant="h6" className={classes.text}>
             Mentor setup incomplete.
           </Typography>
           <Typography variant="h6" className={classes.text}>
-            Make sure you complete the previous slides first.
+            Please enter your Mentor Info before proceeding.
           </Typography>
         </div>
       );
@@ -50,12 +49,12 @@ export function FinalSetupSlide(props: {
   return (
     <Slide
       classes={classes}
-      title={isSetupComplete ? "Good work!" : "Oops!"}
+      title={setupStatus.isMentorInfoDone ? "Good work!" : "Oops!"}
       content={
         <div>
           <div>{renderMessage()}</div>
           <div className={classes.row}>
-            {isSetupComplete ? (
+            {setupStatus.isMentorInfoDone ? (
               <Button
                 data-cy="go-to-my-mentor-button"
                 variant="contained"
@@ -63,7 +62,7 @@ export function FinalSetupSlide(props: {
                 className={classes.button}
                 style={{ width: "150px" }}
                 onClick={() => {
-                  navigate("/admin");
+                  navigate("/");
                 }}
               >
                 My Mentor

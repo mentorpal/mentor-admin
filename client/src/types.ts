@@ -451,3 +451,18 @@ export interface RecordStateError {
   message: string;
   error: string;
 }
+
+export interface SetupStatus {
+  isMentorInfoDone: boolean;
+  isMentorTypeChosen: boolean;
+  idle?: {
+    idle: Answer;
+    complete: boolean;
+  };
+  requiredSubjects: {
+    subject: Subject;
+    answers: Answer[];
+    complete: boolean;
+  }[];
+  isSetupComplete: boolean;
+}
