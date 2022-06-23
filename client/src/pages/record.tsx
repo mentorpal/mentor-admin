@@ -249,7 +249,7 @@ function RecordPage(props: {
     const draftContent = convertToRaw(editorState.getCurrentContent());
     return draftContent;
   }
-
+  
   // Update the the transcript markdown text
   function updateMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
@@ -259,7 +259,12 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    updateTranscriptText(curAnswer.answer.transcript);
+    const transcript = curAnswer.answer.transcript;
+    const contentState = ContentState.createFromText(transcript);
+    const transcriptState = getMarkdownFromEditor(editorState.getCurrentContent());
+    //setContent(contentState);
+    //EditorState.createWithContent(ContentState.createFromText('Hello'))
+    setTranscriptText(transcript);
   }, [curAnswer?.answer]);
 
   function onBack() {
@@ -369,10 +374,13 @@ function RecordPage(props: {
             // setTranscriptMarkdown(markdown);
             // setEditorState(editorState);
 
+            //EditorState.createWithContent(ContentState.createFromText(markdownFromDb));
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
             updateMarkdown(markdown);
             setEditorState(editorState);
+            
+            console.log(transcriptText);
           }}
           editorState={editorState}
         />

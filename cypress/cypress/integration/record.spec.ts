@@ -25,6 +25,7 @@ import {
   updateMentorAnswer,
 } from "../support/helpers";
 import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
+import clintMarkdown from "../fixtures/mentor/clint_markdown";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -2034,9 +2035,24 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it.only("", () => {
+  it("", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+  });
+
+  it.only("", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
       questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
