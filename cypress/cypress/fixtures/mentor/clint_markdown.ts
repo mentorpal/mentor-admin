@@ -179,7 +179,7 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "- My name is Clint Anderson. I work for the Navy as a Nuclear Electrician's Mate \
+        "- My name is Clint Anderson. I am a Navy Nuclear Electrician's Mate \
         ![](https://www.cool.osd.mil/usn/images/sideImage1_em_150324-N-WO404-020.png)",
       status: Status.INCOMPLETE,
     },

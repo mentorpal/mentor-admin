@@ -227,11 +227,14 @@ function RecordPage(props: {
 
   // Used to set the initial plain text
   function updateTranscriptText(text: string) {
-    setTranscriptText(text);
-    const _editorState = EditorState.createWithContent(
-      ContentState.createFromText(text)
-    );
-    setEditorState(_editorState);
+    //setTranscriptText(text);
+    const contentState = stateFromMarkdown(text, markdownConfig);
+    // create editorstate from contentstate
+    const editorState = EditorState.createWithContent(contentState);
+    // const _editorState = EditorState.createWithContent(
+    //   ContentState.createFromText(text)
+    // );
+    setEditorState(editorState);
     return transcriptText;
   }
 
@@ -244,12 +247,19 @@ function RecordPage(props: {
     return markdown;
   }
 
-  // Get draftjs raw content from editor state
-  function getDraftContent(contentState: ContentState) {
-    const draftContent = convertToRaw(editorState.getCurrentContent());
-    return draftContent;
+  // Get draftjs contentstate from markdown
+  function getContentStateFromMarkdown(markdown: string) {
+    const contentState = stateFromMarkdown(markdown, markdownConfig);
+    return contentState;
   }
-  
+
+  // Convert markdown to raw contentstate
+  function getRawContentStateFromMarkdown(markdown: string) {
+    const contentState = stateFromMarkdown(markdown, markdownConfig);
+    const rawContentState = convertToRaw(contentState);
+    return rawContentState;
+  }
+
   // Update the the transcript markdown text
   function updateMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
@@ -259,12 +269,14 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    const transcript = curAnswer.answer.transcript;
-    const contentState = ContentState.createFromText(transcript);
-    const transcriptState = getMarkdownFromEditor(editorState.getCurrentContent());
-    //setContent(contentState);
-    //EditorState.createWithContent(ContentState.createFromText('Hello'))
-    setTranscriptText(transcript);
+    const text = curAnswer.answer.transcript;
+    const markdown = getMarkdownFromEditor(
+      getContentStateFromMarkdown(text)
+    );
+    const contentState = getContentStateFromMarkdown(markdown);
+    const rawState = getRawContentStateFromMarkdown(markdown);
+
+    updateTranscriptText(text);
   }, [curAnswer?.answer]);
 
   function onBack() {
@@ -374,13 +386,10 @@ function RecordPage(props: {
             // setTranscriptMarkdown(markdown);
             // setEditorState(editorState);
 
-            //EditorState.createWithContent(ContentState.createFromText(markdownFromDb));
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
             updateMarkdown(markdown);
             setEditorState(editorState);
-            
-            console.log(transcriptText);
           }}
           editorState={editorState}
         />
