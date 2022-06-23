@@ -44,23 +44,23 @@ export const loadMentor = createAsyncThunk(
     ) {
       return { isCancelled: true };
     }
-    thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
     if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
       return Promise.reject("no access token");
-    } else
-      return headers.mentorId
-        ? {
-            result: await api.fetchMentorById(
-              state.login.accessToken,
-              headers.mentorId
-            ),
-          }
-        : {
-            result: await api.fetchMentorById(
-              state.login.accessToken,
-              state.login.user?.defaultMentor._id
-            ),
-          };
+    }
+    thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
+    return headers.mentorId
+      ? {
+          result: await api.fetchMentorById(
+            state.login.accessToken,
+            headers.mentorId
+          ),
+        }
+      : {
+          result: await api.fetchMentorById(
+            state.login.accessToken,
+            state.login.user?.defaultMentor._id
+          ),
+        };
   }
 );
 
@@ -155,7 +155,16 @@ export const mentorSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(loadMentor.fulfilled, (state, action) => {
-        if (action.payload.isCancelled || !action.payload.result) {
+        if (action.payload.isCancelled) {
+          return;
+        }
+        if (!action.payload.result) {
+          state.error = {
+            message:
+              "failed to load mentor, fulfilled request but empty result",
+            error: loadMentor.fulfilled.name,
+          };
+          state.mentorStatus = LoadingStatus.FAILED;
           return;
         }
         state.data = action.payload.result;
