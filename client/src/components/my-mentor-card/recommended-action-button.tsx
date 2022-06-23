@@ -21,7 +21,11 @@ import CloseIcon from "@material-ui/icons/Close";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
+  openRecommender: boolean;
+  setOpenRecommender: (active: boolean) => void;
+  setOpenSave: (active: boolean) => void;
 }): JSX.Element {
+  const { openRecommender, setOpenRecommender, setOpenSave } = props;
   const [recommendedAction, skipRecommendation, recListLength] =
     UseWithRecommendedAction(props.continueAction);
   const { getData } = useActiveMentor();
@@ -34,6 +38,11 @@ export default function RecommendedActionButton(props: {
       backgroundColor: "#A7C7E7",
     },
   })(Tooltip);
+
+  function closeRecommenderTooltip() {
+    setOpenRecommender(!openRecommender);
+    setOpenSave(true);
+  }
 
   return (
     <div data-cy="rec-action-btn">
@@ -135,6 +144,11 @@ export default function RecommendedActionButton(props: {
                   </Typography>
 
                   <ColorTooltip
+                    interactive={true}
+                    open={openRecommender}
+                    onClose={closeRecommenderTooltip}
+                    disableHoverListener
+                    arrow
                     title={
                       <React.Fragment>
                         <IconButton
@@ -142,16 +156,14 @@ export default function RecommendedActionButton(props: {
                           size="small"
                           text-align="right"
                           align-content="right"
+                          onClick={closeRecommenderTooltip}
                         >
                           <CloseIcon />
                         </IconButton>
-                        <Typography color="inherit">
-                          <b>Recommender</b>
-                        </Typography>
+                        <Typography color="inherit">Test</Typography>
                         <p>More description about what this should do.</p>
                       </React.Fragment>
                     }
-                    arrow
                   >
                     <Button
                       size="medium"
@@ -192,6 +204,11 @@ export default function RecommendedActionButton(props: {
               </Typography>
 
               <ColorTooltip
+                interactive={true}
+                open={openRecommender}
+                onClose={closeRecommenderTooltip}
+                disableHoverListener
+                arrow
                 title={
                   <React.Fragment>
                     <IconButton
@@ -199,16 +216,14 @@ export default function RecommendedActionButton(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
+                      //onClick={closeRecommenderTooltip}
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Typography color="inherit">
-                      <b>Recommender</b>
-                    </Typography>
+                    <Typography color="inherit">Recommender</Typography>
                     <p>More description about what this should do.</p>
                   </React.Fragment>
                 }
-                arrow
               >
                 <Button
                   size="medium"

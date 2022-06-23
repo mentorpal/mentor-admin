@@ -24,6 +24,12 @@ export default function MyMentorCard(props: {
   setOpenProfile: (active: boolean) => void;
   openStatus: boolean;
   setOpenStatus: (active: boolean) => void;
+  openCategories: boolean;
+  setOpenCategories: (active: boolean) => void;
+  openRecommender: boolean;
+  setOpenRecommender: (active: boolean) => void;
+  openSave: boolean;
+  setOpenSave: (acitve: boolean) => void;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -77,6 +83,12 @@ export default function MyMentorCard(props: {
                 updateThumbnail={updateThumbnail}
                 openStatus={props.openStatus}
                 setOpenStatus={props.setOpenStatus}
+                openCategories={props.openCategories}
+                setOpenCategories={props.setOpenCategories}
+                openRecommender={props.openRecommender}
+                setOpenRecommender={props.setOpenRecommender}
+                openSave={props.openSave}
+                setOpenSave={props.setOpenSave}
               />
             </Grid>
           </Grid>

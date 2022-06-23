@@ -24,10 +24,21 @@ function MentorStatus(props: {
   updateThumbnail: (file: File) => void;
   openStatus: boolean;
   setOpenStatus: (active: boolean) => void;
+  openCategories: boolean;
+  setOpenCategories: (active: boolean) => void;
+  openRecommender: boolean;
+  setOpenRecommender: (active: boolean) => void;
+  openSave: boolean;
+  setOpenSave: (active: boolean) => void;
 }): JSX.Element {
   const {
     openStatus,
     setOpenStatus,
+    setOpenCategories,
+    openRecommender,
+    setOpenRecommender,
+    openSave,
+    setOpenSave,
   } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
@@ -37,6 +48,11 @@ function MentorStatus(props: {
   );
 
   const leftColumnAlign = "left";
+
+  function closeStatusTooltip() {
+    setOpenStatus(!openStatus);
+    setOpenCategories(true);
+  }
 
   const currentStatus = (
     <Grid
@@ -80,14 +96,18 @@ function MentorStatus(props: {
     </Grid>
   );
 
-  const nextStatus = (
-    <Grid xs={12} md={10}>
-      <RecommendedActionButton
-        setThumbnail={updateThumbnail}
-        continueAction={continueAction}
-      />
-    </Grid>
-  );
+  // const nextStatus = (
+  //   <Grid xs={12} md={10}>
+  //     <RecommendedActionButton
+  //       setThumbnail={updateThumbnail}
+  //       continueAction={continueAction}
+  //       openRecommender = {props.openRecommender}
+  //       setOpenRecommender = {props.setOpenRecommender}
+  //       openSave = {props.openSave}
+  //       setOpenSave = {props.setOpenSave}
+  //     />
+  //   </Grid>
+  // );
   return (
     <>
       <Grid container spacing={2} className="top-card-container">
@@ -106,7 +126,7 @@ function MentorStatus(props: {
                   size="small"
                   text-align="right"
                   align-content="right"
-                  onClick={() => setOpenStatus(!openStatus)}
+                  onClick={closeStatusTooltip}
                 >
                   <CloseIcon />
                 </IconButton>
@@ -136,7 +156,17 @@ function MentorStatus(props: {
             className="next-status-wrapper status-item-wrapper"
             next-states
           >
-            {nextStatus}
+            <Grid xs={12} md={10}>
+              <RecommendedActionButton
+                setThumbnail={updateThumbnail}
+                continueAction={continueAction}
+                openRecommender={props.openRecommender}
+                setOpenRecommender={props.setOpenRecommender}
+                setOpenSave={props.setOpenSave}
+              />
+            </Grid>
+
+            {/* {nextStatus} */}
           </Grid>
         </Grid>
       </Grid>

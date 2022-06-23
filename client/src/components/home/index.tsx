@@ -49,6 +49,7 @@ import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { userSawTooltips } from "store/slices/login";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -129,8 +130,14 @@ function HomePage(props: {
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
+  // all the hooks used for the tooltips
   const [openProfile, setOpenProfile] = React.useState<boolean>(false);
   const [openStatus, setOpenStatus] = React.useState<boolean>(false);
+  const [openCategories, setOpenCategories] = React.useState<boolean>(false);
+  const [openRecommender, setOpenRecommender] = React.useState<boolean>(false);
+  const [openSave, setOpenSave] = React.useState<boolean>(false);
+  const [openBuild, setOpenBuild] = React.useState<boolean>(false);
+  const [openPreview, setOpenPreview] = React.useState<boolean>(false);
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -189,11 +196,6 @@ function HomePage(props: {
     }
   }
 
-  function closeDialog() {
-    userSawSplashScreen("");
-    setOpenProfile(true);
-  }
-
   async function saveBeforeCallback() {
     if (!confirmSaveBeforeCallback) {
       return;
@@ -228,6 +230,31 @@ function HomePage(props: {
     }
   }
 
+  function closeDialog() {
+    userSawSplashScreen("");
+    setOpenProfile(true);
+  }
+
+  function closeCategoriesTooltip() {
+    setOpenCategories(!openCategories);
+    setOpenRecommender(true);
+  }
+
+  function closeSaveTooltip() {
+    setOpenSave(!openSave);
+    setOpenBuild(true);
+  }
+
+  function closeBuildTooltip() {
+    setOpenBuild(!openBuild);
+    setOpenPreview(true);
+  }
+
+  function closePreviewTooltip() {
+    setOpenPreview(!openPreview);
+    userSawTooltips("");
+  }
+
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget
@@ -257,6 +284,12 @@ function HomePage(props: {
           setOpenProfile={setOpenProfile}
           openStatus={openStatus}
           setOpenStatus={setOpenStatus}
+          openCategories={openCategories}
+          setOpenCategories={setOpenCategories}
+          openRecommender={openRecommender}
+          setOpenRecommender={setOpenRecommender}
+          openSave={openSave}
+          setOpenSave={setOpenSave}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -282,6 +315,12 @@ function HomePage(props: {
             // ALL ANSWERS TOOLTIP
 
             <ColorTooltip
+              interactive={true}
+              open={openCategories}
+              onClose={() => setOpenCategories(false)}
+              disableHoverListener
+              arrow
+              placement="left"
               //contains all text inside tooltip
               title={
                 <React.Fragment>
@@ -290,20 +329,19 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    //onClick = {() => openCategories(true)}
+                    onClick={closeCategoriesTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
                   <Typography>
-                    <b>Categories and manually choosing questions to record</b>
+                    Categories and manually choosing questions to record
                   </Typography>
                   <p>More description about what this should do.</p>
                 </React.Fragment>
               }
-              //to make the tooltip have an arrow
-              arrow
-              placement="left"
-              //open = {!categories}
+              PopperProps={{
+                style: { maxWidth: 300 },
+              }}
             >
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
@@ -373,9 +411,12 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
-            {/* SAVE TOOLTIP */}
-
             <ColorTooltip
+              interactive={true}
+              open={openSave}
+              onClose={closeSaveTooltip}
+              disableHoverListener
+              arrow
               title={
                 <React.Fragment>
                   <IconButton
@@ -383,6 +424,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
+                    //onClick={closeSaveTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -392,7 +434,6 @@ function HomePage(props: {
                   <p>More description about what this should do.</p>
                 </React.Fragment>
               }
-              arrow
             >
               <Fab
                 data-cy="save-button"
@@ -411,6 +452,11 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
+              interactive={true}
+              open={openBuild}
+              onClose={closeBuildTooltip}
+              disableHoverListener
+              arrow
               title={
                 <React.Fragment>
                   <IconButton
@@ -418,6 +464,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
+                    //onClick={closeBuildTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -427,7 +474,6 @@ function HomePage(props: {
                   <p>More description about what this should do.</p>
                 </React.Fragment>
               }
-              arrow
             >
               <Fab
                 data-cy="train-button"
@@ -447,6 +493,11 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
+              interactive={true}
+              open={openPreview}
+              onClose={closePreviewTooltip}
+              disableHoverListener
+              arrow
               title={
                 <React.Fragment>
                   <IconButton
@@ -454,6 +505,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
+                    //onClick={closePreviewTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -463,7 +515,6 @@ function HomePage(props: {
                   <p>More description about what this should do.</p>
                 </React.Fragment>
               }
-              arrow
             >
               <Fab
                 data-cy="preview-button"

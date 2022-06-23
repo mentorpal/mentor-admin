@@ -107,15 +107,15 @@ describe("My Mentor Page", () => {
     });
 
     cy.visit("/");
-    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=notification-dialog]").should("exist");
-    cy.get("[data-cy=notification-dialog-title]").should(
-      "have.text",
-      "This page is for setting up your mentor!"
-    );
-    cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
-    cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
-    cy.get("[data-cy=notification-dialog]").should("not.exist");
+    // cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    // cy.get("[data-cy=notification-dialog]").should("exist");
+    // cy.get("[data-cy=notification-dialog-title]").should(
+    //   "have.text",
+    //   "This page is for setting up your mentor!"
+    // );
+    // cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
+    // cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
+    // cy.get("[data-cy=notification-dialog]").should("not.exist");
   });
 
   it("doesn't show splash if mentor seen before", () => {

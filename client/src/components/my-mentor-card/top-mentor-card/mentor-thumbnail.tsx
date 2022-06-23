@@ -79,7 +79,7 @@ function MentorThumbnail(props: {
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
 
-  function closeProfileDialog() {
+  function closeProfileTooltip() {
     setOpenProfile(!openProfile);
     setOpenStatus(true);
   }
@@ -125,6 +125,7 @@ function MentorThumbnail(props: {
                 disableHoverListener
                 arrow
                 placement="right"
+                enterDelay={100000}
                 title={
                   <React.Fragment>
                     <IconButton
@@ -132,7 +133,7 @@ function MentorThumbnail(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
-                      onClick={closeProfileDialog}
+                      onClick={closeProfileTooltip}
                     >
                       <CloseIcon />
                     </IconButton>
