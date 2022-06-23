@@ -150,7 +150,7 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "I'm [37](https://en.wikipedia.org/wiki/37_%28number%29) years old",
+        "- I'm [37](https://en.wikipedia.org/wiki/37_%28number%29) years old",
       status: Status.INCOMPLETE,
     },
     {
@@ -179,8 +179,8 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "- My name is Clint Anderson. I am a Navy Nuclear Electrician's Mate \
-        ![](https://www.cool.osd.mil/usn/images/sideImage1_em_150324-N-WO404-020.png)",
+        "- My name is Clint Anderson. I am a _Navy_ Nuclear Electrician's ++Mate++ \
+       ![](https://www.cool.osd.mil/usn/images/sideImage1_em_150324-N-WO404-020.png)",
       status: Status.INCOMPLETE,
     },
     {

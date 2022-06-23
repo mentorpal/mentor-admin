@@ -2035,22 +2035,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it("", () => {
-    cyMockDefault(cy, {
-      mentor: chatMentor,
-      questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
-    });
-    cy.visit("/record?videoId=A1_1_1");
-  });
-
-  it.only("", () => {
+  it("Verify that transcript markdown loads as rich text: Q1", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,
       questions: chatQuestions,
@@ -2065,7 +2050,53 @@ describe("Record", () => {
     cy.visit("/record?videoId=A1_1_1");
   });
 
-  it("Make changes to transcript using WYSIWYG Editor features", () => {
+  it("Verify that transcript markdown loads as rich text: Q2", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+  });
+
+  // // TODO: Not used since we decided to disable the image button from the Editor component
+  // it.only("Verify that transcript markdown loads as rich text: Q4", () => {
+  //   cyMockDefault(cy, {
+  //     mentor: clintMarkdown,
+  //     questions: chatQuestions,
+  //     gqlQueries: [
+  //       mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+  //       mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+  //       mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+  //       mockGQL("ImportTask", { importTask: null }),
+  //       mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+  //     ],
+  //   });
+  //   cy.visit("/record?videoId=A4_1_1");
+  // });
+
+  it("Verify that transcript markdown loads as rich text: Q5", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A5_1_1");
+  });
+
+  it.only("Make changes to transcript using WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
@@ -2093,20 +2124,16 @@ describe("Record", () => {
     cy.get(".editor-class").within(() => {
       cy.get("[data-text]").type("{selectall}");
     });
+    cy.get(".rdw-link-wrapper").eq(0).click();
+    cy.get(".rdw-dropdownoption-default.rdw-link-dropdownoption").eq(0).click();
+    cy.get(".rdw-link-modal-input").eq(1).type("https://google.com");
+    cy.get("[id=openLinkInNewWindow]").click();
+    cy.get(".rdw-link-modal-btn").eq(0).click();
+
     cy.get(".rdw-option-wrapper").eq(5).click();
-    cy.get(".rdw-image-modal-url-input").type("https://google.com");
-    cy.get(".rdw-image-modal-btn").eq(0).click();
-
     cy.get(".rdw-option-wrapper").eq(6).click();
 
-    cy.get(".rdw-image-wrapper").eq(0).click();
-    cy.get(".rdw-image-modal-url-input").type(
-      "https://en.wikipedia.org/wiki/Main_Page"
-    );
-    cy.get(".rdw-image-modal-btn").eq(0).click();
-
-    cy.get(".rdw-option-wrapper").eq(6).click();
-    cy.get(".rdw-option-wrapper").eq(7).click();
+    cy.get(".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr").click();
   });
 
   it("can update question for a question belonging to mentor", () => {

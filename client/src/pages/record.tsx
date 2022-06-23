@@ -57,13 +57,7 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import {
-  EditorState,
-  ContentState,
-  convertToRaw,
-  convertFromRaw,
-  RawDraftContentState,
-} from "draft-js";
+import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { stateFromMarkdown } from "draft-js-import-markdown";
 import { stateToMarkdown } from "draft-js-export-markdown";
@@ -135,7 +129,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const toolBarOpts = {
-  options: ["inline", "list", "link", "image", "history"],
+  options: ["inline", "list", "link", "history"],
   inline: {
     className: "toolbar-inline",
     options: ["bold", "italic", "underline"],
@@ -148,15 +142,6 @@ const toolBarOpts = {
     className: "toolbar-link",
     inDropdown: true,
     showOpenOptionOnHover: true,
-  },
-  image: {
-    className: "toolbar-image",
-    popupClassName: "toolbar-image-popup",
-    urlEnabled: true,
-    uploadEnabled: true,
-    alignmentEnabled: true,
-    previewImage: true,
-    inputAccept: "image/gif,image/jpeg,image/jpg,image/png,image/svg",
   },
   history: {
     className: "toolbar-history",
@@ -225,37 +210,19 @@ function RecordPage(props: {
     emptyLineBeforeBlock: true,
   };
 
-  // Used to set the initial editor transcript
   function updateTranscriptText(text: string) {
     const contentState = stateFromMarkdown(text, markdownConfig);
     const editorState = EditorState.createWithContent(contentState);
     setEditorState(editorState);
+    setTranscriptText(text);
     return transcriptText;
   }
 
-  // Get markdown from editor state
   function getMarkdownFromEditor(contentState: ContentState) {
-    const markdown = stateToMarkdown(
-      contentState, //editorState.getCurrentContent()
-      markdownConfig
-    );
+    const markdown = stateToMarkdown(contentState, markdownConfig);
     return markdown;
   }
 
-  // Get draftjs contentstate from markdown
-  function getContentStateFromMarkdown(markdown: string) {
-    const contentState = stateFromMarkdown(markdown, markdownConfig);
-    return contentState;
-  }
-
-  // Convert markdown to raw contentstate
-  function getRawContentStateFromMarkdown(markdown: string) {
-    const contentState = stateFromMarkdown(markdown, markdownConfig);
-    const rawContentState = convertToRaw(contentState);
-    return rawContentState;
-  }
-
-  // Update the the transcript markdown text
   function updateMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
   }
@@ -330,10 +297,6 @@ function RecordPage(props: {
       return;
     }
     const { isRecording } = recordState;
-    // const onEditorChange = (editorState: any) => {
-    //   const text = editorState.blocks.map((block) => block.text);
-    //   console.log(text);
-    // };
     return (
       // relative so overlay can fit
       <div
@@ -372,6 +335,7 @@ function RecordPage(props: {
             const markdown = getMarkdownFromEditor(contentState);
             updateMarkdown(markdown);
             setEditorState(editorState);
+            console.log("markdown:", markdown);
           }}
           editorState={editorState}
         />
