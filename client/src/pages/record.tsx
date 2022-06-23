@@ -225,15 +225,10 @@ function RecordPage(props: {
     emptyLineBeforeBlock: true,
   };
 
-  // Used to set the initial plain text
+  // Used to set the initial editor transcript
   function updateTranscriptText(text: string) {
-    //setTranscriptText(text);
     const contentState = stateFromMarkdown(text, markdownConfig);
-    // create editorstate from contentstate
     const editorState = EditorState.createWithContent(contentState);
-    // const _editorState = EditorState.createWithContent(
-    //   ContentState.createFromText(text)
-    // );
     setEditorState(editorState);
     return transcriptText;
   }
@@ -270,12 +265,6 @@ function RecordPage(props: {
       return;
     }
     const text = curAnswer.answer.transcript;
-    const markdown = getMarkdownFromEditor(
-      getContentStateFromMarkdown(text)
-    );
-    const contentState = getContentStateFromMarkdown(markdown);
-    const rawState = getRawContentStateFromMarkdown(markdown);
-
     updateTranscriptText(text);
   }, [curAnswer?.answer]);
 
@@ -379,13 +368,6 @@ function RecordPage(props: {
           toolbarClassName="toolbar-class"
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState: EditorState) => {
-            // METHOD FOR 2 WAY CONVERSION
-            // const text = editorState.getCurrentContent().getPlainText();
-            // setTranscriptText(text);
-            // const markdown = getTranscriptMarkdown();
-            // setTranscriptMarkdown(markdown);
-            // setEditorState(editorState);
-
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
             updateMarkdown(markdown);
