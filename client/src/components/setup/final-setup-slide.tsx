@@ -62,7 +62,7 @@ export function FinalSetupSlide(props: {
                 className={classes.button}
                 style={{ width: "150px" }}
                 onClick={() => {
-                  navigate("/");
+                  navigate("/admin");
                 }}
               >
                 My Mentor
