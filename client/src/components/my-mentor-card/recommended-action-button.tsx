@@ -160,10 +160,17 @@ export default function RecommendedActionButton(props: {
                         >
                           <CloseIcon />
                         </IconButton>
-                        <Typography color="inherit">Test</Typography>
-                        <p>More description about what this should do.</p>
+                        <Typography color="inherit" align="center">
+                          Test
+                        </Typography>
+                        <p style={{ textAlign: "center" }}>
+                          More description about what this should do.
+                        </p>
                       </React.Fragment>
                     }
+                    PopperProps={{
+                      style: { maxWidth: 250, textAlign: "right" },
+                    }}
                   >
                     <Button
                       size="medium"
@@ -204,6 +211,7 @@ export default function RecommendedActionButton(props: {
               </Typography>
 
               <ColorTooltip
+                data-cy = "recommender-tooltip"
                 interactive={true}
                 open={openRecommender}
                 onClose={closeRecommenderTooltip}
@@ -212,6 +220,7 @@ export default function RecommendedActionButton(props: {
                 title={
                   <React.Fragment>
                     <IconButton
+                    data-cy = "recommender-tooltip-close-btn"
                       color="inherit"
                       size="small"
                       text-align="right"
@@ -220,10 +229,17 @@ export default function RecommendedActionButton(props: {
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Typography color="inherit">Recommender</Typography>
-                    <p>More description about what this should do.</p>
+                    <Typography color="inherit" align="center" data-cy = "recommender-tooltip-title">
+                      Recommender
+                    </Typography>
+                    <p style={{ textAlign: "center" }}>
+                      More description about what this should do.
+                    </p>
                   </React.Fragment>
                 }
+                PopperProps={{
+                  style: { maxWidth: 250, textAlign: "right" },
+                }}
               >
                 <Button
                   size="medium"

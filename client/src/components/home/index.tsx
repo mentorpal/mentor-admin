@@ -315,16 +315,18 @@ function HomePage(props: {
             // ALL ANSWERS TOOLTIP
 
             <ColorTooltip
+            data-cy = "categories-tooltip"
               interactive={true}
               open={openCategories}
               onClose={() => setOpenCategories(false)}
               disableHoverListener
               arrow
-              placement="left"
+              placement="top-end"
               //contains all text inside tooltip
               title={
                 <React.Fragment>
                   <IconButton
+                    data-cy = "categories-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -333,14 +335,16 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography>
+                  <Typography color="inherit" align="center" data-cy = "categories-tooltip-title">
                     Categories and manually choosing questions to record
                   </Typography>
-                  <p>More description about what this should do.</p>
+                  <p style={{ textAlign: "center" }}>
+                    More description about what this should do.
+                  </p>
                 </React.Fragment>
               }
               PopperProps={{
-                style: { maxWidth: 300 },
+                style: { maxWidth: 300, textAlign: "right" },
               }}
             >
               <Typography variant="h6" className={classes.title}>
@@ -412,6 +416,7 @@ function HomePage(props: {
           </div>
           <div className="page-buttons">
             <ColorTooltip
+            data-cy = "save-tooltip"
               interactive={true}
               open={openSave}
               onClose={closeSaveTooltip}
@@ -420,6 +425,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
+                  data-cy = "save-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -428,12 +434,17 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit">
-                    <b>Save Me</b>
+                  <Typography color="inherit" align="center" data-cy ="save-tooltip-title">
+                    Save
                   </Typography>
-                  <p>More description about what this should do.</p>
+                  <p style={{ textAlign: "center" }}>
+                    More description about what this should do.
+                  </p>
                 </React.Fragment>
               }
+              PopperProps={{
+                style: { maxWidth: 250, textAlign: "right" },
+              }}
             >
               <Fab
                 data-cy="save-button"
@@ -452,6 +463,7 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
+            data-cy = "build-tooltip"
               interactive={true}
               open={openBuild}
               onClose={closeBuildTooltip}
@@ -460,6 +472,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
+                  data-cy = "build-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -468,12 +481,17 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit">
-                    <b>Build Me</b>
+                  <Typography color="inherit" align="center" data-cy = "build-tooltip-title">
+                    <b>Build</b>
                   </Typography>
-                  <p>More description about what this should do.</p>
+                  <p style={{ textAlign: "center" }}>
+                    More description about what this should do.
+                  </p>
                 </React.Fragment>
               }
+              PopperProps={{
+                style: { maxWidth: 250, textAlign: "right" },
+              }}
             >
               <Fab
                 data-cy="train-button"
@@ -493,6 +511,7 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
+            data-cy="preview-tooltip"
               interactive={true}
               open={openPreview}
               onClose={closePreviewTooltip}
@@ -501,6 +520,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
+                  data-cy="preview-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -509,12 +529,17 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit">
+                  <Typography color="inherit" align="center" data-cy="preview-tooltip-title">
                     <b>Preview Me</b>
                   </Typography>
-                  <p>More description about what this should do.</p>
+                  <p style={{ textAlign: "center" }}>
+                    More description about what this should do.
+                  </p>
                 </React.Fragment>
               }
+              PopperProps={{
+                style: { maxWidth: 250, textAlign: "right" },
+              }}
             >
               <Fab
                 data-cy="preview-button"

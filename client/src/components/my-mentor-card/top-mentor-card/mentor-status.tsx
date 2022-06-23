@@ -96,23 +96,12 @@ function MentorStatus(props: {
     </Grid>
   );
 
-  // const nextStatus = (
-  //   <Grid xs={12} md={10}>
-  //     <RecommendedActionButton
-  //       setThumbnail={updateThumbnail}
-  //       continueAction={continueAction}
-  //       openRecommender = {props.openRecommender}
-  //       setOpenRecommender = {props.setOpenRecommender}
-  //       openSave = {props.openSave}
-  //       setOpenSave = {props.setOpenSave}
-  //     />
-  //   </Grid>
-  // );
   return (
     <>
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
           <ColorTooltip
+          data-cy = "status-tooltip"
             interactive={true}
             open={openStatus}
             onClose={() => setOpenStatus(false)}
@@ -122,6 +111,7 @@ function MentorStatus(props: {
             title={
               <React.Fragment>
                 <IconButton
+                data-cy = "status-tooltip-close-btn"
                   color="inherit"
                   size="small"
                   text-align="right"
@@ -130,12 +120,16 @@ function MentorStatus(props: {
                 >
                   <CloseIcon />
                 </IconButton>
-                <Typography>Current Status</Typography>
-                <p>More description about what this should do.</p>
+                <Typography color="inherit" align="center" data-cy = "status-tooltip-title">
+                  Current Status
+                </Typography>
+                <p style={{ textAlign: "center" }}>
+                  More description about what this should do.
+                </p>
               </React.Fragment>
             }
             PopperProps={{
-              style: { maxWidth: 250 },
+              style: { maxWidth: 250, textAlign: "right" },
             }}
           >
             <Typography variant="h5">
@@ -165,8 +159,6 @@ function MentorStatus(props: {
                 setOpenSave={props.setOpenSave}
               />
             </Grid>
-
-            {/* {nextStatus} */}
           </Grid>
         </Grid>
       </Grid>

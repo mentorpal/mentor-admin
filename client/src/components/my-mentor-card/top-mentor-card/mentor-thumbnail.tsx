@@ -119,6 +119,7 @@ function MentorThumbnail(props: {
               </IconButton>
 
               <ColorTooltip
+              data-cy = "profile-tooltip"
                 interactive={true}
                 open={openProfile}
                 onClose={() => setOpenProfile(false)}
@@ -129,6 +130,7 @@ function MentorThumbnail(props: {
                 title={
                   <React.Fragment>
                     <IconButton
+                    data-cy = "profile-tooltip-close-btn"
                       color="inherit"
                       size="small"
                       text-align="right"
@@ -137,15 +139,17 @@ function MentorThumbnail(props: {
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Typography color="inherit">Profile</Typography>
-                    <p>
+                    <Typography color="inherit" align="center" data-cy = "profile-tooltip-title">
+                      Profile
+                    </Typography>
+                    <p style={{ textAlign: "center" }}>
                       This is where you can set how you will be displayed (name,
                       job title, thumbnail).
                     </p>
                   </React.Fragment>
                 }
                 PopperProps={{
-                  style: { maxWidth: 250 },
+                  style: { maxWidth: 250, textAlign: "right" },
                 }}
               >
                 <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
