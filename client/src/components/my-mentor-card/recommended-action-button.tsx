@@ -211,7 +211,7 @@ export default function RecommendedActionButton(props: {
               </Typography>
 
               <ColorTooltip
-                data-cy = "recommender-tooltip"
+                data-cy="recommender-tooltip"
                 interactive={true}
                 open={openRecommender}
                 onClose={closeRecommenderTooltip}
@@ -220,7 +220,7 @@ export default function RecommendedActionButton(props: {
                 title={
                   <React.Fragment>
                     <IconButton
-                    data-cy = "recommender-tooltip-close-btn"
+                      data-cy="recommender-tooltip-close-btn"
                       color="inherit"
                       size="small"
                       text-align="right"
@@ -229,7 +229,11 @@ export default function RecommendedActionButton(props: {
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Typography color="inherit" align="center" data-cy = "recommender-tooltip-title">
+                    <Typography
+                      color="inherit"
+                      align="center"
+                      data-cy="recommender-tooltip-title"
+                    >
                       Recommender
                     </Typography>
                     <p style={{ textAlign: "center" }}>

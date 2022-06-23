@@ -304,49 +304,52 @@ function HomePage(props: {
           </Fab>
         )}
 
-        
-            <ColorTooltip
-              interactive={true}
-              open={openCategories}
-              onClose={() => setOpenCategories(false)}
-              disableHoverListener
-              arrow
-              placement="left"
-              //contains all text inside tooltip
-              title={
-                <React.Fragment >
-                  <IconButton
-                    data-cy = "categories-tooltip-close-btn"
-                    color="inherit"
-                    size="small"
-                    text-align="right"
-                    align-content="right"
-                    onClick={closeCategoriesTooltip}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Typography color="inherit" align="center" data-cy = "categories-tooltip-title">
-                    Categories and manually choosing questions to record
-                  </Typography>
-                  <p style={{ textAlign: "center" }}>
-                    More description about what this should do.
-                  </p>
-                </React.Fragment>
-              }
-              PopperProps={{
-                style: { maxWidth: 300, textAlign: "left" },
-              }}
-            >
-        <Select
-          data-cy="select-subject"
-          value={
-            reviewAnswerState.selectedSubject
-              ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-              : undefined
+        <ColorTooltip
+          interactive={true}
+          open={openCategories}
+          onClose={() => setOpenCategories(false)}
+          disableHoverListener
+          arrow
+          placement="left"
+          //contains all text inside tooltip
+          title={
+            <React.Fragment>
+              <IconButton
+                data-cy="categories-tooltip-close-btn"
+                color="inherit"
+                size="small"
+                text-align="right"
+                align-content="right"
+                onClick={closeCategoriesTooltip}
+              >
+                <CloseIcon />
+              </IconButton>
+              <Typography
+                color="inherit"
+                align="center"
+                data-cy="categories-tooltip-title"
+              >
+                Categories and manually choosing questions to record
+              </Typography>
+              <p style={{ textAlign: "center" }}>
+                More description about what this should do.
+              </p>
+            </React.Fragment>
           }
-          displayEmpty
-          renderValue={() => (
-            // ALL ANSWERS TOOLTIP
+          PopperProps={{
+            style: { maxWidth: 300, textAlign: "left" },
+          }}
+        >
+          <Select
+            data-cy="select-subject"
+            value={
+              reviewAnswerState.selectedSubject
+                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
+                : undefined
+            }
+            displayEmpty
+            renderValue={() => (
+              // ALL ANSWERS TOOLTIP
 
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
@@ -355,24 +358,23 @@ function HomePage(props: {
                 ({reviewAnswerState.progress.complete} /{" "}
                 {reviewAnswerState.progress.total})
               </Typography>
-          )}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => {
-            reviewAnswerState.selectSubject(event.target.value as string);
-          }}
-        >
-          <MenuItem data-cy="all-subjects" value={undefined}>
-            Show All Subjects
-          </MenuItem>
-          {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
-            <MenuItem key={id} data-cy={`select-${id}`} value={id}>
-              {name}
+            )}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              reviewAnswerState.selectSubject(event.target.value as string);
+            }}
+          >
+            <MenuItem data-cy="all-subjects" value={undefined}>
+              Show All Subjects
             </MenuItem>
-          ))}
-        </Select>
-      </ColorTooltip>
-
+            {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
+              <MenuItem key={id} data-cy={`select-${id}`} value={id}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </ColorTooltip>
       </div>
       <List
         data-cy="recording-blocks"
@@ -418,7 +420,7 @@ function HomePage(props: {
           </div>
           <div className="page-buttons">
             <ColorTooltip
-            data-cy = "save-tooltip"
+              data-cy="save-tooltip"
               interactive={true}
               open={openSave}
               onClose={closeSaveTooltip}
@@ -427,7 +429,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
-                  data-cy = "save-tooltip-close-btn"
+                    data-cy="save-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -436,7 +438,11 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit" align="center" data-cy ="save-tooltip-title">
+                  <Typography
+                    color="inherit"
+                    align="center"
+                    data-cy="save-tooltip-title"
+                  >
                     Save
                   </Typography>
                   <p style={{ textAlign: "center" }}>
@@ -465,7 +471,7 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
-            data-cy = "build-tooltip"
+              data-cy="build-tooltip"
               interactive={true}
               open={openBuild}
               onClose={closeBuildTooltip}
@@ -474,7 +480,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
-                  data-cy = "build-tooltip-close-btn"
+                    data-cy="build-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -483,7 +489,11 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit" align="center" data-cy = "build-tooltip-title">
+                  <Typography
+                    color="inherit"
+                    align="center"
+                    data-cy="build-tooltip-title"
+                  >
                     Build
                   </Typography>
                   <p style={{ textAlign: "center" }}>
@@ -513,7 +523,7 @@ function HomePage(props: {
             </ColorTooltip>
 
             <ColorTooltip
-            data-cy="preview-tooltip"
+              data-cy="preview-tooltip"
               interactive={true}
               open={openPreview}
               onClose={closePreviewTooltip}
@@ -522,7 +532,7 @@ function HomePage(props: {
               title={
                 <React.Fragment>
                   <IconButton
-                  data-cy="preview-tooltip-close-btn"
+                    data-cy="preview-tooltip-close-btn"
                     color="inherit"
                     size="small"
                     text-align="right"
@@ -531,7 +541,11 @@ function HomePage(props: {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <Typography color="inherit" align="center" data-cy="preview-tooltip-title">
+                  <Typography
+                    color="inherit"
+                    align="center"
+                    data-cy="preview-tooltip-title"
+                  >
                     Preview
                   </Typography>
                   <p style={{ textAlign: "center" }}>

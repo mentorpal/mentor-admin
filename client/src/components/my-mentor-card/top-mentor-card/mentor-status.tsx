@@ -101,7 +101,7 @@ function MentorStatus(props: {
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
           <ColorTooltip
-          data-cy = "status-tooltip"
+            data-cy="status-tooltip"
             interactive={true}
             open={openStatus}
             onClose={() => setOpenStatus(false)}
@@ -111,7 +111,7 @@ function MentorStatus(props: {
             title={
               <React.Fragment>
                 <IconButton
-                data-cy = "status-tooltip-close-btn"
+                  data-cy="status-tooltip-close-btn"
                   color="inherit"
                   size="small"
                   text-align="right"
@@ -120,7 +120,11 @@ function MentorStatus(props: {
                 >
                   <CloseIcon />
                 </IconButton>
-                <Typography color="inherit" align="center" data-cy = "status-tooltip-title">
+                <Typography
+                  color="inherit"
+                  align="center"
+                  data-cy="status-tooltip-title"
+                >
                   Current Status
                 </Typography>
                 <p style={{ textAlign: "center" }}>

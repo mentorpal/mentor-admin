@@ -119,7 +119,7 @@ function MentorThumbnail(props: {
               </IconButton>
 
               <ColorTooltip
-              data-cy = "profile-tooltip"
+                data-cy="profile-tooltip"
                 interactive={true}
                 open={openProfile}
                 onClose={() => setOpenProfile(false)}
@@ -130,7 +130,7 @@ function MentorThumbnail(props: {
                 title={
                   <React.Fragment>
                     <IconButton
-                    data-cy = "profile-tooltip-close-btn"
+                      data-cy="profile-tooltip-close-btn"
                       color="inherit"
                       size="small"
                       text-align="right"
@@ -139,7 +139,11 @@ function MentorThumbnail(props: {
                     >
                       <CloseIcon />
                     </IconButton>
-                    <Typography color="inherit" align="center" data-cy = "profile-tooltip-title">
+                    <Typography
+                      color="inherit"
+                      align="center"
+                      data-cy="profile-tooltip-title"
+                    >
                       Profile
                     </Typography>
                     <p style={{ textAlign: "center" }}>
