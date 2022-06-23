@@ -303,19 +303,9 @@ function HomePage(props: {
             Default Mentor
           </Fab>
         )}
-        <Select
-          data-cy="select-subject"
-          value={
-            reviewAnswerState.selectedSubject
-              ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-              : undefined
-          }
-          displayEmpty
-          renderValue={() => (
-            // ALL ANSWERS TOOLTIP
 
+        
             <ColorTooltip
-            data-cy = "categories-tooltip"
               interactive={true}
               open={openCategories}
               onClose={() => setOpenCategories(false)}
@@ -324,7 +314,7 @@ function HomePage(props: {
               placement="left"
               //contains all text inside tooltip
               title={
-                <React.Fragment>
+                <React.Fragment >
                   <IconButton
                     data-cy = "categories-tooltip-close-btn"
                     color="inherit"
@@ -346,9 +336,18 @@ function HomePage(props: {
               PopperProps={{
                 style: { maxWidth: 300, textAlign: "left" },
               }}
-
-
             >
+        <Select
+          data-cy="select-subject"
+          value={
+            reviewAnswerState.selectedSubject
+              ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
+              : undefined
+          }
+          displayEmpty
+          renderValue={() => (
+            // ALL ANSWERS TOOLTIP
+
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
                   ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
@@ -356,15 +355,6 @@ function HomePage(props: {
                 ({reviewAnswerState.progress.complete} /{" "}
                 {reviewAnswerState.progress.total})
               </Typography>
-            </ColorTooltip>
-
-
-
-
-
-
-
-
           )}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -381,6 +371,8 @@ function HomePage(props: {
             </MenuItem>
           ))}
         </Select>
+      </ColorTooltip>
+
       </div>
       <List
         data-cy="recording-blocks"
