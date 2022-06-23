@@ -33,7 +33,12 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 //IMPORT FUNCTIONS
-import { updateUserQuestion, addQuestionToRecordQueue, removeQuestionFromRecordQueue, fetchMentorRecordQueue} from "api";
+import {
+  updateUserQuestion,
+  addQuestionToRecordQueue,
+  removeQuestionFromRecordQueue,
+  fetchMentorRecordQueue,
+} from "api";
 import {
   Answer,
   ClassifierAnswerType,
@@ -159,7 +164,7 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
-  openModal: boolean; // for opening the modal 
+  openModal: boolean; // for opening the modal
   setOpenModal: (openModal: boolean) => void;
   mentor: Mentor;
   accessToken?: string;
@@ -171,7 +176,7 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
-    openModal, // open modal 
+    openModal, // open modal
     setOpenModal, // CONDITION FOR OPENING MODAL
     mentor,
     accessToken,
@@ -185,7 +190,6 @@ function FeedbackItem(props: {
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>(); // grab ID of the selected option
-  const [userQuestion, setUserQuestion] = React.useState<string>();
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -197,18 +201,18 @@ function FeedbackItem(props: {
         await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
       );
     } else if (selectedAnswerID == undefined || selectedAnswerID == "") {
-      //setOpenModal(true);
-    }
-    else {
+      setOpenModal(true);
+    } else {
       setQueueList(
         await addQuestionToRecordQueue(selectedAnswerID, accessToken)
       );
     }
+    console.log(queueList);
   }
 
   const handleClose = () => {
-    //setOpenModal(false)
-  }
+    setOpenModal(false);
+  };
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
@@ -297,35 +301,33 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            {setUserQuestion(feedback.question)}
             <IconButton onClick={() => onUpdateAnswer(undefined)}>
               <CloseIcon />
             </IconButton>
-            
+
             {accessToken ? (
               <Button
                 data-cy="queue-btn"
                 color="primary"
                 disabled={selectedAnswerStatus == Status.COMPLETE}
-                onClick={() => {queueButtonClicked(selectedAnswerID || "", accessToken);}
-                  
-                }
+                onClick={() => {
+                  queueButtonClicked(selectedAnswerID || "", accessToken);
+                }}
               >
                 {queueList?.includes(selectedAnswerID || "")
                   ? "Remove from Queue"
                   : "Add to Queue"}
               </Button>
             ) : undefined}
-            
+
             {/* {modal} */}
             <EditQuestionForQueueModal
-            handleClose={handleClose}
-            open={openModal}
-            userQuestion={userQuestion}
-            mentor={mentor}
-            accessToken={accessToken || ""}
+              handleClose={handleClose}
+              open={openModal}
+              userQuestion={feedback.question}
+              mentor={mentor}
+              accessToken={accessToken || ""}
             />
-
           </div>
         )}
         <Tooltip

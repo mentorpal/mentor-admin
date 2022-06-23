@@ -12,6 +12,7 @@ import {
 } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
+import subjects from "../fixtures/subjects/all-subjects";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
@@ -31,6 +32,7 @@ describe("Mentor Record Queue", () => {
               ],
             },
           }),
+          mockGQL("FetchSubjects", {}),
         ],
       });
       cy.visit("/feedback");
@@ -48,7 +50,7 @@ describe("Mentor Record Queue", () => {
         "rgb(128, 128, 128)"
       );
     });
-    /**
+
     it("Testing record queue on feedback page", () => {
       cyMockDefault(cy, {
         mentor,
@@ -92,12 +94,10 @@ describe("Mentor Record Queue", () => {
             },
           }),
           mockGQL("UserQuestionSetAnswer", {}),
-          mockGQL("UserQuestionSetAnswer", {}),
         ],
       });
       cy.visit("/feedback");
       // start testing stuff here
     });
-    */
   });
 });

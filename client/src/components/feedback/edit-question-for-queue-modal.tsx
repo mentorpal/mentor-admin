@@ -70,15 +70,9 @@ function EditQuestionForQueueModal(props: {
   open: boolean;
   mentor: Mentor;
   userQuestion?: string;
-  accessToken: string
+  accessToken: string;
 }): JSX.Element {
-  const {
-    handleClose,
-    open,
-    userQuestion,
-    mentor,
-    accessToken,
-  } = props;
+  const { handleClose, open, userQuestion, mentor, accessToken } = props;
   const classes = useStyles();
   const mentorSubjects = mentor.subjects;
   const [selectedSubject, setSelectedSubject] = React.useState<Subject>();
@@ -89,34 +83,31 @@ function EditQuestionForQueueModal(props: {
   function okButtonClicked(customQuestion: string) {
     // create new question
     const newQuestion: Question = {
-    _id: uuid(),
-    question: customQuestion,
-    type: QuestionType.QUESTION,
-    name: UtteranceName.NONE,
-    clientId: uuid(),
-    paraphrases: [],
-    mentor: mentor._id,
-    }
+      _id: uuid(),
+      question: customQuestion,
+      type: QuestionType.QUESTION,
+      name: UtteranceName.NONE,
+      clientId: uuid(),
+      paraphrases: [],
+      mentor: mentor._id,
+    };
     // create newSubjectQuestion : to add to db
-    const emptyTopic: Topic = {id: "",
-      name: "",
-      description: ""}
+    const emptyTopic: Topic = { id: "", name: "", description: "" };
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
-      topics: (selectedTopic!=undefined ? [selectedTopic] : [emptyTopic]),
-      category: selectedCategory //can be null
-     }
+      topics: selectedTopic != undefined ? [selectedTopic] : [emptyTopic],
+      category: selectedCategory, //can be null
+    };
 
     // add to DB
     addOrUpdateSubjectQuestions(
-      selectedSubject?._id || "", 
+      selectedSubject?._id || "",
       [newSubjectQuestion],
       accessToken
     );
     // add to record queue
     addQuestionToRecordQueue(newQuestion._id, accessToken);
   }
-
 
   return (
     <div>
@@ -157,6 +148,7 @@ function EditQuestionForQueueModal(props: {
                       <InputLabel>Subject</InputLabel>
                       <Select
                         // a dropdown for the subject
+                        data-cy="subject-drop-down"
                         label="Subject"
                         value={mentorSubjects} // all the subjects
                         style={{ width: 200 }}
@@ -173,6 +165,7 @@ function EditQuestionForQueueModal(props: {
                           <option
                             key={subject.name}
                             value={subject._id}
+                            data-cy={`Drop-down-subject-${subject._id}`}
                           ></option>
                         ))}
                       </Select>
@@ -181,6 +174,7 @@ function EditQuestionForQueueModal(props: {
                       <InputLabel>Category</InputLabel>
                       <Select
                         // a dropdown for the category
+                        data-cy="category-drop-down"
                         label="Category"
                         value={selectedSubject?.categories} // all the subject's categories
                         style={{ width: 200 }}
@@ -197,6 +191,7 @@ function EditQuestionForQueueModal(props: {
                           <option
                             key={category.name}
                             value={category.id}
+                            data-cy={`Drop-down-category-${category.id}`}
                           ></option>
                         ))}
                       </Select>
@@ -211,11 +206,9 @@ function EditQuestionForQueueModal(props: {
                       data-cy="topic-selector"
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
-
                       onChange={(e, v) => {
                         setSelectedTopic(v || undefined);
-                      }} // FIX THIS 
-
+                      }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">{option.name}</Typography>
@@ -228,7 +221,7 @@ function EditQuestionForQueueModal(props: {
                 </Grid>
                 <Button
                   onClick={handleClose}
-                  data-cy="close-modal"
+                  data-cy="modal-close-btn"
                   variant="contained"
                   color="primary"
                   component="span"
@@ -237,7 +230,7 @@ function EditQuestionForQueueModal(props: {
                 </Button>
                 <Button
                   onClick={() => okButtonClicked(customQuestion || "")}
-                  data-cy="close-modal"
+                  data-cy="modal-create-btn"
                   variant="contained"
                   color="primary"
                   component="span"
