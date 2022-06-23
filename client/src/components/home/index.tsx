@@ -321,7 +321,7 @@ function HomePage(props: {
               onClose={() => setOpenCategories(false)}
               disableHoverListener
               arrow
-              placement="top-end"
+              placement="left"
               //contains all text inside tooltip
               title={
                 <React.Fragment>
@@ -344,8 +344,10 @@ function HomePage(props: {
                 </React.Fragment>
               }
               PopperProps={{
-                style: { maxWidth: 300, textAlign: "right" },
+                style: { maxWidth: 300, textAlign: "left" },
               }}
+
+
             >
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
@@ -355,6 +357,14 @@ function HomePage(props: {
                 {reviewAnswerState.progress.total})
               </Typography>
             </ColorTooltip>
+
+
+
+
+
+
+
+
           )}
           onChange={(
             event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -482,7 +492,7 @@ function HomePage(props: {
                     <CloseIcon />
                   </IconButton>
                   <Typography color="inherit" align="center" data-cy = "build-tooltip-title">
-                    <b>Build</b>
+                    Build
                   </Typography>
                   <p style={{ textAlign: "center" }}>
                     More description about what this should do.
@@ -530,7 +540,7 @@ function HomePage(props: {
                     <CloseIcon />
                   </IconButton>
                   <Typography color="inherit" align="center" data-cy="preview-tooltip-title">
-                    <b>Preview Me</b>
+                    Preview Me
                   </Typography>
                   <p style={{ textAlign: "center" }}>
                     More description about what this should do.
