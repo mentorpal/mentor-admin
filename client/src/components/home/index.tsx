@@ -24,7 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 import CloseIcon from "@material-ui/icons/Close";
 import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
@@ -129,6 +129,9 @@ function HomePage(props: {
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
+  const [openProfile, setOpenProfile] = React.useState<boolean>(false);
+  const [openStatus, setOpenStatus] = React.useState<boolean>(false);
+
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
       (acc: Record<string, string>, cur: Subject) => {
@@ -152,7 +155,7 @@ function HomePage(props: {
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash
   );
-  const { userSawSplashScreen, userSawNameSplash } = loginState;
+  const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -184,6 +187,11 @@ function HomePage(props: {
     } else {
       cb();
     }
+  }
+
+  function closeDialog() {
+    userSawSplashScreen("");
+    setOpenProfile(true);
   }
 
   async function saveBeforeCallback() {
@@ -220,11 +228,6 @@ function HomePage(props: {
     }
   }
 
-  function closeDialog() {
-    userSawSplashScreen("");
-    userSawNameSplash("");
-  }
-
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
       <UploadingWidget
@@ -250,6 +253,10 @@ function HomePage(props: {
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}
           useMentor={useMentor}
+          openProfile={openProfile}
+          setOpenProfile={setOpenProfile}
+          openStatus={openStatus}
+          setOpenStatus={setOpenStatus}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -272,6 +279,8 @@ function HomePage(props: {
           }
           displayEmpty
           renderValue={() => (
+            // ALL ANSWERS TOOLTIP
+
             <ColorTooltip
               //contains all text inside tooltip
               title={
@@ -281,6 +290,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
+                    //onClick = {() => openCategories(true)}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -293,6 +303,7 @@ function HomePage(props: {
               //to make the tooltip have an arrow
               arrow
               placement="left"
+              //open = {!categories}
             >
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
@@ -362,6 +373,8 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
+            {/* SAVE TOOLTIP */}
+
             <ColorTooltip
               title={
                 <React.Fragment>

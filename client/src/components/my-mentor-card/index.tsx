@@ -20,6 +20,10 @@ import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
+  openProfile: boolean;
+  setOpenProfile: (active: boolean) => void;
+  openStatus: boolean;
+  setOpenStatus: (active: boolean) => void;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -38,7 +42,6 @@ export default function MyMentorCard(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const [open, setOpen] = React.useState<boolean>(false);
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -61,6 +64,9 @@ export default function MyMentorCard(props: {
                 handleClose={handleClose}
                 editMentor={editMentor}
                 open={open}
+                openProfile={props.openProfile}
+                setOpenProfile={props.setOpenProfile}
+                setOpenStatus={props.setOpenStatus}
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
               />
@@ -69,6 +75,8 @@ export default function MyMentorCard(props: {
               <MentorStatus
                 continueAction={props.continueAction}
                 updateThumbnail={updateThumbnail}
+                openStatus={props.openStatus}
+                setOpenStatus={props.setOpenStatus}
               />
             </Grid>
           </Grid>

@@ -13,10 +13,6 @@ import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
-import { useWithLogin } from "store/slices/login/useWithLogin";
-
-const loginState = useWithLogin();
-const { userSawNameSplash } = loginState;
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -61,6 +57,9 @@ function MentorThumbnail(props: {
   handleClose: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
   open: boolean;
+  openProfile: boolean;
+  setOpenProfile: (active: boolean) => void;
+  setOpenStatus: (active: boolean) => void;
   thumbnail: string;
   updateThumbnail: (file: File) => void;
 }): JSX.Element {
@@ -70,6 +69,9 @@ function MentorThumbnail(props: {
     handleClose,
     editMentor,
     open,
+    openProfile,
+    setOpenProfile,
+    setOpenStatus,
     thumbnail,
     updateThumbnail,
   } = props;
@@ -77,20 +79,14 @@ function MentorThumbnail(props: {
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
 
-  const loginState = useWithLogin();
-  const hasSeenNameSplash = Boolean(
-    loginState.state.user?.firstTimeTracking.nameSplash
-  );
-  let closeTooltip = false;
-
-  function testClose() {
-    closeTooltip = true;
+  function closeProfileDialog() {
+    setOpenProfile(!openProfile);
+    setOpenStatus(true);
   }
 
   if (!mentorId || !editedMentor) {
     return <div />;
   }
-
 
   return (
     <Grid item container alignItems="center" justify="center" xs={3} md={12}>
@@ -117,16 +113,18 @@ function MentorThumbnail(props: {
                 aria-label="edit mentor"
                 component="span"
                 className="edit-pencil-icon"
-                onClick={handleOpen}
+                //onClick={handleOpen}
               >
                 <CreateIcon />
               </IconButton>
 
               <ColorTooltip
-                open={!hasSeenNameSplash}
+                interactive={true}
+                open={openProfile}
+                onClose={() => setOpenProfile(false)}
+                disableHoverListener
                 arrow
                 placement="right"
-                //.onClose = {closeTooltip}
                 title={
                   <React.Fragment>
                     <IconButton
@@ -134,7 +132,7 @@ function MentorThumbnail(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
-                      onClick={}
+                      onClick={closeProfileDialog}
                     >
                       <CloseIcon />
                     </IconButton>

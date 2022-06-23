@@ -5,6 +5,7 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  withStyles,
 } from "@material-ui/core";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
@@ -21,7 +22,13 @@ const ColorTooltip = withStyles({
 function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
+  openStatus: boolean;
+  setOpenStatus: (active: boolean) => void;
 }): JSX.Element {
+  const {
+    openStatus,
+    setOpenStatus,
+  } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -86,6 +93,11 @@ function MentorStatus(props: {
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
           <ColorTooltip
+            interactive={true}
+            open={openStatus}
+            onClose={() => setOpenStatus(false)}
+            disableHoverListener
+            arrow
             //contains all text inside tooltip
             title={
               <React.Fragment>
@@ -94,17 +106,17 @@ function MentorStatus(props: {
                   size="small"
                   text-align="right"
                   align-content="right"
+                  onClick={() => setOpenStatus(!openStatus)}
                 >
                   <CloseIcon />
                 </IconButton>
-                <Typography>
-                  <b>Current Status</b>
-                </Typography>
+                <Typography>Current Status</Typography>
                 <p>More description about what this should do.</p>
               </React.Fragment>
             }
-            //to make the tooltip have an arrow
-            arrow
+            PopperProps={{
+              style: { maxWidth: 250 },
+            }}
           >
             <Typography variant="h5">
               <b>Improve your Mentor</b>

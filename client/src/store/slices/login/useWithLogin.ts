@@ -13,7 +13,7 @@ interface UseWithLogin {
   state: loginActions.LoginState;
   login: (accessToken: string) => void;
   userSawSplashScreen: (myMentorSplash: string) => void;
-  userSawNameSplash: (nameSplash: string) => void;
+  userSawTooltips: (tooltips: string) => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
 }
@@ -61,9 +61,9 @@ export function useWithLogin(): UseWithLogin {
     dispatch(loginActions.userSawSplashScreen(firstTimeTracking));
   }
 
-  function userSawNameSplash(firstTimeTracking: string) {
+  function userSawTooltips(firstTimeTracking: string) {
     // Dispatch userSawSplashScreen action here
-    dispatch(loginActions.userSawNameSplash(firstTimeTracking));
+    dispatch(loginActions.userSawTooltips(firstTimeTracking));
   }
 
   function logout() {
@@ -77,7 +77,7 @@ export function useWithLogin(): UseWithLogin {
     login,
     loginWithGoogle,
     userSawSplashScreen,
-    userSawNameSplash,
+    userSawTooltips,
     logout,
   };
 }

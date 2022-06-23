@@ -1149,13 +1149,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             }
             firstTimeTracking{
               myMentorSplash,
-              nameSplash,
-            statusSplash,
-            categoriesSplash,
-            saveSplash, 
-            buildSplash, 
-            previewSplash,
-            recommenderSplash
+              tooltips,
             }
           }
           accessToken
