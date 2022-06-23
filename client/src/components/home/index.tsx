@@ -432,7 +432,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    //onClick={closeSaveTooltip}
+                    onClick={closeSaveTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -479,7 +479,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    //onClick={closeBuildTooltip}
+                    onClick={closeBuildTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -527,12 +527,12 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    //onClick={closePreviewTooltip}
+                    onClick={closePreviewTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
                   <Typography color="inherit" align="center" data-cy="preview-tooltip-title">
-                    Preview Me
+                    Preview
                   </Typography>
                   <p style={{ textAlign: "center" }}>
                     More description about what this should do.

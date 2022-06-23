@@ -225,7 +225,7 @@ export default function RecommendedActionButton(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
-                      //onClick={closeRecommenderTooltip}
+                      onClick={closeRecommenderTooltip}
                     >
                       <CloseIcon />
                     </IconButton>

@@ -125,27 +125,20 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=status-tooltip-title").should("have.text", "Current Status");
     cy.get("[data-cy=status-tooltip-close-btn]").trigger("mouseover").click();
 
-    // cy.get("[data-cy=categories-tooltip").should("exist");
-    // cy.get("[data-cy=categories-tooltip").focused()
     cy.get("[data-cy=categories-tooltip-title").should("have.text", "Categories and manually choosing questions to record");
     cy.get("[data-cy=categories-tooltip-close-btn]").trigger("mouseover").click();
     
+    cy.get("[data-cy=recommender-tooltip-title").should("have.text", "Recommender");
+    cy.get("[data-cy=recommender-tooltip-close-btn]").trigger("mouseover").click();
 
-    // //cy.get("[data-cy=recommender-tooltip").should("exist");
-    // cy.get("[data-cy=recommender-tooltip-title").should("have.text", "Recommender");
-    // cy.get("[data-cy=recommender-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=save-tooltip-title").should("have.text", "Save");
+    cy.get("[data-cy=save-tooltip-close-btn]").trigger("mouseover").click(); 
 
-    // //cy.get("[data-cy=save-tooltip").should("exist");
-    // cy.get("[data-cy=save-tooltip-title").should("have.text", "Save");
-    // cy.get("[data-cy=save-tooltip-close-btn]").trigger("mouseover").click(); 
+    cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
+    cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
 
-    // //cy.get("[data-cy=build-tooltip").should("exist");
-    // cy.get("[data-cy=build-tooltip-title").should("have.text", "Save");
-    // cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
-
-    // //cy.get("[data-cy=preview-tooltip").should("exist");
-    // cy.get("[data-cy=preview-tooltip-title").should("have.text", "Save");
-    // cy.get("[data-cy=preview-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=preview-tooltip-title").should("have.text", "Preview");
+    cy.get("[data-cy=preview-tooltip-close-btn]").trigger("mouseover").click();
   });
 
   it("doesn't show splash if mentor seen before", () => {
