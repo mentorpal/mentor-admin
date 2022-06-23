@@ -88,12 +88,16 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     try {
       await update.action(editedData);
     } catch (err) {
-      console.error(err);
-      dispatch({
-        type: LoadingActionType.SAVING_FAILED,
-        payload: { message: "Failed to save", error: err.message },
-      });
-      return;
+      if (err instanceof Error) {
+        console.error(err);
+        dispatch({
+          type: LoadingActionType.SAVING_FAILED,
+          payload: { message: "Failed to save", error: err.message },
+        });
+        return;
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
     if (loading) {
       return;
@@ -117,12 +121,16 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
       setEditedData(undefined);
       return updated;
     } catch (err) {
-      console.error(err);
-      dispatch({
-        type: LoadingActionType.SAVING_FAILED,
-        payload: { message: "Failed to save", error: err.message },
-      });
-      return;
+      if (err instanceof Error) {
+        console.error(err);
+        dispatch({
+          type: LoadingActionType.SAVING_FAILED,
+          payload: { message: "Failed to save", error: err.message },
+        });
+        return;
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 

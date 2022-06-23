@@ -2133,7 +2133,9 @@ describe("Record", () => {
     cy.get(".rdw-option-wrapper").eq(5).click();
     cy.get(".rdw-option-wrapper").eq(6).click();
 
-    cy.get(".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr").click();
+    cy.get(
+      ".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr"
+    ).click();
   });
 
   it("can update question for a question belonging to mentor", () => {
