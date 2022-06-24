@@ -250,7 +250,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
-    readyToDisplay: isConfigLoaded(),
+    readyToDisplay:
+      isConfigLoaded() && !isMentorLoading && mentor && !questionsLoading,
     error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,
