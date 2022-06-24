@@ -538,7 +538,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").should("not.exist");
+    cy.get(".editor-class").should("not.exist");
     cy.get("[data-cy=idle]").should("exist");
     cy.get("[data-cy=idle-duration]").contains("10 seconds");
     cy.get("[data-cy=done-btn]").trigger("mouseover").click();
@@ -602,7 +602,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").should("not.exist");
+    cy.get(".editor-class").should("not.exist");
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
@@ -613,9 +613,9 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Skip");
     // back to setup

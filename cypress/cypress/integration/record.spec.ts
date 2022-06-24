@@ -289,18 +289,18 @@ describe("Record", () => {
       cy.visit("/record");
       cy.get("[data-cy=progress]").contains("Questions 1 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -308,12 +308,12 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "How old are you now?");
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("have.text", "How old are you now?");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -321,15 +321,15 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 3 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -337,18 +337,18 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 4 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please give a short introduction of yourself, which includes your name, current job, and title."
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -356,15 +356,15 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 5 / 5");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -377,12 +377,12 @@ describe("Record", () => {
       cy.visit("/record?status=INCOMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 3");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "How old are you now?");
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("have.text", "How old are you now?");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -390,15 +390,15 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 3");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -406,15 +406,15 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 3 / 3");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -427,18 +427,18 @@ describe("Record", () => {
       cy.visit("/record?status=COMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -446,18 +446,18 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please give a short introduction of yourself, which includes your name, current job, and title."
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -470,18 +470,18 @@ describe("Record", () => {
       cy.visit("/record?videoId=A1_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -494,18 +494,18 @@ describe("Record", () => {
       cy.visit("/record?videoId=A1_1_1&videoId=A3_1_1");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -513,15 +513,15 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -534,18 +534,18 @@ describe("Record", () => {
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -553,12 +553,12 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "How old are you now?");
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("have.text", "How old are you now?");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -571,12 +571,12 @@ describe("Record", () => {
       cy.visit("/record?subject=background&status=INCOMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "How old are you now?");
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("have.text", "How old are you now?");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -589,18 +589,18 @@ describe("Record", () => {
       cy.visit("/record?subject=background&status=COMPLETE");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -613,18 +613,18 @@ describe("Record", () => {
       cy.visit("/record?subject=background&category=cat");
       cy.get("[data-cy=progress]").contains("Questions 1 / 1");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -639,18 +639,18 @@ describe("Record", () => {
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should(
+        cy.get("[data-text]").should(
           "have.text",
           "Who are you and what do you do?"
         );
-        cy.get("textarea").should("have.attr", "disabled");
+        cy.get("[data-text]").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -658,12 +658,12 @@ describe("Record", () => {
 
       cy.get("[data-cy=progress]").contains("Questions 2 / 2");
       cy.get("[data-cy=question-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "How old are you now?");
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("have.text", "How old are you now?");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -777,7 +777,10 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
     });
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+      cy.get("[data-text]").should(
+        "have.text",
+        "Who are you and what do you do?"
+      );
     });
   });
 
@@ -1139,15 +1142,18 @@ describe("Record", () => {
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
-      cy.get("textarea").should("have.attr", "disabled");
+      cy.get("[data-text]").should(
+        "have.text",
+        "Who are you and what do you do?"
+      );
+      cy.get("[data-text]").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should(
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should(
         "have.text",
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
       );
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
@@ -1282,7 +1288,10 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
     });
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+      cy.get("[data-text]").should(
+        "have.text",
+        "Who are you and what do you do?"
+      );
     });
   });
 
@@ -2032,31 +2041,31 @@ describe("Record", () => {
     cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?");
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("have.text", "How old are you now?");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
 
-    cy.get("[data-cy=transcript-input]").type("37");
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
     cy.get("[data-cy=undo-transcript-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-transcript-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "");
     });
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
-    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get(".editor-class").type("37");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=loading-dialog]");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
     cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
   });
@@ -2075,7 +2084,7 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.attr", "disabled");
+      cy.get("[data-text]").should("have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
@@ -2111,7 +2120,7 @@ describe("Record", () => {
   });
 
   // // TODO: Not used since we decided to disable the image button from the Editor component
-  // it.only("Verify that transcript markdown loads as rich text: Q4", () => {
+  // it("Verify that transcript markdown loads as rich text: Q4", () => {
   //   cyMockDefault(cy, {
   //     mentor: clintMarkdown,
   //     questions: chatQuestions,
@@ -2213,21 +2222,21 @@ describe("Record", () => {
     cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 2");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?");
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("have.text", "How old are you now?");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
 
     cy.get("[data-cy=question-input]").type("test");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?test");
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("have.text", "How old are you now?test");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("not.be.disabled");
     cy.get("[data-cy=undo-question-btn]").trigger("mouseover").click();
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?");
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("have.text", "How old are you now?");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
 
@@ -2236,8 +2245,8 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?test");
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("have.text", "How old are you now?test");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
   });
 
@@ -2291,8 +2300,8 @@ describe("Record", () => {
       // upload video
       cy.get("[data-cy=upload-video]").trigger("mouseover").click();
       cy.wait(3000);
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "My name is Clint Anderson");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "My name is Clint Anderson");
       });
     });
   });
@@ -2577,11 +2586,14 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+      cy.get("[data-text]").should(
+        "have.text",
+        "Who are you and what do you do?"
+      );
     });
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "How old are you now?");
+      cy.get("[data-text]").should("have.text", "How old are you now?");
     });
   });
 
@@ -2661,9 +2673,9 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
-    cy.get("[data-cy=transcript-input]").type("37");
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
   });
 
@@ -2712,7 +2724,7 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
-    cy.get("[data-cy=transcript-input]").should("have.value", "");
+    cy.get(".editor-class").should("have.value", "");
   });
 
   it("uploads with no transcript does not replace current transcript", () => {
