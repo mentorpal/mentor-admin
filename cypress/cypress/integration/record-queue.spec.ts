@@ -4,68 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import {
-  cyMockDefault,
-  mockGQL,
-  cySetup,
-  cyMockFollowUpQuestions,
-} from "../support/functions";
+import { cyMockDefault, mockGQL, cySetup } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
-import subjects from "../fixtures/subjects/all-subjects";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
-    it("Testing record queue on feedback page", () => {
-      cySetup(cy);
-      cyMockDefault(cy, {
-        mentor,
-        // This is where you tell cypress to intercept the GraphQL calls and provide it with what data to return with
-        // The first param to mockGQL must be the exact name of the GQL query that it's going to intercept.
-        //  The second param is the data that the interception should respond with
-        gqlQueries: [
-          // Ignore these 2 mocks
-          mockGQL("UserQuestions", userQuestions),
-          mockGQL("ImportTask", { importTask: null }),
-          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-          // This intercepts the FetchMentorRecordQueue query and responds with the data in the second param
-          
-          mockGQL("FetchMentorRecordQueue", {
-            me: {
-              mentorRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A4_1_1", // Please give a short introduction...
-                "A5_1_1", // Please repeat the following...
-              ],
-            },
-          }),
-
-          // This intercepts the AddQuestionToRecordQueue request and returns data as if there was a request to add A1_1_1 to the list
-          mockGQL("AddQuestionToRecordQueue", {
-            me: {
-              addQuestionToRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A4_1_1", // Please give a short introduction...
-                "A5_1_1", // Please repeat the following...
-                "A1_1_1", // Who are you...
-              ],
-            },
-          }),
-          // This intercepts the RemoveQuestionFromRecordQueue and returns data as if there was a request to remove A4_1_1 from the list
-          mockGQL("RemoveQuestionFromRecordQueue", {
-            me: {
-              removeQuestionFromRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A5_1_1", // Please repeat the following...
-                "A1_1_1", // Who are you...
-              ],
-            },
-          }),
-          mockGQL("UserQuestionSetAnswer", {}),
-
-        ],
-      });
-    });
     it("dropdown un-recorded questions are greyed out", () => {
       cySetup(cy);
       cyMockDefault(cy, {
@@ -75,14 +19,9 @@ describe("Mentor Record Queue", () => {
           mockGQL("ImportTask", { importTask: null }),
           mockGQL("FetchMentorRecordQueue", {
             me: {
-              mentorRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A4_1_1", // Please give a short introduction...
-                "A5_1_1", // Please repeat the following...
-              ],
+              mentorRecordQueue: [],
             },
           }),
-        
         ],
       });
       cy.visit("/feedback");
@@ -109,54 +48,43 @@ describe("Mentor Record Queue", () => {
           mockGQL("ImportTask", { importTask: null }),
           mockGQL("FetchMentorRecordQueue", {
             me: {
-              mentorRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A4_1_1", // Please give a short introduction...
-                "A5_1_1", // Please repeat the following...
-              ],
+              mentorRecordQueue: [],
             },
           }),
-        mockGQL("SubjectAddOrUpdateQuestions", {
-          me: {
-            subjectAddOrUpdateQuestions: [
-              "hey"
-            ],
-          },
-        }),
-        mockGQL("AddQuestionToRecordQueue", {
-          me: {
-            addQuestionToRecordQueue: [
-              "A3_1_1", // Please look at the camera...
-              "A4_1_1", // Please give a short introduction...
-              "A5_1_1", // Please repeat the following...
-              "hey" // Hey 
-            ],
-          },
-        }),
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+          mockGQL("AddQuestionToRecordQueue", {
+            me: {
+              addQuestionToRecordQueue: [],
+            },
+          }),
+          mockGQL("RemoveQuestionFromRecordQueue", {
+            me: {
+              removeQuestionFromRecordQueue: [],
+            },
+          }),
         ],
       });
-        cy.visit("/feedback");
-        cy.get("[data-cy=queue-btn]").click();
-        cy.get("[data-cy=create-question-modal]").should("be.visible");
-        //cy.get("[data-cy=category-drop-down]").should("be.disabled");
-        cy.get("[data-cy=modal-OK-btn]").should('be.disabled');
+      cy.visit("/feedback");
+      cy.get("[data-cy=queue-btn]").click();
+      cy.get("[data-cy=create-question-modal]").should("be.visible");
 
-        cy.get("[data-cy=subject-drop-down]").click();
-        cy.get("[data-cy=Subject-option-background]").should("be.visible");
-        cy.get("[data-cy=Subject-option-repeat_after_me]").should("be.visible");
-        cy.get("[data-cy=Subject-option-background]").click();
-        cy.get("[data-cy=modal-OK-btn]").should("be.disabled");
+      cy.get("[data-cy=subject-drop-down]").click();
+      cy.get("[data-cy=Subject-option-background]").should("be.visible");
+      cy.get("[data-cy=Subject-option-repeat_after_me]").should("be.visible");
+      cy.get("[data-cy=Subject-option-background]").click();
 
-        cy.get("[data-cy=category-drop-down]").click();
-        cy.get("[data-cy=Category-option-category1]").should("be.visible");
-        cy.get("[data-cy=Category-option-category3]").should("be.visible");
-        cy.get("[data-cy=Category-option-category1]").click();
+      cy.get("[data-cy=category-drop-down]").click();
+      cy.get("[data-cy=Category-option-category1]").should("be.visible");
+      cy.get("[data-cy=Category-option-category3]").should("be.visible");
+      cy.get("[data-cy=Category-option-category1]").click();
 
-        cy.get("[data-cy=topic-selector]").click();
-        cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
-        cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
+      cy.get("[data-cy=topic-selector]").click();
+      cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
+      cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
     });
-    it.only("Modal creates new question", () => {
+    it("Modal creates new question", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor,
@@ -165,30 +93,23 @@ describe("Mentor Record Queue", () => {
           mockGQL("ImportTask", { importTask: null }),
           mockGQL("FetchMentorRecordQueue", {
             me: {
-              mentorRecordQueue: [
-                "A3_1_1", // Please look at the camera...
-                "A4_1_1", // Please give a short introduction...
-                "A5_1_1", // Please repeat the following...
-              ],
+              mentorRecordQueue: [],
             },
           }),
-        mockGQL("SubjectAddOrUpdateQuestions", {
-          me: {
-            subjectAddOrUpdateQuestions: [
-              "hey"
-            ],
-          },
-        }),
-        mockGQL("AddQuestionToRecordQueue", {
-          me: {
-            addQuestionToRecordQueue: [
-              "A3_1_1", // Please look at the camera...
-              "A4_1_1", // Please give a short introduction...
-              "A5_1_1", // Please repeat the following...
-              "hey" // Hey 
-            ],
-          },
-        }),
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+          mockGQL("AddQuestionToRecordQueue", {
+            me: {
+              addQuestionToRecordQueue: [],
+            },
+          }),
+          mockGQL("RemoveQuestionFromRecordQueue", {
+            me: {
+              removeQuestionFromRecordQueue: [],
+            },
+          }),
+          mockGQL("UserQuestionSetAnswer", {}),
         ],
       });
       cy.visit("/feedback");
@@ -200,15 +121,6 @@ describe("Mentor Record Queue", () => {
       cy.get("[data-cy=topic-selector]").click();
       cy.get("[data-cy=Topic-option-back-topic2-id]").click();
       cy.get("[data-cy=modal-OK-btn]").click();
-      /** 
-      cy.get("[data-cy=]")
-      cy.get("[data-cy=]")
-      cy.get("[data-cy=]")
-      */
-      
-
-
     });
-
   });
 });

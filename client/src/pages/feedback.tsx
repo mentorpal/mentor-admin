@@ -164,7 +164,7 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
-  openModal: boolean; // for opening the modal
+  openModal: boolean;
   setOpenModal: (openModal: boolean) => void;
   mentor: Mentor;
   accessToken?: string;
@@ -176,8 +176,8 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
-    openModal, // open modal
-    setOpenModal, // CONDITION FOR OPENING MODAL
+    openModal,
+    setOpenModal,
     mentor,
     accessToken,
     feedback,
@@ -187,9 +187,8 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] =
-    React.useState<Status>(); // for disabling/enabling queue button
-  const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>(); // grab ID of the selected option
+  const [selectedAnswerStatus, setSelectedAnswerStatus] = useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerID, setSelectedAnswerID] = useState<string>();
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -207,17 +206,15 @@ function FeedbackItem(props: {
         await addQuestionToRecordQueue(selectedAnswerID, accessToken)
       );
     }
-    console.log(queueList);
   }
-  
+
   const handleClose = () => {
-    console.log(queueList);
     setOpenModal(false);
   };
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
-    setSelectedAnswerID(answerId); // update ID
+    setSelectedAnswerID(answerId);
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -385,7 +382,7 @@ function FeedbackPage(): JSX.Element {
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
 
-  const [openModal, setOpenModal] = React.useState<boolean>(false); // condition for opening modal
+  const [openModal, setOpenModal] = useState<boolean>(false); // condition for opening modal
 
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
@@ -413,7 +410,7 @@ function FeedbackPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentorId}/>
+      <NavBar title="Feedback" mentorId={mentorId} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

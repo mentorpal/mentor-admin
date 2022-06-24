@@ -31,9 +31,8 @@ import {
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue, fetchMentorRecordQueue } from "api";
+import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
-import subjects from "pages/subjects";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -75,10 +74,12 @@ function EditQuestionForQueueModal(props: {
 }): JSX.Element {
   const { handleClose, open, userQuestion, mentor, accessToken } = props;
   const classes = useStyles();
-  const [selectedSubject, setSelectedSubject] = React.useState<Subject>();
-  const [selectedCategory, setSelectedCategory] = React.useState<Category>();
-  const [selectedTopic, setSelectedTopic] = React.useState<Topic>();
-  const [customQuestion, setCustomQuestion] = React.useState<string>();
+  const [selectedSubject, setSelectedSubject] = useState<Subject>();
+  const [selectedCategory, setSelectedCategory] = useState<Category>();
+  const [selectedTopic, setSelectedTopic] = useState<Topic>();
+  const [customQuestion, setCustomQuestion] = useState<string>(
+    userQuestion || ""
+  );
 
   function okButtonClicked(customQuestion: string) {
     // create new question
@@ -91,13 +92,12 @@ function EditQuestionForQueueModal(props: {
       paraphrases: [],
       mentor: mentor._id,
     };
-    console.log(newQuestion._id);
     // create newSubjectQuestion : to add to db
     const emptyTopic: Topic = { id: "", name: "", description: "" };
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
       topics: selectedTopic != undefined ? [selectedTopic] : [emptyTopic],
-      category: selectedCategory, //can be null
+      category: selectedCategory,
     };
     // add to DB
     addOrUpdateSubjectQuestions(
@@ -107,7 +107,10 @@ function EditQuestionForQueueModal(props: {
     );
     // add to record queue
     addQuestionToRecordQueue(newQuestion._id, accessToken);
-    
+    // close modal
+    if (handleClose != undefined) {
+      handleClose();
+    }
   }
 
   return (
@@ -134,7 +137,7 @@ function EditQuestionForQueueModal(props: {
                     // user-asked question (editable)
                     label="Create new question:"
                     required={true}
-                    value={userQuestion} // fill in with OG user question
+                    value={customQuestion} // fill in with OG user question
                     // create a new question for mentor with (un)edited string
                     onChange={(e) =>
                       onTextInputChanged(e, () => {
@@ -155,22 +158,27 @@ function EditQuestionForQueueModal(props: {
                         data-cy="subject-drop-down"
                         style={{ width: 200 }}
                         onChange={(
-                          event: React.ChangeEvent<{value : unknown }>
+                          event: React.ChangeEvent<{ value: unknown }>
                         ) => {
-                          console.log(event.target.value);
-                          console.log("Subject selected");
-                          setSelectedSubject(mentor.subjects.find(a => {return a._id === event.target.value}));
-                          console.log(selectedSubject);
+                          setSelectedSubject(
+                            mentor.subjects.find((a) => {
+                              return a._id === event.target.value;
+                            })
+                          );
                         }}
                       >
-                        <option value={undefined} selected disabled>--Select a subject--</option>
-                        {(mentor.subjects).map((subject) => 
+                        <option value={undefined} selected disabled>
+                          --Select a subject--
+                        </option>
+                        {mentor.subjects.map((subject) => (
                           <option
-                          data-cy={`Subject-option-${subject._id}`}
-                          key={subject.name}
-                          value={subject._id}>{subject.name}
+                            data-cy={`Subject-option-${subject._id}`}
+                            key={subject.name}
+                            value={subject._id}
+                          >
+                            {subject.name}
                           </option>
-                        )}
+                        ))}
                       </Select>
                     </FormControl>
                     <FormControl>
@@ -180,21 +188,26 @@ function EditQuestionForQueueModal(props: {
                         data-cy="category-drop-down"
                         value={selectedSubject?.categories} // all the subject's categories
                         style={{ width: 200 }}
+                        required={true}
                         onChange={(
                           event: React.ChangeEvent<{ value: unknown }>
                         ) => {
                           setSelectedCategory(event.target.value as Category);
                         }}
-                        disabled={selectedSubject === undefined}
+                        disabled={selectedSubject == undefined}
                       >
-                        <option selected disabled>--Select a category--</option>
-                        {selectedSubject?.categories.map((category) => 
+                        <option selected disabled>
+                          --Select a category--
+                        </option>
+                        {selectedSubject?.categories.map((category) => (
                           <option
-                          data-cy={`Category-option-${category.id}`}
-                          key={category.name}
-                          value={category.id}>{category.name}
+                            data-cy={`Category-option-${category.id}`}
+                            key={category.name}
+                            value={category.id}
+                          >
+                            {category.name}
                           </option>
-                        )}
+                        ))}
                       </Select>
                     </FormControl>
                   </div>
@@ -212,7 +225,12 @@ function EditQuestionForQueueModal(props: {
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
-                        <Typography align="left" data-cy={`Topic-option-${option.id}`}>{option.name}</Typography>
+                        <Typography
+                          align="left"
+                          data-cy={`Topic-option-${option.id}`}
+                        >
+                          {option.name}
+                        </Typography>
                       )}
                       renderInput={(params) => (
                         <TextField {...params} variant="outlined" />
@@ -235,7 +253,10 @@ function EditQuestionForQueueModal(props: {
                   variant="contained"
                   color="primary"
                   component="span"
-                  disabled={selectedSubject == undefined || selectedCategory == undefined}
+                  disabled={
+                    selectedSubject == undefined ||
+                    selectedCategory == undefined
+                  }
                 >
                   OK
                 </Button>
