@@ -13,13 +13,17 @@ import {
 import {
   Answer,
   AnswerAttentionNeeded,
+  AnswerState,
+  CurAnswerState,
   MediaTag,
   MediaType,
   MentorType,
   Question,
   Subject,
   UploadTask,
+  UseWithRecordState,
   UtteranceName,
+  RecordStateError,
 } from "types";
 import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -28,33 +32,10 @@ import useQuestions, {
   isQuestionsSaving,
   useQuestionActions,
 } from "store/slices/questions/useQuestions";
-import { LoadingError } from "./loading-reducer";
 import { useWithUploadStatus } from "./use-with-upload-status";
-import { QuestionState } from "store/slices/questions";
 import { navigate } from "gatsby";
 import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-
-export interface AnswerState {
-  answer: Answer;
-  editedAnswer: Answer;
-  editedQuestion: Question;
-  attentionNeeded: AnswerAttentionNeeded;
-  recordedVideo?: File;
-  minVideoLength?: number;
-}
-
-export interface CurAnswerState extends AnswerState {
-  isEdited: boolean;
-  isValid: boolean;
-  isUploading: boolean;
-  videoSrc?: string;
-}
-
-interface RecordStateError {
-  message: string;
-  error: string;
-}
 
 export function useWithRecordState(
   accessToken: string,
@@ -610,37 +591,4 @@ export function useWithRecordState(
     setMinVideoLength,
     clearError,
   };
-}
-
-export interface UseWithRecordState {
-  mentorQuestions: Record<string, QuestionState>;
-  mentorSubjects: Subject[];
-  answers: AnswerState[];
-  answerIdx: number;
-  curAnswer?: CurAnswerState;
-  uploads: UploadTask[];
-  pollStatusCount: number;
-  isUploading: boolean;
-  isRecording: boolean;
-  isSaving: boolean;
-  error?: LoadingError;
-  isDownloadingVideo: boolean;
-  notifyDialogOpen: boolean;
-  setNotifyDialogOpen: (open: boolean) => void;
-  prevAnswer: () => void;
-  reloadMentorData: () => void;
-  nextAnswer: () => void;
-  setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<Answer>) => void;
-  editQuestion: (edits: Partial<Question>) => void;
-  saveAnswer: () => void;
-  removeCompletedOrFailedTask: (tasks: UploadTask) => void;
-  rerecord: () => void;
-  startRecording: () => void;
-  stopRecording: (video: File) => void;
-  uploadVideo: (trim?: { start: number; end: number }) => void;
-  downloadCurAnswerVideo: () => void;
-  downloadVideoFromUpload: (upload: UploadTask) => void;
-  setMinVideoLength: (length: number) => void;
-  clearError: () => void;
 }
