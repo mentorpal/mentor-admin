@@ -30,7 +30,10 @@ export function WelcomeSlide(props: {
           <Typography
             variant="h6"
             className={classes.text}
-            //display={(Boolean)docSetupUrl ? "inline" : "block"}
+            //display={Boolean(docSetupUrl) ? "inline" : "block"}
+            // style = {{
+            //   display: {Boolean(docSetupUrl) ? "inline" : "none"}
+            // }}
           >
             {"If you'd like to view a walkthrough, "}
             <a data-cy="click-here-url" href={docSetupUrl} target="blank">
