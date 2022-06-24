@@ -182,7 +182,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key={"FinalSetupSlide"}
             classes={classes}
             mentor={mentor}
-            isSetupComplete={status.isSetupComplete}
+            setupStatus={status}
           />
         );
       default:

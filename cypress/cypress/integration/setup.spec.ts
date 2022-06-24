@@ -626,19 +626,24 @@ describe("Setup", () => {
   });
 
   describe("shows setup complete slide after completing setup", () => {
-    it("cannot go to my mentor if setup incomplete", () => {
+    it("cannot go to my mentor if mentor info incomplete", () => {
       cyMockDefault(cy, {
         ...baseMock,
-        mentor: [setup7],
+        mentor: [setup0],
       });
+<<<<<<< HEAD
       +cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+=======
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+>>>>>>> main
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
     });
+
     it("go to my mentor page button visible if setup complete", () => {
       cyMockDefault(cy, {
         ...baseMock,
-        mentor: [setup8],
+        mentor: { ...setup0, firstName: "Clint" },
       });
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");

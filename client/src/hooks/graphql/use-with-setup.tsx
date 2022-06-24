@@ -10,6 +10,7 @@ import {
   Answer,
   Mentor,
   MentorType,
+  SetupStatus,
   Status,
   Subject,
   UtteranceName,
@@ -38,21 +39,6 @@ export enum SetupStepType {
 interface SetupStep {
   type: SetupStepType;
   complete: boolean;
-}
-
-interface SetupStatus {
-  isMentorInfoDone: boolean;
-  isMentorTypeChosen: boolean;
-  idle?: {
-    idle: Answer;
-    complete: boolean;
-  };
-  requiredSubjects: {
-    subject: Subject;
-    answers: Answer[];
-    complete: boolean;
-  }[];
-  isSetupComplete: boolean;
 }
 
 interface UseWithSetup {
