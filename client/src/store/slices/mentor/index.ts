@@ -160,11 +160,11 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
-    loadingInProgress: (state, action: PayloadAction<LoginState>) => {
+    loadingInProgress: (state: any, action: PayloadAction<LoginState>) => {
       state.mentorStatus = LoadingStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
     },
-    clearError: (state) => {
+    clearError: (state: any) => {
       delete state.error;
     },
   },
