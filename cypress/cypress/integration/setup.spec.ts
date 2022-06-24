@@ -93,7 +93,7 @@ describe("Setup", () => {
         "Repeat After Me questions"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -105,7 +105,7 @@ describe("Setup", () => {
       cyMockDefault(cy, baseMock);
       cy.visit("/setup");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -141,7 +141,7 @@ describe("Setup", () => {
         "Welcome to MentorStudio!"
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
     });
 
     it("with radio buttons", () => {
@@ -163,7 +163,7 @@ describe("Setup", () => {
       cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
       cy.contains("Repeat After Me questions");
       cy.get("[data-cy=radio]").eq(8).trigger("mouseover").click();
-      cy.contains("Oops!");
+      cy.contains("Good work!");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
       cy.contains("Welcome to MentorStudio!");
     });
@@ -187,7 +187,7 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Repeat_After_Me);
       cy.get("[data-cy=slide]").contains("Repeat After Me questions");
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]").contains("Oops!");
+      cy.get("[data-cy=slide]").contains("Good work!");
     });
   });
 
@@ -628,27 +628,5 @@ describe("Setup", () => {
     cy.location("search").should("contain", "?i=7");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Repeat After Me questions");
-  });
-
-  describe("shows setup complete slide after completing setup", () => {
-    it("cannot go to my mentor if mentor info incomplete", () => {
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: [setup0],
-      });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
-    });
-
-    it("go to my mentor page button visible if setup complete", () => {
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: { ...setup0, firstName: "Clint" },
-      });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
-      cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
-    });
   });
 });
