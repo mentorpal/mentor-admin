@@ -631,11 +631,7 @@ describe("Setup", () => {
         ...baseMock,
         mentor: [setup0],
       });
-<<<<<<< HEAD
-      +cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-=======
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
->>>>>>> main
       cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
     });
