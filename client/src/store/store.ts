@@ -10,6 +10,16 @@ import loginReducer from "./slices/login";
 import configReducer from "./slices/config";
 import mentorReducer from "./slices/mentor";
 import questionsReducer from "./slices/questions";
+import * as Sentry from "@sentry/react";
+
+const sentryEnhancer = Sentry.createReduxEnhancer({
+  actionTransformer: (action) => {
+    if (action.error) {
+      Sentry.captureException(Error(JSON.stringify(action.error)));
+    }
+    return action;
+  },
+});
 
 export const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
@@ -19,6 +29,7 @@ export const store = configureStore({
     mentor: mentorReducer,
     questions: questionsReducer,
   },
+  enhancers: (defaultEhancers) => defaultEhancers.concat(sentryEnhancer),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
