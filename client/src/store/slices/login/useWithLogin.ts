@@ -62,7 +62,7 @@ export function useWithLogin(): UseWithLogin {
   }
 
   function userSawTooltips(firstTimeTracking: string) {
-    // Dispatch userSawSplashScreen action here
+    // Dispatch userSawTooltips action here
     dispatch(loginActions.userSawTooltips(firstTimeTracking));
   }
 

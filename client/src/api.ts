@@ -510,13 +510,7 @@ export async function updateMyFirstTimeTracking(
         me{
           firstTimeTrackingUpdate(updates: $updates){
             myMentorSplash,
-            nameSplash,
-            statusSplash,
-            categoriesSplash,
-            saveSplash, 
-            buildSplash, 
-            previewSplash,
-            recommenderSplash
+            tooltips,
           }
         }
       }

@@ -99,7 +99,7 @@ describe("My Mentor Page", () => {
           me: {
             firstTimeTrackingUpdate: {
               myMentorSplash: true,
-              nameSplash: false,
+              tooltips: true,
             },
           },
         }),
