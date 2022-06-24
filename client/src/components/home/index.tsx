@@ -143,8 +143,6 @@ function HomePage(props: {
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash
   );
-  console.log(hasSeenSplash);
-  console.log("HELLOOOOOOO");
   const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
