@@ -16,7 +16,7 @@ import EditMentorInfoModal from "./edit-mentor-info-modal";
 
 const ColorTooltip = withStyles({
   tooltip: {
-    backgroundColor: "#A7C7E7",
+    backgroundColor: "secondary",
   },
 })(Tooltip);
 

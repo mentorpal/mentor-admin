@@ -53,7 +53,7 @@ import { userSawTooltips } from "store/slices/login";
 
 const ColorTooltip = withStyles({
   tooltip: {
-    backgroundColor: "#A7C7E7",
+    backgroundColor: "secondary",
   },
 })(Tooltip);
 
@@ -337,7 +337,7 @@ function HomePage(props: {
             </React.Fragment>
           }
           PopperProps={{
-            style: { maxWidth: 300, textAlign: "left" },
+            style: { maxWidth: 300, textAlign: "right" },
           }}
         >
           <Select

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Button,
   Grid,
   IconButton,
   Tooltip,
@@ -15,7 +14,7 @@ import CloseIcon from "@material-ui/icons/Close";
 
 const ColorTooltip = withStyles({
   tooltip: {
-    backgroundColor: "#A7C7E7",
+    backgroundColor: "secondary",
   },
 })(Tooltip);
 
@@ -31,15 +30,7 @@ function MentorStatus(props: {
   openSave: boolean;
   setOpenSave: (active: boolean) => void;
 }): JSX.Element {
-  const {
-    openStatus,
-    setOpenStatus,
-    setOpenCategories,
-    openRecommender,
-    setOpenRecommender,
-    openSave,
-    setOpenSave,
-  } = props;
+  const { openStatus, setOpenStatus, setOpenCategories } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
