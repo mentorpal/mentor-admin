@@ -160,10 +160,12 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     loadingInProgress: (state: any, action: PayloadAction<LoginState>) => {
       state.mentorStatus = LoadingStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clearError: (state: any) => {
       delete state.error;
     },
