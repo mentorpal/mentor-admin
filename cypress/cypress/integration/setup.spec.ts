@@ -191,6 +191,17 @@ describe("Setup", () => {
     });
   });
 
+  it("title default text if does not exist", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...setup0, title: "" },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
+      cy.get("input").should("have.value", "Please enter your profession here");
+    });
+  });
+
   it("config provides video for idle video setup", () => {
     cyMockDefault(cy, {
       config: { urlVideoIdleTips: "test.url" },
@@ -238,28 +249,30 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     // empty mentor slide
     cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton");
     });
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
-    cy.get("[data-cy=email]").within(($input) => {
+    cy.getSettled("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getSettled("[data-cy=first-name]", { retries: 4 }).type("Clint");
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).within(($input) => {
+      cy.get("input").clear().type("Clint");
+    });
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
     cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
     cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
@@ -270,7 +283,9 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.getSettled("[data-cy=name]", { retries: 4 }).type("Clinton Anderson");
+    cy.getSettled("[data-cy=name]", { retries: 4 })
+      .clear()
+      .type("Clinton Anderson");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -278,7 +293,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
     cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
@@ -289,9 +304,9 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
-      "Nuclear Electrician's Mate"
-    );
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 })
+      .clear()
+      .type("Nuclear Electrician's Mate");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
