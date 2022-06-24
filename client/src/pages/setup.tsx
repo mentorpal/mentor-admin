@@ -117,7 +117,14 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     editMentor,
     toStep,
   } = useWithSetup(props.search);
-
+  if (!readyToDisplay) {
+    return (
+      <div className={classes.root}>
+        <LoadingDialog title="Loading..." />
+        <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      </div>
+    );
+  }
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
