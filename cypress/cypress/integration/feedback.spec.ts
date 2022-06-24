@@ -8,7 +8,7 @@ import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 
-describe("Feedback", () => {
+describe("Feedback Page", () => {
   it("dropdown un-recorded questions are greyed out", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -18,11 +18,7 @@ describe("Feedback", () => {
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: [
-              "A3_1_1", // Please look at the camera...
-              "A4_1_1", // Please give a short introduction...
-              "A5_1_1", // Please repeat the following...
-            ],
+            mentorRecordQueue: [],
           },
         }),
       ],
