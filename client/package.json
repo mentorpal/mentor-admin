@@ -27,6 +27,8 @@
     "@reduxjs/toolkit": "^1.6.1",
     "@sentry/react": "^6.19.7",
     "@sentry/tracing": "^6.19.7",
+    "@types/draft-js": "^0.11.9",
+    "@types/react-draft-wysiwyg": "^1.13.4",
     "clsx": "^1.1.1",
     "draft-js": "^0.11.7",
     "draft-js-export-markdown": "^1.4.0",

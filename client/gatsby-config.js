@@ -6,6 +6,9 @@ module.exports = {
     author: `@gatsbyjs`,
     siteUrl: `https://uscquestions.mentorpal.org/admin`,
   },
+  flags: {
+    DEV_SSR: true,
+  },
   plugins: [
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
