@@ -37,6 +37,7 @@
     "draft-js-import-markdown": "^1.4.1",
     "draftjs-to-markdown": "^0.6.0",
     "marked": "^4.0.17",
-    "react-draft-wysiwyg": "^1.14.7"
+    "react-draft-wysiwyg": "^1.14.7",
+    "store": "^2.0.12"
   }
 }
