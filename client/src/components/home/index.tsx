@@ -388,7 +388,7 @@ function HomePage(props: {
       <NotificationDialog
         title={"This page is for setting up your mentor!"}
         open={!hasSeenSplash}
-        closeDialog={() => userSawSplashScreen("")}
+        closeDialog={() => userSawSplashScreen(props.accessToken)}
       />
       <Dialog
         data-cy="setup-dialog"
