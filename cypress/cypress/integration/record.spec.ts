@@ -2141,7 +2141,7 @@ describe("Record", () => {
     cy.visit("/record?videoId=A5_1_1");
   });
 
-  it.only("Make changes to transcript using WYSIWYG Editor features", () => {
+  it("Make changes to transcript using WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
