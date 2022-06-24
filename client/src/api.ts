@@ -227,6 +227,7 @@ export async function fetchConfig(): Promise<Config> {
       query FetchConfig{
         config {
           googleClientId
+          urlDocSetup
           urlVideoIdleTips
           videoRecorderMaxLength
           classifierLambdaEndpoint

@@ -45,6 +45,7 @@ interface UseWithSetup {
   setupStatus?: SetupStatus;
   setupStep: number;
   setupSteps: SetupStep[];
+  docSetupUrl: string;
   idleTipsVideoUrl: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
@@ -242,6 +243,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    docSetupUrl: configState.config?.urlDocSetup || "",
     idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
     classifierLambdaEndpoint:
       configState.config?.classifierLambdaEndpoint || "",
