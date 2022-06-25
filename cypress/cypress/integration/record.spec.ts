@@ -2039,18 +2039,18 @@ describe("Record", () => {
       cy.get("[data-text]").should("have.text", "");
       cy.get("[data-text]").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
 
     cy.get(".editor-class").type("37");
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "37");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("not.be.disabled");
-    cy.get("[data-cy=undo-transcript-btn]").trigger("mouseover").click();
+    cy.get(".rdw-option-wrapper").eq(5).should("not.be.disabled");
+    cy.get(".rdw-option-wrapper").eq(5).trigger("mouseover").click();
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
     cy.get(".editor-class").type("37");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=loading-dialog]");
@@ -2058,7 +2058,7 @@ describe("Record", () => {
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "37");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
   });
 
   it("cannot update question for a question not belonging to mentor", () => {
@@ -2093,6 +2093,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
+    cy.get("[data-text]").should("be.visible");
   });
 
   it("Verify that transcript markdown loads as rich text: Q2", () => {
@@ -2108,6 +2109,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-text]").should("be.visible");
   });
 
   // // TODO: Not used since we decided to disable the image button from the Editor component
@@ -2124,6 +2126,7 @@ describe("Record", () => {
   //     ],
   //   });
   //   cy.visit("/record?videoId=A4_1_1");
+  //   cy.get("[data-text]").should("be.visible");
   // });
 
   it("Verify that transcript markdown loads as rich text: Q5", () => {
@@ -2139,9 +2142,10 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A5_1_1");
+    cy.get("[data-text]").should("be.visible");
   });
 
-  it("Make changes to transcript using WYSIWYG Editor features", () => {
+  it.only("Make changes to transcript using WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
