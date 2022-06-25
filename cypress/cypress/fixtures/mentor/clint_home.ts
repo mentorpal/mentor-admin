@@ -19,6 +19,7 @@ export const mentor: Mentor = {
   name: "Clinton Anderson",
   firstName: "Clint",
   title: "Nuclear Electrician's Mate",
+  email: "clint@anderson.com",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: "Today",
   isDirty: false,
@@ -29,6 +30,8 @@ export const mentor: Mentor = {
       name: "Background",
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
+      type: SubjectTypes.SUBJECT,
+      isRequired: true,
       categories: [
         {
           id: "category",
@@ -41,17 +44,23 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A1_1_1",
+            clientId: "C1_1_1",
             question: "Who are you and what do you do?",
             type: QuestionType.QUESTION,
             name: null,
             paraphrases: [],
           },
           topics: [],
-          category: { id: "category" },
+          category: {
+            id: "category",
+            name: "Category",
+            description: "A category",
+          },
         },
         {
           question: {
             _id: "A2_1_1",
+            clientId: "C2_1_1",
             question: "How old are you now?",
             type: QuestionType.QUESTION,
             name: null,
@@ -79,6 +88,7 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A3_1_1",
+            clientId: "C3_1_1",
             question:
               "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
             type: QuestionType.UTTERANCE,
@@ -92,6 +102,7 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A4_1_1",
+            clientId: "C4_1_1",
             question:
               "Please give a short introduction of yourself, which includes your name, current job, and title.",
             type: QuestionType.UTTERANCE,
@@ -103,6 +114,7 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A5_1_1",
+            clientId: "C5_1_1",
             question:
               "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
             type: QuestionType.UTTERANCE,
@@ -110,7 +122,11 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
-          category: { id: "category2" },
+          category: {
+            id: "category2",
+            name: "Category2",
+            description: "Another category",
+          },
         },
       ],
     },

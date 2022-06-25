@@ -6,10 +6,21 @@ The full terms of this copyright and license should always be found in the root 
 */
 import allSubjects from "../fixtures/subjects/all-subjects";
 import { mockGQL, cyMockDefault, cySetup } from "../support/functions";
-import { SubjectTypes } from "../support/types";
+import { SubjectTypes, MentorType } from "../support/types";
 
 const mentor = {
   _id: "clintanderson",
+  firstName: "Clint",
+  name: "Clint Anderson",
+  title: "Nuclear Electrian's Mate",
+  email: "clint@anderson.com",
+  thumbnail: "",
+  lastTrainedAt: null,
+  isDirty: false,
+  topics: [],
+  answers: [],
+  questions: [],
+  mentorType: MentorType.VIDEO,
   subjects: [
     {
       _id: "background",
