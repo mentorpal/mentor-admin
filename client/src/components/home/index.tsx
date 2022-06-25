@@ -138,10 +138,12 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
+  const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
 
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
-    loginState.state.user?.firstTimeTracking.myMentorSplash
+    loginState.state.user?.firstTimeTracking.myMentorSplash ||
+      localHasSeenSplash
   );
   const { userSawSplashScreen } = loginState;
 
@@ -388,7 +390,10 @@ function HomePage(props: {
       <NotificationDialog
         title={"This page is for setting up your mentor!"}
         open={!hasSeenSplash}
-        closeDialog={() => userSawSplashScreen(props.accessToken)}
+        closeDialog={() => {
+          setLocalHasSeenSplash(true);
+          userSawSplashScreen(props.accessToken);
+        }}
       />
       <Dialog
         data-cy="setup-dialog"
