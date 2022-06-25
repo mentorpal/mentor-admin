@@ -16,6 +16,7 @@ import clintNewAnswers from "../fixtures/mentor/clint_home_new_questions";
 import { JobState, QuestionType, Status } from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
+import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
@@ -85,6 +86,41 @@ describe("My Mentor Page", () => {
         });
       });
     });
+  });
+
+  it("shows splash if mentor has not seen before", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clint,
+      login: loginUserNotSeenSplash,
+      gqlQueries: [
+        // This intercepts any call to FirstTimeTrackingUpdate and returns with the data below
+        mockGQL("FirstTimeTrackingUpdate", {
+          me: { firstTimeTrackingUpdate: { myMentorSplash: true } },
+        }),
+      ],
+    });
+
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=notification-dialog]").should("exist");
+    cy.get("[data-cy=notification-dialog-title]").should(
+      "have.text",
+      "This page is for setting up your mentor!"
+    );
+    cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
+    cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
+    cy.get("[data-cy=notification-dialog]").should("not.exist");
+  });
+
+  it("doesn't show splash if mentor seen before", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clint,
+    });
+
+    cy.visit("/");
+    cy.get("[data-cy=notification-dialog]").should("not.exist");
   });
 
   it("shows my mentor card", () => {

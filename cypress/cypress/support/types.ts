@@ -30,12 +30,17 @@ export interface PageInfo {
   endCursor: string;
 }
 
+export interface FirstTimeTracking {
+  myMentorSplash: boolean;
+}
+
 export interface User {
   _id: string;
   name: string;
   email: string;
   userRole: UserRole;
   defaultMentor: Mentor;
+  firstTimeTracking: FirstTimeTracking;
 }
 
 export enum UserRole {
