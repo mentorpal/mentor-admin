@@ -81,12 +81,26 @@ const chatMentor: Mentor = completeMentor({
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
-          question: { _id: "A1_1_1" },
+          question: {
+            _id: "A1_1_1",
+            clientId: "C1_1_1",
+            question: "Question 1",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
           category: { id: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
-          question: { _id: "A2_1_1" },
+          question: {
+            _id: "A2_1_1",
+            clientId: "C2_1_1",
+            question: "Question 2",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
         }),
       ],
     }),
@@ -94,16 +108,44 @@ const chatMentor: Mentor = completeMentor({
       _id: "idle_and_initial_recordings",
       questions: [
         completeSubjectQuestion({
-          question: { _id: "A3_1_1" },
+          question: {
+            _id: "A3_1_1",
+            clientId: "C3_1_1",
+            question: "Question 3",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
         }),
         completeSubjectQuestion({
-          question: { _id: "A4_1_1" },
+          question: {
+            _id: "A4_1_1",
+            clientId: "C4_1_1",
+            question: "Question 4",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
         }),
         completeSubjectQuestion({
-          question: { _id: "A5_1_1" },
+          question: {
+            _id: "A5_1_1",
+            clientId: "C5_1_1",
+            question: "Question 5",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
         }),
         completeSubjectQuestion({
-          question: { _id: "A6_1_1" },
+          question: {
+            _id: "A6_1_1",
+            clientId: "C6_1_1",
+            question: "Question 6",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
         }),
       ],
     }),
