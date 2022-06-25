@@ -533,7 +533,6 @@ describe("Setup", () => {
       cy.contains("You'll be asked to answer some generic questions.");
       cy.contains("Once you're done, you can build and preview your mentor.");
     });
-<<<<<<< HEAD
   });
 
   it("video mentor shows idle slide", () => {
@@ -582,11 +581,9 @@ describe("Setup", () => {
     );
     cy.location("search").should("contain", "?i=6");
     cy.contains("Idle");
-=======
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
->>>>>>> main
   });
 
   it("chat mentor does not show idle slide", () => {
