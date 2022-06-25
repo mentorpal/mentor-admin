@@ -41,7 +41,7 @@ const chatMentor: Mentor = completeMentor({
       ],
     }),
     completeSubject({
-      _id: "repeat_after_me",
+      _id: "idle_and_initial_recordings",
       questions: [
         completeSubjectQuestion({
           question: completeQuestion({

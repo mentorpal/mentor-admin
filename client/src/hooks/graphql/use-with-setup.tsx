@@ -152,7 +152,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     ];
     if (idle) {
       status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
-      status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
     requiredSubjects.forEach(
       (s: { subject: Subject; answers: Answer[]; complete: boolean }) => {
