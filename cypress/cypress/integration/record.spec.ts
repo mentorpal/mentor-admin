@@ -777,10 +777,7 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
     });
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Who are you and what do you do?"
-      );
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
     });
   });
 
@@ -1142,10 +1139,7 @@ describe("Record", () => {
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Who are you and what do you do?"
-      );
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
       cy.get("textarea").should("have.attr", "disabled");
     });
     cy.get(".editor-class").within(($input) => {
@@ -1288,10 +1282,7 @@ describe("Record", () => {
       cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
     });
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Who are you and what do you do?"
-      );
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
     });
   });
 
@@ -2586,10 +2577,7 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Who are you and what do you do?"
-      );
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
     });
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
     cy.get("[data-cy=question-input]").within(($input) => {
