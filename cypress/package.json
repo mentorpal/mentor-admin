@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.9.10",
+    "@types/cypress-image-snapshot": "^3.1.6",
     "cypress-file-upload": "^5.0.8",
     "cypress-localstorage-commands": "^1.5.0"
   }

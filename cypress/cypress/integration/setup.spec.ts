@@ -420,7 +420,13 @@ describe("Setup", () => {
         setup3,
         {
           ...setup3,
-          defaultSubject: { _id: "background" },
+          defaultSubject: {
+            _id: "background",
+            name: "Background",
+            type: SubjectTypes.SUBJECT,
+            description: "Background",
+            isRequired: true,
+          },
           subjects: [
             ...setup3.subjects,
             {
