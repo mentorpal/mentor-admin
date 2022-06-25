@@ -18,9 +18,13 @@ import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
 
 describe("My Mentor Page", () => {
-  it("shows all questions for all categories by default", () => {
+  it.only("shows all questions for all categories by default", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, { mentor: clint, gqlQueries: [mockGQL("FetchMentorRecordQueue", {
+      me: {
+        mentorRecordQueue: [],
+      },
+    }),]});
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");

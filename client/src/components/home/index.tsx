@@ -45,6 +45,8 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import QueueBlockItem from "./queue-block";
+import { fetchMentorRecordQueue } from "api";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -137,13 +139,14 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
-
+  
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
+  const queueList = fetchMentorRecordQueue(props.accessToken); // changes
 
   if (!(mentorId && setupStatus)) {
     return (
@@ -275,6 +278,34 @@ function HomePage(props: {
           ))}
         </Select>
       </div>
+
+
+
+      <List
+      data-cy="queue-block"
+      style={{
+        flex: "auto",
+        backgroundColor: "#eee",
+      }}
+      >
+        {reviewAnswerState.getBlocks().map((b, i) => (
+          <ListItem key={b.name}>
+            <QueueBlockItem
+              mentorId={mentorId || ""}
+              classes={classes}
+              block={b}
+              getAnswers={reviewAnswerState.getAnswers}
+              getQuestions={reviewAnswerState.getQuestions}
+              recordAnswers={recordAnswers}
+              recordAnswer={recordAnswer}
+              editQuestion={reviewAnswerState.editQuestion}
+            />
+          </ListItem>
+        ))}
+      </List>
+
+
+
       <List
         data-cy="recording-blocks"
         style={{
@@ -298,6 +329,10 @@ function HomePage(props: {
           </ListItem>
         ))}
       </List>
+
+
+
+
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>
         <Toolbar
