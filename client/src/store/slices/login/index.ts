@@ -68,8 +68,12 @@ export const userSawSplashScreen = createAsyncThunk(
         accessToken
       );
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      if (axios.isAxiosError(err)) {
+        console.error(err.response?.data);
+        return rejectWithValue(err.response?.data);
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 );
@@ -148,7 +152,7 @@ export const loginSlice = createSlice({
       })
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
       .addCase(userSawSplashScreen.fulfilled, (state, action) => {
-        if (state.user != undefined) {
+        if (state.user != undefined && action.payload != undefined) {
           state.user.firstTimeTracking.myMentorSplash =
             action.payload.myMentorSplash;
         }
