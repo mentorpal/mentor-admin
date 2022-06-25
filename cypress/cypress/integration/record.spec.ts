@@ -89,7 +89,7 @@ const chatMentor: Mentor = completeMentor({
             type: QuestionType.QUESTION,
             paraphrases: [],
           },
-          category: { id: "cat" },
+          category: { id: "cat", name: "cat", description: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
@@ -153,33 +153,68 @@ const chatMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: { _id: "A1_1_1" },
+      question: {
+        _id: "A1_1_1",
+        clientId: "C1_1_1",
+        question: "Question 1",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: { _id: "A2_1_1" },
+      question: {
+        _id: "A2_1_1",
+        clientId: "C2_1_1",
+        question: "Question 2",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: { _id: "A3_1_1" },
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        question: "Question 3",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: { _id: "A4_1_1" },
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        question: "Question 4",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A5_1_1",
-      question: { _id: "A5_1_1" },
+      question: {
+        _id: "A5_1_1",
+        clientId: "C5_1_1",
+        question: "Question 5",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
       transcript: "",
       status: Status.INCOMPLETE,
     },
@@ -225,41 +260,75 @@ const videoMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: { _id: "A1_1_1", question: "Who are you and what do you do?" },
+      question: {
+        _id: "A1_1_1",
+        clientId: "C1_1_1",
+        name: "A1_1_1",
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+        question: "Who are you and what do you do?",
+      },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: { _id: "A2_1_1", question: "How old are you now?" },
-      transcript: "I'm 37 years old",
-      webMedia: {
-        type: MediaType.VIDEO,
-        tag: "web",
-        url: "A2_1_1.mp4",
+      question: {
+        _id: "A2_1_1",
+        clientId: "C2_1_1",
+        name: "A2_1_1",
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+        question: "How old are you now?",
       },
+      transcript: "I'm 37 years old",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A2_1_1.mp4",
+        },
+      ],
       status: Status.COMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: { _id: "A3_1_1", question: "Where do you live?" },
-      transcript: "In Howard City, Michigan",
-      webMedia: {
-        type: MediaType.VIDEO,
-        tag: "web",
-        url: "A3_1_1.mp4",
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        name: "A3_1_1",
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+        question: "Where do you live?",
       },
+      transcript: "In Howard City, Michigan",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A3_1_1.mp4",
+        },
+      ],
       status: Status.COMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: { _id: "A4_1_1", question: "Record an idle video" },
-      transcript: "",
-      webMedia: {
-        type: MediaType.VIDEO,
-        tag: "web",
-        url: "A3_1_1.mp4",
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        name: "A4_1_1",
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+        question: "How old are you now?",
       },
+      transcript: "",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A4_1_1.mp4",
+        },
+      ],
       status: Status.COMPLETE,
     },
   ],
@@ -269,11 +338,25 @@ const videoMentor: Mentor = completeMentor({
       name: "Subject 1",
       questions: [
         completeSubjectQuestion({
-          question: { _id: "A1_1_1" },
+          question: {
+            _id: "A1_1_1",
+            clientId: "C1_1_1",
+            question: "Question 1",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
           category: { id: "cat", name: "cat", description: "cat" },
         }),
         completeSubjectQuestion({
-          question: { _id: "A2_1_1" },
+          question: {
+            _id: "A2_1_1",
+            clientId: "C2_1_1",
+            question: "Question 2",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
           category: { id: "cat", name: "cat", description: "cat" },
         }),
       ],
@@ -284,10 +367,24 @@ const videoMentor: Mentor = completeMentor({
       name: "Subject 2",
       questions: [
         completeSubjectQuestion({
-          question: { _id: "A3_1_1" },
+          question: {
+            _id: "A3_1_1",
+            clientId: "C3_1_1",
+            question: "Question 3",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
         }),
         completeSubjectQuestion({
-          question: { _id: "A4_1_1" },
+          question: {
+            _id: "A4_1_1",
+            clientId: "C4_1_1",
+            question: "Question 4",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
         }),
       ],
     }),
