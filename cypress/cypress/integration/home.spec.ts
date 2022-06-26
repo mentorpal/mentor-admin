@@ -647,7 +647,7 @@ describe("My Mentor Page", () => {
     cy.contains("Oops, training failed. Please try again.");
   });
 
-  it("can train mentor if it's dirty", () => {
+  it.only("can train mentor if it's dirty", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: { ...clint, isDirty: true },

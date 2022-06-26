@@ -426,6 +426,9 @@ describe("Setup", () => {
             type: SubjectTypes.SUBJECT,
             description: "Background",
             isRequired: true,
+            categories: [],
+            topics: [],
+            questions: [],
           },
           subjects: [
             ...setup3.subjects,

@@ -6,21 +6,24 @@ The full terms of this copyright and license should always be found in the root 
 */
 import allSubjects from "../fixtures/subjects/all-subjects";
 import { mockGQL, cyMockDefault, cySetup } from "../support/functions";
-import { SubjectTypes, MentorType } from "../support/types";
+import {
+  SubjectTypes,
+  MentorType,
+  Status,
+  QuestionType,
+} from "../support/types";
+import { completeSubjectQuestion } from "../support/helpers";
 
 const mentor = {
   _id: "clintanderson",
-  firstName: "Clint",
   name: "Clint Anderson",
+  firstName: "Clint",
   title: "Nuclear Electrian's Mate",
   email: "clint@anderson.com",
   thumbnail: "",
-  lastTrainedAt: null,
-  isDirty: false,
-  topics: [],
-  answers: [],
-  questions: [],
   mentorType: MentorType.VIDEO,
+  lastTrainedAt: "",
+  isDirty: false,
   subjects: [
     {
       _id: "background",
@@ -29,6 +32,9 @@ const mentor = {
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      categories: [],
+      topics: [],
+      questions: [],
     },
     {
       _id: "idle_and_initial_recordings",
@@ -36,7 +42,128 @@ const mentor = {
       type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
+      categories: [],
+      topics: [],
+      questions: [],
     },
+  ],
+  topics: [
+    {
+      id: "T1",
+      name: "Topic1",
+      description: "1",
+    },
+  ],
+  answers: [
+    {
+      _id: "A1_1_1",
+      question: {
+        _id: "A1_1_1",
+        clientId: "C1_1_1",
+        question: "Question 1",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A2_1_1",
+      question: {
+        _id: "A2_1_1",
+        clientId: "C2_1_1",
+        question: "Question 2",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A3_1_1",
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        question: "Question 3",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A4_1_1",
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        question: "Question 4",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A5_1_1",
+      question: {
+        _id: "A5_1_1",
+        clientId: "C5_1_1",
+        question: "Question 5",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+  ],
+  questions: [
+    completeSubjectQuestion({
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        question: "Question 3",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+    }),
+    completeSubjectQuestion({
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        question: "Question 4",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+    }),
+    completeSubjectQuestion({
+      question: {
+        _id: "A5_1_1",
+        clientId: "C5_1_1",
+        question: "Question 5",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+    }),
+    completeSubjectQuestion({
+      question: {
+        _id: "A6_1_1",
+        clientId: "C6_1_1",
+        question: "Question 6",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
+    }),
   ],
 };
 

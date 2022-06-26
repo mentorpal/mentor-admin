@@ -43,12 +43,12 @@ addMatchImageSnapshotCommand({
 });
 
 // recursively gets an element, returning only after it's determined to be attached to the DOM for good
-Cypress.Commands.add("getSettled", (selector, opts = {}) => {
+Cypress.Commands.add("getSettled", (selector: any, opts = {}) => {
   const retries = opts.retries || 3;
   const delay = opts.delay || 100;
 
   const isAttached = (resolve, count = 0) => {
-    const el = Cypress.$(selector);
+    var el = Cypress.$(selector) as JQuery<HTMLElement>;
 
     // is element attached to the DOM?
     count = Cypress.dom.isAttached(el) ? count + 1 : 0;
