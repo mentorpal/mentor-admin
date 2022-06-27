@@ -12,8 +12,8 @@ import * as loginActions from ".";
 interface UseWithLogin {
   state: loginActions.LoginState;
   login: (accessToken: string) => void;
-  userSawSplashScreen: (myMentorSplash: string) => void;
-  userSawTooltips: (tooltips: string) => void;
+  userSawSplashScreen: (accessToken: string) => void;
+  userSawTooltips: (accessToken: string) => void;
   loginWithGoogle: (googleAccessToken: string) => void;
   logout: () => void;
 }
@@ -56,14 +56,14 @@ export function useWithLogin(): UseWithLogin {
   }
 
   // Call this function when user clicks close on the dialog
-  function userSawSplashScreen(firstTimeTracking: string) {
+  function userSawSplashScreen(accessToken: string) {
     // Dispatch userSawSplashScreen action here
-    dispatch(loginActions.userSawSplashScreen(firstTimeTracking));
+    dispatch(loginActions.userSawSplashScreen(accessToken));
   }
 
-  function userSawTooltips(firstTimeTracking: string) {
+  function userSawTooltips(accessToken: string) {
     // Dispatch userSawTooltips action here
-    dispatch(loginActions.userSawTooltips(firstTimeTracking));
+    dispatch(loginActions.userSawTooltips(accessToken));
   }
 
   function logout() {

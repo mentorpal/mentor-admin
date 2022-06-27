@@ -231,7 +231,7 @@ function HomePage(props: {
   }
 
   function closeDialog() {
-    userSawSplashScreen("");
+    userSawSplashScreen(props.accessToken);
     setOpenProfile(true);
   }
 
