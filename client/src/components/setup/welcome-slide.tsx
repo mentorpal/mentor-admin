@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { Typography } from "@material-ui/core";
 import { Slide } from "./slide";
-import { Visibility } from "@material-ui/icons";
 
 export function WelcomeSlide(props: {
   classes: Record<string, string>;
@@ -29,12 +28,11 @@ export function WelcomeSlide(props: {
             Let&apos;s get started setting up your new mentor.
           </Typography>
           <Typography
+            data-cy="walkthrough-intro"
             variant="h6"
             className={classes.text}
-            //style = {docSetupUrl? {visibility: "visibile"} : {visibility: "hidden"}}
-            style = {{
-              //opacity: {docSetupUrl? "100" : "0"}
-              opacity: docSetupUrl? "100":"0"
+            style={{
+              opacity: docSetupUrl ? "100" : "0",
             }}
           >
             {"If you'd like to view a walkthrough, "}
