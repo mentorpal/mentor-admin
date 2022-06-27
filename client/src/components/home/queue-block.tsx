@@ -2,13 +2,13 @@ import React from "react";
 import { Paper, Typography } from "@material-ui/core";
 import { Answer, Status } from "types";
 import AnswerList from "components/home/answer-list";
-import ProgressChecks from "components/progress-checks";
 import {
   QuestionEdits,
   RecordingBlock,
 } from "hooks/graphql/use-with-review-answer-state";
 
 export default function QueueBlockItem(props: {
+  block: RecordingBlock;
   classes: Record<string, string>;
   mentorId: string;
   getAnswers: () => Answer[];
@@ -17,11 +17,10 @@ export default function QueueBlockItem(props: {
   recordAnswer: (question: QuestionEdits) => void;
   editQuestion: (question: QuestionEdits) => void;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, block } = props;
   const answers = props
     .getAnswers() 
     .filter((a) => block.questions.includes(a.question));
-  const complete = answers.filter((a) => a.status === Status.COMPLETE);
   const incomplete = answers.filter((a) => a.status === Status.INCOMPLETE);
 
   return (
@@ -30,33 +29,11 @@ export default function QueueBlockItem(props: {
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <Typography data-cy="block-name" variant="h6" className={classes.title}>
-          Queue Record List
+          My priorities / Unrecorded questions
         </Typography>
-        <div
-          data-cy="block-progress"
-          style={{ flexGrow: 1, marginLeft: 25, marginRight: 25 }}
-        >
-          <ProgressChecks value={complete.length} total={answers.length} />
-        </div>
       </div>
       <div style={{ marginTop: 10 }}>
         <div style={{ flex: "auto" }}>
-          <AnswerList
-            classes={classes}
-            mentorId={props.mentorId}
-            header="Complete"
-            answers={complete}
-            questions={props.getQuestions()}
-            onRecordAll={() =>
-              props.recordAnswers(
-                Status.COMPLETE,
-                block.subject,
-                block.category || ""
-              )
-            }
-            onRecordOne={props.recordAnswer}
-            onEditQuestion={props.editQuestion}
-          />
           <AnswerList
             classes={classes}
             header="Incomplete"
