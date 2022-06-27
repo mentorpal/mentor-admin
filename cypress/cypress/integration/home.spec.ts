@@ -59,7 +59,7 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=block-2]").within(($block) => {
         cy.get("[data-cy=block-name]").should(
           "contain.text",
-          "Repeat After Me"
+          "Idle and Initial Recordings"
         );
         cy.get("[data-cy=block-progress]").should("have.text", "2 / 2 (100%)");
         cy.get("[data-cy=block-description]").should(
@@ -458,7 +458,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F"
+      "?status=INCOMPLETE&subject=idle_and_initial_recordings&category=category2&back=%2F"
     );
   });
 
@@ -506,7 +506,7 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=block-2]").within(($block) => {
         cy.get("[data-cy=block-name]").should(
           "contain.text",
-          "Repeat After Me"
+          "Idle and Initial Recordings"
         );
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -553,9 +553,11 @@ describe("My Mentor Page", () => {
   it("can record all incomplete for a category", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -569,7 +571,7 @@ describe("My Mentor Page", () => {
     );
     cy.location("search").should(
       "equal",
-      "?status=INCOMPLETE&subject=repeat_after_me&category=category2&back=%2F%3Fsubject%3Drepeat_after_me"
+      "?status=INCOMPLETE&subject=idle_and_initial_recordings&category=category2&back=%2F%3Fsubject%3Didle_and_initial_recordings"
     );
   });
 
@@ -612,9 +614,11 @@ describe("My Mentor Page", () => {
   it("can add a mentor question to a category", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -648,9 +652,11 @@ describe("My Mentor Page", () => {
   it("can edit a mentor question", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
-    cy.visit("/?subject=repeat_after_me");
+    cy.visit("/?subject=idle_and_initial_recordings");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-    cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+    cy.get("[data-cy=select-subject]").contains(
+      "Idle and Initial Recordings (2 / 3)"
+    );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
       cy.get("[data-cy=block-1]").within(($block) => {
@@ -786,7 +792,7 @@ describe("My Mentor Page", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/setup");
       });
-      cy.contains("Repeat After Me questions");
+      cy.contains("Idle and Initial Recordings");
     });
 
     it("can create a mentor question and save it", () => {
@@ -810,9 +816,11 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -854,7 +862,7 @@ describe("My Mentor Page", () => {
         .click()
         .then(() => {
           cy.get("[data-cy=select-subject]").contains(
-            "Repeat After Me (2 / 4)"
+            "Idle and Initial Recordings (2 / 4)"
           );
           cy.get("[data-cy=block-1]").within(($block) => {
             cy.get("[data-cy=unsaved-changes-warning]").should("not.exist");
@@ -874,9 +882,11 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
@@ -930,9 +940,11 @@ describe("My Mentor Page", () => {
           }),
         ],
       });
-      cy.visit("/?subject=repeat_after_me");
+      cy.visit("/?subject=idle_and_initial_recordings");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
-      cy.get("[data-cy=select-subject]").contains("Repeat After Me (2 / 3)");
+      cy.get("[data-cy=select-subject]").contains(
+        "Idle and Initial Recordings (2 / 3)"
+      );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
         cy.get("[data-cy=block-1]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");

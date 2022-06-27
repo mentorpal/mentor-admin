@@ -277,7 +277,7 @@ describe("Import", { scrollBehavior: "center" }, () => {
       "The following changes will be made to your mentor if you import this JSON:"
     );
     cy.get("[data-cy=subjects]").children().should("have.length", 5);
-    cy.get("[data-cy=subject]").eq(0).contains("Repeat After Me");
+    cy.get("[data-cy=subject]").eq(0).contains("Idle and Initial Recordings");
     cy.get("[data-cy=subject]")
       .eq(0)
       .find("[data-cy=change-icon]")

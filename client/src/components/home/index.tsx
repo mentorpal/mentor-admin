@@ -157,6 +157,14 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
+  const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
+
+  const loginState = useWithLogin();
+  const hasSeenSplash = Boolean(
+    loginState.state.user?.firstTimeTracking.myMentorSplash ||
+      localHasSeenSplash
+  );
+  const { userSawSplashScreen } = loginState;
 
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
@@ -231,6 +239,7 @@ function HomePage(props: {
   }
 
   function closeDialog() {
+    setLocalHasSeenSplash(true);
     userSawSplashScreen(props.accessToken);
     setOpenProfile(true);
   }
