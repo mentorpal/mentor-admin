@@ -533,54 +533,6 @@ describe("Setup", () => {
       cy.contains("You'll be asked to answer some generic questions.");
       cy.contains("Once you're done, you can build and preview your mentor.");
     });
-  });
-
-  it("video mentor shows idle slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setup3, setup3, setup4, setup4],
-      gqlQueries: [mockGQL("UpdateAnswer", { me: { updateAnswer: true } })],
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Record_Idle);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Idle");
-      cy.contains("Let's record a short idle calibration video.");
-      cy.contains(
-        "Click the record button and you'll be taken to a recording screen."
-      );
-    });
-    cy.contains("Idle");
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=record-btn]", { retries: 4 })
-        .trigger("mouseover")
-        .click();
-    });
-    // go to record idle
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?videoId=A3_1_1&back=%2Fsetup%3Fi%3D6"
-    );
-    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get(".editor-class").should("not.exist");
-    cy.get("[data-cy=idle]").should("exist");
-    cy.get("[data-cy=idle-duration]").contains("10 seconds");
-    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
-    // back to setup
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
-    cy.contains("Idle");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
