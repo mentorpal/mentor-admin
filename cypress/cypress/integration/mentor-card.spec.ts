@@ -18,6 +18,7 @@ import {
   UtteranceName,
   SubjectTypes,
 } from "../support/types";
+import questions from "../fixtures/questions";
 
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
@@ -381,6 +382,16 @@ describe("My Mentor Page", () => {
             },
           ],
         },
+        questions: [
+          ...questions,
+          {
+            _id: "A1_1_6",
+            question: "additional question?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],
+          },
+        ],
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action]").contains("Answer extra Questions");

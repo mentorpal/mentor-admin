@@ -89,15 +89,15 @@ function MentorStatus(props: {
 
   const nextStatus = (
     <Grid xs={12} md={10}>
-              <RecommendedActionButton
-                setThumbnail={updateThumbnail}
-                continueAction={continueAction}
-                openRecommender={props.openRecommender}
-                setOpenRecommender={props.setOpenRecommender}
-                setOpenSave={props.setOpenSave}
-              />
-            </Grid>
-  )
+      <RecommendedActionButton
+        setThumbnail={updateThumbnail}
+        continueAction={continueAction}
+        openRecommender={props.openRecommender}
+        setOpenRecommender={props.setOpenRecommender}
+        setOpenSave={props.setOpenSave}
+      />
+    </Grid>
+  );
 
   return (
     <>
@@ -158,7 +158,6 @@ function MentorStatus(props: {
             next-states
           >
             {nextStatus}
-            
           </Grid>
         </Grid>
       </Grid>
