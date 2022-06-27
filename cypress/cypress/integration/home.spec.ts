@@ -88,7 +88,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it.only("shows splash and tooltips if mentor has not seen before", () => {
+  it("shows splash and tooltips if mentor has not seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,
@@ -161,7 +161,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=preview-tooltip-title").should("not.exist");
   });
 
-  it.only("doesn't show splash if mentor seen before", () => {
+  it("doesn't show splash if mentor seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,

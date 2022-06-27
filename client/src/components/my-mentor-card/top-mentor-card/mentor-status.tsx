@@ -87,6 +87,18 @@ function MentorStatus(props: {
     </Grid>
   );
 
+  const nextStatus = (
+    <Grid xs={12} md={10}>
+              <RecommendedActionButton
+                setThumbnail={updateThumbnail}
+                continueAction={continueAction}
+                openRecommender={props.openRecommender}
+                setOpenRecommender={props.setOpenRecommender}
+                setOpenSave={props.setOpenSave}
+              />
+            </Grid>
+  )
+
   return (
     <>
       <Grid container spacing={2} className="top-card-container">
@@ -145,15 +157,8 @@ function MentorStatus(props: {
             className="next-status-wrapper status-item-wrapper"
             next-states
           >
-            <Grid xs={12} md={10}>
-              <RecommendedActionButton
-                setThumbnail={updateThumbnail}
-                continueAction={continueAction}
-                openRecommender={props.openRecommender}
-                setOpenRecommender={props.setOpenRecommender}
-                setOpenSave={props.setOpenSave}
-              />
-            </Grid>
+            {nextStatus}
+            
           </Grid>
         </Grid>
       </Grid>

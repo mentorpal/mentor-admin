@@ -113,7 +113,7 @@ function MentorThumbnail(props: {
                 aria-label="edit mentor"
                 component="span"
                 className="edit-pencil-icon"
-                //onClick={handleOpen}
+                onClick={handleOpen}
               >
                 <CreateIcon />
               </IconButton>
