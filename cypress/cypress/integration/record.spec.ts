@@ -24,6 +24,8 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
+import clintMarkdown from "../fixtures/mentor/clint_markdown";
+
 export function taskListBuild(progressForAllTasks) {
   return {
     trimUploadTask: {
@@ -81,26 +83,12 @@ const chatMentor: Mentor = completeMentor({
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Question 1",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
-          category: { id: "cat", name: "cat", description: "cat" },
+          question: { _id: "A1_1_1" },
+          category: { id: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "Question 2",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
+          question: { _id: "A2_1_1" },
         }),
       ],
     }),
@@ -108,44 +96,16 @@ const chatMentor: Mentor = completeMentor({
       _id: "idle_and_initial_recordings",
       questions: [
         completeSubjectQuestion({
-          question: {
-            _id: "A3_1_1",
-            clientId: "C3_1_1",
-            question: "Question 3",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
+          question: { _id: "A3_1_1" },
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A4_1_1",
-            clientId: "C4_1_1",
-            question: "Question 4",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
+          question: { _id: "A4_1_1" },
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A5_1_1",
-            clientId: "C5_1_1",
-            question: "Question 5",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
+          question: { _id: "A5_1_1" },
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A6_1_1",
-            clientId: "C6_1_1",
-            question: "Question 6",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
+          question: { _id: "A6_1_1" },
         }),
       ],
     }),
@@ -153,68 +113,33 @@ const chatMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: {
-        _id: "A1_1_1",
-        clientId: "C1_1_1",
-        question: "Question 1",
-        name: null,
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-      },
+      question: { _id: "A1_1_1" },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: {
-        _id: "A2_1_1",
-        clientId: "C2_1_1",
-        question: "Question 2",
-        name: null,
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-      },
+      question: { _id: "A2_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: {
-        _id: "A3_1_1",
-        clientId: "C3_1_1",
-        question: "Question 3",
-        name: null,
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-      },
+      question: { _id: "A3_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: {
-        _id: "A4_1_1",
-        clientId: "C4_1_1",
-        question: "Question 4",
-        name: null,
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-      },
+      question: { _id: "A4_1_1" },
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
     {
       _id: "A5_1_1",
-      question: {
-        _id: "A5_1_1",
-        clientId: "C5_1_1",
-        question: "Question 5",
-        name: null,
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-      },
+      question: { _id: "A5_1_1" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
@@ -260,75 +185,41 @@ const videoMentor: Mentor = completeMentor({
   answers: [
     {
       _id: "A1_1_1",
-      question: {
-        _id: "A1_1_1",
-        clientId: "C1_1_1",
-        name: "A1_1_1",
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-        question: "Who are you and what do you do?",
-      },
+      question: { _id: "A1_1_1", question: "Who are you and what do you do?" },
       transcript: "",
       status: Status.INCOMPLETE,
     },
     {
       _id: "A2_1_1",
-      question: {
-        _id: "A2_1_1",
-        clientId: "C2_1_1",
-        name: "A2_1_1",
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-        question: "How old are you now?",
-      },
+      question: { _id: "A2_1_1", question: "How old are you now?" },
       transcript: "I'm 37 years old",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A2_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A2_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
     {
       _id: "A3_1_1",
-      question: {
-        _id: "A3_1_1",
-        clientId: "C3_1_1",
-        name: "A3_1_1",
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-        question: "Where do you live?",
-      },
+      question: { _id: "A3_1_1", question: "Where do you live?" },
       transcript: "In Howard City, Michigan",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A3_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
     {
       _id: "A4_1_1",
-      question: {
-        _id: "A4_1_1",
-        clientId: "C4_1_1",
-        name: "A4_1_1",
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-        question: "How old are you now?",
-      },
+      question: { _id: "A4_1_1", question: "Record an idle video" },
       transcript: "",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A4_1_1.mp4",
-        },
-      ],
+      webMedia: {
+        type: MediaType.VIDEO,
+        tag: "web",
+        url: "A3_1_1.mp4",
+      },
       status: Status.COMPLETE,
     },
   ],
@@ -338,25 +229,11 @@ const videoMentor: Mentor = completeMentor({
       name: "Subject 1",
       questions: [
         completeSubjectQuestion({
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Question 1",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
+          question: { _id: "A1_1_1" },
           category: { id: "cat", name: "cat", description: "cat" },
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "Question 2",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
+          question: { _id: "A2_1_1" },
           category: { id: "cat", name: "cat", description: "cat" },
         }),
       ],
@@ -367,24 +244,10 @@ const videoMentor: Mentor = completeMentor({
       name: "Subject 2",
       questions: [
         completeSubjectQuestion({
-          question: {
-            _id: "A3_1_1",
-            clientId: "C3_1_1",
-            question: "Question 3",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
+          question: { _id: "A3_1_1" },
         }),
         completeSubjectQuestion({
-          question: {
-            _id: "A4_1_1",
-            clientId: "C4_1_1",
-            question: "Question 4",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
+          question: { _id: "A4_1_1" },
         }),
       ],
     }),
@@ -432,12 +295,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -448,9 +311,9 @@ describe("Record", () => {
         cy.get("textarea").should("have.text", "How old are you now?");
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -464,9 +327,9 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -480,12 +343,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -499,9 +362,9 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -517,9 +380,9 @@ describe("Record", () => {
         cy.get("textarea").should("have.text", "How old are you now?");
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -533,9 +396,9 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -549,9 +412,9 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -570,12 +433,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -589,12 +452,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -613,12 +476,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -637,12 +500,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -656,9 +519,9 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -677,12 +540,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -693,9 +556,9 @@ describe("Record", () => {
         cy.get("textarea").should("have.text", "How old are you now?");
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -711,9 +574,9 @@ describe("Record", () => {
         cy.get("textarea").should("have.text", "How old are you now?");
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -732,12 +595,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -756,12 +619,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -782,12 +645,12 @@ describe("Record", () => {
         );
         cy.get("textarea").should("have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should(
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
           "have.text",
           "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get("textarea").should("not.have.attr", "disabled");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Active");
       cy.get("[data-cy=back-btn]").should("be.disabled");
@@ -798,9 +661,9 @@ describe("Record", () => {
         cy.get("textarea").should("have.text", "How old are you now?");
         cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "");
-        cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
       });
       cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
@@ -1279,12 +1142,12 @@ describe("Record", () => {
       cy.get("textarea").should("have.text", "Who are you and what do you do?");
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should(
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should(
         "have.text",
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
       );
-      cy.get("textarea").should("not.have.attr", "disabled");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
@@ -2172,30 +2035,30 @@ describe("Record", () => {
       cy.get("textarea").should("have.text", "How old are you now?");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
-      cy.get("textarea").should("not.have.attr", "disabled");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "");
+      cy.get("[data-text]").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
 
-    cy.get("[data-cy=transcript-input]").type("37");
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("not.be.disabled");
-    cy.get("[data-cy=undo-transcript-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "");
+    cy.get(".rdw-option-wrapper").eq(5).should("not.be.disabled");
+    cy.get(".rdw-option-wrapper").eq(5).trigger("mouseover").click();
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
-    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
+    cy.get(".editor-class").type("37");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=loading-dialog]");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
-    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get(".rdw-option-wrapper.rdw-option-disabled").eq(0).should("exist");
   });
 
   it("cannot update question for a question not belonging to mentor", () => {
@@ -2215,6 +2078,113 @@ describe("Record", () => {
       cy.get("textarea").should("have.attr", "disabled");
     });
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
+  });
+
+  it("Verify that transcript markdown loads as rich text: Q1", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+    cy.get("[data-text]").should("be.visible");
+  });
+
+  it("Verify that transcript markdown loads as rich text: Q2", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-text]").should("be.visible");
+  });
+
+  // // TODO: Not used since we decided to disable the image button from the Editor component
+  // it("Verify that transcript markdown loads as rich text: Q4", () => {
+  //   cyMockDefault(cy, {
+  //     mentor: clintMarkdown,
+  //     questions: chatQuestions,
+  //     gqlQueries: [
+  //       mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+  //       mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+  //       mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+  //       mockGQL("ImportTask", { importTask: null }),
+  //       mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+  //     ],
+  //   });
+  //   cy.visit("/record?videoId=A4_1_1");
+  //   cy.get("[data-text]").should("be.visible");
+  // });
+
+  it("Verify that transcript markdown loads as rich text: Q5", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A5_1_1");
+    cy.get("[data-text]").should("be.visible");
+  });
+
+  it("Make changes to transcript using WYSIWYG Editor features", () => {
+    cyMockDefault(cy, {
+      mentor: chatMentor,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+
+    cy.get("[data-cy=transcript]").should("be.visible");
+    cy.get(".editor-class").within(() => {
+      cy.get("[data-text]").type("{selectall}");
+    });
+
+    cy.get(".rdw-option-wrapper").eq(0).click().click();
+    cy.get(".rdw-option-wrapper").eq(1).click().click();
+    cy.get(".rdw-option-wrapper").eq(2).click().click();
+    cy.get(".rdw-option-wrapper").eq(3).click().click();
+    cy.get(".rdw-option-wrapper").eq(4).click().click();
+
+    cy.get(".editor-class").within(() => {
+      cy.get("[data-text]").type("{selectall}");
+    });
+    cy.get(".rdw-link-wrapper").eq(0).click();
+    cy.get(".rdw-dropdownoption-default.rdw-link-dropdownoption").eq(0).click();
+    cy.get(".rdw-link-modal-input").eq(1).type("https://google.com");
+    cy.get("[id=openLinkInNewWindow]").click();
+    cy.get(".rdw-link-modal-btn").eq(0).click();
+
+    cy.get(".rdw-option-wrapper").eq(5).click();
+    cy.get(".rdw-option-wrapper").eq(6).click();
+
+    cy.get(
+      ".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr"
+    ).click();
   });
 
   it("can update question for a question belonging to mentor", () => {
@@ -2325,8 +2295,8 @@ describe("Record", () => {
       // upload video
       cy.get("[data-cy=upload-video]").trigger("mouseover").click();
       cy.wait(3000);
-      cy.get("[data-cy=transcript-input]").within(($input) => {
-        cy.get("textarea").should("have.text", "My name is Clint Anderson");
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "My name is Clint Anderson");
       });
     });
   });
@@ -2695,9 +2665,9 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
-    cy.get("[data-cy=transcript-input]").type("37");
-    cy.get("[data-cy=transcript-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "37");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
     });
   });
 
@@ -2746,7 +2716,7 @@ describe("Record", () => {
     });
     cy.visit("/record");
     cy.get("[data-cy=next-btn]").invoke("mouseover").click();
-    cy.get("[data-cy=transcript-input]").should("have.value", "");
+    cy.get(".editor-class").should("have.value", "");
   });
 
   it("uploads with no transcript does not replace current transcript", () => {
