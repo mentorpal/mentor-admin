@@ -22,7 +22,7 @@ import {
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
     describe("Shows correct mentor info and allows editing.", () => {
-      it("views, saves, and updates profile data", () => {
+      it.only("views, saves, and updates profile data", () => {
         cySetup(cy);
         cyMockDefault(cy, {
           mentor: [
