@@ -28,10 +28,10 @@ export const mentor: Mentor = {
     {
       _id: "background",
       name: "Background",
+      type: SubjectTypes.SUBJECT,
+      isRequired: false,
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      type: SubjectTypes.SUBJECT,
-      isRequired: true,
       categories: [
         {
           id: "category",
