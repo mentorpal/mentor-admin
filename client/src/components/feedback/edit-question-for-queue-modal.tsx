@@ -33,6 +33,7 @@ import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
 import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
+import TopicsList from "components/author/topics-list";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -66,10 +67,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function EditQuestionForQueueModal(props: {
-  handleClose?: () => void;
+  handleClose: () => void;
   open: boolean;
   mentor: Mentor;
-  userQuestion?: string;
+  userQuestion: string;
   accessToken: string;
 }): JSX.Element {
   const { handleClose, open, userQuestion, mentor, accessToken } = props;
@@ -77,9 +78,7 @@ function EditQuestionForQueueModal(props: {
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [selectedTopic, setSelectedTopic] = useState<Topic>();
-  const [customQuestion, setCustomQuestion] = useState<string>(
-    userQuestion || ""
-  );
+  const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
 
   function okButtonClicked(customQuestion: string) {
     // create new question
@@ -93,10 +92,9 @@ function EditQuestionForQueueModal(props: {
       mentor: mentor._id,
     };
     // create newSubjectQuestion : to add to db
-    const emptyTopic: Topic = { id: "", name: "", description: "" };
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
-      topics: selectedTopic != undefined ? [selectedTopic] : [emptyTopic],
+      topics: selectedTopic,
       category: selectedCategory,
     };
     // add to DB
@@ -108,9 +106,7 @@ function EditQuestionForQueueModal(props: {
     // add to record queue
     addQuestionToRecordQueue(newQuestion._id, accessToken);
     // close modal
-    if (handleClose != undefined) {
-      handleClose();
-    }
+    handleClose();
   }
 
   return (
@@ -255,7 +251,9 @@ function EditQuestionForQueueModal(props: {
                   component="span"
                   disabled={
                     selectedSubject == undefined ||
-                    selectedCategory == undefined
+                    selectedCategory == undefined ||
+                    customQuestion == "" ||
+                    customQuestion == undefined
                   }
                 >
                   OK
