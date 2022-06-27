@@ -9,7 +9,7 @@ import {
   mockGQL,
   cyMockFollowUpQuestions,
 } from "../support/functions";
-import { Mentor, MentorType, Status } from "../support/types";
+import { Mentor, MentorType, Status, QuestionType } from "../support/types";
 import {
   completeMentor,
   completeQuestion,
@@ -28,8 +28,15 @@ const chatMentor: Mentor = completeMentor({
       categories: [{ id: "cat", name: "cat", description: "cat" }],
       questions: [
         completeSubjectQuestion({
-          question: { _id: "A1_1_1" },
-          category: { id: "cat" },
+          question: {
+            _id: "A1_1_1",
+            clientId: "C1_1_1",
+            question: "Question 1",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
+          category: { id: "cat", name: "cat", description: "cat" },
           topics: [],
         }),
         completeSubjectQuestion({
