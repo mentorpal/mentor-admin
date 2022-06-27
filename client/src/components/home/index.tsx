@@ -166,12 +166,6 @@ function HomePage(props: {
   );
   const { userSawSplashScreen } = loginState;
 
-  const loginState = useWithLogin();
-  const hasSeenSplash = Boolean(
-    loginState.state.user?.firstTimeTracking.myMentorSplash
-  );
-  const { userSawSplashScreen } = loginState;
-
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
@@ -261,7 +255,7 @@ function HomePage(props: {
 
   function closePreviewTooltip() {
     setOpenPreview(!openPreview);
-    userSawTooltips("");
+    userSawTooltips(props.accessToken);
   }
 
   return (
