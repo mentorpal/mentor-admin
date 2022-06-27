@@ -7,652 +7,2793 @@ The full terms of this copyright and license should always be found in the root 
 import {
   cyMockDefault,
   mockGQL,
-  cyMockTrain,
-  cyMockTrainStatus,
+  cyAttachUpload,
+  cyMockUpload,
 } from "../support/functions";
 import {
-  setup0,
-  setup1,
-  setup2,
-  setup3,
-  setup4,
-  setup6,
-  setup7,
-  setup8,
-  setup9,
-} from "../fixtures/mentor";
-import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
-import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, JobState, SubjectTypes } from "../support/types";
-
-const baseMock = {
-  mentor: setup0,
-};
-
-Cypress.on("uncaught:exception", (err, runnable) => {
-  console.error(err);
-  return false;
-});
-
-function snapname(n) {
-  return `screenshots-setup-${n}`;
+  Mentor,
+  MentorType,
+  QuestionType,
+  Status,
+  MediaType,
+} from "../support/types";
+import {
+  completeMentor,
+  completeQuestion,
+  completeSubject,
+  completeSubjectQuestion,
+  updateMentorAnswer,
+} from "../support/helpers";
+export function taskListBuild(progressForAllTasks) {
+  return {
+    trimUploadTask: {
+      task_name: "trim_upload",
+      status: progressForAllTasks,
+    },
+    transcodeWebTask: {
+      task_name: "transcode-web",
+      status: progressForAllTasks,
+    },
+    tanscodeMobileTask: {
+      task_name: "transcode-mobile",
+      status: progressForAllTasks,
+    },
+    transcribeTask: {
+      task_name: "transcribe",
+      status: progressForAllTasks,
+    },
+  };
 }
 
-enum SetupScreen {
-  Welcome = 0,
-  Tell_Us_About_Yourself = 1,
-  Pick_Mentor_Type = 2,
-  Select_Subjects = 3,
-  Start_Recordin = 4,
-  Idle_Video_Tips = 5,
-  Idle_And_Initial_Recordings = 6,
-  Build_Mentor = 7,
+export function uploadTaskMediaBuild() {
+  return {
+    originalMedia: {
+      type: "video",
+      tag: "original",
+      url: "http://google.mp4/original.mp4",
+    },
+    webMedia: {
+      type: "video",
+      tag: "web",
+      url: "http://google.mp4",
+    },
+    mobileMedia: {
+      type: "video",
+      tag: "mobile",
+      url: "http://google.mp4",
+    },
+    vttMedia: {
+      type: "vtt",
+      tag: "en",
+      url: "http://google.mp4",
+    },
+  };
 }
 
-function cyVisitSetupScreen(cy, screen: SetupScreen) {
-  cy.visit(`/setup?i=${screen}`);
-}
-
-describe("Setup", () => {
-  describe("can navigate through slides", () => {
-    it("with next button", () => {
-      cyMockDefault(cy, baseMock);
-      cy.visit("/setup");
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Welcome to MentorStudio!"
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Tell us a little about yourself."
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Pick a mentor type."
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Select subjects?");
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Let's start recording!"
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Recording an idle video."
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "not.have.text",
-        "Let's record a short idle calibration video"
-      );
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Idle and Initial Recordings"
-      );
-      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=next-btn]").should("not.be.visible");
-    });
-
-    it("with back button", () => {
-      cyMockDefault(cy, {
-        mentor: setup0,
-        gqlQueries: [mockGQL("ImportTask", {})],
-      });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=next-btn]").should("not.be.visible");
-
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Idle and Initial Recordings"
-      );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Recording an idle video."
-      );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Let's start recording!"
-      );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Select subjects?");
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Pick a mentor type."
-      );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Tell us a little about yourself."
-      );
-      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Welcome to MentorStudio!"
-      );
-      cy.get("[data-cy=back-btn]").should("not.be.visible");
-    });
-
-    it("with radio buttons", () => {
-      cyMockDefault(cy, baseMock);
-      cy.visit("/setup");
-      cy.contains("Welcome to MentorStudio!");
-      cy.get("[data-cy=radio]").eq(1).trigger("mouseover").click();
-      cy.contains("Tell us a little about yourself.");
-      cy.get("[data-cy=radio]").eq(2).trigger("mouseover").click();
-      cy.contains("Pick a mentor type.");
-      cy.get("[data-cy=radio]").eq(3).trigger("mouseover").click();
-      cy.contains("Select subjects?");
-      cy.get("[data-cy=radio]").eq(4).trigger("mouseover").click();
-      cy.contains("Let's start recording!");
-      cy.get("[data-cy=radio]").eq(5).trigger("mouseover").click();
-      cy.contains("Recording an idle video.");
-      cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
-      cy.contains("Idle and Initial Recordings");
-      cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
-      cy.contains("Oops!");
-      cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
-      cy.contains("Welcome to MentorStudio!");
-    });
-
-    it("with query param i", () => {
-      cyMockDefault(cy, baseMock);
-      cyVisitSetupScreen(cy, SetupScreen.Welcome);
-      cy.get("[data-cy=slide]").contains("Welcome to MentorStudio!");
-      cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
-      cy.get("[data-cy=slide]").contains("Tell us a little about yourself.");
-      cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
-      cy.get("[data-cy=slide]").contains("Pick a mentor type.");
-      cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
-      cy.get("[data-cy=slide]").contains("Select subjects?");
-      cyVisitSetupScreen(cy, SetupScreen.Start_Recordin);
-      cy.get("[data-cy=slide]").contains("Let's start recording!");
-      cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
-      cy.get("[data-cy=slide]").contains("Recording an idle video.");
-      cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings);
-      cy.get("[data-cy=slide]").contains("Idle and Initial Recordings");
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]").contains("Oops!");
-    });
-  });
-
-  it("config provides video for idle video setup", () => {
-    cyMockDefault(cy, {
-      config: { urlVideoIdleTips: "test.url" },
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
-    cy.get("[data-cy=video-player]").within(($within) => {
-      cy.get("video").should("exist");
-      cy.get("video").should("have.attr", "src").should("include", "test.url");
-    });
-  });
-
-  it("shows welcome slide", () => {
-    cyMockDefault(cy, baseMock);
-    cyVisitSetupScreen(cy, SetupScreen.Welcome);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Welcome to MentorStudio!");
-      cy.contains("It's nice to meet you, Clinton Anderson!");
-      cy.contains("Let's get started setting up your new mentor.");
-      cy.contains("If you'd like to view a walkthrough,");
-      cy.get("[data-cy=click-here-url]").contains("click here");
-      cy.get("[data-cy=click-here-url]")
-        .should("attr", "href")
-        .and(
-          "include",
-          "https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing"
-        );
-    });
-    cy.matchImageSnapshot(snapname("welcome-slide"));
-  });
-
-  it("shows mentor slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [
-        { ...setup0, name: "", title: "" },
-        setup1,
-        setup2,
-        setup3,
-        { ...setup3, email: "clint@anderson.com" },
-      ],
-      gqlQueries: [
-        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
-      ],
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
-    // empty mentor slide
-    cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=email]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    // fill out first name and save
-    cy.getSettled("[data-cy=first-name]", { retries: 4 }).type("Clint");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "Clint");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=email]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Tell us a little about yourself.");
-    cy.matchImageSnapshot(snapname("mentor-slide-1"));
-    // fill out full name and save
-    cy.getSettled("[data-cy=name]", { retries: 4 }).type("Clinton Anderson");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "Clint");
-    });
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "Clinton Anderson");
-    });
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=email]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.matchImageSnapshot(snapname("mentor-slide-2"));
-    // fill out title and save
-    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
-      "Nuclear Electrician's Mate"
-    );
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "Clint");
-    });
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "Clinton Anderson");
-    });
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-    });
-    cy.get("[data-cy=email]").within(($input) => {
-      cy.get("input").should("have.value", "");
-    });
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Tell us a little about yourself.");
-    cy.matchImageSnapshot(snapname("mentor-slide-3"));
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    // fill out email and save
-    cy.getSettled("[data-cy=email]", { retries: 4 }).type("clint@anderson.com");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "Clint");
-    });
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "Clinton Anderson");
-    });
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "Nuclear Electrician's Mate");
-    });
-    cy.get("[data-cy=email]").within(($input) => {
-      cy.get("input").should("have.value", "clint@anderson.com");
-    });
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type.");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    cy.matchImageSnapshot(snapname("mentor-slide-4"));
-  });
-
-  it("shows mentor chat type", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: { ...setup0, mentorType: null },
-      gqlQueries: [
-        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
-      ],
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
-    cy.contains("Pick a mentor type");
-    // select chat type
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
-        .trigger("mouseover")
-        .click();
-    });
-    cy.get("[data-cy=video]").should("exist");
-    cy.get("[data-cy=chat]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Make a text-only mentor that responds with chat bubbles");
-    });
-    // save changes
-    cy.matchImageSnapshot(snapname("type-slide-1"));
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Select subjects?");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type");
-    cy.matchImageSnapshot(snapname("type-slide-2"));
-    cy.get("[data-cy=radio]").should("have.length", 7);
-    // select video type
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
-        .trigger("mouseover")
-        .click();
-    });
-    cy.get("[data-cy=chat]").should("exist");
-    cy.get("[data-cy=video]").trigger("mouseover").click();
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains(
-        "Make a video mentor that responds with pre-recorded video answers."
-      );
-    });
-    // save changes
-    cy.matchImageSnapshot(snapname("type-slide-3"));
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Select subjects?");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
-    cy.contains("Pick a mentor type");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    cy.get("[data-cy=radio]").should("have.length", 8);
-    cy.matchImageSnapshot(snapname("type-slide-4"));
-  });
-
-  it("shows select subjects slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [
-        setup3,
-        setup3,
-        {
-          ...setup3,
-          defaultSubject: {
-            _id: "background",
-            name: "Background",
-            type: SubjectTypes.SUBJECT,
-            description: "",
-            isRequired: true,
-            categories: [],
-            topics: [],
-            questions: [],
+const chatMentor: Mentor = completeMentor({
+  _id: "clintanderson",
+  mentorType: MentorType.CHAT,
+  lastTrainedAt: null,
+  subjects: [
+    completeSubject({
+      _id: "background",
+      name: "background",
+      categories: [{ id: "cat", name: "cat", description: "cat" }],
+      questions: [
+        completeSubjectQuestion({
+          question: {
+            _id: "A1_1_1",
+            clientId: "C1_1_1",
+            question: "Question 1",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
           },
-          subjects: [
-            ...setup3.subjects,
-            {
-              _id: "leadership",
-              name: "Leadership",
-              type: SubjectTypes.SUBJECT,
-              description:
-                "These questions will ask about being in a leadership role.",
-              isRequired: false,
-              categories: [],
-              topics: [],
-              questions: [],
-            },
-          ],
+          category: { id: "cat", name: "cat", description: "cat" },
+          topics: [],
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A2_1_1",
+            clientId: "C2_1_1",
+            question: "Question 2",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
+        }),
+      ],
+    }),
+    completeSubject({
+      _id: "idle_and_initial_recordings",
+      questions: [
+        completeSubjectQuestion({
+          question: {
+            _id: "A3_1_1",
+            clientId: "C3_1_1",
+            question: "Question 3",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A4_1_1",
+            clientId: "C4_1_1",
+            question: "Question 4",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A5_1_1",
+            clientId: "C5_1_1",
+            question: "Question 5",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A6_1_1",
+            clientId: "C6_1_1",
+            question: "Question 6",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
+        }),
+      ],
+    }),
+  ],
+  answers: [
+    {
+      _id: "A1_1_1",
+      question: {
+        _id: "A1_1_1",
+        clientId: "C1_1_1",
+        question: "Question 1",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A2_1_1",
+      question: {
+        _id: "A2_1_1",
+        clientId: "C2_1_1",
+        question: "Question 2",
+        name: null,
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A3_1_1",
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        question: "Question 3",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A4_1_1",
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        question: "Question 4",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A5_1_1",
+      question: {
+        _id: "A5_1_1",
+        clientId: "C5_1_1",
+        question: "Question 5",
+        name: null,
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+  ],
+});
+const chatQuestions = [
+  {
+    _id: "A1_1_1",
+    question: "Who are you and what do you do?",
+    name: "A1_1_1",
+    type: QuestionType.QUESTION,
+    paraphrases: [],
+  },
+  completeQuestion({
+    _id: "A2_1_1",
+    question: "How old are you now?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A3_1_1",
+    question:
+      "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+  }),
+  completeQuestion({
+    _id: "A4_1_1",
+    question:
+      "Please give a short introduction of yourself, which includes your name, current job, and title.",
+  }),
+  completeQuestion({
+    _id: "A5_1_1",
+    question:
+      "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+  }),
+  completeQuestion({
+    _id: "A6_1_1",
+    question: "",
+  }),
+];
+const videoMentor: Mentor = completeMentor({
+  _id: "clintanderson",
+  mentorType: MentorType.VIDEO,
+  lastTrainedAt: null,
+  answers: [
+    {
+      _id: "A1_1_1",
+      question: {
+        _id: "A1_1_1",
+        clientId: "C1_1_1",
+        name: "A1_1_1",
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+        question: "Who are you and what do you do?",
+      },
+      transcript: "",
+      status: Status.INCOMPLETE,
+    },
+    {
+      _id: "A2_1_1",
+      question: {
+        _id: "A2_1_1",
+        clientId: "C2_1_1",
+        name: "A2_1_1",
+        type: QuestionType.QUESTION,
+        paraphrases: [],
+        question: "How old are you now?",
+      },
+      transcript: "I'm 37 years old",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A2_1_1.mp4",
         },
       ],
-      subjects: [allSubjects],
-      gqlQueries: [
-        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A3_1_1",
+      question: {
+        _id: "A3_1_1",
+        clientId: "C3_1_1",
+        name: "A3_1_1",
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+        question: "Where do you live?",
+      },
+      transcript: "In Howard City, Michigan",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A3_1_1.mp4",
+        },
       ],
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Select subjects");
-      cy.contains(
-        "These are question sets related to a particular field or topic."
-      );
-      cy.contains("Pick the ones you feel qualified to mentor in!");
-      cy.contains(
-        "After recording a subject, you'll be placed in a panel with other mentors in your field."
-      );
-    });
-    cy.contains("Pick the ones you feel qualified to mentor in!");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    // go to subjects page
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.getSettled("[data-cy=button]", { retries: 4 })
-        .trigger("mouseover")
-        .click();
-    });
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/subjects")
-    );
-    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D3");
-    cy.get("[data-cy=subjects]").children().should("have.length", 2);
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Background");
-        cy.get("[data-cy=description]").should(
+      status: Status.COMPLETE,
+    },
+    {
+      _id: "A4_1_1",
+      question: {
+        _id: "A4_1_1",
+        clientId: "C4_1_1",
+        name: "A4_1_1",
+        type: QuestionType.UTTERANCE,
+        paraphrases: [],
+        question: "How old are you now?",
+      },
+      transcript: "",
+      media: [
+        {
+          type: MediaType.VIDEO,
+          tag: "web",
+          url: "A4_1_1.mp4",
+        },
+      ],
+      status: Status.COMPLETE,
+    },
+  ],
+  subjects: [
+    completeSubject({
+      _id: "subject_1",
+      name: "Subject 1",
+      questions: [
+        completeSubjectQuestion({
+          question: {
+            _id: "A1_1_1",
+            clientId: "C1_1_1",
+            question: "Question 1",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
+          category: { id: "cat", name: "cat", description: "cat" },
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A2_1_1",
+            clientId: "C2_1_1",
+            question: "Question 2",
+            name: null,
+            type: QuestionType.QUESTION,
+            paraphrases: [],
+          },
+          category: { id: "cat", name: "cat", description: "cat" },
+        }),
+      ],
+      categories: [{ id: "cat", name: "cat", description: "cat" }],
+    }),
+    completeSubject({
+      _id: "subject_2",
+      name: "Subject 2",
+      questions: [
+        completeSubjectQuestion({
+          question: {
+            _id: "A3_1_1",
+            clientId: "C3_1_1",
+            question: "Question 3",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
+        }),
+        completeSubjectQuestion({
+          question: {
+            _id: "A4_1_1",
+            clientId: "C4_1_1",
+            question: "Question 4",
+            name: null,
+            type: QuestionType.UTTERANCE,
+            paraphrases: [],
+          },
+        }),
+      ],
+    }),
+  ],
+});
+const videoQuestions = [
+  completeQuestion({
+    _id: "A1_1_1",
+    question: "Who are you and what do you do?",
+  }),
+  completeQuestion({
+    _id: "A2_1_1",
+    question: "How old are you now?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A3_1_1",
+    question: "Where do you live?",
+    mentor: "clintanderson",
+  }),
+  completeQuestion({
+    _id: "A4_1_1",
+    question: "Record an idle video",
+    mentor: "clintanderson",
+    name: "_IDLE_",
+  }),
+];
+
+describe("Record", () => {
+  describe("search params", () => {
+    it("shows all questions if no filters", () => {
+      cyMockDefault(cy, {
+        mentor: chatMentor,
+        questions: chatQuestions,
+        gqlQueries: [
+          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        ],
+      });
+      cy.visit("/record");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 5");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
           "have.text",
-          "These questions will ask general questions about your background that might be relevant to how people understand your career."
+          "Who are you and what do you do?"
         );
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get("textarea").should("have.attr", "disabled");
       });
-    });
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get("[data-cy=name]").should("have.text", "Leadership");
-        cy.get("[data-cy=description]").should(
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
           "have.text",
-          "These questions will ask about being in a leadership role."
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
         );
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.disabled");
-        cy.get('[data-cy=select] [type="checkbox"]').should("not.be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("be.disabled");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+        cy.get("textarea").should("not.have.attr", "disabled");
       });
-    });
-    // select subject and primary subject and go back
-    cy.get("[data-cy=subjects]").within(($subjects) => {
-      cy.get("[data-cy=subject-0]").within(($subject) => {
-        cy.get('[data-cy=default] [type="checkbox"]')
-          .check()
-          .should("be.checked");
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 5");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=subject-1]").within(($subject) => {
-        cy.get('[data-cy=select] [type="checkbox"]')
-          .check()
-          .should("be.checked");
-        cy.get('[data-cy=default] [type="checkbox"]').should("not.be.checked");
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
       });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 3 / 5");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 4 / 5");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please give a short introduction of yourself, which includes your name, current job, and title."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 5 / 5");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
-    cy.get("[data-cy=dropdown-button-list]")
-      .should("not.be.disabled")
-      .and("have.text", "Save")
-      .trigger("mouseover")
-      .click();
-    cy.get("[data-cy=nav-bar]").within(($navbar) => {
-      cy.get("[data-cy=back-button]").trigger("mouseover").click();
+
+    it("shows all incomplete questions if ?status=INCOMPLETE", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?status=INCOMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 3 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
     });
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=3");
+
+    it("shows all complete questions if ?status=COMPLETE", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?status=COMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please give a short introduction of yourself, which includes your name, current job, and title."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows a single question if ?videoId={questionId}", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?videoId=A1_1_1");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows multiple questions if ?videoId={questionId}&videoId={questionId}", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?videoId=A1_1_1&videoId=A3_1_1");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows all questions for a subject if ?subject={subjectId}", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?subject=background");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows all incomplete questions for a subject if ?subject={subjectId}&status=INCOMPLETE", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?subject=background&status=INCOMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows all complete questions for a subject if ?subject={subjectId}&status=COMPLETE", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?subject=background&status=COMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows all questions for a category in a subject if ?category={categoryId}", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?subject=background&category=cat");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
   });
 
-  it("shows introduction slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setup3],
+  describe("Recording Session Ending Page", () => {
+    it("Done Button after recording sessions leads to session ending page", () => {
+      cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
+      cy.visit("/record?subject=background");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Active");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("Skip");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+      cy.get("[data-cy=done-btn]").trigger("mouseover").click();
     });
-    cyVisitSetupScreen(cy, SetupScreen.Start_Recordin);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Let's start recording");
-      cy.contains("You'll be asked to answer some generic questions.");
-      cy.contains("Once you're done, you can build and preview your mentor.");
-    });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
   });
 
-  it("chat mentor does not show idle slide", () => {
+  it("When an upload finishes on record view, should swap user to video view", () => {
     cyMockDefault(cy, {
-      ...baseMock,
-      mentor: { ...setup0, mentorType: MentorType.CHAT },
-    });
-    cyVisitSetupScreen(cy, SetupScreen.Idle_Video_Tips);
-    cy.get("[data-cy=slide]").within(($slide) => {
-      cy.contains("Idle and Initial Recordings");
-    });
-  });
-
-  it("shows required subject, idle and initial recordings, questions slide", () => {
-    cyMockDefault(cy, {
-      ...baseMock,
-      mentor: [setup6, setup8],
-      subject: repeatAfterMe,
+      mentor: [videoMentor],
+      questions: videoQuestions,
       gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
-              uploadTasks: [],
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
             },
           },
         ]),
       ],
     });
-    cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings - 1);
-    cy.contains("Recording an idle video");
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Idle and Initial Recordings");
-    cy.contains("These are miscellaneous phrases you'll be asked to repeat.");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.contains("1 / 3");
-    cy.getSettled("[data-cy=record-btn]", { retries: 4 })
-      .trigger("mouseover")
-      .click();
-    // go to record
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/record")
-    );
-    cy.location("search").should(
-      "contain",
-      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D6"
-    );
-    cy.get("[data-cy=progress]").contains("Questions 1 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get(".editor-class").should("not.exist");
-    cy.get("[data-cy=status]").contains("Active");
-    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=progress]").contains("Questions 2 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please give a short introduction of yourself, which includes your name, current job, and title."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
-    cy.get(".editor-class").within(($input) => {
-      cy.get("[data-text]").should("have.text", "");
-      cy.get("[data-text]").should("not.have.attr", "disabled");
-    });
-    cy.get("[data-cy=status]").contains("Skip");
-    // back to setup
-    cy.get("[data-cy=nav-bar]").within(($navbar) => {
-      cy.get("[data-cy=back-button]").trigger("mouseover").click();
-    });
-    cy.location("pathname").then(($el) =>
-      assert($el.replace("/admin", ""), "/setup")
-    );
-    cy.location("search").should("contain", "?i=6");
-    cy.get("[data-cy=slide]").contains("3 / 3");
-    cy.contains("Idle and Initial Recordings");
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+    cy.visit("/record");
+    //upload in progress
+    cy.get("[data-cy=upload-video]").should("contain.text", "Processing");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=video-player]").should("not.be.visible");
+    cy.wait(3000);
+    //upload complete, should swap to video view
+    cy.get("[data-cy=upload-video]").should("contain.text", "Upload Video");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=video-player]").should("be.visible");
   });
 
-  describe("shows setup complete slide after completing setup", () => {
-    it("cannot go to my mentor if mentor info incomplete", () => {
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: [setup0],
-      });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
+  //Test that once you click the title card, it goes to that card appropriate answer
+  it("tapping an item from active uploads (via upload button) takes you to that item", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
     });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=active-upload-card-0]").within(($i) => {
+      cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+    });
+  });
 
-    it("go to my mentor page button visible if setup complete", () => {
-      cyMockDefault(cy, {
-        ...baseMock,
-        mentor: { ...setup0, firstName: "Clint" },
-      });
-      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
-      cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
+  it("User gets guidance to know they can move on and record another answer", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
     });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=upload-in-progress-notifier]").should("not.be.visible");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
+  });
+
+  it("can dismiss completed items in list via x button", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("FAILED"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-2]").within(($within) => {
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=active-upload-card-2]").should("not.exist");
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
+      cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=active-upload-card-1]").should("not.exist");
+  });
+
+  it("upload button changes to process while an upload is in progress", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=upload-video]").should("have.text", "Processing");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+  });
+
+  it("upload button changes to trim when trim is edited", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
+    // edit slider
+    cy.get("[data-cy=slider]").within(($slider) => {
+      cy.get(".MuiSlider-thumb").first().type("{rightarrow}");
+    });
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("not.be.disabled");
+    cy.get("[data-cy=upload-video]").should("have.text", "Trim Video");
+  });
+
+  it("the upload card corresponding to current question should be highlighted", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should(
+      "have.css",
+      "background-color",
+      "rgb(255, 251, 204)"
+    );
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should(
+      "have.css",
+      "background-color",
+      "rgba(0, 0, 0, 0)"
+    );
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").should(
+      "have.css",
+      "background-color",
+      "rgba(0, 0, 0, 0)"
+    );
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should(
+      "have.css",
+      "background-color",
+      "rgb(255, 251, 204)"
+    );
+  });
+
+  it("displays multiple cards with multiple uploads", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+  });
+
+  it("uploading widget should not be open if there are no uploads", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("ImportTask", { importTask: null }),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=uploading-widget]").should("not.be.visible");
+  });
+
+  it("can update status", () => {
+    cyMockDefault(cy, {
+      mentor: [chatMentor],
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("ImportTask", { importTask: null }),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 1");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+      cy.get("textarea").should("have.attr", "disabled");
+    });
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should(
+        "have.text",
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+      );
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=status]").contains("Active");
+    cy.get("[data-cy=select-status]").trigger("mouseover").click();
+    cy.get("[data-cy=incomplete]").trigger("mouseover").click();
+    cy.get("[data-cy=status]").contains("Skip");
+    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+  });
+
+  it("uploading widget should be open if there are active uploads", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=uploading-widget]").should("be.visible");
+  });
+
+  it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=active-upload-card-0]").within(($i) => {
+      cy.get("[data-cy=card-answer-title]").trigger("mouseover").click();
+    });
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+    });
+  });
+
+  it("Uploads panel can be closed via header button and list x button, and panel can be opened via header button", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=uploading-widget]").should("be.visible");
+    cy.get("[data-cy=header-uploads-button]").trigger("mouseover").click();
+    cy.get("[data-cy=uploading-widget]").should("not.be.visible");
+    cy.get("[data-cy=header-uploads-button]").trigger("mouseover").click();
+    cy.get("[data-cy=uploading-widget]").should("be.visible");
+    cy.get("[data-cy=close-uploads-widget-button]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=uploading-widget]").should("not.be.visible");
+  });
+
+  it("upload 'processing' text animates three ellipsis", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      //ListItems primary text is under <span> and its secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing.");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing..");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing...");
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("have.text", "Processing");
+    });
+  });
+
+  it("Header shows a count of N of M uploads", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=header-uploads-button]").should(
+      "have.text",
+      "2 of 3 Uploads Complete"
+    );
+  });
+
+  it("If no uploads occuring, uploads header only shows a dimmed out icon", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=header-uploads-button]").should("have.text", "");
+    cy.get("[data-cy=header-uploads-button]").should(
+      "have.css",
+      "opacity",
+      "0.5"
+    );
+  });
+
+  it.skip("displays status info for each job: Uploading, Completed, Failed", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("FAILED"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  transcript: "i am kayla",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-2]").within(($within) => {
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("span")
+        .should("have.text", videoMentor.answers[2].question.question);
+      cy.get("[data-cy=card-answer-title]").contains("Tap to preview");
+    });
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
+      //ListItems secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("span")
+        .should("have.text", videoMentor.answers[1].question.question);
+      cy.get("[data-cy=card-answer-title]").contains("Failed to process file:");
+    });
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      //ListItems primary text is under <span> and its secondary text is under <p>
+      cy.get("[data-cy=card-answer-title]")
+        .get("span")
+        .should(
+          "contain",
+          videoMentor.answers[0].question.question.substr(0, 22)
+        );
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("contain.text", "Processing");
+    });
+  });
+
+  it("hides video if mentor type is CHAT", () => {
+    cyMockDefault(cy, {
+      mentor: [chatMentor],
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=video-recorder]").should("not.exist");
+    cy.get("[data-cy=video-player]").should("not.exist");
+  });
+
+  it("shows video recorder if mentor type is VIDEO and no video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=video-recorder]").should("exist");
+    // video recorder showing
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+    // video player hidden
+    cy.get("[data-cy=video-player]").should("be.hidden");
+    cy.get("[data-cy=slider]").should("be.hidden");
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
+  });
+
+  it("shows video player if mentor type is VIDEO and has video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=video-recorder]").should("exist");
+    // video recorder hidden
+    cy.get("[data-cy=video-recorder]").should("be.hidden");
+    cy.get("[data-cy=upload-file]").should("be.hidden");
+    // video player showing
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=rerecord-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.visible");
+    // editing hidden
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=slider]").should("not.be.hidden");
+    // can re-record video
+    cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+    cy.get("[data-cy=video-player]").should("be.hidden");
+    cy.get("[data-cy=slider]").should("be.hidden");
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
+  });
+
+  it("download video button only visible when video is present", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record");
+    cyAttachUpload(cy);
+    cy.get("[data-cy=download-video]").should("exist");
+  });
+
+  it("download video button not visible when no video is present", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=download-video]").should("not.exist");
+  });
+
+  it("guide silhouette should be visible while trimming a video", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=outline]").should("not.be.visible");
+      cy.get("[data-cy=slider]")
+        .invoke("mouseover")
+        .trigger("mousedown", { button: 0 });
+      cy.get("[data-cy=outline]").should("be.visible");
+    });
+  });
+
+  it("uploads should be visibly split if they are not part of current recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=uploads-split]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-0]").should("exist");
+  });
+
+  it("navigation warning when selecting upload outside of current recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=uploads-split]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-0]").should("exist");
+
+    cy.get("[data-cy=grayed-upload-card-0]").invoke("mouseover").click();
+    cy.get("[data-cy=navigation-warning]").should("exist");
+  });
+
+  it("no navigation warning when selecting upload from same recording set", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").invoke("mouseover").click();
+    cy.get("[data-cy=navigation-warning]").should("not.exist");
+  });
+
+  it("properly navigates to correct answer index when switching subjects", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit(`/record?subject=subject_1`);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=grayed-upload-card-1]").invoke("mouseover").click();
+    cy.get("[data-cy=navigate-to-question-button]").invoke("mouseover").click();
+    cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+  });
+
+  it("can update transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        chatMentor,
+        updateMentorAnswer(chatMentor as unknown as Mentor, "A2_1_1", {
+          transcript: "37",
+        }),
+      ],
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+
+    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "37");
+    });
+    cy.get("[data-cy=undo-transcript-btn]").should("not.be.disabled");
+    cy.get("[data-cy=undo-transcript-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "");
+    });
+    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=loading-dialog]");
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "37");
+    });
+    cy.get("[data-cy=undo-transcript-btn]").should("be.disabled");
+  });
+
+  it("cannot update question for a question not belonging to mentor", () => {
+    cyMockDefault(cy, {
+      mentor: chatMentor,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.attr", "disabled");
+    });
+    cy.get("[data-cy=undo-question-btn]").should("be.disabled");
+  });
+
+  it("can update question for a question belonging to mentor", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        chatMentor,
+        updateMentorAnswer(chatMentor as Mentor, "A2_1_1", {
+          question: {
+            _id: "A2_1_1",
+            question: "test",
+            mentor: "clintanderson",
+          },
+        }),
+      ],
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", {
+          me: {
+            updateQuestion: {
+              ...chatQuestions[1],
+              question: "How old are you now?test",
+            },
+          },
+        }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
+    cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=undo-question-btn]").should("be.disabled");
+
+    cy.get("[data-cy=question-input]").type("test");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?test");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=undo-question-btn]").should("not.be.disabled");
+    cy.get("[data-cy=undo-question-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+    cy.get("[data-cy=undo-question-btn]").should("be.disabled");
+
+    cy.get("[data-cy=question-input]").type("test");
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=undo-question-btn]").should("be.disabled");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?test");
+      cy.get("textarea").should("not.have.attr", "disabled");
+    });
+  });
+
+  it("can upload a video file and receive a transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [
+        videoMentor,
+        updateMentorAnswer(videoMentor, "A1_1_1", {
+          transcript: "My name is Clint Anderson",
+        }),
+      ],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          { me: { uploadTasks: [] } },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "My name is Clint Anderson",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+    // upload file
+    cyAttachUpload(cy).then(() => {
+      // show video
+      cy.get("[data-cy=video-player]").should("be.visible");
+      cy.get("[data-cy=rerecord-video]").should("be.visible");
+      cy.get("[data-cy=upload-video]").should("be.visible");
+      cy.get("[data-cy=trim-video]").should("not.exist");
+      cy.get("[data-cy=slider]").should("be.visible");
+      cy.get("[data-cy=upload-video]").should("not.be.disabled");
+      cy.get("[data-cy=trim-video]").should("not.exist");
+      // upload video
+      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.wait(3000);
+      cy.get("[data-cy=transcript-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "My name is Clint Anderson");
+      });
+    });
+  });
+
+  it("failed http upload displays error message in upload widget", () => {
+    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockUpload(cy, { statusCode: 400 });
+    cy.visit("/record");
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.get("[data-cy=uploading-widget]").should("be.visible");
+
+      cy.get("[data-cy=active-upload-card-0]").should("exist");
+      cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+        cy.get("[data-cy=card-answer-title]")
+          .get("p")
+          .should("contain.text", "Failed to upload file");
+      });
+    });
+  });
+
+  it("failed gql process displays error message in upload widget", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+                  ...taskListBuild("FAILED"),
+                  ...uploadTaskMediaBuild(),
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("FAILED"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.wait(3000);
+    cy.get("[data-cy=active-upload-card-0]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("contain.text", "Failed to process file");
+    });
+    cy.get("[data-cy=active-upload-card-1]").should("exist");
+    cy.get("[data-cy=active-upload-card-1]").within(($within) => {
+      cy.get("[data-cy=card-answer-title]")
+        .get("p")
+        .should("contain.text", "Failed to process file");
+    });
+  });
+
+  it("warns user of empty transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.wait(3000);
+    cy.get("[data-cy=warn-empty-transcript]").should("exist");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      cy.get("p").should("have.text", "Needs Attention");
+    });
+  });
+
+  it("download button visible for upload items with original video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      cy.get("[data-cy=download-video-from-list]").should("be.visible");
+    });
+  });
+
+  it("download button not visible for done items", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+      cy.get("[data-cy=download-video-from-list]").should("not.exist");
+    });
+  });
+
+  it("does not warn user of empty transcript if idle video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[3].question._id,
+                    question: videoMentor.answers[3].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=warn-empty-transcript]").should("not.exist");
+  });
+
+  it("Can visit record via url param array", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "Who are you and what do you do?");
+    });
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=question-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "How old are you now?");
+    });
+  });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("while recording, stop recording indicator is visible", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+  });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("press spacebar to stop recording", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+    cy.get("body").trigger("keydown", { keyCode: 32 });
+    cy.get("[data-cy=countdown-message]").should(
+      "contain.text",
+      "Recording ends in"
+    );
+  });
+
+  // headless cypress has no webcam, test won't pass till fix
+  it.skip("press transcript overlay to stop recording", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[title=Device]").first().invoke("mouseover").click("center");
+    cy.get("[data-cy=controls]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-overlay]", { timeout: 6000 }).should("exist");
+    cy.get("[data-cy=transcript-overlay]").invoke("mouseover").click();
+    cy.get("[data-cy=countdown-message]").should(
+      "contain.text",
+      "Recording ends in"
+    );
+  });
+
+  it("can edit video mentor transcripts", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get("[data-cy=transcript-input]").type("37");
+    cy.get("[data-cy=transcript-input]").within(($input) => {
+      cy.get("textarea").should("have.text", "37");
+    });
+  });
+
+  it("emtpy transcript upload results replace current transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    cy.get("[data-cy=transcript-input]").should("have.value", "");
+  });
+
+  it("uploads with no transcript does not replace current transcript", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=next-btn]").invoke("mouseover").click();
+    //wait for upload to complete
+    cy.get("[data-cy=video-player]").should("be.visible");
+    cy.get("[data-cy=transcript]").contains("I'm 37 years old");
   });
 });
