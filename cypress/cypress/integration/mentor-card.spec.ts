@@ -312,7 +312,7 @@ describe("My Mentor Page", () => {
       cy.url().should("include", "/record");
     });
 
-    it.only("Asks user with unbuildable mentor to answer enough questions", () => {
+    it("Asks user with unbuildable mentor to answer enough questions", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: {
