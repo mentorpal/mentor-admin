@@ -37,6 +37,7 @@ import {
   ImportTask,
   ReplacedMentorDataChanges,
   PresignedUrlResponse,
+  FirstTimeTracking,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -496,6 +497,29 @@ export async function updateSubject(
       },
     },
     { dataPath: ["me", "updateSubject"], accessToken }
+  );
+}
+
+export async function updateMyFirstTimeTracking(
+  updates: Partial<FirstTimeTracking>,
+  accessToken: string
+): Promise<FirstTimeTracking> {
+  return await execGql<FirstTimeTracking>(
+    {
+      query: `
+      mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
+        me{
+          firstTimeTrackingUpdate(updates: $updates){
+            myMentorSplash
+          }
+        }
+      }
+    `,
+      variables: {
+        updates,
+      },
+    },
+    { dataPath: ["me", "firstTimeTrackingUpdate"], accessToken }
   );
 }
 
@@ -1116,6 +1140,9 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             userRole
             defaultMentor{
               _id
+            }
+            firstTimeTracking{
+              myMentorSplash
             }
           }
           accessToken
