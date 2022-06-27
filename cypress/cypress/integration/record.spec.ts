@@ -2112,23 +2112,6 @@ describe("Record", () => {
     cy.get("[data-text]").should("be.visible");
   });
 
-  // // TODO: Not used since we decided to disable the image button from the Editor component
-  // it("Verify that transcript markdown loads as rich text: Q4", () => {
-  //   cyMockDefault(cy, {
-  //     mentor: clintMarkdown,
-  //     questions: chatQuestions,
-  //     gqlQueries: [
-  //       mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-  //       mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-  //       mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-  //       mockGQL("ImportTask", { importTask: null }),
-  //       mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-  //     ],
-  //   });
-  //   cy.visit("/record?videoId=A4_1_1");
-  //   cy.get("[data-text]").should("be.visible");
-  // });
-
   it("Verify that transcript markdown loads as rich text: Q5", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,

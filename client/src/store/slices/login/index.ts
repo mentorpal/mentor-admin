@@ -50,7 +50,7 @@ export const googleLogin = createAsyncThunk(
         console.error(err.response?.data);
         return rejectWithValue(err.response?.data);
       } else {
-        console.log("Unexpected error", err);
+        console.error("Unexpected error", err);
       }
     }
   }
@@ -72,7 +72,7 @@ export const userSawSplashScreen = createAsyncThunk(
         console.error(err.response?.data);
         return rejectWithValue(err.response?.data);
       } else {
-        console.log("Unexpected error", err);
+        console.error("Unexpected error", err);
       }
     }
   }
@@ -90,7 +90,7 @@ export const login = createAsyncThunk(
         console.error(err.response?.data);
         return rejectWithValue(err.response?.data);
       } else {
-        console.log("Unexpected error", err);
+        console.error("Unexpected error", err);
       }
     }
   }

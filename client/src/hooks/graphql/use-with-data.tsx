@@ -96,7 +96,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
         });
         return;
       } else {
-        console.log("Unexpected error", err);
+        console.error("Unexpected error", err);
       }
     }
     if (loading) {
@@ -129,7 +129,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
         });
         return;
       } else {
-        console.log("Unexpected error", err);
+        console.error("Unexpected error", err);
       }
     }
   }
