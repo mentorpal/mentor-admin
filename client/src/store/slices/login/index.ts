@@ -15,6 +15,7 @@ import {
   sessionStorageStore,
 } from "store/local-storage";
 import { User } from "types";
+import axios from "axios";
 
 /** Store */
 
@@ -45,8 +46,12 @@ export const googleLogin = createAsyncThunk(
       const googleToken = await api.loginGoogle(accessToken);
       return await api.login(googleToken.accessToken);
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      if (axios.isAxiosError(err)) {
+        console.error(err?.response?.data);
+        return rejectWithValue(err?.response?.data);
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 );
@@ -63,8 +68,12 @@ export const userSawSplashScreen = createAsyncThunk(
         accessToken
       );
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      if (axios.isAxiosError(err)) {
+        console.error(err?.response?.data);
+        return rejectWithValue(err?.response?.data);
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 );
@@ -77,8 +86,12 @@ export const login = createAsyncThunk(
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(accessToken);
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      if (axios.isAxiosError(err)) {
+        console.error(err?.response?.data);
+        return rejectWithValue(err?.response?.data);
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 );
@@ -109,13 +122,15 @@ export const loginSlice = createSlice({
         state.loginStatus = LoginStatus.IN_PROGRESS;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+        state.user = action.payload?.user;
+        state.accessToken = action.payload?.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
-        sessionStorageStore(
-          ACTIVE_MENTOR_KEY,
-          action.payload.user.defaultMentor._id
-        );
+        if (action.payload) {
+          sessionStorageStore(
+            ACTIVE_MENTOR_KEY,
+            action.payload.user.defaultMentor._id
+          );
+        }
       })
       .addCase(login.rejected, (state) => {
         delete state.user;
@@ -127,8 +142,8 @@ export const loginSlice = createSlice({
         state.loginStatus = LoginStatus.IN_PROGRESS;
       })
       .addCase(googleLogin.fulfilled, (state, action) => {
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
+        state.user = action.payload?.user;
+        state.accessToken = action.payload?.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
       })
       .addCase(googleLogin.rejected, (state) => {
@@ -137,7 +152,7 @@ export const loginSlice = createSlice({
       })
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
       .addCase(userSawSplashScreen.fulfilled, (state, action) => {
-        if (state.user != undefined) {
+        if (state.user != undefined && action.payload != undefined) {
           state.user.firstTimeTracking.myMentorSplash =
             action.payload.myMentorSplash;
         }

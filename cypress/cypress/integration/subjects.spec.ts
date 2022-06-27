@@ -236,7 +236,16 @@ describe("Select Subjects", () => {
         mentor,
         {
           ...mentor,
-          defaultSubject: { _id: "background" },
+          defaultSubject: {
+            _id: "background",
+            name: "Background",
+            type: SubjectTypes.SUBJECT,
+            description: "",
+            isRequired: true,
+            categories: [],
+            topics: [],
+            questions: [],
+          },
           subjects: [
             ...mentor.subjects,
             {

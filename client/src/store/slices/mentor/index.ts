@@ -10,6 +10,7 @@ import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
+import axios from "axios";
 
 /** Store */
 
@@ -77,7 +78,12 @@ export const saveMentor = createAsyncThunk(
         );
         return editedData;
       } catch (err) {
-        return err.response.data;
+        if (axios.isAxiosError(err)) {
+          console.error(err.response?.data);
+          return rejectWithValue(err.response?.data);
+        } else {
+          console.log("Unexpected error", err);
+        }
       }
     }
   }
@@ -97,7 +103,12 @@ export const saveMentorSubjects = createAsyncThunk(
         // need to fetch the updated mentor because the questions/answers might have changed
         return api.fetchMentorById(state.login.accessToken, editedData._id);
       } catch (err) {
-        return err.response.data;
+        if (axios.isAxiosError(err)) {
+          console.error(err.response?.data);
+          return rejectWithValue(err.response?.data);
+        } else {
+          console.log("Unexpected error", err);
+        }
       }
     }
   }
@@ -133,7 +144,12 @@ export const saveThumbnail = createAsyncThunk(
         headers.uploadLambdaUrl
       );
     } catch (err) {
-      return err.response.data;
+      if (axios.isAxiosError(err)) {
+        console.error(err.response?.data);
+        return rejectWithValue(err.response?.data);
+      } else {
+        console.log("Unexpected error", err);
+      }
     }
   }
 );
@@ -144,11 +160,13 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
-    loadingInProgress: (state, action: PayloadAction<LoginState>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    loadingInProgress: (state: any, action: PayloadAction<LoginState>) => {
       state.mentorStatus = LoadingStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
     },
-    clearError: (state) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    clearError: (state: any) => {
       delete state.error;
     },
   },
@@ -219,3 +237,8 @@ export const mentorSlice = createSlice({
 export const { clearError } = mentorSlice.actions;
 
 export default mentorSlice.reducer;
+function rejectWithValue(err: Error): unknown {
+  throw new Error(
+    "Function not implemented from parameter: " + JSON.stringify(err)
+  );
+}

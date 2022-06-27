@@ -11,6 +11,7 @@ import {
   QuestionType,
   Subject,
   SubjectQuestion,
+  SubjectTypes,
 } from "./types";
 
 export function completeMentor(m: Partial<Mentor>): Mentor {
@@ -20,8 +21,11 @@ export function completeMentor(m: Partial<Mentor>): Mentor {
     name: m.name || "",
     firstName: m.firstName || "",
     title: m.title || "",
+    email: m.email || "",
+    thumbnail: m.thumbnail || "",
     mentorType: (m.mentorType || MentorType.VIDEO) as MentorType,
     lastTrainedAt: m.lastTrainedAt || "",
+    isDirty: m.isDirty || false,
     subjects: m.subjects || [],
     topics: m.topics || [],
     answers: m.answers || [],
@@ -33,6 +37,7 @@ export function completeQuestion(q: Partial<Question>): Question {
   return {
     ...q,
     _id: q._id || "",
+    clientId: q.clientId || "",
     question: q.question || "",
     name: q.name || "",
     type: q.type || QuestionType.QUESTION,
@@ -55,6 +60,8 @@ export function completeSubject(s: Partial<Subject>): Subject {
     ...s,
     _id: s._id || "",
     name: s.name || "",
+    type: s.type || SubjectTypes.SUBJECT,
+    isRequired: s.isRequired || false,
     description: s.description || "",
     categories: s.categories || [],
     topics: s.topics || [],
