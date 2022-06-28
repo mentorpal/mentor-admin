@@ -20,7 +20,7 @@ export const mentor: Mentor = {
   title: "The Original Clint",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
-  email: "clint@anderson.com",
+  email: "",
   thumbnail: "",
   isDirty: false,
   questions: [
@@ -38,51 +38,6 @@ export const mentor: Mentor = {
     },
   ],
   subjects: [
-    {
-      _id: "background",
-      name: "Background",
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      type: SubjectTypes.SUBJECT,
-      isRequired: true,
-      categories: [
-        {
-          id: "category",
-          name: "Category",
-          description: "A category",
-        },
-      ],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-          category: {
-            id: "category",
-            name: "Category",
-            description: "A category",
-          },
-        },
-        {
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "How old are you now?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-      ],
-    },
     {
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
