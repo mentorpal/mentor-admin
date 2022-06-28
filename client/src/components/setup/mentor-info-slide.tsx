@@ -24,19 +24,16 @@ export function MentorInfoSlide(props: {
   }
 
   useEffect(() => {
-    if (defaultsSet || !mentor) {
+    if (defaultsSet || isMentorLoading || !mentor) {
       return;
     }
     setDefaultsSet(true);
-    // TODO: only edit if something isn't
     editMentor({
       ...(!mentor.title ? { title: "Please enter your profession here" } : {}),
       ...(!mentor.name ? { name: userName } : {}),
       ...(!mentor.firstName ? { firstName: userName.split(" ")[0] } : {}),
     });
   }, [mentor]);
-
-  console.log(mentor);
 
   return (
     <Slide
@@ -45,6 +42,9 @@ export function MentorInfoSlide(props: {
       content={
         <div>
           <TextField
+            style={{
+              width: "90%",
+            }}
             required
             data-cy="first-name"
             label="First Name"
@@ -58,6 +58,9 @@ export function MentorInfoSlide(props: {
             className={classes.inputField}
           />
           <TextField
+            style={{
+              width: "90%",
+            }}
             required
             data-cy="name"
             label="Full Name"
@@ -71,6 +74,9 @@ export function MentorInfoSlide(props: {
             className={classes.inputField}
           />
           <TextField
+            style={{
+              width: "90%",
+            }}
             required
             data-cy="mentor-title"
             label="Job Title"
@@ -84,6 +90,9 @@ export function MentorInfoSlide(props: {
             className={classes.inputField}
           />
           <TextField
+            style={{
+              width: "90%",
+            }}
             data-cy="email"
             label="Email"
             type="email"
@@ -105,6 +114,7 @@ export function MentorInfoSlide(props: {
               />
             }
             label="Allow people to contact me"
+            style={{ width: "89%", alignSelf: "left" }}
           />
         </div>
       }

@@ -62,8 +62,8 @@ export const mentor: Mentor = {
       ],
     },
     {
-      _id: "repeat_after_me",
-      name: "Repeat After Me",
+      _id: "idle_and_initial_recordings",
+      name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
       isRequired: true,
       description: "These are miscellaneous phrases you'll be asked to repeat.",

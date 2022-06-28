@@ -12,6 +12,7 @@ import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export interface Config {
   googleClientId: string;
+  urlDocSetup: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
@@ -41,12 +42,17 @@ export interface UserAccessToken {
   expirationDate: string;
 }
 
+export interface FirstTimeTracking {
+  myMentorSplash: boolean;
+}
+
 export interface User {
   _id: string;
   name: string;
   email: string;
   userRole: UserRole;
   defaultMentor: Mentor;
+  firstTimeTracking: FirstTimeTracking;
 }
 
 export interface Mentor {
