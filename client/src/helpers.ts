@@ -109,7 +109,7 @@ export function loadSentry(): void {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function extractErrorMessageFromError(err: any): string {
+export function extractErrorMessageFromError(err: any | unknown): string {
   if (err instanceof Error) {
     return err.message;
   } else if (axios.isAxiosError(err)) {
