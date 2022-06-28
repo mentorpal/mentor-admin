@@ -1025,7 +1025,7 @@ describe("Record", () => {
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
-  it.only("upload button changes to process while an upload is in progress", () => {
+  it("upload button changes to process while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

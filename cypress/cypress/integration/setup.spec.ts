@@ -432,7 +432,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
 
-  it.only("shows select subjects slide", () => {
+  it("shows select subjects slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
@@ -634,7 +634,7 @@ describe("Setup", () => {
       );
       cy.get("textarea").should("have.attr", "disabled");
     });
-    cy.get("[data-cy=transcript-input").within(($input) => {
+    cy.get("[data-cy=transcript-input]").within(($input) => {
       cy.get("textarea").should("have.text", "");
       cy.get("textarea").should("not.have.attr", "disabled");
     });
