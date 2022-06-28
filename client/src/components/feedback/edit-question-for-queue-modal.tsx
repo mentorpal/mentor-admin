@@ -66,10 +66,10 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 function EditQuestionForQueueModal(props: {
-  handleClose?: () => void;
+  handleClose: () => void;
   open: boolean;
   mentor: Mentor;
-  userQuestion?: string;
+  userQuestion: string;
   accessToken: string;
 }): JSX.Element {
   const { handleClose, open, userQuestion, mentor, accessToken } = props;
@@ -93,10 +93,9 @@ function EditQuestionForQueueModal(props: {
       mentor: mentor._id,
     };
     // create newSubjectQuestion : to add to db
-    const emptyTopic: Topic = { id: "", name: "", description: "" };
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
-      topics: selectedTopic != undefined ? [selectedTopic] : [emptyTopic],
+      topics: selectedTopic != undefined ? [selectedTopic] : [],
       category: selectedCategory,
     };
     // add to DB
@@ -255,7 +254,8 @@ function EditQuestionForQueueModal(props: {
                   component="span"
                   disabled={
                     selectedSubject == undefined ||
-                    selectedCategory == undefined
+                    selectedCategory == undefined ||
+                    !customQuestion
                   }
                 >
                   OK

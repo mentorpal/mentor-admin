@@ -139,7 +139,7 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
-  
+
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
       return;
@@ -279,14 +279,12 @@ function HomePage(props: {
         </Select>
       </div>
 
-
-
       <List
-      data-cy="queue-block"
-      style={{
-        flex: "auto",
-        backgroundColor: "#eee",
-      }}
+        data-cy="queue-block"
+        style={{
+          flex: "auto",
+          backgroundColor: "#eee",
+        }}
       >
         {reviewAnswerState.getBlocks().map((b, i) => (
           <ListItem key={b.name}>
@@ -303,8 +301,6 @@ function HomePage(props: {
           </ListItem>
         ))}
       </List>
-
-
 
       <List
         data-cy="recording-blocks"
@@ -329,9 +325,6 @@ function HomePage(props: {
           </ListItem>
         ))}
       </List>
-
-
-
 
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>

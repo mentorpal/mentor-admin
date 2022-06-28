@@ -164,8 +164,8 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
-  openModal: boolean;
-  setOpenModal: (openModal: boolean) => void;
+  customQuestionModalOpen: boolean;
+  setCustomQuestionModalOpen: (customQuestionModalOpen: boolean) => void;
   mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
@@ -176,8 +176,8 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
-    openModal,
-    setOpenModal,
+    customQuestionModalOpen,
+    setCustomQuestionModalOpen,
     mentor,
     accessToken,
     feedback,
@@ -199,8 +199,8 @@ function FeedbackItem(props: {
       setQueueList(
         await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
       );
-    } else if (selectedAnswerID == undefined || selectedAnswerID == "") {
-      setOpenModal(true);
+    } else if (!selectedAnswerID) {
+      setCustomQuestionModalOpen(true);
     } else {
       setQueueList(
         await addQuestionToRecordQueue(selectedAnswerID, accessToken)
@@ -209,7 +209,7 @@ function FeedbackItem(props: {
   }
 
   const handleClose = () => {
-    setOpenModal(false);
+    setCustomQuestionModalOpen(false);
   };
 
   // TODO: MOVE THIS TO A HOOK
@@ -303,16 +303,16 @@ function FeedbackItem(props: {
               <CloseIcon />
             </IconButton>
 
-            {accessToken ? (
+            {accessToken && selectedAnswerID ? (
               <Button
                 data-cy="queue-btn"
                 color="primary"
                 disabled={selectedAnswerStatus == Status.COMPLETE}
                 onClick={() => {
-                  queueButtonClicked(selectedAnswerID || "", accessToken);
+                  queueButtonClicked(selectedAnswerID, accessToken);
                 }}
               >
-                {queueList?.includes(selectedAnswerID || "")
+                {queueList.includes(selectedAnswerID)
                   ? "Remove from Queue"
                   : "Add to Queue"}
               </Button>
@@ -321,7 +321,7 @@ function FeedbackItem(props: {
             {/* {modal} */}
             <EditQuestionForQueueModal
               handleClose={handleClose}
-              open={openModal}
+              open={customQuestionModalOpen}
               userQuestion={feedback.question}
               mentor={mentor}
               accessToken={accessToken || ""}
@@ -358,7 +358,7 @@ function FeedbackPage(): JSX.Element {
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
-  const Mentor = getData((state) => state.data);
+  const mentor = getData((state) => state.data);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
 
@@ -382,7 +382,8 @@ function FeedbackPage(): JSX.Element {
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
 
-  const [openModal, setOpenModal] = useState<boolean>(false); // condition for opening modal
+  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
+    useState<boolean>(false); // condition for opening modal
 
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
@@ -569,9 +570,9 @@ function FeedbackPage(): JSX.Element {
                     onUpdated={reloadFeedback}
                     queueList={queueList}
                     setQueueList={setQueueList}
-                    setOpenModal={setOpenModal}
-                    openModal={openModal}
-                    mentor={Mentor}
+                    setCustomQuestionModalOpen={setCustomQuestionModalOpen}
+                    customQuestionModalOpen={customQuestionModalOpen}
+                    mentor={mentor}
                   />
                 ))}
               </TableBody>
