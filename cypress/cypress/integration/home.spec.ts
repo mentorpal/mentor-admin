@@ -707,7 +707,7 @@ describe("My Mentor Page", () => {
       });
     });
 
-    it("if idle not complete, setup goes to finish it", () => {
+    it.only("if idle not complete, setup goes to finish it", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [setup3],
@@ -720,7 +720,10 @@ describe("My Mentor Page", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/setup");
       });
-      cy.location("search").should("contain", "?i=6");
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
+        "Idle and Initial Recordings"
+      );
     });
 
     // TODO: This one ONLY fails in GHA
