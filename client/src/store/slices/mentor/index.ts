@@ -5,12 +5,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
+import { extractErrorMessageFromError } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
 import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
-import { handleAxiosError } from "helpers";
 
 /** Store */
 
@@ -78,7 +78,7 @@ export const saveMentor = createAsyncThunk(
         );
         return editedData;
       } catch (err) {
-        handleAxiosError(err);
+        throw new Error(extractErrorMessageFromError(err));
       }
     }
   }
@@ -98,7 +98,7 @@ export const saveMentorSubjects = createAsyncThunk(
         // need to fetch the updated mentor because the questions/answers might have changed
         return api.fetchMentorById(state.login.accessToken, editedData._id);
       } catch (err) {
-        handleAxiosError(err);
+        throw new Error(extractErrorMessageFromError(err));
       }
     }
   }
@@ -134,7 +134,7 @@ export const saveThumbnail = createAsyncThunk(
         headers.uploadLambdaUrl
       );
     } catch (err) {
-      handleAxiosError(err);
+      throw new Error(extractErrorMessageFromError(err));
     }
   }
 );
