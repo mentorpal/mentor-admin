@@ -24,6 +24,7 @@ import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
 
+//order of the slides
 export enum SetupStepType {
   WELCOME = 0,
   MENTOR_INFO = 1,
@@ -36,15 +37,35 @@ export enum SetupStepType {
   FINISH_SETUP = 8,
 }
 
+//order of the tooltips
+export enum TooltipStep {
+  PROFILE = 0,
+  STATUS = 1,
+  CATEGORIES = 2,
+  RECOMMENDER = 3,
+  SAVE = 4,
+  BUILD = 5,
+  PREVIEW = 6,
+}
+
 interface SetupStep {
   type: SetupStepType;
   complete: boolean;
 }
 
+interface Tooltip {
+  type: TooltipStep;
+  complete: boolean;
+}
+
 interface UseWithSetup {
   setupStatus?: SetupStatus;
+
   setupStep: number;
   setupSteps: SetupStep[];
+  tooltipStep: number;
+  tooltipsSteps: TooltipStep[];
+
   idleTipsVideoUrl: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
@@ -61,11 +82,16 @@ interface UseWithSetup {
   toStep: (i: number) => void;
   clearError: () => void;
   navigateToMissingSetup: () => void;
+  addToIdxTooltip: () => void;
 }
 
 export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
+  const [idxTooltip, setIdxTooltip] = useState<number>(
+    search?.i ? parseInt(search.i) : 0
+  );
+  const [stepsTooltip, setStepsTooltip] = useState<TooltipStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
   const {
     getData,
@@ -143,6 +169,16 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       isSetupComplete,
     });
 
+    const order: Tooltip[] = [
+      { type: TooltipStep.PROFILE, complete: true },
+      { type: TooltipStep.STATUS, complete: true },
+      { type: TooltipStep.CATEGORIES, complete: true },
+      { type: TooltipStep.RECOMMENDER, complete: true },
+      { type: TooltipStep.SAVE, complete: true },
+      { type: TooltipStep.BUILD, complete: true },
+      { type: TooltipStep.PREVIEW, complete: true },
+    ]; // setStepsTooltip();
+
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
@@ -177,6 +213,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         ? Number(idx) + ((delta + steps.length) % steps.length)
         : 0
     );
+  }
+
+  function addToIdxTooltip(): void {
+    setIdxTooltip(idxTooltip + 1);
   }
 
   function nextStep(): void {
@@ -241,6 +281,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    tooltipStep: idxTooltip,
+    tooltipsSteps: stepsTooltip,
     idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
     classifierLambdaEndpoint:
       configState.config?.classifierLambdaEndpoint || "",
@@ -259,5 +301,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     toStep,
     clearError,
     navigateToMissingSetup,
+    addToIdxTooltip,
   };
 }

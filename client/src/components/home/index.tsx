@@ -38,7 +38,11 @@ import {
   QuestionEdits,
   useWithReviewAnswerState,
 } from "hooks/graphql/use-with-review-answer-state";
-import { useWithSetup } from "hooks/graphql/use-with-setup";
+import {
+  TooltipStep,
+  useWithSetup,
+  addToIdxTooltip,
+} from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";

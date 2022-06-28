@@ -169,7 +169,7 @@ export default function RecommendedActionButton(props: {
                           <CloseIcon />
                         </IconButton>
                         <Typography color="inherit" align="center">
-                        Recommender
+                          Recommender
                         </Typography>
                         <p style={{ textAlign: "center" }}>
                           More description about what this should do.
