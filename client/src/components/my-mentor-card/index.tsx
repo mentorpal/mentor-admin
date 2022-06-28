@@ -20,16 +20,7 @@ import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
-  openProfile: boolean;
-  setOpenProfile: (active: boolean) => void;
-  openStatus: boolean;
-  setOpenStatus: (active: boolean) => void;
-  openCategories: boolean;
-  setOpenCategories: (active: boolean) => void;
-  openRecommender: boolean;
-  setOpenRecommender: (active: boolean) => void;
-  openSave: boolean;
-  setOpenSave: (acitve: boolean) => void;
+  incrementTooltip: () => void;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -70,9 +61,7 @@ export default function MyMentorCard(props: {
                 handleClose={handleClose}
                 editMentor={editMentor}
                 open={open}
-                openProfile={props.openProfile}
-                setOpenProfile={props.setOpenProfile}
-                setOpenStatus={props.setOpenStatus}
+                incrementTooltip={props.incrementTooltip}
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
               />
@@ -81,14 +70,7 @@ export default function MyMentorCard(props: {
               <MentorStatus
                 continueAction={props.continueAction}
                 updateThumbnail={updateThumbnail}
-                openStatus={props.openStatus}
-                setOpenStatus={props.setOpenStatus}
-                openCategories={props.openCategories}
-                setOpenCategories={props.setOpenCategories}
-                openRecommender={props.openRecommender}
-                setOpenRecommender={props.setOpenRecommender}
-                openSave={props.openSave}
-                setOpenSave={props.setOpenSave}
+                incrementTooltip={props.incrementTooltip}
               />
             </Grid>
           </Grid>

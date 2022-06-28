@@ -38,11 +38,7 @@ import {
   QuestionEdits,
   useWithReviewAnswerState,
 } from "hooks/graphql/use-with-review-answer-state";
-import {
-  TooltipStep,
-  useWithSetup,
-  addToIdxTooltip,
-} from "hooks/graphql/use-with-setup";
+import { useWithSetup } from "hooks/graphql/use-with-setup";
 import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -100,6 +96,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+//order of the tooltips
+export enum TooltipStep {
+  PROFILE = 0,
+  STATUS = 1,
+  CATEGORIES = 2,
+  RECOMMENDER = 3,
+  SAVE = 4,
+  BUILD = 5,
+  PREVIEW = 6,
+}
+
 interface ConfirmSave {
   message: string;
   callback: () => void;
@@ -128,20 +135,14 @@ function HomePage(props: {
     isLoading: mentorLoading,
     error: mentorError,
   } = useActiveMentor();
+
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
   const defaultMentor = props.user.defaultMentor._id;
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
-  // all the hooks used for the tooltips
-  const [openProfile, setOpenProfile] = React.useState<boolean>(false);
-  const [openStatus, setOpenStatus] = React.useState<boolean>(false);
-  const [openCategories, setOpenCategories] = React.useState<boolean>(false);
-  const [openRecommender, setOpenRecommender] = React.useState<boolean>(false);
-  const [openSave, setOpenSave] = React.useState<boolean>(false);
-  const [openBuild, setOpenBuild] = React.useState<boolean>(false);
-  const [openPreview, setOpenPreview] = React.useState<boolean>(false);
+  const [idxTooltip, setIdxTooltip] = useState<number>(0);
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -236,31 +237,35 @@ function HomePage(props: {
     }
   }
 
+  function incrementTooltip() {
+    setIdxTooltip(idxTooltip + 1);
+  }
+
   function closeDialog() {
     setLocalHasSeenSplash(true);
     userSawSplashScreen(props.accessToken);
-    setOpenProfile(true);
+    incrementTooltip();
   }
 
-  function closeCategoriesTooltip() {
-    setOpenCategories(!openCategories);
-    setOpenRecommender(true);
-  }
+  // function closeCategoriesTooltip() {
+  //   setOpenCategories(!openCategories);
+  //   setOpenRecommender(true);
+  // }
 
-  function closeSaveTooltip() {
-    setOpenSave(!openSave);
-    setOpenBuild(true);
-  }
+  // function closeSaveTooltip() {
+  //   setOpenSave(!openSave);
+  //   setOpenBuild(true);
+  // }
 
-  function closeBuildTooltip() {
-    setOpenBuild(!openBuild);
-    setOpenPreview(true);
-  }
+  // function closeBuildTooltip() {
+  //   setOpenBuild(!openBuild);
+  //   setOpenPreview(true);
+  // }
 
-  function closePreviewTooltip() {
-    setOpenPreview(!openPreview);
-    userSawTooltips(props.accessToken);
-  }
+  // function closePreviewTooltip() {
+  //   setOpenPreview(!openPreview);
+  //   userSawTooltips(props.accessToken);
+  // }
 
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
@@ -287,16 +292,7 @@ function HomePage(props: {
         <MyMentorCard
           continueAction={() => startTraining(mentorId)}
           useMentor={useMentor}
-          openProfile={openProfile}
-          setOpenProfile={setOpenProfile}
-          openStatus={openStatus}
-          setOpenStatus={setOpenStatus}
-          openCategories={openCategories}
-          setOpenCategories={setOpenCategories}
-          openRecommender={openRecommender}
-          setOpenRecommender={setOpenRecommender}
-          openSave={openSave}
-          setOpenSave={setOpenSave}
+          incrementTooltip={incrementTooltip}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab

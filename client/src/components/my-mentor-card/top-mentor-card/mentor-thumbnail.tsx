@@ -13,6 +13,7 @@ import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
+import { TooltipStep } from ".home/index";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -57,11 +58,9 @@ function MentorThumbnail(props: {
   handleClose: () => void;
   editMentor: (edits: Partial<Mentor>) => void;
   open: boolean;
-  openProfile: boolean;
-  setOpenProfile: (active: boolean) => void;
-  setOpenStatus: (active: boolean) => void;
   thumbnail: string;
   updateThumbnail: (file: File) => void;
+  incrementTooltip: () => void;
 }): JSX.Element {
   const {
     handleOpen,
@@ -69,20 +68,13 @@ function MentorThumbnail(props: {
     handleClose,
     editMentor,
     open,
-    openProfile,
-    setOpenProfile,
-    setOpenStatus,
     thumbnail,
     updateThumbnail,
+    incrementTooltip,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
-
-  function closeProfileTooltip() {
-    setOpenProfile(!openProfile);
-    setOpenStatus(true);
-  }
 
   if (!mentorId || !editedMentor) {
     return <div />;
@@ -121,8 +113,8 @@ function MentorThumbnail(props: {
               <ColorTooltip
                 data-cy="profile-tooltip"
                 interactive={true}
-                open={openProfile}
-                onClose={() => setOpenProfile(false)}
+                open={TooltipStep.PROFILE}
+                onClose={() => incrementTooltip}
                 disableHoverListener
                 arrow
                 placement="right"
@@ -135,7 +127,7 @@ function MentorThumbnail(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
-                      onClick={closeProfileTooltip}
+                      onClick={incrementTooltip}
                     >
                       <CloseIcon />
                     </IconButton>

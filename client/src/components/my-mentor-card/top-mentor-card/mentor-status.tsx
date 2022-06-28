@@ -11,6 +11,7 @@ import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@material-ui/icons/Close";
+import { TooltipStep } from ".home/index";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -21,16 +22,9 @@ const ColorTooltip = withStyles({
 function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
-  openStatus: boolean;
-  setOpenStatus: (active: boolean) => void;
-  openCategories: boolean;
-  setOpenCategories: (active: boolean) => void;
-  openRecommender: boolean;
-  setOpenRecommender: (active: boolean) => void;
-  openSave: boolean;
-  setOpenSave: (active: boolean) => void;
+  incrementTooltip: () => void;
 }): JSX.Element {
-  const { openStatus, setOpenStatus, setOpenCategories } = props;
+  const { incrementTooltip } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -39,11 +33,6 @@ function MentorStatus(props: {
   );
 
   const leftColumnAlign = "left";
-
-  function closeStatusTooltip() {
-    setOpenStatus(!openStatus);
-    setOpenCategories(true);
-  }
 
   const currentStatus = (
     <Grid
@@ -92,9 +81,7 @@ function MentorStatus(props: {
       <RecommendedActionButton
         setThumbnail={updateThumbnail}
         continueAction={continueAction}
-        openRecommender={props.openRecommender}
-        setOpenRecommender={props.setOpenRecommender}
-        setOpenSave={props.setOpenSave}
+        incrementTooltip={incrementTooltip}
       />
     </Grid>
   );
@@ -106,8 +93,8 @@ function MentorStatus(props: {
           <ColorTooltip
             data-cy="status-tooltip"
             interactive={true}
-            open={openStatus}
-            onClose={() => setOpenStatus(false)}
+            open={TooltipStep.STATUS}
+            onClose={() => incrementTooltip}
             disableHoverListener
             arrow
             //contains all text inside tooltip
@@ -119,7 +106,7 @@ function MentorStatus(props: {
                   size="small"
                   text-align="right"
                   align-content="right"
-                  onClick={closeStatusTooltip}
+                  onClick={incrementTooltip}
                 >
                   <CloseIcon />
                 </IconButton>
