@@ -26,8 +26,12 @@ export default function RecommendedActionButton(props: {
   setOpenSave: (active: boolean) => void;
 }): JSX.Element {
   const { openRecommender, setOpenRecommender, setOpenSave } = props;
-  const [recommendedAction, skipRecommendation, recListLength] =
-    UseWithRecommendedAction(props.continueAction);
+  const [
+    recommendedAction,
+    skipRecommendation,
+    recListLength,
+    questionsLoading,
+  ] = UseWithRecommendedAction(props.continueAction);
   const { getData } = useActiveMentor();
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
@@ -42,6 +46,10 @@ export default function RecommendedActionButton(props: {
   function closeRecommenderTooltip() {
     setOpenRecommender(!openRecommender);
     setOpenSave(true);
+  }
+
+  if (questionsLoading) {
+    return <></>;
   }
 
   return (
