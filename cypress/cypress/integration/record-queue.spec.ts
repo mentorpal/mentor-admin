@@ -10,7 +10,7 @@ import mentor from "../fixtures/mentor/clint_new";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
-    it("dropdown un-recorded questions are greyed out", () => {
+    it.only("dropdown un-recorded questions are greyed out", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor,

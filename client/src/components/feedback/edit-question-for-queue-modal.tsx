@@ -77,8 +77,8 @@ function EditQuestionForQueueModal(props: {
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  const [selectedTopic, setSelectedTopic] = useState<Topic>();
   const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
+  const selectedTopics: Topic[] = [];
 
   function okButtonClicked(customQuestion: string) {
     // create new question
@@ -94,7 +94,7 @@ function EditQuestionForQueueModal(props: {
     // create newSubjectQuestion : to add to db
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
-      topics: selectedTopic,
+      topics: selectedTopics,
       category: selectedCategory,
     };
     // add to DB
@@ -214,10 +214,11 @@ function EditQuestionForQueueModal(props: {
                     <Autocomplete
                       // an autocomplete kwd-style area for "topics"
                       data-cy="topic-selector"
+                      //multiple
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
                       onChange={(e, v) => {
-                        setSelectedTopic(v || undefined);
+                        if(!v && v != null) {selectedTopics.push(v);}
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
