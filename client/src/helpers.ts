@@ -108,6 +108,7 @@ export function loadSentry(): void {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractErrorMessageFromError(err: any): string {
   if (err instanceof Error) {
     return err.message;
