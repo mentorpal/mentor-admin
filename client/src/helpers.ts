@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { CLIENT_ENDPOINT } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
+import axios from 'axios'
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -105,4 +106,19 @@ export function loadSentry(): void {
     tracesSampleRate: process.env.STAGE == "cf" ? 0.2 : 0.0,
     environment: process.env.STAGE,
   });
+}
+
+export function extractErrorMessageFromError(err: any): string {
+  if (err instanceof Error) {
+    return err.message;
+  } else if (axios.isAxiosError(err)) {
+    return err.response?.data || err.message;
+  } else {
+    try {
+      const error = JSON.stringify(err);
+      return error;
+    } catch (err) {
+      return "Cannot stringify error, unknown error structure";
+    }
+  }
 }

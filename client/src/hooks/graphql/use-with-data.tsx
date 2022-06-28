@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { useEffect, useReducer, useState } from "react";
-import { equals } from "helpers";
+import { equals, extractErrorMessageFromError } from "helpers";
 import {
   LoadingStatusType,
   LoadingError,
@@ -13,6 +13,7 @@ import {
   LoadingState,
   LoadingActionType,
 } from "./loading-reducer";
+import axios from "axios";
 
 const initialState: LoadingState = {
   status: LoadingStatusType.LOADING,
@@ -84,20 +85,19 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     if (actionInProgress || !editedData || !update) {
       return;
     }
+
     dispatch({ type: LoadingActionType.SAVING_STARTED });
     try {
       await update.action(editedData);
     } catch (err) {
-      if (err instanceof Error) {
-        console.error(err);
-        dispatch({
-          type: LoadingActionType.SAVING_FAILED,
-          payload: { message: "Failed to save", error: err.message },
-        });
-        return;
-      } else {
-        console.error("Unexpected error", err);
-      }
+      dispatch({
+        type: LoadingActionType.SAVING_FAILED,
+        payload: {
+          message: "Failed to save",
+          error: extractErrorMessageFromError(err),
+        },
+      });
+      return;
     }
     if (loading) {
       return;
