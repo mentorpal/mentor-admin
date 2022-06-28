@@ -1201,7 +1201,7 @@ describe("Record", () => {
     cy.get("[data-cy=uploading-widget]").should("be.visible");
   });
 
-  it("tapping an item from active uploads (via graphql query) takes you to that item", () => {
+  it("Tapping an item from active uploads (via graphql query) takes you to that item", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
