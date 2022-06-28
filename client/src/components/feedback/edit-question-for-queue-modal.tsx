@@ -33,7 +33,6 @@ import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
 import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
-import TopicsList from "components/author/topics-list";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -214,11 +213,13 @@ function EditQuestionForQueueModal(props: {
                     <Autocomplete
                       // an autocomplete kwd-style area for "topics"
                       data-cy="topic-selector"
-                      //multiple
+                      multiple
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
                       onChange={(e, v) => {
-                        if(!v && v != null) {selectedTopics.push(v);}
+                        if (!v && v != null) {
+                          selectedTopics.push(v);
+                        }
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
@@ -230,7 +231,11 @@ function EditQuestionForQueueModal(props: {
                         </Typography>
                       )}
                       renderInput={(params) => (
-                        <TextField {...params} variant="outlined" />
+                        <TextField
+                          {...params}
+                          variant="outlined"
+                          label="Select topics"
+                        />
                       )}
                     ></Autocomplete>
                   </div>

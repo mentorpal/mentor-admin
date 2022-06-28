@@ -303,16 +303,16 @@ function FeedbackItem(props: {
               <CloseIcon />
             </IconButton>
 
-            {accessToken && selectedAnswerID ? (
+            {accessToken ? (
               <Button
                 data-cy="queue-btn"
                 color="primary"
                 disabled={selectedAnswerStatus == Status.COMPLETE}
                 onClick={() => {
-                  queueButtonClicked(selectedAnswerID, accessToken);
+                  queueButtonClicked(selectedAnswerID || "", accessToken);
                 }}
               >
-                {queueList.includes(selectedAnswerID)
+                {queueList.includes(selectedAnswerID || "")
                   ? "Remove from Queue"
                   : "Add to Queue"}
               </Button>
