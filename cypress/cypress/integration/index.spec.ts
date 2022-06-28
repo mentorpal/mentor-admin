@@ -86,12 +86,17 @@ describe("Index page", () => {
     });
   });
 
-  it("if logged in and setup complete, show home page", () => {
+  it.only("if logged in and setup complete, show home page", () => {
     cyMockDefault(cy, {
       mentor: clint,
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            mentorRecordQueue: [],
+          },
+        }),
       ],
     });
     cy.visit("/");

@@ -40,13 +40,14 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status } from "types";
+import { User, Subject, UserRole, Status, Answer } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import QueueBlockItem from "./queue-block";
 import { fetchMentorRecordQueue } from "api";
+import useQuestions from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -132,6 +133,11 @@ function HomePage(props: {
   );
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
+  );
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
@@ -286,20 +292,15 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-        {reviewAnswerState.getBlocks().map((b, i) => (
-          <ListItem key={b.name}>
+          <ListItem>
             <QueueBlockItem
-              mentorId={mentorId || ""}
               classes={classes}
-              block={b}
-              getAnswers={reviewAnswerState.getAnswers}
-              getQuestions={reviewAnswerState.getQuestions}
-              recordAnswers={recordAnswers}
-              recordAnswer={recordAnswer}
-              editQuestion={reviewAnswerState.editQuestion}
+              queueIDList={queueList}
+              mentorQuestions={mentorQuestions}
+              onRecordAll={saveBeforeCallback}
+              onRecordOne={saveBeforeCallback}
             />
           </ListItem>
-        ))}
       </List>
 
       <List
