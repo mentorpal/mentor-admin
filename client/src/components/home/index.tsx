@@ -247,20 +247,7 @@ function HomePage(props: {
     incrementTooltip();
   }
 
-  // function closeCategoriesTooltip() {
-  //   setOpenCategories(!openCategories);
-  //   setOpenRecommender(true);
-  // }
 
-  // function closeSaveTooltip() {
-  //   setOpenSave(!openSave);
-  //   setOpenBuild(true);
-  // }
-
-  // function closeBuildTooltip() {
-  //   setOpenBuild(!openBuild);
-  //   setOpenPreview(true);
-  // }
 
   // function closePreviewTooltip() {
   //   setOpenPreview(!openPreview);
@@ -309,8 +296,8 @@ function HomePage(props: {
 
         <ColorTooltip
           interactive={true}
-          open={openCategories}
-          onClose={() => setOpenCategories(false)}
+          open={TooltipStep.CATEGORIES}
+          onClose={() => incrementTooltip}
           disableHoverListener
           arrow
           placement="left"
@@ -323,7 +310,7 @@ function HomePage(props: {
                 size="small"
                 text-align="right"
                 align-content="right"
-                onClick={closeCategoriesTooltip}
+                onClick={incrementTooltip}
               >
                 <CloseIcon />
               </IconButton>
@@ -425,8 +412,8 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="save-tooltip"
               interactive={true}
-              open={openSave}
-              onClose={closeSaveTooltip}
+              open={TooltipsStep.SAVE}
+              onClose={incrementTooltip}
               disableHoverListener
               arrow
               title={
@@ -437,7 +424,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    onClick={closeSaveTooltip}
+                    onClick={incrementTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -476,8 +463,8 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}
-              open={openBuild}
-              onClose={closeBuildTooltip}
+              open={TooltipSetup.BUILD}
+              onClose={incrementTooltip}
               disableHoverListener
               arrow
               title={
@@ -488,7 +475,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    onClick={closeBuildTooltip}
+                    onClick={incrementTooltip}
                   >
                     <CloseIcon />
                   </IconButton>
@@ -528,8 +515,8 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="preview-tooltip"
               interactive={true}
-              open={openPreview}
-              onClose={closePreviewTooltip}
+              open={TooltipSteps.PREVIEW}
+              onClose={incrementTooltip}
               disableHoverListener
               arrow
               title={
@@ -540,7 +527,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    onClick={closePreviewTooltip}
+                    onClick={incrementTooltip}
                   >
                     <CloseIcon />
                   </IconButton>

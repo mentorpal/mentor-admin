@@ -13,7 +13,7 @@ import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
-import { TooltipStep } from ".home/index";
+import { TooltipStep } from "/home";
 
 const ColorTooltip = withStyles({
   tooltip: {

@@ -18,14 +18,13 @@ import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { UseWithRecommendedAction } from "../../hooks/graphql/use-with-recommended-action";
 import CloseIcon from "@material-ui/icons/Close";
+import { TooltipStep } from "components/home";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
-  openRecommender: boolean;
-  setOpenRecommender: (active: boolean) => void;
-  setOpenSave: (active: boolean) => void;
+  incrementTooltip: () => void;
 }): JSX.Element {
-  const { openRecommender, setOpenRecommender, setOpenSave } = props;
+  const { incrementTooltip } = props;
   const [
     recommendedAction,
     skipRecommendation,
@@ -42,11 +41,6 @@ export default function RecommendedActionButton(props: {
       backgroundColor: "secondary",
     },
   })(Tooltip);
-
-  function closeRecommenderTooltip() {
-    setOpenRecommender(!openRecommender);
-    setOpenSave(true);
-  }
 
   if (questionsLoading) {
     return <></>;
@@ -153,8 +147,8 @@ export default function RecommendedActionButton(props: {
 
                   <ColorTooltip
                     interactive={true}
-                    open={openRecommender}
-                    onClose={closeRecommenderTooltip}
+                    open={TooltipStep.RECOMMENDER}
+                    onClose={incrementTooltip}
                     disableHoverListener
                     arrow
                     title={
@@ -164,7 +158,7 @@ export default function RecommendedActionButton(props: {
                           size="small"
                           text-align="right"
                           align-content="right"
-                          onClick={closeRecommenderTooltip}
+                          onClick={incrementTooltip}
                         >
                           <CloseIcon />
                         </IconButton>
@@ -221,8 +215,8 @@ export default function RecommendedActionButton(props: {
               <ColorTooltip
                 data-cy="recommender-tooltip"
                 interactive={true}
-                open={openRecommender}
-                onClose={closeRecommenderTooltip}
+                open={TooltipStep.RECOMMENDER}
+                onClose={incrementTooltip}
                 disableHoverListener
                 arrow
                 title={
@@ -233,7 +227,7 @@ export default function RecommendedActionButton(props: {
                       size="small"
                       text-align="right"
                       align-content="right"
-                      onClick={closeRecommenderTooltip}
+                      onClick={incrementTooltip}
                     >
                       <CloseIcon />
                     </IconButton>
