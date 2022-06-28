@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { CLIENT_ENDPOINT } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
-import axios from 'axios'
+import axios from "axios";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;

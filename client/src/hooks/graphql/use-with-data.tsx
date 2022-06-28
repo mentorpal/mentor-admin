@@ -13,7 +13,6 @@ import {
   LoadingState,
   LoadingActionType,
 } from "./loading-reducer";
-import axios from "axios";
 
 const initialState: LoadingState = {
   status: LoadingStatusType.LOADING,
@@ -121,16 +120,14 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
       setEditedData(undefined);
       return updated;
     } catch (err) {
-      if (err instanceof Error) {
-        console.error(err);
-        dispatch({
-          type: LoadingActionType.SAVING_FAILED,
-          payload: { message: "Failed to save", error: err.message },
-        });
-        return;
-      } else {
-        console.error("Unexpected error", err);
-      }
+      dispatch({
+        type: LoadingActionType.SAVING_FAILED,
+        payload: {
+          message: "Failed to save",
+          error: extractErrorMessageFromError(err),
+        },
+      });
+      return;
     }
   }
 
