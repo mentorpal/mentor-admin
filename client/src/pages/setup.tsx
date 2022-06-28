@@ -108,6 +108,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    docSetupUrl,
     idleTipsVideoUrl,
     mentor,
     isLoading,
@@ -137,6 +138,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key="welcome"
             classes={classes}
             userName={props.user.name}
+            docSetupUrl={docSetupUrl}
           />
         );
       case SetupStepType.MENTOR_INFO:

@@ -73,6 +73,7 @@ export function cySetup(cy) {
 
 export interface Config {
   googleClientId: string;
+  urlDocSetup: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
@@ -81,6 +82,7 @@ export interface Config {
 
 export const CONFIG_DEFAULT: Config = {
   googleClientId: "fake-google-client-id",
+  urlDocSetup: "",
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "https://classifierendpoint.com/classifier",
