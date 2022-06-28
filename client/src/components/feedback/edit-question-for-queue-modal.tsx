@@ -76,10 +76,10 @@ function EditQuestionForQueueModal(props: {
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  const [selectedTopic, setSelectedTopic] = useState<Topic>();
   const [customQuestion, setCustomQuestion] = useState<string>(
     userQuestion || ""
   );
+  const selectedTopic: Topic[] = [];
 
   function okButtonClicked(customQuestion: string) {
     // create new question
@@ -95,7 +95,7 @@ function EditQuestionForQueueModal(props: {
     // create newSubjectQuestion : to add to db
     const newSubjectQuestion: SubjectQuestionGQL = {
       question: newQuestion,
-      topics: selectedTopic != undefined ? [selectedTopic] : [],
+      topics: selectedTopic,
       category: selectedCategory,
     };
     // add to DB
@@ -220,7 +220,7 @@ function EditQuestionForQueueModal(props: {
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
                       onChange={(e, v) => {
-                        setSelectedTopic(v || undefined);
+                        if (v != null) {selectedTopic.push(v)};
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
