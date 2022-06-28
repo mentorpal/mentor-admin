@@ -218,7 +218,7 @@ function RecordPage(props: {
     return markdown;
   }
 
-  function updateMarkdown(markdown: string) {
+  function updateTranscriptWithMarkdown(markdown: string) {
     recordState.editAnswer({ transcript: markdown });
   }
 
@@ -328,7 +328,7 @@ function RecordPage(props: {
           onEditorStateChange={(editorState: EditorState) => {
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
-            updateMarkdown(markdown);
+            updateTranscriptWithMarkdown(markdown);
             setEditorState(editorState);
           }}
           editorState={editorState}
