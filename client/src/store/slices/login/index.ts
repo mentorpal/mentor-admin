@@ -15,7 +15,7 @@ import {
   sessionStorageStore,
 } from "store/local-storage";
 import { User } from "types";
-import { handleAxiosError } from "helpers";
+import { extractErrorMessageFromError } from "helpers";
 
 /** Store */
 
@@ -46,7 +46,7 @@ export const googleLogin = createAsyncThunk(
       const googleToken = await api.loginGoogle(accessToken);
       return await api.login(googleToken.accessToken);
     } catch (err) {
-      handleAxiosError(err);
+      throw new Error(extractErrorMessageFromError(err));
     }
   }
 );
@@ -63,7 +63,7 @@ export const userSawSplashScreen = createAsyncThunk(
         accessToken
       );
     } catch (err) {
-      handleAxiosError(err);
+      throw new Error(extractErrorMessageFromError(err));
     }
   }
 );
@@ -76,7 +76,7 @@ export const login = createAsyncThunk(
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(accessToken);
     } catch (err) {
-      handleAxiosError(err);
+      throw new Error(extractErrorMessageFromError(err));
     }
   }
 );
@@ -107,10 +107,10 @@ export const loginSlice = createSlice({
         state.loginStatus = LoginStatus.IN_PROGRESS;
       })
       .addCase(login.fulfilled, (state, action) => {
-        state.user = action.payload?.user;
-        state.accessToken = action.payload?.accessToken;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
-        if (action.payload?.user) {
+        if (action.payload.user) {
           sessionStorageStore(
             ACTIVE_MENTOR_KEY,
             action.payload.user.defaultMentor._id
