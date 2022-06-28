@@ -1675,6 +1675,10 @@ describe("Record", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
+    cy.on("uncaught:exception", (err) => {
+      expect(err.message).to.include("something about the error");
+      return false;
+    });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
     // video recorder showing
