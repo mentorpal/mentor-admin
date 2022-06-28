@@ -23,11 +23,97 @@ import {
 } from "../fixtures/mentor";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, JobState, SubjectTypes } from "../support/types";
+import {
+  MentorType,
+  JobState,
+  SubjectTypes,
+  QuestionType,
+  UtteranceName,
+} from "../support/types";
 
 const baseMock = {
   mentor: setup0,
 };
+
+const subjectData = [
+  {
+    _id: "idle_and_initial_recordings",
+    name: "Idle and Initial Recordings",
+    type: SubjectTypes.UTTERANCES,
+    isRequired: true,
+    description: "These are miscellaneous phrases you'll be asked to repeat.",
+    categories: [
+      {
+        id: "category2",
+        name: "Category2",
+        description: "Another category",
+      },
+    ],
+    topics: [],
+    questions: [
+      {
+        question: {
+          _id: "A3_1_1",
+          clientId: "C3_1_1",
+          question:
+            "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.IDLE,
+          paraphrases: [],
+          mentorType: MentorType.VIDEO,
+          minVideoLength: 10,
+        },
+        topics: [],
+      },
+      {
+        question: {
+          _id: "A4_1_1",
+          clientId: "C4_1_1",
+          question:
+            "Please give a short introduction of yourself, which includes your name, current job, and title.",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.INTRO,
+          paraphrases: [],
+        },
+        topics: [],
+      },
+      {
+        question: {
+          _id: "A5_1_1",
+          clientId: "C5_1_1",
+          question:
+            "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.OFF_TOPIC,
+          paraphrases: [],
+        },
+        topics: [],
+        category: {
+          id: "category2",
+          name: "Category2",
+          description: "Another category",
+        },
+      },
+      {
+        question: {
+          _id: "A8_1_1",
+          clientId: "C8_1_1",
+          question: "test",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.OFF_TOPIC,
+          paraphrases: [],
+          mentor: "clintanderson",
+        },
+        topics: [],
+        category: {
+          id: "category2",
+          name: "Category2",
+          description: "Another category",
+        },
+      },
+    ],
+  },
+];
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   console.error(err);
@@ -55,8 +141,8 @@ function cyVisitSetupScreen(cy, screen: SetupScreen) {
 
 describe("Setup", () => {
   describe("can navigate through slides", () => {
-    it("with next button", () => {
-      cyMockDefault(cy, baseMock);
+    it.only("with next button", () => {
+      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cy.visit("/setup");
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -377,7 +463,7 @@ describe("Setup", () => {
   it("shows mentor chat type", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: { ...setup0, mentorType: null },
+      mentor: { ...setup0, mentorType: null, subjects: subjectData },
       gqlQueries: [
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],

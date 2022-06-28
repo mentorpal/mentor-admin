@@ -1069,9 +1069,9 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
-  it("upload button changes to trim when trim is edited", () => {
+  it.only("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
-      mentor: [videoMentor],
+      mentor: { ...videoMentor, isDirty: false },
       questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
