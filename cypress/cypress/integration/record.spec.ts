@@ -4,6 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+/*
+This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
+Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
+The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
+*/
 import {
   cyMockDefault,
   mockGQL,
@@ -1020,7 +1025,7 @@ describe("Record", () => {
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
-  it("upload button changes to process while an upload is in progress", () => {
+  it.only("upload button changes to process while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1069,7 +1074,7 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
-  it.only("upload button changes to trim when trim is edited", () => {
+  it("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

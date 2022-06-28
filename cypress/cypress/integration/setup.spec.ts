@@ -432,7 +432,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
 
-  it("shows select subjects slide", () => {
+  it.only("shows select subjects slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
