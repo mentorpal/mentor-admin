@@ -123,3 +123,19 @@ export function extractErrorMessageFromError(err: any | unknown): string {
     }
   }
 }
+
+export function handleAxiosError(err: unknown): unknown {
+  if (axios.isAxiosError(err)) {
+    console.error(err.response?.data);
+    return rejectWithValue(err.response?.data);
+  } else {
+    console.error("Unexpected error", err);
+    return;
+  }
+}
+
+export function rejectWithValue(err: unknown): unknown {
+  throw new Error(
+    "Function not implemented from parameter: " + JSON.stringify(err)
+  );
+}

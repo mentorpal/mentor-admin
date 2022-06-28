@@ -15,7 +15,7 @@ import {
   sessionStorageStore,
 } from "store/local-storage";
 import { User } from "types";
-import axios from "axios";
+import { handleAxiosError } from "helpers";
 
 /** Store */
 
@@ -41,17 +41,12 @@ const initialState: LoginState = {
 
 export const googleLogin = createAsyncThunk(
   "login/googleLogin",
-  async (accessToken: string, { rejectWithValue }) => {
+  async (accessToken: string) => {
     try {
       const googleToken = await api.loginGoogle(accessToken);
       return await api.login(googleToken.accessToken);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error(err.response?.data);
-        return rejectWithValue(err.response?.data);
-      } else {
-        console.error("Unexpected error", err);
-      }
+      handleAxiosError(err);
     }
   }
 );
@@ -60,7 +55,7 @@ export const googleLogin = createAsyncThunk(
 export const userSawSplashScreen = createAsyncThunk(
   "login/userSawSplashScreen", //action
   //callback function
-  async (accessToken: string, { rejectWithValue }) => {
+  async (accessToken: string) => {
     try {
       //promise
       return await api.updateMyFirstTimeTracking(
@@ -68,30 +63,20 @@ export const userSawSplashScreen = createAsyncThunk(
         accessToken
       );
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error(err.response?.data);
-        return rejectWithValue(err.response?.data);
-      } else {
-        console.error("Unexpected error", err);
-      }
+      handleAxiosError(err);
     }
   }
 );
 
 export const login = createAsyncThunk(
   "login/login",
-  async (accessToken: string, { rejectWithValue }) => {
+  async (accessToken: string) => {
     try {
       localStorageStore(ACCESS_TOKEN_KEY, accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(accessToken);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        console.error(err.response?.data);
-        return rejectWithValue(err.response?.data);
-      } else {
-        console.error("Unexpected error", err);
-      }
+      handleAxiosError(err);
     }
   }
 );
