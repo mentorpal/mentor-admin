@@ -39,55 +39,10 @@ export const mentor: Mentor = {
   ],
   subjects: [
     {
-      _id: "background",
-      name: "Background",
-      type: SubjectTypes.SUBJECT,
-      isRequired: true,
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      categories: [
-        {
-          id: "category",
-          name: "Category",
-          description: "A category",
-        },
-      ],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-          category: {
-            id: "category",
-            name: "Category",
-            description: "A category",
-          },
-        },
-        {
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "How old are you now?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-      ],
-    },
-    {
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
-      isRequired: true,
+      isRequired: false,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       categories: [
         {
