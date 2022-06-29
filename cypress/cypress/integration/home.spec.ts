@@ -743,7 +743,7 @@ describe("My Mentor Page", () => {
       cy.contains("Idle and Initial Recordings");
     });
 
-    it("can create a mentor question and save it", () => {
+    it("Can create a mentor question and save it", () => {
       cySetup(cy);
       const newQuestion = {
         _id: "A8_1_1",
