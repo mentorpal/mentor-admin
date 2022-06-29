@@ -707,7 +707,7 @@ describe("My Mentor Page", () => {
       });
     });
 
-    it.only("if idle not complete, setup goes to finish it", () => {
+    it("if idle not complete, setup goes to finish it", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [setup3],

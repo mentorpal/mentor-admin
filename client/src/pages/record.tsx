@@ -330,6 +330,7 @@ function RecordPage(props: {
             const markdown = getMarkdownFromEditor(contentState);
             updateTranscriptWithMarkdown(markdown);
             setEditorState(editorState);
+            console.log(markdown);
           }}
           editorState={editorState}
         />

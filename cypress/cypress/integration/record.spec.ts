@@ -2080,7 +2080,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it("Verify that transcript markdown loads as rich text: Q1", () => {
+  it("Verify that transcript markdown loads as rich text", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,
       questions: chatQuestions,
@@ -2094,41 +2094,27 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-text]").should("be.visible");
-  });
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "My _name_ is **Clint Anderson** and I'm a ++Nuclear Electrician's Mate++"
+    );
 
-  it("Verify that transcript markdown loads as rich text: Q2", () => {
-    cyMockDefault(cy, {
-      mentor: clintMarkdown,
-      questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
-    });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-text]").should("be.visible");
-  });
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "- I'm [37](https://en.wikipedia.org/wiki/37_%28number%29) years old"
+    );
 
-  it("Verify that transcript markdown loads as rich text: Q5", () => {
-    cyMockDefault(cy, {
-      mentor: clintMarkdown,
-      questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
-    });
     cy.visit("/record?videoId=A5_1_1");
     cy.get("[data-text]").should("be.visible");
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "1. I couldn't understand the [question](https://www.merriam-webster.com/dictionary/question). Try asking **me** something else."
+    );
   });
 
-  it("Make changes to transcript using WYSIWYG Editor features", () => {
+  it.only("Make changes to transcript using React WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
@@ -2147,24 +2133,65 @@ describe("Record", () => {
       cy.get("[data-text]").type("{selectall}");
     });
 
-    cy.get(".rdw-option-wrapper").eq(0).click().click();
-    cy.get(".rdw-option-wrapper").eq(1).click().click();
-    cy.get(".rdw-option-wrapper").eq(2).click().click();
-    cy.get(".rdw-option-wrapper").eq(3).click().click();
-    cy.get(".rdw-option-wrapper").eq(4).click().click();
+    cy.get(".rdw-option-wrapper").eq(0).click();
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "**My name is Clint Anderson and I'm a Nuclear Electrician's Mate**"
+    );
+    cy.get(".rdw-option-wrapper").eq(0).click();
+
+    cy.get(".rdw-option-wrapper").eq(1).click();
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "_My name is Clint Anderson and I'm a Nuclear Electrician's Mate_"
+    );
+    cy.get(".rdw-option-wrapper").eq(1).click();
+
+    cy.get(".rdw-option-wrapper").eq(2).click();
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "++My name is Clint Anderson and I'm a Nuclear Electrician's Mate++"
+    );
+    cy.get(".rdw-option-wrapper").eq(2).click();
+
+    cy.get(".rdw-option-wrapper").eq(3).click();
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "- My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+    );
+    cy.get(".rdw-option-wrapper").eq(3).click();
+
+    cy.get(".rdw-option-wrapper").eq(4).click();
+    cy.get("[data-text]").should(
+      "not.have.text",
+      "1. My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+    );
+    cy.get(".rdw-option-wrapper").eq(4).click();
 
     cy.get(".editor-class").within(() => {
       cy.get("[data-text]").type("{selectall}");
     });
+    cy.get(".rdw-link-wrapper").eq(0).should("be.visible");
     cy.get(".rdw-link-wrapper").eq(0).click();
+    cy.get(".rdw-dropdownoption-default.rdw-link-dropdownoption").should(
+      "be.visible"
+    );
     cy.get(".rdw-dropdownoption-default.rdw-link-dropdownoption").eq(0).click();
+    cy.get(".rdw-link-modal-input").eq(1).should("be.visible");
     cy.get(".rdw-link-modal-input").eq(1).type("https://google.com");
+    cy.get("[id=openLinkInNewWindow]").should("be.visible");
     cy.get("[id=openLinkInNewWindow]").click();
+    cy.get(".rdw-link-modal-btn").eq(0).should("be.visible");
     cy.get(".rdw-link-modal-btn").eq(0).click();
 
+    cy.get(".rdw-option-wrapper").eq(5).should("be.visible");
     cy.get(".rdw-option-wrapper").eq(5).click();
+    cy.get(".rdw-option-wrapper").eq(6).should("be.visible");
     cy.get(".rdw-option-wrapper").eq(6).click();
 
+    cy.get(
+      ".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr"
+    ).should("be.visible");
     cy.get(
       ".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr"
     ).click();
