@@ -38,6 +38,14 @@ function VideoRecorder({
         video: true,
         debug: true,
         maxLength: videoRecorderMaxLength,
+        video: {
+          width: {
+            max: 1280
+          },
+          height: {
+            max: 720
+          }
+        }
       },
     },
   };
