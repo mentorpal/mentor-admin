@@ -11,7 +11,7 @@ import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@material-ui/icons/Close";
-import { TooltipStep } from ".home/index";
+import { TooltipStep } from "components/home";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -23,8 +23,9 @@ function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
   incrementTooltip: () => void;
+  idxTooltip: number;
 }): JSX.Element {
-  const { incrementTooltip } = props;
+  const { incrementTooltip, idxTooltip } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -82,6 +83,7 @@ function MentorStatus(props: {
         setThumbnail={updateThumbnail}
         continueAction={continueAction}
         incrementTooltip={incrementTooltip}
+        idxTooltip={idxTooltip}
       />
     </Grid>
   );
@@ -93,7 +95,7 @@ function MentorStatus(props: {
           <ColorTooltip
             data-cy="status-tooltip"
             interactive={true}
-            open={TooltipStep.STATUS}
+            open={idxTooltip == TooltipStep.STATUS}
             onClose={() => incrementTooltip}
             disableHoverListener
             arrow

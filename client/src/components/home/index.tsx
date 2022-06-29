@@ -142,7 +142,7 @@ function HomePage(props: {
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
-  const [idxTooltip, setIdxTooltip] = useState<number>(0);
+  const [idxTooltip, setIdxTooltip] = useState<number>(-1);
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -247,12 +247,10 @@ function HomePage(props: {
     incrementTooltip();
   }
 
-
-
-  // function closePreviewTooltip() {
-  //   setOpenPreview(!openPreview);
-  //   userSawTooltips(props.accessToken);
-  // }
+  function closePreviewTooltip() {
+    incrementTooltip();
+    userSawTooltips(props.accessToken);
+  }
 
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
@@ -280,6 +278,7 @@ function HomePage(props: {
           continueAction={() => startTraining(mentorId)}
           useMentor={useMentor}
           incrementTooltip={incrementTooltip}
+          idxTooltip={idxTooltip}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -296,8 +295,8 @@ function HomePage(props: {
 
         <ColorTooltip
           interactive={true}
-          open={TooltipStep.CATEGORIES}
-          onClose={() => incrementTooltip}
+          open={idxTooltip == TooltipStep.CATEGORIES}
+          onClose={incrementTooltip}
           disableHoverListener
           arrow
           placement="left"
@@ -412,7 +411,7 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="save-tooltip"
               interactive={true}
-              open={TooltipsStep.SAVE}
+              open={idxTooltip == TooltipStep.SAVE}
               onClose={incrementTooltip}
               disableHoverListener
               arrow
@@ -463,7 +462,7 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}
-              open={TooltipSetup.BUILD}
+              open={idxTooltip == TooltipStep.BUILD}
               onClose={incrementTooltip}
               disableHoverListener
               arrow
@@ -515,8 +514,8 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="preview-tooltip"
               interactive={true}
-              open={TooltipSteps.PREVIEW}
-              onClose={incrementTooltip}
+              open={idxTooltip == TooltipStep.PREVIEW}
+              onClose={closePreviewTooltip}
               disableHoverListener
               arrow
               title={
@@ -527,7 +526,7 @@ function HomePage(props: {
                     size="small"
                     text-align="right"
                     align-content="right"
-                    onClick={incrementTooltip}
+                    onClick={closePreviewTooltip}
                   >
                     <CloseIcon />
                   </IconButton>

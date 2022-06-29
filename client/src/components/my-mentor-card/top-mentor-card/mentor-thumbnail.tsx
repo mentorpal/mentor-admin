@@ -13,7 +13,7 @@ import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
-import { TooltipStep } from "/home";
+import { TooltipStep } from "components/home";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -61,6 +61,7 @@ function MentorThumbnail(props: {
   thumbnail: string;
   updateThumbnail: (file: File) => void;
   incrementTooltip: () => void;
+  idxTooltip: number;
 }): JSX.Element {
   const {
     handleOpen,
@@ -71,6 +72,7 @@ function MentorThumbnail(props: {
     thumbnail,
     updateThumbnail,
     incrementTooltip,
+    idxTooltip,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
@@ -113,7 +115,7 @@ function MentorThumbnail(props: {
               <ColorTooltip
                 data-cy="profile-tooltip"
                 interactive={true}
-                open={TooltipStep.PROFILE}
+                open={idxTooltip == TooltipStep.PROFILE}
                 onClose={() => incrementTooltip}
                 disableHoverListener
                 arrow

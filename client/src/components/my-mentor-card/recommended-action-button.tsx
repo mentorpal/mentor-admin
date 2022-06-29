@@ -23,8 +23,9 @@ export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
   incrementTooltip: () => void;
+  idxTooltip: number;
 }): JSX.Element {
-  const { incrementTooltip } = props;
+  const { incrementTooltip, idxTooltip } = props;
   const [
     recommendedAction,
     skipRecommendation,
@@ -147,7 +148,7 @@ export default function RecommendedActionButton(props: {
 
                   <ColorTooltip
                     interactive={true}
-                    open={TooltipStep.RECOMMENDER}
+                    open={idxTooltip == TooltipStep.RECOMMENDER}
                     onClose={incrementTooltip}
                     disableHoverListener
                     arrow
@@ -215,7 +216,7 @@ export default function RecommendedActionButton(props: {
               <ColorTooltip
                 data-cy="recommender-tooltip"
                 interactive={true}
-                open={TooltipStep.RECOMMENDER}
+                open={idxTooltip == TooltipStep.RECOMMENDER}
                 onClose={incrementTooltip}
                 disableHoverListener
                 arrow
