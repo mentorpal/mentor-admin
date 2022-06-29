@@ -1070,7 +1070,7 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
-  it("upload button changes to trim when trim is edited", () => {
+  it("upload button does not change to trim when trim is not editable", () => {
     cyMockDefault(cy, {
       mentor: { ...videoMentor, isDirty: true },
       questions: videoQuestions,
@@ -1083,16 +1083,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
-    cy.get("[data-cy=upload-video]").should("be.visible");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
     cy.get("[data-cy=upload-video]").should("be.disabled");
     cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
     // edit slider
-    cy.get("[data-cy=slider]").within(($slider) => {
-      cy.get(".MuiSlider-thumb").first().type("{rightarrow}");
-    });
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("not.be.disabled");
-    cy.get("[data-cy=upload-video]").should("have.text", "Trim Video");
+    cy.get("[data-cy=slider]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.disabled");
+    cy.get("[data-cy=upload-video]").should("have.text", "Upload Video");
   });
 
   it("the upload card corresponding to current question should be highlighted", () => {
@@ -1801,7 +1799,7 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("not.exist");
   });
 
-  it("shows video recorder if mentor type is VIDEO and no video", () => {
+  it("shows video recorder if mentor type is VIDEO and has no video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1825,7 +1823,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.hidden");
   });
 
-  it("shows video player if mentor type is VIDEO and has video", () => {
+  it("Does not show video player if mentor type is VIDEO and has no video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1839,18 +1837,18 @@ describe("Record", () => {
     });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-cy=video-recorder]").should("exist");
-    // video recorder hidden
-    cy.get("[data-cy=video-recorder]").should("be.hidden");
-    cy.get("[data-cy=upload-file]").should("be.hidden");
-    // video player showing
-    cy.get("[data-cy=video-player]").should("be.visible");
-    cy.get("[data-cy=rerecord-video]").should("be.visible");
-    cy.get("[data-cy=upload-video]").should("be.visible");
-    // editing hidden
+
+    cy.get("[data-cy=video-recorder]").should("be.visible");
+    cy.get("[data-cy=upload-file]").should("be.visible");
+
+    cy.get("[data-cy=video-player]").should("be.hidden");
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
+    cy.get("[data-cy=upload-video]").should("be.hidden");
+
     cy.get("[data-cy=upload-video]").should("be.disabled");
-    cy.get("[data-cy=slider]").should("not.be.hidden");
-    // can re-record video
-    cy.get("[data-cy=rerecord-video]").trigger("mouseover").click();
+    cy.get("[data-cy=slider]").should("be.hidden");
+
+    cy.get("[data-cy=rerecord-video]").should("be.hidden");
     cy.get("[data-cy=video-recorder]").should("be.visible");
     cy.get("[data-cy=upload-file]").should("be.visible");
     cy.get("[data-cy=video-player]").should("be.hidden");
