@@ -667,7 +667,10 @@ describe("Setup", () => {
   it("shows required subject, idle and initial recordings, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [{ ...setup6, subjects: subjectData }, { ...setup8, subjects: subjectData }], 
+      mentor: [
+        { ...setup6, subjects: subjectData },
+        { ...setup8, subjects: subjectData },
+      ],
       subject: repeatAfterMe,
       gqlQueries: [
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
