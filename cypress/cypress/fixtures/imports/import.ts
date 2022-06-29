@@ -8,8 +8,8 @@ export default importJson;
 export const importJson = {
   subjects: [
     {
-      _id: "repeat_after_me",
-      name: "Repeat After Me",
+      _id: "idle_and_initial_recordings",
+      name: "Idle and Initial Recordings",
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       categories: [
         {

@@ -23,7 +23,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
+import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
 import parseMentor, {
@@ -45,6 +45,7 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -137,6 +138,14 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
+  const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
+
+  const loginState = useWithLogin();
+  const hasSeenSplash = Boolean(
+    loginState.state.user?.firstTimeTracking.myMentorSplash ||
+      localHasSeenSplash
+  );
+  const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -376,6 +385,14 @@ function HomePage(props: {
           clearTrainingError();
           clearMentorError();
           reviewAnswerState.clearError();
+        }}
+      />
+      <NotificationDialog
+        title={"This page is for setting up your mentor!"}
+        open={!hasSeenSplash}
+        closeDialog={() => {
+          setLocalHasSeenSplash(true);
+          userSawSplashScreen(props.accessToken);
         }}
       />
       <Dialog
