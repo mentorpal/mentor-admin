@@ -368,6 +368,7 @@ export function NavBar(props: {
         open={isDrawerOpen}
         onClose={() => toggleDrawer(false)}
         onOpen={() => toggleDrawer(true)}
+        swipeAreaWidth={0}
       >
         <Toolbar />
         <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
