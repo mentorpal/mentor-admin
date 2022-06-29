@@ -84,4 +84,94 @@ describe("users screen", () => {
       cy.get("[data-cy=select-role]").should("exist");
     });
   });
+
+  it("admin can edit mentor privacy", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", [
+          { users },
+          {
+            users: {
+              edges: [
+                {
+                  cursor: "cursor 1",
+                  node: {
+                    _id: "admin",
+                    name: "Admin",
+                    email: "admin@opentutor.org",
+                    userRole: UserRole.ADMIN,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "Admin",
+                      isPrivate: true,
+                    },
+                  },
+                },
+                {
+                  cursor: "cursor 2",
+                  node: {
+                    _id: "contentmanager",
+                    name: "Content Manager",
+                    email: "contentmanager@opentutor.org",
+                    userRole: UserRole.CONTENT_MANAGER,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "Content Manager",
+                      isPrivate: false,
+                    },
+                  },
+                },
+                {
+                  cursor: "cursor 2",
+                  node: {
+                    _id: "user",
+                    name: "User",
+                    email: "user@opentutor.org",
+                    userRole: UserRole.USER,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "User",
+                      isPrivate: false,
+                    },
+                  },
+                },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                endCursor: "cursor 2",
+              },
+            },
+          },
+        ]),
+        mockGQL("UpdateMentorPrivacy", {
+          me: {
+            updateMentorPrivacy: true,
+          },
+        }),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=select-privacy]").should("exist");
+      cy.get("[data-cy=select-privacy]")
+        .contains("Public")
+        .trigger("mouseover")
+        .click();
+    });
+    cy.get("[data-cy=privacy-dropdown-private]")
+      .contains("Private")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=select-privacy]").should("exist");
+      cy.get("[data-cy=select-privacy]").contains("Private");
+    });
+  });
 });

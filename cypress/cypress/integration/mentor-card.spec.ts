@@ -41,6 +41,13 @@ describe("My Mentor Page", () => {
               firstName: "Clint",
               title: "Nuclear Electrician's Mate",
             },
+            {
+              ...clint,
+              name: "Clinton Anderson",
+              firstName: "Clint",
+              title: "Nuclear Electrician's Mate",
+              isPrivate: true,
+            },
           ],
           gqlQueries: [
             mockGQL("UpdateMentorDetails", {
@@ -139,6 +146,19 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=uploaded-thumbnail]").trigger("mouseover");
         cy.get("[data-cy=upload-file]").should("exist");
         cy.get("[data-cy=recommended-action-button]").should("exist");
+
+        // fill out privacy and save
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
+        cy.get("[data-cy=select-privacy]").contains("Public");
+        cy.get("[data-cy=select-privacy]").trigger("mouseover").click();
+        cy.get("[data-cy=private]").trigger("mouseover").click();
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
+        cy.get("[data-cy=save-button]").should("not.be.disabled");
+        cy.get("[data-cy=save-button]").trigger("mouseover").click();
+        //  open modal
+        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
+        cy.get("[data-cy=select-privacy]").contains("Private");
+        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
       });
     });
 

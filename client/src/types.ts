@@ -12,6 +12,7 @@ import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export interface Config {
   googleClientId: string;
+  urlDocSetup: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
@@ -66,6 +67,7 @@ export interface Mentor {
   mentorType: MentorType;
   lastTrainedAt: string;
   isDirty: boolean;
+  isPrivate: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];

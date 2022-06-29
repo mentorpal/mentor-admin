@@ -135,6 +135,7 @@ function TableFooter(props: {
 function UserItem(props: {
   edge: Edge<User>;
   i: number;
+  accessToken: string;
   userPagin: UseUserData;
   userRole: UserRole;
 }): JSX.Element {
@@ -150,10 +151,14 @@ function UserItem(props: {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
+  function handlePrivacyChange(mentor: string, isPrivate: boolean): void {
+    props.userPagin.onUpdateMentorPrivacy(mentor, isPrivate);
+  }
+
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
-        {edge.node.name}
+        {edge.node.defaultMentor?.name || edge.node.name}
       </TableCell>
       <TableCell data-cy="email" align="left">
         {edge.node.email}
@@ -195,6 +200,36 @@ function UserItem(props: {
           </Select>
         )}
       </TableCell>
+      <TableCell data-cy="privacy" align="left">
+        {noEditPermission ? (
+          edge.node.defaultMentor?.isPrivate ? (
+            "Private"
+          ) : (
+            "Public"
+          )
+        ) : (
+          <Select
+            data-cy="select-privacy"
+            value={edge.node.defaultMentor.isPrivate ? "true" : "false"}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              handlePrivacyChange(
+                edge.node.defaultMentor._id,
+                (event.target.value as string) === "true"
+              );
+            }}
+            className={styles.dropdown}
+          >
+            <MenuItem data-cy={`privacy-dropdown-public`} value={"false"}>
+              Public
+            </MenuItem>
+            <MenuItem data-cy={`privacy-dropdown-private`} value={"true"}>
+              Private
+            </MenuItem>
+          </Select>
+        )}
+      </TableCell>
       <TableCell data-cy="actions" align="right">
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
           <IconButton
@@ -223,7 +258,9 @@ function UserItem(props: {
         <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
           <IconButton
             data-cy="export-button"
-            onClick={() => exportMentor(edge.node.defaultMentor._id)}
+            onClick={() =>
+              exportMentor(edge.node.defaultMentor._id, props.accessToken)
+            }
             className={styles.normalButton}
           >
             <GetAppIcon />
@@ -247,6 +284,7 @@ function UserItem(props: {
 }
 
 function UsersTable(props: {
+  accessToken: string;
   userData: Connection<User>;
   userPagin: UseUserData;
   userRole: UserRole;
@@ -271,6 +309,7 @@ function UsersTable(props: {
                   key={i}
                   edge={edge}
                   i={i}
+                  accessToken={props.accessToken}
                   userPagin={props.userPagin}
                   userRole={props.userRole}
                 />
@@ -318,6 +357,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     <div>
       <NavBar title="Manage Users" />
       <UsersTable
+        accessToken={props.accessToken}
         userRole={props.user.userRole}
         userData={userPagin.data}
         userPagin={userPagin}

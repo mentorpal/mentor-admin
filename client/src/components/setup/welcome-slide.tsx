@@ -11,8 +11,10 @@ import { Slide } from "./slide";
 export function WelcomeSlide(props: {
   classes: Record<string, string>;
   userName: string;
+  docSetupUrl: string;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, docSetupUrl } = props;
+
   return (
     <Slide
       classes={classes}
@@ -25,13 +27,16 @@ export function WelcomeSlide(props: {
           <Typography variant="h6" className={classes.text}>
             Let&apos;s get started setting up your new mentor.
           </Typography>
-          <Typography variant="h6" className={classes.text}>
+          <Typography
+            data-cy="walkthrough-intro"
+            variant="h6"
+            className={classes.text}
+            style={{
+              opacity: docSetupUrl ? "100" : "0",
+            }}
+          >
             {"If you'd like to view a walkthrough, "}
-            <a
-              data-cy="click-here-url"
-              href="https://docs.google.com/document/d/1fATgURjlHda7WZaUCv4qYeouep8JoQrKcJtrTzBXGJs/edit?usp=sharing"
-              target="blank"
-            >
+            <a data-cy="click-here-url" href={docSetupUrl} target="blank">
               click here.
             </a>
           </Typography>

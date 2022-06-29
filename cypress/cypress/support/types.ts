@@ -66,6 +66,7 @@ export interface Mentor {
   mentorType: MentorType;
   lastTrainedAt: string;
   isDirty: boolean;
+  isPrivate: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];
