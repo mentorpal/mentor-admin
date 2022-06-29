@@ -2114,7 +2114,7 @@ describe("Record", () => {
     );
   });
 
-  it.only("Make changes to transcript using React WYSIWYG Editor features", () => {
+  it("Make changes to transcript using React WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
