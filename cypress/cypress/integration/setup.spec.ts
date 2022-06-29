@@ -141,7 +141,7 @@ function cyVisitSetupScreen(cy, screen: SetupScreen) {
 
 describe("Setup", () => {
   describe("can navigate through slides", () => {
-    it.only("with next button", () => {
+    it("with next button", () => {
       cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cy.visit("/setup");
       cy.get("[data-cy=slide-title]").should(

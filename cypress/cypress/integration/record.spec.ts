@@ -1069,7 +1069,7 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
-  it.only("upload button changes to trim when trim is edited", () => {
+  it("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
       mentor: { ...videoMentor, isDirty: false },
       questions: videoQuestions,
