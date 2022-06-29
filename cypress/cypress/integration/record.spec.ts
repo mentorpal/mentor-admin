@@ -1021,7 +1021,7 @@ describe("Record", () => {
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
-  it.only("upload button changes to process while an upload is in progress", () => {
+  it("upload button changes to process while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1072,41 +1072,14 @@ describe("Record", () => {
 
   it.only("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
-      mentor: [videoMentor],
+      mentor: { ...videoMentor, isDirty: true },
       questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  ...taskListBuild("IN_PROGRESS"),
-                  ...uploadTaskMediaBuild(),
-                  transcript: "i am kayla",
-                },
-                {
-                  question: {
-                    _id: videoMentor.answers[1].question._id,
-                    question: videoMentor.answers[1].question.question,
-                  },
-
-                  ...taskListBuild("DONE"),
-                  ...uploadTaskMediaBuild(),
-                  transcript: "i am kayla",
-                },
-              ],
-            },
-          },
-        ]),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
