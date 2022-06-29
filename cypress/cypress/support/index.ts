@@ -20,7 +20,49 @@ The full terms of this copyright and license should always be found in the root 
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
+import "cypress-fill-command";
+import "cypress-localstorage-commands";
+import "cypress-file-upload";
 import "./commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+Cypress.Commands.add("getSettled", (selector, opts = {}) => {
+  const retries = opts.retries || 3;
+  const delay = opts.delay || 100;
+
+  const isAttached = (resolve, count = 0) => {
+    var el = Cypress.$(selector) as JQuery<HTMLElement>;
+
+    // is element attached to the DOM?
+    count = Cypress.dom.isAttached(el) ? count + 1 : 0;
+
+    // hit our base case, return the element
+    if (count >= retries) {
+      return resolve(el);
+    }
+
+    // retry after a bit of a delay
+    setTimeout(() => isAttached(resolve, count), delay);
+  };
+
+  // wrap, so we can chain cypress commands off the result
+  return cy.wrap(null).then(() => {
+    return new Cypress.Promise((resolve) => {
+      return isAttached(resolve, 0);
+    }).then((el) => {
+      return cy.wrap(el);
+    });
+  });
+});
+
+declare global {
+  namespace Cypress {
+    interface Chainable<Subject = any> {
+      matchImageSnapshot(value: string): Chainable<void>;
+      fill(value: string): Chainable<void>;
+    }
+    interface cy extends Chainable<undefined> {}
+  }
+}
