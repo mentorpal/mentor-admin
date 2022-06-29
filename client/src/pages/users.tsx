@@ -135,6 +135,7 @@ function TableFooter(props: {
 function UserItem(props: {
   edge: Edge<User>;
   i: number;
+  accessToken: string;
   userPagin: UseUserData;
   userRole: UserRole;
 }): JSX.Element {
@@ -257,7 +258,9 @@ function UserItem(props: {
         <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
           <IconButton
             data-cy="export-button"
-            onClick={() => exportMentor(edge.node.defaultMentor._id)}
+            onClick={() =>
+              exportMentor(edge.node.defaultMentor._id, props.accessToken)
+            }
             className={styles.normalButton}
           >
             <GetAppIcon />
@@ -281,6 +284,7 @@ function UserItem(props: {
 }
 
 function UsersTable(props: {
+  accessToken: string;
   userData: Connection<User>;
   userPagin: UseUserData;
   userRole: UserRole;
@@ -305,6 +309,7 @@ function UsersTable(props: {
                   key={i}
                   edge={edge}
                   i={i}
+                  accessToken={props.accessToken}
                   userPagin={props.userPagin}
                   userRole={props.userRole}
                 />
@@ -352,6 +357,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     <div>
       <NavBar title="Manage Users" />
       <UsersTable
+        accessToken={props.accessToken}
         userRole={props.user.userRole}
         userData={userPagin.data}
         userPagin={userPagin}

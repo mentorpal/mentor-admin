@@ -68,7 +68,8 @@ export function useWithImportExport(): UseWithImportExport {
   const [isUpdating, setIsUpdating] = useState(false);
   const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
-  const accessToken = useAppSelector((state) => state.login.accessToken);
+  const accessToken: string =
+    useAppSelector((state) => state.login.accessToken) || "";
   const { importTask, setImportInProgress } = useWithImportStatus();
   const { data: subjectData } = useWithSubjects();
   const subjects = subjectData?.edges.map((edge) => edge.node);
