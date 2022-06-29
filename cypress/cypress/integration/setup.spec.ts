@@ -664,10 +664,13 @@ describe("Setup", () => {
     });
   });
 
-  it("shows required subject, idle and initial recordings, questions slide", () => {
+  it.only("shows required subject, idle and initial recordings, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup8],
+      mentor: [
+        { ...setup6, subjects: subjectData },
+        { ...setup8, subjects: subjectData },
+      ],
       subject: repeatAfterMe,
       gqlQueries: [
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -748,8 +751,8 @@ describe("Setup", () => {
       cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
     });
 
-    it("go to my mentor page button visible if setup complete", () => {
-      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
+    it.only("go to my mentor page button visible if setup complete", () => {
+      cyMockDefault(cy, { mentor: { ...setup7, subjects: subjectData } });
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");

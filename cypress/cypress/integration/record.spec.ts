@@ -24,6 +24,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
+
 export function taskListBuild(progressForAllTasks) {
   return {
     trimUploadTask: {
@@ -1020,7 +1021,7 @@ describe("Record", () => {
     cy.get("[data-cy=active-upload-card-1]").should("not.exist");
   });
 
-  it("upload button changes to process while an upload is in progress", () => {
+  it.only("upload button changes to process while an upload is in progress", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1069,16 +1070,43 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
-  it("upload button changes to trim when trim is edited", () => {
+  it.only("upload button changes to trim when trim is edited", () => {
     cyMockDefault(cy, {
-      mentor: { ...videoMentor, isDirty: false },
+      mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+              ],
+            },
+          },
+        ]),
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
