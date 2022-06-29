@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchUsers, updateUserPermissions } from "api";
+import { fetchUsers, updateMentorPrivacy, updateUserPermissions } from "api";
 import { useState } from "react";
 import { Connection, User } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -15,6 +15,7 @@ import {
 
 export interface UseUserData extends UseDataConnection<User> {
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+  onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
   userDataError?: LoadingError;
 }
 
@@ -35,7 +36,7 @@ export function useWithUsers(accessToken: string): UseUserData {
   } = useWithDataConnection<User>(fetch);
 
   function fetch(): Promise<Connection<User>> {
-    return fetchUsers(searchParams);
+    return fetchUsers(accessToken, searchParams);
   }
 
   function onUpdateUserPermissions(
@@ -49,6 +50,19 @@ export function useWithUsers(accessToken: string): UseUserData {
       .catch((err) => {
         setUserDataError({
           message: "Failed to update user permissions",
+          error: `${err}`,
+        });
+      });
+  }
+
+  function onUpdateMentorPrivacy(mentorId: string, isPrivate: boolean): void {
+    updateMentorPrivacy(mentorId, isPrivate, accessToken)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update mentor privacy",
           error: `${err}`,
         });
       });
@@ -68,5 +82,6 @@ export function useWithUsers(accessToken: string): UseUserData {
     nextPage,
     prevPage,
     onUpdateUserPermissions,
+    onUpdateMentorPrivacy,
   };
 }
