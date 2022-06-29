@@ -42,7 +42,7 @@ describe("Mentor Record Queue", () => {
 
     cy.get("[data-cy=subject-drop-down]").click();
     cy.get("[data-cy=Subject-option-background]").should("be.visible");
-    cy.get("[data-cy=Subject-option-repeat_after_me]").should("be.visible");
+    cy.get("[data-cy=Subject-option-idle_and_initial_recordings]").should("be.visible");
     cy.get("[data-cy=Subject-option-background]").click();
 
     cy.get("[data-cy=category-drop-down]").click();
