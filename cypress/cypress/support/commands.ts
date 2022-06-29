@@ -43,31 +43,31 @@ addMatchImageSnapshotCommand({
 });
 
 // recursively gets an element, returning only after it's determined to be attached to the DOM for good
-// Cypress.Commands.add("getSettled", (selector, opts = {}) => {
-//   const retries = opts.retries || 3;
-//   const delay = opts.delay || 100;
+Cypress.Commands.add("getSettled", (selector, opts = {}) => {
+  const retries = opts.retries || 3;
+  const delay = opts.delay || 100;
 
-//   const isAttached = (resolve, count = 0) => {
-//     var el = Cypress.$(selector) as JQuery<HTMLElement>;
+  const isAttached = (resolve, count = 0) => {
+    var el = Cypress.$(selector) as JQuery<HTMLElement>;
 
-//     // is element attached to the DOM?
-//     count = Cypress.dom.isAttached(el) ? count + 1 : 0;
+    // is element attached to the DOM?
+    count = Cypress.dom.isAttached(el) ? count + 1 : 0;
 
-//     // hit our base case, return the element
-//     if (count >= retries) {
-//       return resolve(el);
-//     }
+    // hit our base case, return the element
+    if (count >= retries) {
+      return resolve(el);
+    }
 
-//     // retry after a bit of a delay
-//     setTimeout(() => isAttached(resolve, count), delay);
-//   };
+    // retry after a bit of a delay
+    setTimeout(() => isAttached(resolve, count), delay);
+  };
 
-//   // wrap, so we can chain cypress commands off the result
-//   return cy.wrap(null).then(() => {
-//     return new Cypress.Promise((resolve) => {
-//       return isAttached(resolve, 0);
-//     }).then((el) => {
-//       return cy.wrap(el);
-//     });
-//   });
-// });
+  // wrap, so we can chain cypress commands off the result
+  return cy.wrap(null).then(() => {
+    return new Cypress.Promise((resolve) => {
+      return isAttached(resolve, 0);
+    }).then((el) => {
+      return cy.wrap(el);
+    });
+  });
+});
