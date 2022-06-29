@@ -186,7 +186,7 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, {
-        mentor: setup0,
+        mentor: { ...setup0, subjects: subjectData },
         gqlQueries: [mockGQL("ImportTask", {})],
       });
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
@@ -229,7 +229,7 @@ describe("Setup", () => {
     });
 
     it("with radio buttons", () => {
-      cyMockDefault(cy, baseMock);
+      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cy.visit("/setup");
       cy.contains("Welcome to MentorStudio!");
       cy.get("[data-cy=radio]").eq(1).trigger("mouseover").click();
@@ -251,7 +251,7 @@ describe("Setup", () => {
     });
 
     it("with query param i", () => {
-      cyMockDefault(cy, baseMock);
+      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cyVisitSetupScreen(cy, SetupScreen.Welcome);
       cy.get("[data-cy=slide]").contains("Welcome to MentorStudio!");
       cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
