@@ -101,9 +101,8 @@ export enum TooltipStep {
   STATUS = 1,
   CATEGORIES = 2,
   RECOMMENDER = 3,
-  SAVE = 4,
-  BUILD = 5,
-  PREVIEW = 6,
+  BUILD = 4,
+  PREVIEW = 5,
 }
 
 interface ConfirmSave {
@@ -161,8 +160,10 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
+
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
+  
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
@@ -302,7 +303,7 @@ function HomePage(props: {
           open={idxTooltip == TooltipStep.CATEGORIES}
           onClose={incrementTooltip}
           //if this is false then the tooltip doesn't respond to focus-visible elements
-          disableHoverListener={hasSeenTooltips}
+          disableHoverListener
           arrow
           placement="left"
           //contains all text inside tooltip
@@ -415,41 +416,6 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
-            <ColorTooltip
-              data-cy="save-tooltip"
-              interactive={true}
-              open={idxTooltip == TooltipStep.SAVE}
-              onClose={incrementTooltip}
-              disableHoverListener
-              arrow
-              title={
-                <React.Fragment>
-                  <IconButton
-                    data-cy="save-tooltip-close-btn"
-                    color="inherit"
-                    size="small"
-                    text-align="right"
-                    align-content="right"
-                    onClick={incrementTooltip}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Typography
-                    color="inherit"
-                    align="center"
-                    data-cy="save-tooltip-title"
-                  >
-                    Save
-                  </Typography>
-                  <p style={{ textAlign: "center" }}>
-                    More description about what this should do.
-                  </p>
-                </React.Fragment>
-              }
-              PopperProps={{
-                style: { maxWidth: 250, textAlign: "right" },
-              }}
-            >
               <Fab
                 data-cy="save-button"
                 variant="extended"
@@ -464,7 +430,6 @@ function HomePage(props: {
               >
                 Save Changes
               </Fab>
-            </ColorTooltip>
 
             <ColorTooltip
               data-cy="build-tooltip"
@@ -493,7 +458,7 @@ function HomePage(props: {
                     Build
                   </Typography>
                   <p style={{ textAlign: "center" }}>
-                    More description about what this should do.
+                  Build every time you change an answer so it is correct and build after you add a batch of questions.
                   </p>
                 </React.Fragment>
               }
@@ -545,7 +510,7 @@ function HomePage(props: {
                     Preview
                   </Typography>
                   <p style={{ textAlign: "center" }}>
-                    More description about what this should do.
+                  Preview the mentor to ask it questions and see how it responds. You can improve it later using the User Feedback, in the upper-left menu.
                   </p>
                 </React.Fragment>
               }
@@ -586,7 +551,7 @@ function HomePage(props: {
         }}
       />
       <NotificationDialog
-        title={"This page is for setting up your mentor!"}
+        title={"The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."}
         open={!hasSeenSplash}
         closeDialog={() => closeDialog()}
       />

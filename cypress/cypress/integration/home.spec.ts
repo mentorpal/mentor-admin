@@ -111,7 +111,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=notification-dialog]").should("exist");
     cy.get("[data-cy=notification-dialog-title]").should(
       "have.text",
-      "This page is for setting up your mentor!"
+      "The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."
     );
     cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
     cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
@@ -147,11 +147,7 @@ describe("My Mentor Page", () => {
       .trigger("mouseover")
       .click();
     cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
-
-    cy.get("[data-cy=save-tooltip-title").should("have.text", "Save");
-    cy.get("[data-cy=save-tooltip-close-btn]").trigger("mouseover").click();
-    cy.get("[data-cy=save-tooltip-title").should("not.exist");
-
+    
     cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
     cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
     cy.get("[data-cy=build-tooltip-title").should("not.exist");
