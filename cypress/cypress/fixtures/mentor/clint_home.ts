@@ -23,6 +23,7 @@ export const mentor: Mentor = {
   mentorType: MentorType.VIDEO,
   lastTrainedAt: "Today",
   isDirty: false,
+  isPrivate: false,
   questions: [],
   subjects: [
     {
