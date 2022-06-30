@@ -2080,7 +2080,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it.only("Verify that transcript markdown loads as rich text", () => {
+  it("Verify that transcript markdown loads as rich text", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,
       questions: chatQuestions,
