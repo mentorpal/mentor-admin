@@ -147,7 +147,7 @@ describe("My Mentor Page", () => {
       .trigger("mouseover")
       .click();
     cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
-    
+
     cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
     cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
     cy.get("[data-cy=build-tooltip-title").should("not.exist");

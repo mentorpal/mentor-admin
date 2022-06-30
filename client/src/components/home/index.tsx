@@ -163,7 +163,7 @@ function HomePage(props: {
 
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
-  
+
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
@@ -416,20 +416,20 @@ function HomePage(props: {
             </Typography>
           </div>
           <div className="page-buttons">
-              <Fab
-                data-cy="save-button"
-                variant="extended"
-                color="secondary"
-                onClick={() => {
-                  reviewAnswerState.saveChanges();
-                  if (useMentor.isMentorEdited) {
-                    useMentor.saveMentorDetails();
-                  }
-                }}
-                className={[classes.fab, "secondary-btn"].join(" ")}
-              >
-                Save Changes
-              </Fab>
+            <Fab
+              data-cy="save-button"
+              variant="extended"
+              color="secondary"
+              onClick={() => {
+                reviewAnswerState.saveChanges();
+                if (useMentor.isMentorEdited) {
+                  useMentor.saveMentorDetails();
+                }
+              }}
+              className={[classes.fab, "secondary-btn"].join(" ")}
+            >
+              Save Changes
+            </Fab>
 
             <ColorTooltip
               data-cy="build-tooltip"
@@ -458,7 +458,8 @@ function HomePage(props: {
                     Build
                   </Typography>
                   <p style={{ textAlign: "center" }}>
-                  Build every time you change an answer so it is correct and build after you add a batch of questions.
+                    Build every time you change an answer so it is correct and
+                    build after you add a batch of questions.
                   </p>
                 </React.Fragment>
               }
@@ -510,7 +511,9 @@ function HomePage(props: {
                     Preview
                   </Typography>
                   <p style={{ textAlign: "center" }}>
-                  Preview the mentor to ask it questions and see how it responds. You can improve it later using the User Feedback, in the upper-left menu.
+                    Preview the mentor to ask it questions and see how it
+                    responds. You can improve it later using the User Feedback,
+                    in the upper-left menu.
                   </p>
                 </React.Fragment>
               }
@@ -551,7 +554,9 @@ function HomePage(props: {
         }}
       />
       <NotificationDialog
-        title={"The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."}
+        title={
+          "The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."
+        }
         open={!hasSeenSplash}
         closeDialog={() => closeDialog()}
       />
