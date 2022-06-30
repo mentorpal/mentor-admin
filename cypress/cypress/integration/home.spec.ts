@@ -88,7 +88,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it("shows splash and tooltips if mentor has not seen before", () => {
+  it.only("shows splash and tooltips if mentor has not seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,
@@ -118,21 +118,21 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=notification-dialog]").should("not.exist");
 
     cy.get("[data-cy=profile-tooltip").should("exist");
-    cy.get("[data-cy=profile-tooltip-title").should("have.text", "Profile");
+    cy.get("[data-cy=profile-tooltip-title").should("have.text", "My Profile");
     cy.get("[data-cy=profile-tooltip-close-btn]").trigger("mouseover").click();
     cy.get("[data-cy=profile-tooltip-title").should("not.exist");
 
     cy.get("[data-cy=status-tooltip").should("exist");
     cy.get("[data-cy=status-tooltip-title").should(
       "have.text",
-      "Current Status"
+      "Mentor Status"
     );
     cy.get("[data-cy=status-tooltip-close-btn]").trigger("mouseover").click();
     cy.get("[data-cy=status-tooltip-title").should("not.exist");
 
     cy.get("[data-cy=categories-tooltip-title").should(
       "have.text",
-      "Categories and manually choosing questions to record"
+      "Recording Subjects"
     );
     cy.get("[data-cy=categories-tooltip-close-btn]")
       .trigger("mouseover")

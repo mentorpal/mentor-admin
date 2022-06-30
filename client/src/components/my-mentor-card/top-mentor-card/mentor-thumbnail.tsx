@@ -62,6 +62,7 @@ function MentorThumbnail(props: {
   updateThumbnail: (file: File) => void;
   incrementTooltip: () => void;
   idxTooltip: number;
+  hasSeenTooltips: boolean;
 }): JSX.Element {
   const {
     handleOpen,
@@ -73,6 +74,7 @@ function MentorThumbnail(props: {
     updateThumbnail,
     incrementTooltip,
     idxTooltip,
+    hasSeenTooltips,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
@@ -117,10 +119,10 @@ function MentorThumbnail(props: {
                 interactive={true}
                 open={idxTooltip == TooltipStep.PROFILE}
                 onClose={() => incrementTooltip}
-                disableHoverListener
+                disableHoverListener={hasSeenTooltips}
                 arrow
                 placement="right"
-                enterDelay={100000}
+                //enterDelay={100000}
                 title={
                   <React.Fragment>
                     <IconButton
@@ -138,11 +140,12 @@ function MentorThumbnail(props: {
                       align="center"
                       data-cy="profile-tooltip-title"
                     >
-                      Profile
+                      My Profile
                     </Typography>
                     <p style={{ textAlign: "center" }}>
-                      This is where you can set how you will be displayed (name,
-                      job title, thumbnail).
+                      Your profile shows how people will first see you on the
+                      Home page, with your name, picture, and job description.
+                      Try to pick something inviting!
                     </p>
                   </React.Fragment>
                 }

@@ -117,10 +117,14 @@ function MentorStatus(props: {
                   align="center"
                   data-cy="status-tooltip-title"
                 >
-                  Current Status
+                  Mentor Status
                 </Typography>
                 <p style={{ textAlign: "center" }}>
-                  More description about what this should do.
+                  The Mentor Status area shows how many questions you have
+                  recorded, and how ready your mentor is to use. If you are
+                  building a mentor just to click on a few questions, that is
+                  different than when people expect to ask any question on a
+                  subject.
                 </p>
               </React.Fragment>
             }

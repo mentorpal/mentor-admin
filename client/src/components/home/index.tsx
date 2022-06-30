@@ -49,7 +49,6 @@ import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { userSawTooltips } from "store/slices/login";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -163,13 +162,16 @@ function HomePage(props: {
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
-
+  const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
       localHasSeenSplash
   );
-  const { userSawSplashScreen } = loginState;
+  const { userSawSplashScreen, userSawTooltips } = loginState;
+  const hasSeenTooltips = Boolean(
+    loginState.state.user?.firstTimeTracking.tooltips || localHasSeenTooltips
+  );
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -249,6 +251,7 @@ function HomePage(props: {
 
   function closePreviewTooltip() {
     incrementTooltip();
+    setLocalHasSeenTooltips(true);
     userSawTooltips(props.accessToken);
   }
 
@@ -279,6 +282,7 @@ function HomePage(props: {
           useMentor={useMentor}
           incrementTooltip={incrementTooltip}
           idxTooltip={idxTooltip}
+          hasSeenTooltips={hasSeenTooltips}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -297,7 +301,8 @@ function HomePage(props: {
           interactive={true}
           open={idxTooltip == TooltipStep.CATEGORIES}
           onClose={incrementTooltip}
-          disableHoverListener
+          //if this is false then the tooltip doesn't respond to focus-visible elements
+          disableHoverListener={hasSeenTooltips}
           arrow
           placement="left"
           //contains all text inside tooltip
@@ -318,10 +323,12 @@ function HomePage(props: {
                 align="center"
                 data-cy="categories-tooltip-title"
               >
-                Categories and manually choosing questions to record
+                Recording Subjects
               </Typography>
               <p style={{ textAlign: "center" }}>
-                More description about what this should do.
+                The Subjects dropdown lets you review and add Subjects.
+                Categories in a Subject help you record similar questions. You
+                can add your own custom questions to a category.
               </p>
             </React.Fragment>
           }
