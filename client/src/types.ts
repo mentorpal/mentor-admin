@@ -132,7 +132,7 @@ export interface Answer {
   questionClientId: string;
   hasEditedTranscript: boolean;
   transcript: string;
-  markdownTranscript: string;
+  markdownTranscript?: string;
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];

@@ -226,7 +226,12 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    const text = curAnswer.answer.markdownTranscript;
+    let text = "";
+    if (curAnswer.answer.markdownTranscript) {
+      text = curAnswer.answer.markdownTranscript;
+    } else {
+      text = curAnswer.answer.transcript;
+    }
     updateTranscriptText(text);
   }, [curAnswer?.answer]);
 
