@@ -41,7 +41,7 @@ export default function QueueBlockItem(props: {
   ) {
     const queueQuestions: string[] = [];
     {
-      for (var i = 0; i < (queueIDList as string[]).length; i++) {
+      for (let i = 0; i < (queueIDList as string[]).length; i++) {
         queueQuestions.push(
           mentorQuestions[(queueIDList as string[])[i]].question?.question || ""
         );
@@ -92,7 +92,7 @@ export default function QueueBlockItem(props: {
                     data-cy="record-all"
                     variant="outlined"
                     onClick={onRecordAll}
-                    disabled={(queueIDList as string[]).length === 0}
+                    disabled={(queueIDList as string[]).length == 0 || queueIDList == null || queueIDList == undefined}
                   >
                     Record All
                   </Button>
@@ -104,16 +104,20 @@ export default function QueueBlockItem(props: {
                 unmountOnExit
                 style={{ paddingLeft: 15, paddingTop: 10 }}
               >
-                <List data-cy="question-list" style={{ border: 1 }}>
+                <List data-cy="queue-list" style={{ border: 1 }}>
                   {queueQus.map((qu, i) => {
                     return (
                       <ListItem
+                      data-cy={`question-${i}`}
                         key={`item-${i}-${qu}`}
                         style={{ backgroundColor: "#eee" }}
                       >
+
+
+
                         <div>
                           <ListItemText
-                            primary={"This Question"} // question goes here
+                            primary={qu} // question goes here
                             style={{ marginRight: 100 }}
                           />
                           <ListItemSecondaryAction>
@@ -127,6 +131,10 @@ export default function QueueBlockItem(props: {
                             </Button>
                           </ListItemSecondaryAction>
                         </div>
+
+
+
+
                       </ListItem>
                     );
                   })}
