@@ -56,7 +56,7 @@ export default function QueueBlockItem(props: {
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <Typography data-cy="block-name" variant="h6" className={classes.title}>
-          My priorities
+          My Priorities
         </Typography>
       </div>
       <Typography data-cy="block-description" className={classes.subtitle}>
@@ -85,7 +85,7 @@ export default function QueueBlockItem(props: {
                   variant="h6"
                   style={{ padding: 15 }}
                 >
-                  Incomplete ({queueQus.length})
+                  Queued ({queueQus.length})
                 </Typography>
                 <CardActions>
                   <Button
