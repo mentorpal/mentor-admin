@@ -226,7 +226,7 @@ function RecordPage(props: {
     if (!curAnswer) {
       return;
     }
-    const text = curAnswer.answer.transcript;
+    const text = curAnswer.answer.markdownTranscript;
     updateTranscriptText(text);
   }, [curAnswer?.answer]);
 

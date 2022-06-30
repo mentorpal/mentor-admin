@@ -2080,7 +2080,7 @@ describe("Record", () => {
     cy.get("[data-cy=undo-question-btn]").should("be.disabled");
   });
 
-  it("Verify that transcript markdown loads as rich text", () => {
+  it.only("Verify that transcript markdown loads as rich text", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,
       questions: chatQuestions,
@@ -2116,7 +2116,7 @@ describe("Record", () => {
 
   it("Make changes to transcript using React WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
-      mentor: chatMentor,
+      mentor: clintMarkdown,
       questions: chatQuestions,
       gqlQueries: [
         mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
@@ -2124,13 +2124,12 @@ describe("Record", () => {
         mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("markdownTranscript", { me: { markdownTranscript: "" } }),
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
-
-    cy.get("[data-cy=transcript]").should("be.visible");
     cy.get(".editor-class").within(() => {
-      cy.get("[data-text]").type("{selectall}");
+      cy.get("[data-text]").eq(0).type("{selectall}");
     });
 
     cy.get(".rdw-option-wrapper").eq(0).click();

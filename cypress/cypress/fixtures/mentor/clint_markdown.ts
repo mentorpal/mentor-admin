@@ -137,6 +137,8 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
+        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+      markdownTranscript:
         "My _name_ is **Clint Anderson** and I'm a ++Nuclear Electrician's Mate++",
       status: Status.INCOMPLETE,
     },
@@ -149,7 +151,8 @@ export const mentor: Mentor = {
         name: null,
         paraphrases: [],
       },
-      transcript:
+      transcript: "I'm 37 years old",
+      markdownTranscript:
         "- I'm [37](https://en.wikipedia.org/wiki/37_%28number%29) years old",
       status: Status.INCOMPLETE,
     },
@@ -166,6 +169,7 @@ export const mentor: Mentor = {
         minVideoLength: 10,
       },
       transcript: "",
+      markdownTranscript: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -179,8 +183,9 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "- My name is Clint Anderson. I am a _Navy_ Nuclear Electrician's ++Mate++ \
-       ![](https://www.cool.osd.mil/usn/images/sideImage1_em_150324-N-WO404-020.png)",
+        "My name is Clint Anderson. I am a Navy Nuclear Electrician's Mate.",
+      markdownTranscript:
+        "- My _name_ is **Clint Anderson**. I am a ++Navy_ Nuclear Electrician's ++Mate++.",
       status: Status.INCOMPLETE,
     },
     {
@@ -194,8 +199,9 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript:
-        "1. I couldn't understand the [question](https://www.merriam-webster.com/dictionary/question). \
-        Try asking **me** something else.",
+        "I couldn't understand the question. Try asking me something else.",
+      markdownTranscript:
+        "- 1. I couldn't understand the [question](https://www.merriam-webster.com/dictionary/question). Try asking me something else.",
       status: Status.INCOMPLETE,
     },
     {
@@ -208,6 +214,7 @@ export const mentor: Mentor = {
         paraphrases: [],
       },
       transcript: "Complete answer",
+      markdownTranscript: "Complete answer",
       status: Status.COMPLETE,
     },
   ],

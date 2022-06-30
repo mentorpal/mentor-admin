@@ -92,6 +92,7 @@ export interface AnswerGQL {
   question: Question;
   hasEditedTranscript: boolean;
   transcript: string;
+  markdownTranscript: string;
   status: Status;
   webMedia?: Media;
   mobileMedia?: Media;
