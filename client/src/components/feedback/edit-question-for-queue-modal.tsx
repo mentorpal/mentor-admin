@@ -220,7 +220,9 @@ function EditQuestionForQueueModal(props: {
                       options={selectedSubject?.topics || []}
                       getOptionLabel={(option) => option.name}
                       onChange={(e, v) => {
-                        if (v != null) {selectedTopic.push(v)};
+                        if (v != null) {
+                          selectedTopic.push(v);
+                        }
                       }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (

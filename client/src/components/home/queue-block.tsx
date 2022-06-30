@@ -23,17 +23,18 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { QuestionState } from "store/slices/questions";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { navigate } from "@reach/router";
 
 export default function QueueBlockItem(props: {
   classes: Record<string, string>;
   queueIDList: unknown;
   mentorQuestions: Record<string, QuestionState>;
   onRecordAll: () => void;
-  onRecordOne: () => void;
 }): JSX.Element {
   const [isExpanded, setExpanded] = React.useState(false);
-  const { classes, queueIDList, mentorQuestions, onRecordAll, onRecordOne } = props;
+  const { classes, queueIDList, mentorQuestions, onRecordAll } = props;
   const queueQus = getQueueQuestions(queueIDList, mentorQuestions);
+  //const [ID, setID] = React.useState();
 
   function getQueueQuestions(
     queueIDList: unknown,
@@ -48,6 +49,11 @@ export default function QueueBlockItem(props: {
       }
     }
     return queueQuestions;
+  }
+
+  function onRecordOne(queueID: string) {
+    const link = '"/record?videoid=';
+    navigate(link.concat(queueID.concat('"')));
   }
 
   return (
@@ -69,7 +75,7 @@ export default function QueueBlockItem(props: {
               <div style={{ display: "flex", flexDirection: "row" }}>
                 <CardActions>
                   <IconButton
-                    data-cy="expand-btn"
+                    data-cy="queue-expand-btn"
                     size="small"
                     aria-expanded={isExpanded}
                     className={clsx(classes.expand, {
@@ -92,7 +98,11 @@ export default function QueueBlockItem(props: {
                     data-cy="record-all"
                     variant="outlined"
                     onClick={onRecordAll}
-                    disabled={(queueIDList as string[]).length == 0 || queueIDList == null || queueIDList == undefined}
+                    disabled={
+                      (queueIDList as string[]).length == 0 ||
+                      queueIDList == null ||
+                      queueIDList == undefined
+                    }
                   >
                     Record All
                   </Button>
@@ -108,13 +118,10 @@ export default function QueueBlockItem(props: {
                   {queueQus.map((qu, i) => {
                     return (
                       <ListItem
-                      data-cy={`question-${i}`}
+                        data-cy={`question-${i}`}
                         key={`item-${i}-${qu}`}
                         style={{ backgroundColor: "#eee" }}
                       >
-
-
-
                         <div>
                           <ListItemText
                             primary={qu} // question goes here
@@ -122,19 +129,17 @@ export default function QueueBlockItem(props: {
                           />
                           <ListItemSecondaryAction>
                             <Button
-                              data-cy="record-one"
+                              data-cy={`record-one-${i}`}
                               variant="outlined"
                               endIcon={<PlayArrowIcon />}
-                              onClick={() => onRecordOne()}
+                              onClick={() =>
+                                onRecordOne((queueIDList as string[])[i])
+                              }
                             >
                               Record
                             </Button>
                           </ListItemSecondaryAction>
                         </div>
-
-
-
-
                       </ListItem>
                     );
                   })}

@@ -54,7 +54,10 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { useQuestions } from "store/slices/questions/useQuestions";
+import {
+  isQuestionsLoading,
+  useQuestions,
+} from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -151,11 +154,11 @@ function formatMentorQuestions(
   const incompleteAnswers = mentorAnswers
     .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
     .sort((a, b) =>
-      (mentorQuestions[a._id].question?.question || "") >
-      (mentorQuestions[b._id].question?.question || "")
+      (mentorQuestions[a._id]?.question?.question || "") >
+      (mentorQuestions[b._id]?.question?.question || "")
         ? 1
-        : (mentorQuestions[a._id].question?.question || "") <
-          (mentorQuestions[b._id].question?.question || "")
+        : (mentorQuestions[a._id]?.question?.question || "") <
+          (mentorQuestions[b._id]?.question?.question || "")
         ? -1
         : 0
     );
@@ -364,8 +367,13 @@ function FeedbackPage(): JSX.Element {
 
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    (mentorAnswers || []).map((a) => a.question)
   );
+
+  const questionsLoading = isQuestionsLoading(
+    (mentorAnswers || []).map((a) => a.question)
+  );
+
   const {
     isPolling: isTraining,
     error: trainError,
@@ -408,6 +416,23 @@ function FeedbackPage(): JSX.Element {
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
+
+  if (!mentor || isMentorLoading || questionsLoading || isFeedbackLoading) {
+    return (
+      <div>
+        <NavBar title="Feedback" mentorId={mentorId} />
+        <LoadingDialog
+          title={
+            isMentorLoading || isFeedbackLoading
+              ? "Loading..."
+              : isTraining
+              ? "Building mentor..."
+              : ""
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div>

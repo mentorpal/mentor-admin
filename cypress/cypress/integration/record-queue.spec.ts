@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL, cySetup } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
+import clint from "../fixtures/mentor/clint_home";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
@@ -121,6 +122,31 @@ describe("Mentor Record Queue", () => {
       cy.get("[data-cy=topic-selector]").click();
       cy.get("[data-cy=Topic-option-back-topic2-id]").click();
       cy.get("[data-cy=modal-OK-btn]").click();
+    });
+  });
+
+  describe("Home Page", () => {
+    it.only("admins see the queue card", () => {
+      cyMockDefault(cy, {
+        mentor: clint,
+        gqlQueries: [
+          mockGQL("ImportTask", { importTask: null }),
+          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+          mockGQL("FetchMentorRecordQueue", {
+            me: {
+              mentorRecordQueue: ["A5_1_1", "A4_1_1"],
+            },
+          }),
+        ],
+      });
+      cy.visit("/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/");
+      });
+      cy.get("[data-cy=setup-no]").click();
+      cy.get("[data-cy=queue-block]").should("exist");
+      cy.get("[data-cy=queue-expand-btn]").click();
+      cy.get("[data-cy=record-one-1]").click();
     });
   });
 });

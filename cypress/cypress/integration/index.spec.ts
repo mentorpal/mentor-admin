@@ -92,11 +92,6 @@ describe("Index page", () => {
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        mockGQL("FetchMentorRecordQueue", {
-          me: {
-            mentorRecordQueue: [],
-          },
-        }),
       ],
     });
     cy.visit("/");
@@ -313,27 +308,5 @@ describe("Index page", () => {
       "contain.text",
       "Who are you and what do you do?"
     );
-  });
-
-  it.only('admins see the queue card', () => {
-    cyMockDefault(cy, {
-      mentor: [clint],
-      login: {
-        ...loginDefault,
-        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
-      },
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        mockGQL("FetchMentorRecordQueue", {
-          me: {
-            mentorRecordQueue: ["A5_1_1"],
-          },
-        }),
-      ],
-    });
-    cy.visit("/");
-    cy.get("[data-cy=queue-block]").should("exist");
-    
   });
 });

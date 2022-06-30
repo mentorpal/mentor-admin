@@ -152,7 +152,14 @@ function HomePage(props: {
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
-  const queueList = fetchMentorRecordQueue(props.accessToken); // changes
+
+  //const queueList = fetchMentorRecordQueue(props.accessToken); // changes
+  const [queueList, setQueueList] = useState<string[]>([]);
+  useEffect(() => {
+    fetchMentorRecordQueue(props.accessToken).then((queueList) => {
+      setQueueList(queueList);
+    });
+  }, []);
 
   if (!(mentorId && setupStatus)) {
     return (
@@ -292,15 +299,14 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-          <ListItem>
-            <QueueBlockItem
-              classes={classes}
-              queueIDList={queueList}
-              mentorQuestions={mentorQuestions}
-              onRecordAll={saveBeforeCallback}
-              onRecordOne={saveBeforeCallback}
-            />
-          </ListItem>
+        <ListItem>
+          <QueueBlockItem
+            classes={classes}
+            queueIDList={queueList}
+            mentorQuestions={mentorQuestions}
+            onRecordAll={saveBeforeCallback}
+          />
+        </ListItem>
       </List>
 
       <List
