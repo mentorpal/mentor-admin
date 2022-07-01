@@ -18,7 +18,6 @@ export const mentor: Mentor = {
   thumbnail: "https://new.url/test.png",
   name: "Clinton Anderson",
   firstName: "Clint",
-  isPrivate: false,
   title: "Nuclear Electrician's Mate",
   email: "clint@anderson.com",
   mentorType: MentorType.VIDEO,

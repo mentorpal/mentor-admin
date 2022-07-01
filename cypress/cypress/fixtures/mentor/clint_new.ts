@@ -18,7 +18,6 @@ export const mentor: Mentor = {
   name: "Clint Anderson",
   firstName: "",
   title: "The Original Clint",
-  isPrivate: false,
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
   email: "",
