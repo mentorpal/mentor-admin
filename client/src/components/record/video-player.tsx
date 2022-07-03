@@ -18,12 +18,36 @@ import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
-import useScript from "hooks/task/use-script";
 
 const ML5JS = (props: any) => {
-  useScript("https://unpkg.com/ml5@0.12.2/dist/ml5.min.js");
-  return <div>{props}</div>;
-  // rest of your component
+  return (
+    <html lang="en">
+      <head>
+        <title>Getting Started with ml5.js</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+          
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/addons/p5.sound.min.js"></script>
+          
+          <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+      </head>
+
+      <body>
+        <script>
+          console.log('ml5 version:', ml5.version);
+
+          function setup() {
+            createCanvas(400, 400)
+          };
+
+          function draw() {
+            background(200)
+          };
+        </script>
+      </body>
+    </html>
+
+  )
 };
 
 function VideoPlayer(props: {
@@ -300,5 +324,13 @@ function VideoPlayer(props: {
     </div>
   );
 }
-console.log("ml5 version:", ml5.version);
+
 export default VideoPlayer;
+function createCanvas(arg0: number, arg1: number): string | number | boolean | {} | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactNodeArray | React.ReactPortal | null | undefined {
+  throw new Error("Function not implemented.");
+}
+
+function background(arg0: number): string | number | boolean | {} | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactNodeArray | React.ReactPortal | null | undefined {
+  throw new Error("Function not implemented.");
+}
+
