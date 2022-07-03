@@ -18,6 +18,13 @@ import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
+import useScript from "hooks/task/use-script";
+
+const ML5JS = (props: any) => {
+  useScript("https://unpkg.com/ml5@0.12.2/dist/ml5.min.js");
+  return <div>{props}</div>;
+  // rest of your component
+};
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -163,6 +170,9 @@ function VideoPlayer(props: {
               ? "You may continue to record other questions."
               : undefined}
           </div>
+          <div>
+            <ML5JS />
+          </div>
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
@@ -290,5 +300,5 @@ function VideoPlayer(props: {
     </div>
   );
 }
-
+console.log("ml5 version:", ml5.version);
 export default VideoPlayer;
