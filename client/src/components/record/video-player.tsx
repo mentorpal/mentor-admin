@@ -18,7 +18,15 @@ import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
-import ML5JS from "./graphics-client";
+
+import ml5 from "ml5";
+import p5 from "p5";
+
+function ConsoleLog() {
+  console.log("ml5: ", ml5.version);
+  console.log("p5: ", p5.version);
+  return <div></div>;
+}
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -165,7 +173,7 @@ function VideoPlayer(props: {
               : undefined}
           </div>
           <div>
-            <ML5JS />
+            <ConsoleLog />
           </div>
           <ReactPlayer
             data-cy="video-player"
@@ -296,33 +304,3 @@ function VideoPlayer(props: {
 }
 
 export default VideoPlayer;
-function createCanvas(
-  arg0: number,
-  arg1: number
-):
-  | string
-  | number
-  | boolean
-  | {}
-  | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-  | React.ReactNodeArray
-  | React.ReactPortal
-  | null
-  | undefined {
-  throw new Error("Function not implemented.");
-}
-
-function background(
-  arg0: number
-):
-  | string
-  | number
-  | boolean
-  | {}
-  | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-  | React.ReactNodeArray
-  | React.ReactPortal
-  | null
-  | undefined {
-  throw new Error("Function not implemented.");
-}

@@ -8,3 +8,5 @@ declare module "*.jpg";
 declare module "*.png";
 declare module "*.jpeg";
 declare module "*.gif";
+declare module "ml5";
+declare module "p5";
