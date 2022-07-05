@@ -4,7 +4,12 @@
   "description": "Top level package list for mentor-admin",
   "main": "index.js",
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/react-draft-wysiwyg": "^1.13.4",
+    "cypress-react-selector": "^2.3.20",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "license-check-and-add": "^4.0.2",
+    "lodash": "^4.17.21",
     "prettier": "^2.3.0"
   },
   "scripts": {
@@ -23,5 +28,9 @@
   "bugs": {
     "url": "https://github.com/mentorpal/mentor-admin/issues"
   },
-  "homepage": "https://github.com/mentorpal/mentor-admin#readme"
+  "homepage": "https://github.com/mentorpal/mentor-admin#readme",
+  "dependencies": {
+    "cypress-commands": "^3.0.0",
+    "cypress-real-events": "^1.7.0"
+  }
 }

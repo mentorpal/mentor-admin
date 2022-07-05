@@ -66,6 +66,7 @@ export interface Mentor {
   mentorType: MentorType;
   lastTrainedAt: string;
   isDirty: boolean;
+  isPrivate: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   topics: Topic[];
@@ -131,6 +132,7 @@ export interface Answer {
   questionClientId: string;
   hasEditedTranscript: boolean;
   transcript: string;
+  markdownTranscript?: string;
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
