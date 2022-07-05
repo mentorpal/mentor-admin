@@ -255,6 +255,7 @@ describe("My Mentor Page", () => {
                 _id: "A1_1_1",
                 question: {
                   _id: "A1_1_1",
+                  clientId: "C1_1_1",
                   question: "Who are you and what do you do?",
                   type: QuestionType.QUESTION,
                   name: null,
@@ -369,6 +370,7 @@ describe("My Mentor Page", () => {
                 {
                   question: {
                     _id: "A1_1_6",
+                    clientId: "C1_1_6",
                     question: "additional question?",
                     type: QuestionType.QUESTION,
                     name: null,
@@ -391,6 +393,7 @@ describe("My Mentor Page", () => {
               _id: "A1_1_6",
               question: {
                 _id: "A1_1_6",
+                clientId: "C1_1_6",
                 question: "additional question?",
                 type: QuestionType.QUESTION,
                 name: null,
