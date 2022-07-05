@@ -23,18 +23,17 @@ import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import { QuestionState } from "store/slices/questions";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { navigate } from "@reach/router";
+import { navigate } from "gatsby-link";
+import { urlBuild } from "helpers";
 
 export default function QueueBlockItem(props: {
   classes: Record<string, string>;
   queueIDList: unknown;
   mentorQuestions: Record<string, QuestionState>;
-  onRecordAll: () => void;
 }): JSX.Element {
   const [isExpanded, setExpanded] = React.useState(false);
-  const { classes, queueIDList, mentorQuestions, onRecordAll } = props;
+  const { classes, queueIDList, mentorQuestions } = props;
   const queueQus = getQueueQuestions(queueIDList, mentorQuestions);
-  //const [ID, setID] = React.useState();
 
   function getQueueQuestions(
     queueIDList: unknown,
@@ -52,8 +51,26 @@ export default function QueueBlockItem(props: {
   }
 
   function onRecordOne(queueID: string) {
-    const link = '"/record?videoid=';
-    navigate(link.concat(queueID.concat('"')));
+    navigate(
+      urlBuild("/record", {
+        videoId: queueID,
+        back: urlBuild(
+          "/",
+          {}
+        ),
+      })
+    );
+  }
+
+  function onRecordAll(queueIDList: string[]){
+    let link = "/record?";
+    for (let i = 0; i < (queueIDList as string[]).length; i++) {
+    link +=  "videoId=" + queueIDList[i];
+      if (i != (queueIDList as string[]).length -1) {
+        link += "&";
+      }
+    }
+    navigate(link);
   }
 
   return (
@@ -95,9 +112,9 @@ export default function QueueBlockItem(props: {
                 </Typography>
                 <CardActions>
                   <Button
-                    data-cy="record-all"
+                    data-cy="record-all-queue"
                     variant="outlined"
-                    onClick={onRecordAll}
+                    onClick={() => onRecordAll(queueIDList as string[])}
                     disabled={
                       (queueIDList as string[]).length == 0 ||
                       queueIDList == null ||
@@ -124,7 +141,7 @@ export default function QueueBlockItem(props: {
                       >
                         <div>
                           <ListItemText
-                            primary={qu} // question goes here
+                            primary={qu}
                             style={{ marginRight: 100 }}
                           />
                           <ListItemSecondaryAction>

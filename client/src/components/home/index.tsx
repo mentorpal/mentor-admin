@@ -304,7 +304,6 @@ function HomePage(props: {
             classes={classes}
             queueIDList={queueList}
             mentorQuestions={mentorQuestions}
-            onRecordAll={saveBeforeCallback}
           />
         </ListItem>
       </List>

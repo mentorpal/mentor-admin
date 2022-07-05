@@ -126,7 +126,7 @@ describe("Mentor Record Queue", () => {
   });
 
   describe("Home Page", () => {
-    it.only("admins see the queue card", () => {
+    it("admins see the queue card", () => {
       cyMockDefault(cy, {
         mentor: clint,
         gqlQueries: [
@@ -134,7 +134,7 @@ describe("Mentor Record Queue", () => {
           mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
           mockGQL("FetchMentorRecordQueue", {
             me: {
-              mentorRecordQueue: ["A5_1_1", "A4_1_1"],
+              mentorRecordQueue: ["A2_1_1", "A4_1_1"],
             },
           }),
         ],
@@ -146,7 +146,9 @@ describe("Mentor Record Queue", () => {
       cy.get("[data-cy=setup-no]").click();
       cy.get("[data-cy=queue-block]").should("exist");
       cy.get("[data-cy=queue-expand-btn]").click();
-      cy.get("[data-cy=record-one-1]").click();
+      cy.get("[data-cy=record-all-queue]").click();
+    
+
     });
   });
 });
