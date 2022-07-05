@@ -23,6 +23,7 @@ export default function MyMentorCard(props: {
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
+  localHasSeenTooltips: boolean;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -68,6 +69,7 @@ export default function MyMentorCard(props: {
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
                 hasSeenTooltips={props.hasSeenTooltips}
+                localHasSeenTooltips={props.localHasSeenTooltips}
               />
             </Grid>
             <Grid item xs={8}>
@@ -76,6 +78,7 @@ export default function MyMentorCard(props: {
                 updateThumbnail={updateThumbnail}
                 incrementTooltip={props.incrementTooltip}
                 idxTooltip={props.idxTooltip}
+                localHasSeenTooltips={props.localHasSeenTooltips}
               />
             </Grid>
           </Grid>

@@ -284,6 +284,7 @@ function HomePage(props: {
           incrementTooltip={incrementTooltip}
           idxTooltip={idxTooltip}
           hasSeenTooltips={hasSeenTooltips}
+          localHasSeenTooltips={localHasSeenTooltips}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -300,10 +301,10 @@ function HomePage(props: {
 
         <ColorTooltip
           interactive={true}
-          open={idxTooltip == TooltipStep.CATEGORIES}
+          open={(idxTooltip == TooltipStep.CATEGORIES) || (hasSeenTooltips && Boolean(onmouseenter))}
           onClose={incrementTooltip}
           //if this is false then the tooltip doesn't respond to focus-visible elements
-          disableHoverListener
+          disableHoverListener={!hasSeenTooltips}
           arrow
           placement="left"
           //contains all text inside tooltip

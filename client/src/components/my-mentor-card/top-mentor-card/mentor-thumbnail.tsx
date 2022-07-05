@@ -63,6 +63,7 @@ function MentorThumbnail(props: {
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
+  localHasSeenTooltips: boolean;
 }): JSX.Element {
   const {
     handleOpen,
@@ -75,6 +76,7 @@ function MentorThumbnail(props: {
     incrementTooltip,
     idxTooltip,
     hasSeenTooltips,
+    localHasSeenTooltips,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
@@ -119,7 +121,7 @@ function MentorThumbnail(props: {
                 interactive={true}
                 open={idxTooltip == TooltipStep.PROFILE}
                 onClose={() => incrementTooltip}
-                disableHoverListener={hasSeenTooltips}
+                disableHoverListener={localHasSeenTooltips}
                 arrow
                 placement="right"
                 //enterDelay={100000}

@@ -23,9 +23,10 @@ function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
   incrementTooltip: () => void;
+  localHasSeenTooltips: boolean;
   idxTooltip: number;
 }): JSX.Element {
-  const { incrementTooltip, idxTooltip } = props;
+  const { incrementTooltip, idxTooltip, localHasSeenTooltips } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -95,9 +96,11 @@ function MentorStatus(props: {
           <ColorTooltip
             data-cy="status-tooltip"
             interactive={true}
-            open={idxTooltip == TooltipStep.STATUS}
-            onClose={() => incrementTooltip}
-            disableHoverListener
+            open={idxTooltip == TooltipStep.STATUS || (localHasSeenTooltips && Boolean(onmouseenter))}
+            // onClose={!localHasSeenTooltips? incrementTooltip : }
+            onClose={incrementTooltip}
+            //disables the hovering functionality of the tooltips
+            disableHoverListener={!localHasSeenTooltips}
             arrow
             //contains all text inside tooltip
             title={
