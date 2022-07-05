@@ -1719,6 +1719,21 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.hidden");
   });
 
+  it.only("shows video player if mentor type is VIDEO and has video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+  });
+
   it("download video button only visible when video is present", () => {
     cyMockDefault(cy, {
       mentor: [

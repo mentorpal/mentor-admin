@@ -5,6 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
+import ml5 from "ml5";
+import p5 from "p5";
 
 function createCanvas(arg0: number, arg1: number): React.ReactNode {
   throw new Error("Function not implemented from: " + arg0 + " and " + arg1);
@@ -17,16 +19,6 @@ function background(arg0: number): React.ReactNode {
 const ML5JS = () => {
   return (
     <html lang="en">
-      <head>
-        <title>Getting Started with ml5.js</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/addons/p5.sound.min.js"></script>
-
-        <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-      </head>
-
       <body>
         <script>
           console.log("ml5 version:", ml5.version); function setup(){" "}
