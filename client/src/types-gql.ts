@@ -57,6 +57,7 @@ export interface MentorGQL {
   mentorType: MentorType;
   lastTrainedAt: string;
   isDirty: boolean;
+  isPrivate: boolean;
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
   topics: Topic[];
@@ -91,6 +92,7 @@ export interface AnswerGQL {
   question: Question;
   hasEditedTranscript: boolean;
   transcript: string;
+  markdownTranscript?: string;
   status: Status;
   webMedia?: Media;
   mobileMedia?: Media;
