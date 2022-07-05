@@ -15,7 +15,11 @@ export const users = {
         name: "Admin",
         email: "admin@opentutor.org",
         userRole: UserRole.ADMIN,
-        defaultMentor: "clintanderson",
+        defaultMentor: {
+          _id: "clintanderson",
+          name: "Admin",
+          isPrivate: false,
+        },
       },
     },
     {
@@ -25,7 +29,11 @@ export const users = {
         name: "Content Manager",
         email: "contentmanager@opentutor.org",
         userRole: UserRole.CONTENT_MANAGER,
-        defaultMentor: "clintanderson",
+        defaultMentor: {
+          _id: "clintanderson",
+          name: "Content Manager",
+          isPrivate: false,
+        },
       },
     },
     {
@@ -35,7 +43,7 @@ export const users = {
         name: "User",
         email: "user@opentutor.org",
         userRole: UserRole.USER,
-        defaultMentor: "clintanderson",
+        defaultMentor: { _id: "clintanderson", name: "User", isPrivate: false },
       },
     },
   ],
