@@ -242,6 +242,7 @@ export async function fetchConfig(): Promise<Config> {
 }
 
 export async function fetchUsers(
+  accessToken: string,
   searchParams?: SearchParams
 ): Promise<Connection<User>> {
   const params = { ...defaultSearchParams, ...searchParams };
@@ -259,6 +260,8 @@ export async function fetchUsers(
               userRole
               defaultMentor {
                 _id
+                name
+                isPrivate
               }
             }
           }
@@ -278,7 +281,25 @@ export async function fetchUsers(
         sortAscending,
       },
     },
-    { dataPath: "users" }
+    { dataPath: "users", accessToken }
+  );
+}
+
+export async function updateMentorPrivacy(
+  mentorId: string,
+  isPrivate: boolean,
+  accessToken: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!) {
+        me {
+          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate)
+        }
+      }`,
+      variables: { mentorId, isPrivate },
+    },
+    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
   );
 }
 
@@ -897,6 +918,7 @@ export async function updateMentorDetails(
           email: mentor.email,
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
+          isPrivate: mentor.isPrivate,
         },
       },
     },
@@ -1261,7 +1283,10 @@ export async function deleteUploadTask(
   );
 }
 
-export async function exportMentor(mentor: string): Promise<MentorExportJson> {
+export async function exportMentor(
+  mentor: string,
+  accessToken: string
+): Promise<MentorExportJson> {
   return execGql<MentorExportJson>(
     {
       query: `
@@ -1393,13 +1418,14 @@ export async function exportMentor(mentor: string): Promise<MentorExportJson> {
       `,
       variables: { mentor },
     },
-    { dataPath: ["mentorExport"] }
+    { dataPath: ["mentorExport"], accessToken }
   );
 }
 
 export async function importMentorPreview(
   mentor: string,
-  json: MentorExportJson
+  json: MentorExportJson,
+  accessToken: string
 ): Promise<MentorImportPreview> {
   return execGql<MentorImportPreview>(
     {
@@ -1587,7 +1613,7 @@ export async function importMentorPreview(
       `,
       variables: { mentor, json },
     },
-    { dataPath: ["mentorImportPreview"] }
+    { dataPath: ["mentorImportPreview"], accessToken }
   );
 }
 
