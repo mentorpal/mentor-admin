@@ -758,8 +758,8 @@ describe("Setup", () => {
     it("cannot go to my mentor if mentor info incomplete", () => {
       cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
-      cy.get("[data-cy=go-to-my-mentor-button]").should("not.exist");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
+      cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
     });
 
     it("go to my mentor page button visible if setup complete", () => {
