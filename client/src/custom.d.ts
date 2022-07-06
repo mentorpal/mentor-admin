@@ -8,5 +8,5 @@ declare module "*.jpg";
 declare module "*.png";
 declare module "*.jpeg";
 declare module "*.gif";
-declare module "ml5";
-declare module "p5";
+declare module "draft-js-import-markdown";
+declare module "draft-js-export-markdown";

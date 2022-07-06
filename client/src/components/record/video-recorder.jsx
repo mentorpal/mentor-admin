@@ -13,7 +13,24 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+//////////////////////////////////////////////////////////////
+import "@tensorflow/tfjs-backend-core";
+import "@tensorflow/tfjs-backend-webgl";
+import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 
+const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation; // or 'BodyPix'
+
+const segmenterConfig = {
+  runtime: "mediapipe", // or 'tfjs'
+  modelType: "general", // or 'landscape'
+};
+
+segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+
+const video = document.getElementById("video");
+const person = await segmenter.segmentPerson(video);
+
+//////////////////////////////////////////////////////////////
 function VideoRecorder({
   classes,
   height,
