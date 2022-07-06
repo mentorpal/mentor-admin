@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-
+import { isValidObjectId } from "mongoose";
 import { addOrUpdateSubjectQuestions } from "api";
 import { urlBuild, copyAndSet } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -249,6 +249,7 @@ export function useWithReviewAnswerState(
       questionClientId: newQuestion.clientId,
       hasEditedTranscript: false,
       transcript: "",
+      markdownTranscript: "",
       status: Status.INCOMPLETE,
       media: undefined,
       hasUntransferredMedia: false,
@@ -386,7 +387,11 @@ export function useWithReviewAnswerState(
 
   function reloadQuestions() {
     const qIds = questions
-      ?.filter((q) => q.originalQuestion.question !== q.newQuestionText)
+      ?.filter(
+        (q) =>
+          q.originalQuestion.question !== q.newQuestionText &&
+          isValidObjectId(q.originalQuestion._id)
+      )
       .map((q) => q.originalQuestion._id);
     if (qIds) {
       return loadQuestions(qIds, true);

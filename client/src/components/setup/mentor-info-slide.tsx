@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
 import { Mentor } from "types";
 import { Slide } from "./slide";
@@ -15,12 +15,25 @@ export function MentorInfoSlide(props: {
   mentor?: Mentor;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
+  userName: string;
 }): JSX.Element {
-  const { classes, mentor, isMentorLoading, editMentor } = props;
-
+  const { classes, mentor, isMentorLoading, editMentor, userName } = props;
+  const [defaultsSet, setDefaultsSet] = useState(false);
   if (!mentor || isMentorLoading) {
     return <div />;
   }
+
+  useEffect(() => {
+    if (defaultsSet || isMentorLoading || !mentor) {
+      return;
+    }
+    setDefaultsSet(true);
+    editMentor({
+      ...(!mentor.title ? { title: "Please enter your profession here" } : {}),
+      ...(!mentor.name ? { name: userName } : {}),
+      ...(!mentor.firstName ? { firstName: userName.split(" ")[0] } : {}),
+    });
+  }, [mentor]);
 
   return (
     <Slide
