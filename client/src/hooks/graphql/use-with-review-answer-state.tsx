@@ -249,6 +249,7 @@ export function useWithReviewAnswerState(
       questionClientId: newQuestion.clientId,
       hasEditedTranscript: false,
       transcript: "",
+      markdownTranscript: "",
       status: Status.INCOMPLETE,
       media: undefined,
       hasUntransferredMedia: false,
