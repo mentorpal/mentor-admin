@@ -471,7 +471,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("mentor-slide-4"));
   });
 
-  it("shows mentor chat type", () => {
+  it("Shows mentor chat type", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null, subjects: subjectData },
