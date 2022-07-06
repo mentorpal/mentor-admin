@@ -139,7 +139,7 @@ function formatMentorQuestions(
   mentorAnswers: Answer[],
   mentorQuestions: Record<string, QuestionState>
 ) {
-  if (!mentorAnswers.length || Object.keys(mentorQuestions).length) {
+  if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
     return mentorAnswers;
   }
   const completeAnswers = mentorAnswers
@@ -192,15 +192,15 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] = useState<Status>(); // for disabling/enabling queue button
-  const [selectedAnswerID, setSelectedAnswerID] = useState<string>();
+  const [selectedAnswerStatus, setSelectedAnswerStatus] = React.useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
 
   // function to add/remove from queue
   async function queueButtonClicked(
     selectedAnswerID: string,
     accessToken: string
   ) {
-    if (queueList?.includes(selectedAnswerID)) {
+    if (queueList.includes(selectedAnswerID)) {
       setQueueList(
         await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
       );
@@ -219,7 +219,7 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
-    setSelectedAnswerID(answerId);
+    setSelectedAnswerID(answerId || "");
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -280,6 +280,8 @@ function FeedbackItem(props: {
               }
               onChange={(e, v) => {
                 setSelectedAnswerStatus(v?.status);
+                console.log("var:"+selectedAnswerStatus);
+                console.log("stat:" + v?.status);
                 onUpdateAnswer(v?._id);
               }}
               style={{
