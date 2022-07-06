@@ -390,7 +390,7 @@ export function useWithReviewAnswerState(
       ?.filter(
         (q) =>
           q.originalQuestion.question !== q.newQuestionText &&
-          !isValidObjectId(q.originalQuestion._id)
+          isValidObjectId(q.originalQuestion._id)
       )
       .map((q) => q.originalQuestion._id);
     if (qIds) {
