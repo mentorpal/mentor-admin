@@ -337,7 +337,7 @@ describe("Setup", () => {
     });
   });
 
-  it.only("shows mentor slide", () => {
+  it.only("Shows mentor slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
