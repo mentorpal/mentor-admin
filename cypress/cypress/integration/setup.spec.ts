@@ -309,7 +309,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
 
-  it("shows the walkthrough link if receive data from graphql", () => {
+  it("Shows the walkthrough link if receive data from graphql", () => {
     cyMockDefault(cy, {
       ...baseMock,
       config: {
