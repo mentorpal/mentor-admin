@@ -325,7 +325,7 @@ describe("Setup", () => {
     });
   });
 
-  it("doesn't show walkthrough link if no data from graphql", () => {
+  it("Doesn't show walkthrough link if no data from graphql", () => {
     cyMockDefault(cy, {
       ...baseMock,
     });
@@ -337,7 +337,7 @@ describe("Setup", () => {
     });
   });
 
-  it("Shows mentor slide", () => {
+  it.only("Shows mentor slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
