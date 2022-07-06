@@ -142,7 +142,12 @@ function cyVisitSetupScreen(cy, screen: SetupScreen) {
 describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
-      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
+      cyMockDefault(cy, {
+        mentor: { ...setup0, subjects: subjectData },
+        gqlQueries: [
+          mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        ],
+      });
       cy.visit("/setup");
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -172,27 +177,23 @@ describe("Setup", () => {
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
-        "not.have.text",
-        "Let's record a short idle calibration video"
-      );
-      cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Idle and Initial Recordings"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=next-btn]").should("not.be.visible");
     });
 
     it("with back button", () => {
       cyMockDefault(cy, {
         mentor: { ...setup0, subjects: subjectData },
-        gqlQueries: [mockGQL("ImportTask", {})],
+        gqlQueries: [
+          mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        ],
       });
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=next-btn]").should("not.be.visible");
-
-      cy.get("[data-cy=slide-title]").should("have.text", "Oops!");
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
@@ -225,11 +226,15 @@ describe("Setup", () => {
         "have.text",
         "Welcome to MentorStudio!"
       );
-      cy.get("[data-cy=back-btn]").should("not.be.visible");
     });
 
     it("with radio buttons", () => {
-      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
+      cyMockDefault(cy, {
+        mentor: { ...setup0, subjects: subjectData },
+        gqlQueries: [
+          mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        ],
+      });
       cy.visit("/setup");
       cy.contains("Welcome to MentorStudio!");
       cy.get("[data-cy=radio]").eq(1).trigger("mouseover").click();
@@ -245,7 +250,7 @@ describe("Setup", () => {
       cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
       cy.contains("Idle and Initial Recordings");
       cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
-      cy.contains("Oops!");
+      cy.contains("Good work!");
       cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
       cy.contains("Welcome to MentorStudio!");
     });
@@ -267,7 +272,18 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Idle_And_Initial_Recordings);
       cy.get("[data-cy=slide]").contains("Idle and Initial Recordings");
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
-      cy.get("[data-cy=slide]").contains("Oops!");
+      cy.get("[data-cy=slide]").contains("Good work!");
+    });
+  });
+
+  it("title default text if does not exist", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...setup0, title: "" },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
   });
 
@@ -338,29 +354,22 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     // empty mentor slide
     cy.contains("Tell us a little about yourself.");
-    cy.get("[data-cy=first-name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=first-name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=name]").within(($input) => {
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+    cy.getSettled("[data-cy=mentor-title]").within(($input) => {
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
-    cy.get("[data-cy=email]").within(($input) => {
+    cy.getSettled("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
-    cy.getSettled("[data-cy=first-name]", { retries: 4 }).type("Clint");
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).within(($input) => {
+      cy.get("input").clear().type("Clint");
+    });
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -368,13 +377,13 @@ describe("Setup", () => {
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=name]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Clinton Anderson");
     });
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
@@ -391,7 +400,9 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.matchImageSnapshot(snapname("mentor-slide-1"));
     // fill out full name and save
-    cy.getSettled("[data-cy=name]", { retries: 4 }).type("Clinton Anderson");
+    cy.getSettled("[data-cy=name]", { retries: 4 })
+      .clear()
+      .type("Clinton Anderson");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
@@ -399,7 +410,7 @@ describe("Setup", () => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
     cy.get("[data-cy=mentor-title]").within(($input) => {
-      cy.get("input").should("have.value", "");
+      cy.get("input").should("have.value", "Please enter your profession here");
     });
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
@@ -410,12 +421,12 @@ describe("Setup", () => {
     cy.contains("Tell us a little about yourself.");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     cy.matchImageSnapshot(snapname("mentor-slide-2"));
     // fill out title and save
-    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).type(
-      "Nuclear Electrician's Mate"
-    );
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 })
+      .clear()
+      .type("Nuclear Electrician's Mate");
     cy.get("[data-cy=first-name]").within(($input) => {
       cy.get("input").should("have.value", "Clint");
     });
