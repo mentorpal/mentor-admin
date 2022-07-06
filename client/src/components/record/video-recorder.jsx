@@ -35,20 +35,21 @@ function VideoRecorder({
     plugins: {
       record: {
         audio: true,
-        video: true,
         debug: true,
         maxLength: videoRecorderMaxLength,
         video: {
+          // do not set max's and min's, this will cause a rejection of video cameras that do not meet the requirements
           width: {
-            max: 1280
+            ideal: 1280,
           },
           height: {
-            max: 720
-          }
-        }
+            ideal: 720,
+          },
+        },
       },
     },
   };
+  console.log(videoJsOptions);
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
