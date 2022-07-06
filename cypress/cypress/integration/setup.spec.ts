@@ -354,16 +354,16 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     // empty mentor slide
     cy.contains("Tell us a little about yourself.");
-    cy.getSettled("[data-cy=first-name]").within(($input) => {
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Clinton");
     });
-    cy.getSettled("[data-cy=name]").within(($input) => {
+    cy.getSettled("[data-cy=name]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.getSettled("[data-cy=mentor-title]").within(($input) => {
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Please enter your profession here");
     });
-    cy.getSettled("[data-cy=email]").within(($input) => {
+    cy.getSettled("[data-cy=email]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
