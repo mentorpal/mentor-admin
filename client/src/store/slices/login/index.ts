@@ -80,8 +80,8 @@ export const userSawTooltips = createAsyncThunk(
         accessToken
       );
     } catch (err) {
-      console.error(err.response.data);
-      return rejectWithValue(err.response.data);
+      console.error(extractErrorMessageFromError(err.response.data));
+      return rejectWithValue(extractErrorMessageFromError(err.response.data));
     }
   }
 );
