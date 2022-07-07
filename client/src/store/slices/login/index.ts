@@ -72,7 +72,7 @@ export const userSawSplashScreen = createAsyncThunk(
 export const userSawTooltips = createAsyncThunk(
   "login/userSawTooltips", //action
   //callback function
-  async (accessToken: string, { rejectWithValue }) => {
+  async (accessToken: string) => {
     try {
       //promise
       return await api.updateMyFirstTimeTracking(
