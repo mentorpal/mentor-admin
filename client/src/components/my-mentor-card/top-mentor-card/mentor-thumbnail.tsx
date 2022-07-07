@@ -63,7 +63,6 @@ function MentorThumbnail(props: {
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
-  localHasSeenTooltips: boolean;
 }): JSX.Element {
   const {
     handleOpen,
@@ -76,7 +75,6 @@ function MentorThumbnail(props: {
     incrementTooltip,
     idxTooltip,
     hasSeenTooltips,
-    localHasSeenTooltips,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
@@ -119,12 +117,15 @@ function MentorThumbnail(props: {
               <ColorTooltip
                 data-cy="profile-tooltip"
                 interactive={true}
-                open={idxTooltip == TooltipStep.PROFILE}
-                onClose={() => incrementTooltip}
-                disableHoverListener={localHasSeenTooltips}
+                open={
+                  hasSeenTooltips
+                    ? undefined
+                    : idxTooltip == TooltipStep.PROFILE
+                }
+                onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                disableHoverListener={!hasSeenTooltips}
                 arrow
                 placement="right"
-                //enterDelay={100000}
                 title={
                   <React.Fragment>
                     <IconButton

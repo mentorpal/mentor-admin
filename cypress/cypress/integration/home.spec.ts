@@ -113,48 +113,48 @@ describe("My Mentor Page", () => {
       "have.text",
       "The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."
     );
-    // cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
-    // cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
-    // cy.get("[data-cy=notification-dialog]").should("not.exist");
+    cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
+    cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
+    cy.get("[data-cy=notification-dialog]").should("not.exist");
 
-    // cy.get("[data-cy=profile-tooltip").should("exist");
-    // cy.get("[data-cy=profile-tooltip-title").should("have.text", "My Profile");
-    // cy.get("[data-cy=profile-tooltip-close-btn]").trigger("mouseover").click();
-    // cy.get("[data-cy=profile-tooltip-title").should("not.exist");
+    cy.get("[data-cy=profile-tooltip").should("exist");
+    cy.get("[data-cy=profile-tooltip-title").should("have.text", "My Profile");
+    cy.get("[data-cy=profile-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=profile-tooltip-title").should("not.exist");
 
-    // cy.get("[data-cy=status-tooltip").should("exist");
-    // cy.get("[data-cy=status-tooltip-title").should(
-    //   "have.text",
-    //   "Mentor Status"
-    // );
-    // cy.get("[data-cy=status-tooltip-close-btn]").trigger("mouseover").click();
-    // cy.get("[data-cy=status-tooltip-title").should("not.exist");
+    cy.get("[data-cy=status-tooltip").should("exist");
+    cy.get("[data-cy=status-tooltip-title").should(
+      "have.text",
+      "Mentor Status"
+    );
+    cy.get("[data-cy=status-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=status-tooltip-title").should("not.exist");
 
-    // cy.get("[data-cy=categories-tooltip-title").should(
-    //   "have.text",
-    //   "Recording Subjects"
-    // );
-    // cy.get("[data-cy=categories-tooltip-close-btn]")
-    //   .trigger("mouseover")
-    //   .click();
-    // cy.get("[data-cy=categories-tooltip-title").should("not.exist");
+    cy.get("[data-cy=categories-tooltip-title").should(
+      "have.text",
+      "Recording Subjects"
+    );
+    cy.get("[data-cy=categories-tooltip-close-btn]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=categories-tooltip-title").should("not.exist");
 
-    // cy.get("[data-cy=recommender-tooltip-title").should(
-    //   "have.text",
-    //   "Recommender"
-    // );
-    // cy.get("[data-cy=recommender-tooltip-close-btn]")
-    //   .trigger("mouseover")
-    //   .click();
-    // cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
+    cy.get("[data-cy=recommender-tooltip-title").should(
+      "have.text",
+      "Recommender"
+    );
+    cy.get("[data-cy=recommender-tooltip-close-btn]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
 
-    // cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
-    // cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
-    // cy.get("[data-cy=build-tooltip-title").should("not.exist");
+    cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
+    cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=build-tooltip-title").should("not.exist");
 
-    // cy.get("[data-cy=preview-tooltip-title").should("have.text", "Preview");
-    // cy.get("[data-cy=preview-tooltip-close-btn]").trigger("mouseover").click();
-    // cy.get("[data-cy=preview-tooltip-title").should("not.exist");
+    cy.get("[data-cy=preview-tooltip-title").should("have.text", "Preview");
+    cy.get("[data-cy=preview-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=preview-tooltip-title").should("not.exist");
   });
 
   it("doesn't show splash if mentor seen before", () => {

@@ -254,6 +254,7 @@ function HomePage(props: {
     incrementTooltip();
     setLocalHasSeenTooltips(true);
     userSawTooltips(props.accessToken);
+    console.log(hasSeenTooltips);
   }
 
   return (
@@ -301,7 +302,10 @@ function HomePage(props: {
 
         <ColorTooltip
           interactive={true}
-          open={(idxTooltip == TooltipStep.CATEGORIES) || (hasSeenTooltips && Boolean(onmouseenter))}
+          open={
+            idxTooltip == TooltipStep.CATEGORIES ||
+            (hasSeenTooltips && Boolean(onmouseenter))
+          }
           onClose={incrementTooltip}
           //if this is false then the tooltip doesn't respond to focus-visible elements
           disableHoverListener={!hasSeenTooltips}
@@ -435,9 +439,9 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}
-              open={idxTooltip == TooltipStep.BUILD}
-              onClose={incrementTooltip}
-              disableHoverListener
+              open={hasSeenTooltips? undefined : (idxTooltip == TooltipStep.BUILD)}
+              onClose={hasSeenTooltips ? undefined : incrementTooltip}
+              disableHoverListener={!hasSeenTooltips}
               arrow
               title={
                 <React.Fragment>

@@ -24,8 +24,9 @@ export default function RecommendedActionButton(props: {
   continueAction: () => void;
   incrementTooltip: () => void;
   idxTooltip: number;
+  hasSeenTooltips: boolean;
 }): JSX.Element {
-  const { incrementTooltip, idxTooltip } = props;
+  const { incrementTooltip, idxTooltip, hasSeenTooltips } = props;
   const [
     recommendedAction,
     skipRecommendation,
@@ -148,9 +149,14 @@ export default function RecommendedActionButton(props: {
 
                   <ColorTooltip
                     interactive={true}
-                    open={idxTooltip == TooltipStep.RECOMMENDER}
-                    onClose={incrementTooltip}
-                    disableHoverListener
+                    open={
+                      hasSeenTooltips
+                        ? undefined
+                        : idxTooltip == TooltipStep.RECOMMENDER
+                    }
+                    onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                    disableHoverListener={!hasSeenTooltips}
+                    enterDelay={hasSeenTooltips? 1500000: 100}
                     arrow
                     title={
                       <React.Fragment>
@@ -220,9 +226,9 @@ export default function RecommendedActionButton(props: {
               <ColorTooltip
                 data-cy="recommender-tooltip"
                 interactive={true}
-                open={idxTooltip == TooltipStep.RECOMMENDER}
-                onClose={incrementTooltip}
-                disableHoverListener
+                open={hasSeenTooltips? undefined : (idxTooltip == TooltipStep.RECOMMENDER)}
+                onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                disableHoverListener={!hasSeenTooltips}
                 arrow
                 title={
                   <React.Fragment>

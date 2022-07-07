@@ -69,7 +69,6 @@ export default function MyMentorCard(props: {
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
                 hasSeenTooltips={props.hasSeenTooltips}
-                localHasSeenTooltips={props.localHasSeenTooltips}
               />
             </Grid>
             <Grid item xs={8}>
@@ -79,6 +78,7 @@ export default function MyMentorCard(props: {
                 incrementTooltip={props.incrementTooltip}
                 idxTooltip={props.idxTooltip}
                 localHasSeenTooltips={props.localHasSeenTooltips}
+                hasSeenTooltips={props.hasSeenTooltips}
               />
             </Grid>
           </Grid>
