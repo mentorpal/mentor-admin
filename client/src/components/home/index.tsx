@@ -292,6 +292,10 @@ function HomePage(props: {
           idxTooltip={idxTooltip}
           hasSeenTooltips={hasSeenTooltips}
           localHasSeenTooltips={localHasSeenTooltips}
+          profileTooltipOpen={profileTooltipOpen}
+          setProfileTooltipOpen={setProfileTooltipOpen}
+          statusTooltipOpen={statusTooltipOpen}
+          setStatusTooltipOpen={setStatusTooltipOpen}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -364,8 +368,6 @@ function HomePage(props: {
               hasSeenTooltips && setRecordSubjectTooltipOpen(false);
             }}
             renderValue={() => (
-              // ALL ANSWERS TOOLTIP
-
               <Typography variant="h6" className={classes.title}>
                 {reviewAnswerState.selectedSubject
                   ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
@@ -453,9 +455,11 @@ function HomePage(props: {
               data-cy="build-tooltip"
               interactive={true}
               open={
-                hasSeenTooltips ? undefined : idxTooltip == TooltipStep.BUILD
+                !hasSeenTooltips
+                  ? idxTooltip == TooltipStep.BUILD
+                  : buildTooltipOpen
               }
-              onClose={hasSeenTooltips ? undefined : incrementTooltip}
+              onClose={incrementTooltip}
               disableHoverListener={!hasSeenTooltips}
               arrow
               title={
@@ -499,6 +503,12 @@ function HomePage(props: {
                 }
                 onClick={() => startTraining(mentorId)}
                 className={classes.fab}
+                onMouseEnter={() => {
+                  hasSeenTooltips && setBuildTooltipOpen(true);
+                }}
+                onMouseLeave={() => {
+                  hasSeenTooltips && setBuildTooltipOpen(false);
+                }}
               >
                 Build Mentor
               </Fab>
@@ -507,7 +517,11 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="preview-tooltip"
               interactive={true}
-              open={idxTooltip == TooltipStep.PREVIEW}
+              open={
+                hasSeenTooltips
+                  ? previewTooltipOpen
+                  : idxTooltip == TooltipStep.PREVIEW
+              }
               onClose={closePreviewTooltip}
               disableHoverListener
               arrow
@@ -547,6 +561,12 @@ function HomePage(props: {
                 color="secondary"
                 onClick={() => launchMentor(mentorId, true)}
                 className={classes.fab}
+                onMouseEnter={() => {
+                  hasSeenTooltips && setPreviewTooltipOpen(true);
+                }}
+                onMouseLeave={() => {
+                  hasSeenTooltips && setPreviewTooltipOpen(false);
+                }}
               >
                 Preview Mentor
               </Fab>

@@ -63,6 +63,8 @@ function MentorThumbnail(props: {
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
+  profileTooltipOpen: boolean;
+  setProfileTooltipOpen: (active: boolean) => void;
 }): JSX.Element {
   const {
     handleOpen,
@@ -75,6 +77,8 @@ function MentorThumbnail(props: {
     incrementTooltip,
     idxTooltip,
     hasSeenTooltips,
+    profileTooltipOpen,
+    setProfileTooltipOpen,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
@@ -119,10 +123,10 @@ function MentorThumbnail(props: {
                 interactive={true}
                 open={
                   hasSeenTooltips
-                    ? undefined
+                    ? profileTooltipOpen
                     : idxTooltip == TooltipStep.PROFILE
                 }
-                onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                onClose={incrementTooltip}
                 disableHoverListener={!hasSeenTooltips}
                 arrow
                 placement="right"
@@ -156,7 +160,17 @@ function MentorThumbnail(props: {
                   style: { maxWidth: 250, textAlign: "right" },
                 }}
               >
-                <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
+                <b
+                  style={{ margin: "0 0 0 12px" }}
+                  onMouseEnter={() => {
+                    hasSeenTooltips && setProfileTooltipOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    hasSeenTooltips && setProfileTooltipOpen(false);
+                  }}
+                >
+                  {editedMentor.name}
+                </b>
               </ColorTooltip>
             </div>
 
