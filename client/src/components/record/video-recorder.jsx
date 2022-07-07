@@ -27,8 +27,8 @@ const segmenterConfig = {
 
 segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
 
-const video = document.getElementById("video");
-const person = await segmenter.segmentPerson(video);
+const video = document.querySelectorAll('[data-cy="video"]');
+const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
 
 //////////////////////////////////////////////////////////////
 function VideoRecorder({

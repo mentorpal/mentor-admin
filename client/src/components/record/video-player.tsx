@@ -19,15 +19,6 @@ import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
 
-import ml5 from "ml5";
-import p5 from "p5";
-
-function ConsoleLog() {
-  console.log("ml5: ", ml5.version);
-  console.log("p5: ", p5.version);
-  return <div></div>;
-}
-
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
@@ -171,9 +162,6 @@ function VideoPlayer(props: {
             {!isCancelling
               ? "You may continue to record other questions."
               : undefined}
-          </div>
-          <div>
-            <ConsoleLog />
           </div>
           <ReactPlayer
             data-cy="video-player"

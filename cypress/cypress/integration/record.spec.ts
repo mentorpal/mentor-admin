@@ -24,10 +24,7 @@ import {
   completeSubjectQuestion,
   updateMentorAnswer,
 } from "../support/helpers";
-<<<<<<< HEAD
-=======
 import clintMarkdown from "../fixtures/mentor/clint_markdown";
->>>>>>> 4b15c7b065f01ceac43147bccdf3a25effbcfba6
 
 export function taskListBuild(progressForAllTasks) {
   return {
