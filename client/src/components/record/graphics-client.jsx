@@ -11,18 +11,28 @@ import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 
 const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation; // or 'BodyPix'
 
-export function ConsoleLog() {
+export function ConsoleLog(video, person) {
   console.log("video: ", video);
   console.log("person: ", person);
   return <div></div>;
 }
 
-const segmenterConfig = {
-  runtime: "mediapipe", // or 'tfjs'
-  modelType: "general", // or 'landscape'
-};
+export default aysnc function SelfieSegmentation() {
 
-segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+  const segmenterConfig = {
+    runtime: "mediapipe", // or 'tfjs'
+    modelType: "general", // or 'landscape'
+  };
 
-const video = document.querySelectorAll("[data-cy=video]");
-const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
+  segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+
+  const video = document.querySelectorAll("[data-cy=video]");
+  const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
+
+
+  return (
+    <div>
+      <ConsoleLog />
+    </div>
+  );  
+}
