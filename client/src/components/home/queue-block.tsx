@@ -54,19 +54,16 @@ export default function QueueBlockItem(props: {
     navigate(
       urlBuild("/record", {
         videoId: queueID,
-        back: urlBuild(
-          "/",
-          {}
-        ),
+        back: urlBuild("/", {}),
       })
     );
   }
 
-  function onRecordAll(queueIDList: string[]){
+  function onRecordAll(queueIDList: string[]) {
     let link = "/record?";
     for (let i = 0; i < (queueIDList as string[]).length; i++) {
-    link +=  "videoId=" + queueIDList[i];
-      if (i != (queueIDList as string[]).length -1) {
+      link += "videoId=" + queueIDList[i];
+      if (i != (queueIDList as string[]).length - 1) {
         link += "&";
       }
     }
