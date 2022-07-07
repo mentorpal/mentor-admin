@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Button,
@@ -36,7 +36,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists, onTextInputChanged } from "helpers";
+import { getValueIfKeyExists } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -51,6 +51,11 @@ import {
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
+import { Editor } from "react-draft-wysiwyg";
+import { EditorState, ContentState } from "draft-js";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { stateFromMarkdown } from "draft-js-import-markdown";
+import { stateToMarkdown } from "draft-js-export-markdown";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -118,6 +123,27 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const toolBarOpts = {
+  options: ["inline", "list", "link", "history"],
+  inline: {
+    className: "toolbar-inline",
+    options: ["bold", "italic", "underline"],
+  },
+  list: {
+    className: "toolbar-list",
+    options: ["unordered", "ordered"],
+  },
+  link: {
+    className: "toolbar-link",
+    inDropdown: true,
+    showOpenOptionOnHover: true,
+  },
+  history: {
+    className: "toolbar-history",
+    options: ["undo", "redo"],
+  },
+};
+
 export interface LeaveConfirmation {
   message: string;
   callback: () => void;
@@ -136,6 +162,7 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
+
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
 
@@ -166,6 +193,47 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
+
+  const [transcriptText, setTranscriptText] = useState<string>("");
+  const [editorState, setEditorState] = useState<EditorState>(
+    EditorState.createWithContent(ContentState.createFromText(""))
+  );
+  const markdownConfig = {
+    blockTypesMapping: {
+      /* mappings */
+    },
+    emptyLineBeforeBlock: true,
+  };
+
+  function updateTranscriptText(text: string) {
+    const contentState = stateFromMarkdown(text, markdownConfig);
+    const editorState = EditorState.createWithContent(contentState);
+    setEditorState(editorState);
+    setTranscriptText(text);
+    return transcriptText;
+  }
+
+  function getMarkdownFromEditor(contentState: ContentState) {
+    const markdown = stateToMarkdown(contentState, markdownConfig);
+    return markdown;
+  }
+
+  function updateTranscriptWithMarkdown(markdown: string) {
+    recordState.editAnswer({ transcript: markdown });
+  }
+
+  useEffect(() => {
+    if (!curAnswer) {
+      return;
+    }
+    let text = "";
+    if (curAnswer.answer.markdownTranscript) {
+      text = curAnswer.answer.markdownTranscript;
+    } else {
+      text = curAnswer.answer.transcript;
+    }
+    updateTranscriptText(text);
+  }, [curAnswer?.answer]);
 
   function onBack() {
     reloadMentorData();
@@ -223,6 +291,7 @@ function RecordPage(props: {
       </div>
     );
   }
+
   function transcriptDisplay() {
     if (!curAnswer) {
       return;
@@ -256,41 +325,19 @@ function RecordPage(props: {
             </text>
           ) : undefined}
         </Typography>
-        <FormControl className={classes.inputField} variant="outlined">
-          <OutlinedInput
-            data-cy="transcript-input"
-            multiline
-            value={curAnswer.editedAnswer.transcript}
-            onChange={(e) =>
-              onTextInputChanged(e, () => {
-                recordState.editAnswer({
-                  transcript: e.target.value,
-                  hasEditedTranscript:
-                    e.target.value !== curAnswer.answer.transcript,
-                });
-              })
-            }
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  data-cy="undo-transcript-btn"
-                  disabled={
-                    curAnswer.editedAnswer.transcript ===
-                    curAnswer.answer.transcript
-                  }
-                  onClick={() =>
-                    recordState.editAnswer({
-                      transcript: curAnswer.answer.transcript,
-                      hasEditedTranscript: false,
-                    })
-                  }
-                >
-                  <UndoIcon />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
-        </FormControl>
+        <Editor
+          wrapperClassName="wrapper-class"
+          editorClassName="editor-class"
+          toolbarClassName="toolbar-class"
+          toolbar={toolBarOpts}
+          onEditorStateChange={(editorState: EditorState) => {
+            const contentState = editorState.getCurrentContent();
+            const markdown = getMarkdownFromEditor(contentState);
+            updateTranscriptWithMarkdown(markdown);
+            setEditorState(editorState);
+          }}
+          editorState={editorState}
+        />
       </div>
     );
   }
@@ -323,6 +370,7 @@ function RecordPage(props: {
       <div>
         <div data-cy="progress" className={classes.block}>
           <Typography
+            data-cy="heading"
             variant="h6"
             className={classes.title}
             style={{ textAlign: "center" }}

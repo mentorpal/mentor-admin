@@ -25,6 +25,7 @@ describe("My Mentor Card", () => {
             _id: "A3_1_1",
             question: {
               _id: "A3_1_1",
+              clientId: "C3_1_1",
               question:
                 "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
               type: QuestionType.UTTERANCE,
@@ -39,6 +40,7 @@ describe("My Mentor Card", () => {
             _id: "A4_1_1",
             question: {
               _id: "A4_1_1",
+              clientId: "C4_1_1",
               question:
                 "Please give a short introduction of yourself, which includes your name, current job, and title.",
               type: QuestionType.UTTERANCE,
@@ -67,6 +69,7 @@ describe("My Mentor Card", () => {
             _id: "A3_1_1",
             question: {
               _id: "A3_1_1",
+              clientId: "C3_1_1",
               question:
                 "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
               type: QuestionType.UTTERANCE,
@@ -81,6 +84,7 @@ describe("My Mentor Card", () => {
             _id: "A4_1_1",
             question: {
               _id: "A4_1_1",
+              clientId: "C4_1_1",
               question:
                 "Please give a short introduction of yourself, which includes your name, current job, and title.",
               type: QuestionType.UTTERANCE,
@@ -109,6 +113,7 @@ describe("My Mentor Card", () => {
             _id: "A5_1_1",
             question: {
               _id: "A5_1_1",
+              clientId: "C5_1_1",
               question:
                 "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
               type: QuestionType.UTTERANCE,
@@ -151,6 +156,7 @@ describe("My Mentor Card", () => {
               {
                 question: {
                   _id: "A3_1_1",
+                  clientId: "C3_1_1",
                   question:
                     "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
                   type: QuestionType.UTTERANCE,
@@ -164,6 +170,7 @@ describe("My Mentor Card", () => {
               {
                 question: {
                   _id: "A4_1_1",
+                  clientId: "C4_1_1",
                   question:
                     "Please give a short introduction of yourself, which includes your name, current job, and title.",
                   type: QuestionType.UTTERANCE,
@@ -175,6 +182,7 @@ describe("My Mentor Card", () => {
               {
                 question: {
                   _id: "A5_1_1",
+                  clientId: "C5_1_1",
                   question:
                     "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
                   type: QuestionType.UTTERANCE,
@@ -216,6 +224,7 @@ describe("My Mentor Card", () => {
             _id: "A1_1_1",
             question: {
               _id: "A1_1_1",
+              clientId: "C1_1_1",
               question: "Who are you and what do you do?",
               type: QuestionType.QUESTION,
               name: null,
@@ -229,6 +238,7 @@ describe("My Mentor Card", () => {
             _id: "A2_1_1",
             question: {
               _id: "A2_1_1",
+              clientId: "C2_1_1",
               question: "How old are you now?",
               type: QuestionType.QUESTION,
               name: null,
@@ -241,6 +251,7 @@ describe("My Mentor Card", () => {
             _id: "A3_1_1",
             question: {
               _id: "A3_1_1",
+              clientId: "C3_1_1",
               question:
                 "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
               type: QuestionType.UTTERANCE,
@@ -255,6 +266,7 @@ describe("My Mentor Card", () => {
             _id: "A4_1_1",
             question: {
               _id: "A4_1_1",
+              clientId: "C4_1_1",
               question:
                 "Please give a short introduction of yourself, which includes your name, current job, and title.",
               type: QuestionType.UTTERANCE,
