@@ -5,30 +5,39 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import "@tensorflow/tfjs-backend-core";
-import "@tensorflow/tfjs-backend-webgl";
-import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
-import "@mediapipe/control_utils";
-import "@mediapipe/camera_utils";
-import "@mediapipe/drawing_utils";
-import DeviceDetector from "https://cdn.skypack.dev/device-detector-js@2.2.10";
 import Segmentation from "./segmentation";
-
 import { VideoRecorder } from "./video-recorder";
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const SegmentOutput = () => (
-  <>
+  <html>
     <head>
-      <div class="container">
-        <VideoRecorder />
-        <canvas class="output_canvas" width="1280px" height="720px"></canvas>
-      </div>
+      <meta charset="utf-8" />
+      <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+        crossOrigin="anonymous"
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossOrigin="anonymous"
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossOrigin="anonymous"
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"
+        crossOrigin="anonymous"
+      ></script>
     </head>
     <body>
-      <script src={Segmentation}></script>
+      <div className="container">
+        <VideoRecorder />
+        <canvas className="output_canvas" width="1280px" height="720px"></canvas>
+        <script src={Segmentation}></script>
+      </div>
     </body>
-  </>
+  </html>
 );
 
 export default SegmentOutput;
