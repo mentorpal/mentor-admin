@@ -24,3 +24,14 @@ import "./commands";
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+declare global {
+  namespace Cypress {
+    interface Chainable<Subject = any> {
+      matchImageSnapshot(value: string): Chainable<void>;
+      fill(value: string): Chainable<void>;
+      getSettled(value: string, opts?: { retries?: number; delay?: number });
+    }
+    interface cy extends Chainable<undefined> {}
+  }
+}

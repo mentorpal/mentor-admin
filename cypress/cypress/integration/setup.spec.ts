@@ -23,11 +23,97 @@ import {
 } from "../fixtures/mentor";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
-import { MentorType, JobState, SubjectTypes } from "../support/types";
+import {
+  MentorType,
+  JobState,
+  SubjectTypes,
+  QuestionType,
+  UtteranceName,
+} from "../support/types";
 
 const baseMock = {
   mentor: setup0,
 };
+
+const subjectData = [
+  {
+    _id: "idle_and_initial_recordings",
+    name: "Idle and Initial Recordings",
+    type: SubjectTypes.UTTERANCES,
+    isRequired: true,
+    description: "These are miscellaneous phrases you'll be asked to repeat.",
+    categories: [
+      {
+        id: "category2",
+        name: "Category2",
+        description: "Another category",
+      },
+    ],
+    topics: [],
+    questions: [
+      {
+        question: {
+          _id: "A3_1_1",
+          clientId: "C3_1_1",
+          question:
+            "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.IDLE,
+          paraphrases: [],
+          mentorType: MentorType.VIDEO,
+          minVideoLength: 10,
+        },
+        topics: [],
+      },
+      {
+        question: {
+          _id: "A4_1_1",
+          clientId: "C4_1_1",
+          question:
+            "Please give a short introduction of yourself, which includes your name, current job, and title.",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.INTRO,
+          paraphrases: [],
+        },
+        topics: [],
+      },
+      {
+        question: {
+          _id: "A5_1_1",
+          clientId: "C5_1_1",
+          question:
+            "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.OFF_TOPIC,
+          paraphrases: [],
+        },
+        topics: [],
+        category: {
+          id: "category2",
+          name: "Category2",
+          description: "Another category",
+        },
+      },
+      {
+        question: {
+          _id: "A8_1_1",
+          clientId: "C8_1_1",
+          question: "test",
+          type: QuestionType.UTTERANCE,
+          name: UtteranceName.OFF_TOPIC,
+          paraphrases: [],
+          mentor: "clintanderson",
+        },
+        topics: [],
+        category: {
+          id: "category2",
+          name: "Category2",
+          description: "Another category",
+        },
+      },
+    ],
+  },
+];
 
 Cypress.on("uncaught:exception", (err, runnable) => {
   console.error(err);
@@ -57,7 +143,7 @@ describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
       cyMockDefault(cy, {
-        mentor: setup0,
+        mentor: { ...setup0, subjects: subjectData },
         gqlQueries: [
           mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
         ],
@@ -101,7 +187,7 @@ describe("Setup", () => {
 
     it("with back button", () => {
       cyMockDefault(cy, {
-        mentor: setup0,
+        mentor: { ...setup0, subjects: subjectData },
         gqlQueries: [
           mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
         ],
@@ -144,7 +230,7 @@ describe("Setup", () => {
 
     it("with radio buttons", () => {
       cyMockDefault(cy, {
-        mentor: setup0,
+        mentor: { ...setup0, subjects: subjectData },
         gqlQueries: [
           mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
         ],
@@ -170,7 +256,7 @@ describe("Setup", () => {
     });
 
     it("with query param i", () => {
-      cyMockDefault(cy, baseMock);
+      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
       cyVisitSetupScreen(cy, SetupScreen.Welcome);
       cy.get("[data-cy=slide]").contains("Welcome to MentorStudio!");
       cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
@@ -194,6 +280,10 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, title: "" },
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
@@ -223,7 +313,7 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
 
-  it("shows the walkthrough link if receive data from graphql", () => {
+  it("Shows the walkthrough link if receive data from graphql", () => {
     cyMockDefault(cy, {
       ...baseMock,
       config: {
@@ -239,7 +329,7 @@ describe("Setup", () => {
     });
   });
 
-  it("doesn't show walkthrough link if no data from graphql", () => {
+  it("Doesn't show walkthrough link if no data from graphql", () => {
     cyMockDefault(cy, {
       ...baseMock,
     });
@@ -251,7 +341,7 @@ describe("Setup", () => {
     });
   });
 
-  it("shows mentor slide", () => {
+  it("Shows mentor slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
@@ -268,16 +358,16 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     // empty mentor slide
     cy.contains("Tell us a little about yourself.");
-    cy.getSettled("[data-cy=first-name]").within(($input) => {
+    cy.getSettled("[data-cy=first-name]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Clinton");
     });
-    cy.getSettled("[data-cy=name]").within(($input) => {
+    cy.getSettled("[data-cy=name]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.getSettled("[data-cy=mentor-title]").within(($input) => {
+    cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "Please enter your profession here");
     });
-    cy.getSettled("[data-cy=email]").within(($input) => {
+    cy.getSettled("[data-cy=email]", { retries: 4 }).within(($input) => {
       cy.get("input").should("have.value", "");
     });
     // fill out first name and save
@@ -385,10 +475,10 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("mentor-slide-4"));
   });
 
-  it("shows mentor chat type", () => {
+  it("Shows mentor chat type", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: { ...setup0, mentorType: null },
+      mentor: { ...setup0, mentorType: null, subjects: subjectData },
       gqlQueries: [
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
@@ -592,7 +682,10 @@ describe("Setup", () => {
   it("shows required subject, idle and initial recordings, questions slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
-      mentor: [setup6, setup8],
+      mentor: [
+        { ...setup6, subjects: subjectData },
+        { ...setup8, subjects: subjectData },
+      ],
       subject: repeatAfterMe,
       gqlQueries: [
         mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
@@ -663,5 +756,21 @@ describe("Setup", () => {
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+  });
+
+  describe("shows setup complete slide after completing setup", () => {
+    it("cannot go to my mentor if mentor info incomplete", () => {
+      cyMockDefault(cy, { mentor: { ...setup0, subjects: subjectData } });
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
+      cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
+    });
+
+    it("go to my mentor page button visible if setup complete", () => {
+      cyMockDefault(cy, { mentor: { ...setup7, subjects: subjectData } });
+      cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
+      cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
+      cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
+    });
   });
 });

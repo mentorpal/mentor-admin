@@ -10,7 +10,7 @@ import clint from "../fixtures/mentor/clint_home";
 import clint3 from "../fixtures/mentor/clint_setup3";
 import clint12 from "../fixtures/mentor/clint_setup12";
 import { login as loginDefault } from "../fixtures/login";
-import { TaskInfo, UserRole } from "../support/types";
+import { UserRole } from "../support/types";
 
 export function taskListBuild(progressForAllTasks) {
   return {
