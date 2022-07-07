@@ -322,6 +322,7 @@ function HomePage(props: {
           disableHoverListener={!hasSeenTooltips}
           arrow
           placement="left"
+          enterDelay={1500}
           //contains all text inside tooltip
           title={
             <React.Fragment>
@@ -461,6 +462,7 @@ function HomePage(props: {
               }
               onClose={incrementTooltip}
               disableHoverListener={!hasSeenTooltips}
+              enterDelay={1500}
               arrow
               title={
                 <React.Fragment>
@@ -523,6 +525,7 @@ function HomePage(props: {
                   : idxTooltip == TooltipStep.PREVIEW
               }
               onClose={closePreviewTooltip}
+              enterDelay={1500}
               disableHoverListener
               arrow
               title={

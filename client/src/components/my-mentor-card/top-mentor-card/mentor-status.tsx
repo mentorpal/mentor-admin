@@ -113,6 +113,7 @@ function MentorStatus(props: {
             }
             onClose={incrementTooltip}
             disableHoverListener={!hasSeenTooltips}
+            enterDelay={1500}
             arrow
             //contains all text inside tooltip
             title={

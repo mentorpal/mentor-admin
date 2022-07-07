@@ -130,6 +130,7 @@ function MentorThumbnail(props: {
                 disableHoverListener={!hasSeenTooltips}
                 arrow
                 placement="right"
+                enterDelay={1500}
                 title={
                   <React.Fragment>
                     <IconButton
