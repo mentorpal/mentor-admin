@@ -10,6 +10,7 @@ import {
   Answer,
   Mentor,
   MentorType,
+  SetupStatus,
   Status,
   Subject,
   UtteranceName,
@@ -40,25 +41,11 @@ interface SetupStep {
   complete: boolean;
 }
 
-interface SetupStatus {
-  isMentorInfoDone: boolean;
-  isMentorTypeChosen: boolean;
-  idle?: {
-    idle: Answer;
-    complete: boolean;
-  };
-  requiredSubjects: {
-    subject: Subject;
-    answers: Answer[];
-    complete: boolean;
-  }[];
-  isSetupComplete: boolean;
-}
-
 interface UseWithSetup {
   setupStatus?: SetupStatus;
   setupStep: number;
   setupSteps: SetupStep[];
+  docSetupUrl: string;
   idleTipsVideoUrl: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
@@ -166,7 +153,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     ];
     if (idle) {
       status.push({ type: SetupStepType.IDLE_TIPS, complete: true });
-      status.push({ type: SetupStepType.IDLE, complete: idle.complete });
     }
     requiredSubjects.forEach(
       (s: { subject: Subject; answers: Answer[]; complete: boolean }) => {
@@ -256,6 +242,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    docSetupUrl: configState.config?.urlDocSetup || "",
     idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
     classifierLambdaEndpoint:
       configState.config?.classifierLambdaEndpoint || "",
@@ -264,7 +251,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
-    readyToDisplay: isConfigLoaded(),
+    readyToDisplay:
+      isConfigLoaded() && !isMentorLoading && mentor && !questionsLoading,
     error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,

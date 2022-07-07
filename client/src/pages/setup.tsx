@@ -20,7 +20,6 @@ import { MentorInfoSlide } from "components/setup/mentor-info-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
-import { RecordIdleSlide } from "components/setup/record-idle-slide";
 import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
 import { FinalSetupSlide } from "components/setup/final-setup-slide";
@@ -32,8 +31,10 @@ const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
+    alignItems: "center",
     height: "100vh",
     backgroundColor: "#eee",
+    overflow: "visible",
   },
   row: {
     display: "flex",
@@ -58,11 +59,13 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     alignContent: "center",
     height: "100%",
-    width: "100%",
+    width: "fit-content",
+    overflow: "visible",
   },
   card: {
     minHeight: 450,
-    padding: 25,
+    maxWidth: "85%",
+    padding: 10,
   },
   title: {
     fontWeight: "bold",
@@ -81,6 +84,16 @@ const useStyles = makeStyles(() => ({
   },
   navButton: {
     top: "calc(50% - 20px) !important",
+    width: 100,
+    height: 100,
+  },
+  avatar: {
+    width: "50px",
+    height: "50px",
+  },
+  arrow: {
+    width: "40px",
+    height: "40px",
   },
   progress: {
     position: "fixed",
@@ -95,6 +108,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     setupStatus: status,
     setupStep: idx,
     setupSteps: steps,
+    docSetupUrl,
     idleTipsVideoUrl,
     mentor,
     isLoading,
@@ -104,7 +118,14 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     editMentor,
     toStep,
   } = useWithSetup(props.search);
-
+  if (!readyToDisplay) {
+    return (
+      <div className={classes.root}>
+        <LoadingDialog title="Loading..." />
+        <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      </div>
+    );
+  }
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
@@ -117,6 +138,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key="welcome"
             classes={classes}
             userName={props.user.name}
+            docSetupUrl={docSetupUrl}
           />
         );
       case SetupStepType.MENTOR_INFO:
@@ -150,15 +172,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             idleTipsVideoUrl={idleTipsVideoUrl}
           />
         );
-      case SetupStepType.IDLE:
-        return (
-          <RecordIdleSlide
-            key="idle"
-            classes={classes}
-            idle={status.idle!.idle}
-            i={idx}
-          />
-        );
       case SetupStepType.REQUIRED_SUBJECT:
         return (
           <RecordSubjectSlide
@@ -169,6 +182,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             subject={status.requiredSubjects[steps.length - idx - 2].subject}
             questions={status.requiredSubjects[steps.length - idx - 2].answers}
             i={idx}
+            customTitle="Idle and Initial Recordings"
           />
         );
       case SetupStepType.FINISH_SETUP:
@@ -177,7 +191,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key={"FinalSetupSlide"}
             classes={classes}
             mentor={mentor}
-            isSetupComplete={status.isSetupComplete}
+            setupStatus={status}
           />
         );
       default:
@@ -185,9 +199,16 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     }
   }
 
+  if (!readyToDisplay) {
+    return (
+      <div className={classes.root}>
+        <LoadingDialog title="Loading..." />
+        <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      </div>
+    );
+  }
   return (
     <div className={classes.root}>
-      <LoadingDialog title={!readyToDisplay ? "Loading..." : ""} />
       <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         animation="slide"
@@ -202,16 +223,87 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         }}
         onChange={(idx: number) => toStep(idx)}
         NavButton={({ onClick, style, next, prev }) => {
+          if (idx == 0) {
+            return (
+              <IconButton
+                data-cy={next ? "next-btn" : "back-btn"}
+                onClick={() => onClick()}
+                style={{
+                  display: prev ? "none" : "block",
+                  right: next ? "-35px" : "",
+                }}
+                size="medium"
+                className={classes.navButton}
+              >
+                <Avatar
+                  data-cy="nav-btn-avatar"
+                  className={classes.avatar}
+                  style={{
+                    backgroundColor: steps[idx]?.complete ? "green" : "red",
+                    padding: "10px",
+                  }}
+                >
+                  {next && (
+                    <ArrowForwardIcon className={classes.arrow} style={style} />
+                  )}
+                </Avatar>
+              </IconButton>
+            );
+          }
+          if (idx == steps.length - 1) {
+            return (
+              <IconButton
+                data-cy={next ? "next-btn" : "back-btn"}
+                style={{
+                  display: next ? "none" : "block",
+                  left: prev ? "-35px" : "",
+                }}
+                onClick={() => onClick()}
+                className={classes.navButton}
+              >
+                <Avatar
+                  data-cy="nav-btn-avatar"
+                  className={classes.avatar}
+                  style={{ padding: "10px" }}
+                >
+                  {prev && (
+                    <ArrowBackIcon className={classes.arrow} style={style} />
+                  )}
+                </Avatar>
+              </IconButton>
+            );
+          }
           return (
             <IconButton
               data-cy={next ? "next-btn" : "back-btn"}
               onClick={() => onClick()}
-              style={style}
+              style={{
+                position: "relative",
+                right: next ? "-35px" : "",
+                left: prev ? "-35px" : "",
+              }}
               className={classes.navButton}
             >
-              <Avatar>
-                {next && <ArrowForwardIcon />}
-                {prev && <ArrowBackIcon />}
+              <Avatar
+                data-cy="nav-btn-avatar"
+                className={classes.avatar}
+                style={{
+                  backgroundColor: next
+                    ? steps[idx]?.complete
+                      ? "green"
+                      : "red"
+                    : prev
+                    ? "rgb(189, 189, 189)"
+                    : "block",
+                  padding: "10px",
+                }}
+              >
+                {next && (
+                  <ArrowForwardIcon className={classes.arrow} style={style} />
+                )}
+                {prev && (
+                  <ArrowBackIcon className={classes.arrow} style={style} />
+                )}
               </Avatar>
             </IconButton>
           );
@@ -227,7 +319,17 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
         }}
       >
         {steps.map((s, i) => (
-          <div data-cy="slide" key={`slide-${i}`}>
+          <div
+            data-cy="slide"
+            key={`slide-${i}`}
+            style={{
+              display: "flex",
+              justifyItems: "center",
+              justifyContent: "center",
+              alignItems: "center",
+              alignContent: "center",
+            }}
+          >
             {renderSlide(idx)}
           </div>
         ))}

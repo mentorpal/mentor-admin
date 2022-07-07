@@ -139,18 +139,20 @@ function formatMentorQuestions(
   mentorAnswers: Answer[],
   mentorQuestions: Record<string, QuestionState>
 ) {
+  if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
+    return mentorAnswers;
+  }
   const completeAnswers = mentorAnswers
     .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
     .sort((a, b) =>
-      (mentorQuestions[a._id].question?.question || "") >
-      (mentorQuestions[b._id].question?.question || "")
+      (mentorQuestions[a._id]?.question?.question || "") >
+      (mentorQuestions[b._id]?.question?.question || "")
         ? 1
-        : (mentorQuestions[a._id].question?.question || "") <
-          (mentorQuestions[b._id].question?.question || "")
+        : (mentorQuestions[a._id]?.question?.question || "") <
+          (mentorQuestions[b._id]?.question?.question || "")
         ? -1
         : 0
     );
-
   const incompleteAnswers = mentorAnswers
     .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
     .sort((a, b) =>
@@ -190,15 +192,16 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] = useState<Status>(); // for disabling/enabling queue button
-  const [selectedAnswerID, setSelectedAnswerID] = useState<string>();
+  const [selectedAnswerStatus, setSelectedAnswerStatus] =
+    React.useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
 
   // function to add/remove from queue
   async function queueButtonClicked(
     selectedAnswerID: string,
     accessToken: string
   ) {
-    if (queueList?.includes(selectedAnswerID)) {
+    if (queueList.includes(selectedAnswerID)) {
       setQueueList(
         await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
       );
@@ -217,7 +220,7 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
-    setSelectedAnswerID(answerId);
+    setSelectedAnswerID(answerId || "");
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -310,7 +313,7 @@ function FeedbackItem(props: {
               <Button
                 data-cy="queue-btn"
                 color="primary"
-                disabled={selectedAnswerStatus == Status.COMPLETE}
+                disabled={selectedAnswerStatus === Status.COMPLETE}
                 onClick={() => {
                   queueButtonClicked(selectedAnswerID || "", accessToken);
                 }}
@@ -325,8 +328,8 @@ function FeedbackItem(props: {
             <EditQuestionForQueueModal
               handleClose={handleClose}
               open={customQuestionModalOpen}
-              userQuestion={feedback.question}
               mentor={mentor}
+              userQuestion={feedback.question}
               accessToken={accessToken || ""}
             />
           </div>
@@ -392,7 +395,7 @@ function FeedbackPage(): JSX.Element {
 
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false); // condition for opening modal
-
+  const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
@@ -417,7 +420,14 @@ function FeedbackPage(): JSX.Element {
     }
   }, [needsFiltering, isFeedbackLoading]);
 
-  if (!mentor || isMentorLoading || questionsLoading || isFeedbackLoading) {
+  const initialDisplayReady =
+    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+
+  if (!initialLoad && initialDisplayReady) {
+    setInitialLoad(true);
+  }
+
+  if (!initialLoad && !initialDisplayReady) {
     return (
       <div>
         <NavBar title="Feedback" mentorId={mentorId} />

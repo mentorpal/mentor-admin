@@ -13,7 +13,7 @@ export const login: UserAccessToken = {
     email: "clint@anderson.com",
     userRole: UserRole.USER,
     firstTimeTracking: {
-      myMentorSplash: true,
+      myMentorSplash: false,
     },
     defaultMentor: { _id: "clintanderson" },
   },

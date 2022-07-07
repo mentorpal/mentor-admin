@@ -57,6 +57,7 @@ export interface MentorGQL {
   mentorType: MentorType;
   lastTrainedAt: string;
   isDirty: boolean;
+  isPrivate: boolean;
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
   topics: Topic[];

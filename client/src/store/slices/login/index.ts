@@ -51,6 +51,24 @@ export const googleLogin = createAsyncThunk(
   }
 );
 
+// This is the action that calls the api and sets the userSawSplashScreen action in motion
+export const userSawSplashScreen = createAsyncThunk(
+  "login/userSawSplashScreen", //action
+  //callback function
+  async (accessToken: string, { rejectWithValue }) => {
+    try {
+      //promise
+      return await api.updateMyFirstTimeTracking(
+        { myMentorSplash: true },
+        accessToken
+      );
+    } catch (err) {
+      console.error(err.response.data);
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
 export const login = createAsyncThunk(
   "login/login",
   async (accessToken: string, { rejectWithValue }) => {
@@ -103,6 +121,7 @@ export const loginSlice = createSlice({
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
       })
+      // Look at these googleLogin cases and do similar for userSawSplashScreen
       .addCase(googleLogin.pending, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.IN_PROGRESS;
@@ -115,6 +134,13 @@ export const loginSlice = createSlice({
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
+      })
+      // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
+      .addCase(userSawSplashScreen.fulfilled, (state, action) => {
+        if (state.user != undefined) {
+          state.user.firstTimeTracking.myMentorSplash =
+            action.payload.myMentorSplash;
+        }
       });
   },
 });

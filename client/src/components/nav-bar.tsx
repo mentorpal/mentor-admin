@@ -40,6 +40,7 @@ import {
 } from "@material-ui/icons";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import withLocation from "wrap-with-location";
 import { UploadTask, UserRole } from "types";
 import { launchMentor } from "helpers";
@@ -88,6 +89,10 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
   >();
   const open = Boolean(anchorEl);
   const { state: loginState, logout } = useWithLogin();
+  const { getData } = useActiveMentor();
+  const mentorName = getData(
+    (ms) => ms.data?.name || loginState.user?.name || ""
+  );
 
   function handleMenu(e: React.MouseEvent<HTMLButtonElement>): void {
     setAnchorEl(e.currentTarget);
@@ -110,7 +115,7 @@ function Login(props: { classes: Record<string, string> }): JSX.Element {
         startIcon={<AccountCircle />}
         style={{ color: "white" }}
       >
-        {loginState.user?.name || ""}
+        {mentorName}
       </Button>
       <Menu
         data-cy="login-menu"
@@ -363,6 +368,7 @@ export function NavBar(props: {
         open={isDrawerOpen}
         onClose={() => toggleDrawer(false)}
         onOpen={() => toggleDrawer(true)}
+        swipeAreaWidth={0}
       >
         <Toolbar />
         <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />

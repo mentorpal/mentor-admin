@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useState } from "react";
 import ListItem from "./uploading-list-item";
-import { UseWithRecordState } from "hooks/graphql/use-with-record-state";
 import {
   Typography,
   List,
@@ -25,7 +24,7 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
-import { UploadTask } from "types";
+import { UploadTask, UseWithRecordState } from "types";
 
 function UploadingView(props: {
   recordState: UseWithRecordState;

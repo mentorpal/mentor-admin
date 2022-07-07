@@ -17,11 +17,14 @@ describe("Feedback Page", () => {
       gqlQueries: [
         mockGQL("UserQuestions", userQuestions),
         mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchMentorRecordQueue", {
-          me: {
-            mentorRecordQueue: [],
+        mockGQL("FetchMentorRecordQueue", [
+          {
+            me: {
+              mentorRecordQueue: [],
+            },
           },
-        }),
+        ]),
+        mockGQL("UserQuestionSetAnswer", {}),
       ],
     });
     cy.visit("/feedback");
