@@ -7,32 +7,28 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import "@tensorflow/tfjs-backend-core";
 import "@tensorflow/tfjs-backend-webgl";
-import * as bodySegmentation from "@tensorflow-models/body-segmentation";
+import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
+import "@mediapipe/control_utils";
+import "@mediapipe/camera_utils";
+import "@mediapipe/drawing_utils";
+import DeviceDetector from "https://cdn.skypack.dev/device-detector-js@2.2.10";
+import Segmentation from "./segmentation";
 
-const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation; // or 'BodyPix'
+import { VideoRecorder } from "./video-recorder";
 
-export function ConsoleLog(video, person) {
-  console.log("video: ", video);
-  console.log("person: ", person);
-  return <div></div>;
-}
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const SegmentOutput = () => (
+  <>
+    <head>
+      <div class="container">
+        <VideoRecorder />
+        <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+      </div>
+    </head>
+    <body>
+      <script src={Segmentation}></script>
+    </body>
+  </>
+);
 
-export default aysnc function SelfieSegmentation() {
-
-  const segmenterConfig = {
-    runtime: "mediapipe", // or 'tfjs'
-    modelType: "general", // or 'landscape'
-  };
-
-  segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
-
-  const video = document.querySelectorAll("[data-cy=video]");
-  const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
-
-
-  return (
-    <div>
-      <ConsoleLog />
-    </div>
-  );  
-}
+export default SegmentOutput;
