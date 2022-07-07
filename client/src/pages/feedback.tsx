@@ -192,7 +192,8 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] = React.useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerStatus, setSelectedAnswerStatus] =
+    React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
 
   // function to add/remove from queue
