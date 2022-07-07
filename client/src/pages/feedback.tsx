@@ -192,7 +192,8 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] = React.useState<Status>(); // for disabling/enabling queue button
+  const [selectedAnswerStatus, setSelectedAnswerStatus] =
+    React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
 
   // function to add/remove from queue
@@ -280,7 +281,7 @@ function FeedbackItem(props: {
               }
               onChange={(e, v) => {
                 setSelectedAnswerStatus(v?.status);
-                console.log("var:"+selectedAnswerStatus);
+                console.log("var:" + selectedAnswerStatus);
                 console.log("stat:" + v?.status);
                 onUpdateAnswer(v?._id);
               }}
@@ -397,6 +398,8 @@ function FeedbackPage(): JSX.Element {
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false); // condition for opening modal
 
+  const [initialLoad, setInitialLoad] = useState<boolean>(false);
+
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
@@ -421,7 +424,14 @@ function FeedbackPage(): JSX.Element {
     }
   }, [needsFiltering, isFeedbackLoading]);
 
-  if (!mentor || isMentorLoading || questionsLoading || isFeedbackLoading) {
+  const initialDisplayReady =
+    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+
+  if (!initialLoad && initialDisplayReady) {
+    setInitialLoad(true);
+  }
+
+  if (!initialLoad && !initialDisplayReady) {
     return (
       <div>
         <NavBar title="Feedback" mentorId={mentorId} />
