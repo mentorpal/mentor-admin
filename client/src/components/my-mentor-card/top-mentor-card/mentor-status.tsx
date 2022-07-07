@@ -27,7 +27,12 @@ function MentorStatus(props: {
   hasSeenTooltips: boolean;
   idxTooltip: number;
 }): JSX.Element {
-  const { incrementTooltip, idxTooltip, localHasSeenTooltips, hasSeenTooltips } = props;
+  const {
+    incrementTooltip,
+    idxTooltip,
+    localHasSeenTooltips,
+    hasSeenTooltips,
+  } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -99,9 +104,7 @@ function MentorStatus(props: {
             data-cy="status-tooltip"
             interactive={true}
             open={
-              hasSeenTooltips
-                ? undefined
-                : idxTooltip == TooltipStep.STATUS
+              hasSeenTooltips ? undefined : idxTooltip == TooltipStep.STATUS
             }
             onClose={hasSeenTooltips ? undefined : incrementTooltip}
             disableHoverListener={!hasSeenTooltips}

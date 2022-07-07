@@ -155,6 +155,9 @@ function HomePage(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
+
+  const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
+    useState<boolean>(false);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
   const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
     useState<ConfirmSave>();
@@ -303,8 +306,9 @@ function HomePage(props: {
         <ColorTooltip
           interactive={true}
           open={
-            idxTooltip == TooltipStep.CATEGORIES ||
-            (hasSeenTooltips && Boolean(onmouseenter))
+            !hasSeenTooltips
+              ? idxTooltip == TooltipStep.CATEGORIES
+              : recordSubjectTooltipOpen
           }
           onClose={incrementTooltip}
           //if this is false then the tooltip doesn't respond to focus-visible elements
@@ -350,6 +354,12 @@ function HomePage(props: {
                 : undefined
             }
             displayEmpty
+            onMouseEnter={() => {
+              hasSeenTooltips && setRecordSubjectTooltipOpen(true);
+            }}
+            onMouseLeave={() => {
+              hasSeenTooltips && setRecordSubjectTooltipOpen(false);
+            }}
             renderValue={() => (
               // ALL ANSWERS TOOLTIP
 
@@ -439,7 +449,9 @@ function HomePage(props: {
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}
-              open={hasSeenTooltips? undefined : (idxTooltip == TooltipStep.BUILD)}
+              open={
+                hasSeenTooltips ? undefined : idxTooltip == TooltipStep.BUILD
+              }
               onClose={hasSeenTooltips ? undefined : incrementTooltip}
               disableHoverListener={!hasSeenTooltips}
               arrow

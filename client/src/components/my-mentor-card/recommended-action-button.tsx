@@ -156,7 +156,7 @@ export default function RecommendedActionButton(props: {
                     }
                     onClose={hasSeenTooltips ? undefined : incrementTooltip}
                     disableHoverListener={!hasSeenTooltips}
-                    enterDelay={hasSeenTooltips? 1500000: 100}
+                    enterDelay={hasSeenTooltips ? 1500000 : 100}
                     arrow
                     title={
                       <React.Fragment>
@@ -226,7 +226,11 @@ export default function RecommendedActionButton(props: {
               <ColorTooltip
                 data-cy="recommender-tooltip"
                 interactive={true}
-                open={hasSeenTooltips? undefined : (idxTooltip == TooltipStep.RECOMMENDER)}
+                open={
+                  hasSeenTooltips
+                    ? undefined
+                    : idxTooltip == TooltipStep.RECOMMENDER
+                }
                 onClose={hasSeenTooltips ? undefined : incrementTooltip}
                 disableHoverListener={!hasSeenTooltips}
                 arrow
