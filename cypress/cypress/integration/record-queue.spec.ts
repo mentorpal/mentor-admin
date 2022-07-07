@@ -8,6 +8,11 @@ import { cyMockDefault, mockGQL, cySetup } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
+import questions from "../fixtures/questions";
+import {
+  QuestionType,
+  Status,
+} from "types";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
@@ -88,7 +93,39 @@ describe("Mentor Record Queue", () => {
     it.only("New custom question shows up on queue card", () => {
       cySetup(cy);
       cyMockDefault(cy, {
-        mentor: clint,
+        mentor: {...clint, answers: [...clint.answers, {
+          // Add answer with question document here
+          
+          //Answer: [
+              _id: "A1_1_2",
+              question: {
+                _id: "A1_1_2",
+                clientId: "C_A1_1_1",
+                question: "Custom Question?",
+                type: QuestionType.QUESTION,
+                name: null,
+                paraphrases: [],
+              },
+              transcript:
+                "",
+              status: Status.COMPLETE,
+            //],
+
+
+
+        }]},
+        questions: [...questions, {
+          // Add question document here
+          question: [
+            "A1_1_2",
+            "Custom Question?",
+            "QUESTION",
+            "",
+            clint._id,
+            [],
+            clint._id,
+          ]
+        }],
         gqlQueries: [
           mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
           mockGQL("UserQuestions", userQuestions),
