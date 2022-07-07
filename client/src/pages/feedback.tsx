@@ -281,11 +281,6 @@ function FeedbackItem(props: {
               }
               onChange={(e, v) => {
                 setSelectedAnswerStatus(v?.status);
-<<<<<<< HEAD
-=======
-                console.log("var:" + selectedAnswerStatus);
-                console.log("stat:" + v?.status);
->>>>>>> 9cccf13f76acea9532bd0bd47eb63b3ba7f97cb4
                 onUpdateAnswer(v?._id);
               }}
               style={{
@@ -400,13 +395,7 @@ function FeedbackPage(): JSX.Element {
 
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false); // condition for opening modal
-<<<<<<< HEAD
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
-=======
-
-  const [initialLoad, setInitialLoad] = useState<boolean>(false);
-
->>>>>>> 9cccf13f76acea9532bd0bd47eb63b3ba7f97cb4
   const [queueList, setQueueList] = useState<string[]>([]);
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
