@@ -79,7 +79,10 @@ function EditQuestionForQueueModal(props: {
   const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
 
-  function okButtonClicked(customQuestion: string, selectedSubject: Subject) {
+  async function okButtonClicked(
+    customQuestion: string,
+    selectedSubject: Subject
+  ) {
     // create new question
     const newQuestion: Question = {
       _id: uuid(),
@@ -102,6 +105,7 @@ function EditQuestionForQueueModal(props: {
       [newSubjectQuestion],
       accessToken
     );
+
     // add to record queue
     addQuestionToRecordQueue(newQuestion._id, accessToken);
     // close modal & reset
@@ -217,7 +221,7 @@ function EditQuestionForQueueModal(props: {
                         // an autocomplete kwd-style area for "topics"
                         data-cy="topic-selector"
                         multiple
-                        options={selectedSubject?.topics || []}
+                        options={selectedSubject.topics || []}
                         getOptionLabel={(option) => option.name}
                         onChange={(e, v) => {
                           setSelectedTopics(v);
@@ -260,9 +264,7 @@ function EditQuestionForQueueModal(props: {
                     variant="contained"
                     color="primary"
                     component="span"
-                    disabled={
-                      !selectedSubject || !selectedCategory || !customQuestion
-                    }
+                    disabled={!selectedCategory || !customQuestion}
                   >
                     OK
                   </Button>

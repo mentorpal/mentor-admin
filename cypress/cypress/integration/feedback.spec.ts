@@ -22,11 +22,6 @@ describe("Feedback Page", () => {
               mentorRecordQueue: [],
             },
           },
-          {
-            me: {
-              mentorRecordQueue: ["Q1_1_1"],
-            },
-          },
         ]),
         mockGQL("UserQuestionSetAnswer", {}),
       ],

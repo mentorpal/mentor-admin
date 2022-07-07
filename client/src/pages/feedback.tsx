@@ -313,7 +313,7 @@ function FeedbackItem(props: {
               <Button
                 data-cy="queue-btn"
                 color="primary"
-                disabled={selectedAnswerStatus == Status.COMPLETE}
+                disabled={selectedAnswerStatus === Status.COMPLETE}
                 onClick={() => {
                   queueButtonClicked(selectedAnswerID || "", accessToken);
                 }}
