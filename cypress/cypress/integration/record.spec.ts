@@ -2251,6 +2251,21 @@ describe("Record", () => {
     );
   });
 
+  it.only("Mock test", () => {
+    cyMockDefault(cy, {
+      mentor: clintMarkdown,
+      questions: chatQuestions,
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1");
+  });
+
   it("Make changes to transcript using React WYSIWYG Editor features", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,

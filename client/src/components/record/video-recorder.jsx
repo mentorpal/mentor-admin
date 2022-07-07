@@ -30,6 +30,11 @@ segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
 const video = document.querySelectorAll('[data-cy="video"]');
 const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
 
+function ConsoleLog() {
+  console.log("video: ", video);
+  console.log("person: ", person);
+  return <div></div>;
+}
 //////////////////////////////////////////////////////////////
 function VideoRecorder({
   classes,
@@ -231,6 +236,7 @@ function VideoRecorder({
         Please get into position by facing forward and lining up with the
         outline.
       </Typography>
+      <ConsoleLog />
       <div data-vjs-player style={{ height, width }}>
         <video
           data-cy="video-recorder"

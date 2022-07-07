@@ -149,6 +149,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             mentor={mentor}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
+            userName={props.user.name}
           />
         );
       case SetupStepType.MENTOR_TYPE:
@@ -191,7 +192,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key={"FinalSetupSlide"}
             classes={classes}
             mentor={mentor}
-            setupStatus={status}
           />
         );
       default:

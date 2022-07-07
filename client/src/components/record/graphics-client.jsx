@@ -5,29 +5,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import ml5 from "ml5";
-import p5 from "p5";
+import "@tensorflow/tfjs-backend-core";
+import "@tensorflow/tfjs-backend-webgl";
+import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 
-function createCanvas(arg0: number, arg1: number): React.ReactNode {
-  throw new Error("Function not implemented from: " + arg0 + " and " + arg1);
+const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation; // or 'BodyPix'
+
+export function ConsoleLog() {
+  console.log("video: ", video);
+  console.log("person: ", person);
+  return <div></div>;
 }
 
-function background(arg0: number): React.ReactNode {
-  throw new Error("Function not implemented from: " + arg0);
-}
-
-const ML5JS = () => {
-  return (
-    <html lang="en">
-      <body>
-        <script>
-          console.log("ml5 version:", ml5.version); function setup(){" "}
-          {createCanvas(400, 400)}
-          function draw() {background(200)}
-        </script>
-      </body>
-    </html>
-  );
+const segmenterConfig = {
+  runtime: "mediapipe", // or 'tfjs'
+  modelType: "general", // or 'landscape'
 };
 
-export default ML5JS;
+segmenter = await bodySegmentation.createSegmenter(model, segmenterConfig);
+
+const video = document.querySelectorAll("[data-cy=video]");
+const person = await segmenter.segmentPeople(video); // only one person for selfie segmentation
