@@ -158,6 +158,10 @@ function HomePage(props: {
 
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
+  const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
+  const [statusTooltipOpen, setStatusTooltipOpen] = useState<boolean>(false);
+  const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
+  const [previewTooltipOpen, setPreviewTooltipOpen] = useState<boolean>(false);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
   const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
     useState<ConfirmSave>();
@@ -257,7 +261,6 @@ function HomePage(props: {
     incrementTooltip();
     setLocalHasSeenTooltips(true);
     userSawTooltips(props.accessToken);
-    console.log(hasSeenTooltips);
   }
 
   return (
