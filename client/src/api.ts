@@ -862,6 +862,7 @@ export async function fetchMentorById(
               mentor
             }
             hasEditedTranscript
+            markdownTranscript
             transcript
             status
             hasUntransferredMedia

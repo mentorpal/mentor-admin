@@ -4,19 +4,32 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Subject } from "../../support/types";
+import { Subject, SubjectTypes } from "../../support/types";
 
 export const subject: Subject = {
   _id: "stem",
   name: "STEM",
   description: "These questions will ask about STEM careers.",
+  type: SubjectTypes.SUBJECT,
+  categories: [],
+  topics: [],
   isRequired: false,
   questions: [
     {
-      _id: "A6_1_1",
-      question: "What does STEM mean?",
-      type: null,
-      name: null,
+      question: {
+        _id: "A6_1_1",
+        clientId: "C6_1_1",
+        question: "What does STEM mean?",
+        type: null,
+        name: null,
+        paraphrases: [],
+      },
+      category: {
+        id: "STEM",
+        name: "STEM",
+        description: "STEM",
+      },
+      topics: [],
     },
   ],
 };

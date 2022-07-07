@@ -5,6 +5,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
+import { extractErrorMessageFromError } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
 import { Mentor } from "types";
@@ -77,7 +78,7 @@ export const saveMentor = createAsyncThunk(
         );
         return editedData;
       } catch (err) {
-        return err.response.data;
+        throw new Error(extractErrorMessageFromError(err));
       }
     }
   }
@@ -97,7 +98,7 @@ export const saveMentorSubjects = createAsyncThunk(
         // need to fetch the updated mentor because the questions/answers might have changed
         return api.fetchMentorById(state.login.accessToken, editedData._id);
       } catch (err) {
-        return err.response.data;
+        throw new Error(extractErrorMessageFromError(err));
       }
     }
   }
@@ -133,7 +134,7 @@ export const saveThumbnail = createAsyncThunk(
         headers.uploadLambdaUrl
       );
     } catch (err) {
-      return err.response.data;
+      throw new Error(extractErrorMessageFromError(err));
     }
   }
 );
@@ -144,11 +145,13 @@ export const mentorSlice = createSlice({
   name: "mentor",
   initialState,
   reducers: {
-    loadingInProgress: (state, action: PayloadAction<LoginState>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    loadingInProgress: (state: any, action: PayloadAction<LoginState>) => {
       state.mentorStatus = LoadingStatus.LOADING;
       state.userLoadedBy = action.payload.user?._id;
     },
-    clearError: (state) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    clearError: (state: any) => {
       delete state.error;
     },
   },
