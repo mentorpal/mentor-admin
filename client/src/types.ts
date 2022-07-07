@@ -11,6 +11,10 @@ import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export interface Config {
+  mentorsDefault: string[];
+  featuredMentors: string[];
+  featuredMentorPanels: string[];
+  activeMentors: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
@@ -53,6 +57,14 @@ export interface User {
   userRole: UserRole;
   defaultMentor: Mentor;
   firstTimeTracking: FirstTimeTracking;
+}
+
+export interface MentorPanel {
+  _id: string;
+  subject: string;
+  mentors: string[];
+  title: string;
+  subtitle: string;
 }
 
 export interface Mentor {

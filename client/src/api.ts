@@ -38,6 +38,7 @@ import {
   ReplacedMentorDataChanges,
   PresignedUrlResponse,
   FirstTimeTracking,
+  MentorPanel,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -227,6 +228,10 @@ export async function fetchConfig(): Promise<Config> {
       query: `
       query FetchConfig{
         config {
+          mentorsDefault
+          featuredMentors
+          featuredMentorPanels
+          activeMentors
           googleClientId
           urlDocSetup
           urlVideoIdleTips
@@ -1667,4 +1672,160 @@ export async function importMentor(
     },
     accessToken,
   });
+}
+
+export async function fetchMentors(
+  accessToken: string,
+  searchParams?: SearchParams
+): Promise<Connection<MentorGQL>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const { filter, limit, cursor, sortBy, sortAscending } = params;
+  return execGql<Connection<MentorGQL>>(
+    {
+      query: `
+        query Mentors($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+          mentors (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+            edges {
+              node {
+                _id
+                name
+                title
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }`,
+      variables: {
+        filter: JSON.stringify(filter),
+        limit,
+        cursor,
+        sortBy,
+        sortAscending,
+      },
+    },
+    { dataPath: "mentors", accessToken }
+  );
+}
+
+export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
+  return await execGql<MentorPanel>(
+    {
+      query: `
+        query MentorPanel($id: ID!) {
+          mentorPanel(id: $id) {
+            _id
+            subject
+            mentors
+            title
+            subtitle
+          }
+        }
+      `,
+      variables: { id },
+    },
+    { dataPath: "mentorPanel" }
+  );
+}
+
+export async function fetchMentorPanels(
+  searchParams?: SearchParams
+): Promise<Connection<MentorPanel>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return await execGql<Connection<MentorPanel>>(
+    {
+      query: `
+      query MentorPanels($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        mentorPanels(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              subject
+              mentors
+              title
+              subtitle
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "mentorPanels" }
+  );
+}
+
+export async function addOrUpdateMentorPanel(
+  accessToken: string,
+  mentorPanel: MentorPanel,
+  id?: string
+): Promise<MentorPanel> {
+  return execGql<MentorPanel>(
+    {
+      query: `mutation AddOrUpdateMentorPanel($id: ID, $mentorPanel: AddOrUpdateMentorPanelInputType!) {
+        me {
+          addOrUpdateMentorPanel(id: $id, mentorPanel: $mentorPanel) {
+            _id
+            subject
+            mentors
+            title
+            subtitle
+          }
+        }
+      }`,
+      variables: { id, mentorPanel },
+    },
+    { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
+  );
+}
+
+export async function updateConfigFeatured(
+  accessToken: string,
+  config: Config
+): Promise<Config> {
+  return execGql<Config>(
+    {
+      query: `mutation UpdateConfigFeatured($config: ConfigUpdateFeaturedInputType!) {
+        me {
+          updateConfigFeatured(config: $config) {
+            mentorsDefault
+            featuredMentors
+            featuredMentorPanels
+            activeMentors
+            googleClientId
+            urlDocSetup
+            urlVideoIdleTips
+            videoRecorderMaxLength
+            classifierLambdaEndpoint
+            uploadLambdaEndpoint
+          }
+        }
+      }`,
+      variables: { config },
+    },
+    { dataPath: ["me", "updateConfigFeatured"], accessToken }
+  );
 }
