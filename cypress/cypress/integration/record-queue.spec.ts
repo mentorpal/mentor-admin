@@ -12,7 +12,7 @@ import questions from "../fixtures/questions";
 import {
   QuestionType,
   Status,
-} from "types";
+} from "../support/types";
 
 describe("Mentor Record Queue", () => {
   describe("Feedback Page", () => {
