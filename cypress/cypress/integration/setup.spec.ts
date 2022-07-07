@@ -280,6 +280,10 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, title: "" },
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+      ],
     });
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
     cy.getSettled("[data-cy=mentor-title]", { retries: 4 }).within(($input) => {
