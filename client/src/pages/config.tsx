@@ -30,6 +30,7 @@ import {
   makeStyles,
   Tab,
   TextField,
+  Typography,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -149,6 +150,8 @@ function MentorList(props: {
                           </IconButton>
                         </CardActions>
                         <ListItemText
+                          data-cy="name"
+                          data-test={m.name}
                           primary={m.name}
                           secondary={m.title}
                           style={{ flexGrow: 1 }}
@@ -157,6 +160,7 @@ function MentorList(props: {
                           <FormControlLabel
                             control={
                               <Checkbox
+                                data-cy="toggle-featured"
                                 checked={featuredMentors.includes(m._id)}
                                 onChange={() => props.toggleFeatured(m._id)}
                                 color="primary"
@@ -169,6 +173,7 @@ function MentorList(props: {
                           <FormControlLabel
                             control={
                               <Checkbox
+                                data-cy="toggle-active"
                                 checked={activeMentors.includes(m._id)}
                                 onChange={() => props.toggleActive(m._id)}
                                 color="secondary"
@@ -282,6 +287,8 @@ function MentorPanelList(props: {
                               </IconButton>
                             </CardActions>
                             <ListItemText
+                              data-cy="name"
+                              data-test={panel?.title}
                               primary={panel?.title}
                               secondary={panel?.subtitle}
                               style={{ flexGrow: 1 }}
@@ -290,6 +297,7 @@ function MentorPanelList(props: {
                               <FormControlLabel
                                 control={
                                   <Checkbox
+                                    data-cy="toggle-featured"
                                     checked={featuredMentorPanels.includes(
                                       panel._id
                                     )}
@@ -400,6 +408,7 @@ function MentorPanelList(props: {
           />
           <Autocomplete
             data-cy="panel-subject"
+            data-test={editMentorPanel?.subject}
             options={subjects}
             getOptionLabel={(option: SubjectGQL) => option.name}
             value={subjects.find((s) => s._id === editMentorPanel?.subject)}
@@ -407,6 +416,11 @@ function MentorPanelList(props: {
               setEditMentorPanel({ ...editMentorPanel!, subject: v?._id || "" })
             }
             style={{ width: "100%", marginTop: 10 }}
+            renderOption={(option) => (
+              <Typography data-cy={`panel-subject-${option._id}`}>
+                {option.name}
+              </Typography>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -456,6 +470,8 @@ function MentorPanelList(props: {
                                   </IconButton>
                                 </CardActions>
                                 <ListItemText
+                                  data-cy="name"
+                                  data-test={mentor?.name}
                                   primary={mentor?.name}
                                   secondary={mentor?.title}
                                   style={{ flexGrow: 1 }}
@@ -510,6 +526,11 @@ function MentorPanelList(props: {
                 });
             }}
             style={{ width: "100%" }}
+            renderOption={(option) => (
+              <Typography data-cy={`panel-mentor-${option._id}`}>
+                {option.name}
+              </Typography>
+            )}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -531,15 +552,10 @@ function MentorPanelList(props: {
               color="primary"
               variant="outlined"
               className={styles.button}
-              onClick={() =>
-                setEditMentorPanel({
-                  _id: "",
-                  title: "",
-                  subtitle: "",
-                  subject: "",
-                  mentors: [],
-                })
-              }
+              onClick={() => {
+                props.saveMentorPanel(editMentorPanel!);
+                setEditMentorPanel(undefined);
+              }}
             >
               Save
             </Button>

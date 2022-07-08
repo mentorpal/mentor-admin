@@ -43,7 +43,7 @@ const mentorPanels = {
         node: {
           _id: "6222512cf2cca4f228cd2e47",
           mentors: ["62b4f62482f27ce347ba02e2", "62aa503082f27ce347bdc7f4"],
-          subject: "60930672f5ded648ffb65d69",
+          subject: "background",
           title: "CSUF Alumni Panel",
           subtitle: "Ask questions directly to Alumni from CSUF",
         },
@@ -53,6 +53,27 @@ const mentorPanels = {
 };
 
 describe("users screen", () => {
+  it("users cannot view config settings", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.USER },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: { updateConfigFeatured: config },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.contains("You must be an admin or content manager to view this page.");
+  });
+
   it("admin can view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
@@ -71,5 +92,443 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
+    cy.get("[data-cy=mentors-list]");
+  });
+
+  it("content manager can view config settings", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: { updateConfigFeatured: config },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=mentors-list]");
+  });
+
+  it("admin can toggle and launch active mentors", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: {
+            updateConfigFeatured: {
+              ...config,
+              activeMentors: ["62aa503082f27ce347bdc7f4"],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+        cy.get('[data-cy=toggle-active] [type="checkbox"]')
+          .trigger("mouseover")
+          .click();
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "be.checked"
+        );
+      });
+    });
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "be.checked"
+        );
+        cy.get("[data-cy=launch-mentor]").trigger("mouseover").click();
+      });
+    });
+  });
+
+  it("admin can toggle and launch featured mentors", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: {
+            updateConfigFeatured: {
+              ...config,
+              featuredMentors: ["62aa503082f27ce347bdc7f4"],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "be.checked"
+        );
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]')
+          .trigger("mouseover")
+          .click();
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]')
+          .trigger("mouseover")
+          .click();
+      });
+    });
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "be.checked"
+        );
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+        cy.get("[data-cy=launch-mentor]").trigger("mouseover").click();
+      });
+    });
+  });
+
+  it("admin can toggle and launch featured mentor panels", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: { updateConfigFeatured: { ...config, featuredMentorPanels: [] } },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=toggle-featured-mentor-panels]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "be.checked"
+        );
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]')
+          .trigger("mouseover")
+          .click();
+      });
+    });
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+        cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+        cy.get("[data-cy=launch-mentor-panel]").trigger("mouseover").click();
+      });
+    });
+  });
+
+  it("admin can edit mentor panel", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", [
+          mentorPanels,
+          {
+            mentorPanels: {
+              edges: [
+                {
+                  node: {
+                    _id: "6222512cf2cca4f228cd2e47",
+                    mentors: ["62b4f62482f27ce347ba02e2"],
+                    subject: "leadership",
+                    title: "CSUF Alumni Panel Edited",
+                    subtitle:
+                      "Ask questions directly to Alumni from CSUF Edited",
+                  },
+                },
+              ],
+            },
+          },
+        ]),
+        mockGQL("AddOrUpdateMentorPanel", {
+          me: {
+            addOrUpdateMentorPanel: {
+              _id: "6222512cf2cca4f228cd2e47",
+              mentors: ["62b4f62482f27ce347ba02e2"],
+              subject: "leadership",
+              title: "CSUF Alumni Panel Edited",
+              subtitle: "Ask questions directly to Alumni from CSUF Edited",
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-featured-mentor-panels]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+        cy.get("[data-cy=edit-mentor-panel]").trigger("mouseover").click();
+      });
+    });
+    cy.get("[data-cy=edit-mentor-panel]").should("exist");
+    cy.get("[data-cy=panel-title]").should(
+      "have.attr",
+      "data-test",
+      "CSUF Alumni Panel"
+    );
+    cy.get("[data-cy=panel-subtitle]").should(
+      "have.attr",
+      "data-test",
+      "Ask questions directly to Alumni from CSUF"
+    );
+    cy.get("[data-cy=panel-subject]").should(
+      "have.attr",
+      "data-test",
+      "background"
+    );
+    cy.get("[data-cy=panel-title]").type(" Edited");
+    cy.get("[data-cy=panel-subtitle]").type(" Edited");
+    cy.get("[data-cy=panel-subject]").trigger("mouseover").click();
+    cy.get("[data-cy=panel-subject-leadership]").trigger("mouseover").click();
+    cy.get("[data-cy=mentor-panels-mentors]").within(($list) => {
+      cy.get("[data-cy=mentor-panel-mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+      });
+      cy.get("[data-cy=mentor-panel-mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+        cy.get("[data-cy=remove-mentor-panel-mentor]")
+          .trigger("mouseover")
+          .click();
+      });
+    });
+    cy.get("[data-cy=save-mentor-panel]").trigger("mouseover").click();
+    cy.wait(500);
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel Edited"
+        );
+        cy.get("[data-cy=edit-mentor-panel]").trigger("mouseover").click();
+      });
+    });
+    cy.get("[data-cy=edit-mentor-panel]").should("exist");
+    cy.get("[data-cy=panel-title]").should(
+      "have.attr",
+      "data-test",
+      "CSUF Alumni Panel Edited"
+    );
+    cy.get("[data-cy=panel-subtitle]").should(
+      "have.attr",
+      "data-test",
+      "Ask questions directly to Alumni from CSUF Edited"
+    );
+    cy.get("[data-cy=panel-subject]").should(
+      "have.attr",
+      "data-test",
+      "leadership"
+    );
+    cy.get("[data-cy=mentor-panels-mentors]").within(($list) => {
+      cy.get("[data-cy=mentor-panel-mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+      });
+    });
+  });
+
+  it("admin can create mentor panel", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", [
+          mentorPanels,
+          {
+            mentorPanels: {
+              edges: [
+                {
+                  node: {
+                    _id: "6222512cf2cca4f228cd2e47",
+                    mentors: [
+                      "62b4f62482f27ce347ba02e2",
+                      "62aa503082f27ce347bdc7f4",
+                    ],
+                    subject: "background",
+                    title: "CSUF Alumni Panel",
+                    subtitle: "Ask questions directly to Alumni from CSUF",
+                  },
+                },
+                {
+                  node: {
+                    _id: "6222512cf2cca4f228cd2e49",
+                    mentors: ["62b4f62482f27ce347ba02e2"],
+                    subject: "leadership",
+                    title: "New",
+                    subtitle: "New",
+                  },
+                },
+              ],
+            },
+          },
+        ]),
+        mockGQL("AddOrUpdateMentorPanel", {
+          me: {
+            addOrUpdateMentorPanel: {
+              _id: "6222512cf2cca4f228cd2e49",
+              mentors: ["62b4f62482f27ce347ba02e2"],
+              subject: "leadership",
+              title: "New",
+              subtitle: "New",
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-featured-mentor-panels]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+      });
+    });
+    cy.get("[data-cy=add-mentor-panel]").trigger("mouseover").click();
+    cy.get("[data-cy=edit-mentor-panel]").should("exist");
+    cy.get("[data-cy=panel-title]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=panel-subtitle]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=panel-subject]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=panel-title]").type("New");
+    cy.get("[data-cy=panel-subtitle]").type("New");
+    cy.get("[data-cy=panel-subject]").trigger("mouseover").click();
+    cy.get("[data-cy=panel-subject-leadership]").trigger("mouseover").click();
+    cy.get("[data-cy=panel-mentors]").trigger("mouseover").click();
+    cy.get("[data-cy=panel-mentor-62b4f62482f27ce347ba02e2]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=save-mentor-panel]").trigger("mouseover").click();
+    cy.wait(500);
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+      });
+      cy.get("[data-cy=mentor-panel-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "New");
+        cy.get("[data-cy=edit-mentor-panel]").trigger("mouseover").click();
+      });
+    });
+    cy.get("[data-cy=edit-mentor-panel]").should("exist");
+    cy.get("[data-cy=panel-title]").should("have.attr", "data-test", "New");
+    cy.get("[data-cy=panel-subtitle]").should("have.attr", "data-test", "New");
+    cy.get("[data-cy=panel-subject]").should(
+      "have.attr",
+      "data-test",
+      "leadership"
+    );
+    cy.get("[data-cy=mentor-panels-mentors]").within(($list) => {
+      cy.get("[data-cy=mentor-panel-mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+      });
+    });
   });
 });
