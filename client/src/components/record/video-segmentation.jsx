@@ -41,40 +41,44 @@ async function videoSegmentation() {
   console.log("person:", person);
 
   return (
-    <div className="container">
-      <div>
-        <VideoRecorder />
-        <div className="canvas-container">
-          <canvas
-            className="output_canvas"
-            width="1280px"
-            height="720px"
-          ></canvas>
-        </div>
-        <div className="loading">
-          <div className="spinner"></div>
-          <div className="message">Loading</div>
-        </div>
-        <a
-          className="abs logo"
-          href="http://www.mediapipe.dev"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <div style="display: flex;align-items: center;bottom: 0;right: 10px;">
-            <img
-              className="logo"
-              src="logo_white.png"
-              alt=""
-              style="
-                height: 50px;"
-            />
-            <span className="title">MediaPipe</span>
+    <>
+      (
+      <div className="container">
+        <div>
+          <VideoRecorder />
+          <div className="canvas-container">
+            <canvas
+              className="output_canvas"
+              width="1280px"
+              height="720px"
+            ></canvas>
           </div>
-        </a>
+          <div className="loading">
+            <div className="spinner"></div>
+            <div className="message">Loading</div>
+          </div>
+          <a
+            className="abs logo"
+            href="http://www.mediapipe.dev"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <div style="display: flex;align-items: center;bottom: 0;right: 10px;">
+              <img
+                className="logo"
+                src="logo_white.png"
+                alt=""
+                style="
+                height: 50px;"
+              />
+              <span className="title">MediaPipe</span>
+            </div>
+          </a>
+        </div>
+        <div className="control-panel"></div>
       </div>
-      <div className="control-panel"></div>
-    </div>
+      )
+    </>
   );
 }
 
