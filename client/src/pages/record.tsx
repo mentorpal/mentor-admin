@@ -382,6 +382,7 @@ function RecordPage(props: {
             total={recordState.answers.length}
           />
         </div>
+        <canvas id="canvas"></canvas>
         {mentorType === MentorType.VIDEO ? (
           <VideoPlayer
             classes={classes}

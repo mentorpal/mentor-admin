@@ -13,6 +13,7 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+import videoSegmentation from "./video-segmentation.js";
 
 function VideoRecorder({
   classes,
@@ -214,7 +215,6 @@ function VideoRecorder({
         Please get into position by facing forward and lining up with the
         outline.
       </Typography>
-      <ConsoleLog />
       <div data-vjs-player style={{ height, width }}>
         <video
           data-cy="video-recorder"

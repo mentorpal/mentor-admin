@@ -1858,7 +1858,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-video]").should("be.hidden");
   });
 
-  it.only("download video button only visible when video is present", () => {
+  it("download video button only visible when video is present", () => {
     cyMockDefault(cy, {
       mentor: [
         videoMentor,
