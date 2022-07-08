@@ -5,9 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
-import DeviceDetector from "https://cdn.skypack.dev/device-detector-js@2.2.10";
 
-const videoElement = document.getElementsByClassName("input_video")[0];
+const videoElement = $("[data-cy=video-recorder]");
 const canvasElement = document.getElementsByClassName("output_canvas")[0];
 const canvasCtx = canvasElement.getContext("2d");
 

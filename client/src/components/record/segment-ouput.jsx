@@ -33,7 +33,11 @@ const SegmentOutput = () => (
     <body>
       <div className="container">
         <VideoRecorder />
-        <canvas className="output_canvas" width="1280px" height="720px"></canvas>
+        <canvas
+          className="output_canvas"
+          width="1280px"
+          height="720px"
+        ></canvas>
         <script src={Segmentation}></script>
       </div>
     </body>
