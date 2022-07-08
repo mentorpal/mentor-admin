@@ -8,6 +8,7 @@ import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
+import subjects from "../fixtures/subjects/all-subjects";
 
 const config = {
   featuredMentors: ["62b4f62482f27ce347ba02e2"],
@@ -61,8 +62,12 @@ describe("users screen", () => {
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
       gqlQueries: [
+        mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfigFeatured", {
+          me: { updateConfigFeatured: config },
+        }),
       ],
     });
     cy.visit("/config");

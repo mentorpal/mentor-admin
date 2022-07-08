@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -17,33 +16,44 @@ import {
   Card,
   CardActions,
   CardContent,
+  Checkbox,
   CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControlLabel,
   IconButton,
   List,
   ListItem,
   ListItemText,
+  ListSubheader,
   makeStyles,
   Tab,
   TextField,
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import DeleteIcon from "@material-ui/icons/Delete";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import EditIcon from "@material-ui/icons/Edit";
 import LaunchIcon from "@material-ui/icons/Launch";
+import DragHandleIcon from "@material-ui/icons/DragHandle";
 import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { launchMentor } from "helpers";
-import { useWithMentorPanels } from "hooks/graphql/use-with-mentor-panels";
+import {
+  copyAndMove,
+  copyAndRemove,
+  launchMentor,
+  launchMentorPanel,
+} from "helpers";
 import { useWithConfig } from "hooks/graphql/use-with-config";
-import { useWithMentors } from "hooks/graphql/use-with-mentors";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Config, MentorPanel, User, UserRole } from "types";
-import { MentorGQL } from "types-gql";
+import { MentorGQL, SubjectGQL } from "types-gql";
 import withLocation from "wrap-with-location";
+import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -69,302 +79,261 @@ const useStyles = makeStyles((theme) => ({
   list: {
     background: "#F5F5F5",
   },
+  expand: {
+    transform: "rotate(0deg)",
+    marginLeft: "auto",
+    transition: theme.transitions.create("transform", {
+      duration: theme.transitions.duration.shortest,
+    }),
+  },
+  expandOpen: {
+    transform: "rotate(180deg)",
+  },
 }));
 
-function FeaturedMentors(props: {
+function MentorList(props: {
   styles: Record<string, string>;
   config: Config;
   mentors: MentorGQL[];
-  add: (id: string) => void;
-  remove: (idx: number) => void;
-  move: (toMove: number, moveTo: number) => void;
+  moveMentor: (toMove: number, moveTo: number) => void;
+  toggleActive: (id: string) => void;
+  toggleFeatured: (id: string) => void;
 }): JSX.Element {
   const { styles, mentors } = props;
   const featuredMentors = props.config.featuredMentors || [];
-  const { height: windowHeight } = useWithWindowSize();
-  const [input, setInput] = useState<string>("");
-
-  function onDragEnd(result: DropResult) {
-    if (!result.destination) {
-      return;
-    }
-    props.move(result.source.index, result.destination.index);
-  }
-
-  return (
-    <div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
-          {(provided) => (
-            <List
-              data-cy="featured-mentors-list"
-              ref={provided.innerRef}
-              className={styles.list}
-              style={{ height: windowHeight - 400, overflow: "auto" }}
-              {...provided.droppableProps}
-            >
-              {featuredMentors.map((mId, i) => {
-                const mentor = mentors.find((m) => m._id === mId);
-                return (
-                  <Draggable
-                    index={i}
-                    key={`featured-mentor-${i}`}
-                    draggableId={`featured-mentor-${i}`}
-                  >
-                    {(provided) => (
-                      <ListItem
-                        data-cy={`featured-mentor-${i}`}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <Card style={{ width: "100%" }}>
-                          <CardContent
-                            style={{ display: "flex", flexDirection: "row" }}
-                          >
-                            <div style={{ flexGrow: 1 }}>
-                              <ListItemText
-                                primary={mentor?.name}
-                                secondary={mentor?.title}
-                              />
-                            </div>
-                            <CardActions>
-                              <IconButton
-                                data-cy="launch-featured-mentor"
-                                size="small"
-                                onClick={() => launchMentor(mId, true)}
-                              >
-                                <LaunchIcon />
-                              </IconButton>
-                              <IconButton
-                                data-cy="delete-featured-mentor"
-                                size="small"
-                                onClick={() => props.remove(i)}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </CardActions>
-                          </CardContent>
-                        </Card>
-                      </ListItem>
-                    )}
-                  </Draggable>
-                );
-              })}
-              {provided.placeholder}
-            </List>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <Autocomplete
-        data-cy="select-featured-mentor"
-        style={{ marginTop: "10" }}
-        options={mentors || []}
-        onChange={(e, v) => setInput(v?._id || "")}
-        getOptionLabel={(option: MentorGQL) => option.name}
-        getOptionDisabled={(option: MentorGQL) =>
-          featuredMentors.includes(option._id)
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
-            variant="outlined"
-          />
-        )}
-        renderOption={(option) => (
-          <ListItemText primary={option.name} secondary={option.title} />
-        )}
-      />
-      <Button
-        data-cy="add-featured-mentor"
-        color="primary"
-        variant="outlined"
-        startIcon={<AddIcon />}
-        className={styles.button}
-        disabled={!input || featuredMentors.includes(input)}
-        onClick={() => props.add(input)}
-      >
-        Add Featured Mentor
-      </Button>
-    </div>
-  );
-}
-
-function ActiveMentors(props: {
-  styles: Record<string, string>;
-  config: Config;
-  mentors: MentorGQL[];
-  add: (id: string) => void;
-  remove: (idx: number) => void;
-  move: (toMove: number, moveTo: number) => void;
-}): JSX.Element {
-  const { styles, mentors } = props;
   const activeMentors = props.config.activeMentors || [];
   const { height: windowHeight } = useWithWindowSize();
-  const [input, setInput] = useState<string>("");
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
       return;
     }
-    props.move(result.source.index, result.destination.index);
+    props.moveMentor(result.source.index, result.destination.index);
   }
 
   return (
-    <div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
-          {(provided) => (
-            <List
-              data-cy="active-mentors-list"
-              ref={provided.innerRef}
-              className={styles.list}
-              style={{ height: windowHeight - 400, overflow: "auto" }}
-              {...provided.droppableProps}
-            >
-              {activeMentors.map((mId, i) => {
-                const mentor = mentors.find((m) => m._id === mId);
-                return (
-                  <Draggable
-                    index={i}
-                    key={`active-mentor-${i}`}
-                    draggableId={`active-mentor-${i}`}
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="droppable-mentors">
+        {(provided) => (
+          <List
+            data-cy="mentors-list"
+            ref={provided.innerRef}
+            className={styles.list}
+            style={{ height: windowHeight - 300, overflow: "auto" }}
+            {...provided.droppableProps}
+          >
+            {mentors.map((m, i) => (
+              <Draggable
+                index={i}
+                key={`mentor-${i}`}
+                draggableId={`mentor-${i}`}
+              >
+                {(provided) => (
+                  <ListItem
+                    data-cy={`mentor-${i}`}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
                   >
-                    {(provided) => (
-                      <ListItem
-                        data-cy={`active-mentor-${i}`}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
+                    <Card style={{ width: "100%" }}>
+                      <CardContent
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
                       >
-                        <Card style={{ width: "100%" }}>
-                          <CardContent
-                            style={{ display: "flex", flexDirection: "row" }}
-                          >
-                            <div style={{ flexGrow: 1 }}>
-                              <ListItemText
-                                primary={mentor?.name}
-                                secondary={mentor?.title}
+                        <CardActions>
+                          <IconButton size="small">
+                            <DragHandleIcon />
+                          </IconButton>
+                        </CardActions>
+                        <ListItemText
+                          primary={m.name}
+                          secondary={m.title}
+                          style={{ flexGrow: 1 }}
+                        />
+                        <CardActions>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={featuredMentors.includes(m._id)}
+                                onChange={() => props.toggleFeatured(m._id)}
+                                color="primary"
+                                style={{ padding: 0 }}
                               />
-                            </div>
-                            <CardActions>
+                            }
+                            label="Featured"
+                            labelPlacement="top"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={activeMentors.includes(m._id)}
+                                onChange={() => props.toggleActive(m._id)}
+                                color="secondary"
+                                style={{ padding: 0 }}
+                              />
+                            }
+                            label="Active"
+                            labelPlacement="top"
+                          />
+                          <FormControlLabel
+                            control={
                               <IconButton
-                                data-cy="launch-active-mentor"
+                                data-cy="launch-mentor"
                                 size="small"
-                                onClick={() => launchMentor(mId, true)}
+                                onClick={() => launchMentor(m._id, true)}
                               >
                                 <LaunchIcon />
                               </IconButton>
-                              <IconButton
-                                data-cy="delete-active-mentor"
-                                size="small"
-                                onClick={() => props.remove(i)}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </CardActions>
-                          </CardContent>
-                        </Card>
-                      </ListItem>
-                    )}
-                  </Draggable>
-                );
-              })}
-              {provided.placeholder}
-            </List>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <Autocomplete
-        data-cy="select-active-mentor"
-        style={{ marginTop: "10" }}
-        options={mentors || []}
-        onChange={(e, v) => setInput(v?._id || "")}
-        getOptionLabel={(option: MentorGQL) => option.name}
-        getOptionDisabled={(option: MentorGQL) =>
-          activeMentors.includes(option._id)
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
-            variant="outlined"
-          />
+                            }
+                            label="Launch"
+                            labelPlacement="top"
+                          />
+                        </CardActions>
+                      </CardContent>
+                    </Card>
+                  </ListItem>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </List>
         )}
-        renderOption={(option) => (
-          <ListItemText primary={option.name} secondary={option.title} />
-        )}
-      />
-      <Button
-        data-cy="add-active-mentor"
-        color="primary"
-        variant="outlined"
-        startIcon={<AddIcon />}
-        className={styles.button}
-        disabled={!input || activeMentors.includes(input)}
-        onClick={() => props.add(input)}
-      >
-        Add Active Mentor
-      </Button>
-    </div>
+      </Droppable>
+    </DragDropContext>
   );
 }
 
-function FeaturedMentorPanels(props: {
+function MentorPanelList(props: {
   styles: Record<string, string>;
   config: Config;
   mentors: MentorGQL[];
   mentorPanels: MentorPanel[];
-  add: (id: string) => void;
-  remove: (idx: number) => void;
-  move: (toMove: number, moveTo: number) => void;
+  subjects: SubjectGQL[];
+  moveMentorPanel: (toMove: number, moveTo: number) => void;
+  toggleFeatured: (id: string) => void;
+  saveMentorPanel: (panel: MentorPanel) => void;
 }): JSX.Element {
-  const { styles, mentorPanels } = props;
+  const { styles, mentors, mentorPanels, subjects } = props;
   const featuredMentorPanels = props.config.featuredMentorPanels || [];
   const { height: windowHeight } = useWithWindowSize();
-  const [input, setInput] = useState<string>("");
+  const [editMentorPanel, setEditMentorPanel] = useState<MentorPanel>();
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
       return;
     }
-    props.move(result.source.index, result.destination.index);
+    props.moveMentorPanel(result.source.index, result.destination.index);
+  }
+
+  function onDragMentor(result: DropResult) {
+    if (!result.destination) {
+      return;
+    }
+    setEditMentorPanel({
+      ...editMentorPanel!,
+      mentors: copyAndMove(
+        editMentorPanel?.mentors || [],
+        result.source.index,
+        result.destination.index
+      ),
+    });
   }
 
   return (
     <div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
+        <Droppable droppableId="droppable-mentor-panels">
           {(provided) => (
             <List
-              data-cy="featured-mentor-panels-list"
+              data-cy="mentor-panels-list"
               ref={provided.innerRef}
               className={styles.list}
-              style={{ height: windowHeight - 400, overflow: "auto" }}
+              style={{ height: windowHeight - 350, overflow: "auto" }}
               {...provided.droppableProps}
             >
-              {featuredMentorPanels.map((mId, i) => {
-                const panel = mentorPanels.find((m) => m._id === mId);
+              {mentorPanels.map((panel, i) => {
                 return (
                   <Draggable
                     index={i}
-                    key={`featured-mentor-panel-${i}`}
-                    draggableId={`featured-mentor-panel-${i}`}
+                    key={`mentor-panel-${i}`}
+                    draggableId={`mentor-panel-${i}`}
                   >
                     {(provided) => (
                       <ListItem
-                        data-cy={`featured-mentor-panel-${i}`}
+                        data-cy={`mentor-panel-${i}`}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                       >
-                        <MentorPanelCard
-                          panel={panel!}
-                          i={i}
-                          styles={styles}
-                          remove={props.remove}
-                        />
+                        <Card style={{ width: "100%" }}>
+                          <CardContent
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
+                          >
+                            <CardActions>
+                              <IconButton size="small">
+                                <DragHandleIcon />
+                              </IconButton>
+                            </CardActions>
+                            <ListItemText
+                              primary={panel?.title}
+                              secondary={panel?.subtitle}
+                              style={{ flexGrow: 1 }}
+                            />
+                            <CardActions>
+                              <FormControlLabel
+                                control={
+                                  <Checkbox
+                                    checked={featuredMentorPanels.includes(
+                                      panel._id
+                                    )}
+                                    onChange={() =>
+                                      props.toggleFeatured(panel._id)
+                                    }
+                                    color="primary"
+                                    style={{ padding: 0 }}
+                                  />
+                                }
+                                label="Featured"
+                                labelPlacement="top"
+                              />
+                              <FormControlLabel
+                                control={
+                                  <IconButton
+                                    data-cy="launch-mentor-panel"
+                                    size="small"
+                                    onClick={() =>
+                                      launchMentorPanel(panel.mentors, true)
+                                    }
+                                  >
+                                    <LaunchIcon />
+                                  </IconButton>
+                                }
+                                label="Launch"
+                                labelPlacement="top"
+                              />
+                              <FormControlLabel
+                                control={
+                                  <IconButton
+                                    data-cy="edit-mentor-panel"
+                                    size="small"
+                                    onClick={() => setEditMentorPanel(panel)}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                }
+                                label="Edit"
+                                labelPlacement="top"
+                              />
+                            </CardActions>
+                          </CardContent>
+                        </Card>
                       </ListItem>
                     )}
                   </Draggable>
@@ -375,100 +344,246 @@ function FeaturedMentorPanels(props: {
           )}
         </Droppable>
       </DragDropContext>
-      <Autocomplete
-        data-cy="select-featured-mentor-panel"
-        style={{ marginTop: "10" }}
-        options={mentorPanels || []}
-        onChange={(e, v) => setInput(v?._id || "")}
-        getOptionLabel={(option: MentorPanel) => option.title}
-        getOptionDisabled={(option: MentorPanel) =>
-          featuredMentorPanels.includes(option._id)
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
-            variant="outlined"
-          />
-        )}
-        renderOption={(option) => (
-          <ListItemText primary={option.title} secondary={option.subtitle} />
-        )}
-      />
       <Button
-        data-cy="add-featured-mentor"
+        data-cy="add-mentor-panel"
         color="primary"
         variant="outlined"
         startIcon={<AddIcon />}
         className={styles.button}
-        disabled={!input || featuredMentorPanels.includes(input)}
-        onClick={() => props.add(input)}
+        onClick={() =>
+          setEditMentorPanel({
+            _id: "",
+            title: "",
+            subtitle: "",
+            subject: "",
+            mentors: [],
+          })
+        }
       >
-        Add Featured Mentor Panel
+        Create Mentor Panel
       </Button>
+      <Dialog
+        data-cy="edit-mentor-panel"
+        maxWidth="sm"
+        fullWidth={true}
+        open={Boolean(editMentorPanel)}
+      >
+        <DialogTitle>Edit Mentor Panel</DialogTitle>
+        <DialogContent>
+          <TextField
+            data-cy="panel-title"
+            data-test={editMentorPanel?.title}
+            label="Title"
+            variant="outlined"
+            value={editMentorPanel?.title}
+            onChange={(e) =>
+              setEditMentorPanel({ ...editMentorPanel!, title: e.target.value })
+            }
+            fullWidth
+            multiline
+          />
+          <TextField
+            data-cy="panel-subtitle"
+            data-test={editMentorPanel?.subtitle}
+            label="Subtitle"
+            variant="outlined"
+            value={editMentorPanel?.subtitle}
+            onChange={(e) =>
+              setEditMentorPanel({
+                ...editMentorPanel!,
+                subtitle: e.target.value,
+              })
+            }
+            style={{ marginTop: 10 }}
+            fullWidth
+            multiline
+          />
+          <Autocomplete
+            data-cy="panel-subject"
+            options={subjects}
+            getOptionLabel={(option: SubjectGQL) => option.name}
+            value={subjects.find((s) => s._id === editMentorPanel?.subject)}
+            onChange={(e, v) =>
+              setEditMentorPanel({ ...editMentorPanel!, subject: v?._id || "" })
+            }
+            style={{ width: "100%", marginTop: 10 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                placeholder="Choose a subject"
+                label="Subject"
+              />
+            )}
+          />
+          <DragDropContext onDragEnd={onDragMentor}>
+            <Droppable droppableId="droppable-mentor-panel-mentors">
+              {(provided) => (
+                <List
+                  data-cy="mentor-panels-mentors"
+                  ref={provided.innerRef}
+                  className={styles.list}
+                  style={{ height: 300, overflow: "auto", marginTop: 10 }}
+                  subheader={<ListSubheader>Mentors</ListSubheader>}
+                  {...provided.droppableProps}
+                >
+                  {editMentorPanel?.mentors.map((mId, i) => {
+                    const mentor = mentors.find((m) => m._id === mId);
+                    return (
+                      <Draggable
+                        index={i}
+                        key={`mentor-panel-mentor-${i}`}
+                        draggableId={`mentor-panel-mentor-${i}`}
+                      >
+                        {(provided) => (
+                          <ListItem
+                            data-cy={`mentor-panel-mentor-${i}`}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <Card style={{ width: "100%" }}>
+                              <CardContent
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "row",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <CardActions>
+                                  <IconButton size="small">
+                                    <DragHandleIcon />
+                                  </IconButton>
+                                </CardActions>
+                                <ListItemText
+                                  primary={mentor?.name}
+                                  secondary={mentor?.title}
+                                  style={{ flexGrow: 1 }}
+                                />
+                                <CardActions>
+                                  <FormControlLabel
+                                    control={
+                                      <IconButton
+                                        data-cy="remove-mentor-panel-mentor"
+                                        size="small"
+                                        onClick={() =>
+                                          setEditMentorPanel({
+                                            ...editMentorPanel!,
+                                            mentors: copyAndRemove(
+                                              editMentorPanel?.mentors || [],
+                                              i
+                                            ),
+                                          })
+                                        }
+                                      >
+                                        <DeleteIcon />
+                                      </IconButton>
+                                    }
+                                    label="Remove"
+                                    labelPlacement="top"
+                                  />
+                                </CardActions>
+                              </CardContent>
+                            </Card>
+                          </ListItem>
+                        )}
+                      </Draggable>
+                    );
+                  })}
+                  {provided.placeholder}
+                </List>
+              )}
+            </Droppable>
+          </DragDropContext>
+          <Autocomplete
+            data-cy="panel-mentors"
+            options={mentors}
+            getOptionLabel={(option: MentorGQL) => option.name}
+            getOptionDisabled={(option: MentorGQL) =>
+              Boolean(editMentorPanel?.mentors.includes(option._id))
+            }
+            onChange={(e, v) => {
+              if (v)
+                setEditMentorPanel({
+                  ...editMentorPanel!,
+                  mentors: [...(editMentorPanel?.mentors || []), v._id],
+                });
+            }}
+            style={{ width: "100%" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                placeholder="Choose a mentor"
+                label="Add Mentor"
+              />
+            )}
+          />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+            }}
+          >
+            <Button
+              data-cy="save-mentor-panel"
+              color="primary"
+              variant="outlined"
+              className={styles.button}
+              onClick={() =>
+                setEditMentorPanel({
+                  _id: "",
+                  title: "",
+                  subtitle: "",
+                  subject: "",
+                  mentors: [],
+                })
+              }
+            >
+              Save
+            </Button>
+            <Button
+              data-cy="cancel-mentor-panel"
+              color="secondary"
+              variant="outlined"
+              className={styles.button}
+              onClick={() => setEditMentorPanel(undefined)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
-  );
-}
-
-function MentorPanelCard(props: {
-  styles: Record<string, string>;
-  i: number;
-  panel: MentorPanel;
-  remove: (idx: number) => void;
-}): JSX.Element {
-  const { styles, panel } = props;
-  const [expanded, setExpanded] = React.useState(false);
-
-  return (
-    <Card style={{ width: "100%" }}>
-      <CardContent style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ flexGrow: 1 }}>
-          <ListItemText primary={panel?.title} secondary={panel?.subtitle} />
-        </div>
-        <CardActions>
-          <IconButton
-            data-cy="toggle-mentor-panel"
-            size="small"
-            className={clsx(styles.expand, {
-              [styles.expandOpen]: expanded,
-            })}
-            onClick={() => setExpanded(!expanded)}
-          >
-            <ExpandMoreIcon />
-          </IconButton>
-          <IconButton
-            data-cy="launch-featured-mentor-panel"
-            size="small"
-            // onClick={() => launchMentor(mId, true)}
-          >
-            <LaunchIcon />
-          </IconButton>
-          <IconButton
-            data-cy="delete-featured-mentor-panel"
-            size="small"
-            onClick={() => props.remove(props.i)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </CardActions>
-      </CardContent>
-    </Card>
   );
 }
 
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
-  const mentors = useWithMentors(props.accessToken);
-  const mentorPanels = useWithMentorPanels();
-  const config = useWithConfig(props.accessToken);
+  const {
+    config,
+    mentors,
+    mentorPanels,
+    error,
+    isEdited,
+    isLoading,
+    isSaving,
+    saveConfig,
+    moveMentor,
+    moveMentorPanel,
+    toggleActiveMentor,
+    toggleFeaturedMentor,
+    toggleFeaturedMentorPanel,
+    saveMentorPanel,
+  } = useWithConfig(props.accessToken);
   const { switchActiveMentor } = useActiveMentor();
   const { height } = useWithWindowSize();
+  const { data: subjects } = useWithSubjects();
 
   const permissionToView =
     props.user.userRole === UserRole.ADMIN ||
     props.user.userRole === UserRole.CONTENT_MANAGER;
-  const mentorArray = mentors.data?.edges.map((n) => n.node) || [];
-  const mentorPanelArray = mentorPanels?.data?.edges.map((n) => n.node) || [];
   const [tab, setTab] = useState<string>("featured-mentors");
 
   useEffect(() => {
@@ -480,7 +595,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
       <div>You must be an admin or content manager to view this page.</div>
     );
   }
-  if (!mentorPanels.data || !config.editedData || !mentors.data) {
+  if (isLoading || !config) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
@@ -499,11 +614,6 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             data-cy="toggle-featured-mentors"
           />
           <Tab
-            label="Active Mentors"
-            value="active-mentors"
-            data-cy="toggle-active-mentors"
-          />
-          <Tab
             label="Featured Mentor Panels"
             value="featured-mentor-panels"
             data-cy="toggle-featured-mentor-panels"
@@ -514,27 +624,13 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="featured-mentors"
         >
-          <FeaturedMentors
+          <MentorList
             styles={styles}
-            config={config.editedData}
-            mentors={mentorArray}
-            add={config.addFeaturedMentor}
-            remove={config.removeFeaturedMentor}
-            move={config.moveFeaturedMentor}
-          />
-        </TabPanel>
-        <TabPanel
-          className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
-          value="active-mentors"
-        >
-          <ActiveMentors
-            styles={styles}
-            config={config.editedData}
-            mentors={mentorArray}
-            add={config.addActiveMentor}
-            remove={config.removeActiveMentor}
-            move={config.moveActiveMentor}
+            config={config}
+            mentors={mentors}
+            moveMentor={moveMentor}
+            toggleActive={toggleActiveMentor}
+            toggleFeatured={toggleFeaturedMentor}
           />
         </TabPanel>
         <TabPanel
@@ -542,14 +638,15 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="featured-mentor-panels"
         >
-          <FeaturedMentorPanels
+          <MentorPanelList
             styles={styles}
-            config={config.editedData}
-            mentors={mentorArray}
-            mentorPanels={mentorPanelArray}
-            add={config.addFeaturedMentorPanel}
-            remove={config.removeFeaturedMentorPanel}
-            move={config.moveFeaturedMentorPanel}
+            config={config}
+            mentors={mentors}
+            subjects={subjects?.edges.map((s) => s.node) || []}
+            mentorPanels={mentorPanels}
+            moveMentorPanel={moveMentorPanel}
+            toggleFeatured={toggleFeaturedMentorPanel}
+            saveMentorPanel={saveMentorPanel}
           />
         </TabPanel>
       </TabContext>
@@ -558,13 +655,13 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         variant="contained"
         color="primary"
         className={styles.button}
-        disabled={!config.isEdited}
-        onClick={() => config.saveConfig()}
+        disabled={!isEdited || isSaving}
+        onClick={saveConfig}
       >
         Save
       </Button>
-      <ErrorDialog error={config.error} />
-      <LoadingDialog title={config.isLoading ? "Loading..." : ""} />
+      <ErrorDialog error={error} />
+      <LoadingDialog title={isLoading ? "Loading..." : ""} />
     </div>
   );
 }
