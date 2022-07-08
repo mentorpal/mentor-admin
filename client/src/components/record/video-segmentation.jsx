@@ -14,7 +14,7 @@ import VideoRecorder from "./video-recorder";
 import VideoPlayer from "./video-player";
 
 async function videoSegmentation() {
-  const video = $("[data-cy=video-recorder]");
+  const video = $("[data-cy=video-player]");
   const segmenter = await bodySegmentation.createSegmenter(
     bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation
   );
