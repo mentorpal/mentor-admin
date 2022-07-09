@@ -13,17 +13,18 @@ import "@mediapipe/selfie_segmentation";
 import VideoRecorder from "./video-recorder";
 //import VideoPlayer from "./video-player";
 
-function videoSegmentation() {
-  if (document.querySelectorAll("[data-cy=video-recorder]") === null) {
-    throw new Error("No video recorder found");
-  }
-  const segmenter = await bodySegmentation.createSegmenter(
+useEffect(() => {
+  
+  const segmenter = bodySegmentation.createSegmenter(
     bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation
-  );
-  const segmentation = await segmenter.segmentPeople(video);
-  // The mask image is an binary mask image with a 1 where there is a person and
-  // a 0 where there is not.
-  const coloredPartImage = await bodySegmentation.toBinaryMask(segmentation).then(
+  ).then(() => {
+    const segmentation = segmenter.segmentPeople(video)
+  }).then(() => {
+    // The mask image is an binary mask image with a 1 where there is a person and
+    // a 0 where there is not.
+    const coloredPartImage = bodySegmentation.toBinaryMask(segmentation);
+  }).then(() => {
+
     const video = document.querySelectorAll("[data-cy=video-recorder]");
     const opacity = 0.7;
     const flipHorizontal = false;
@@ -42,7 +43,43 @@ function videoSegmentation() {
       flipHorizontal
     );
     console.log("person:", person);
+  })
+
+  return () => {
+    //JSX to be rendered
+  };
+}, []);
+
+function videoSegmentation() {
+  if (document.querySelectorAll("[data-cy=video-recorder]") === null) {
+    throw new Error("No video recorder found");
+  }
+
+  const video = document.querySelectorAll("[data-cy=video-recorder]");
+
+  const segmenter = await bodySegmentation.createSegmenter(bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation);
+  const segmentation = await segmenter.segmentPeople(img);
+  // The mask image is an binary mask image with a 1 where there is a person and
+  // a 0 where there is not.
+  const coloredPartImage = await bodySegmentation.toBinaryMask(segmentation);
+
+  const opacity = 0.7;
+  const flipHorizontal = false;
+  const maskBlurAmount = 0;
+  const canvas = document.getElementById("canvas");
+  console.log("canvas:", canvas);
+  // Draw the mask image on top of the original image onto a canvas.
+  // The colored part image will be drawn semi-transparent, with an opacity of
+  // 0.7, allowing for the original image to be visible under.
+  const person = bodySegmentation.drawMask(
+    canvas,
+    video,
+    coloredPartImage,
+    opacity,
+    maskBlurAmount,
+    flipHorizontal
   );
+  console.log("person:", person);
     
   return (
     <>
