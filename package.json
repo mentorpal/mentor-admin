@@ -15,6 +15,7 @@
   "scripts": {
     "test": "run",
     "license:fix": "license-check-and-add remove -f license-config.json && license-check-and-add add -f license-config.json",
+    "license:deploy": "license-check-and-add remove -f license-config.json && license-check-and-add add -f $LICENSE_CONFIG",
     "test:license": "license-check-and-add check -f license-config.json",
     "format": "prettier --write '**/*.{js,jsx,json,ts,tsx}'",
     "test:format": "prettier --check '**/*.{js,jsx,json,ts,tsx}'"
