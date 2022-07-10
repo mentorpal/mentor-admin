@@ -13,21 +13,39 @@ import "@mediapipe/selfie_segmentation";
 import VideoRecorder from "./video-recorder";
 //import VideoPlayer from "./video-player";
 
+function startTask(params) {
+  if (state.isPolling) {
+    return;
+  }
+  setStatus(undefined);
+  setStatusUrl(undefined);
+  start(params)
+    .then((job) => {
+      setStatusUrl(job.statusUrl);
+      dispatch({ type: TaskActionType.POLLING, payload: true });
+    })
+    .catch((err) => {
+      console.error(err);
+      dispatch({ type: TaskActionType.POLLING, payload: false });
+      dispatch({
+        type: TaskActionType.ERROR,
+        payload: { message: "Failed to start job", error: err.message },
+      });
+    });
+}
+
 useEffect(() => {
-  const segmenter = bodySegmentation
-    .createSegmenter(
-      bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation
-    )
+  const video = document.querySelectorAll("[data-cy=video-recorder]");
+  if (video === null) {
+    throw new Error("No video recorder found");
+  }
+  const segmenter = bodySegmentation.createSegmenter(
+    bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation
+  );
+  const segmentation = segmenter.segmentPeople(video);
+  const coloredPartImage = bodySegmentation
+    .toBinaryMask(segmentation)
     .then(() => {
-      const segmentation = segmenter.segmentPeople(video);
-    })
-    .then(() => {
-      // The mask image is an binary mask image with a 1 where there is a person and
-      // a 0 where there is not.
-      const coloredPartImage = bodySegmentation.toBinaryMask(segmentation);
-    })
-    .then(() => {
-      const video = document.querySelectorAll("[data-cy=video-recorder]");
       const opacity = 0.7;
       const flipHorizontal = false;
       const maskBlurAmount = 0;
@@ -58,29 +76,27 @@ function videoSegmentation() {
     throw new Error("No video recorder found");
   }
 
-  const video = document.querySelectorAll("[data-cy=video-recorder]");
-
+  // const video = document.querySelectorAll("[data-cy=video-recorder]");
   // const segmenter = await bodySegmentation.createSegmenter(bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation);
   // const segmentation = await segmenter.segmentPeople(img);
   // // The mask image is an binary mask image with a 1 where there is a person and
   // // a 0 where there is not.
   // const coloredPartImage = await bodySegmentation.toBinaryMask(segmentation);
-
-  const opacity = 0.7;
-  const flipHorizontal = false;
-  const maskBlurAmount = 0;
-  const canvas = document.getElementById("canvas");
+  // const opacity = 0.7;
+  // const flipHorizontal = false;
+  // const maskBlurAmount = 0;
+  // const canvas = document.getElementById("canvas");
   // Draw the mask image on top of the original image onto a canvas.
   // The colored part image will be drawn semi-transparent, with an opacity of
   // 0.7, allowing for the original image to be visible under.
-  const person = bodySegmentation.drawMask(
-    canvas,
-    video,
-    coloredPartImage,
-    opacity,
-    maskBlurAmount,
-    flipHorizontal
-  );
+  // const person = bodySegmentation.drawMask(
+  //   canvas,
+  //   video,
+  //   coloredPartImage,
+  //   opacity,
+  //   maskBlurAmount,
+  //   flipHorizontal
+  // );
 
   return (
     <>
