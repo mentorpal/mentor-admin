@@ -13,27 +13,6 @@ import "@mediapipe/selfie_segmentation";
 import VideoRecorder from "./video-recorder";
 //import VideoPlayer from "./video-player";
 
-function startTask(params) {
-  if (state.isPolling) {
-    return;
-  }
-  setStatus(undefined);
-  setStatusUrl(undefined);
-  start(params)
-    .then((job) => {
-      setStatusUrl(job.statusUrl);
-      dispatch({ type: TaskActionType.POLLING, payload: true });
-    })
-    .catch((err) => {
-      console.error(err);
-      dispatch({ type: TaskActionType.POLLING, payload: false });
-      dispatch({
-        type: TaskActionType.ERROR,
-        payload: { message: "Failed to start job", error: err.message },
-      });
-    });
-}
-
 useEffect(() => {
   const video = document.querySelectorAll("[data-cy=video-recorder]");
   if (video === null) {
