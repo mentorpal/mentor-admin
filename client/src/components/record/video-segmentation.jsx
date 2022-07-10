@@ -15,9 +15,17 @@ import "@mediapipe/selfie_segmentation";
 const video = document.querySelectorAll("[data-cy=video-recorder]");
 const canvas = document.getElementById("canvas");
 
+const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
+const segmenterConfig = {
+  runtime: "mediapipe", // or 'tfjs'
+  solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+  modelType: "general",
+};
+
 async function buildVideoSegmenter(video) {
   const segmenter = await bodySegmentation.createSegmenter(
-    bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation
+    model,
+    segmenterConfig
   );
   const segmentation = await segmenter.segmentPeople(video);
   // The mask image is an binary mask image with a 1 where there is a person and
