@@ -50,11 +50,11 @@ useEffect(() => {
   };
 }, []);
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function videoSegmentation() {
-  if (document.querySelectorAll("[data-cy=video-recorder]") === null) {
-    throw new Error("No video recorder found");
-  }
-
+  // if (document.querySelectorAll("[data-cy=video-recorder]") === null) {
+  //   throw new Error("No video recorder found");
+  // }
   // const video = document.querySelectorAll("[data-cy=video-recorder]");
   // const segmenter = await bodySegmentation.createSegmenter(bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation);
   // const segmentation = await segmenter.segmentPeople(img);
