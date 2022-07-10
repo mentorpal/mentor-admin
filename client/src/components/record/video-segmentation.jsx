@@ -12,17 +12,19 @@ import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
 //import VideoPlayer from "./video-player";
 
-const video = document.querySelectorAll("[data-cy=video-recorder]");
-const canvas = document.getElementById("canvas");
+const video = document.querySelectorAll("[data-cy=video-recorder]")[0];
+const canvas = document.getElementById("canvas")[0];
 
-const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-const segmenterConfig = {
-  runtime: "mediapipe", // or 'tfjs'
-  solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
-  modelType: "general",
-};
+console.log("video:", video);
+console.log("canvas:", canvas);
 
 async function buildVideoSegmenter(video) {
+  const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
+  const segmenterConfig = {
+    runtime: "mediapipe", // or 'tfjs'
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+    modelType: "general",
+  };
   const segmenter = await bodySegmentation.createSegmenter(
     model,
     segmenterConfig
