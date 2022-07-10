@@ -4,14 +4,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@tensorflow/tfjs-core";
 // Register WebGL backend.
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
-import VideoRecorder from "./video-recorder";
 //import VideoPlayer from "./video-player";
+
+const video = document.querySelectorAll("[data-cy=video-recorder]");
+const canvas = document.getElementById("canvas");
 
 async function buildVideoSegmenter(video) {
   const segmenter = await bodySegmentation.createSegmenter(
@@ -28,8 +30,8 @@ async function buildVideoSegmenter(video) {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function videoSegmentation() {
+  const [person, setPerson] = useState();
   useEffect(() => {
-    const video = document.querySelectorAll("[data-cy=video-recorder]");
     if (video === null) {
       throw new Error("No video recorder found");
     }
@@ -37,66 +39,32 @@ function videoSegmentation() {
     const opacity = 0.7;
     const flipHorizontal = false;
     const maskBlurAmount = 0;
-    const canvas = document.getElementById("canvas");
-    console.log("canvas:", canvas);
     // Draw the mask image on top of the original image onto a canvas.
     // The colored part image will be drawn semi-transparent, with an opacity of
     // 0.7, allowing for the original image to be visible under.
-    const person = bodySegmentation.drawMask(
-      canvas,
-      video,
-      segmentationBinaryMask,
-      opacity,
-      maskBlurAmount,
-      flipHorizontal
+    setPerson(
+      bodySegmentation.drawMask(
+        canvas,
+        video,
+        segmentationBinaryMask,
+        opacity,
+        maskBlurAmount,
+        flipHorizontal
+      )
     );
     console.log("video:", video);
     console.log("person:", person);
     console.log("canvas:", canvas);
 
     return () => {
-      //JSX to be rendered
+      person;
     };
   }, []);
 
   return (
+    //JSX to be rendered
     <>
-      (
-      <div className="container">
-        <div>
-          <VideoRecorder />
-          <div className="canvas-container">
-            <canvas
-              className="output_canvas"
-              width="1280px"
-              height="720px"
-            ></canvas>
-          </div>
-          <div className="loading">
-            <div className="spinner"></div>
-            <div className="message">Loading</div>
-          </div>
-          <a
-            className="abs logo"
-            href="http://www.mediapipe.dev"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <div style="display: flex;align-items: center;bottom: 0;right: 10px;">
-              <img
-                className="logo"
-                src="logo_white.png"
-                alt=""
-                style="
-                height: 50px;"
-              />
-              <span className="title">MediaPipe</span>
-            </div>
-          </a>
-        </div>
-        <div className="control-panel"></div>
-      </div>
-      )
+      <div>{video}</div>;
     </>
   );
 }
