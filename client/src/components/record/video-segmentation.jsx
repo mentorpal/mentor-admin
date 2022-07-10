@@ -13,10 +13,13 @@ import "@mediapipe/selfie_segmentation";
 //import VideoPlayer from "./video-player";
 
 const video = document.querySelectorAll("[data-cy=video-recorder]")[0];
-const canvas = document.getElementById("canvas")[0];
-
-console.log("video:", video);
-console.log("canvas:", canvas);
+const canvas = document.querySelectorAll(".canvas")[0];
+if (!video) {
+  throw new Error("No video recorder found");
+}
+if (!canvas) {
+  throw new Error("No canvas found");
+}
 
 async function buildVideoSegmenter(video) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
@@ -42,9 +45,8 @@ async function buildVideoSegmenter(video) {
 function videoSegmentation() {
   const [person, setPerson] = useState();
   useEffect(() => {
-    if (video === null) {
-      throw new Error("No video recorder found");
-    }
+    console.log("video:", video);
+    console.log("canvas:", canvas);
     const segmentationBinaryMask = buildVideoSegmenter(video);
     const opacity = 0.7;
     const flipHorizontal = false;
