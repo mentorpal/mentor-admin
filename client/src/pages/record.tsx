@@ -384,16 +384,17 @@ function RecordPage(props: {
           />
         </div>
 
-        <canvas id="canvas"></canvas>
-        <VideoSegmentation />
-
         {mentorType === MentorType.VIDEO ? (
-          <VideoPlayer
-            classes={classes}
-            recordState={recordState}
-            videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
-            stopRequests={stopRequests}
-          />
+          <>
+            <canvas id="canvas"></canvas>
+            <VideoSegmentation />
+            <VideoPlayer
+              classes={classes}
+              recordState={recordState}
+              videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
+              stopRequests={stopRequests}
+            />
+          </>
         ) : undefined}
         <div data-cy="question" className={classes.block}>
           <Typography className={classes.title}>Question:</Typography>
