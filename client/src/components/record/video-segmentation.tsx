@@ -12,25 +12,29 @@ import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-mod
 
 async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
+  console.log("model", model);
   const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
     runtime: "mediapipe", // or 'tfjs'
-    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
-    modelType: "general",
+    modelType: "landscape",
   };
+  console.log("segmenterConfig", segmenterConfig);
   const segmenter = await bodySegmentation.createSegmenter(
     model,
     segmenterConfig
   );
+  console.log("segmenter", segmenter);
   const segmentation = await segmenter.segmentPeople(videoRecorder);
   // The mask image is an binary mask image with a 1 where there is a person and
   // a 0 where there is not.
+  console.log("segmentation", segmentation);
   const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
     segmentation
   );
+  console.log("segmentationBinaryMask", segmentationBinaryMask);
   return segmentationBinaryMask;
 }
 
-export function videoSegmentation(): void {
+export function videoSegmentation() {
   const videoRecorder = document.querySelector("[data-cy=video-player]");
   const canvas = document.querySelector("[data-cy=draw-canvas]");
   if (!videoRecorder) {
