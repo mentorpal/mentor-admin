@@ -80,7 +80,6 @@ function VideoRecorder({
       setRecordDurationCounter(0);
     });
     player.on("progressRecord", function () {
-      videoSegmentation();
       setRecordDurationCounter(player.record().getDuration());
     });
     player.on("finishRecord", function () {
@@ -121,6 +120,13 @@ function VideoRecorder({
       videoRecorderRef?.record().stop();
     }
   }, [recordDurationCounter]);
+
+  useInterval(
+    () => {
+      videoSegmentation();
+    },
+    recordState.isRecording ? 1000 : null
+  );
 
   useInterval(
     (isCancelled) => {

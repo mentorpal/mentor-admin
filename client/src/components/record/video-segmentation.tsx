@@ -35,7 +35,7 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
 }
 
 export function videoSegmentation() {
-  const videoRecorder = document.querySelector("[data-cy=video-player]");
+  const videoRecorder = document.querySelector("[data-cy=video-recorder]");
   const canvas = document.querySelector("[data-cy=draw-canvas]");
   if (!videoRecorder) {
     console.log("no video recorder");
@@ -49,8 +49,8 @@ export function videoSegmentation() {
   }
   console.log("videoRecorder:", videoRecorder);
   console.log("canvas:", canvas);
-  buildVideoSegmenter(videoRecorder as HTMLVideoElement).then(
-    (segBinaryMask) => {
+  buildVideoSegmenter(videoRecorder as HTMLVideoElement)
+    .then((segBinaryMask) => {
       const opacity = 0.7;
       const flipHorizontal = false;
       const maskBlurAmount = 0;
@@ -69,6 +69,9 @@ export function videoSegmentation() {
       );
       console.log("videoRecorder:", videoRecorder);
       console.log("canvas:", canvas);
-    }
-  );
+    })
+    .catch((e) => {
+      console.error("build video segmenter call failed");
+      console.error(e);
+    });
 }
