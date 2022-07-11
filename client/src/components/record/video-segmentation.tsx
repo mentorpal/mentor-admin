@@ -34,21 +34,21 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
 }
 
 export function videoSegmentation() {
-  const videoRecorder = document.querySelector("[data-cy=video-player]") as HTMLVideoElement;
-  const canvas = document.querySelector("[data-cy=draw-canvas]") as HTMLCanvasElement;
-  if (videoRecorder === null) {
+  const videoRecorder = document.querySelector("[data-cy=video-player]");
+  const canvas = document.querySelector("[data-cy=draw-canvas]");
+  if (!videoRecorder) {
     console.log("no video recorder")
     return
     // throw new Error("No video player found");
   }
-  if (canvas === null) {
+  if (!canvas) {
     console.log("no canvas")
     return
     // throw new Error("No canvas found");
   }
   console.log("videoRecorder:", videoRecorder);
   console.log("canvas:", canvas);
-  buildVideoSegmenter(videoRecorder).then((segBinaryMask)=>{
+  buildVideoSegmenter(videoRecorder as HTMLVideoElement).then((segBinaryMask)=>{
     const opacity = 0.7;
     const flipHorizontal = false;
     const maskBlurAmount = 0;
@@ -58,8 +58,8 @@ export function videoSegmentation() {
   
     // setPerson()
     bodySegmentation.drawMask(
-      canvas,
-      videoRecorder,
+      canvas as HTMLCanvasElement,
+      videoRecorder as HTMLVideoElement,
       segBinaryMask,
       opacity,
       maskBlurAmount,
