@@ -4,14 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState, useEffect } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
-import VideoPlayer from "./video-player";
 import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
-// import VideoRecorder from "./video-recorder";
 
 async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
@@ -33,40 +30,41 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   return segmentationBinaryMask;
 }
 
-export function videoSegmentation() {
+export function videoSegmentation(): void {
   const videoRecorder = document.querySelector("[data-cy=video-player]");
   const canvas = document.querySelector("[data-cy=draw-canvas]");
   if (!videoRecorder) {
-    console.log("no video recorder")
-    return
+    console.log("no video recorder");
+    return;
     // throw new Error("No video player found");
   }
   if (!canvas) {
-    console.log("no canvas")
-    return
+    console.log("no canvas");
+    return;
     // throw new Error("No canvas found");
   }
   console.log("videoRecorder:", videoRecorder);
   console.log("canvas:", canvas);
-  buildVideoSegmenter(videoRecorder as HTMLVideoElement).then((segBinaryMask)=>{
-    const opacity = 0.7;
-    const flipHorizontal = false;
-    const maskBlurAmount = 0;
-    // Draw the mask image on top of the original image onto a canvas.
-    // The colored part image will be drawn semi-transparent, with an opacity of
-    // 0.7, allowing for the original image to be visible under.
-  
-    // setPerson()
-    bodySegmentation.drawMask(
-      canvas as HTMLCanvasElement,
-      videoRecorder as HTMLVideoElement,
-      segBinaryMask,
-      opacity,
-      maskBlurAmount,
-      flipHorizontal
-    )
-    console.log("videoRecorder:", videoRecorder);
-    console.log("canvas:", canvas);
-  })
-  
+  buildVideoSegmenter(videoRecorder as HTMLVideoElement).then(
+    (segBinaryMask) => {
+      const opacity = 0.7;
+      const flipHorizontal = false;
+      const maskBlurAmount = 0;
+      // Draw the mask image on top of the original image onto a canvas.
+      // The colored part image will be drawn semi-transparent, with an opacity of
+      // 0.7, allowing for the original image to be visible under.
+
+      // setPerson()
+      bodySegmentation.drawMask(
+        canvas as HTMLCanvasElement,
+        videoRecorder as HTMLVideoElement,
+        segBinaryMask,
+        opacity,
+        maskBlurAmount,
+        flipHorizontal
+      );
+      console.log("videoRecorder:", videoRecorder);
+      console.log("canvas:", canvas);
+    }
+  );
 }
