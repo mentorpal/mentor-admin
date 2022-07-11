@@ -7,10 +7,10 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useState, useEffect } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@tensorflow/tfjs-core";
-// Register WebGL backend.
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
-//import VideoPlayer from "./video-player";
+import VideoPlayer from "./video-player";
+// import VideoRecorder from "./video-recorder";
 
 var videoRecorder = null;
 var canvas = null;
@@ -71,14 +71,17 @@ function videoSegmentation() {
     console.log("canvas:", canvas);
 
     return () => {
-      person;
+      {
+        person[0];
+      }
     };
   }, []);
 
   return (
     //JSX to be rendered
     <>
-      <div>{videoRecorder}</div>;
+      <div />
+      {/* <VideoPlayer /> */}
     </>
   );
 }
