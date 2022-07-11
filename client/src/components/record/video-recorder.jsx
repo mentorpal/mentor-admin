@@ -13,6 +13,7 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+import { videoSegmentation } from "components/record/video-segmentation";
 
 function VideoRecorder({
   classes,
@@ -79,6 +80,7 @@ function VideoRecorder({
       setRecordDurationCounter(0);
     });
     player.on("progressRecord", function () {
+      videoSegmentation();
       setRecordDurationCounter(player.record().getDuration());
     });
     player.on("finishRecord", function () {

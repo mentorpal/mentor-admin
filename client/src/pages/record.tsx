@@ -56,7 +56,6 @@ import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { stateFromMarkdown } from "draft-js-import-markdown";
 import { stateToMarkdown } from "draft-js-export-markdown";
-import VideoSegmentation from "components/record/video-segmentation";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -386,8 +385,7 @@ function RecordPage(props: {
 
         {mentorType === MentorType.VIDEO ? (
           <>
-            <canvas id="canvas"></canvas>
-            <VideoSegmentation />
+            <canvas data-cy="draw-canvas" id="canvas"></canvas>
             <VideoPlayer
               classes={classes}
               recordState={recordState}
