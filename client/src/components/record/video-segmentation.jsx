@@ -12,16 +12,10 @@ import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
 //import VideoPlayer from "./video-player";
 
-const video = document.querySelectorAll("[data-cy=video-recorder]")[0];
-const canvas = document.querySelectorAll(".canvas")[0];
-if (!video) {
-  throw new Error("No video recorder found");
-}
-if (!canvas) {
-  throw new Error("No canvas found");
-}
+var videoRecorder = null;
+var canvas = null;
 
-async function buildVideoSegmenter(video) {
+async function buildVideoSegmenter(videoRecorder) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
   const segmenterConfig = {
     runtime: "mediapipe", // or 'tfjs'
@@ -32,7 +26,7 @@ async function buildVideoSegmenter(video) {
     model,
     segmenterConfig
   );
-  const segmentation = await segmenter.segmentPeople(video);
+  const segmentation = await segmenter.segmentPeople(videoRecorder);
   // The mask image is an binary mask image with a 1 where there is a person and
   // a 0 where there is not.
   const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
@@ -45,9 +39,17 @@ async function buildVideoSegmenter(video) {
 function videoSegmentation() {
   const [person, setPerson] = useState();
   useEffect(() => {
-    console.log("video:", video);
+    videoRecorder = document.querySelectorAll("[data-cy=video-player]")[0];
+    canvas = document.querySelectorAll(".canvas")[0];
+    if (videoRecorder === null) {
+      throw new Error("No video player found");
+    }
+    if (canvas === null) {
+      throw new Error("No canvas found");
+    }
+    console.log("videoRecorder:", videoRecorder);
     console.log("canvas:", canvas);
-    const segmentationBinaryMask = buildVideoSegmenter(video);
+    const segmentationBinaryMask = buildVideoSegmenter(videoRecorder);
     const opacity = 0.7;
     const flipHorizontal = false;
     const maskBlurAmount = 0;
@@ -57,14 +59,14 @@ function videoSegmentation() {
     setPerson(
       bodySegmentation.drawMask(
         canvas,
-        video,
+        videoRecorder,
         segmentationBinaryMask,
         opacity,
         maskBlurAmount,
         flipHorizontal
       )
     );
-    console.log("video:", video);
+    console.log("videoRecorder:", videoRecorder);
     console.log("person:", person);
     console.log("canvas:", canvas);
 
@@ -76,7 +78,7 @@ function videoSegmentation() {
   return (
     //JSX to be rendered
     <>
-      <div>{video}</div>;
+      <div>{videoRecorder}</div>;
     </>
   );
 }
