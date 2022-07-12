@@ -5,39 +5,40 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import { useState } from "react";
 
-class Recommender {
+export interface Recommendation {
+  buttonText: string;
+  icon: JSX.Element;
+  type: string;
+  // params
+  // attributes
+}
 
-  // Ben's python pseudocode for the function
-  // He said to treat x as a data token
-  // class MyClass:
-  //      _init_
-  //           var1 = null
-  //           var2 = null
-  //        update(x)
-  //            self.var1 = x['var1']
-  //            self.var2 = x['var2']
+// These work hand in hand with RecommenderState
+export interface ProductionRule {
+  // any since compiler doesn't know what RecommenderStateT is.
+  condition: (recState: any) => boolean;
+  action: () => void;
+}
 
-  offTopicIncomplete: boolean;
+/**
+ * Confirm with Ben: The focus of this Recommender is not to calculate the conditions or state itself,
+ * but instead it takes provided state, conditions, and weight, and use those to calculate
+ * the next recommendation.
+ * @param defaultState
+ */
+export function recommender<RecommenderStateT>(
+  defaultState: RecommenderStateT
+) {
+  const [recommenderState, setRecommenderState] =
+    useState<RecommenderStateT>(defaultState);
 
-  constructor(){
-    this.offTopicIncomplete = true;
+  function updateFromToken(token: RecommenderStateT) {
+    setRecommenderState(token);
   }
 
-  updateFromToken(x: Map<string, boolean>): void {
-    this.offTopicIncomplete = x.get("offTopicIncomplete");
+  function getRecommendations(): Recommendation[] {
+    return [];
   }
-
 }
-
-class Phase {
-
-  // check(s)
-  // weights(s)
-
-}
-
-class ProductionRole {
-
-}
-
