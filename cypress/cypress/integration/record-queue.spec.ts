@@ -65,14 +65,32 @@ describe("Mentor Record Queue", () => {
     cyMockDefault(cy, {
       mentor: {
         ...clint,
-        answers: [
-          ...clint.answers,
+        answers: [...clint.answers,
           {
-            // Add answer with question document here
-            
-
-          },
-        ],
+            _id: "A1_1_2",
+            question: {
+              _id: "A1_1_2",
+              question: "Custom Question?",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              clientId: "",
+              paraphrases: [],
+            },
+            transcript: "",
+            status: Status.INCOMPLETE,
+          }], 
+          questions: [...clint.questions,
+             {
+            question: {
+              _id: "A1_1_2",
+              question: "Custom Question?",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              clientId: clint._id,
+              paraphrases: []
+            },
+            topics: []
+      }],
       },
       gqlQueries: [
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
@@ -126,7 +144,7 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=Category-option-category]").click();
     cy.get("[data-cy=modal-OK-btn]").click();
     console.log();
-    /*
+    
       cy.visit("/");
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/");
@@ -134,7 +152,7 @@ describe("Mentor Record Queue", () => {
       cy.get("[data-cy=setup-no]").click();
       cy.get("[data-cy=queue-block]").should("exist");
       cy.get("[data-cy=queue-expand-btn]").click();
-      */
+      
   });
 });
 

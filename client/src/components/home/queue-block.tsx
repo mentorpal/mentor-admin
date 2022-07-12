@@ -34,7 +34,7 @@ export default function QueueBlockItem(props: {
   const [isExpanded, setExpanded] = React.useState(false);
   const { classes, queueIDList, mentorQuestions } = props;
   const queueQus = getQueueQuestions(queueIDList, mentorQuestions);
-
+console.log(queueQus);
   function getQueueQuestions(
     queueIDList: unknown,
     mentorQuestions: Record<string, QuestionState>
