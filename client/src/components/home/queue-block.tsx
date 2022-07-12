@@ -35,29 +35,31 @@ export default function QueueBlockItem(props: {
 }): JSX.Element {
   const [isExpanded, setExpanded] = React.useState(false);
   const { classes, queueIDList, mentorQuestions, mentorAnswers } = props;
-  const queueQus = getQueueQuestions(queueIDList, mentorQuestions, mentorAnswers);
+  const queueQus = getQueueQuestions(
+    queueIDList,
+    mentorQuestions,
+    mentorAnswers
+  );
 
   function getQueueQuestions(
     queueIDList: unknown,
-    mentorQuestions: Record<string, QuestionState>, mentorAnswers: Answer[]
+    mentorQuestions: Record<string, QuestionState>,
+    mentorAnswers: Answer[]
   ) {
     const queueQuestions: string[] = [];
-    const filteredIDs: string[] = [];  
+    const filteredIDs: string[] = [];
     {
       // delete if answered / COMPLETED
-      mentorAnswers.forEach((e)=>{
-        if ((queueIDList as string[]).includes(e._id)){
-          
+      mentorAnswers.forEach((e) => {
+        if ((queueIDList as string[]).includes(e._id)) {
           if (e.status == "INCOMPLETE") {
             filteredIDs.push(e._id);
           }
         }
       });
-      // get question 
+      // get question
       filteredIDs.forEach((a) => {
-        queueQuestions.push(
-          mentorQuestions[a].question?.question || ""
-        );
+        queueQuestions.push(mentorQuestions[a].question?.question || "");
       });
     }
     return queueQuestions;

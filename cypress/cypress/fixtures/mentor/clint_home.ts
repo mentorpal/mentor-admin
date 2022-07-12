@@ -192,8 +192,7 @@ export const mentor: Mentor = {
       question: {
         _id: "A6_1_1",
         clientId: "C_A6_1_1",
-        question:
-          "HELLO?",
+        question: "HELLO?",
         type: QuestionType.QUESTION,
         name: UtteranceName.OFF_TOPIC,
         paraphrases: [],
