@@ -238,10 +238,3 @@ div.jsoneditor {
 .toolbar-class {
   border: 1px solid rgb(204, 204, 204);
 }
-
-canvas {
-  border: 1px solid rgb(204, 204, 204);
-  margin-right: auto;
-  margin-left: auto;
-  display: block;
-}

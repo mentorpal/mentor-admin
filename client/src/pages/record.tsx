@@ -385,7 +385,9 @@ function RecordPage(props: {
 
         {mentorType === MentorType.VIDEO ? (
           <div data-cy="videoplayer-container" className={classes.block}>
-            <canvas data-cy="draw-canvas" id="canvas" />
+            <canvas data-cy="draw-canvas" id="canvas" style={
+              { display: "block", border: "1px solid black", margin: "auto" }
+            }/>
             <VideoPlayer
               classes={classes}
               recordState={recordState}
