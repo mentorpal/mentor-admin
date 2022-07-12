@@ -125,7 +125,7 @@ function VideoRecorder({
     () => {
       videoSegmentation();
     },
-    recordState.isRecording ? 1000 : null
+    recordState.isRecording ? 250 : null
   );
 
   useInterval(

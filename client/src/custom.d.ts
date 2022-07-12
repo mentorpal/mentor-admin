@@ -11,3 +11,4 @@ declare module "*.gif";
 declare module "draft-js-import-markdown";
 declare module "draft-js-export-markdown";
 declare module "https://cdn.skypack.dev/device-detector-js@2.2.10";
+declare module "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation";

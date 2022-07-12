@@ -9,13 +9,14 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@mediapipe/selfie_segmentation";
 import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
+import SegmentationSolutionPath from "./segmentation-solutionpath";
 
 async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
   console.log("model", model);
   const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
     runtime: "mediapipe", // or 'tfjs'
-    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+    solutionPath: SegmentationSolutionPath,
     modelType: "landscape",
   };
   console.log("segmenterConfig", segmenterConfig);
@@ -36,7 +37,9 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
 }
 
 export function videoSegmentation(): void {
-  const videoRecorder = document.querySelectorAll("[data-cy=video-recorder]")[1];
+  const videoRecorder = document.querySelectorAll(
+    "[data-cy=video-recorder]"
+  )[1];
   const canvas = document.querySelector("[data-cy=draw-canvas]");
   if (!videoRecorder) {
     console.log("no video recorder");
