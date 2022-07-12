@@ -15,6 +15,7 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   console.log("model", model);
   const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
     runtime: "mediapipe", // or 'tfjs'
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
     modelType: "landscape",
   };
   console.log("segmenterConfig", segmenterConfig);
