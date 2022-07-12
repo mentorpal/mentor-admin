@@ -24,12 +24,14 @@ import {
   UseWithRecordState,
   UtteranceName,
   RecordStateError,
+  Status,
 } from "types";
 import {
   copyAndSet,
   equals,
   extractErrorMessageFromError,
   getValueIfKeyExists,
+  isAnswerComplete,
 } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
@@ -126,11 +128,16 @@ export function useWithRecordState(
 
     const answerStates: AnswerState[] = [];
     for (const a of answers) {
-      const q = getValueIfKeyExists(a.question, mentorQuestions);
+      const q = mentorQuestions[a?.question];
+      const isComplete = isAnswerComplete(a, q?.question?.name, mentorType);
       if (
         q?.question &&
         (!q.question.mentorType || q.question.mentorType === mentorType) &&
-        (!status || a.status === status)
+        (!status || status === Status.COMPLETE
+          ? isComplete
+          : status === Status.INCOMPLETE
+          ? !isComplete
+          : a.status === status)
       ) {
         answerStates.push({
           answer: a,

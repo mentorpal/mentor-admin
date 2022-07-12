@@ -6,18 +6,20 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Paper, Typography } from "@material-ui/core";
-import { Answer, Status } from "types";
+import { Answer, MentorType, Status } from "types";
 import AnswerList from "components/home/answer-list";
 import ProgressChecks from "components/progress-checks";
 import {
   QuestionEdits,
   RecordingBlock,
 } from "hooks/graphql/use-with-review-answer-state";
+import { filterAnswersByStatus } from "helpers";
 
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
   mentorId: string;
+  mentorType: MentorType;
   getAnswers: () => Answer[];
   getQuestions: () => QuestionEdits[];
   recordAnswers: (status: Status, subject: string, category: string) => void;
@@ -29,8 +31,19 @@ export default function RecordingBlockItem(props: {
   const answers = props
     .getAnswers()
     .filter((a) => block.questions.includes(a.question));
-  const complete = answers.filter((a) => a.status === Status.COMPLETE);
-  const incomplete = answers.filter((a) => a.status === Status.INCOMPLETE);
+  const questions = props.getQuestions();
+  const complete = filterAnswersByStatus(
+    answers,
+    questions.map((qe) => qe.originalQuestion),
+    props.mentorType,
+    Status.COMPLETE
+  );
+  const incomplete = filterAnswersByStatus(
+    answers,
+    questions.map((qe) => qe.originalQuestion),
+    props.mentorType,
+    Status.INCOMPLETE
+  );
 
   return (
     <Paper className={classes.paper}>
@@ -57,7 +70,7 @@ export default function RecordingBlockItem(props: {
             mentorId={props.mentorId}
             header="Complete"
             answers={complete}
-            questions={props.getQuestions()}
+            questions={questions}
             onRecordAll={() =>
               props.recordAnswers(
                 Status.COMPLETE,
@@ -72,7 +85,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             header="Incomplete"
             answers={incomplete}
-            questions={props.getQuestions()}
+            questions={questions}
             mentorId={props.mentorId}
             onRecordAll={() =>
               props.recordAnswers(

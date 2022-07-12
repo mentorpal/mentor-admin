@@ -6,9 +6,21 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { navigate } from "gatsby";
-import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
+import {
+  Answer,
+  Mentor,
+  MentorType,
+  Question,
+  Status,
+  UtteranceName,
+} from "types";
 import { useState } from "react";
-import { urlBuild, getValueIfKeyExists } from "helpers";
+import {
+  urlBuild,
+  getValueIfKeyExists,
+  isAnswerComplete,
+  filterAnswersByStatus,
+} from "helpers";
 import {
   AccountBox,
   CheckCircleOutlined,
@@ -250,10 +262,17 @@ function parseMentorConditions(
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.OFF_TOPIC
   );
+  const questions = Object.values(mentorQuestions)
+    .map((qs) => qs.question)
+    .filter((q) => q !== undefined);
 
-  const introIncomplete = intro?.status === Status.INCOMPLETE;
-  const idleIncomplete = idle?.status === Status.INCOMPLETE;
-  const offTopicIncomplete = offTopic?.status === Status.INCOMPLETE;
+  const introIncomplete =
+    !intro || !isAnswerComplete(intro, UtteranceName.INTRO, mentor.mentorType);
+  const idleIncomplete =
+    !idle || !isAnswerComplete(idle, UtteranceName.IDLE, mentor.mentorType);
+  const offTopicIncomplete =
+    !offTopic ||
+    !isAnswerComplete(offTopic, UtteranceName.OFF_TOPIC, mentor.mentorType);
 
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
   const hasThumbnail = Boolean(mentor?.thumbnail);
@@ -293,13 +312,34 @@ function parseMentorConditions(
   });
   const incompleteRequirement = categories
     .filter((c) => c.isRequired)
-    .find((c) => c.answers.find((a) => a.status === Status.INCOMPLETE));
+    .find((c) =>
+      c.answers.find(
+        (a) =>
+          !isAnswerComplete(
+            a,
+            questions.find((q) => q?._id === a.question)?.name,
+            mentor.mentorType
+          )
+      )
+    );
   const firstIncomplete = categories.find((c) =>
-    c.answers.find((a) => a.status === Status.INCOMPLETE)
+    c.answers.find(
+      (a) =>
+        !isAnswerComplete(
+          a,
+          questions.find((q) => q?._id === a.question)?.name,
+          mentor.mentorType
+        )
+    )
   );
 
   const completedAnswers =
-    mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
+    filterAnswersByStatus(
+      mentor?.answers || [],
+      questions as Question[],
+      mentor.mentorType,
+      Status.COMPLETE
+    ).length || 0;
   const totalAnswers = mentor?.answers.length || 0;
 
   const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);

@@ -116,6 +116,7 @@ function HomePage(props: {
   } = useActiveMentor();
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
+  const mentorType = getData((m) => m.data?.mentorType);
   const defaultMentor = props.user.defaultMentor._id;
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
@@ -295,6 +296,7 @@ function HomePage(props: {
           <ListItem key={b.name} data-cy={`block-${i}`}>
             <RecordingBlockItem
               mentorId={mentorId || ""}
+              mentorType={mentorType}
               classes={classes}
               block={b}
               getAnswers={reviewAnswerState.getAnswers}

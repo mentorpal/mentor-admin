@@ -8,6 +8,14 @@ import { CLIENT_ENDPOINT } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import axios from "axios";
+import {
+  Answer,
+  MediaType,
+  MentorType,
+  Question,
+  Status,
+  UtteranceName,
+} from "types";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -30,6 +38,7 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
   const removed = copyAndRemove(a, moveFrom);
   return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }
+
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
@@ -85,6 +94,65 @@ export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
   }
   if (newTab) window.open(path, "_blank");
   else window.location.href = path;
+}
+
+export function isAnswerValid(
+  answer: Answer,
+  questionType: UtteranceName | undefined,
+  mentorType: MentorType
+): boolean {
+  if (mentorType === MentorType.CHAT) {
+    return Boolean(answer.transcript);
+  }
+  if (mentorType === MentorType.VIDEO) {
+    return Boolean(
+      (answer.webMedia?.url ||
+        answer?.mobileMedia?.url ||
+        answer.media?.find((m) => m.type === MediaType.VIDEO)?.url) &&
+        (questionType === UtteranceName.IDLE || Boolean(answer.transcript))
+    );
+  }
+  return false;
+}
+
+export function isAnswerComplete(
+  answer: Answer,
+  questionType: UtteranceName | undefined,
+  mentorType: MentorType
+): boolean {
+  return (
+    answer.status === Status.COMPLETE ||
+    (answer.status === Status.NONE &&
+      isAnswerValid(answer, questionType, mentorType))
+  );
+}
+
+export function filterAnswersByStatus(
+  answers: Answer[],
+  questions: Question[],
+  mentorType: MentorType,
+  status: Status
+): Answer[] {
+  if (status === Status.COMPLETE) {
+    return answers.filter((a) =>
+      isAnswerComplete(
+        a,
+        questions.find((q) => q._id === a.question)?.name,
+        mentorType
+      )
+    );
+  } else if (status === Status.INCOMPLETE) {
+    return answers.filter(
+      (a) =>
+        !isAnswerComplete(
+          a,
+          questions.find((q) => q._id === a.question)?.name,
+          mentorType
+        )
+    );
+  } else {
+    return answers.filter((a) => a.status === status);
+  }
 }
 
 export function getValueIfKeyExists<T>(

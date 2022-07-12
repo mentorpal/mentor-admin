@@ -148,6 +148,9 @@ export interface Answer {
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export interface UserQuestion {
@@ -324,6 +327,7 @@ export enum MentorType {
 }
 
 export enum Status {
+  NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }

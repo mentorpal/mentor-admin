@@ -9,7 +9,7 @@ import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
 import { isValidObjectId } from "mongoose";
 import { addOrUpdateSubjectQuestions } from "api";
-import { urlBuild, copyAndSet } from "helpers";
+import { urlBuild, copyAndSet, filterAnswersByStatus } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -17,6 +17,7 @@ import useQuestions, {
 } from "store/slices/questions/useQuestions";
 import {
   Answer,
+  MentorType,
   Question,
   QuestionType,
   Status,
@@ -81,6 +82,7 @@ export function useWithReviewAnswerState(
   const { getData, isLoading: isMentorLoading, loadMentor } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
+  const mentorType: MentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -150,8 +152,12 @@ export function useWithReviewAnswerState(
         }
       });
       setProgress({
-        complete: subjectAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: filterAnswersByStatus(
+          subjectAnswers,
+          questions?.map((qe) => qe.originalQuestion) || [],
+          mentorType,
+          Status.COMPLETE
+        ).length,
         total: subjectAnswers.length,
       });
     } else {
@@ -184,8 +190,12 @@ export function useWithReviewAnswerState(
         });
       });
       setProgress({
-        complete: mentorAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: filterAnswersByStatus(
+          mentorAnswers,
+          questions?.map((qe) => qe.originalQuestion) || [],
+          mentorType,
+          Status.COMPLETE
+        ).length,
         total: mentorAnswers.length,
       });
     }
@@ -250,7 +260,7 @@ export function useWithReviewAnswerState(
       hasEditedTranscript: false,
       transcript: "",
       markdownTranscript: "",
-      status: Status.INCOMPLETE,
+      status: Status.NONE,
       media: undefined,
       hasUntransferredMedia: false,
     };

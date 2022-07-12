@@ -7,9 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Answer, Status } from "types";
+import { Answer, MentorType, UtteranceName } from "types";
 import { Slide } from "./slide";
-import { urlBuild } from "helpers";
+import { isAnswerComplete, urlBuild } from "helpers";
 
 export function RecordIdleSlide(props: {
   classes: Record<string, string>;
@@ -17,7 +17,11 @@ export function RecordIdleSlide(props: {
   i: number;
 }): JSX.Element {
   const { classes, idle, i } = props;
-  const isRecorded = idle.status === Status.COMPLETE;
+  const isRecorded = isAnswerComplete(
+    idle,
+    UtteranceName.IDLE,
+    MentorType.VIDEO
+  );
 
   function onRecord() {
     navigate(

@@ -36,6 +36,8 @@ import {
   Answer,
   ClassifierAnswerType,
   Feedback,
+  MentorType,
+  Question,
   Status,
   UserQuestion,
 } from "types";
@@ -47,7 +49,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { useQuestions } from "store/slices/questions/useQuestions";
-import { getValueIfKeyExists } from "helpers";
+import { filterAnswersByStatus, getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 
 const useStyles = makeStyles((theme) => ({
@@ -124,6 +126,7 @@ const columnHeaders: ColumnDef[] = [
 
 function FeedbackItem(props: {
   feedback: UserQuestion;
+  mentorType: MentorType;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
@@ -183,8 +186,13 @@ function FeedbackItem(props: {
               key={`${feedback._id}-${feedback.updatedAt}`}
               data-cy="select-answer"
               options={
-                mentorAnswers?.filter(
-                  (mentorAnswer) => mentorAnswer.status == Status.COMPLETE
+                filterAnswersByStatus(
+                  mentorAnswers || [],
+                  Object.values(mentorQuestions)
+                    .map((qs) => qs.question)
+                    .filter((q) => q !== undefined) as Question[],
+                  props.mentorType,
+                  Status.COMPLETE
                 ) || []
               }
               getOptionLabel={(option: Answer) =>
@@ -244,6 +252,7 @@ function FeedbackPage(): JSX.Element {
   } = useActiveMentor();
 
   const mentorId = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const mentorQuestions = useQuestions(
@@ -439,6 +448,7 @@ function FeedbackPage(): JSX.Element {
                     key={`feedback-${i}`}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
+                    mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
                     onUpdated={reloadFeedback}

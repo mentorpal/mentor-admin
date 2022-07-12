@@ -12,7 +12,7 @@ import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 
-import { User } from "types";
+import { Question, User } from "types";
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { WelcomeSlide } from "components/setup/welcome-slide";
@@ -26,6 +26,7 @@ import { FinalSetupSlide } from "components/setup/final-setup-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 import withLocation from "wrap-with-location";
+import { useQuestions } from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -118,6 +119,14 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     editMentor,
     toStep,
   } = useWithSetup(props.search);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentor?.answers?.map((a) => a.question)
+  );
+  const questions: Question[] = Object.values(mentorQuestions)
+    .map((qs) => qs.question)
+    .filter((q) => q !== undefined) as Question[];
+
   if (!readyToDisplay) {
     return (
       <div className={classes.root}>
@@ -126,6 +135,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
       </div>
     );
   }
+
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
@@ -180,8 +190,10 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               status.requiredSubjects[steps.length - idx - 2].subject._id
             }`}
             classes={classes}
+            mentorType={mentor.mentorType}
             subject={status.requiredSubjects[steps.length - idx - 2].subject}
-            questions={status.requiredSubjects[steps.length - idx - 2].answers}
+            questions={questions}
+            answers={status.requiredSubjects[steps.length - idx - 2].answers}
             i={idx}
             customTitle="Idle and Initial Recordings"
           />
