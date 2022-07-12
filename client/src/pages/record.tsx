@@ -219,7 +219,10 @@ function RecordPage(props: {
   }
 
   function updateTranscriptWithMarkdown(markdown: string) {
-    recordState.editAnswer({ transcript: markdown });
+    recordState.editAnswer({
+      transcript: markdown,
+      markdownTranscript: markdown,
+    });
   }
 
   useEffect(() => {
@@ -253,9 +256,12 @@ function RecordPage(props: {
       });
     } else {
       if (curAnswer?.isEdited) {
-        recordState.saveAnswer();
+        recordState.saveAnswer().then(() => {
+          onNav();
+        });
+      } else {
+        onNav();
       }
-      onNav();
     }
   }
 
@@ -264,10 +270,14 @@ function RecordPage(props: {
       return;
     }
     if (curAnswer?.isEdited) {
-      recordState.saveAnswer();
+      recordState.saveAnswer().then(() => {
+        confirmLeave.callback();
+        setConfirmLeave(undefined);
+      });
+    } else {
+      confirmLeave.callback();
+      setConfirmLeave(undefined);
     }
-    confirmLeave.callback();
-    setConfirmLeave(undefined);
   }
 
   if (!mentorId || !curAnswer || !isConfigLoaded() || isMentorLoading) {

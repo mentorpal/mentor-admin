@@ -19,6 +19,7 @@ export const subject: Partial<Subject> = {
     {
       question: {
         _id: "A1_1_1",
+        clientId: "C1_1_1",
         question: "Who are you and what do you do?",
         type: null,
         name: null,
@@ -29,6 +30,7 @@ export const subject: Partial<Subject> = {
     {
       question: {
         _id: "A2_1_1",
+        clientId: "C2_1_1",
         question: "How old are you now?",
         type: null,
         name: null,

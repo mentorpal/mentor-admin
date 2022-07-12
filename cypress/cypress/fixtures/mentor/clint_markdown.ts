@@ -24,6 +24,7 @@ export const mentor: Mentor = {
     {
       question: {
         _id: "A6_1_1",
+        clientId: "C6_1_1",
         question: "Complete",
         type: QuestionType.QUESTION,
         name: null,
@@ -37,6 +38,8 @@ export const mentor: Mentor = {
     {
       _id: "background",
       name: "Background",
+      type: SubjectTypes.SUBJECT,
+      isRequired: false,
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       categories: [
@@ -51,17 +54,23 @@ export const mentor: Mentor = {
         {
           question: {
             _id: "A1_1_1",
+            clientId: "C1_1_1",
             question: "Who are you and what do you do?",
             type: QuestionType.QUESTION,
             name: null,
             paraphrases: [],
           },
           topics: [],
-          category: { id: "category" },
+          category: {
+            id: "category",
+            name: "Category",
+            description: "A category",
+          },
         },
         {
           question: {
             _id: "A2_1_1",
+            clientId: "C2_1_1",
             question: "How old are you now?",
             type: QuestionType.QUESTION,
             name: null,

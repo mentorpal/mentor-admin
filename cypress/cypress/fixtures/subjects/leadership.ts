@@ -18,10 +18,16 @@ export const subject: Partial<Subject> = {
     {
       question: {
         _id: "A7_1_1",
+        clientId: "C7_1_1",
         question: "What's the hardest decision you've had to make as a leader?",
         type: null,
         name: null,
         paraphrases: [],
+      },
+      category: {
+        id: "leadership",
+        name: "Leadership",
+        description: "Leadership",
       },
       topics: [],
     },

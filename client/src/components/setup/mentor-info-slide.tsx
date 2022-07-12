@@ -19,9 +19,6 @@ export function MentorInfoSlide(props: {
 }): JSX.Element {
   const { classes, mentor, isMentorLoading, editMentor, userName } = props;
   const [defaultsSet, setDefaultsSet] = useState(false);
-  if (!mentor || isMentorLoading) {
-    return <div />;
-  }
 
   useEffect(() => {
     if (defaultsSet || isMentorLoading || !mentor) {
@@ -34,6 +31,10 @@ export function MentorInfoSlide(props: {
       ...(!mentor.firstName ? { firstName: userName.split(" ")[0] } : {}),
     });
   }, [mentor]);
+
+  if (!mentor || isMentorLoading) {
+    return <div />;
+  }
 
   return (
     <Slide
