@@ -56,6 +56,7 @@ import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { stateFromMarkdown } from "draft-js-import-markdown";
 import { stateToMarkdown } from "draft-js-export-markdown";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -204,6 +205,7 @@ function RecordPage(props: {
     },
     emptyLineBeforeBlock: true,
   };
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
   function updateTranscriptText(text: string) {
     const contentState = stateFromMarkdown(text, markdownConfig);
@@ -406,8 +408,14 @@ function RecordPage(props: {
                 display: "block",
                 border: "1px solid black",
                 margin: "auto",
-                height: "50%",
-                width: "50%",
+                height:
+                  windowHeight > windowWidth
+                    ? windowWidth * (9 / 16)
+                    : Math.max(windowHeight - 600, 300),
+                width:
+                  windowHeight > windowWidth
+                    ? windowWidth
+                    : Math.max(windowHeight - 600, 300) * (16 / 9),
               }}
             />
             <VideoPlayer
@@ -415,8 +423,6 @@ function RecordPage(props: {
               recordState={recordState}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
-              width="100%"
-              height="100%"
             />
           </div>
         ) : undefined}
