@@ -439,7 +439,7 @@ export interface UseWithRecordState {
   setAnswerIdx: (id: number) => void;
   editAnswer: (edits: Partial<Answer>) => void;
   editQuestion: (edits: Partial<Question>) => void;
-  saveAnswer: () => void;
+  saveAnswer: () => Promise<void>;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
