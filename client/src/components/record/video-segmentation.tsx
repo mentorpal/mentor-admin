@@ -34,7 +34,7 @@ async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   return segmentationBinaryMask;
 }
 
-export function videoSegmentation() {
+export function videoSegmentation(): void {
   const videoRecorder = document.querySelector("[data-cy=video-recorder]");
   const canvas = document.querySelector("[data-cy=draw-canvas]");
   if (!videoRecorder) {
