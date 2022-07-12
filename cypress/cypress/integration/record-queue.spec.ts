@@ -10,7 +10,6 @@ import mentor from "../fixtures/mentor/clint_new";
 import clint from "../fixtures/mentor/clint_home";
 import questions from "../fixtures/questions";
 import { QuestionType, Status } from "../support/types";
-import { cli } from "cypress";
 
 describe("Mentor Record Queue", () => {
   it("Modal shows correct data", () => {
@@ -60,7 +59,7 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
     cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
   });
-  it.only("New custom question shows up on queue card", () => {
+  it("New custom question shows up on queue card", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: {
@@ -78,20 +77,16 @@ describe("Mentor Record Queue", () => {
             },
             transcript: "",
             status: Status.INCOMPLETE,
-          }], 
-          questions: [...clint.questions,
-             {
-            question: {
+          }]
+      },
+      questions: [...questions, {
               _id: "A1_1_2",
               question: "Custom Question?",
               type: QuestionType.QUESTION,
               name: clint._id,
-              clientId: clint._id,
-              paraphrases: []
-            },
-            topics: []
+              clientId: "",
+              paraphrases: [],
       }],
-      },
       gqlQueries: [
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("UserQuestions", userQuestions),
@@ -143,16 +138,14 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=category-drop-down]").click();
     cy.get("[data-cy=Category-option-category]").click();
     cy.get("[data-cy=modal-OK-btn]").click();
-    console.log();
-    
-      cy.visit("/");
-      cy.location("pathname").then(($el) => {
-        assert($el.replace("/admin", ""), "/");
-      });
-      cy.get("[data-cy=setup-no]").click();
-      cy.get("[data-cy=queue-block]").should("exist");
-      cy.get("[data-cy=queue-expand-btn]").click();
-      
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-block]").should("exist");
+    cy.get("[data-cy=queue-expand-btn]").click();
+    cy.contains('Custom Question?');
   });
 });
 
@@ -165,7 +158,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A2_1_1", "A4_1_1"],
+            mentorRecordQueue: [],
           },
         }),
       ],
@@ -180,7 +173,7 @@ describe("Home Page", () => {
     cy.get("[data-cy=select-background]").click();
     cy.get("[data-cy=queue-block]").should("exist");
     cy.get("[data-cy=select-subject]").click();
-    cy.get("[data-cy=select-repeat_after_me]").click();
+    cy.get("[data-cy=select-idle_and_initial_recordings]").click();
     cy.get("[data-cy=queue-block]").should("exist");
   });
   it("Can record all queued questions", () => {
@@ -191,7 +184,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A2_1_1", "A4_1_1"],
+            mentorRecordQueue: ["A6_1_1", "A5_1_1"],
           },
         }),
       ],
@@ -203,9 +196,9 @@ describe("Home Page", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-all-queue]").click();
-    cy.location("search").should("equal", "?videoId=A2_1_1&videoId=A4_1_1");
+    cy.location("search").should("equal", "?videoId=A6_1_1&videoId=A5_1_1");
   });
-  it("Can record a single queue question", () => {
+  it.only("Can record a single queue question", () => {
     cyMockDefault(cy, {
       mentor: clint,
       gqlQueries: [
@@ -213,7 +206,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A2_1_1", "A4_1_1"],
+            mentorRecordQueue: ["A4_1_1"],
           },
         }),
       ],
@@ -225,17 +218,6 @@ describe("Home Page", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-one-0]").click();
-    cy.location("search").should("equal", "?videoId=A2_1_1&back=%2F");
-    /*
-    cy.visit("/feedback");
-    cy.get("[data-cy=queue-btn]").click();
-    cy.get("[data-cy=subject-drop-down]").click();
-    cy.get("[data-cy=Subject-option-background]").click();
-    cy.get("[data-cy=category-drop-down]").click();
-    cy.get("[data-cy=Category-option-category1]").click();
-    cy.get("[data-cy=topic-selector]").click();
-    cy.get("[data-cy=Topic-option-back-topic2-id]").click();
-    cy.get("[data-cy=modal-OK-btn]").click();
-    */
+    cy.location("search").should("equal", "?videoId=A4_1_1&back=%2F");
   });
 });

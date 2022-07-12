@@ -25,27 +25,40 @@ import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
+import { Answer } from "types";
 
 export default function QueueBlockItem(props: {
   classes: Record<string, string>;
   queueIDList: unknown;
   mentorQuestions: Record<string, QuestionState>;
+  mentorAnswers: Answer[];
 }): JSX.Element {
   const [isExpanded, setExpanded] = React.useState(false);
-  const { classes, queueIDList, mentorQuestions } = props;
-  const queueQus = getQueueQuestions(queueIDList, mentorQuestions);
-console.log(queueQus);
+  const { classes, queueIDList, mentorQuestions, mentorAnswers } = props;
+  const queueQus = getQueueQuestions(queueIDList, mentorQuestions, mentorAnswers);
+
   function getQueueQuestions(
     queueIDList: unknown,
-    mentorQuestions: Record<string, QuestionState>
+    mentorQuestions: Record<string, QuestionState>, mentorAnswers: Answer[]
   ) {
     const queueQuestions: string[] = [];
+    const filteredIDs: string[] = [];  
     {
-      for (let i = 0; i < (queueIDList as string[]).length; i++) {
+      // delete if answered / COMPLETED
+      mentorAnswers.forEach((e)=>{
+        if ((queueIDList as string[]).includes(e._id)){
+          
+          if (e.status == "INCOMPLETE") {
+            filteredIDs.push(e._id);
+          }
+        }
+      });
+      // get question 
+      filteredIDs.forEach((a) => {
         queueQuestions.push(
-          mentorQuestions[(queueIDList as string[])[i]].question?.question || ""
+          mentorQuestions[a].question?.question || ""
         );
-      }
+      });
     }
     return queueQuestions;
   }
