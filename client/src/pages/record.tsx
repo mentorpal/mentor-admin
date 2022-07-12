@@ -394,15 +394,29 @@ function RecordPage(props: {
         </div>
 
         {mentorType === MentorType.VIDEO ? (
-          <div data-cy="videoplayer-container" className={classes.block}>
-            <canvas data-cy="draw-canvas" id="canvas" style={
-              { display: "block", border: "1px solid black", margin: "auto" }
-            }/>
+          <div
+            data-cy="videoplayer-container"
+            className={classes.block}
+            style={{ height: "100%", width: "100%", position: "relative" }}
+          >
+            <canvas
+              data-cy="draw-canvas"
+              id="canvas"
+              style={{
+                display: "block",
+                border: "1px solid black",
+                margin: "auto",
+                height: "50%",
+                width: "50%",
+              }}
+            />
             <VideoPlayer
               classes={classes}
               recordState={recordState}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
+              width="100%"
+              height="100%"
             />
           </div>
         ) : undefined}
