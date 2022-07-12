@@ -80,9 +80,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     (state) => state.questions,
     mentor?.answers?.map((a: Answer) => a.question)
   );
-  const questions = Object.values(mentorQuestions)
-    .map((qs) => qs.question)
-    .filter((q) => q !== undefined);
   const questionsLoading = isQuestionsLoading(
     mentor?.answers?.map((a: Answer) => a.question)
   );
@@ -116,7 +113,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
             complete: isAnswerComplete(
               idleAnswer,
               UtteranceName.IDLE,
-              mentor.mentorType
+              MentorType.VIDEO
             ),
           }
         : undefined;
@@ -137,7 +134,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
           complete: answers.every((a: Answer) =>
             isAnswerComplete(
               a,
-              questions.find((q) => q?._id === a.question)?.name,
+              getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
               mentor.mentorType
             )
           ),

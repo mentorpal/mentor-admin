@@ -148,9 +148,6 @@ export interface Answer {
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
-  webMedia?: Media;
-  mobileMedia?: Media;
-  vttMedia?: Media;
 }
 
 export interface UserQuestion {

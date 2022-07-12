@@ -135,9 +135,6 @@ export interface Answer {
   transcript: string;
   status: Status;
   media?: Media[];
-  webMedia?: Media;
-  mobileMedia?: Media;
-  vttMedia?: Media;
 }
 
 export interface UserQuestion {

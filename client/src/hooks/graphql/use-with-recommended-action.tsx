@@ -6,21 +6,9 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { navigate } from "gatsby";
-import {
-  Answer,
-  Mentor,
-  MentorType,
-  Question,
-  Status,
-  UtteranceName,
-} from "types";
+import { Answer, Mentor, MentorType, UtteranceName } from "types";
 import { useState } from "react";
-import {
-  urlBuild,
-  getValueIfKeyExists,
-  isAnswerComplete,
-  filterAnswersByStatus,
-} from "helpers";
+import { urlBuild, getValueIfKeyExists, isAnswerComplete } from "helpers";
 import {
   AccountBox,
   CheckCircleOutlined,
@@ -262,9 +250,6 @@ function parseMentorConditions(
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.OFF_TOPIC
   );
-  const questions = Object.values(mentorQuestions)
-    .map((qs) => qs.question)
-    .filter((q) => q !== undefined);
 
   const introIncomplete =
     !intro || !isAnswerComplete(intro, UtteranceName.INTRO, mentor.mentorType);
@@ -317,7 +302,7 @@ function parseMentorConditions(
         (a) =>
           !isAnswerComplete(
             a,
-            questions.find((q) => q?._id === a.question)?.name,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
             mentor.mentorType
           )
       )
@@ -327,19 +312,19 @@ function parseMentorConditions(
       (a) =>
         !isAnswerComplete(
           a,
-          questions.find((q) => q?._id === a.question)?.name,
+          getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
           mentor.mentorType
         )
     )
   );
-
   const completedAnswers =
-    filterAnswersByStatus(
-      mentor?.answers || [],
-      questions as Question[],
-      mentor.mentorType,
-      Status.COMPLETE
-    ).length || 0;
+    mentor?.answers.filter((a) =>
+      isAnswerComplete(
+        a,
+        getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+        mentor.mentorType
+      )
+    )?.length || 0;
   const totalAnswers = mentor?.answers.length || 0;
 
   const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);

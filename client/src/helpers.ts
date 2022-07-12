@@ -106,9 +106,7 @@ export function isAnswerValid(
   }
   if (mentorType === MentorType.VIDEO) {
     return Boolean(
-      (answer.webMedia?.url ||
-        answer?.mobileMedia?.url ||
-        answer.media?.find((m) => m.type === MediaType.VIDEO)?.url) &&
+      answer.media?.find((m) => m.type === MediaType.VIDEO)?.url &&
         (questionType === UtteranceName.IDLE || Boolean(answer.transcript))
     );
   }

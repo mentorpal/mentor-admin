@@ -1194,16 +1194,6 @@ describe("Record", () => {
                   url: "A1_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A1_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A1_1_1.mp4",
-              },
               status: Status.NONE,
             },
             {
@@ -1237,16 +1227,6 @@ describe("Record", () => {
                   url: "A3_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A3_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A3_1_1.mp4",
-              },
               status: Status.NONE,
             },
             {
@@ -1267,16 +1247,6 @@ describe("Record", () => {
                   url: "A4_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A4_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A4_1_1.mp4",
-              },
               status: Status.NONE,
             },
           ],
@@ -1383,16 +1353,6 @@ describe("Record", () => {
                   url: "A1_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A1_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A1_1_1.mp4",
-              },
               status: Status.NONE,
             },
             {
@@ -1426,16 +1386,6 @@ describe("Record", () => {
                   url: "A3_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A3_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A3_1_1.mp4",
-              },
               status: Status.NONE,
             },
             {
@@ -1456,16 +1406,6 @@ describe("Record", () => {
                   url: "A4_1_1.mp4",
                 },
               ],
-              webMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A4_1_1.mp4",
-              },
-              mobileMedia: {
-                type: MediaType.VIDEO,
-                tag: "web",
-                url: "A4_1_1.mp4",
-              },
               status: Status.NONE,
             },
           ],

@@ -128,7 +128,7 @@ export function useWithRecordState(
 
     const answerStates: AnswerState[] = [];
     for (const a of answers) {
-      const q = mentorQuestions[a?.question];
+      const q = getValueIfKeyExists(a.question, mentorQuestions);
       const isComplete = isAnswerComplete(a, q?.question?.name, mentorType);
       if (
         q?.question &&
