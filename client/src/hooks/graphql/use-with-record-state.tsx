@@ -25,7 +25,12 @@ import {
   UtteranceName,
   RecordStateError,
 } from "types";
-import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
+import {
+  copyAndSet,
+  equals,
+  extractErrorMessageFromError,
+  getValueIfKeyExists,
+} from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -343,9 +348,8 @@ export function useWithRecordState(
     });
   }
 
-  function saveAnswer() {
-    const answer = answers[answerIdx].answer;
-    const editedAnswer = answers[answerIdx].editedAnswer;
+  async function saveAnswer() {
+    const { answer, editedAnswer } = answers[answerIdx];
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -356,39 +360,40 @@ export function useWithRecordState(
     }
     // update the question if it has changed
     if (!equals(question, editedQuestion)) {
-      saveQuestion(editedQuestion);
+      await saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
     if (!equals(answer, editedAnswer)) {
       setIsSaving(true);
-      updateAnswer(editedAnswer, accessToken, mentorId)
-        .then((didUpdate) => {
-          if (!didUpdate) {
-            setIsSaving(false);
-            return;
-          }
-          setIsSaving(false);
-          updateAnswerState({ answer: editedAnswer });
-          if (
-            editedAnswer.hasEditedTranscript &&
-            mentorType === MentorType.VIDEO &&
-            configState.config?.uploadLambdaEndpoint
-          ) {
-            regenerateVTTForQuestion(
-              editedAnswer.question,
-              mentorId,
-              accessToken,
-              configState.config.uploadLambdaEndpoint
-            );
-          }
-        })
-        .catch((err) => {
-          setIsSaving(false);
-          setError({
-            message: "Failed to save answer",
-            error: err.message,
-          });
+      let didUpdate = false;
+      try {
+        didUpdate = await updateAnswer(editedAnswer, accessToken, mentorId);
+      } catch (e) {
+        const errorMessage = extractErrorMessageFromError(e);
+        setIsSaving(false);
+        setError({
+          message: "Failed to save answer",
+          error: errorMessage,
         });
+        return;
+      }
+      setIsSaving(false);
+      if (!didUpdate) {
+        return;
+      }
+      updateAnswerState({ answer: { ...editedAnswer } });
+      if (
+        editedAnswer.hasEditedTranscript &&
+        mentorType === MentorType.VIDEO &&
+        configState.config?.uploadLambdaEndpoint
+      ) {
+        regenerateVTTForQuestion(
+          editedAnswer.question,
+          mentorId,
+          accessToken,
+          configState.config.uploadLambdaEndpoint
+        );
+      }
     }
   }
 
