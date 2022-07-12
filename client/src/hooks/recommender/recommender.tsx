@@ -6,9 +6,27 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 
-
-
 class Recommender {
+
+  // Ben's python pseudocode for the function
+  // He said to treat x as a data token
+  // class MyClass:
+  //      _init_
+  //           var1 = null
+  //           var2 = null
+  //        update(x)
+  //            self.var1 = x['var1']
+  //            self.var2 = x['var2']
+
+  offTopicIncomplete: boolean;
+
+  constructor(){
+    this.offTopicIncomplete = true;
+  }
+
+  updateFromToken(x: Map<string, boolean>): void {
+    this.offTopicIncomplete = x.get("offTopicIncomplete");
+  }
 
 }
 
