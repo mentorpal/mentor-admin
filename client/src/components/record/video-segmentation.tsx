@@ -9,14 +9,13 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@mediapipe/selfie_segmentation";
 import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
-import SegmentationSolutionPath from "./segmentation-solutionpath";
 
 async function buildVideoSegmenter(videoRecorder: HTMLVideoElement) {
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
   console.log("model", model);
   const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
     runtime: "mediapipe", // or 'tfjs'
-    solutionPath: SegmentationSolutionPath,
+    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
     modelType: "landscape",
   };
   console.log("segmenterConfig", segmenterConfig);
