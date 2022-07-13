@@ -72,6 +72,10 @@ export function cySetup(cy) {
 }
 
 export interface Config {
+  mentorsDefault: string[];
+  featuredMentors: string[];
+  featuredMentorPanels: string[];
+  activeMentors: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
@@ -81,6 +85,10 @@ export interface Config {
 }
 
 export const CONFIG_DEFAULT: Config = {
+  mentorsDefault: [],
+  featuredMentors: [],
+  featuredMentorPanels: [],
+  activeMentors: [],
   googleClientId: "fake-google-client-id",
   urlDocSetup: "",
   urlVideoIdleTips: "",

@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { CLIENT_ENDPOINT } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
+import axios from "axios";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -77,6 +78,15 @@ export function launchMentor(mentorId: string, newTab?: boolean): void {
   else window.location.href = path;
 }
 
+export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
+  let path = `${location.origin}${CLIENT_ENDPOINT}/?`;
+  for (const mentorId of mentorIds) {
+    path += `&mentor=${mentorId}`;
+  }
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
+}
+
 export function getValueIfKeyExists<T>(
   key: string,
   dict: Record<string, T>
@@ -105,4 +115,20 @@ export function loadSentry(): void {
     tracesSampleRate: process.env.STAGE == "cf" ? 0.2 : 0.0,
     environment: process.env.STAGE,
   });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function extractErrorMessageFromError(err: any | unknown): string {
+  if (err instanceof Error) {
+    return err.message;
+  } else if (axios.isAxiosError(err)) {
+    return err.response?.data || err.message;
+  } else {
+    try {
+      const error = JSON.stringify(err);
+      return error;
+    } catch (err) {
+      return "Cannot stringify error, unknown error structure";
+    }
+  }
 }
