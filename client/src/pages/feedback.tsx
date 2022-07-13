@@ -316,16 +316,32 @@ function FeedbackPage(): JSX.Element {
                         })
                       }
                     >
-                      <MenuItem data-cy="none" value={undefined}>
+                      <MenuItem
+                        data-cy="none"
+                        value={undefined}
+                        style={{ display: "flex" }}
+                      >
                         No Filter
                       </MenuItem>
-                      <MenuItem data-cy="good" value={Feedback.GOOD}>
+                      <MenuItem
+                        data-cy="good"
+                        value={Feedback.GOOD}
+                        style={{ display: "flex" }}
+                      >
                         {Feedback.GOOD}
                       </MenuItem>
-                      <MenuItem data-cy="bad" value={Feedback.BAD}>
+                      <MenuItem
+                        data-cy="bad"
+                        value={Feedback.BAD}
+                        style={{ display: "flex" }}
+                      >
                         {Feedback.BAD}
                       </MenuItem>
-                      <MenuItem data-cy="neutral" value={Feedback.NEUTRAL}>
+                      <MenuItem
+                        data-cy="neutral"
+                        value={Feedback.NEUTRAL}
+                        style={{ display: "flex" }}
+                      >
                         {Feedback.NEUTRAL}
                       </MenuItem>
                     </Select>
@@ -348,30 +364,38 @@ function FeedbackPage(): JSX.Element {
                         })
                       }
                     >
-                      <MenuItem data-cy="none" value={undefined}>
+                      <MenuItem
+                        data-cy="none"
+                        value={undefined}
+                        style={{ display: "flex" }}
+                      >
                         No Filter
                       </MenuItem>
                       <MenuItem
                         data-cy="exact"
                         value={ClassifierAnswerType.EXACT_MATCH}
+                        style={{ display: "flex" }}
                       >
                         Exact Match
                       </MenuItem>
                       <MenuItem
                         data-cy="paraphrase"
                         value={ClassifierAnswerType.PARAPHRASE}
+                        style={{ display: "flex" }}
                       >
                         Paraphrase
                       </MenuItem>
                       <MenuItem
                         data-cy="classifier"
                         value={ClassifierAnswerType.CLASSIFIER}
+                        style={{ display: "flex" }}
                       >
                         Classifier
                       </MenuItem>
                       <MenuItem
                         data-cy="offtopic"
                         value={ClassifierAnswerType.OFF_TOPIC}
+                        style={{ display: "flex" }}
                       >
                         Off-Topic
                       </MenuItem>
