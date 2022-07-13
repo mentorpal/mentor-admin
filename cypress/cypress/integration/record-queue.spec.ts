@@ -183,13 +183,42 @@ describe("Home Page", () => {
   });
   it("Can record all queued questions", () => {
     cyMockDefault(cy, {
-      mentor: clint,
+      mentor: {
+        ...clint,
+        answers: [
+          ...clint.answers,
+          {
+            _id: "A6_1_2",
+            question: {
+              _id: "A6_1_2",
+              clientId: "C_A6_1_2",
+              question: "HELLO?",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              paraphrases: [],
+            },
+            transcript: "",
+            status: Status.INCOMPLETE,
+          },
+        ],
+      },
+      questions: [
+        ...questions,
+        {
+          _id: "A6_1_2",
+          clientId: "C_A6_1_2",
+          question: "HELLO?",
+          type: QuestionType.QUESTION,
+          name: clint._id,
+          paraphrases: [],
+        },
+      ],
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A6_1_1", "A5_1_1"],
+            mentorRecordQueue: ["A6_1_2", "A5_1_1"],
           },
         }),
       ],
@@ -201,9 +230,31 @@ describe("Home Page", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-all-queue]").click();
-    cy.location("search").should("equal", "?videoId=A6_1_1&videoId=A5_1_1");
+    cy.location("search").should("equal", "?videoId=A6_1_2&videoId=A5_1_1");
   });
-  it.only("Can record a single queue question", () => {
+  it("Can record a single queue question", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            mentorRecordQueue: ["A5_1_1"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-expand-btn]").click();
+    cy.get("[data-cy=record-one-0]").click();
+    cy.location("search").should("equal", "?videoId=A5_1_1&back=%2F");
+  });
+  it("Complete/answered questions are not in queue", () => {
     cyMockDefault(cy, {
       mentor: clint,
       gqlQueries: [
@@ -222,7 +273,6 @@ describe("Home Page", () => {
     });
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
-    cy.get("[data-cy=record-one-0]").click();
-    cy.location("search").should("equal", "?videoId=A4_1_1&back=%2F");
+    cy.contains("Queued (0)");
   });
 });

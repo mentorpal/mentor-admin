@@ -187,19 +187,6 @@ export const mentor: Mentor = {
       transcript: "",
       status: Status.INCOMPLETE,
     },
-    {
-      _id: "A6_1_1",
-      question: {
-        _id: "A6_1_1",
-        clientId: "C_A6_1_1",
-        question: "HELLO?",
-        type: QuestionType.QUESTION,
-        name: UtteranceName.OFF_TOPIC,
-        paraphrases: [],
-      },
-      transcript: "",
-      status: Status.INCOMPLETE,
-    },
   ],
 };
 export default mentor;

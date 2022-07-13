@@ -76,9 +76,9 @@ export default function QueueBlockItem(props: {
 
   function onRecordAll(queueIDList: string[]) {
     let link = "/record?";
-    for (let i = 0; i < (queueIDList as string[]).length; i++) {
+    for (let i = 0; i < queueIDList.length; i++) {
       link += "videoId=" + queueIDList[i];
-      if (i != (queueIDList as string[]).length - 1) {
+      if (i != queueIDList.length - 1) {
         link += "&";
       }
     }
@@ -128,9 +128,9 @@ export default function QueueBlockItem(props: {
                     variant="outlined"
                     onClick={() => onRecordAll(queueIDList as string[])}
                     disabled={
-                      (queueIDList as string[]).length == 0 ||
-                      queueIDList == null ||
-                      queueIDList == undefined
+                      queueQus.length == 0 ||
+                      queueQus == null ||
+                      queueQus == undefined
                     }
                   >
                     Record All
