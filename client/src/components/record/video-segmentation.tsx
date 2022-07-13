@@ -41,18 +41,15 @@ async function buildVideoSegmenter() {
     // throw new Error("No canvas found");
   }
   const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-  console.log("model", model);
   const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
     runtime: "mediapipe", // or 'tfjs'
     solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
     modelType: "landscape",
   };
-  console.log("segmenterConfig", segmenterConfig);
   const segmenter = await bodySegmentation.createSegmenter(
     model,
     segmenterConfig
   );
-  console.log("segmenter", segmenter);
   const segmentation = await segmenter.segmentPeople(videoRecorder);
   // The mask image is an binary mask image with a 1 where there is a person and
   // a 0 where there is not.
@@ -73,8 +70,6 @@ export function videoSegmentation(): void {
   // Draw the mask image on top of the original image onto a canvas.
   // The colored part image will be drawn semi-transparent, with an opacity of
   // 0.7, allowing for the original image to be visible under.
-
-  // setPerson()
   bodySegmentation.drawMask(
     canvas as HTMLCanvasElement,
     videoRecorder as HTMLVideoElement,
@@ -83,6 +78,4 @@ export function videoSegmentation(): void {
     maskBlurAmount,
     flipHorizontal
   );
-  console.log("videoRecorder:", videoRecorder);
-  console.log("canvas:", canvas);
 }
