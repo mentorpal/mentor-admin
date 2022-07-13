@@ -13,7 +13,7 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
-import { videoSegmentation } from "components/record/video-segmentation";
+import { useWithVideoSegmentation } from "components/record/video-segmentation";
 
 function VideoRecorder({
   classes,
@@ -42,6 +42,7 @@ function VideoRecorder({
       },
     },
   };
+  const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
   const [videoRef, setVideoRef] = useState();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
@@ -123,9 +124,9 @@ function VideoRecorder({
 
   useInterval(
     () => {
-      videoSegmentation();
+      segmentVideoAndDrawToCanvas();
     },
-    recordState.isRecording ? 250 : null
+    recordState.isRecording ? 33.33 : null
   );
 
   useInterval(

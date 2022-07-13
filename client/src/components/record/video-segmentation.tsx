@@ -9,73 +9,99 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@mediapipe/selfie_segmentation";
 import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
+import { useEffect, useState } from "react";
 
-const videoRecorder = getVideoRecorder();
-const canvas = getCanvas();
-const opacity = 0.7;
-const flipHorizontal = false;
-const maskBlurAmount = 0;
-const segmentationBinaryMask = convertMaskToImageData(buildVideoSegmenter());
-
-function getVideoRecorder() {
-  return document.querySelectorAll(
-    "[data-cy=video-recorder]"
-  )[1] as HTMLVideoElement;
+export interface UseWithVideoSegmentation {
+  segmentVideoAndDrawToCanvas: () => void;
 }
 
-function getCanvas() {
-  return document.querySelector("[data-cy=draw-canvas]");
-}
+export function useWithVideoSegmentation(): UseWithVideoSegmentation {
+  const [segmenter, setSegmenter] = useState<bodySegmentation.BodySegmenter>();
 
-async function buildVideoSegmenter() {
-  const videoRecorder = getVideoRecorder();
-  const canvas = getCanvas();
-  if (!videoRecorder) {
-    console.log("no video recorder");
-    return;
-    // throw new Error("No video player found");
+  useEffect(() => {
+    buildVideoSegmenter()
+      .then((segmenter) => {
+        setSegmenter(segmenter);
+      })
+      .catch((err) => {
+        console.error("Failed to build segmenter", err);
+      });
+  }, []);
+
+  const opacity = 0.7;
+  const flipHorizontal = false;
+  const maskBlurAmount = 0;
+
+  function getVideoRecorder() {
+    return document.querySelectorAll("[data-cy=video-recorder]")[1];
   }
-  if (!canvas) {
-    console.log("no canvas");
-    return;
-    // throw new Error("No canvas found");
+
+  function getCanvas() {
+    return document.querySelector("[data-cy=draw-canvas]");
   }
-  const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-  const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
-    runtime: "mediapipe", // or 'tfjs'
-    solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
-    modelType: "landscape",
+
+  async function buildVideoSegmenter(): Promise<bodySegmentation.BodySegmenter> {
+    const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
+    const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
+      runtime: "mediapipe", // or 'tfjs'
+      solutionPath:
+        "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+      modelType: "landscape",
+    };
+    return await bodySegmentation.createSegmenter(model, segmenterConfig);
+  }
+
+  async function segmentVideoToBinaryMask(
+    segmenter: bodySegmentation.BodySegmenter,
+    videoElement: HTMLVideoElement
+  ) {
+    const segmentation = await segmenter.segmentPeople(videoElement);
+    // The mask image is an binary mask image with a 1 where there is a person and
+    // a 0 where there is not.
+    console.log("segmentation", segmentation);
+    const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
+      segmentation
+    );
+    console.log("segmentationBinaryMask", segmentationBinaryMask);
+    return segmentationBinaryMask;
+  }
+
+  async function segmentVideoAndDrawToCanvas(): Promise<void> {
+    if (!segmenter) {
+      // If no segmenter, try to create it and set to state
+      return;
+    }
+    const videoRecorder = getVideoRecorder();
+    const canvas = getCanvas();
+    if (!videoRecorder) {
+      console.log("no video recorder");
+      return;
+      // throw new Error("No video player found");
+    }
+    if (!canvas) {
+      console.log("no canvas");
+      return;
+      // throw new Error("No canvas found");
+    }
+    const segmentationBinaryMask = await segmentVideoToBinaryMask(
+      segmenter,
+      videoRecorder as HTMLVideoElement
+    );
+
+    // Draw the mask image on top of the original image onto a canvas.
+    // The colored part image will be drawn semi-transparent, with an opacity of
+    // 0.7, allowing for the original image to be visible under.
+    bodySegmentation.drawMask(
+      canvas as HTMLCanvasElement,
+      videoRecorder as HTMLVideoElement,
+      segmentationBinaryMask as ImageData,
+      opacity,
+      maskBlurAmount,
+      flipHorizontal
+    );
+  }
+
+  return {
+    segmentVideoAndDrawToCanvas,
   };
-  const segmenter = await bodySegmentation.createSegmenter(
-    model,
-    segmenterConfig
-  );
-  const segmentation = await segmenter.segmentPeople(videoRecorder);
-  // The mask image is an binary mask image with a 1 where there is a person and
-  // a 0 where there is not.
-  console.log("segmentation", segmentation);
-  const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
-    segmentation
-  );
-  console.log("segmentationBinaryMask", segmentationBinaryMask);
-  return segmentationBinaryMask;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function convertMaskToImageData(segmentationBinaryMask: any) {
-  return segmentationBinaryMask as ImageData;
-}
-
-export function videoSegmentation(): void {
-  // Draw the mask image on top of the original image onto a canvas.
-  // The colored part image will be drawn semi-transparent, with an opacity of
-  // 0.7, allowing for the original image to be visible under.
-  bodySegmentation.drawMask(
-    canvas as HTMLCanvasElement,
-    videoRecorder as HTMLVideoElement,
-    segmentationBinaryMask as ImageData,
-    opacity,
-    maskBlurAmount,
-    flipHorizontal
-  );
 }
