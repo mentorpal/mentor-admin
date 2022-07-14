@@ -8,16 +8,37 @@ import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 
-describe("Feedback", () => {
-  it("only show answered questions as options", () => {
+describe("Feedback Page", () => {
+  it("dropdown un-recorded questions are greyed out", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
-      gqlQueries: [mockGQL("UserQuestions", userQuestions)],
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchMentorRecordQueue", [
+          {
+            me: {
+              mentorRecordQueue: [],
+            },
+          },
+        ]),
+        mockGQL("UserQuestionSetAnswer", {}),
+      ],
     });
     cy.visit("/feedback");
     cy.get("[data-cy=select-answer]").click();
     cy.get("[data-cy=Drop-down-qu-A6_1_1]").should("be.visible");
-    cy.get("[data-cy=Drop-down-qu-A5_1_1]").should("not.exist");
+    cy.get("[data-cy=Drop-down-qu-A6_1_1]").should(
+      "have.css",
+      "color",
+      "rgb(0, 0, 0)"
+    );
+    cy.get("[data-cy=Drop-down-qu-A5_1_1]").should("be.visible");
+    cy.get("[data-cy=Drop-down-qu-A5_1_1]").should(
+      "have.css",
+      "color",
+      "rgb(128, 128, 128)"
+    );
   });
 });

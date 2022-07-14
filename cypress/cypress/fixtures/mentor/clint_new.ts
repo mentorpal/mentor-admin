@@ -47,12 +47,28 @@ export const mentor: Mentor = {
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       categories: [
         {
-          id: "category",
-          name: "Category",
+          id: "category1",
+          name: "Category1",
           description: "A category",
         },
+        {
+          id: "category3",
+          name: "Category3",
+          description: "",
+        },
       ],
-      topics: [],
+      topics: [
+        {
+          id: "back-topic1-id",
+          name: "back topic 1",
+          description: "",
+        },
+        {
+          id: "back-topic2-id",
+          name: "back topic 2",
+          description: "",
+        },
+      ],
       questions: [
         {
           question: {
@@ -95,8 +111,24 @@ export const mentor: Mentor = {
           name: "Category2",
           description: "Another category",
         },
+        {
+          id: "category4",
+          name: "Category4",
+          description: "",
+        },
       ],
-      topics: [],
+      topics: [
+        {
+          id: "repeat-topic1-id",
+          name: "repeat topic 1",
+          description: "",
+        },
+        {
+          id: "repeat-topic2-id",
+          name: "repeat topic 2",
+          description: "",
+        },
+      ],
       questions: [
         {
           question: {
