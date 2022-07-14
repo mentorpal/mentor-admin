@@ -252,6 +252,7 @@ export function cyMockDefault(
     // Defaults
     mockGQL("ImportTask", {}),
     mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
+    mockGQL("FetchMentorRecordQueue", { me: { mentorRecordQueue: [] } }),
   ]);
 }
 
