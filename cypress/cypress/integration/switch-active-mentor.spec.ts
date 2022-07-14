@@ -40,7 +40,7 @@ export const users = {
 
 describe("Switch Active Mentor", () => {
   describe("Shows default mentor and can switch to other mentors.", () => {
-    it.only("Regular users can't see mentor selection tools", () => {
+    it("Regular users can't see mentor selection tools", () => {
       cySetup(cy);
       cyMockDefault(cy, {
         mentor: [{ ...clint }],

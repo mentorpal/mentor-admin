@@ -251,7 +251,7 @@ export function cyMockDefault(
       : [mockGQL("QuestionsById", { questionsById: questions })]),
     // Defaults
     mockGQL("ImportTask", {}),
-    mockGQL("FetchUploadTasks", {me:{uploadTasks: []}}),
+    mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
   ]);
 }
 
