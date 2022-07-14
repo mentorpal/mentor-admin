@@ -1,0 +1,22 @@
+version: 0.2
+
+env:
+  variables:
+    GRAPHQL_ENDPOINT: 'https://api-dev.mentorpal.org/graphql/graphql'
+    STAGE: 'dev'
+    IS_SENTRY_ENABLED: false
+  parameter-store:
+    S3_DEPLOY_BUCKET: "/mentorpal/newdev/s3-websites/NAME"
+    CDN_ID: "/mentorpal/newdev/CLOUDFRONT_DISTRIBUTION_ID"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+
+  build:
+    commands:
+      - echo Deploying to $S3_DEPLOY_BUCKET
+      - cd client && npm run build
+      - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET/admin
+      - aws cloudfront create-invalidation --distribution-id $CDN_ID --paths "/admin*"
