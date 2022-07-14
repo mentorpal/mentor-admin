@@ -222,6 +222,7 @@ function RecordPage(props: {
     recordState.editAnswer({
       transcript: markdown,
       markdownTranscript: markdown,
+      hasEditedTranscript: markdown !== curAnswer?.answer.markdownTranscript,
     });
   }
 
