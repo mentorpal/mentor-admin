@@ -128,7 +128,7 @@ const toolBarOpts = {
   options: ["inline", "list", "link", "history"],
   inline: {
     className: "toolbar-inline",
-    options: ["bold", "italic", "underline"],
+    options: ["bold", "italic"],
   },
   list: {
     className: "toolbar-list",
