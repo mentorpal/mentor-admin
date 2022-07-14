@@ -237,6 +237,7 @@ export function cyMockDefault(
   }
 
   cyInterceptGraphQL(cy, [
+    ...gqlQueries,
     mockGQLConfig(config),
     mockGQL("Login", { login: args.login || loginDefault }),
     // ...(args.mentor
@@ -248,7 +249,9 @@ export function cyMockDefault(
     ...(args.questions
       ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
-    ...gqlQueries,
+    // Defaults
+    mockGQL("ImportTask", {}),
+    mockGQL("FetchUploadTasks", {me:{uploadTasks: []}}),
   ]);
 }
 
