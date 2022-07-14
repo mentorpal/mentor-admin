@@ -2182,8 +2182,8 @@ describe("Record", () => {
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "37");
     });
-    cy.get(".rdw-option-wrapper").eq(5).should("not.be.disabled");
-    cy.get(".rdw-option-wrapper").eq(5).trigger("mouseover").click();
+    cy.get(".rdw-option-wrapper").eq(4).should("not.be.disabled");
+    cy.get(".rdw-option-wrapper").eq(4).trigger("mouseover").click();
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "");
     });
@@ -2233,7 +2233,7 @@ describe("Record", () => {
     cy.get("[data-text]").should("be.visible");
     cy.get("[data-text]").should(
       "not.have.text",
-      "My _name_ is **Clint Anderson** and I'm a ++Nuclear Electrician's Mate++"
+      "My _name_ is **Clint Anderson** and I'm a Nuclear Electrician's Mate"
     );
 
     cy.visit("/record?videoId=A2_1_1");
@@ -2286,23 +2286,16 @@ describe("Record", () => {
     cy.get(".rdw-option-wrapper").eq(2).click();
     cy.get("[data-text]").should(
       "not.have.text",
-      "++My name is Clint Anderson and I'm a Nuclear Electrician's Mate++"
+      "- My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
     );
     cy.get(".rdw-option-wrapper").eq(2).click();
 
     cy.get(".rdw-option-wrapper").eq(3).click();
     cy.get("[data-text]").should(
       "not.have.text",
-      "- My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
-    );
-    cy.get(".rdw-option-wrapper").eq(3).click();
-
-    cy.get(".rdw-option-wrapper").eq(4).click();
-    cy.get("[data-text]").should(
-      "not.have.text",
       "1. My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
     );
-    cy.get(".rdw-option-wrapper").eq(4).click();
+    cy.get(".rdw-option-wrapper").eq(3).click();
 
     cy.get(".editor-class").within(() => {
       cy.get("[data-text]").type("{selectall}");
@@ -2320,10 +2313,10 @@ describe("Record", () => {
     cy.get(".rdw-link-modal-btn").eq(0).should("be.visible");
     cy.get(".rdw-link-modal-btn").eq(0).click();
 
+    cy.get(".rdw-option-wrapper").eq(4).should("be.visible");
+    cy.get(".rdw-option-wrapper").eq(4).click();
     cy.get(".rdw-option-wrapper").eq(5).should("be.visible");
     cy.get(".rdw-option-wrapper").eq(5).click();
-    cy.get(".rdw-option-wrapper").eq(6).should("be.visible");
-    cy.get(".rdw-option-wrapper").eq(6).click();
 
     cy.get(
       ".public-DraftStyleDefault-block.public-DraftStyleDefault-ltr"
@@ -2814,6 +2807,34 @@ describe("Record", () => {
     cy.get(".editor-class").type("37");
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "37");
+    });
+  });
+
+  it("Warns user to trim their own edited transcripts when trimming video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
+    });
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=outline]").should("not.be.visible");
+      cy.get("[data-cy=slider]")
+        .invoke("mouseover")
+        .trigger("mousedown", { button: 0 });
+      cy.get("[data-cy=upload-video]").click();
+      cy.get("[data-cy=notification-dialog-title]").contains(
+        "Don't forget to trim your transcript"
+      );
     });
   });
 

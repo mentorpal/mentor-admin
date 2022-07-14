@@ -78,6 +78,15 @@ export function launchMentor(mentorId: string, newTab?: boolean): void {
   else window.location.href = path;
 }
 
+export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
+  let path = `${location.origin}${CLIENT_ENDPOINT}/?`;
+  for (const mentorId of mentorIds) {
+    path += `&mentor=${mentorId}`;
+  }
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
+}
+
 export function getValueIfKeyExists<T>(
   key: string,
   dict: Record<string, T>
