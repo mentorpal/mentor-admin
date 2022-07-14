@@ -100,14 +100,13 @@ function EditQuestionForQueueModal(props: {
       category: selectedCategory,
     };
     // add to DB
-    addOrUpdateSubjectQuestions(
+    const subjectQuestionsReturned = await addOrUpdateSubjectQuestions(
       selectedSubject._id,
       [newSubjectQuestion],
       accessToken
     );
-
     // add to record queue
-    addQuestionToRecordQueue(newQuestion._id, accessToken);
+    addQuestionToRecordQueue(subjectQuestionsReturned[0].question, accessToken);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();

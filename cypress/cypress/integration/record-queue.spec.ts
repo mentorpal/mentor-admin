@@ -56,7 +56,7 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
     cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
   });
-  it("Modal creates new question", () => {
+  it.only("Modal creates new question", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor,
@@ -69,11 +69,20 @@ describe("Mentor Record Queue", () => {
           },
         }),
         mockGQL("SubjectAddOrUpdateQuestions", {
-          me: { subjectAddOrUpdateQuestions: {} },
+          me: {
+            subjectAddOrUpdateQuestions: [
+              {
+                question: "ID",
+                topics: [],
+              },
+            ],
+          },
         }),
         mockGQL("AddQuestionToRecordQueue", {
           me: {
             addQuestionToRecordQueue: [],
+            category: "category1",
+            topics: ["back-topic2-id"],
           },
         }),
         mockGQL("RemoveQuestionFromRecordQueue", {
