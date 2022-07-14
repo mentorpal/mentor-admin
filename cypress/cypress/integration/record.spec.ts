@@ -2810,6 +2810,34 @@ describe("Record", () => {
     });
   });
 
+  it("Warns user to trim their own edited transcripts when trimming video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
+    });
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=outline]").should("not.be.visible");
+      cy.get("[data-cy=slider]")
+        .invoke("mouseover")
+        .trigger("mousedown", { button: 0 });
+      cy.get("[data-cy=upload-video]").click();
+      cy.get("[data-cy=notification-dialog-title]").contains(
+        "Don't forget to trim your transcript"
+      );
+    });
+  });
+
   it("emtpy transcript upload results replace current transcript", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
