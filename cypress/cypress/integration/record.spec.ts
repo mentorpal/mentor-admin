@@ -2842,8 +2842,11 @@ describe("Record", () => {
         answers: [
           ...videoMentor.answers.map((a) => {
             if (a._id === "A2_1_1") {
-              a.hasEditedTranscript = true;
-              a.transcript = "Transcript from GQL";
+              return {
+                ...a,
+                hasEditedTranscript: true,
+                transcript: "Transcript from GQL",
+              };
             }
             return a;
           }),
@@ -2885,6 +2888,14 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=card-answer-title]").contains("Processing"); //upload in progress
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "Transcript from GQL");
+    });
+    cy.get("[data-cy=card-answer-title]").contains("Tap to preview"); // upload completes
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "NEW TRANSCRIPT");
+    });
   });
 
   it("transcript edited while upload in progress does not get replaced when upload completes", () => {
