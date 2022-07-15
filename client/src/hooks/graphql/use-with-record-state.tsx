@@ -134,7 +134,7 @@ export function useWithRecordState(
       ) {
         answerStates.push({
           answer: a,
-          editedAnswer: a,
+          editedAnswer: { ...a, hasEditedTranscript: false },
           editedQuestion: q.question,
           recordedVideo: undefined,
           minVideoLength: q.question.minVideoLength,
