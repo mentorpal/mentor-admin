@@ -26,7 +26,7 @@ describe("My Mentor Page", () => {
       gqlQueries: [
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: [],
+            fetchMentorRecordQueue: [],
           },
         }),
       ],

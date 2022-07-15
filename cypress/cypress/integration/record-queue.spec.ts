@@ -21,7 +21,7 @@ describe("Mentor Record Queue", () => {
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: [],
+            fetchMentorRecordQueue: [],
           },
         }),
         mockGQL("SubjectAddOrUpdateQuestions", {
@@ -136,12 +136,12 @@ describe("Mentor Record Queue", () => {
         mockGQL("FetchMentorRecordQueue", [
           {
             me: {
-              mentorRecordQueue: [],
+              fetchMentorRecordQueue: [],
             },
           },
           {
             me: {
-              mentorRecordQueue: ["A1_1_2"],
+              fetchMentorRecordQueue: ["A1_1_2"],
             },
           },
         ]),
@@ -175,7 +175,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: [],
+            fetchMentorRecordQueue: [],
           },
         }),
       ],
@@ -230,7 +230,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A6_1_2", "A5_1_1"],
+            fetchMentorRecordQueue: ["A6_1_2", "A5_1_1"],
           },
         }),
       ],
@@ -252,7 +252,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A5_1_1"],
+            fetchMentorRecordQueue: ["A5_1_1"],
           },
         }),
       ],
@@ -274,7 +274,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: ["A4_1_1"],
+            fetchMentorRecordQueue: ["A4_1_1"],
           },
         }),
       ],

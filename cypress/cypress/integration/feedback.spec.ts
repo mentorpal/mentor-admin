@@ -20,7 +20,7 @@ describe("Feedback Page", () => {
         mockGQL("FetchMentorRecordQueue", [
           {
             me: {
-              mentorRecordQueue: [],
+              fetchMentorRecordQueue: [],
             },
           },
         ]),

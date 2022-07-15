@@ -1278,11 +1278,11 @@ export async function fetchMentorRecordQueue(
       query: `
         query FetchMentorRecordQueue {
           me {
-            mentorRecordQueue
+            fetchMentorRecordQueue
           }
         }`,
     },
-    { accessToken, dataPath: ["me", "mentorRecordQueue"] }
+    { accessToken, dataPath: ["me", "fetchMentorRecordQueue"] }
   );
 }
 
