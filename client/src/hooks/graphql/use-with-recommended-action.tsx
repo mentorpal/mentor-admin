@@ -318,15 +318,14 @@ function parseMentorConditions(
     )
   );
 
-  const completedAnswers =
-    mentor.answers.filter((a) =>
-      isAnswerComplete(
-        a,
-        getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
-        mentor.mentorType
-      )
-    ).length || 0;
-  const totalAnswers = mentor.answers.length || 0;
+  const completedAnswers = mentor.answers.filter((a) =>
+    isAnswerComplete(
+      a,
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+      mentor.mentorType
+    )
+  ).length;
+  const totalAnswers = mentor.answers.length;
 
   const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);
 
