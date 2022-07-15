@@ -24,7 +24,7 @@ export interface SelectFromQuestionStateFunc<T> {
 export interface QuestionActions {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadQuestions: (ids: string[], reload?: boolean) => Promise<any> | void;
-  saveQuestion: (data: Question) => void;
+  saveQuestion: (data: Question) => Promise<void>;
   clearQuestionError: (id: string) => void;
   clearQuestionErrors: () => void;
 }
@@ -103,8 +103,8 @@ export function useQuestionActions(): QuestionActions {
     return dispatch(loadQuestionsById({ ids, reload }));
   }
 
-  function saveQuestion(data: Question): void {
-    dispatch(saveQuestionAction(data));
+  async function saveQuestion(data: Question): Promise<void> {
+    await dispatch(saveQuestionAction(data));
   }
 
   function clearQuestionError(id: string): void {

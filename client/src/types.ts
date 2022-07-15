@@ -11,6 +11,10 @@ import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export interface Config {
+  mentorsDefault: string[];
+  featuredMentors: string[];
+  featuredMentorPanels: string[];
+  activeMentors: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
@@ -53,6 +57,14 @@ export interface User {
   userRole: UserRole;
   defaultMentor: Mentor;
   firstTimeTracking: FirstTimeTracking;
+}
+
+export interface MentorPanel {
+  _id: string;
+  subject: string;
+  mentors: string[];
+  title: string;
+  subtitle: string;
 }
 
 export interface Mentor {
@@ -132,6 +144,7 @@ export interface Answer {
   questionClientId: string;
   hasEditedTranscript: boolean;
   transcript: string;
+  markdownTranscript?: string;
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
@@ -424,9 +437,12 @@ export interface UseWithRecordState {
   reloadMentorData: () => void;
   nextAnswer: () => void;
   setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<Answer>) => void;
+  editAnswer: (
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) => void;
   editQuestion: (edits: Partial<Question>) => void;
-  saveAnswer: () => void;
+  saveAnswer: () => Promise<void>;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;
@@ -443,6 +459,7 @@ export interface AnswerState {
   editedAnswer: Answer;
   editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
+  localTranscriptChanges: boolean;
   recordedVideo?: File;
   minVideoLength?: number;
 }
