@@ -134,7 +134,7 @@ export function useWithRecordState(
       ) {
         answerStates.push({
           answer: a,
-          editedAnswer: a,
+          editedAnswer: { ...a, hasEditedTranscript: false },
           editedQuestion: q.question,
           recordedVideo: undefined,
           minVideoLength: q.question.minVideoLength,
@@ -233,7 +233,8 @@ export function useWithRecordState(
     if (idx !== -1) {
       const answer = answers[idx];
       const newTranscript =
-        upload.transcript || upload.transcript === ""
+        (upload.transcript || upload.transcript === "") &&
+        !answer.editedAnswer.hasEditedTranscript // check if local edits were made while upload in progress
           ? upload.transcript
           : answer.editedAnswer.transcript;
       updateAnswerState(
@@ -242,11 +243,13 @@ export function useWithRecordState(
           answer: {
             ...answer.answer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
           editedAnswer: {
             ...answer.editedAnswer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
         },
