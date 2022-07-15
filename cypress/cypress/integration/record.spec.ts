@@ -818,10 +818,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2837,6 +2833,58 @@ describe("Record", () => {
         "Don't forget to trim your transcript"
       );
     });
+  });
+
+  it("If edited transcript from db but not locally and new upload, then replace transcript", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...videoMentor,
+        answers: [
+          ...videoMentor.answers.map((a) => {
+            if (a._id === "A2_1_1") {
+              a.hasEditedTranscript = true;
+              a.transcript = "Transcript from GQL";
+            }
+            return a;
+          }),
+        ],
+      },
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "NEW TRANSCRIPT",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
   });
 
   it("transcript edited while upload in progress does not get replaced when upload completes", () => {
