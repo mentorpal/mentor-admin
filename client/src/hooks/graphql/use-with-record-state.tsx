@@ -139,6 +139,7 @@ export function useWithRecordState(
           recordedVideo: undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
+          localTranscriptChanges: false,
         });
       }
     }
@@ -183,7 +184,8 @@ export function useWithRecordState(
       ...answer,
       isEdited:
         !equals(answer.answer, answer.editedAnswer) ||
-        !equals(question, answer.editedQuestion),
+        !equals(question, answer.editedQuestion) ||
+        answer.localTranscriptChanges,
       isValid: isAnswerValid(),
       isUploading: isAnswerUploading(answer.editedAnswer),
       videoSrc: idxChanged
@@ -233,7 +235,8 @@ export function useWithRecordState(
     if (idx !== -1) {
       const answer = answers[idx];
       const newTranscript =
-        upload.transcript || upload.transcript === ""
+        (upload.transcript || upload.transcript === "") &&
+        !answer.localTranscriptChanges // check if local edits were made while upload in progress
           ? upload.transcript
           : answer.editedAnswer.transcript;
       updateAnswerState(
@@ -242,11 +245,13 @@ export function useWithRecordState(
           answer: {
             ...answer.answer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
           editedAnswer: {
             ...answer.editedAnswer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
         },
@@ -336,9 +341,15 @@ export function useWithRecordState(
     updateAnswerState({ minVideoLength: length });
   }
 
-  function editAnswer(edits: Partial<Answer>) {
+  function editAnswer(
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) {
     const answer = answers[answerIdx];
-    updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
+    updateAnswerState({
+      editedAnswer: { ...answer.editedAnswer, ...edits },
+      ...answerStateEdits,
+    });
   }
 
   function editQuestion(edits: Partial<Question>) {
@@ -349,7 +360,7 @@ export function useWithRecordState(
   }
 
   async function saveAnswer() {
-    const { answer, editedAnswer } = answers[answerIdx];
+    const { answer, editedAnswer, localTranscriptChanges } = answers[answerIdx];
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -363,7 +374,7 @@ export function useWithRecordState(
       await saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
-    if (!equals(answer, editedAnswer)) {
+    if (!equals(answer, editedAnswer) || localTranscriptChanges) {
       setIsSaving(true);
       let didUpdate = false;
       try {
@@ -381,7 +392,10 @@ export function useWithRecordState(
       if (!didUpdate) {
         return;
       }
-      updateAnswerState({ answer: { ...editedAnswer } });
+      updateAnswerState({
+        answer: { ...editedAnswer },
+        localTranscriptChanges: false,
+      });
       if (
         editedAnswer.hasEditedTranscript &&
         mentorType === MentorType.VIDEO &&

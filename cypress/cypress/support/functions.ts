@@ -249,8 +249,12 @@ export function cyMockDefault(
     ...(args.questions
       ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
-    // Defaults
-    mockGQL("ImportTask", {}),
+    ...gqlQueries,
+    //Defaults
+    mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+    mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+    mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+    mockGQL("ImportTask", { importTask: null }),
     mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { mentorRecordQueue: [] } }),
   ]);

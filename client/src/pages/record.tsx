@@ -36,7 +36,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists } from "helpers";
+import { getValueIfKeyExists, sanitizeWysywigString } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -213,16 +213,23 @@ function RecordPage(props: {
     return transcriptText;
   }
 
-  function getMarkdownFromEditor(contentState: ContentState) {
-    const markdown = stateToMarkdown(contentState, markdownConfig);
+  function getMarkdownFromEditor(contentState: ContentState): string {
+    const markdown: string = stateToMarkdown(contentState, markdownConfig);
     return markdown;
   }
 
   function updateTranscriptWithMarkdown(markdown: string) {
-    recordState.editAnswer({
-      transcript: markdown,
-      markdownTranscript: markdown,
-    });
+    recordState.editAnswer(
+      {
+        transcript: markdown,
+        markdownTranscript: markdown,
+        hasEditedTranscript: markdown !== curAnswer?.answer.markdownTranscript,
+      },
+      {
+        localTranscriptChanges:
+          markdown !== curAnswer?.answer.markdownTranscript,
+      }
+    );
   }
 
   useEffect(() => {
@@ -343,7 +350,7 @@ function RecordPage(props: {
           onEditorStateChange={(editorState: EditorState) => {
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
-            updateTranscriptWithMarkdown(markdown);
+            updateTranscriptWithMarkdown(sanitizeWysywigString(markdown));
             setEditorState(editorState);
           }}
           editorState={editorState}

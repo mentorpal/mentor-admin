@@ -116,9 +116,21 @@ describe("Mentor Record Queue", () => {
             ],
           },
         }),
+        mockGQL("SubjectAddOrUpdateQuestions", {
+          me: {
+            subjectAddOrUpdateQuestions: [
+              {
+                question: "ID",
+                topics: [],
+              },
+            ],
+          },
+        }),
         mockGQL("AddQuestionToRecordQueue", {
           me: {
-            addQuestionToRecordQueue: ["A1_1_2"],
+            addQuestionToRecordQueue: [],
+            category: "category1",
+            topics: ["back-topic2-id"],
           },
         }),
         mockGQL("FetchMentorRecordQueue", [
