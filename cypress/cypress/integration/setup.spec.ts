@@ -379,25 +379,17 @@ describe("Setup", () => {
     });
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)")
+      .pause();
     cy.get("[data-cy=name]").within(($input) => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=mentor-title]").within(($input) => {
       cy.get("input").should("have.value", "Please enter your profession here");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=email]").within(($input) => {
       cy.get("input").should("have.value", "");
     });
-    cy.get("[data-cy=next-btn]")
-      .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
