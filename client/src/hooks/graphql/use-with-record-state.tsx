@@ -134,11 +134,12 @@ export function useWithRecordState(
       ) {
         answerStates.push({
           answer: a,
-          editedAnswer: { ...a, hasEditedTranscript: false },
+          editedAnswer: a,
           editedQuestion: q.question,
           recordedVideo: undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
+          localTranscriptChanges: false,
         });
       }
     }
@@ -234,7 +235,7 @@ export function useWithRecordState(
       const answer = answers[idx];
       const newTranscript =
         (upload.transcript || upload.transcript === "") &&
-        !answer.editedAnswer.hasEditedTranscript // check if local edits were made while upload in progress
+        !answer.localTranscriptChanges // check if local edits were made while upload in progress
           ? upload.transcript
           : answer.editedAnswer.transcript;
       updateAnswerState(
@@ -341,7 +342,14 @@ export function useWithRecordState(
 
   function editAnswer(edits: Partial<Answer>) {
     const answer = answers[answerIdx];
-    updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
+    const localTranscriptChanges: Partial<AnswerState> =
+      edits.hasEditedTranscript
+        ? { localTranscriptChanges: edits.hasEditedTranscript }
+        : {};
+    updateAnswerState({
+      editedAnswer: { ...answer.editedAnswer, ...edits },
+      ...localTranscriptChanges,
+    });
   }
 
   function editQuestion(edits: Partial<Question>) {

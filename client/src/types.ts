@@ -456,6 +456,7 @@ export interface AnswerState {
   editedAnswer: Answer;
   editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
+  localTranscriptChanges: boolean;
   recordedVideo?: File;
   minVideoLength?: number;
 }
