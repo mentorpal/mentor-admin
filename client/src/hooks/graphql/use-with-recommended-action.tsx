@@ -259,15 +259,6 @@ function parseMentorConditions(
     !offTopic ||
     !isAnswerComplete(offTopic, UtteranceName.OFF_TOPIC, mentor.mentorType);
 
-  console.warn(`idle: ${JSON.stringify(idle)}`);
-  console.warn(
-    `idleComplete: ${
-      idle
-        ? isAnswerComplete(idle, UtteranceName.IDLE, mentor.mentorType)
-        : false
-    }`
-  );
-
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
   const hasThumbnail = Boolean(mentor?.thumbnail);
   const neverBuilt = Boolean(mentor?.lastTrainedAt);
