@@ -11,13 +11,12 @@ import {
   Mentor,
   MentorType,
   SetupStatus,
-  Status,
   Subject,
   UtteranceName,
 } from "types";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import { getValueIfKeyExists, urlBuild } from "helpers";
+import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
@@ -109,7 +108,14 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     );
     const idle =
       mentor.mentorType === MentorType.VIDEO && idleAnswer
-        ? { idle: idleAnswer, complete: idleAnswer.status === Status.COMPLETE }
+        ? {
+            idle: idleAnswer,
+            complete: isAnswerComplete(
+              idleAnswer,
+              UtteranceName.IDLE,
+              mentor.mentorType
+            ),
+          }
         : undefined;
     const requiredSubjects = mentor.subjects
       .filter((s: Subject) => s.isRequired)
@@ -125,7 +131,13 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a: Answer) => a.status === Status.COMPLETE),
+          complete: answers.every((a: Answer) =>
+            isAnswerComplete(
+              a,
+              getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+              mentor.mentorType
+            )
+          ),
         };
       });
     const isSetupComplete =

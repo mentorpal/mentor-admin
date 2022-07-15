@@ -484,7 +484,7 @@ function RecordPage(props: {
           <Typography className={classes.title}>Status:</Typography>
           <Select
             data-cy="select-status"
-            value={curAnswer?.editedAnswer.status || ""}
+            value={curAnswer?.editedAnswer.status || Status.NONE}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) =>
@@ -492,6 +492,9 @@ function RecordPage(props: {
             }
             style={{ marginLeft: 10 }}
           >
+            <MenuItem data-cy="none" value={Status.NONE}>
+              None
+            </MenuItem>
             <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
               Skip
             </MenuItem>

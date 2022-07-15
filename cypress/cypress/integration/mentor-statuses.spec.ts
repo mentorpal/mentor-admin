@@ -15,6 +15,95 @@ import {
 import { status1 } from "../fixtures/mentor";
 
 describe("My Mentor Card", () => {
+  it("It needs intro", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...status1,
+        answers: [
+          {
+            _id: "A4_1_1",
+            question: {
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+            transcript:
+              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+            status: Status.INCOMPLETE,
+          },
+        ],
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "Your mentor's introduction is what they say when a user starts."
+    );
+  });
+  it("It needs intro", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...status1,
+        answers: [
+          {
+            _id: "A4_1_1",
+            question: {
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
+              paraphrases: [],
+            },
+            transcript:
+              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+            status: Status.NONE,
+          },
+        ],
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "Your mentor's introduction is what they say when a user starts."
+    );
+  });
+  it("It needs intro", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...status1,
+        answers: [
+          {
+            _id: "A4_1_1",
+            question: {
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+            transcript: "",
+            status: Status.NONE,
+          },
+        ],
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "Your mentor's introduction is what they say when a user starts."
+    );
+  });
+
   it("It needs IDLE video", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -47,6 +136,7 @@ describe("My Mentor Card", () => {
               name: UtteranceName.INTRO,
               paraphrases: [],
             },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
             transcript:
               "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
             status: Status.COMPLETE,
@@ -59,7 +149,7 @@ describe("My Mentor Card", () => {
       "Users see your idle video while typing a question"
     );
   });
-  it("It needs intro", () => {
+  it("It needs IDLE video", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: {
@@ -76,9 +166,8 @@ describe("My Mentor Card", () => {
               name: UtteranceName.IDLE,
               paraphrases: [],
             },
-            media: [{ url: "video.mp4", tag: "idle", type: "video" }],
             transcript: "",
-            status: Status.COMPLETE,
+            status: Status.NONE,
           },
           {
             _id: "A4_1_1",
@@ -91,24 +180,57 @@ describe("My Mentor Card", () => {
               name: UtteranceName.INTRO,
               paraphrases: [],
             },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
             transcript:
               "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
-            status: Status.INCOMPLETE,
+            status: Status.NONE,
           },
         ],
       },
     });
     cy.visit("/");
     cy.get("[data-cy=recommended-action-reason]").contains(
-      "Your mentor's introduction is what they say when a user starts."
+      "Users see your idle video while typing a question"
     );
   });
+
   it("It needs off topic", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: {
         ...status1,
         answers: [
+          {
+            _id: "A4_1_1",
+            question: {
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+            transcript:
+              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+            status: Status.COMPLETE,
+          },
+          {
+            _id: "A3_1_1",
+            question: {
+              _id: "A3_1_1",
+              clientId: "C3_1_1",
+              question:
+                "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.IDLE,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+            transcript: "",
+            status: Status.COMPLETE,
+          },
           {
             _id: "A5_1_1",
             question: {
@@ -131,6 +253,66 @@ describe("My Mentor Card", () => {
       "The off topic response helps tell the user that the AI didn't understand their question."
     );
   });
+  it("It needs off topic", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...status1,
+        answers: [
+          {
+            _id: "A4_1_1",
+            question: {
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+            transcript:
+              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+            status: Status.NONE,
+          },
+          {
+            _id: "A3_1_1",
+            question: {
+              _id: "A3_1_1",
+              clientId: "C3_1_1",
+              question:
+                "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.IDLE,
+              paraphrases: [],
+            },
+            webMedia: { url: "video.mp4", tag: "idle", type: "video" },
+            transcript: "",
+            status: Status.NONE,
+          },
+          {
+            _id: "A5_1_1",
+            question: {
+              _id: "A5_1_1",
+              clientId: "C5_1_1",
+              question:
+                "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.OFF_TOPIC,
+              paraphrases: [],
+            },
+            transcript: "",
+            status: Status.INCOMPLETE,
+          },
+        ],
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "The off topic response helps tell the user that the AI didn't understand their question."
+    );
+  });
+
   it("It needs subject", () => {
     cySetup(cy);
     cyMockDefault(cy, {
@@ -221,31 +403,20 @@ describe("My Mentor Card", () => {
         ...status1,
         answers: [
           {
-            _id: "A1_1_1",
+            _id: "A4_1_1",
             question: {
-              _id: "A1_1_1",
-              clientId: "C1_1_1",
-              question: "Who are you and what do you do?",
-              type: QuestionType.QUESTION,
-              name: null,
+              _id: "A4_1_1",
+              clientId: "C4_1_1",
+              question:
+                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+              type: QuestionType.UTTERANCE,
+              name: UtteranceName.INTRO,
               paraphrases: [],
             },
+            webMedia: { url: "video.mp4", tag: "intro", type: "video" },
             transcript:
-              "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-            status: Status.COMPLETE,
-          },
-          {
-            _id: "A2_1_1",
-            question: {
-              _id: "A2_1_1",
-              clientId: "C2_1_1",
-              question: "How old are you now?",
-              type: QuestionType.QUESTION,
-              name: null,
-              paraphrases: [],
-            },
-            transcript: "I'm 37 years old",
-            status: Status.COMPLETE,
+              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
+            status: Status.NONE,
           },
           {
             _id: "A3_1_1",
@@ -258,24 +429,25 @@ describe("My Mentor Card", () => {
               name: UtteranceName.IDLE,
               paraphrases: [],
             },
-            media: [{ url: "video.mp4", tag: "idle", type: "video" }],
+            webMedia: { url: "video.mp4", tag: "idle", type: "video" },
             transcript: "",
-            status: Status.COMPLETE,
+            status: Status.NONE,
           },
           {
-            _id: "A4_1_1",
+            _id: "A5_1_1",
             question: {
-              _id: "A4_1_1",
-              clientId: "C4_1_1",
+              _id: "A5_1_1",
+              clientId: "C5_1_1",
               question:
-                "Please give a short introduction of yourself, which includes your name, current job, and title.",
+                "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
               type: QuestionType.UTTERANCE,
-              name: UtteranceName.INTRO,
+              name: UtteranceName.OFF_TOPIC,
               paraphrases: [],
             },
+            webMedia: { url: "video.mp4", tag: "off_topic", type: "video" },
             transcript:
-              "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
-            status: Status.COMPLETE,
+              "'I couldn't understand the question. Try asking me something else.'",
+            status: Status.NONE,
           },
         ],
       },

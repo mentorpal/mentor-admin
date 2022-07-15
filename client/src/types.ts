@@ -324,6 +324,7 @@ export enum MentorType {
 }
 
 export enum Status {
+  NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }
