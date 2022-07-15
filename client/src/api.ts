@@ -173,7 +173,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (!(res.status >= 200 && res.status <= 299)) {
-    throw new Error(`http request failed: ${res.statusText}`);
+    throw new Error(`http request failed: ${res.data}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
