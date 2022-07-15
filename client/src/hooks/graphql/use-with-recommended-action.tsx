@@ -265,7 +265,7 @@ function parseMentorConditions(
 
   const categories: Category[] = [];
 
-  mentor?.subjects.forEach((s) => {
+  mentor.subjects.forEach((s) => {
     categories.push({
       subjectName: s.name,
       subject: s._id,
@@ -319,14 +319,14 @@ function parseMentorConditions(
   );
 
   const completedAnswers =
-    mentor?.answers.filter((a) =>
+    mentor.answers.filter((a) =>
       isAnswerComplete(
         a,
         getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
         mentor.mentorType
       )
     ).length || 0;
-  const totalAnswers = mentor?.answers.length || 0;
+  const totalAnswers = mentor.answers.length || 0;
 
   const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);
 
