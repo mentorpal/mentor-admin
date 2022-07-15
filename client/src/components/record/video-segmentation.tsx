@@ -10,6 +10,7 @@ import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@mediapipe/selfie_segmentation";
 import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
 import { useEffect, useState } from "react";
+import { Color } from "@tensorflow-models/body-segmentation/dist/shared/calculators/interfaces/common_interfaces";
 
 export interface UseWithVideoSegmentation {
   segmentVideoAndDrawToCanvas: () => void;
@@ -55,12 +56,22 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     segmenter: bodySegmentation.BodySegmenter,
     videoElement: HTMLVideoElement
   ) {
+    const foreground: Color = { r: 0, g: 0, b: 0, a: 255 };
+    const background: Color = { r: 255, g: 255, b: 255, a: 255 };
+    // { r: 255, g: 255, b: 255, a: 255 }
+    // { r: 0, g: 0, b: 0, a: 255 }
+    const drawContour = true;
+    const foregroundThresholdProbability = 0.5;
     const segmentation = await segmenter.segmentPeople(videoElement);
     // The mask image is an binary mask image with a 1 where there is a person and
     // a 0 where there is not.
     console.log("segmentation", segmentation);
     const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
-      segmentation
+      segmentation,
+      foreground,
+      background,
+      drawContour,
+      foregroundThresholdProbability
     );
     console.log("segmentationBinaryMask", segmentationBinaryMask);
     return segmentationBinaryMask;
