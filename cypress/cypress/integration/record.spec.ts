@@ -271,6 +271,7 @@ const videoMentor: Mentor = completeMentor({
         question: "Who are you and what do you do?",
       },
       transcript: "",
+      markdownTranscript: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -2834,6 +2835,56 @@ describe("Record", () => {
       cy.get("[data-cy=upload-video]").click();
       cy.get("[data-cy=notification-dialog-title]").contains(
         "Don't forget to trim your transcript"
+      );
+    });
+  });
+
+  it("transcript edited while upload in progress does not get replaced when upload completes", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "NEW TRANSCRIPT",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=card-answer-title]").contains("Processing"); //upload in progress
+    cy.get(".editor-class").type(". Edited Transcript"); // edit transcript
+    cy.get("[data-cy=card-answer-title]").contains("Tap to preview"); // upload completes
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should(
+        "have.text",
+        "I'm 37 years old. Edited Transcript"
       );
     });
   });

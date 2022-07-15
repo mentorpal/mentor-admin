@@ -133,6 +133,7 @@ export interface Answer {
   _id: string;
   question: Question;
   transcript: string;
+  markdownTranscript?: string;
   status: Status;
   media?: Media[];
 }
