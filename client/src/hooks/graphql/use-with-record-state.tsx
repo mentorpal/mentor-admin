@@ -392,7 +392,10 @@ export function useWithRecordState(
       if (!didUpdate) {
         return;
       }
-      updateAnswerState({ answer: { ...editedAnswer } });
+      updateAnswerState({
+        answer: { ...editedAnswer },
+        localTranscriptChanges: false,
+      });
       if (
         editedAnswer.hasEditedTranscript &&
         mentorType === MentorType.VIDEO &&
