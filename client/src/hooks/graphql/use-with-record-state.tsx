@@ -184,7 +184,8 @@ export function useWithRecordState(
       ...answer,
       isEdited:
         !equals(answer.answer, answer.editedAnswer) ||
-        !equals(question, answer.editedQuestion),
+        !equals(question, answer.editedQuestion) ||
+        answer.localTranscriptChanges,
       isValid: isAnswerValid(),
       isUploading: isAnswerUploading(answer.editedAnswer),
       videoSrc: idxChanged
@@ -340,15 +341,14 @@ export function useWithRecordState(
     updateAnswerState({ minVideoLength: length });
   }
 
-  function editAnswer(edits: Partial<Answer>) {
+  function editAnswer(
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) {
     const answer = answers[answerIdx];
-    const localTranscriptChanges: Partial<AnswerState> =
-      edits.hasEditedTranscript
-        ? { localTranscriptChanges: edits.hasEditedTranscript }
-        : {};
     updateAnswerState({
       editedAnswer: { ...answer.editedAnswer, ...edits },
-      ...localTranscriptChanges,
+      ...answerStateEdits,
     });
   }
 
@@ -360,7 +360,7 @@ export function useWithRecordState(
   }
 
   async function saveAnswer() {
-    const { answer, editedAnswer } = answers[answerIdx];
+    const { answer, editedAnswer, localTranscriptChanges } = answers[answerIdx];
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -374,7 +374,7 @@ export function useWithRecordState(
       await saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
-    if (!equals(answer, editedAnswer)) {
+    if (!equals(answer, editedAnswer) || localTranscriptChanges) {
       setIsSaving(true);
       let didUpdate = false;
       try {
@@ -392,7 +392,10 @@ export function useWithRecordState(
       if (!didUpdate) {
         return;
       }
-      updateAnswerState({ answer: { ...editedAnswer } });
+      updateAnswerState({
+        answer: { ...editedAnswer },
+        localTranscriptChanges: false,
+      });
       if (
         editedAnswer.hasEditedTranscript &&
         mentorType === MentorType.VIDEO &&
