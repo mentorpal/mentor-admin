@@ -9,10 +9,13 @@ import {
   AppBar,
   Button,
   Fab,
+  FormControlLabel,
+  FormGroup,
   IconButton,
   MenuItem,
   Paper,
   Select,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -403,6 +406,26 @@ function FeedbackPage(): JSX.Element {
     });
   }, []);
 
+  const [viewAllQuestions, setViewAllQuestions] = useState<boolean>(false);
+  function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
+    setViewAllQuestions(event.target.checked);
+    /*
+    if(viewAllQuestions){
+      sortFeedback({createdAt});
+    }*/
+  }
+
+  const questionsToDisplay = feedback?.edges.filter(
+    (edge) =>
+    (viewAllQuestions ? 
+      edge.node
+      : 
+      edge.node.feedback === Feedback.BAD 
+      || edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
+      || edge.node.confidence <= -0.45)
+  );
+  const label = { inputProps: { "aria-label": "Switch demo" } };
+
   useEffect(() => {
     if (mentorId) {
       if (!isFeedbackLoading) {
@@ -443,7 +466,7 @@ function FeedbackPage(): JSX.Element {
       </div>
     );
   }
-
+ 
   return (
     <div>
       <NavBar title="Feedback" mentorId={mentorId} />
@@ -594,7 +617,7 @@ function FeedbackPage(): JSX.Element {
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">
-                {feedback?.edges.map((row, i) => (
+                {questionsToDisplay?.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
                     accessToken={loginState.accessToken}
@@ -643,6 +666,16 @@ function FeedbackPage(): JSX.Element {
               Train Mentor
             </Fab>
           </Toolbar>
+          <span style={{ marginTop: 0 }}>
+            <span >
+              <Switch
+                data-cy="subject-type-switch"
+                {...label}
+                onChange={onViewAllQuestions}
+              />
+                   Show All Questions
+            </span>
+          </span>
         </AppBar>
       </div>
       <LoadingDialog
