@@ -219,11 +219,17 @@ function RecordPage(props: {
   }
 
   function updateTranscriptWithMarkdown(markdown: string) {
-    recordState.editAnswer({
-      transcript: markdown,
-      markdownTranscript: markdown,
-      hasEditedTranscript: markdown !== curAnswer?.answer.markdownTranscript,
-    });
+    recordState.editAnswer(
+      {
+        transcript: markdown,
+        markdownTranscript: markdown,
+        hasEditedTranscript: markdown !== curAnswer?.answer.markdownTranscript,
+      },
+      {
+        localTranscriptChanges:
+          markdown !== curAnswer?.answer.markdownTranscript,
+      }
+    );
   }
 
   useEffect(() => {

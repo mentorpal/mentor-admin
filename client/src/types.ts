@@ -438,7 +438,10 @@ export interface UseWithRecordState {
   reloadMentorData: () => void;
   nextAnswer: () => void;
   setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<Answer>) => void;
+  editAnswer: (
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) => void;
   editQuestion: (edits: Partial<Question>) => void;
   saveAnswer: () => Promise<void>;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
@@ -457,6 +460,7 @@ export interface AnswerState {
   editedAnswer: Answer;
   editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
+  localTranscriptChanges: boolean;
   recordedVideo?: File;
   minVideoLength?: number;
 }
