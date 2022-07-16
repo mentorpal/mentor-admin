@@ -10,3 +10,4 @@ declare module "*.jpeg";
 declare module "*.gif";
 declare module "draft-js-import-markdown";
 declare module "draft-js-export-markdown";
+declare module "components/record/virtual-bg.jpg";

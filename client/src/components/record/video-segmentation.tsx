@@ -57,7 +57,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     videoElement: HTMLVideoElement
   ) {
     const foreground: Color = { r: 0, g: 0, b: 0, a: 0 };
-    const background: Color = { r: 255, g: 255, b: 255, a: 255 };
+    const background: Color = { r: 74, g: 255, b: 20, a: 254 };
     const drawContour = false;
     const foregroundThresholdProbability = 0.5;
     const segmentation = await segmenter.segmentPeople(videoElement);
