@@ -88,7 +88,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it.only("shows splash and tooltips if mentor has not seen before", () => {
+  it("shows splash and tooltips if mentor has not seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,
