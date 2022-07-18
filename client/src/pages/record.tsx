@@ -52,10 +52,14 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { stateFromMarkdown } from "draft-js-import-markdown";
-import { stateToMarkdown } from "draft-js-export-markdown";
+import { mdToDraftjs, draftjsToMd } from "draftjs-md-converter";
+import {
+  EditorState,
+  ContentState,
+  convertToRaw,
+  convertFromRaw,
+} from "draft-js";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -194,31 +198,27 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-  const [transcriptText, setTranscriptText] = useState<string>("");
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(ContentState.createFromText(""))
   );
-  const markdownConfig = {
-    blockTypesMapping: {
-      /* mappings */
-    },
-    emptyLineBeforeBlock: true,
-  };
 
-  function updateTranscriptText(text: string) {
-    const contentState = stateFromMarkdown(text, markdownConfig);
-    const editorState = EditorState.createWithContent(contentState);
-    setEditorState(editorState);
-    setTranscriptText(text);
-    return transcriptText;
+  function initializeEditorStateWithTranscript(transcript: string): void {
+    const rawData = mdToDraftjs(transcript);
+    const contentState = convertFromRaw(rawData);
+    const newEditorState = EditorState.createWithContent(contentState);
+    setEditorState(newEditorState);
   }
 
   function getMarkdownFromEditor(contentState: ContentState): string {
-    const markdown: string = stateToMarkdown(contentState, markdownConfig);
+    const markdown: string = draftjsToMd(convertToRaw(contentState), {
+      BOLD: "**",
+      ITALICIZED: "~~",
+    });
     return markdown;
   }
 
-  function updateTranscriptWithMarkdown(markdown: string) {
+  function updateTranscriptWithMarkdown(markdown: string): void {
+    console.log(markdown);
     recordState.editAnswer(
       {
         transcript: markdown,
@@ -242,7 +242,7 @@ function RecordPage(props: {
     } else {
       text = curAnswer.answer.transcript;
     }
-    updateTranscriptText(text);
+    initializeEditorStateWithTranscript(text);
   }, [curAnswer?.answer]);
 
   function onBack() {
