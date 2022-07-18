@@ -1797,7 +1797,15 @@ export async function addOrUpdateMentorPanel(
           }
         }
       }`,
-      variables: { id, mentorPanel },
+      variables: {
+        id,
+        mentorPanel: {
+          subject: mentorPanel.subject,
+          mentors: mentorPanel.mentors,
+          title: mentorPanel.title,
+          subtitle: mentorPanel.subtitle,
+        },
+      },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
   );
@@ -1825,7 +1833,14 @@ export async function updateConfigFeatured(
           }
         }
       }`,
-      variables: { config },
+      variables: {
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          mentorsDefault: config.mentorsDefault,
+        },
+      },
     },
     { dataPath: ["me", "updateConfigFeatured"], accessToken }
   );
