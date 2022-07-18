@@ -536,7 +536,8 @@ export async function updateMyFirstTimeTracking(
       mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
         me{
           firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash
+            myMentorSplash,
+            tooltips,
           }
         }
       }
@@ -1170,7 +1171,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
               _id
             }
             firstTimeTracking{
-              myMentorSplash
+              myMentorSplash,
+              tooltips,
             }
           }
           accessToken

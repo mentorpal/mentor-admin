@@ -68,6 +68,23 @@ export const userSawSplashScreen = createAsyncThunk(
   }
 );
 
+// This is the action that calls the api and sets the userSawSplashScreen action in motion
+export const userSawTooltips = createAsyncThunk(
+  "login/userSawTooltips", //action
+  //callback function
+  async (accessToken: string) => {
+    try {
+      //promise
+      return await api.updateMyFirstTimeTracking(
+        { tooltips: true },
+        accessToken
+      );
+    } catch (err) {
+      throw new Error(extractErrorMessageFromError(err));
+    }
+  }
+);
+
 export const login = createAsyncThunk(
   "login/login",
   async (accessToken: string) => {
@@ -140,6 +157,11 @@ export const loginSlice = createSlice({
         if (state.user != undefined && action.payload != undefined) {
           state.user.firstTimeTracking.myMentorSplash =
             action.payload.myMentorSplash;
+        }
+      })
+      .addCase(userSawTooltips.fulfilled, (state, action) => {
+        if (state.user != undefined) {
+          state.user.firstTimeTracking.tooltips = action.payload.tooltips;
         }
       });
   },

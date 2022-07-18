@@ -17,7 +17,9 @@ import {
   NoteAdd,
 } from "@material-ui/icons";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import useQuestions from "store/slices/questions/useQuestions";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
 import { QuestionState } from "store/slices/questions";
 
 interface Category {
@@ -364,11 +366,14 @@ function unique(array: Category[]) {
 
 export function UseWithRecommendedAction(
   continueAction?: () => void
-): [Recommendation, () => void, number] {
+): [Recommendation, () => void, number, boolean] {
   const { getData } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((ms) => ms.data?.answers);
   const mentorQuestions = useQuestions(
     (s) => s.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
 
@@ -417,5 +422,10 @@ export function UseWithRecommendedAction(
     }
   }
 
-  return [recommendedAction, skipRecommendation, recListLength];
+  return [
+    recommendedAction,
+    skipRecommendation,
+    recListLength,
+    questionsLoading,
+  ];
 }

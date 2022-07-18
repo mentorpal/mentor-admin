@@ -32,6 +32,7 @@ export interface PageInfo {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  tooltips: boolean;
 }
 
 export interface User {

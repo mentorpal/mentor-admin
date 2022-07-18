@@ -23,6 +23,7 @@ import useQuestions, {
   isQuestionsLoading,
 } from "store/slices/questions/useQuestions";
 
+//order of the slides
 export enum SetupStepType {
   WELCOME = 0,
   MENTOR_INFO = 1,
