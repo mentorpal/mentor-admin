@@ -35,11 +35,10 @@ RECOMMENDER CLASS
 *****************/
 class Recommender<RecommenderState>{
   //all properties should be intialized in the constructor
-  recState: RecommenderState = undefined;
-  phases: Phase[] = [];
-  
+  recState: RecommenderState;
+  phases: Phase[];
 
-  public Recommender(recState: RecommenderState, phases: Phase[]){
+  constructor(recState: RecommenderState, phases: Phase[]){
     this.recState = recState;
     this.phases = phases;
   }
