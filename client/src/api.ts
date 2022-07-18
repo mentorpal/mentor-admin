@@ -1797,7 +1797,15 @@ export async function addOrUpdateMentorPanel(
           }
         }
       }`,
-      variables: { id, mentorPanel },
+      variables: {
+        id,
+        mentorPanel: {
+          subject: mentorPanel.subject,
+          mentors: mentorPanel.mentors,
+          title: mentorPanel.title,
+          subtitle: mentorPanel.subtitle,
+        },
+      },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
   );
