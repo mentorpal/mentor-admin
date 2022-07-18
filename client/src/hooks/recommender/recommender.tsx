@@ -35,8 +35,8 @@ RECOMMENDER CLASS
 *****************/
 class Recommender<RecommenderState>{
   //all properties should be intialized in the constructor
-  recState: RecommenderState;
-  phases: Phase[];
+  recState: RecommenderState = undefined;
+  phases: Phase[] = [];
   
 
   public Recommender(recState: RecommenderState, phases: Phase[]){
@@ -108,6 +108,11 @@ class Recommendation{
   }
 }
 
+
+
+
+// Pseudocode
+//
 // class Recommender<RecommenderState>{
 // 	public Recommender(recState: RecommenderState, phases: Phase[]):
 // 		self.recState = recState
