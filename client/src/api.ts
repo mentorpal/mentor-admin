@@ -1825,7 +1825,14 @@ export async function updateConfigFeatured(
           }
         }
       }`,
-      variables: { config },
+      variables: {
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          mentorsDefault: config.mentorsDefault,
+        },
+      },
     },
     { dataPath: ["me", "updateConfigFeatured"], accessToken }
   );
