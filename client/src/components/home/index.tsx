@@ -141,7 +141,7 @@ function HomePage(props: {
   const classes = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
-  const [idxTooltip, setIdxTooltip] = useState<number>(-1);
+  const [idxTooltip, setIdxTooltip] = useState<number>(0);
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -179,7 +179,9 @@ function HomePage(props: {
   );
   const { userSawSplashScreen, userSawTooltips } = loginState;
   const hasSeenTooltips = Boolean(
-    loginState.state.user?.firstTimeTracking.tooltips || localHasSeenTooltips
+    !hasSeenSplash ||
+      loginState.state.user?.firstTimeTracking.tooltips ||
+      localHasSeenTooltips
   );
 
   useEffect(() => {
@@ -255,7 +257,6 @@ function HomePage(props: {
   function closeDialog() {
     setLocalHasSeenSplash(true);
     userSawSplashScreen(props.accessToken);
-    incrementTooltip();
   }
 
   function closePreviewTooltip() {
