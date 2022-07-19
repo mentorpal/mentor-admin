@@ -212,7 +212,6 @@ function RecordPage(props: {
   function getMarkdownFromEditor(contentState: ContentState): string {
     const markdown: string = draftjsToMd(convertToRaw(contentState), {
       BOLD: "**",
-      ITALICIZED: "~~",
     });
     return markdown;
   }
