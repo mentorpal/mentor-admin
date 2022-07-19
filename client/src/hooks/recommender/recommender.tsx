@@ -40,7 +40,6 @@ class Recommender {
     this.phases = phases;
   }
 
-  //error occurring because recState is apparently not 100% equal to recState
   public getRecommendations() {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
