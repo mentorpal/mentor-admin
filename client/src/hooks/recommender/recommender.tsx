@@ -5,9 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-
 import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
-
 
 interface RecommenderState {
   mentorId: string;
@@ -33,129 +31,100 @@ interface RecommenderState {
 /*****************
 RECOMMENDER CLASS
 *****************/
-class Recommender<RecommenderState>{
-  //all properties should be intialized in the constructor
-  recState: RecommenderState;
-  phases: Phase[];
+class Recommender {
+  recState;
+  phases;
 
-  constructor(recState: RecommenderState, phases: Phase[]){
+  constructor(recState: RecommenderState, phases: Phase[]) {
     this.recState = recState;
     this.phases = phases;
   }
 
-  public getRecommendations(){
-    for(/*phase in this.phases */){
-      if(phase.isActive(this.recState)){
-        return phase.getRecommendations(this.recState);
+  //error occurring because recState is apparently not 100% equal to recState
+  public getRecommendations() {
+    for (let i = 0; i < this.phases.length; i++) {
+      if (this.phases[i].isActive(this.recState)) {
+        return this.phases[i].getRecommendations(this.recState);
       }
     }
-    return[]
+    return [];
   }
 }
 
 /**********
 PHASE CLASS
 ***********/
-class Phase{
+class Phase {
+  productionRoles;
+  activeCondition;
 
-  productionRoles = //another thing
-  activeCondition = //something
-
-  public Phase(activeCondition: (recState)=> boolean, productionRoles:ProductionRoles[]){
+  constructor(
+    activeCondition: (recState: RecommenderState) => boolean,
+    productionRoles: ProductionRoles[]
+  ) {
     this.productionRoles = productionRoles;
     this.activeCondition = activeCondition;
   }
 
-  public isActive(recState: RecommenderState){
+  public isActive(recState: RecommenderState) {
     return this.activeCondition(recState);
   }
 
-  public getRecommendations(){
-    //for productionRole in self.ProductionRoles:
-    // 			if productionRole.isActive(recState):
-    // 				return productionRole.getRecommendations(recState)
-    // 		return []
+  public getRecommendations(recState: RecommenderState) {
+    for (let i = 0; i < this.productionRoles.length; i++) {
+      if (this.productionRoles[i].isActive(recState)) {
+        return this.productionRoles[i].getRecommendations(recState);
+      }
+    }
+    return [];
   }
 }
 
 /*********************
 PRODUCTION ROLES CLASS
 *********************/
-class ProductionRoles{
+class ProductionRoles {
+  activeCondition;
+  actionRecommendations;
 
-
-  public ProductionRoles(activeCondition: (recState)=> boolean, actionRecommendations: Recommendation[]){
+  constructor(
+    activeCondition: (recState: RecommenderState) => boolean,
+    actionRecommendations: Recommendation[]
+  ) {
     this.activeCondition = activeCondition;
     this.actionRecommendations = actionRecommendations;
   }
 
-  public isActive(recState: RecommenderState){
-    return this.activeCondition(recState)
+  public isActive(recState: RecommenderState) {
+    return this.activeCondition(recState);
   }
 
-  public getRecommendations(recState: RecommenderState){
-    return this.actionRecommendations
+  public getRecommendations(recState: RecommenderState) {
+    return this.actionRecommendations;
   }
 }
 
 /********************
 RECOMMENDATION CLASS
 ********************/
-class Recommendation{
-  public Recommendation(actions:any, attributes:any, buttonText:any, icon: any, type:any){
+class Recommendation {
+  actions;
+  attributes;
+  buttonText;
+  icon;
+  type;
 
+  constructor(
+    actions: any,
+    attributes: any,
+    buttonText: any,
+    icon: any,
+    type: any
+  ) {
+    this.actions = actions;
+    this.attributes = attributes;
+    this.buttonText = buttonText;
+    this.icon = icon;
+    this.type = type;
   }
 }
-
-
-
-
-// Pseudocode
-//
-// class Recommender<RecommenderState>{
-// 	public Recommender(recState: RecommenderState, phases: Phase[]):
-// 		self.recState = recState
-// 		self.phases = phases
-	
-// 	public getRecommendations():
-// 		for phase in self.phases: # check phases in the order that they are provided
-// 			if phase.isActive(self.recState):
-// 				return phase.getRecommendations(self.recState)
-// 		return []
-// }
- 
-// class Phase{
-// 	public Phase(activeCondition: (recState)=>boolean, productionRoles: ProductionRoles[]):
-// 		self.productionRoles = productionRoles
-// 		self.activeCondition = activeCondition
- 
-// 	public isActive(recState: RecommenderState):
-// 		return self.activeCondition(recState)
-	
-// 	public getRecommendations(recState: RecommenderState):
-// 		for productionRole in self.ProductionRoles:
-// 			if productionRole.isActive(recState):
-// 				return productionRole.getRecommendations(recState)
-// 		return []
-// }
- 
-// class ProductionRoles{
-// 	public ProductionRoles(activeCondition: (recState)=>boolean, actionRecommendations: Recommendation[]):
-// 		self.activeCondition = activeCondition
-// 		self.actionRecommendations = actionRecommendations
- 
-// 	public isActive(recState: RecommenderState):
-// 		return self.activeCondition(recState)
-	
-// 	public getRecommendations(recState: RecommenderState):
-// 		return self.actionRecommendations
-// }
- 
-// class Recommendation{
-// 	public Recommendation(action, attributes, buttonText, icon, type):
-// 		self.action = action
-// 		self.attributes = attributes
-// 		self.buttonText = buttonText
-// 		self.icon = icon
-// 		self.type = type
-// 		# ... and whatever else a recommendation needs
