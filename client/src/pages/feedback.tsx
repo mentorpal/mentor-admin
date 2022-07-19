@@ -65,6 +65,7 @@ import { getValueIfKeyExists } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
+import { EmojiFoodBeverage } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -406,24 +407,21 @@ function FeedbackPage(): JSX.Element {
     });
   }, []);
 
+  //Trending code:
   const [viewAllQuestions, setViewAllQuestions] = useState<boolean>(false);
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     setViewAllQuestions(event.target.checked);
-    /*
-    if(viewAllQuestions){
-      sortFeedback({createdAt});
-    }*/
   }
 
-  const questionsToDisplay = feedback?.edges.filter(
-    (edge) =>
-    (viewAllQuestions ? 
-      edge.node
-      : 
-      edge.node.feedback === Feedback.BAD 
-      || edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
-      || edge.node.confidence <= -0.45)
+  const questionsToDisplay = feedback?.edges.filter((edge) =>
+    viewAllQuestions
+      ? edge.node
+      : (edge.node.feedback === Feedback.BAD ||
+          edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC ||
+          edge.node.confidence <= -0.45) &&
+        edge.node.graderAnswer === undefined
   );
+
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
   useEffect(() => {
@@ -466,7 +464,7 @@ function FeedbackPage(): JSX.Element {
       </div>
     );
   }
- 
+
   return (
     <div>
       <NavBar title="Feedback" mentorId={mentorId} />
@@ -667,13 +665,13 @@ function FeedbackPage(): JSX.Element {
             </Fab>
           </Toolbar>
           <span style={{ marginTop: 0 }}>
-            <span >
+            <span>
               <Switch
                 data-cy="subject-type-switch"
                 {...label}
                 onChange={onViewAllQuestions}
               />
-                   Show All Questions
+              Show All Questions
             </span>
           </span>
         </AppBar>
