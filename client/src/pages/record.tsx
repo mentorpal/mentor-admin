@@ -217,7 +217,6 @@ function RecordPage(props: {
   }
 
   function updateTranscriptWithMarkdown(markdown: string): void {
-    console.log(markdown);
     recordState.editAnswer(
       {
         transcript: markdown,
