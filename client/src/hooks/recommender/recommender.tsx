@@ -5,37 +5,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
-
-interface RecommenderState {
-  mentorId: string;
-  idle?: Answer;
-  intro?: Answer;
-  offTopic?: Answer;
-  introIncomplete: boolean;
-  idleIncomplete: boolean;
-  isVideo: boolean;
-  offTopicIncomplete: boolean;
-  hasThumbnail: boolean;
-  isDirty: boolean;
-  //categories: Category[];
-  //incompleteRequirement?: Category;
-  //firstIncomplete?: Category;
-  completedAnswers: number;
-  totalAnswers: number;
-  neverBuilt: boolean;
-  builttNeverPreview: boolean;
-  needSubject: boolean;
-}
-
 /*****************
 RECOMMENDER CLASS
 *****************/
-class Recommender {
-  recState;
-  phases;
+export class Recommender<IRecommender> {
+  recState: IRecommender;
+  phases: Phase<IRecommender>[];
 
-  constructor(recState: RecommenderState, phases: Phase[]) {
+  constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     this.recState = recState;
     this.phases = phases;
   }
@@ -53,23 +30,23 @@ class Recommender {
 /**********
 PHASE CLASS
 ***********/
-class Phase {
-  productionRoles;
+export class Phase<IRecommender> {
+  productionRoles: ProductionRule<IRecommender>[];
   activeCondition;
 
   constructor(
-    activeCondition: (recState: RecommenderState) => boolean,
-    productionRoles: ProductionRoles[]
+    activeCondition: (recState: IRecommender) => boolean,
+    productionRoles: ProductionRule<IRecommender>[]
   ) {
     this.productionRoles = productionRoles;
     this.activeCondition = activeCondition;
   }
 
-  public isActive(recState: RecommenderState) {
+  public isActive(recState: IRecommender) {
     return this.activeCondition(recState);
   }
 
-  public getRecommendations(recState: RecommenderState) {
+  public getRecommendations(recState: IRecommender) {
     for (let i = 0; i < this.productionRoles.length; i++) {
       if (this.productionRoles[i].isActive(recState)) {
         return this.productionRoles[i].getRecommendations(recState);
@@ -79,26 +56,45 @@ class Phase {
   }
 }
 
+/**
+ * "Example" of creating a single Production Rule
+ */
+// interface RecommenderInterface {
+//   setup: boolean;
+// }
+
+// function buildProductionRule() {
+//   const recommendation1 = new Recommendation(1, 2, 3, 4, 5);
+//   const recommendation2 = new Recommendation(5, 4, 3, 4, 5);
+//   const productionRule = new ProductionRule<RecommenderInterface>(
+//     (recState: RecommenderInterface) => {
+//       return recState.setup === true;
+//     },
+//     [recommendation1, recommendation2]
+//   );
+// }
+
 /*********************
 PRODUCTION ROLES CLASS
 *********************/
-class ProductionRoles {
+export class ProductionRule<IRecommender> {
   activeCondition;
   actionRecommendations;
 
   constructor(
-    activeCondition: (recState: RecommenderState) => boolean,
+    activeCondition: (recState: IRecommender) => boolean,
     actionRecommendations: Recommendation[]
   ) {
     this.activeCondition = activeCondition;
     this.actionRecommendations = actionRecommendations;
   }
 
-  public isActive(recState: RecommenderState) {
+  public isActive(recState: IRecommender) {
     return this.activeCondition(recState);
   }
 
-  public getRecommendations(recState: RecommenderState) {
+  public getRecommendations(recState: IRecommender) {
+    // TODO: perform importance calculations here?
     return this.actionRecommendations;
   }
 }
@@ -106,7 +102,7 @@ class ProductionRoles {
 /********************
 RECOMMENDATION CLASS
 ********************/
-class Recommendation {
+export class Recommendation {
   actions;
   attributes;
   buttonText;
