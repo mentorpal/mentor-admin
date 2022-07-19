@@ -56,23 +56,6 @@ export class Phase<IRecommender> {
   }
 }
 
-/**
- * "Example" of creating a single Production Rule
- */
-// interface RecommenderInterface {
-//   setup: boolean;
-// }
-
-// function buildProductionRule() {
-//   const recommendation1 = new Recommendation(1, 2, 3, 4, 5);
-//   const recommendation2 = new Recommendation(5, 4, 3, 4, 5);
-//   const productionRule = new ProductionRule<RecommenderInterface>(
-//     (recState: RecommenderInterface) => {
-//       return recState.setup === true;
-//     },
-//     [recommendation1, recommendation2]
-//   );
-// }
 
 /*********************
 PRODUCTION ROLES CLASS
@@ -103,23 +86,11 @@ export class ProductionRule<IRecommender> {
 RECOMMENDATION CLASS
 ********************/
 export class Recommendation {
-  actions;
-  attributes;
-  buttonText;
-  icon;
-  type;
+  weightedAttributes = {};
 
   constructor(
-    actions: any,
-    attributes: any,
-    buttonText: any,
-    icon: any,
-    type: any
+    weightedAttributes: {}
   ) {
-    this.actions = actions;
-    this.attributes = attributes;
-    this.buttonText = buttonText;
-    this.icon = icon;
-    this.type = type;
+  this.weightedAttributes = weightedAttributes;
   }
 }
