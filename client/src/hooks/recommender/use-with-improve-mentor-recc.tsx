@@ -26,17 +26,21 @@ interface RecommenderInterface {
   neverBuilt: boolean;
   builttNeverPreview: boolean;
   needSubject: boolean;
-  }
-  
-  function buildProductionRule() {
-    const recommendation1 = new Recommendation({coverage_attribute: 2, setup_attribute: 3});
-    const recommendation2 = new Recommendation({coverage_attribute: 2, offTopic_attribute: 1});
-    const productionRule = new ProductionRule<RecommenderInterface>(
-      (recState: RecommenderInterface) => {
-        return (recState.offTopic === true) ;
-      },
-      [recommendation1, recommendation2]
-    );
-  }
+}
 
-
+function buildProductionRule() {
+  const recommendation1 = new Recommendation({
+    coverage_attribute: 2,
+    setup_attribute: 3,
+  });
+  const recommendation2 = new Recommendation({
+    coverage_attribute: 2,
+    offTopic_attribute: 1,
+  });
+  const productionRule = new ProductionRule<RecommenderInterface>(
+    (recState: RecommenderInterface) => {
+      return recState.offTopic === true;
+    },
+    [recommendation1, recommendation2]
+  );
+}

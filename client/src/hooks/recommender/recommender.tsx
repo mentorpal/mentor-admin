@@ -33,13 +33,16 @@ PHASE CLASS
 export class Phase<IRecommender> {
   productionRoles: ProductionRule<IRecommender>[];
   activeCondition;
+  weightedAttributesMap: {};
 
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
-    productionRoles: ProductionRule<IRecommender>[]
+    productionRoles: ProductionRule<IRecommender>[],
+    weightedAttributesMap: {}
   ) {
     this.productionRoles = productionRoles;
     this.activeCondition = activeCondition;
+    this.weightedAttributesMap = weightedAttributesMap;
   }
 
   public isActive(recState: IRecommender) {
@@ -56,9 +59,8 @@ export class Phase<IRecommender> {
   }
 }
 
-
 /*********************
-PRODUCTION ROLES CLASS
+PRODUCTION RULES CLASS
 *********************/
 export class ProductionRule<IRecommender> {
   activeCondition;
@@ -86,11 +88,9 @@ export class ProductionRule<IRecommender> {
 RECOMMENDATION CLASS
 ********************/
 export class Recommendation {
-  weightedAttributes = {};
+  scoredAttributes = {};
 
-  constructor(
-    weightedAttributes: {}
-  ) {
-  this.weightedAttributes = weightedAttributes;
+  constructor(scoredAttributes: {}) {
+    this.scoredAttributes = scoredAttributes;
   }
 }
