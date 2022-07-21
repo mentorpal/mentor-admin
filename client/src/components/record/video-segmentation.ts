@@ -40,6 +40,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   function createSelfieSegmentation(): SelfieSegmentation {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
+        console.log(file)
         return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
       },
     });
@@ -90,14 +91,9 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       return;
     }
     const videoRecorder = getVideoRecorder();
-    const camera = new Camera(videoRecorder as HTMLVideoElement, {
-      onFrame: async () => {
-        await selfieSegmenter.send({
-          image: videoRecorder as HTMLVideoElement,
-        });
-      },
+    await selfieSegmenter.send({
+      image: videoRecorder as HTMLVideoElement,
     });
-    camera.start();
   }
   return {
     segmentVideoAndDrawToCanvas,
