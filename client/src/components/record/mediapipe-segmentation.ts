@@ -22,23 +22,9 @@ export interface UseWithVideoSegmentation {
 }
 
 export function useWithVideoSegmentation(): UseWithVideoSegmentation {
-  const [segmenter, setSegmenter] = useState<
-    bodySegmentation.BodySegmenter | SelfieSegmentation
-  >();
-
-  useEffect(() => {
-    buildVideoSegmenter()
-      .then((segmenter) => {
-        setSegmenter(segmenter);
-      })
-      .catch((err) => {
-        console.error("Failed to build segmenter", err);
-      });
-  }, []);
-
-  // const opacity = 1;
-  // const flipHorizontal = false;
-  // const maskBlurAmount = 0;
+  const [selfieSegmenter] = useState<SelfieSegmentation>(
+    createSelfieSegmentation()
+  );
 
   function getVideoRecorder() {
     return document.querySelectorAll("[data-cy=video-recorder]")[1];
@@ -57,19 +43,8 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     return canvas.getContext("2d");
   }
 
-  async function buildVideoSegmenter(): Promise<bodySegmentation.BodySegmenter> {
-    const model = bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation;
-    const segmenterConfig: MediaPipeSelfieSegmentationMediaPipeModelConfig = {
-      runtime: "mediapipe",
-      solutionPath:
-        "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
-      modelType: "landscape",
-    };
-    return await bodySegmentation.createSegmenter(model, segmenterConfig);
-  }
-
   ////////////////////////////////////////////////////////////////////////////////
-  function createSelfieSegmentation() {
+  function createSelfieSegmentation(): SelfieSegmentation {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
@@ -79,11 +54,12 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       modelSelection: 1,
     });
     selfieSegmentation.onResults(onResults);
+    return selfieSegmentation;
   }
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   function onResults(results: any): void {
-    if (!segmenter) {
+    if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
     }
@@ -117,15 +93,16 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   ////////////////////////////////////////////////////////////////////////////////
 
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
-    if (!segmenter) {
+    if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
     }
     const videoRecorder = getVideoRecorder();
-    const selfieSegmentation = createSelfieSegmentation();
     const camera = new Camera(videoRecorder as HTMLVideoElement, {
       onFrame: async () => {
-        await selfieSegmentation.send({ image: videoRecorder });
+        await selfieSegmenter.send({
+          image: videoRecorder as HTMLVideoElement,
+        });
       },
       width:
         windowHeight > windowWidth
