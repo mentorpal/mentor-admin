@@ -6,16 +6,10 @@ The full terms of this copyright and license should always be found in the root 
 */
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
-import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import "@mediapipe/selfie_segmentation";
-import { MediaPipeSelfieSegmentationMediaPipeModelConfig } from "@tensorflow-models/body-segmentation";
-import { useEffect, useState } from "react";
-import { Color } from "@tensorflow-models/body-segmentation/dist/shared/calculators/interfaces/common_interfaces";
+import { useState } from "react";
 import { Camera } from "@mediapipe/camera_utils";
-import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
-
-const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
 export interface UseWithVideoSegmentation {
   segmentVideoAndDrawToCanvas: () => void;
@@ -43,7 +37,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     return canvas.getContext("2d");
   }
 
-  ////////////////////////////////////////////////////////////////////////////////
   function createSelfieSegmentation(): SelfieSegmentation {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
@@ -55,9 +48,8 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     });
     selfieSegmentation.onResults(onResults);
     return selfieSegmentation;
-  }
-  ////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////
+  } 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onResults(results: any): void {
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
@@ -90,9 +82,9 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       canvasCtx.restore();
     }
   }
-  ////////////////////////////////////////////////////////////////////////////////
-
+  
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
+    //const { width: windowWidth, height: windowHeight } = useWithWindowSize();
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
@@ -104,14 +96,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
           image: videoRecorder as HTMLVideoElement,
         });
       },
-      width:
-        windowHeight > windowWidth
-          ? windowWidth
-          : Math.max(windowHeight - 600, 300) * (16 / 9),
-      height:
-        windowHeight > windowWidth
-          ? windowWidth * (9 / 16)
-          : Math.max(windowHeight - 600, 300),
     });
     camera.start();
   }
