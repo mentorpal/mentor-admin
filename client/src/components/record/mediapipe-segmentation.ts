@@ -22,7 +22,9 @@ export interface UseWithVideoSegmentation {
 }
 
 export function useWithVideoSegmentation(): UseWithVideoSegmentation {
-  const [segmenter, setSegmenter] = useState<bodySegmentation.BodySegmenter>();
+  const [segmenter, setSegmenter] = useState<
+    bodySegmentation.BodySegmenter | SelfieSegmentation
+  >();
 
   useEffect(() => {
     buildVideoSegmenter()
@@ -34,9 +36,9 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       });
   }, []);
 
-  const opacity = 1;
-  const flipHorizontal = false;
-  const maskBlurAmount = 0;
+  // const opacity = 1;
+  // const flipHorizontal = false;
+  // const maskBlurAmount = 0;
 
   function getVideoRecorder() {
     return document.querySelectorAll("[data-cy=video-recorder]")[1];
@@ -44,6 +46,15 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
 
   function getCanvas() {
     return document.querySelector("[data-cy=draw-canvas]");
+  }
+
+  function getCanvasContext(
+    canvas: HTMLCanvasElement
+  ): CanvasRenderingContext2D | null {
+    if (canvas == null) {
+      return null;
+    }
+    return canvas.getContext("2d");
   }
 
   async function buildVideoSegmenter(): Promise<bodySegmentation.BodySegmenter> {
@@ -72,53 +83,38 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
   function onResults(results: any): void {
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(
-      results.segmentationMask,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
+    if (!segmenter) {
+      // If no segmenter, try to create it and set to state
+      return;
+    }
+    const canvas = getCanvas() as HTMLCanvasElement;
+    const canvasCtx = getCanvasContext(canvas);
+    if (canvasCtx == null) {
+      return;
+    } else {
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.drawImage(
+        results.segmentationMask,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
-    // Only overwrite existing pixels.
-    canvasCtx.globalCompositeOperation = "source-in";
-    canvasCtx.fillStyle = "#00FF00";
-    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+      // Only overwrite existing pixels.
+      canvasCtx.globalCompositeOperation = "source-in";
+      canvasCtx.fillStyle = "#00FF00";
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Only overwrite missing pixels.
-    canvasCtx.globalCompositeOperation = "destination-atop";
-    canvasCtx.drawImage(
-      results.image,
-      0,
-      0,
-      canvasElement.width,
-      canvasElement.height
-    );
+      // Only overwrite missing pixels.
+      canvasCtx.globalCompositeOperation = "destination-atop";
+      canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
-    canvasCtx.restore();
+      canvasCtx.restore();
+    }
   }
   ////////////////////////////////////////////////////////////////////////////////
-
-  // async function segmentVideoToBinaryMask(
-  //   segmenter: bodySegmentation.BodySegmenter,
-  //   videoElement: HTMLVideoElement
-  // ) {
-  //   const foreground: Color = { r: 0, g: 0, b: 0, a: 0 };
-  //   const background: Color = { r: 0, g: 255, b: 0, a: 255 };
-  //   const drawContour = false;
-  //   const foregroundThresholdProbability = 0.5;
-  //   const segmentation = await segmenter.segmentPeople(videoElement);
-  //   const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
-  //     segmentation,
-  //     foreground,
-  //     background,
-  //     drawContour,
-  //     foregroundThresholdProbability
-  //   );
-  //   return segmentationBinaryMask;
-  // }
 
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
     if (!segmenter) {
@@ -126,25 +122,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       return;
     }
     const videoRecorder = getVideoRecorder();
-    const canvas = getCanvas();
-    if (!videoRecorder) {
-      throw new Error("No video player found");
-    }
-    if (!canvas) {
-      throw new Error("No canvas found");
-    }
-    // const segmentationBinaryMask = await segmentVideoToBinaryMask(
-    //   segmenter,
-    //   videoRecorder as HTMLVideoElement
-    // );
-    // bodySegmentation.drawMask(
-    //   canvas as HTMLCanvasElement,
-    //   videoRecorder as HTMLVideoElement,
-    //   segmentationBinaryMask as ImageData,
-    //   opacity,
-    //   maskBlurAmount,
-    //   flipHorizontal
-    // );
     const selfieSegmentation = createSelfieSegmentation();
     const camera = new Camera(videoRecorder as HTMLVideoElement, {
       onFrame: async () => {
@@ -161,7 +138,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     });
     camera.start();
   }
-
   return {
     segmentVideoAndDrawToCanvas,
   };
