@@ -72,11 +72,11 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
 
       // Only overwrite existing pixels.
       canvasCtx.globalCompositeOperation = "source-in";
-      canvasCtx.fillStyle = "#00FF00";
+      // canvasCtx.fillStyle = "#00FF00";
       canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Only overwrite missing pixels.
-      canvasCtx.globalCompositeOperation = "destination-atop";
+      // canvasCtx.globalCompositeOperation = "destination-atop";
       canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
       canvasCtx.restore();
