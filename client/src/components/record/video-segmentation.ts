@@ -48,7 +48,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     });
     selfieSegmentation.onResults(onResults);
     return selfieSegmentation;
-  } 
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onResults(results: any): void {
     if (!selfieSegmenter) {
@@ -82,7 +82,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       canvasCtx.restore();
     }
   }
-  
+
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
     //const { width: windowWidth, height: windowHeight } = useWithWindowSize();
     if (!selfieSegmenter) {

@@ -13,7 +13,7 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
-import { useWithVideoSegmentation } from "components/record/mediapipe-segmentation";
+import { useWithVideoSegmentation } from "components/record/video-segmentation";
 
 function VideoRecorder({
   classes,
