@@ -58,7 +58,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-  function createSelfieSegmenter() {
+  function createSelfieSegmentation() {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
@@ -71,7 +71,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   }
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-  function onResults(results) {
+  function onResults(results: any): void {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(
@@ -101,24 +101,24 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   }
   ////////////////////////////////////////////////////////////////////////////////
 
-  async function segmentVideoToBinaryMask(
-    segmenter: bodySegmentation.BodySegmenter,
-    videoElement: HTMLVideoElement
-  ) {
-    const foreground: Color = { r: 0, g: 0, b: 0, a: 0 };
-    const background: Color = { r: 0, g: 255, b: 0, a: 255 };
-    const drawContour = false;
-    const foregroundThresholdProbability = 0.5;
-    const segmentation = await segmenter.segmentPeople(videoElement);
-    const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
-      segmentation,
-      foreground,
-      background,
-      drawContour,
-      foregroundThresholdProbability
-    );
-    return segmentationBinaryMask;
-  }
+  // async function segmentVideoToBinaryMask(
+  //   segmenter: bodySegmentation.BodySegmenter,
+  //   videoElement: HTMLVideoElement
+  // ) {
+  //   const foreground: Color = { r: 0, g: 0, b: 0, a: 0 };
+  //   const background: Color = { r: 0, g: 255, b: 0, a: 255 };
+  //   const drawContour = false;
+  //   const foregroundThresholdProbability = 0.5;
+  //   const segmentation = await segmenter.segmentPeople(videoElement);
+  //   const segmentationBinaryMask = await bodySegmentation.toBinaryMask(
+  //     segmentation,
+  //     foreground,
+  //     background,
+  //     drawContour,
+  //     foregroundThresholdProbability
+  //   );
+  //   return segmentationBinaryMask;
+  // }
 
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
     if (!segmenter) {
@@ -133,19 +133,19 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     if (!canvas) {
       throw new Error("No canvas found");
     }
-    const segmentationBinaryMask = await segmentVideoToBinaryMask(
-      segmenter,
-      videoRecorder as HTMLVideoElement
-    );
-    bodySegmentation.drawMask(
-      canvas as HTMLCanvasElement,
-      videoRecorder as HTMLVideoElement,
-      segmentationBinaryMask as ImageData,
-      opacity,
-      maskBlurAmount,
-      flipHorizontal
-    );
-
+    // const segmentationBinaryMask = await segmentVideoToBinaryMask(
+    //   segmenter,
+    //   videoRecorder as HTMLVideoElement
+    // );
+    // bodySegmentation.drawMask(
+    //   canvas as HTMLCanvasElement,
+    //   videoRecorder as HTMLVideoElement,
+    //   segmentationBinaryMask as ImageData,
+    //   opacity,
+    //   maskBlurAmount,
+    //   flipHorizontal
+    // );
+    const selfieSegmentation = createSelfieSegmentation();
     const camera = new Camera(videoRecorder as HTMLVideoElement, {
       onFrame: async () => {
         await selfieSegmentation.send({ image: videoRecorder });
