@@ -13,50 +13,9 @@ import { useEffect, useState } from "react";
 import { Color } from "@tensorflow-models/body-segmentation/dist/shared/calculators/interfaces/common_interfaces";
 import { Camera } from "@mediapipe/camera_utils";
 import { useWithWindowSize } from "hooks/use-with-window-size";
+import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-
-////////////////////////////////////////////////////////////////////////////////
-function onResults(results) {
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  canvasCtx.drawImage(
-    results.segmentationMask,
-    0,
-    0,
-    canvasElement.width,
-    canvasElement.height
-  );
-
-  // Only overwrite existing pixels.
-  canvasCtx.globalCompositeOperation = "source-in";
-  canvasCtx.fillStyle = "#00FF00";
-  canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-
-  // Only overwrite missing pixels.
-  canvasCtx.globalCompositeOperation = "destination-atop";
-  canvasCtx.drawImage(
-    results.image,
-    0,
-    0,
-    canvasElement.width,
-    canvasElement.height
-  );
-
-  canvasCtx.restore();
-}
-
-const selfieSegmentation = new SelfieSegmentation({
-  locateFile: (file) => {
-    return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
-  },
-});
-selfieSegmentation.setOptions({
-  modelSelection: 1,
-});
-selfieSegmentation.onResults(onResults);
-
-////////////////////////////////////////////////////////////////////////////////
 
 export interface UseWithVideoSegmentation {
   segmentVideoAndDrawToCanvas: () => void;
@@ -97,6 +56,50 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     };
     return await bodySegmentation.createSegmenter(model, segmenterConfig);
   }
+
+  ////////////////////////////////////////////////////////////////////////////////
+  function createSelfieSegmenter() {
+    const selfieSegmentation = new SelfieSegmentation({
+      locateFile: (file: string) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+      },
+    });
+    selfieSegmentation.setOptions({
+      modelSelection: 1,
+    });
+    selfieSegmentation.onResults(onResults);
+  }
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
+  function onResults(results) {
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    canvasCtx.drawImage(
+      results.segmentationMask,
+      0,
+      0,
+      canvasElement.width,
+      canvasElement.height
+    );
+
+    // Only overwrite existing pixels.
+    canvasCtx.globalCompositeOperation = "source-in";
+    canvasCtx.fillStyle = "#00FF00";
+    canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+    // Only overwrite missing pixels.
+    canvasCtx.globalCompositeOperation = "destination-atop";
+    canvasCtx.drawImage(
+      results.image,
+      0,
+      0,
+      canvasElement.width,
+      canvasElement.height
+    );
+
+    canvasCtx.restore();
+  }
+  ////////////////////////////////////////////////////////////////////////////////
 
   async function segmentVideoToBinaryMask(
     segmenter: bodySegmentation.BodySegmenter,
