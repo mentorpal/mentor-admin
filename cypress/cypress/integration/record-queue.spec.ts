@@ -175,7 +175,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            fetchMentorRecordQueue: [],
+            fetchMentorRecordQueue: ["A5_1_1"],
           },
         }),
       ],
@@ -192,6 +192,26 @@ describe("Home Page", () => {
     cy.get("[data-cy=select-subject]").click();
     cy.get("[data-cy=select-idle_and_initial_recordings]").click();
     cy.get("[data-cy=queue-block]").should("exist");
+  });
+  it("Queue card not rendered if queue is empty", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: [],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    expect(Cypress.$("[data-cy=queue-block]")).not.to.exist;
   });
   it("Can record all queued questions", () => {
     cyMockDefault(cy, {
@@ -230,7 +250,7 @@ describe("Home Page", () => {
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            fetchMentorRecordQueue: ["A6_1_2", "A5_1_1"],
+            fetchMentorRecordQueue: ["A5_1_1", "A6_1_2"],
           },
         }),
       ],
@@ -242,7 +262,7 @@ describe("Home Page", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-all-queue]").click();
-    cy.location("search").should("equal", "?videoId=A6_1_2&videoId=A5_1_1");
+    cy.location("search").should("equal", "?videoId=A5_1_1&videoId=A6_1_2");
   });
   it("Can record a single queue question", () => {
     cyMockDefault(cy, {
@@ -284,7 +304,6 @@ describe("Home Page", () => {
       assert($el.replace("/admin", ""), "/");
     });
     cy.get("[data-cy=setup-no]").click();
-    cy.get("[data-cy=queue-expand-btn]").click();
-    cy.contains("Queued (0)");
+    expect(Cypress.$("[data-cy=queue-block]")).not.to.exist;
   });
 });

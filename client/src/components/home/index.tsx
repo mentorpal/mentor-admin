@@ -46,9 +46,11 @@ import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import QueueBlockItem from "./queue-block";
-import { fetchMentorRecordQueue } from "api";
+import { fetchMentorRecordQueue, removeQuestionFromRecordQueue } from "api";
 import useQuestions from "store/slices/questions/useQuestions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { QuestionState } from "store/slices/questions";
+import { Console } from "console";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -136,6 +138,7 @@ function HomePage(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -153,6 +156,22 @@ function HomePage(props: {
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
       localHasSeenSplash
   );
+
+  const [queueIDList, setQueueIDList] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchMentorRecordQueue(props.accessToken).then((queueIDList) => {
+      setQueueIDList(queueIDList);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!mentorAnswers || !queueIDList.length) {
+      return;
+    }
+    updateQueue(queueIDList, mentorAnswers);
+  }, [mentorAnswers?.map((answer) => answer.status)]);
+
   const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
@@ -161,14 +180,6 @@ function HomePage(props: {
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
-
-  //const queueList = fetchMentorRecordQueue(props.accessToken); // changes
-  const [queueList, setQueueList] = useState<string[]>([]);
-  useEffect(() => {
-    fetchMentorRecordQueue(props.accessToken).then((queueList) => {
-      setQueueList(queueList);
-    });
-  }, []);
 
   if (!(mentorId && setupStatus)) {
     return (
@@ -227,6 +238,30 @@ function HomePage(props: {
         question.originalQuestion.clientId || question.originalQuestion._id
       );
     }
+  }
+  function updateQueue(queueIDList: string[], mentorAnswers: Answer[]) {
+    // remove answered questions from queue
+    if (mentorAnswers) {
+      mentorAnswers.forEach(async (e) => {
+        if (queueIDList.includes(e._id) && e.status == "COMPLETE") {
+          setQueueIDList(
+            await removeQuestionFromRecordQueue(props.accessToken, e._id)
+          );
+        }
+      });
+    }
+  }
+
+  function getQueueQuestions(
+    queueIDList: string[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    const queueQuestions: string[] = [];
+    // get question string
+    queueIDList.forEach((a) => {
+      queueQuestions.push(mentorQuestions[a].question?.question || "");
+    });
+    return queueQuestions;
   }
 
   return (
@@ -300,24 +335,23 @@ function HomePage(props: {
           ))}
         </Select>
       </div>
-
-      <List
-        data-cy="queue-block"
-        style={{
-          flex: "auto",
-          backgroundColor: "#eee",
-        }}
-      >
-        <ListItem>
-          <QueueBlockItem
-            classes={classes}
-            queueIDList={queueList}
-            mentorQuestions={mentorQuestions}
-            mentorAnswers={mentorAnswers}
-          />
-        </ListItem>
-      </List>
-
+      {queueIDList.length != 0 ? (
+        <List
+          data-cy="queue-block"
+          style={{
+            flex: "auto",
+            backgroundColor: "#eee",
+          }}
+        >
+          <ListItem>
+            <QueueBlockItem
+              classes={classes}
+              queueIDList={queueIDList}
+              queuedQuestions={getQueueQuestions(queueIDList, mentorQuestions)}
+            />
+          </ListItem>
+        </List>
+      ) : undefined}
       <List
         data-cy="recording-blocks"
         style={{
