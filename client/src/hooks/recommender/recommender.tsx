@@ -31,16 +31,16 @@ export class Recommender<IRecommender> {
 PHASE CLASS
 ***********/
 export class Phase<IRecommender> {
-  productionRoles: ProductionRule<IRecommender>[];
+  productionRules: ProductionRule<IRecommender>[];
   activeCondition;
   weightedAttributesMap: {};
 
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
-    productionRoles: ProductionRule<IRecommender>[],
+    productionRules: ProductionRule<IRecommender>[],
     weightedAttributesMap: {}
   ) {
-    this.productionRoles = productionRoles;
+    this.productionRules = productionRules;
     this.activeCondition = activeCondition;
     this.weightedAttributesMap = weightedAttributesMap;
   }
@@ -50,9 +50,9 @@ export class Phase<IRecommender> {
   }
 
   public getRecommendations(recState: IRecommender) {
-    for (let i = 0; i < this.productionRoles.length; i++) {
-      if (this.productionRoles[i].isActive(recState)) {
-        return this.productionRoles[i].getRecommendations(recState);
+    for (let i = 0; i < this.productionRules.length; i++) {
+      if (this.productionRules[i].isActive(recState)) {
+        return this.productionRules[i].getRecommendations(recState);
       }
     }
     return [];
@@ -89,8 +89,10 @@ RECOMMENDATION CLASS
 ********************/
 export class Recommendation {
   scoredAttributes = {};
+  message;
 
-  constructor(scoredAttributes: {}) {
+  constructor(scoredAttributes: {}, message: string) {
     this.scoredAttributes = scoredAttributes;
+    this.message = message;
   }
 }
