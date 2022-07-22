@@ -26,7 +26,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
-
 import {
   LoadingDialog,
   ErrorDialog,

@@ -8,7 +8,6 @@ import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
 import { useState } from "react";
-import { Camera } from "@mediapipe/camera_utils";
 import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 export interface UseWithVideoSegmentation {
@@ -40,7 +39,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   function createSelfieSegmentation(): SelfieSegmentation {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
-        console.log(file)
+        console.log(file);
         return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
       },
     });
