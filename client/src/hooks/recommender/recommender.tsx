@@ -5,21 +5,32 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+// A master list of all possible attributes, this list should also have an typescript interface to type the list
+// Attributes from this list are provided to the Recommendations
+export interface MasterList {
+  coverage_attribute: number;
+  setup_attribute: number;
+  offTopic_attribute: number;
+}
+
 /*****************
 RECOMMENDER CLASS
 *****************/
 export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
+  weightedAttributesMap: {};
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
     this.recState = recState;
     this.phases = phases;
+
+    const gettingAttributes = this.phases.getRecommendations();
+    this.weightedAttributesMap = {};
   }
 
   // TODO: Implement function that, given recommendations, calculates all their weights and returns them in weighted sorted order
-
   public getRecommendations() {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
@@ -82,7 +93,6 @@ export class ProductionRule<IRecommender> {
   }
 
   public getRecommendations(recState: IRecommender) {
-    // TODO: perform importance calculations here?
     return this.actionRecommendations;
   }
 }
@@ -97,5 +107,9 @@ export class Recommendation {
   constructor(scoredAttributes: {}, message: string) {
     this.scoredAttributes = scoredAttributes;
     this.message = message;
+  }
+
+  public getScoredAttributes() {
+    return this.scoredAttributes;
   }
 }

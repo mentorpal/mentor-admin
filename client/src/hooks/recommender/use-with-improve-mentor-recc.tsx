@@ -10,33 +10,40 @@ import {
   ProductionRule,
   Phase,
   Recommender,
+  MasterList,
 } from "./recommender";
 
 interface RecommenderInterface {
-  mentorId: string;
-  idle?: boolean;
-  intro?: boolean;
-  offTopic?: boolean;
-  introIncomplete: boolean;
-  idleIncomplete: boolean;
-  isVideo: boolean;
-  offTopicIncomplete: boolean;
-  hasThumbnail: boolean;
-  isDirty: boolean;
-  categories: boolean;
-  incompleteRequirement?: boolean;
-  firstIncomplete?: boolean;
-  completedAnswers: boolean;
-  totalAnswers: boolean;
-  neverBuilt: boolean;
-  builttNeverPreview: boolean;
-  needSubject: boolean;
+  // mentorId: string;
+  // idle?: boolean;
+  // intro?: boolean;
+  // offTopic?: boolean;
+  intro: boolean;
+  //idleIncomplete: boolean;
+  //isVideo: boolean;
+  offTopic: boolean;
+  // hasThumbnail: boolean;
+  // isDirty: boolean;
+  // categories: boolean;
+  // incompleteRequirement?: boolean;
+  // firstIncomplete?: boolean;
+  // completedAnswers: boolean;
+  // totalAnswers: boolean;
+  // neverBuilt: boolean;
+  // builttNeverPreview: boolean;
+  // needSubject: boolean;
 }
 
-const mockCurrentState: RecommenderInterface = {};
+const mockCurrentState: RecommenderInterface = {
+  intro: true,
+  offTopic: true,
+};
 
-// TODO: Create a master list of all possible attributes, this list should also have an typescript interface to type the list
-// Attributes from this list are provided to the Recommendations
+const masterAttributes: MasterList = {
+  coverage_attribute: 0,
+  setup_attribute: 0,
+  offTopic_attribute: 0,
+};
 
 /**
  * the first testing production rule
