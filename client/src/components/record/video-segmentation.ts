@@ -8,7 +8,7 @@ import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
 import { useState } from "react";
-import { SelfieSegmentation } from "@mediapipe/selfie_segmentation";
+import { Results, SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 export interface UseWithVideoSegmentation {
   segmentVideoAndDrawToCanvas: () => void;
@@ -50,7 +50,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     return selfieSegmentation;
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function onResults(results: any): void {
+  function onResults(results: Results): void {
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
@@ -59,28 +59,27 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     const canvasCtx = getCanvasContext(canvas);
     if (canvasCtx == null) {
       return;
-    } else {
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-      canvasCtx.drawImage(
-        results.segmentationMask,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-      // Only overwrite existing pixels.
-      canvasCtx.globalCompositeOperation = "source-in";
-      // canvasCtx.fillStyle = "#00FF00";
-      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Only overwrite missing pixels.
-      // canvasCtx.globalCompositeOperation = "destination-atop";
-      canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-      canvasCtx.restore();
     }
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+    canvasCtx.drawImage(
+      results.segmentationMask,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    // Only overwrite existing pixels.
+    canvasCtx.globalCompositeOperation = "source-in";
+    canvasCtx.fillStyle = "#00FF00";
+    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Only overwrite missing pixels.
+    // canvasCtx.globalCompositeOperation = "destination-atop";
+    canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+
+    canvasCtx.restore();
   }
 
   async function segmentVideoAndDrawToCanvas(): Promise<void> {

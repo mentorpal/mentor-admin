@@ -407,15 +407,13 @@ function RecordPage(props: {
                 display: "block",
                 // border: "1px solid black",
                 margin: "auto",
-                height:
-                  windowHeight > windowWidth
-                    ? windowWidth * (9 / 16)
-                    : Math.max(windowHeight - 600, 300),
-                width:
-                  windowHeight > windowWidth
-                    ? windowWidth
-                    : Math.max(windowHeight - 600, 300) * (16 / 9),
               }}
+              width={windowHeight > windowWidth
+                ? windowWidth
+                : Math.max(windowHeight - 600, 300) * (16 / 9)}
+              height={windowHeight > windowWidth
+                ? windowWidth * (9 / 16)
+                : Math.max(windowHeight - 600, 300)}
             />
             <VideoPlayer
               classes={classes}
