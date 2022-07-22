@@ -13,9 +13,12 @@ export class Recommender<IRecommender> {
   phases: Phase<IRecommender>[];
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
+    // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
     this.recState = recState;
     this.phases = phases;
   }
+
+  // TODO: Implement function that, given recommendations, calculates all their weights and returns them in weighted sorted order
 
   public getRecommendations() {
     for (let i = 0; i < this.phases.length; i++) {

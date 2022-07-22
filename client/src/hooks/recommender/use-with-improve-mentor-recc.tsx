@@ -5,7 +5,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { Recommendation, ProductionRule, Phase, Recommender } from "./recommender";
+import {
+  Recommendation,
+  ProductionRule,
+  Phase,
+  Recommender,
+} from "./recommender";
 
 interface RecommenderInterface {
   mentorId: string;
@@ -27,6 +32,11 @@ interface RecommenderInterface {
   builttNeverPreview: boolean;
   needSubject: boolean;
 }
+
+const mockCurrentState: RecommenderInterface = {};
+
+// TODO: Create a master list of all possible attributes, this list should also have an typescript interface to type the list
+// Attributes from this list are provided to the Recommendations
 
 /**
  * the first testing production rule
@@ -58,7 +68,7 @@ function buildProductionRule() {
 /**
  * Creation of phases happen in this file and then they get passed into the recommender constructor
  */
- function setupPhase() {
+function setupPhase() {
   const mapping = {
     setup_attribute: 2,
   };
@@ -76,10 +86,10 @@ function buildProductionRule() {
 /**
  * Calling the recommender
  */
-function callingRecommender(){
+function callingRecommender() {
   const phase = [setupPhase()];
-  const recommendationOrder = new Recommender(
-    RecommenderInterface,
+  const recommendationOrder = new Recommender<RecommenderInterface>(
+    mockCurrentState,
     phase
   );
 }
