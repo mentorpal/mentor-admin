@@ -126,7 +126,7 @@ function VideoRecorder({
     () => {
       segmentVideoAndDrawToCanvas();
     },
-    recordState.isRecording ? 10 : null
+    recordState.isRecording ? 100 : null
   );
 
   useInterval(
