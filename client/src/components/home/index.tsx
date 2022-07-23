@@ -142,6 +142,9 @@ function HomePage(props: {
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   const [idxTooltip, setIdxTooltip] = useState<number>(0);
+  const [recordingItemBlocks, setRecordingItemBlocks] = useState<JSX.Element[]>(
+    []
+  );
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -183,6 +186,26 @@ function HomePage(props: {
       loginState.state.user?.firstTimeTracking.tooltips ||
       localHasSeenTooltips
   );
+
+  useEffect(() => {
+    const blocks = reviewAnswerState.getBlocks().map((b, i) => (
+      <ListItem key={b.name + String(i)} data-cy={`block-${i}`}>
+        <RecordingBlockItem
+          mentorId={mentorId || ""}
+          mentorType={mentorType}
+          classes={classes}
+          block={b}
+          getAnswers={reviewAnswerState.getAnswers}
+          getQuestions={reviewAnswerState.getQuestions}
+          recordAnswers={recordAnswers}
+          recordAnswer={recordAnswer}
+          addNewQuestion={reviewAnswerState.addNewQuestion}
+          editQuestion={reviewAnswerState.editQuestion}
+        />
+      </ListItem>
+    ));
+    setRecordingItemBlocks(blocks);
+  }, [reviewAnswerState.getBlocks()]);
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -403,22 +426,7 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-        {reviewAnswerState.getBlocks().map((b, i) => (
-          <ListItem key={b.name} data-cy={`block-${i}`}>
-            <RecordingBlockItem
-              mentorId={mentorId || ""}
-              mentorType={mentorType}
-              classes={classes}
-              block={b}
-              getAnswers={reviewAnswerState.getAnswers}
-              getQuestions={reviewAnswerState.getQuestions}
-              recordAnswers={recordAnswers}
-              recordAnswer={recordAnswer}
-              addNewQuestion={reviewAnswerState.addNewQuestion}
-              editQuestion={reviewAnswerState.editQuestion}
-            />
-          </ListItem>
-        ))}
+        {recordingItemBlocks}
       </List>
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>
