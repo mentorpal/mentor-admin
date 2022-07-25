@@ -292,6 +292,11 @@ describe("Home Page", () => {
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("RemoveQuestionFromRecordQueue", {
+          me: {
+            removeQuestionFromRecordQueue: [],
+          },
+        }),
         mockGQL("FetchMentorRecordQueue", {
           me: {
             fetchMentorRecordQueue: ["A4_1_1"],

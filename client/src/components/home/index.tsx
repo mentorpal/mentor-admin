@@ -50,7 +50,6 @@ import { fetchMentorRecordQueue, removeQuestionFromRecordQueue } from "api";
 import useQuestions from "store/slices/questions/useQuestions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { QuestionState } from "store/slices/questions";
-import { Console } from "console";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
