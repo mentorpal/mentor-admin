@@ -14,7 +14,6 @@ import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
-import VideoCanvas from "./video-canvas";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 
 function VideoRecorder({
@@ -72,11 +71,9 @@ function VideoRecorder({
     if (!videoRef || videoRecorderRef) {
       return;
     }
-    videojs.registerComponent("VideoCanvas", VideoCanvas);
-    var player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
+    const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
       setVideoRecorderRef(player);
     });
-    player.addChild("VideoCanvas", { text: "Test Title" });
     player.on("deviceReady", function () {
       setIsCameraOn(true);
     });
