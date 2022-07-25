@@ -166,7 +166,29 @@ describe("Mentor Record Queue", () => {
   });
 });
 
-describe("Home Page", () => {
+describe("Queue Card", () => {
+  it("Queue card not rendered if queue is empty", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", [
+          {
+            me: {
+              fetchMentorRecordQueue: [],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.contains("My Priorities").should("not.exist");
+  });
   it("Queue card is accessible throughout home page", () => {
     cyMockDefault(cy, {
       mentor: clint,
@@ -192,26 +214,6 @@ describe("Home Page", () => {
     cy.get("[data-cy=select-subject]").click();
     cy.get("[data-cy=select-idle_and_initial_recordings]").click();
     cy.get("[data-cy=queue-block]").should("exist");
-  });
-  it("Queue card not rendered if queue is empty", () => {
-    cyMockDefault(cy, {
-      mentor: clint,
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        mockGQL("FetchMentorRecordQueue", {
-          me: {
-            fetchMentorRecordQueue: [],
-          },
-        }),
-      ],
-    });
-    cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/");
-    });
-    cy.get("[data-cy=setup-no]").click();
-    expect(Cypress.$("[data-cy=queue-block]")).not.to.exist;
   });
   it("Can record all queued questions", () => {
     cyMockDefault(cy, {
