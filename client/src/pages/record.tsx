@@ -400,25 +400,6 @@ function RecordPage(props: {
             className={classes.block}
             style={{ height: "100%", width: "100%", position: "relative" }}
           >
-            <canvas
-              data-cy="draw-canvas"
-              id="canvas"
-              style={{
-                display: "block",
-                // border: "1px solid black",
-                margin: "auto",
-              }}
-              width={
-                windowHeight > windowWidth
-                  ? windowWidth
-                  : Math.max(windowHeight - 600, 300) * (16 / 9)
-              }
-              height={
-                windowHeight > windowWidth
-                  ? windowWidth * (9 / 16)
-                  : Math.max(windowHeight - 600, 300)
-              }
-            />
             <VideoPlayer
               classes={classes}
               recordState={recordState}

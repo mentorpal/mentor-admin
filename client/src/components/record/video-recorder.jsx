@@ -15,6 +15,7 @@ import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import VideoCanvas from "./video-canvas";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 function VideoRecorder({
   classes,
@@ -54,6 +55,7 @@ function VideoRecorder({
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = React.useRef(recordStopCountdown);
@@ -232,6 +234,30 @@ function VideoRecorder({
           className="video-js vjs-default-skin"
           playsInline
           ref={(e) => setVideoRef(e || undefined)}
+        />
+        <canvas
+          data-cy="draw-canvas"
+          id="canvas"
+          style={{
+            display: "block",
+            // border: "1px solid black",
+            margin: "auto",
+            position: "absolute",
+            top: 0,
+            bottom: 30,
+            left: 0,
+            right: 0,
+          }}
+          width={
+            windowHeight > windowWidth
+              ? windowWidth
+              : Math.max(windowHeight - 600, 300) * (16 / 9)
+          }
+          height={
+            windowHeight > windowWidth
+              ? windowWidth * (9 / 16)
+              : Math.max(windowHeight - 600, 300)
+          }
         />
         <div
           data-cy="outline"
