@@ -10,7 +10,6 @@ import {
   ProductionRule,
   Phase,
   Recommender,
-  MasterList,
 } from "./recommender";
 
 interface RecommenderInterface {
@@ -39,7 +38,14 @@ const mockCurrentState: RecommenderInterface = {
   offTopic: true,
 };
 
-const masterAttributes: MasterList = {
+export interface MasterList {
+  coverage_attribute: number;
+  setup_attribute: number;
+  offTopic_attribute: number;
+}
+
+// TODO: This probably has to be a Record<string, number> so that we can work with key value pairs
+const masterScoredAttributesList: MasterList = {
   coverage_attribute: 0,
   setup_attribute: 0,
   offTopic_attribute: 0,
@@ -76,7 +82,8 @@ function buildProductionRule() {
  * Creation of phases happen in this file and then they get passed into the recommender constructor
  */
 function setupPhase() {
-  const mapping = {
+  // TODO: Each phase holds (possibly different) weights for each attribute
+  const weightedAttributes: MasterList = {
     setup_attribute: 2,
   };
   const productionRules = [buildProductionRule()];
@@ -85,7 +92,7 @@ function setupPhase() {
       return recState.offTopic === true;
     },
     productionRules,
-    mapping
+    weightedAttributes
   );
   return setupPhase;
 }

@@ -7,11 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 
 // A master list of all possible attributes, this list should also have an typescript interface to type the list
 // Attributes from this list are provided to the Recommendations
-export interface MasterList {
-  coverage_attribute: number;
-  setup_attribute: number;
-  offTopic_attribute: number;
-}
 
 /*****************
 RECOMMENDER CLASS
@@ -33,6 +28,17 @@ export class Recommender<IRecommender> {
     }
     return [];
   }
+
+  private calculations() {
+    // First, getRecommendations
+    // Second, score each recommendation:
+    //    for each key in recommendation, use that key to get weight from weight Record, and perform calculation
+    // Third, sort recommendations by order of calculated weight
+
+    let finalOrder;
+
+    return finalOrder;
+  }
 }
 
 /**********
@@ -41,22 +47,14 @@ PHASE CLASS
 export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
   activeCondition;
-  phaseWeightedAttributes: MasterList = {
-    coverage_attribute: 0,
-    setup_attribute: 0,
-    offTopic_attribute: 0,
-  };
+  phaseWeightedAttributes: MasterList;
   recWeightedAttributes;
 
   // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
     productionRules: ProductionRule<IRecommender>[],
-    phaseWeightedAttributes: MasterList = {
-      coverage_attribute: 0,
-      setup_attribute: 0,
-      offTopic_attribute: 0,
-    }
+    phaseWeightedAttributes: MasterList
   ) {
     this.productionRules = productionRules;
     this.activeCondition = activeCondition;
@@ -65,6 +63,7 @@ export class Phase<IRecommender> {
   }
 
   public isActive(recState: IRecommender) {
+    // Note: I wonder if this should instead return true if any production rules are active
     return this.activeCondition(recState);
   }
 
@@ -73,26 +72,10 @@ export class Phase<IRecommender> {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {
         //these recommendations come with weights, those weights have to be dot product with the weights from the phase
-        const productionRulesRec =
-          this.productionRules[i].getRecommendations(recState);
-
-        for (var x in productionRulesRec) {
-          //THIS NEEDS TO ADD INSTEAD OF RESETTING
-          this.recWeightedAttributes =
-            productionRulesRec[x].getScoredAttributes();
-        }
-        this.calculations();
+        return this.productionRules[i].getRecommendations(recState);
       }
     }
     return [];
-  }
-
-  private calculations() {
-    let finalOrder;
-
-    this.phaseWeightedAttributes.coverage_attribute;
-
-    return finalOrder;
   }
 }
 
@@ -124,10 +107,11 @@ export class ProductionRule<IRecommender> {
 RECOMMENDATION CLASS
 ********************/
 export class Recommendation {
-  scoredAttributes = {};
+  // TODO: Give this scoredAttributes a type (maybe Partial<MasterList>)
+  scoredAttributes: Partial<MasterList>;
   message;
 
-  constructor(scoredAttributes: {}, message: string) {
+  constructor(scoredAttributes: Partial<MasterList>, message: string) {
     this.scoredAttributes = scoredAttributes;
     this.message = message;
   }
