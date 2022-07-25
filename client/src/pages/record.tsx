@@ -55,7 +55,6 @@ import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { stateFromMarkdown } from "draft-js-import-markdown";
 import { stateToMarkdown } from "draft-js-export-markdown";
-import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -204,7 +203,6 @@ function RecordPage(props: {
     },
     emptyLineBeforeBlock: true,
   };
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
   function updateTranscriptText(text: string) {
     const contentState = stateFromMarkdown(text, markdownConfig);
