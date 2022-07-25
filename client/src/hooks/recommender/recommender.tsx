@@ -19,18 +19,12 @@ RECOMMENDER CLASS
 export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
-  weightedAttributesMap: {};
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
-    // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
     this.recState = recState;
     this.phases = phases;
-
-    const gettingAttributes = this.phases.getRecommendations();
-    this.weightedAttributesMap = {};
   }
 
-  // TODO: Implement function that, given recommendations, calculates all their weights and returns them in weighted sorted order
   public getRecommendations() {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
@@ -47,29 +41,58 @@ PHASE CLASS
 export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
   activeCondition;
-  weightedAttributesMap: {};
+  phaseWeightedAttributes: MasterList = {
+    coverage_attribute: 0,
+    setup_attribute: 0,
+    offTopic_attribute: 0,
+  };
+  recWeightedAttributes;
 
+  // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
     productionRules: ProductionRule<IRecommender>[],
-    weightedAttributesMap: {}
+    phaseWeightedAttributes: MasterList = {
+      coverage_attribute: 0,
+      setup_attribute: 0,
+      offTopic_attribute: 0,
+    }
   ) {
     this.productionRules = productionRules;
     this.activeCondition = activeCondition;
-    this.weightedAttributesMap = weightedAttributesMap;
+    this.phaseWeightedAttributes = phaseWeightedAttributes;
+    this.recWeightedAttributes = {};
   }
 
   public isActive(recState: IRecommender) {
     return this.activeCondition(recState);
   }
 
+  // TODO: Implement function that, given recommendations, calculates all their weights and returns them in weighted sorted order
   public getRecommendations(recState: IRecommender) {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {
-        return this.productionRules[i].getRecommendations(recState);
+        //these recommendations come with weights, those weights have to be dot product with the weights from the phase
+        const productionRulesRec =
+          this.productionRules[i].getRecommendations(recState);
+
+        for (var x in productionRulesRec) {
+          //THIS NEEDS TO ADD INSTEAD OF RESETTING
+          this.recWeightedAttributes =
+            productionRulesRec[x].getScoredAttributes();
+        }
+        this.calculations();
       }
     }
     return [];
+  }
+
+  private calculations() {
+    let finalOrder;
+
+    this.phaseWeightedAttributes.coverage_attribute;
+
+    return finalOrder;
   }
 }
 
