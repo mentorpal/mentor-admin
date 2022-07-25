@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState, useRef } from "react";
 import videojs from "video.js";
 
 // Get the Component base class from Video.js
@@ -27,10 +26,11 @@ class VideoCanvas extends Component {
 
   // The `createEl` function of a component creates its DOM element.
   createEl() {
-    return videojs.dom.createEl("div", {
+    return videojs.dom.createEl("canvas", {
       // Prefixing classes of elements within a player with "vjs-"
       // is a convention used in Video.js.
-      className: "vjs-title-bar",
+      className: "vjs-canvas",
+      dataCy: "video-canvas",
     });
   }
 
