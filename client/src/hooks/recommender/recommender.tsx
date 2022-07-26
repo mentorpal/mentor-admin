@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-// A master list of all possible attributes, this list should also have an typescript interface to type the list
-// Attributes from this list are provided to the Recommendations
+import { MasterList } from "./use-with-improve-mentor-recc";
 
 /*****************
 RECOMMENDER CLASS
@@ -29,15 +28,21 @@ export class Recommender<IRecommender> {
     return [];
   }
 
-  private calculations() {
-    // First, getRecommendations
-    // Second, score each recommendation:
-    //    for each key in recommendation, use that key to get weight from weight Record, and perform calculation
-    // Third, sort recommendations by order of calculated weight
+  public calculations() {
+    /*
+    First, getRecommendations
+    Second, score each recommendation:
+       for each key in recommendation, use that key to get weight from weight Record, and perform calculation
+    Third, sort recommendations by order of calculated weight
+    */
 
-    let finalOrder;
-
-    return finalOrder;
+    //array of recommendations from the production rules
+    let allRec = this.getRecommendations();
+    //for each recommendation
+    for (let x = 0; x < allRec.length; x++) {
+      allRec[x].getScoredAttributes().forEach((key: string, value: number) => {
+      })
+    }
   }
 }
 
@@ -47,31 +52,31 @@ PHASE CLASS
 export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
   activeCondition;
-  phaseWeightedAttributes: MasterList;
-  recWeightedAttributes;
+  phaseWeightedAttributes: Record<string, number>;
 
-  // TODO: Needs to also know about all possible attributes, and hold a mapping of weights to attributes
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
     productionRules: ProductionRule<IRecommender>[],
-    phaseWeightedAttributes: MasterList
+    phaseWeightedAttributes: Record<string, number>
   ) {
     this.productionRules = productionRules;
     this.activeCondition = activeCondition;
     this.phaseWeightedAttributes = phaseWeightedAttributes;
-    this.recWeightedAttributes = {};
   }
 
   public isActive(recState: IRecommender) {
     // Note: I wonder if this should instead return true if any production rules are active
-    return this.activeCondition(recState);
+    for (var x in this.productionRules) {
+      if (!this.productionRules[x].isActive(recState)) {
+        return false;
+      }
+    }
+    return true;
   }
 
-  // TODO: Implement function that, given recommendations, calculates all their weights and returns them in weighted sorted order
   public getRecommendations(recState: IRecommender) {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {
-        //these recommendations come with weights, those weights have to be dot product with the weights from the phase
         return this.productionRules[i].getRecommendations(recState);
       }
     }
@@ -107,11 +112,10 @@ export class ProductionRule<IRecommender> {
 RECOMMENDATION CLASS
 ********************/
 export class Recommendation {
-  // TODO: Give this scoredAttributes a type (maybe Partial<MasterList>)
-  scoredAttributes: Partial<MasterList>;
+  scoredAttributes: Record<string, number>;
   message;
 
-  constructor(scoredAttributes: Partial<MasterList>, message: string) {
+  constructor(scoredAttributes: Record<string, number>, message: string) {
     this.scoredAttributes = scoredAttributes;
     this.message = message;
   }

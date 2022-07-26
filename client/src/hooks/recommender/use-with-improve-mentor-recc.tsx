@@ -38,6 +38,8 @@ const mockCurrentState: RecommenderInterface = {
   offTopic: true,
 };
 
+// A master list of all possible attributes, this list should also have an typescript interface to type the list
+// Attributes from this list are provided to the Recommendations
 export interface MasterList {
   coverage_attribute: number;
   setup_attribute: number;
@@ -45,7 +47,7 @@ export interface MasterList {
 }
 
 // TODO: This probably has to be a Record<string, number> so that we can work with key value pairs
-const masterScoredAttributesList: MasterList = {
+const masterScoredAttributesList: Record<string, number> = {
   coverage_attribute: 0,
   setup_attribute: 0,
   offTopic_attribute: 0,
@@ -85,6 +87,8 @@ function setupPhase() {
   // TODO: Each phase holds (possibly different) weights for each attribute
   const weightedAttributes: MasterList = {
     setup_attribute: 2,
+    coverage_attribute: 0,
+    offTopic_attribute: 0,
   };
   const productionRules = [buildProductionRule()];
   const setupPhase = new Phase(
