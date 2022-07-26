@@ -13,15 +13,18 @@ RECOMMENDER CLASS
 export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
+  activePhase: Phase<IRecommender>;
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     this.recState = recState;
     this.phases = phases;
+    this.activePhase = this.phases[0];
   }
 
   public getRecommendations() {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
+        this.activePhase = this.phases[i];
         return this.phases[i].getRecommendations(this.recState);
       }
     }
@@ -38,10 +41,19 @@ export class Recommender<IRecommender> {
 
     //array of recommendations from the production rules
     let allRec = this.getRecommendations();
+    let phaseWeights = this.activePhase.getPhaseWeights();
+
     //for each recommendation
     for (let x = 0; x < allRec.length; x++) {
-      allRec[x].getScoredAttributes().forEach((key: string, value: number) => {
-      })
+      let individualRec = allRec[x].getScoredAttributes();
+
+      for (const key in individualRec) {
+        let initialValue = individualRec[key];
+        let phaseValue = phaseWeights[key];
+        individualRec[key] = initialValue * phaseValue;
+      }
+
+      //sort the recommendations somehow
     }
   }
 }
@@ -81,6 +93,10 @@ export class Phase<IRecommender> {
       }
     }
     return [];
+  }
+
+  public getPhaseWeights() {
+    return this.phaseWeightedAttributes;
   }
 }
 
