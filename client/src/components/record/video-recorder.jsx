@@ -17,34 +17,17 @@ import VirtualBackground from "images/virtual-background.png";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 
-// Converts HTML5 Canvas Sequence to a Video File
-function record(canvas, time) {
-  var recordedChunks = [];
-  return new Promise(function (res, rej) {
-    var stream = canvas.captureStream(25 /*fps*/);
-    console.log("stream", stream);
-    mediaRecorder = new MediaRecorder(stream, {
-      mimeType: "video/webm; codecs=vp9",
-    });
-    console.log("mediaRecorder", mediaRecorder);
+// Setting the video src to the canvas stream
+function videoSourceToCanvasStream() {
+  var canvas = document.querySelector("[data-cy=draw-canvas]");
+  var video = document.querySelector("[data-cy=video-recorder]");
+  // Optional frames per second argument.
+  var stream = canvas.captureStream(30);
+  console.log("stream: " + stream);
+  // Set the source of the <video> element to be the stream from the <canvas>.
+  video.src = createObjectURL(stream);
 
-    //ondataavailable will fire in interval of `time || 4000 ms`
-    mediaRecorder.start(time || 4000);
-
-    mediaRecorder.ondataavailable = function (event) {
-      recordedChunks.push(event.data);
-      // after stop `dataavilable` event run one more time
-      if (mediaRecorder.state === "recording") {
-        mediaRecorder.stop();
-      }
-    };
-
-    mediaRecorder.onstop = function (event) {
-      var blob = new Blob(recordedChunks, { type: "video/webm" });
-      var url = URL.createObjectURL(blob);
-      res(url);
-    };
-  });
+  console.log("video source: " + video.src);
 }
 
 function VideoRecorder({
@@ -138,11 +121,10 @@ function VideoRecorder({
       setRecordStartCountdown(0);
       setRecordStopCountdown(0);
       setRecordDurationCounter(0);
-      const recording = record(canvas, 10000);
-      recording.then((url) => videoref$.setAttribute("src", url));
     });
     player.on("progressRecord", function () {
       setRecordDurationCounter(player.record().getDuration());
+      videoSourceToCanvasStream();
     });
     player.on("finishRecord", function () {
       setRecordedVideo(new File([player.recordedData], "video.mp4"));
