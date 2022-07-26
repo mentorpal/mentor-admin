@@ -20,6 +20,14 @@ import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 export default function MyMentorCard(props: {
   continueAction: () => void;
   useMentor: UseMentorEdits;
+  incrementTooltip: () => void;
+  idxTooltip: number;
+  hasSeenTooltips: boolean;
+  localHasSeenTooltips: boolean;
+  profileTooltipOpen: boolean;
+  setProfileTooltipOpen: (active: boolean) => void;
+  statusTooltipOpen: boolean;
+  setStatusTooltipOpen: (active: boolean) => void;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -38,7 +46,6 @@ export default function MyMentorCard(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const [open, setOpen] = React.useState<boolean>(false);
-
   const handleOpen = () => {
     setOpen(true);
   };
@@ -61,14 +68,25 @@ export default function MyMentorCard(props: {
                 handleClose={handleClose}
                 editMentor={editMentor}
                 open={open}
+                incrementTooltip={props.incrementTooltip}
+                idxTooltip={props.idxTooltip}
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
+                hasSeenTooltips={props.hasSeenTooltips}
+                profileTooltipOpen={props.profileTooltipOpen}
+                setProfileTooltipOpen={props.setProfileTooltipOpen}
               />
             </Grid>
             <Grid item xs={8}>
               <MentorStatus
                 continueAction={props.continueAction}
                 updateThumbnail={updateThumbnail}
+                incrementTooltip={props.incrementTooltip}
+                idxTooltip={props.idxTooltip}
+                localHasSeenTooltips={props.localHasSeenTooltips}
+                hasSeenTooltips={props.hasSeenTooltips}
+                statusTooltipOpen={props.statusTooltipOpen}
+                setStatusTooltipOpen={props.setStatusTooltipOpen}
               />
             </Grid>
           </Grid>

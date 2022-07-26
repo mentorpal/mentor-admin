@@ -180,8 +180,9 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               status.requiredSubjects[steps.length - idx - 2].subject._id
             }`}
             classes={classes}
+            mentorType={mentor.mentorType}
             subject={status.requiredSubjects[steps.length - idx - 2].subject}
-            questions={status.requiredSubjects[steps.length - idx - 2].answers}
+            answers={status.requiredSubjects[steps.length - idx - 2].answers}
             i={idx}
             customTitle="Idle and Initial Recordings"
           />
