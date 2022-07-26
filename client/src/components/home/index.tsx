@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   AppBar,
   Button,
@@ -120,6 +120,7 @@ function HomePage(props: {
     props.search
   );
   const useMentor = useMentorEdits();
+  const { editedMentor, editMentor, saveMentorDetails } = useMentor;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -138,7 +139,7 @@ function HomePage(props: {
   const mentorId = getData((m) => m.data?._id || "");
   const mentorType = getData((m) => m.data?.mentorType);
   const defaultMentor = props.user.defaultMentor._id;
-  const classes = useStyles();
+  const [classes] = useState(useStyles());
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   const [idxTooltip, setIdxTooltip] = useState<number>(0);
@@ -162,8 +163,6 @@ function HomePage(props: {
 
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
-  const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
-  const [statusTooltipOpen, setStatusTooltipOpen] = useState<boolean>(false);
   const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
   const [previewTooltipOpen, setPreviewTooltipOpen] = useState<boolean>(false);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
@@ -205,7 +204,12 @@ function HomePage(props: {
       </ListItem>
     ));
     setRecordingItemBlocks(blocks);
-  }, [reviewAnswerState.getBlocks()]);
+  }, [
+    reviewAnswerState.getBlocks(),
+    reviewAnswerState.getAnswers(),
+    reviewAnswerState.getQuestions(),
+    mentorId,
+  ]);
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -213,6 +217,36 @@ function HomePage(props: {
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
+
+  // memoized train mentor
+  const startTrainingMentor = useCallback(() => {
+    startTraining(mentorId);
+  }, [mentorId]);
+
+  // memoized increment tooltip
+  const incrementTooltip = useCallback(() => {
+    if (hasSeenTooltips) {
+      return;
+    }
+    setIdxTooltip(idxTooltip + 1);
+  }, [hasSeenTooltips, idxTooltip]);
+
+  // memoized on leave
+  const onLeave = useCallback(
+    (cb: () => void, msg?: string) => {
+      if (reviewAnswerState.unsavedChanges()) {
+        setConfirmSaveBeforeCallback({
+          message:
+            msg ||
+            "You have unsaved changes, would you like to save them before leaving this page?",
+          callback: cb,
+        });
+      } else {
+        cb();
+      }
+    },
+    [reviewAnswerState.unsavedChanges()]
+  );
 
   if (!(mentorId && setupStatus)) {
     return (
@@ -224,19 +258,6 @@ function HomePage(props: {
   }
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
-  }
-
-  function onLeave(cb: () => void, msg?: string) {
-    if (reviewAnswerState.unsavedChanges()) {
-      setConfirmSaveBeforeCallback({
-        message:
-          msg ||
-          "You have unsaved changes, would you like to save them before leaving this page?",
-        callback: cb,
-      });
-    } else {
-      cb();
-    }
   }
 
   async function saveBeforeCallback() {
@@ -273,10 +294,6 @@ function HomePage(props: {
     }
   }
 
-  function incrementTooltip() {
-    setIdxTooltip(idxTooltip + 1);
-  }
-
   function closeDialog() {
     setLocalHasSeenSplash(true);
     userSawSplashScreen(props.accessToken);
@@ -311,16 +328,14 @@ function HomePage(props: {
           onNav={onLeave}
         />
         <MyMentorCard
-          continueAction={() => startTraining(mentorId)}
-          useMentor={useMentor}
+          continueAction={startTrainingMentor}
           incrementTooltip={incrementTooltip}
+          editedMentor={editedMentor}
+          editMentor={editMentor}
+          saveMentorDetails={saveMentorDetails}
           idxTooltip={idxTooltip}
           hasSeenTooltips={hasSeenTooltips}
           localHasSeenTooltips={localHasSeenTooltips}
-          profileTooltipOpen={profileTooltipOpen}
-          setProfileTooltipOpen={setProfileTooltipOpen}
-          statusTooltipOpen={statusTooltipOpen}
-          setStatusTooltipOpen={setStatusTooltipOpen}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -462,7 +477,7 @@ function HomePage(props: {
             >
               Save Changes
             </Fab>
-
+            {/* TODO: Memoize functions used by these tooltips/buttons to prevent unneccesary re-renders */}
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}
@@ -514,7 +529,7 @@ function HomePage(props: {
                   mentorLoading ||
                   reviewAnswerState.isSaving
                 }
-                onClick={() => startTraining(mentorId)}
+                onClick={startTrainingMentor}
                 className={classes.fab}
                 onMouseEnter={() => {
                   hasSeenTooltips && setBuildTooltipOpen(true);

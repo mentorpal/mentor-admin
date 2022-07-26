@@ -19,7 +19,7 @@ import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
 
 describe("My Mentor Page", () => {
-  it.only("shows all questions for all categories by default", () => {
+  it("shows all questions for all categories by default", () => {
     cySetup(cy);
     cyMockDefault(cy, { mentor: clint });
     cy.visit("/");
@@ -88,7 +88,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it("shows splash and tooltips if mentor has not seen before", () => {
+  it.only("shows splash and tooltips if mentor has not seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,

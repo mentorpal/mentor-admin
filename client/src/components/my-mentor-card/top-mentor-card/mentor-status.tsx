@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   IconButton,
@@ -26,18 +26,11 @@ function MentorStatus(props: {
   localHasSeenTooltips: boolean;
   hasSeenTooltips: boolean;
   idxTooltip: number;
-  statusTooltipOpen: boolean;
-  setStatusTooltipOpen: (active: boolean) => void;
 }): JSX.Element {
-  const {
-    incrementTooltip,
-    idxTooltip,
-    hasSeenTooltips,
-    statusTooltipOpen,
-    setStatusTooltipOpen,
-  } = props;
+  const { incrementTooltip, idxTooltip, hasSeenTooltips } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
+  const [statusTooltipOpen, setStatusTooltipOpen] = useState<boolean>(false);
 
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
