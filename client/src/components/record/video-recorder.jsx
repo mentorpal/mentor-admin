@@ -22,9 +22,11 @@ function record(canvas, time) {
   var recordedChunks = [];
   return new Promise(function (res, rej) {
     var stream = canvas.captureStream(25 /*fps*/);
+    console.log("stream", stream);
     mediaRecorder = new MediaRecorder(stream, {
       mimeType: "video/webm; codecs=vp9",
     });
+    console.log("mediaRecorder", mediaRecorder);
 
     //ondataavailable will fire in interval of `time || 4000 ms`
     mediaRecorder.start(time || 4000);
@@ -136,6 +138,8 @@ function VideoRecorder({
       setRecordStartCountdown(0);
       setRecordStopCountdown(0);
       setRecordDurationCounter(0);
+      const recording = record(canvas, 10000);
+      recording.then((url) => videoref$.setAttribute("src", url));
     });
     player.on("progressRecord", function () {
       setRecordDurationCounter(player.record().getDuration());
