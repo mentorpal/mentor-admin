@@ -169,8 +169,6 @@ function formatMentorQuestions(
 }
 
 function FeedbackItem(props: {
-  customQuestionModalOpen: boolean;
-  setCustomQuestionModalOpen: (customQuestionModalOpen: boolean) => void;
   mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
@@ -181,8 +179,6 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
-    customQuestionModalOpen,
-    setCustomQuestionModalOpen,
     mentor,
     accessToken,
     feedback,
@@ -195,6 +191,8 @@ function FeedbackItem(props: {
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
+  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
+    useState<boolean>(false);
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -392,11 +390,9 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
-
-  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
-    useState<boolean>(false); // condition for opening modal
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const [queueList, setQueueList] = useState<string[]>([]);
+
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
       setQueueList(queueList);
@@ -605,8 +601,6 @@ function FeedbackPage(): JSX.Element {
                     onUpdated={reloadFeedback}
                     queueList={queueList}
                     setQueueList={setQueueList}
-                    setCustomQuestionModalOpen={setCustomQuestionModalOpen}
-                    customQuestionModalOpen={customQuestionModalOpen}
                     mentor={mentor}
                   />
                 ))}
