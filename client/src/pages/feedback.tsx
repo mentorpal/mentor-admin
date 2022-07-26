@@ -136,7 +136,6 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-
 function FeedbackItem(props: {
   customQuestionModalOpen: boolean;
   setCustomQuestionModalOpen: (customQuestionModalOpen: boolean) => void;
@@ -173,12 +172,10 @@ function FeedbackItem(props: {
     if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
       return mentorAnswers;
     }
-    const completeAnswers = mentorAnswers?.filter((mentorAnswer) =>
-                    isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                  ) || []
-    /*
     const completeAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
+      .filter((mentorAnswer) =>
+        isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
       .sort((a, b) =>
         (mentorQuestions[a._id]?.question?.question || "") >
         (mentorQuestions[b._id]?.question?.question || "")
@@ -188,9 +185,11 @@ function FeedbackItem(props: {
           ? -1
           : 0
       );
-      */
     const incompleteAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
+      .filter(
+        (mentorAnswer) =>
+          !isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
       .sort((a, b) =>
         (mentorQuestions[a._id]?.question?.question || "") >
         (mentorQuestions[b._id]?.question?.question || "")
@@ -200,7 +199,6 @@ function FeedbackItem(props: {
           ? -1
           : 0
       );
-  
     return completeAnswers.concat(incompleteAnswers);
   }
 
