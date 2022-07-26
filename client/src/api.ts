@@ -1294,7 +1294,7 @@ export async function addQuestionToRecordQueue(
   return await execGql<string[]>(
     {
       query: `
-        mutation AddQuestionToRecordQueue($questionId: String!) {
+        mutation AddQuestionToRecordQueue($questionId: ID!) {
           me {
             addQuestionToRecordQueue(questionId: $questionId)
           }

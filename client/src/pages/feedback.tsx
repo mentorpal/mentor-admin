@@ -201,13 +201,13 @@ function FeedbackItem(props: {
   ) {
     if (queueList.includes(selectedAnswerID)) {
       setQueueList(
-        await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
+        await removeQuestionFromRecordQueue(accessToken, selectedAnswerID)
       );
     } else if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
     } else {
       setQueueList(
-        await addQuestionToRecordQueue(selectedAnswerID, accessToken)
+        await addQuestionToRecordQueue(accessToken, selectedAnswerID)
       );
     }
   }

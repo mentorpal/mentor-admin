@@ -106,7 +106,8 @@ function EditQuestionForQueueModal(props: {
       accessToken
     );
     // add to record queue
-    addQuestionToRecordQueue(subjectQuestionsReturned[0].question, accessToken);
+    console.log(subjectQuestionsReturned);
+    addQuestionToRecordQueue(accessToken, subjectQuestionsReturned[0].question);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
@@ -191,7 +192,8 @@ function EditQuestionForQueueModal(props: {
                           onChange={(
                             event: React.ChangeEvent<{ value: unknown }>
                           ) => {
-                            setSelectedCategory(event.target.value as Category);
+                            const category = selectedSubject.categories.find(({id})=>id === event.target.value);
+                            setSelectedCategory(category);
                           }}
                         >
                           <option selected disabled>
