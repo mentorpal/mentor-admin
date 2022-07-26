@@ -31,7 +31,7 @@ import {
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
+import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue, fetchMentorRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -84,6 +84,7 @@ function EditQuestionForQueueModal(props: {
     selectedSubject: Subject
   ) {
     // create new question
+    console.log("answers before adding: " + mentor.answers.length);
     const newQuestion: Question = {
       _id: uuid(),
       question: customQuestion,
@@ -106,8 +107,11 @@ function EditQuestionForQueueModal(props: {
       accessToken
     );
     // add to record queue
-    console.log(subjectQuestionsReturned);
+    console.log("subQueReturn : " +subjectQuestionsReturned);
+    console.log("Queue: "+fetchMentorRecordQueue);
     addQuestionToRecordQueue(accessToken, subjectQuestionsReturned[0].question);
+    console.log("Queue after adding : "+fetchMentorRecordQueue);
+    console.log("answers after adding: " + mentor.answers.length);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();

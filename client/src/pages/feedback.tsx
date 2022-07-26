@@ -279,12 +279,6 @@ function FeedbackItem(props: {
                 mentorAnswers || [],
                 mentorQuestions
               )}
-              /*
-              options={
-                mentorAnswers?.filter((mentorAnswer) =>
-                  isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                ) || []
-              }*/
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""

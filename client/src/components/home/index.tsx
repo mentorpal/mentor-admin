@@ -33,7 +33,7 @@ import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
-import { launchMentor } from "helpers";
+import { isAnswerComplete, launchMentor } from "helpers";
 import {
   QuestionEdits,
   useWithReviewAnswerState,
@@ -43,7 +43,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status, Answer } from "types";
+import { User, Subject, UserRole, Status, Answer, MediaType } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -198,18 +198,18 @@ function HomePage(props: {
 
   useEffect(() => {
     fetchMentorRecordQueue(props.accessToken).then((queueIDList) => {
+      console.log("Fetching queue");
       setQueueIDList(queueIDList);
     });
   }, []);
 
   useEffect(() => {
-    if (!mentorAnswers || !queueIDList.length) {
+    if (!mentorAnswers || queueIDList.length == 0) {
       return;
     }
+    console.log("updating Queue answer length: " + mentorAnswers.length);
     updateQueue(queueIDList, mentorAnswers);
   }, [mentorAnswers?.map((answer) => answer.status)]);
-
-  //const { userSawSplashScreen } = loginState;
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -278,12 +278,24 @@ function HomePage(props: {
   }
   function updateQueue(queueIDList: string[], mentorAnswers: Answer[]) {
     // remove answered questions from queue
+    console.log(queueIDList);
     if (mentorAnswers) {
       mentorAnswers.forEach(async (e) => {
-        if (queueIDList.includes(e._id) && e.status == "COMPLETE") {
+        if (queueIDList.includes(e.question) && isAnswerComplete(e, undefined, mentorType)) {
+          console.log("REMOVED:" + mentorAnswers);
+          console.log(isAnswerComplete(e, undefined, mentorType));
           setQueueIDList(
-            await removeQuestionFromRecordQueue(props.accessToken, e._id)
+            await removeQuestionFromRecordQueue(props.accessToken, e.question)
           );
+        }
+        if (queueIDList.includes(e.question)) {
+          console.log(e);
+          console.log("complete? " + isAnswerComplete(e, undefined, mentorType));
+          console.log("question : "+ mentorQuestions[e._id]?.question?.question);
+          console.log("media : "+ e.media);
+          console.log("condition : " + e.media?.find((m) => m.type === MediaType.VIDEO)?.url);
+          console.log("trans : "+ e.transcript);
+          console.log("status : " + e.status);
         }
       });
     }
@@ -296,7 +308,7 @@ function HomePage(props: {
     const queueQuestions: string[] = [];
     // get question string
     queueIDList.forEach((a) => {
-      queueQuestions.push(mentorQuestions[a].question?.question || "");
+      queueQuestions.push(mentorQuestions[a]?.question?.question || "");
     });
     return queueQuestions;
   }
