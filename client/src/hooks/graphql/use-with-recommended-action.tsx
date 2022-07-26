@@ -6,9 +6,9 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { navigate } from "gatsby";
-import { Answer, Mentor, MentorType, Status, UtteranceName } from "types";
+import { Answer, Mentor, MentorType, UtteranceName } from "types";
 import { useState } from "react";
-import { urlBuild, getValueIfKeyExists } from "helpers";
+import { urlBuild, getValueIfKeyExists, isAnswerComplete } from "helpers";
 import {
   AccountBox,
   CheckCircleOutlined,
@@ -17,7 +17,9 @@ import {
   NoteAdd,
 } from "@material-ui/icons";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import useQuestions from "store/slices/questions/useQuestions";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
 import { QuestionState } from "store/slices/questions";
 
 interface Category {
@@ -235,25 +237,29 @@ function parseMentorConditions(
   if (!mentor) {
     return;
   }
-  const idle = mentor?.answers.find(
+  const idle = mentor.answers.find(
     (a) =>
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.IDLE
   );
-  const intro = mentor?.answers.find(
+  const intro = mentor.answers.find(
     (a) =>
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.INTRO
   );
-  const offTopic = mentor?.answers.find(
+  const offTopic = mentor.answers.find(
     (a) =>
       getValueIfKeyExists(a.question, mentorQuestions)?.question?.name ===
       UtteranceName.OFF_TOPIC
   );
 
-  const introIncomplete = intro?.status === Status.INCOMPLETE;
-  const idleIncomplete = idle?.status === Status.INCOMPLETE;
-  const offTopicIncomplete = offTopic?.status === Status.INCOMPLETE;
+  const introIncomplete =
+    !intro || !isAnswerComplete(intro, UtteranceName.INTRO, mentor.mentorType);
+  const idleIncomplete =
+    !idle || !isAnswerComplete(idle, UtteranceName.IDLE, mentor.mentorType);
+  const offTopicIncomplete =
+    !offTopic ||
+    !isAnswerComplete(offTopic, UtteranceName.OFF_TOPIC, mentor.mentorType);
 
   const isVideo = mentor?.mentorType === MentorType.VIDEO;
   const hasThumbnail = Boolean(mentor?.thumbnail);
@@ -261,7 +267,7 @@ function parseMentorConditions(
 
   const categories: Category[] = [];
 
-  mentor?.subjects.forEach((s) => {
+  mentor.subjects.forEach((s) => {
     categories.push({
       subjectName: s.name,
       subject: s._id,
@@ -293,14 +299,35 @@ function parseMentorConditions(
   });
   const incompleteRequirement = categories
     .filter((c) => c.isRequired)
-    .find((c) => c.answers.find((a) => a.status === Status.INCOMPLETE));
+    .find((c) =>
+      c.answers.find(
+        (a) =>
+          !isAnswerComplete(
+            a,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+            mentor.mentorType
+          )
+      )
+    );
   const firstIncomplete = categories.find((c) =>
-    c.answers.find((a) => a.status === Status.INCOMPLETE)
+    c.answers.find(
+      (a) =>
+        !isAnswerComplete(
+          a,
+          getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+          mentor.mentorType
+        )
+    )
   );
 
-  const completedAnswers =
-    mentor?.answers.filter((a) => a.status === Status.COMPLETE).length || 0;
-  const totalAnswers = mentor?.answers.length || 0;
+  const completedAnswers = mentor.answers.filter((a) =>
+    isAnswerComplete(
+      a,
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+      mentor.mentorType
+    )
+  ).length;
+  const totalAnswers = mentor.answers.length;
 
   const builttNeverPreview = Boolean(totalAnswers > 0 && !neverBuilt);
 
@@ -339,11 +366,14 @@ function unique(array: Category[]) {
 
 export function UseWithRecommendedAction(
   continueAction?: () => void
-): [Recommendation, () => void, number] {
+): [Recommendation, () => void, number, boolean] {
   const { getData } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((ms) => ms.data?.answers);
   const mentorQuestions = useQuestions(
     (s) => s.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+  const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
   );
 
@@ -392,5 +422,10 @@ export function UseWithRecommendedAction(
     }
   }
 
-  return [recommendedAction, skipRecommendation, recListLength];
+  return [
+    recommendedAction,
+    skipRecommendation,
+    recListLength,
+    questionsLoading,
+  ];
 }

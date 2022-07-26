@@ -24,12 +24,14 @@ import {
   UseWithRecordState,
   UtteranceName,
   RecordStateError,
+  Status,
 } from "types";
 import {
   copyAndSet,
   equals,
   extractErrorMessageFromError,
   getValueIfKeyExists,
+  isAnswerComplete,
 } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
@@ -102,7 +104,7 @@ export function useWithRecordState(
     curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
-    if (!mentorAnswers || !mentorSubjects || isMentorLoading) {
+    if (isMentorLoading || !mentorAnswers || !mentorSubjects) {
       return;
     }
     const { videoId, subject, category, status } = filter;
@@ -127,10 +129,18 @@ export function useWithRecordState(
     const answerStates: AnswerState[] = [];
     for (const a of answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
+      let checkStatus = !status;
+      if (status === Status.COMPLETE) {
+        checkStatus = isAnswerComplete(a, q?.question?.name, mentorType);
+      } else if (status === Status.INCOMPLETE) {
+        checkStatus = !isAnswerComplete(a, q?.question?.name, mentorType);
+      } else if (status === Status.NONE) {
+        checkStatus = a.status === Status.NONE;
+      }
       if (
         q?.question &&
         (!q.question.mentorType || q.question.mentorType === mentorType) &&
-        (!status || a.status === status)
+        checkStatus
       ) {
         answerStates.push({
           answer: a,
@@ -205,6 +215,7 @@ export function useWithRecordState(
     }
     return 0;
   }
+
   function updateAnswerState(
     edits: Partial<AnswerState>,
     idx: number = answerIdx
