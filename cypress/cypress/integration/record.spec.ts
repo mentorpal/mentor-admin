@@ -16,6 +16,7 @@ import {
   QuestionType,
   Status,
   MediaType,
+  UtteranceName,
 } from "../support/types";
 import {
   completeMentor,
@@ -271,6 +272,7 @@ const videoMentor: Mentor = completeMentor({
         question: "Who are you and what do you do?",
       },
       transcript: "",
+      markdownTranscript: "",
       status: Status.INCOMPLETE,
     },
     {
@@ -770,6 +772,706 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
     });
+
+    it("shows NONE status answers under COMPLETE for CHAT mentor", () => {
+      cyMockDefault(cy, {
+        mentor: completeMentor({
+          _id: "clintanderson",
+          mentorType: MentorType.CHAT,
+          lastTrainedAt: null,
+          subjects: [
+            completeSubject({
+              _id: "background",
+              name: "background",
+              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A1_1_1",
+                    clientId: "C1_1_1",
+                    question: "Question 1",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                  topics: [],
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A2_1_1",
+                    clientId: "C2_1_1",
+                    question: "Question 2",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+            completeSubject({
+              _id: "idle_and_initial_recordings",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A3_1_1",
+                    clientId: "C3_1_1",
+                    question: "Question 3",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A4_1_1",
+                    clientId: "C4_1_1",
+                    question: "Question 4",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A5_1_1",
+                    clientId: "C5_1_1",
+                    question: "Question 5",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A6_1_1",
+                    clientId: "C6_1_1",
+                    question: "Question 6",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+          ],
+          answers: [
+            {
+              _id: "A1_1_1",
+              question: {
+                _id: "A1_1_1",
+                clientId: "C1_1_1",
+                question: "Question 1",
+                name: null,
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+              },
+              transcript:
+                "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+              status: Status.NONE,
+            },
+            {
+              _id: "A2_1_1",
+              question: {
+                _id: "A2_1_1",
+                clientId: "C2_1_1",
+                question: "Question 2",
+                name: null,
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+            {
+              _id: "A3_1_1",
+              question: {
+                _id: "A3_1_1",
+                clientId: "C3_1_1",
+                question: "Question 3",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+            {
+              _id: "A4_1_1",
+              question: {
+                _id: "A4_1_1",
+                clientId: "C4_1_1",
+                question: "Question 4",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript:
+                "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+              status: Status.NONE,
+            },
+            {
+              _id: "A5_1_1",
+              question: {
+                _id: "A5_1_1",
+                clientId: "C5_1_1",
+                question: "Question 5",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+          ],
+        }),
+        questions: chatQuestions,
+      });
+      cy.visit("/record?status=INCOMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+        cy.get("textarea").should("not.have.attr", "disabled");
+      });
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 3 / 3");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should("have.text", "");
+        cy.get("[data-text]").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows NONE status answer under INCOMPLETE for CHAT mentor", () => {
+      cyMockDefault(cy, {
+        mentor: completeMentor({
+          _id: "clintanderson",
+          mentorType: MentorType.CHAT,
+          lastTrainedAt: null,
+          subjects: [
+            completeSubject({
+              _id: "background",
+              name: "background",
+              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A1_1_1",
+                    clientId: "C1_1_1",
+                    question: "Question 1",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                  topics: [],
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A2_1_1",
+                    clientId: "C2_1_1",
+                    question: "Question 2",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+            completeSubject({
+              _id: "idle_and_initial_recordings",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A3_1_1",
+                    clientId: "C3_1_1",
+                    question: "Question 3",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A4_1_1",
+                    clientId: "C4_1_1",
+                    question: "Question 4",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A5_1_1",
+                    clientId: "C5_1_1",
+                    question: "Question 5",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A6_1_1",
+                    clientId: "C6_1_1",
+                    question: "Question 6",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+          ],
+          answers: [
+            {
+              _id: "A1_1_1",
+              question: {
+                _id: "A1_1_1",
+                clientId: "C1_1_1",
+                question: "Question 1",
+                name: null,
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+              },
+              transcript:
+                "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+              status: Status.NONE,
+            },
+            {
+              _id: "A2_1_1",
+              question: {
+                _id: "A2_1_1",
+                clientId: "C2_1_1",
+                question: "Question 2",
+                name: null,
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+            {
+              _id: "A3_1_1",
+              question: {
+                _id: "A3_1_1",
+                clientId: "C3_1_1",
+                question: "Question 3",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+            {
+              _id: "A4_1_1",
+              question: {
+                _id: "A4_1_1",
+                clientId: "C4_1_1",
+                question: "Question 4",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript:
+                "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+              status: Status.NONE,
+            },
+            {
+              _id: "A5_1_1",
+              question: {
+                _id: "A5_1_1",
+                clientId: "C5_1_1",
+                question: "Question 5",
+                name: null,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+              },
+              transcript: "",
+              status: Status.NONE,
+            },
+          ],
+        }),
+        questions: chatQuestions,
+      });
+      cy.visit("/record?status=COMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("[data-text]").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=back-btn]").should("be.disabled");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Please give a short introduction of yourself, which includes your name, current job, and title."
+        );
+        cy.get("textarea").should("have.attr", "disabled");
+      });
+      cy.get(".editor-class").within(($input) => {
+        cy.get("[data-text]").should(
+          "have.text",
+          "My name is Clint Anderson and I'm a Nuclear Electrician's Mate"
+        );
+        cy.get("[data-text]").should("not.have.attr", "disabled");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=back-btn]").should("not.be.disabled");
+      cy.get("[data-cy=next-btn]").should("not.exist");
+      cy.get("[data-cy=done-btn]").should("exist");
+    });
+
+    it("shows NONE status answers under INCOMPLETE for VIDEO mentor", () => {
+      cyMockDefault(cy, {
+        mentor: completeMentor({
+          _id: "clintanderson",
+          mentorType: MentorType.VIDEO,
+          lastTrainedAt: null,
+          answers: [
+            {
+              _id: "A1_1_1",
+              question: {
+                _id: "A1_1_1",
+                clientId: "C1_1_1",
+                name: "A1_1_1",
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+                question: "Who are you and what do you do?",
+              },
+              transcript: "",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A1_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+            {
+              _id: "A2_1_1",
+              question: {
+                _id: "A2_1_1",
+                clientId: "C2_1_1",
+                name: "A2_1_1",
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+                question: "How old are you now?",
+              },
+              transcript: "I'm 37 years old",
+              status: Status.NONE,
+            },
+            {
+              _id: "A3_1_1",
+              question: {
+                _id: "A3_1_1",
+                clientId: "C3_1_1",
+                name: "A3_1_1",
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+                question: "Where do you live?",
+              },
+              transcript: "In Howard City, Michigan",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A3_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+            {
+              _id: "A4_1_1",
+              question: {
+                _id: "A4_1_1",
+                clientId: "C4_1_1",
+                name: UtteranceName.IDLE,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+                question: "How old are you now?",
+              },
+              transcript: "",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A4_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+          ],
+          subjects: [
+            completeSubject({
+              _id: "subject_1",
+              name: "Subject 1",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A1_1_1",
+                    clientId: "C1_1_1",
+                    question: "Question 1",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A2_1_1",
+                    clientId: "C2_1_1",
+                    question: "Question 2",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                }),
+              ],
+              categories: [{ id: "cat", name: "cat", description: "cat" }],
+            }),
+            completeSubject({
+              _id: "subject_2",
+              name: "Subject 2",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A3_1_1",
+                    clientId: "C3_1_1",
+                    question: "Question 3",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A4_1_1",
+                    clientId: "C4_1_1",
+                    question: "Question 4",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+          ],
+        }),
+        questions: videoQuestions,
+      });
+      cy.visit("/record?status=INCOMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should(
+          "have.text",
+          "Who are you and what do you do?"
+        );
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "How old are you now?");
+      });
+      cy.get("[data-cy=status]").contains("None");
+    });
+
+    it("shows NONE status answers under COMPLETE for VIDEO mentor", () => {
+      cyMockDefault(cy, {
+        mentor: completeMentor({
+          _id: "clintanderson",
+          mentorType: MentorType.VIDEO,
+          lastTrainedAt: null,
+          answers: [
+            {
+              _id: "A1_1_1",
+              question: {
+                _id: "A1_1_1",
+                clientId: "C1_1_1",
+                name: "A1_1_1",
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+                question: "Who are you and what do you do?",
+              },
+              transcript: "",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A1_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+            {
+              _id: "A2_1_1",
+              question: {
+                _id: "A2_1_1",
+                clientId: "C2_1_1",
+                name: "A2_1_1",
+                type: QuestionType.QUESTION,
+                paraphrases: [],
+                question: "How old are you now?",
+              },
+              transcript: "I'm 37 years old",
+              status: Status.NONE,
+            },
+            {
+              _id: "A3_1_1",
+              question: {
+                _id: "A3_1_1",
+                clientId: "C3_1_1",
+                name: "A3_1_1",
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+                question: "Where do you live?",
+              },
+              transcript: "In Howard City, Michigan",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A3_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+            {
+              _id: "A4_1_1",
+              question: {
+                _id: "A4_1_1",
+                clientId: "C4_1_1",
+                name: UtteranceName.IDLE,
+                type: QuestionType.UTTERANCE,
+                paraphrases: [],
+                question: "How old are you now?",
+              },
+              transcript: "",
+              webMedia: {
+                type: MediaType.VIDEO,
+                tag: "web",
+                url: "A4_1_1.mp4",
+              },
+              status: Status.NONE,
+            },
+          ],
+          subjects: [
+            completeSubject({
+              _id: "subject_1",
+              name: "Subject 1",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A1_1_1",
+                    clientId: "C1_1_1",
+                    question: "Question 1",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A2_1_1",
+                    clientId: "C2_1_1",
+                    question: "Question 2",
+                    name: null,
+                    type: QuestionType.QUESTION,
+                    paraphrases: [],
+                  },
+                  category: { id: "cat", name: "cat", description: "cat" },
+                }),
+              ],
+              categories: [{ id: "cat", name: "cat", description: "cat" }],
+            }),
+            completeSubject({
+              _id: "subject_2",
+              name: "Subject 2",
+              questions: [
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A3_1_1",
+                    clientId: "C3_1_1",
+                    question: "Question 3",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+                completeSubjectQuestion({
+                  question: {
+                    _id: "A4_1_1",
+                    clientId: "C4_1_1",
+                    question: "Question 4",
+                    name: null,
+                    type: QuestionType.UTTERANCE,
+                    paraphrases: [],
+                  },
+                }),
+              ],
+            }),
+          ],
+        }),
+        questions: videoQuestions,
+      });
+      cy.visit("/record?status=COMPLETE");
+      cy.get("[data-cy=progress]").contains("Questions 1 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "Where do you live?");
+      });
+      cy.get("[data-cy=status]").contains("None");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+
+      cy.get("[data-cy=progress]").contains("Questions 2 / 2");
+      cy.get("[data-cy=question-input]").within(($input) => {
+        cy.get("textarea").should("have.text", "Record an idle video");
+      });
+      cy.get("[data-cy=status]").contains("None");
+    });
   });
 
   describe("Recording Session Ending Page", () => {
@@ -817,10 +1519,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2807,6 +3505,147 @@ describe("Record", () => {
     cy.get(".editor-class").type("37");
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "37");
+    });
+  });
+
+  it("Warns user to trim their own edited transcripts when trimming video", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", []),
+      ],
+    });
+    cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
+    cy.get(".editor-class").type("37");
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "37");
+    });
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=outline]").should("not.be.visible");
+      cy.get("[data-cy=slider]")
+        .invoke("mouseover")
+        .trigger("mousedown", { button: 0 });
+      cy.get("[data-cy=upload-video]").click();
+      cy.get("[data-cy=notification-dialog-title]").contains(
+        "Don't forget to trim your transcript"
+      );
+    });
+  });
+
+  it("If edited transcript from db but not locally and new upload, then replace transcript", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...videoMentor,
+        answers: [
+          ...videoMentor.answers.map((a) => {
+            if (a._id === "A2_1_1") {
+              return {
+                ...a,
+                hasEditedTranscript: true,
+                transcript: "Transcript from GQL",
+              };
+            }
+            return a;
+          }),
+        ],
+      },
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "NEW TRANSCRIPT",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=card-answer-title]").contains("Processing"); //upload in progress
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "Transcript from GQL");
+    });
+    cy.get("[data-cy=card-answer-title]").contains("Tap to preview"); // upload completes
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should("have.text", "NEW TRANSCRIPT");
+    });
+  });
+
+  it("transcript edited while upload in progress does not get replaced when upload completes", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  transcript: "",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  transcript: "NEW TRANSCRIPT",
+                  ...uploadTaskMediaBuild(),
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record?videoId=A2_1_1");
+    cy.get("[data-cy=card-answer-title]").contains("Processing"); //upload in progress
+    cy.get(".editor-class").type(". Edited Transcript"); // edit transcript
+    cy.get("[data-cy=card-answer-title]").contains("Tap to preview"); // upload completes
+    cy.get(".editor-class").within(($input) => {
+      cy.get("[data-text]").should(
+        "have.text",
+        "I'm 37 years old. Edited Transcript"
+      );
     });
   });
 

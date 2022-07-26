@@ -30,7 +30,7 @@ export function MentorTypeSlide(props: {
           <Select
             data-cy="select-chat-type"
             value={mentor.mentorType || MentorType.VIDEO}
-            style={{ width: 100, marginRight: 20 }}
+            style={{ width: 100, marginRight: 20, display: "flex" }}
             onChange={(
               event: React.ChangeEvent<{
                 name?: string;

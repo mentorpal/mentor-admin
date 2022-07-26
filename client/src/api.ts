@@ -536,7 +536,8 @@ export async function updateMyFirstTimeTracking(
       mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
         me{
           firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash
+            myMentorSplash,
+            tooltips,
           }
         }
       }
@@ -1170,7 +1171,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
               _id
             }
             firstTimeTracking{
-              myMentorSplash
+              myMentorSplash,
+              tooltips,
             }
           }
           accessToken
@@ -1856,7 +1858,15 @@ export async function addOrUpdateMentorPanel(
           }
         }
       }`,
-      variables: { id, mentorPanel },
+      variables: {
+        id,
+        mentorPanel: {
+          subject: mentorPanel.subject,
+          mentors: mentorPanel.mentors,
+          title: mentorPanel.title,
+          subtitle: mentorPanel.subtitle,
+        },
+      },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
   );
@@ -1884,7 +1894,14 @@ export async function updateConfigFeatured(
           }
         }
       }`,
-      variables: { config },
+      variables: {
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          mentorsDefault: config.mentorsDefault,
+        },
+      },
     },
     { dataPath: ["me", "updateConfigFeatured"], accessToken }
   );

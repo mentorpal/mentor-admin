@@ -1,16 +1,41 @@
 import React from "react";
-import { Grid, Typography } from "@material-ui/core";
+import {
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+  withStyles,
+} from "@material-ui/core";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
+import CloseIcon from "@material-ui/icons/Close";
+import { TooltipStep } from "components/home";
 
-import "styles/layout.css";
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "secondary",
+  },
+})(Tooltip);
 
 function MentorStatus(props: {
   continueAction: () => void;
   updateThumbnail: (file: File) => void;
+  incrementTooltip: () => void;
+  localHasSeenTooltips: boolean;
+  hasSeenTooltips: boolean;
+  idxTooltip: number;
+  statusTooltipOpen: boolean;
+  setStatusTooltipOpen: (active: boolean) => void;
 }): JSX.Element {
+  const {
+    incrementTooltip,
+    idxTooltip,
+    hasSeenTooltips,
+    statusTooltipOpen,
+    setStatusTooltipOpen,
+  } = props;
   const { continueAction, updateThumbnail } = props;
   const { getData } = useActiveMentor();
 
@@ -67,17 +92,77 @@ function MentorStatus(props: {
       <RecommendedActionButton
         setThumbnail={updateThumbnail}
         continueAction={continueAction}
+        incrementTooltip={incrementTooltip}
+        idxTooltip={idxTooltip}
+        hasSeenTooltips={hasSeenTooltips}
       />
     </Grid>
   );
+
   return (
     <>
       <Grid container spacing={2} className="top-card-container">
         <Grid item xs={12} md={11} className="status-title-wrapper">
-          <Typography variant="h5">
-            <b>Improve your Mentor</b>
-          </Typography>
+          <ColorTooltip
+            data-cy="status-tooltip"
+            interactive={true}
+            open={
+              hasSeenTooltips
+                ? statusTooltipOpen
+                : idxTooltip == TooltipStep.STATUS
+            }
+            onClose={incrementTooltip}
+            disableHoverListener={!hasSeenTooltips}
+            enterDelay={1500}
+            arrow
+            //contains all text inside tooltip
+            title={
+              <React.Fragment>
+                <IconButton
+                  data-cy="status-tooltip-close-btn"
+                  color="inherit"
+                  size="small"
+                  text-align="right"
+                  align-content="right"
+                  onClick={incrementTooltip}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <Typography
+                  color="inherit"
+                  align="center"
+                  data-cy="status-tooltip-title"
+                >
+                  Mentor Status
+                </Typography>
+                <p style={{ textAlign: "center" }}>
+                  The Mentor Status area shows how many questions you have
+                  recorded, and how ready your mentor is to use. If you are
+                  building a mentor just to click on a few questions, that is
+                  different than when people expect to ask any question on a
+                  subject.
+                </p>
+              </React.Fragment>
+            }
+            PopperProps={{
+              style: { maxWidth: 250, textAlign: "right" },
+            }}
+          >
+            <Typography variant="h5">
+              <b
+                onMouseEnter={() => {
+                  hasSeenTooltips && setStatusTooltipOpen(true);
+                }}
+                onMouseLeave={() => {
+                  hasSeenTooltips && setStatusTooltipOpen(false);
+                }}
+              >
+                Improve your Mentor
+              </b>
+            </Typography>
+          </ColorTooltip>
         </Grid>
+
         <Grid container spacing={2} className="status-container">
           <Grid item xs={12} sm={6} md={6} className="current-status-wrapper">
             {currentStatus}

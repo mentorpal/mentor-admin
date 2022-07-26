@@ -36,7 +36,7 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists } from "helpers";
+import { getValueIfKeyExists, sanitizeWysywigString } from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -52,10 +52,14 @@ import {
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import { Editor } from "react-draft-wysiwyg";
-import { EditorState, ContentState } from "draft-js";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { stateFromMarkdown } from "draft-js-import-markdown";
-import { stateToMarkdown } from "draft-js-export-markdown";
+import { mdToDraftjs, draftjsToMd } from "draftjs-md-converter";
+import {
+  EditorState,
+  ContentState,
+  convertToRaw,
+  convertFromRaw,
+} from "draft-js";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -194,35 +198,36 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-  const [transcriptText, setTranscriptText] = useState<string>("");
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(ContentState.createFromText(""))
   );
-  const markdownConfig = {
-    blockTypesMapping: {
-      /* mappings */
-    },
-    emptyLineBeforeBlock: true,
-  };
 
-  function updateTranscriptText(text: string) {
-    const contentState = stateFromMarkdown(text, markdownConfig);
-    const editorState = EditorState.createWithContent(contentState);
-    setEditorState(editorState);
-    setTranscriptText(text);
-    return transcriptText;
+  function initializeEditorStateWithTranscript(transcript: string): void {
+    const rawData = mdToDraftjs(transcript);
+    const contentState = convertFromRaw(rawData);
+    const newEditorState = EditorState.createWithContent(contentState);
+    setEditorState(newEditorState);
   }
 
-  function getMarkdownFromEditor(contentState: ContentState) {
-    const markdown = stateToMarkdown(contentState, markdownConfig);
+  function getMarkdownFromEditor(contentState: ContentState): string {
+    const markdown: string = draftjsToMd(convertToRaw(contentState), {
+      BOLD: "**",
+    });
     return markdown;
   }
 
-  function updateTranscriptWithMarkdown(markdown: string) {
-    recordState.editAnswer({
-      transcript: markdown,
-      markdownTranscript: markdown,
-    });
+  function updateTranscriptWithMarkdown(markdown: string): void {
+    recordState.editAnswer(
+      {
+        transcript: markdown,
+        markdownTranscript: markdown,
+        hasEditedTranscript: markdown !== curAnswer?.answer.markdownTranscript,
+      },
+      {
+        localTranscriptChanges:
+          markdown !== curAnswer?.answer.markdownTranscript,
+      }
+    );
   }
 
   useEffect(() => {
@@ -235,7 +240,7 @@ function RecordPage(props: {
     } else {
       text = curAnswer.answer.transcript;
     }
-    updateTranscriptText(text);
+    initializeEditorStateWithTranscript(text);
   }, [curAnswer?.answer]);
 
   function onBack() {
@@ -343,7 +348,7 @@ function RecordPage(props: {
           onEditorStateChange={(editorState: EditorState) => {
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
-            updateTranscriptWithMarkdown(markdown);
+            updateTranscriptWithMarkdown(sanitizeWysywigString(markdown));
             setEditorState(editorState);
           }}
           editorState={editorState}
@@ -483,7 +488,7 @@ function RecordPage(props: {
           <Typography className={classes.title}>Status:</Typography>
           <Select
             data-cy="select-status"
-            value={curAnswer?.editedAnswer.status || ""}
+            value={curAnswer?.editedAnswer.status || Status.NONE}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) =>
@@ -491,6 +496,9 @@ function RecordPage(props: {
             }
             style={{ marginLeft: 10 }}
           >
+            <MenuItem data-cy="none" value={Status.NONE}>
+              None
+            </MenuItem>
             <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
               Skip
             </MenuItem>
