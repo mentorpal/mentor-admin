@@ -201,7 +201,6 @@ function HomePage(props: {
 
   useEffect(() => {
     fetchMentorRecordQueue(props.accessToken).then((queueIDList) => {
-      console.log("Fetching queue");
       setQueueIDList(queueIDList);
     });
   }, []);
@@ -210,8 +209,8 @@ function HomePage(props: {
     if (!mentorAnswers || queueIDList.length == 0) {
       return;
     }
-    console.log("updating Queue answer length: " + mentorAnswers.length);
-    updateQueue(queueIDList, mentorAnswers);
+    const idListAfterRemoval = removeCompleteAnswerFromQueue(queueIDList, mentorAnswers)
+    setQueueIDList(idListAfterRemoval);
   }, [mentorAnswers?.map((answer) => answer.status)]);
 
   useEffect(() => {
@@ -341,40 +340,28 @@ function HomePage(props: {
       );
     }
   }
-  function updateQueue(queueIDList: string[], mentorAnswers: Answer[]) {
+  function removeCompleteAnswerFromQueue(
+    queueIDList: string[],
+    mentorAnswers: Answer[]
+  ): string[] {
     // remove answered questions from queue
-    if (mentorAnswers) {
-      const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer) =>
-        queueIDList.includes(mentorAnswer.question)
-      );
-      let queueListCopy = [...queueIDList];
-      mentorAnswersInRecordQueue.forEach(async (mentorAnswer) => {
-        console.log(
-          "Is answer complete? ",
-          isAnswerComplete(mentorAnswer, undefined, mentorType)
-        );
-        console.log(
-          "media condition : " +
-            Boolean(
-              mentorAnswer.media?.find((m) => m.type === MediaType.VIDEO)?.url
-            )
-        );
-        console.log(
-          "transcript condition : " + Boolean(mentorAnswer.transcript)
-        );
-        console.log("status : " + mentorAnswer.status);
-        if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
-          console.log("Removing:" + mentorAnswer);
-          queueListCopy = await removeQuestionFromRecordQueue(
-            props.accessToken,
-            mentorAnswer.question
-          );
-        }
-      });
-      if (queueListCopy.length !== queueIDList.length) {
-        setQueueIDList(queueListCopy);
+    const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer) =>
+      queueIDList.includes(mentorAnswer.question)
+    );
+    mentorAnswersInRecordQueue.forEach(async (mentorAnswer) => {
+      if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
+        removeQuestionFromRecordQueue(props.accessToken, mentorAnswer.question);
       }
-    }
+    });
+    return queueIDList.filter((questionId) => {
+      const answer = mentorAnswersInRecordQueue.find(
+        (a) => a.question === questionId
+      );
+      if (!answer) {
+        return false;
+      }
+      return !isAnswerComplete(answer, undefined, mentorType);
+    });
   }
 
   function getQueueQuestions(

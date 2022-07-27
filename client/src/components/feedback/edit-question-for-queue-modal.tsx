@@ -31,10 +31,7 @@ import {
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import {
-  addOrUpdateSubjectQuestions,
-  addQuestionToRecordQueue,
-} from "api";
+import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
