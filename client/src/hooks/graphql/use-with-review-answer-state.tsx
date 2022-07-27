@@ -7,8 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-import { isValidObjectId } from "mongoose";
-import { addOrUpdateSubjectQuestions } from "api";
+import { addOrUpdateSubjectQuestions, isValidObjectID } from "api";
 import {
   urlBuild,
   copyAndSet,
@@ -407,7 +406,7 @@ export function useWithReviewAnswerState(
       ?.filter(
         (q) =>
           q.originalQuestion.question !== q.newQuestionText &&
-          isValidObjectId(q.originalQuestion._id)
+          isValidObjectID(q.originalQuestion._id)
       )
       .map((q) => q.originalQuestion._id);
     if (qIds) {

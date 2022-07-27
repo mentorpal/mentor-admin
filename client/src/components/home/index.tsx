@@ -257,11 +257,12 @@ function HomePage(props: {
   );
 
   if (
-    !mentorId ||
-    mentorLoading ||
-    !setupStatus ||
-    !recordingItemBlocks ||
-    (reviewAnswerState.questionsLoading && !initialLoadComplete)
+    !initialLoadComplete &&
+    (!mentorId ||
+      mentorLoading ||
+      !setupStatus ||
+      !recordingItemBlocks ||
+      reviewAnswerState.questionsLoading)
   ) {
     return (
       <div>
@@ -275,7 +276,7 @@ function HomePage(props: {
     setInitialLoadComplete(true);
   }
 
-  if (!setupStatus.isMentorInfoDone) {
+  if (!setupStatus?.isMentorInfoDone) {
     navigate("/setup");
   }
 
@@ -651,7 +652,7 @@ function HomePage(props: {
         data-cy="setup-dialog"
         maxWidth="sm"
         fullWidth={true}
-        open={setupStatus && !setupStatus.isSetupComplete && showSetupAlert}
+        open={!setupStatus?.isSetupComplete && showSetupAlert}
         onClose={() => setShowSetupAlert(false)}
       >
         <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>
