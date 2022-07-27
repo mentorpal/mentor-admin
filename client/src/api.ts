@@ -73,8 +73,8 @@ function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
-function isValidObjectID(id: string) {
-  return id.match(/^[0-9a-fA-F]{24}$/);
+export function isValidObjectID(id: string): boolean {
+  return Boolean(id.match(/^[0-9a-fA-F]{24}$/));
 }
 
 const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
