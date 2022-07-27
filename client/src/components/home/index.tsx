@@ -277,23 +277,24 @@ function HomePage(props: {
     }
   }
   function updateQueue(queueIDList: string[], mentorAnswers: Answer[]) {
-    // remove answered questions from queue
-    if (mentorAnswers) {
-      const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer)=> queueIDList.includes(mentorAnswer.question))
-      let queueListCopy = [...queueIDList]
-      mentorAnswersInRecordQueue.forEach(async (mentorAnswer)=>{
-        console.log("Is answer complete? ", isAnswerComplete(mentorAnswer, undefined, mentorType))
-        console.log("media condition : " + Boolean(mentorAnswer.media?.find((m) => m.type === MediaType.VIDEO)?.url));
-        console.log("transcript condition : "+ Boolean(mentorAnswer.transcript));
-        console.log("status : " + mentorAnswer.status);
-        if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
-          console.log("Removing:" + mentorAnswer);
-          queueListCopy = await removeQuestionFromRecordQueue(props.accessToken, mentorAnswer.question)
+      // remove answered questions from queue
+      if (mentorAnswers) {
+        const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer)=> queueIDList.includes(mentorAnswer.question))
+        let queueListCopy = [...queueIDList]
+        mentorAnswersInRecordQueue.forEach(async (mentorAnswer)=>{
+          console.log("Is answer complete? ", isAnswerComplete(mentorAnswer, undefined, mentorType))
+          console.log("media condition : " + Boolean(mentorAnswer.media?.find((m) => m.type === MediaType.VIDEO)?.url))
+          console.log("transcript condition : "+ Boolean(mentorAnswer.transcript));
+          console.log("status : " + mentorAnswer.status);
+          if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
+            console.log("Removing:" + mentorAnswer);
+            queueListCopy = await removeQuestionFromRecordQueue(props.accessToken, mentorAnswer.question)
+          }
+        })
+        if(queueListCopy.length !== queueIDList.length){
+          setQueueIDList(queueListCopy)
         }
-      })
-      if(queueListCopy.length !== queueIDList.length){
-        setQueueIDList(queueListCopy)
-      }
+    }
   }
 
   function getQueueQuestions(
