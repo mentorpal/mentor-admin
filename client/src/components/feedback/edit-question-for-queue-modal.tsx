@@ -110,11 +110,7 @@ function EditQuestionForQueueModal(props: {
     );
     const newQuestionId = subjectQuestionsReturned[0].question
     // add to record queue
-    console.log("subQueReturn : " +subjectQuestionsReturned);
-    console.log("Queue: "+fetchMentorRecordQueue);
     addQuestionToRecordQueue(accessToken, newQuestionId);
-    console.log("Queue after adding : "+fetchMentorRecordQueue);
-    console.log("answers after adding: " + mentor.answers.length);
     await loadQuestions([newQuestionId])
     // close modal & reset
     setSelectedSubject(undefined);
