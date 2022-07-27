@@ -33,6 +33,7 @@ import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
 import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue, fetchMentorRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
+import { useQuestionActions } from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -78,6 +79,7 @@ function EditQuestionForQueueModal(props: {
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  const { loadQuestions } = useQuestionActions();
 
   async function okButtonClicked(
     customQuestion: string,
@@ -106,12 +108,14 @@ function EditQuestionForQueueModal(props: {
       [newSubjectQuestion],
       accessToken
     );
+    const newQuestionId = subjectQuestionsReturned[0].question
     // add to record queue
     console.log("subQueReturn : " +subjectQuestionsReturned);
     console.log("Queue: "+fetchMentorRecordQueue);
-    addQuestionToRecordQueue(accessToken, subjectQuestionsReturned[0].question);
+    addQuestionToRecordQueue(accessToken, newQuestionId);
     console.log("Queue after adding : "+fetchMentorRecordQueue);
     console.log("answers after adding: " + mentor.answers.length);
+    await loadQuestions([newQuestionId])
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
