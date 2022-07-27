@@ -140,10 +140,7 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-
 function FeedbackItem(props: {
-  customQuestionModalOpen: boolean;
-  setCustomQuestionModalOpen: (customQuestionModalOpen: boolean) => void;
   mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
@@ -155,8 +152,6 @@ function FeedbackItem(props: {
   setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
   const {
-    customQuestionModalOpen,
-    setCustomQuestionModalOpen,
     mentor,
     accessToken,
     feedback,
@@ -169,6 +164,8 @@ function FeedbackItem(props: {
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
+  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
+    useState<boolean>(false);
 
   function formatMentorQuestions(
     mentorAnswers: Answer[],
@@ -177,12 +174,10 @@ function FeedbackItem(props: {
     if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
       return mentorAnswers;
     }
-    const completeAnswers = mentorAnswers?.filter((mentorAnswer) =>
-                    isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                  ) || []
-    /*
     const completeAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
+      .filter((mentorAnswer) =>
+        isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
       .sort((a, b) =>
         (mentorQuestions[a._id]?.question?.question || "") >
         (mentorQuestions[b._id]?.question?.question || "")
@@ -192,9 +187,11 @@ function FeedbackItem(props: {
           ? -1
           : 0
       );
-      */
     const incompleteAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
+      .filter(
+        (mentorAnswer) =>
+          !isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
       .sort((a, b) =>
         (mentorQuestions[a._id]?.question?.question || "") >
         (mentorQuestions[b._id]?.question?.question || "")
@@ -204,7 +201,6 @@ function FeedbackItem(props: {
           ? -1
           : 0
       );
-  
     return completeAnswers.concat(incompleteAnswers);
   }
 
@@ -215,13 +211,13 @@ function FeedbackItem(props: {
   ) {
     if (queueList.includes(selectedAnswerID)) {
       setQueueList(
-        await removeQuestionFromRecordQueue(selectedAnswerID, accessToken)
+        await removeQuestionFromRecordQueue(accessToken, selectedAnswerID)
       );
     } else if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
     } else {
       setQueueList(
-        await addQuestionToRecordQueue(selectedAnswerID, accessToken)
+        await addQuestionToRecordQueue(accessToken, selectedAnswerID)
       );
     }
   }
@@ -287,12 +283,6 @@ function FeedbackItem(props: {
                 mentorAnswers || [],
                 mentorQuestions
               )}
-              /*
-              options={
-                mentorAnswers?.filter((mentorAnswer) =>
-                  isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                ) || []
-              }*/
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -411,11 +401,9 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
-
-  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
-    useState<boolean>(false); // condition for opening modal
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const [queueList, setQueueList] = useState<string[]>([]);
+
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
       setQueueList(queueList);
@@ -642,8 +630,6 @@ function FeedbackPage(): JSX.Element {
                     onUpdated={reloadFeedback}
                     queueList={queueList}
                     setQueueList={setQueueList}
-                    setCustomQuestionModalOpen={setCustomQuestionModalOpen}
-                    customQuestionModalOpen={customQuestionModalOpen}
                     mentor={mentor}
                   />
                 ))}

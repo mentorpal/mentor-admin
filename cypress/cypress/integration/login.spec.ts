@@ -86,11 +86,14 @@ describe("Login", () => {
 
   it("shows user name on home page if user is logged in", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor });
+    cyMockDefault(cy, {
+      mentor: { ...mentor, firstName: "Clint", email: "email" },
+    });
     cy.visit("/");
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=login-option]").should("have.text", "Clinton Anderson");
     });
+    cy.get("[data-cy=setup-dialog-title]").contains("Finish Setup?");
   });
 
   it("can logout and redirect to login page", () => {

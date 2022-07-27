@@ -19,9 +19,18 @@ import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
 
 describe("My Mentor Page", () => {
-  it("shows all questions for all categories by default", () => {
+  it.only("shows all questions for all categories by default", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: [],
+          },
+        }),
+      ],
+    });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
@@ -111,7 +120,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=notification-dialog]").should("exist");
     cy.get("[data-cy=notification-dialog-title]").should(
       "have.text",
-      "The My Mentor page is your home page to create your mentor. It summarizes what you have recorded so far, and recommends next-steps to improve your mentor. At the start, you will mostly Record Questions and Build your mentor to try it out. However, as learners ask your mentor questions, you will review User Feedback to select or record better answers to new questions people ask."
+      "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
     );
     cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
     cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();

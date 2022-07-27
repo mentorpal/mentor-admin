@@ -7,6 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL, cySetup } from "../support/functions";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import mentor from "../fixtures/mentor/clint_new";
+import clint from "../fixtures/mentor/clint_home";
+import questions from "../fixtures/questions";
+import { QuestionType, Status } from "../support/types";
 
 describe("Mentor Record Queue", () => {
   it("Modal shows correct data", () => {
@@ -18,7 +21,7 @@ describe("Mentor Record Queue", () => {
         mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchMentorRecordQueue", {
           me: {
-            mentorRecordQueue: [],
+            fetchMentorRecordQueue: [],
           },
         }),
         mockGQL("SubjectAddOrUpdateQuestions", {
@@ -56,16 +59,61 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
     cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
   });
-  it.only("Modal creates new question", () => {
+  it("New custom question shows up on queue card", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor,
+      mentor: {
+        ...clint,
+        answers: [
+          ...clint.answers,
+          {
+            _id: "A1_1_2",
+            question: {
+              _id: "A1_1_2",
+              question: "Custom Question?",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              clientId: "",
+              paraphrases: [],
+            },
+            transcript: "",
+            status: Status.INCOMPLETE,
+          },
+        ],
+      },
+      questions: [
+        ...questions,
+        {
+          _id: "A1_1_2",
+          question: "Custom Question?",
+          type: QuestionType.QUESTION,
+          name: clint._id,
+          clientId: "",
+          paraphrases: [],
+        },
+      ],
       gqlQueries: [
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("UserQuestions", userQuestions),
         mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchMentorRecordQueue", {
+        mockGQL("SubjectAddOrUpdateQuestions", {
           me: {
-            mentorRecordQueue: [],
+            subjectAddOrUpdateQuestions: [
+              "background",
+              {
+                question: [
+                  "A1_1_2",
+                  "Custom Question?",
+                  "QUESTION",
+                  "",
+                  clint._id,
+                  [],
+                  clint._id,
+                ],
+                topics: [],
+                category: "category",
+              },
+            ],
           },
         }),
         mockGQL("SubjectAddOrUpdateQuestions", {
@@ -85,11 +133,18 @@ describe("Mentor Record Queue", () => {
             topics: ["back-topic2-id"],
           },
         }),
-        mockGQL("RemoveQuestionFromRecordQueue", {
-          me: {
-            removeQuestionFromRecordQueue: [],
+        mockGQL("FetchMentorRecordQueue", [
+          {
+            me: {
+              fetchMentorRecordQueue: [],
+            },
           },
-        }),
+          {
+            me: {
+              fetchMentorRecordQueue: ["A1_1_2"],
+            },
+          },
+        ]),
         mockGQL("UserQuestionSetAnswer", {}),
       ],
     });
@@ -98,9 +153,164 @@ describe("Mentor Record Queue", () => {
     cy.get("[data-cy=subject-drop-down]").click();
     cy.get("[data-cy=Subject-option-background]").click();
     cy.get("[data-cy=category-drop-down]").click();
-    cy.get("[data-cy=Category-option-category1]").click();
-    cy.get("[data-cy=topic-selector]").click();
-    cy.get("[data-cy=Topic-option-back-topic2-id]").click();
+    cy.get("[data-cy=Category-option-category]").click();
     cy.get("[data-cy=modal-OK-btn]").click();
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-block]").should("exist");
+    cy.get("[data-cy=queue-expand-btn]").click();
+    cy.contains("Custom Question?");
+  });
+});
+
+describe("Queue Card", () => {
+  it("Queue card not rendered if queue is empty", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", [
+          {
+            me: {
+              fetchMentorRecordQueue: [],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.contains("My Priorities").should("not.exist");
+  });
+  it("Queue card is accessible throughout home page", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: ["A5_1_1"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-block]").should("exist");
+    cy.get("[data-cy=select-subject]").click();
+    cy.get("[data-cy=select-background]").click();
+    cy.get("[data-cy=queue-block]").should("exist");
+    cy.get("[data-cy=select-subject]").click();
+    cy.get("[data-cy=select-idle_and_initial_recordings]").click();
+    cy.get("[data-cy=queue-block]").should("exist");
+  });
+  it("Can record all queued questions", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: [
+          ...clint.answers,
+          {
+            _id: "A6_1_2",
+            question: {
+              _id: "A6_1_2",
+              clientId: "C_A6_1_2",
+              question: "HELLO?",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              paraphrases: [],
+            },
+            transcript: "",
+            status: Status.INCOMPLETE,
+          },
+        ],
+      },
+      questions: [
+        ...questions,
+        {
+          _id: "A6_1_2",
+          clientId: "C_A6_1_2",
+          question: "HELLO?",
+          type: QuestionType.QUESTION,
+          name: clint._id,
+          paraphrases: [],
+        },
+      ],
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: ["A5_1_1", "A6_1_2"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-expand-btn]").click();
+    cy.get("[data-cy=record-all-queue]").click();
+    cy.location("search").should("equal", "?videoId=A5_1_1&videoId=A6_1_2");
+  });
+  it("Can record a single queue question", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: ["A5_1_1"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=queue-expand-btn]").click();
+    cy.get("[data-cy=record-one-0]").click();
+    cy.location("search").should("equal", "?videoId=A5_1_1&back=%2F");
+  });
+  it("Complete/answered questions are not in queue", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
+        mockGQL("RemoveQuestionFromRecordQueue", {
+          me: {
+            removeQuestionFromRecordQueue: [],
+          },
+        }),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: ["A4_1_1"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.location("pathname").then(($el) => {
+      assert($el.replace("/admin", ""), "/");
+    });
+    cy.get("[data-cy=setup-no]").click();
+    expect(Cypress.$("[data-cy=queue-block]")).not.to.exist;
   });
 });

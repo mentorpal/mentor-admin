@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
 import { feedback as userQuestions } from "../fixtures/feedback/feedback";
@@ -19,7 +20,7 @@ describe("Feedback Page", () => {
         mockGQL("FetchMentorRecordQueue", [
           {
             me: {
-              mentorRecordQueue: [],
+              fetchMentorRecordQueue: [],
             },
           },
         ]),

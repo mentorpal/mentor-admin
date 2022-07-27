@@ -33,6 +33,7 @@ import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
 import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
 import { SubjectQuestionGQL } from "types-gql";
+import { useQuestionActions } from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -78,12 +79,14 @@ function EditQuestionForQueueModal(props: {
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  const { loadQuestions } = useQuestionActions();
 
   async function okButtonClicked(
     customQuestion: string,
     selectedSubject: Subject
   ) {
     // create new question
+    console.log("answers before adding: " + mentor.answers.length);
     const newQuestion: Question = {
       _id: uuid(),
       question: customQuestion,
@@ -105,8 +108,10 @@ function EditQuestionForQueueModal(props: {
       [newSubjectQuestion],
       accessToken
     );
+    const newQuestionId = subjectQuestionsReturned[0].question;
     // add to record queue
-    addQuestionToRecordQueue(subjectQuestionsReturned[0].question, accessToken);
+    addQuestionToRecordQueue(accessToken, newQuestionId);
+    await loadQuestions([newQuestionId]);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
@@ -191,7 +196,10 @@ function EditQuestionForQueueModal(props: {
                           onChange={(
                             event: React.ChangeEvent<{ value: unknown }>
                           ) => {
-                            setSelectedCategory(event.target.value as Category);
+                            const category = selectedSubject.categories.find(
+                              ({ id }) => id === event.target.value
+                            );
+                            setSelectedCategory(category);
                           }}
                         >
                           <option selected disabled>

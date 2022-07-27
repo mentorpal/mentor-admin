@@ -73,8 +73,8 @@ function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
-function isValidObjectID(id: string) {
-  return id.match(/^[0-9a-fA-F]{24}$/);
+export function isValidObjectID(id: string): boolean {
+  return Boolean(id.match(/^[0-9a-fA-F]{24}$/));
 }
 
 const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
@@ -173,7 +173,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (!(res.status >= 200 && res.status <= 299)) {
-    throw new Error(`http request failed: ${res.statusText}`);
+    throw new Error(`http request failed: ${res.data}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
@@ -730,7 +730,7 @@ export async function fetchUserQuestions(
       }
     `,
       variables: {
-        filter: stringifyObject(params.filter),
+        filter: params.filter,
         limit: params.limit,
         cursor: params.cursor,
         sortBy: params.sortBy,
@@ -1280,11 +1280,11 @@ export async function fetchMentorRecordQueue(
       query: `
         query FetchMentorRecordQueue {
           me {
-            mentorRecordQueue
+            fetchMentorRecordQueue
           }
         }`,
     },
-    { accessToken, dataPath: ["me", "mentorRecordQueue"] }
+    { accessToken, dataPath: ["me", "fetchMentorRecordQueue"] }
   );
 }
 
@@ -1296,7 +1296,7 @@ export async function addQuestionToRecordQueue(
   return await execGql<string[]>(
     {
       query: `
-        mutation AddQuestionToRecordQueue($questionId: String!) {
+        mutation AddQuestionToRecordQueue($questionId: ID!) {
           me {
             addQuestionToRecordQueue(questionId: $questionId)
           }
@@ -1317,7 +1317,7 @@ export async function removeQuestionFromRecordQueue(
   return await execGql<string[]>(
     {
       query: `
-        mutation RemoveQuestionFromRecordQueue($questionId: String!) {
+        mutation RemoveQuestionFromRecordQueue($questionId: ID!) {
           me {
             removeQuestionFromRecordQueue(questionId: $questionId)
           }
