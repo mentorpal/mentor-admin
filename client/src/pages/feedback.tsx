@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   AppBar,
   Button,
@@ -219,6 +219,7 @@ function FeedbackItem(props: {
   }
 
   const handleClose = () => {
+    setQueueList(queueList);
     setCustomQuestionModalOpen(false);
   };
 
@@ -365,6 +366,7 @@ function FeedbackPage(): JSX.Element {
     getData,
     isLoading: isMentorLoading,
     error: mentorError,
+    loadMentor,
   } = useActiveMentor();
   const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
@@ -398,11 +400,13 @@ function FeedbackPage(): JSX.Element {
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
-  const [queueList, setQueueList] = useState<string[]>([]);
+  const [queueList, _setQueueList] = useState<string[]>([]);
+  const [questionsAddedToQueue, setQuestionsAddedToQueue] = useState(false);
+  // TODO: On back, reload mentor if new questions were added to queue
 
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
-      setQueueList(queueList);
+      _setQueueList(queueList);
     });
   }, []);
 
@@ -422,6 +426,26 @@ function FeedbackPage(): JSX.Element {
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
+
+  function setQueueList(queueList: string[]) {
+    setQuestionsAddedToQueue(true);
+    _setQueueList(queueList);
+  }
+
+  // TODO: This reload is a workaround. What we need is a redux dispatch to load a set of answers afters
+  const reloadMentor = useCallback(
+    (cb: () => void) => {
+      if (!mentorId) {
+        cb();
+        return;
+      }
+      if (questionsAddedToQueue) {
+        loadMentor();
+      }
+      cb();
+    },
+    [mentorId, questionsAddedToQueue]
+  );
 
   const initialDisplayReady =
     mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
@@ -449,7 +473,7 @@ function FeedbackPage(): JSX.Element {
 
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentorId} />
+      <NavBar title="Feedback" mentorId={mentorId} onNav={reloadMentor} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>

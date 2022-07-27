@@ -86,7 +86,6 @@ function EditQuestionForQueueModal(props: {
     selectedSubject: Subject
   ) {
     // create new question
-    console.log("answers before adding: " + mentor.answers.length);
     const newQuestion: Question = {
       _id: uuid(),
       question: customQuestion,
