@@ -26,6 +26,7 @@ import {
   QuestionType,
   Subject,
   Topic,
+  UserQuestion,
   UtteranceName,
 } from "types";
 import { onTextInputChanged } from "helpers";
@@ -70,14 +71,16 @@ function EditQuestionForQueueModal(props: {
   handleClose: () => void;
   open: boolean;
   mentor: Mentor;
-  userQuestion: string;
   accessToken: string;
+  feedback: UserQuestion;
 }): JSX.Element {
-  const { handleClose, open, userQuestion, mentor, accessToken } = props;
+  const { handleClose, open, mentor, accessToken, feedback } = props;
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
+  const [customQuestion, setCustomQuestion] = useState<string>(
+    feedback.question
+  );
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const { loadQuestions } = useQuestionActions();
 
@@ -115,6 +118,8 @@ function EditQuestionForQueueModal(props: {
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
+    //update attribute.
+    props.feedback.hasBeenUsedtoCreateNewQuestion == true;
   }
 
   return (

@@ -9,8 +9,6 @@ import {
   AppBar,
   Button,
   Fab,
-  FormControlLabel,
-  FormGroup,
   IconButton,
   MenuItem,
   Paper,
@@ -66,7 +64,6 @@ import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
-import { EmojiFoodBeverage } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -337,8 +334,8 @@ function FeedbackItem(props: {
               handleClose={handleClose}
               open={customQuestionModalOpen}
               mentor={mentor}
-              userQuestion={feedback.question}
               accessToken={accessToken || ""}
+              feedback={props.feedback}
             />
           </div>
         )}
@@ -422,7 +419,8 @@ function FeedbackPage(): JSX.Element {
       : (edge.node.feedback === Feedback.BAD ||
           edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC ||
           edge.node.confidence <= -0.45) &&
-        edge.node.graderAnswer === undefined
+        edge.node.graderAnswer === undefined &&
+        !edge.node.hasBeenUsedtoCreateNewQuestion
   );
 
   const label = { inputProps: { "aria-label": "Switch demo" } };

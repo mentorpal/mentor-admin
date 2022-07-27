@@ -43,7 +43,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status, Answer, MediaType } from "types";
+import { User, Subject, UserRole, Status, Answer } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -209,7 +209,10 @@ function HomePage(props: {
     if (!mentorAnswers || queueIDList.length == 0) {
       return;
     }
-    const idListAfterRemoval = removeCompleteAnswerFromQueue(queueIDList, mentorAnswers)
+    const idListAfterRemoval = removeCompleteAnswerFromQueue(
+      queueIDList,
+      mentorAnswers
+    );
     setQueueIDList(idListAfterRemoval);
   }, [mentorAnswers?.map((answer) => answer.status)]);
 
