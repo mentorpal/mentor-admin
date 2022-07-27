@@ -53,7 +53,6 @@ export const loadQuestionsById = createAsyncThunk(
     if (ids.length === 0) {
       return { isCancelled: true };
     }
-    console.log("inside loadquestionbyid");
     thunkAPI.dispatch(questionsSlice.actions.loadingQuestionsInProgress(ids));
     return { result: await fetchQuestionsById(ids) };
   }
@@ -84,9 +83,7 @@ export const questionsSlice = createSlice({
         error: undefined,
       };
     },
-    // TODO: Batch loading question in progress
     loadingQuestionsInProgress: (state, action: PayloadAction<string[]>) => {
-      // TODO: Do this for every question but in one go
       const stateCopy = { ...state, questions: { ...state.questions } };
       for (const id of action.payload) {
         stateCopy.questions[id] = {
@@ -121,12 +118,10 @@ export const questionsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // loadQuestionsById
       .addCase(loadQuestionsById.fulfilled, (state, action) => {
         if (action.payload.isCancelled || !action.payload.result) {
           return;
         }
-        console.log("load questions by id fulfilled");
         const stateCopy = { ...state, questions: { ...state.questions } };
         for (const q of action.payload.result) {
           stateCopy.questions[q._id] = {

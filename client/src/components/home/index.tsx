@@ -143,9 +143,8 @@ function HomePage(props: {
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   const [idxTooltip, setIdxTooltip] = useState<number>(0);
-  const [recordingItemBlocks, setRecordingItemBlocks] = useState<JSX.Element[]>(
-    []
-  );
+  const [recordingItemBlocks, setRecordingItemBlocks] =
+    useState<JSX.Element[]>();
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -173,6 +172,7 @@ function HomePage(props: {
 
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
@@ -188,7 +188,10 @@ function HomePage(props: {
 
   useEffect(() => {
     const _blocks = reviewAnswerState.getBlocks();
-    if (reviewAnswerState.questionsLoading || _blocks.length === 0) {
+    if (
+      reviewAnswerState.questionsLoading ||
+      (_blocks.length === 0 && recordingItemBlocks !== undefined)
+    ) {
       return;
     }
     const blocks = _blocks.map((b, i) => (
@@ -253,7 +256,13 @@ function HomePage(props: {
     [reviewAnswerState.unsavedChanges()]
   );
 
-  if (!(mentorId && setupStatus)) {
+  if (
+    !mentorId ||
+    mentorLoading ||
+    !setupStatus ||
+    !recordingItemBlocks ||
+    (reviewAnswerState.questionsLoading && !initialLoadComplete)
+  ) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId="" />
@@ -261,6 +270,11 @@ function HomePage(props: {
       </div>
     );
   }
+
+  if (!initialLoadComplete) {
+    setInitialLoadComplete(true);
+  }
+
   if (!setupStatus.isMentorInfoDone) {
     navigate("/setup");
   }
@@ -446,7 +460,7 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-        {recordingItemBlocks}
+        {recordingItemBlocks || []}
       </List>
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>
@@ -482,7 +496,6 @@ function HomePage(props: {
             >
               Save Changes
             </Fab>
-            {/* TODO: Memoize functions used by these tooltips/buttons to prevent unneccesary re-renders */}
             <ColorTooltip
               data-cy="build-tooltip"
               interactive={true}

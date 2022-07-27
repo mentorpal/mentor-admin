@@ -95,16 +95,11 @@ export function useQuestionActions(): QuestionActions {
   function loadQuestions(ids: string[], reload = false) {
     if (!reload) {
       const qIds = Object.keys(data);
-      console.log(qIds);
-      console.log(ids);
       ids = ids.filter((i) => !qIds.includes(i));
-      console.log(ids);
     }
     if (ids.length === 0) {
       return;
     }
-    // LEFT OFF: This is getting called a lot, maybe something in use-with-review-answer-state is getting re-rendered and triggerign this?
-    console.log("load questions called");
     return dispatch(loadQuestionsById({ ids, reload }));
   }
 
