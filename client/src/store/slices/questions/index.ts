@@ -53,9 +53,8 @@ export const loadQuestionsById = createAsyncThunk(
     if (ids.length === 0) {
       return { isCancelled: true };
     }
-    for (const id of ids) {
-      thunkAPI.dispatch(questionsSlice.actions.loadingInProgress(id));
-    }
+    console.log("inside loadquestionbyid");
+    thunkAPI.dispatch(questionsSlice.actions.loadingQuestionsInProgress(ids));
     return { result: await fetchQuestionsById(ids) };
   }
 );
@@ -78,12 +77,25 @@ export const questionsSlice = createSlice({
   name: "questions",
   initialState,
   reducers: {
-    loadingInProgress: (state, action: PayloadAction<string>) => {
+    loadingQuestionInProgress: (state, action: PayloadAction<string>) => {
       state.questions[action.payload] = {
         ...state.questions[action.payload],
         status: LoadingStatus.LOADING,
         error: undefined,
       };
+    },
+    // TODO: Batch loading question in progress
+    loadingQuestionsInProgress: (state, action: PayloadAction<string[]>) => {
+      // TODO: Do this for every question but in one go
+      const stateCopy = { ...state, questions: { ...state.questions } };
+      for (const id of action.payload) {
+        stateCopy.questions[id] = {
+          ...stateCopy.questions[id],
+          status: LoadingStatus.LOADING,
+          error: undefined,
+        };
+      }
+      return stateCopy;
     },
     savingInProgress: (state, action: PayloadAction<string>) => {
       state.questions[action.payload] = {
@@ -114,13 +126,16 @@ export const questionsSlice = createSlice({
         if (action.payload.isCancelled || !action.payload.result) {
           return;
         }
+        console.log("load questions by id fulfilled");
+        const stateCopy = { ...state, questions: { ...state.questions } };
         for (const q of action.payload.result) {
-          state.questions[q._id] = {
+          stateCopy.questions[q._id] = {
             question: q,
             status: LoadingStatus.SUCCEEDED,
             error: undefined,
           };
         }
+        return stateCopy;
       })
       .addCase(loadQuestionsById.rejected, (state, action) => {
         for (const id of action.meta.arg.ids) {

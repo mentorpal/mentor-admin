@@ -50,6 +50,7 @@ interface UseWithReviewAnswerState {
   isSaving: boolean;
   unsavedChanges: () => boolean;
   error?: LoadingError;
+  questionsLoading: boolean;
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
   getQuestions: () => QuestionEdits[];
@@ -419,6 +420,7 @@ export function useWithReviewAnswerState(
     selectedSubject,
     isSaving,
     error,
+    questionsLoading,
     unsavedChanges,
     getBlocks,
     getAnswers,

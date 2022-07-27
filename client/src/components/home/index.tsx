@@ -187,7 +187,11 @@ function HomePage(props: {
   );
 
   useEffect(() => {
-    const blocks = reviewAnswerState.getBlocks().map((b, i) => (
+    const _blocks = reviewAnswerState.getBlocks();
+    if (reviewAnswerState.questionsLoading || _blocks.length === 0) {
+      return;
+    }
+    const blocks = _blocks.map((b, i) => (
       <ListItem key={b.name + String(i)} data-cy={`block-${i}`}>
         <RecordingBlockItem
           mentorId={mentorId || ""}
@@ -205,6 +209,7 @@ function HomePage(props: {
     ));
     setRecordingItemBlocks(blocks);
   }, [
+    reviewAnswerState.questionsLoading,
     reviewAnswerState.getBlocks(),
     reviewAnswerState.getAnswers(),
     reviewAnswerState.getQuestions(),
