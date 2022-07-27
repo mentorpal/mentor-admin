@@ -4,23 +4,49 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Button, Tooltip, Typography } from "@material-ui/core";
+import {
+  IconButton,
+  Button,
+  Tooltip,
+  Typography,
+  withStyles,
+} from "@material-ui/core";
 import { HelpOutline } from "@material-ui/icons";
 import React from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { UseWithRecommendedAction } from "../../hooks/graphql/use-with-recommended-action";
+import CloseIcon from "@material-ui/icons/Close";
+import { TooltipStep } from "components/home";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
+  incrementTooltip: () => void;
+  idxTooltip: number;
+  hasSeenTooltips: boolean;
 }): JSX.Element {
-  const [recommendedAction, skipRecommendation, recListLength] =
-    UseWithRecommendedAction(props.continueAction);
+  const { incrementTooltip, idxTooltip, hasSeenTooltips } = props;
+  const [
+    recommendedAction,
+    skipRecommendation,
+    recListLength,
+    questionsLoading,
+  ] = UseWithRecommendedAction(props.continueAction);
   const { getData } = useActiveMentor();
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
+
+  const ColorTooltip = withStyles({
+    tooltip: {
+      backgroundColor: "secondary",
+    },
+  })(Tooltip);
+
+  if (questionsLoading) {
+    return <></>;
+  }
 
   return (
     <div data-cy="rec-action-btn">
@@ -43,6 +69,7 @@ export default function RecommendedActionButton(props: {
         >
           <b>{mentorInfo.currentStage.next.name}</b>
           {"   "}
+
           <Tooltip
             title={
               <React.Fragment>
@@ -119,20 +146,60 @@ export default function RecommendedActionButton(props: {
                       <b>{recommendedAction.text}</b>
                     </p>
                   </Typography>
-                  <Button
-                    size="medium"
-                    fullWidth
-                    color="primary"
-                    variant="contained"
-                    component="span"
-                    data-cy="recommended-action-thumbnail"
-                    startIcon={recommendedAction.icon}
-                    className={
-                      recommendedAction.input ? "go-btn-label" : "go-btn"
+
+                  <ColorTooltip
+                    interactive={true}
+                    open={
+                      hasSeenTooltips
+                        ? undefined
+                        : idxTooltip == TooltipStep.RECOMMENDER
                     }
+                    onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                    disableHoverListener={!hasSeenTooltips}
+                    enterDelay={hasSeenTooltips ? 1500000 : 100}
+                    arrow
+                    title={
+                      <React.Fragment>
+                        <IconButton
+                          color="inherit"
+                          size="small"
+                          text-align="right"
+                          align-content="right"
+                          onClick={incrementTooltip}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                        <Typography color="inherit" align="center">
+                          Recommender
+                        </Typography>
+                        <p style={{ textAlign: "center" }}>
+                          To help you improve your mentor, a good next-step is
+                          always recommended. At first this will be mostly
+                          recording answers, but later you will Preview your
+                          mentor and address User Feedback. Hit &quotSkip&quot
+                          to see the next-best recommendation.
+                        </p>
+                      </React.Fragment>
+                    }
+                    PopperProps={{
+                      style: { maxWidth: 250, textAlign: "right" },
+                    }}
                   >
-                    Go
-                  </Button>
+                    <Button
+                      size="medium"
+                      fullWidth
+                      color="primary"
+                      variant="contained"
+                      component="span"
+                      data-cy="recommended-action-thumbnail"
+                      startIcon={recommendedAction.icon}
+                      className={
+                        recommendedAction.input ? "go-btn-label" : "go-btn"
+                      }
+                    >
+                      Go
+                    </Button>
+                  </ColorTooltip>
                 </div>
               </label>
             </>
@@ -155,18 +222,63 @@ export default function RecommendedActionButton(props: {
                   <b>{recommendedAction.text}</b>
                 </p>
               </Typography>
-              <Button
-                size="medium"
-                fullWidth
-                color="primary"
-                variant="contained"
-                data-cy="recommended-action-button"
-                onClick={recommendedAction.action}
-                startIcon={recommendedAction.icon}
-                className="go-btn"
+
+              <ColorTooltip
+                data-cy="recommender-tooltip"
+                interactive={true}
+                open={
+                  hasSeenTooltips
+                    ? undefined
+                    : idxTooltip == TooltipStep.RECOMMENDER
+                }
+                onClose={hasSeenTooltips ? undefined : incrementTooltip}
+                disableHoverListener={!hasSeenTooltips}
+                arrow
+                title={
+                  <React.Fragment>
+                    <IconButton
+                      data-cy="recommender-tooltip-close-btn"
+                      color="inherit"
+                      size="small"
+                      text-align="right"
+                      align-content="right"
+                      onClick={incrementTooltip}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                    <Typography
+                      color="inherit"
+                      align="center"
+                      data-cy="recommender-tooltip-title"
+                    >
+                      Recommender
+                    </Typography>
+                    <p style={{ textAlign: "center" }}>
+                      To help you improve your mentor, a good next-step is
+                      always recommended. At first this will be mostly recording
+                      answers, but later you will Preview your mentor and
+                      address User Feedback. Hit &quotSkip&quot to see the
+                      next-best recommendation.
+                    </p>
+                  </React.Fragment>
+                }
+                PopperProps={{
+                  style: { maxWidth: 250, textAlign: "right" },
+                }}
               >
-                Go
-              </Button>
+                <Button
+                  size="medium"
+                  fullWidth
+                  color="primary"
+                  variant="contained"
+                  data-cy="recommended-action-button"
+                  onClick={recommendedAction.action}
+                  startIcon={recommendedAction.icon}
+                  className="go-btn"
+                >
+                  Go
+                </Button>
+              </ColorTooltip>
             </div>
           )}
         </div>

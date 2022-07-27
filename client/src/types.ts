@@ -48,6 +48,7 @@ export interface UserAccessToken {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  tooltips: boolean;
 }
 
 export interface User {
@@ -324,6 +325,7 @@ export enum MentorType {
 }
 
 export enum Status {
+  NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }

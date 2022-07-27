@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { UserAccessToken, UserRole } from "../support/types";
+import { MentorType, UserAccessToken, UserRole } from "../support/types";
 
 export const login: UserAccessToken = {
   user: {
@@ -14,8 +14,23 @@ export const login: UserAccessToken = {
     userRole: UserRole.USER,
     firstTimeTracking: {
       myMentorSplash: false,
+      tooltips: false,
     },
-    defaultMentor: { _id: "clintanderson" },
+    defaultMentor: {
+      _id: "clintanderson",
+      name: "Clinton Anderson",
+      firstName: "Clinton",
+      title: "Nuclear Eletrician's Mate",
+      email: "clint@anderson.com",
+      thumbnail: "",
+      mentorType: MentorType.VIDEO,
+      lastTrainedAt: "Today",
+      isDirty: false,
+      subjects: [],
+      topics: [],
+      answers: [],
+      questions: [],
+    },
   },
   accessToken: "accessToken",
   expirationDate: "",

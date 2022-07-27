@@ -18,6 +18,7 @@ import {
   UtteranceName,
   SubjectTypes,
 } from "../support/types";
+import questions from "../fixtures/questions";
 
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
@@ -255,6 +256,7 @@ describe("My Mentor Page", () => {
                 _id: "A1_1_1",
                 question: {
                   _id: "A1_1_1",
+                  clientId: "C1_1_1",
                   question: "Who are you and what do you do?",
                   type: QuestionType.QUESTION,
                   name: null,
@@ -325,6 +327,7 @@ describe("My Mentor Page", () => {
       cy.visit("/");
       cy.get("[data-cy=setup-no]").trigger("mouseover").click();
       cy.get("[data-cy=recommended-action]").contains("Add Your Intro");
+
       cy.get("[data-cy=recommended-action-button]")
         .trigger("mouseover")
         .click();
@@ -369,6 +372,7 @@ describe("My Mentor Page", () => {
                 {
                   question: {
                     _id: "A1_1_6",
+                    clientId: "C1_1_6",
                     question: "additional question?",
                     type: QuestionType.QUESTION,
                     name: null,
@@ -391,6 +395,7 @@ describe("My Mentor Page", () => {
               _id: "A1_1_6",
               question: {
                 _id: "A1_1_6",
+                clientId: "C1_1_6",
                 question: "additional question?",
                 type: QuestionType.QUESTION,
                 name: null,
@@ -401,6 +406,16 @@ describe("My Mentor Page", () => {
             },
           ],
         },
+        questions: [
+          ...questions,
+          {
+            _id: "A1_1_6",
+            question: "additional question?",
+            type: QuestionType.QUESTION,
+            name: null,
+            paraphrases: [],
+          },
+        ],
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action]").contains("Answer extra Questions");

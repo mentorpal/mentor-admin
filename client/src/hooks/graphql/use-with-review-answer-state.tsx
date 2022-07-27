@@ -7,9 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-
+import { isValidObjectId } from "mongoose";
 import { addOrUpdateSubjectQuestions } from "api";
-import { urlBuild, copyAndSet } from "helpers";
+import {
+  urlBuild,
+  copyAndSet,
+  isAnswerComplete,
+  getValueIfKeyExists,
+} from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -81,6 +86,7 @@ export function useWithReviewAnswerState(
   const { getData, isLoading: isMentorLoading, loadMentor } = useActiveMentor();
 
   const mentorId: string = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -150,8 +156,13 @@ export function useWithReviewAnswerState(
         }
       });
       setProgress({
-        complete: subjectAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: subjectAnswers.filter((a) =>
+          isAnswerComplete(
+            a,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+            mentorType
+          )
+        ).length,
         total: subjectAnswers.length,
       });
     } else {
@@ -184,8 +195,13 @@ export function useWithReviewAnswerState(
         });
       });
       setProgress({
-        complete: mentorAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: mentorAnswers.filter((a) =>
+          isAnswerComplete(
+            a,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+            mentorType
+          )
+        ).length,
         total: mentorAnswers.length,
       });
     }
@@ -249,7 +265,8 @@ export function useWithReviewAnswerState(
       questionClientId: newQuestion.clientId,
       hasEditedTranscript: false,
       transcript: "",
-      status: Status.INCOMPLETE,
+      markdownTranscript: "",
+      status: Status.NONE,
       media: undefined,
       hasUntransferredMedia: false,
     };
@@ -386,7 +403,11 @@ export function useWithReviewAnswerState(
 
   function reloadQuestions() {
     const qIds = questions
-      ?.filter((q) => q.originalQuestion.question !== q.newQuestionText)
+      ?.filter(
+        (q) =>
+          q.originalQuestion.question !== q.newQuestionText &&
+          isValidObjectId(q.originalQuestion._id)
+      )
       .map((q) => q.originalQuestion._id);
     if (qIds) {
       return loadQuestions(qIds, true);

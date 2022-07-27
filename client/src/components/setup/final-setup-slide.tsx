@@ -6,29 +6,16 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Mentor, SetupStatus } from "types";
+import { Mentor } from "types";
 import { Slide } from "./slide";
 import { navigate } from "@reach/router";
 
 export function FinalSetupSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
-  setupStatus: SetupStatus;
 }): JSX.Element {
-  const { classes, mentor, setupStatus } = props;
+  const { classes, mentor } = props;
   function renderMessage(): JSX.Element {
-    if (!setupStatus.isMentorInfoDone) {
-      return (
-        <div>
-          <Typography variant="h6" className={classes.text}>
-            Mentor setup incomplete.
-          </Typography>
-          <Typography variant="h6" className={classes.text}>
-            Please enter your Mentor Info before proceeding.
-          </Typography>
-        </div>
-      );
-    }
     return (
       <div>
         <Typography variant="h6" className={classes.text}>
@@ -49,25 +36,23 @@ export function FinalSetupSlide(props: {
   return (
     <Slide
       classes={classes}
-      title={setupStatus.isMentorInfoDone ? "Good work!" : "Oops!"}
+      title={"Good work!"}
       content={
         <div>
           <div>{renderMessage()}</div>
           <div className={classes.row}>
-            {setupStatus.isMentorInfoDone ? (
-              <Button
-                data-cy="go-to-my-mentor-button"
-                variant="contained"
-                color="primary"
-                className={classes.button}
-                style={{ width: "150px" }}
-                onClick={() => {
-                  navigate("/admin");
-                }}
-              >
-                Done
-              </Button>
-            ) : undefined}
+            <Button
+              data-cy="go-to-my-mentor-button"
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              style={{ width: "150px" }}
+              onClick={() => {
+                navigate("/admin");
+              }}
+            >
+              My Mentor
+            </Button>
           </div>
         </div>
       }

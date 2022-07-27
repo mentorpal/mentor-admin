@@ -48,6 +48,7 @@ import {
   Feedback,
   Mentor,
   Status,
+  MentorType,
   UserQuestion,
 } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
@@ -61,7 +62,7 @@ import {
   isQuestionsLoading,
   useQuestions,
 } from "store/slices/questions/useQuestions";
-import { getValueIfKeyExists } from "helpers";
+import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
@@ -139,38 +140,6 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-function formatMentorQuestions(
-  mentorAnswers: Answer[],
-  mentorQuestions: Record<string, QuestionState>
-) {
-  if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
-    return mentorAnswers;
-  }
-  const completeAnswers = mentorAnswers
-    .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
-    .sort((a, b) =>
-      (mentorQuestions[a._id]?.question?.question || "") >
-      (mentorQuestions[b._id]?.question?.question || "")
-        ? 1
-        : (mentorQuestions[a._id]?.question?.question || "") <
-          (mentorQuestions[b._id]?.question?.question || "")
-        ? -1
-        : 0
-    );
-  const incompleteAnswers = mentorAnswers
-    .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
-    .sort((a, b) =>
-      (mentorQuestions[a._id]?.question?.question || "") >
-      (mentorQuestions[b._id]?.question?.question || "")
-        ? 1
-        : (mentorQuestions[a._id]?.question?.question || "") <
-          (mentorQuestions[b._id]?.question?.question || "")
-        ? -1
-        : 0
-    );
-
-  return completeAnswers.concat(incompleteAnswers);
-}
 
 function FeedbackItem(props: {
   customQuestionModalOpen: boolean;
@@ -178,6 +147,7 @@ function FeedbackItem(props: {
   mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
+  mentorType: MentorType;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
@@ -199,6 +169,44 @@ function FeedbackItem(props: {
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
     React.useState<Status>(); // for disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
+
+  function formatMentorQuestions(
+    mentorAnswers: Answer[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
+      return mentorAnswers;
+    }
+    const completeAnswers = mentorAnswers?.filter((mentorAnswer) =>
+                    isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+                  ) || []
+    /*
+    const completeAnswers = mentorAnswers
+      .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
+      .sort((a, b) =>
+        (mentorQuestions[a._id]?.question?.question || "") >
+        (mentorQuestions[b._id]?.question?.question || "")
+          ? 1
+          : (mentorQuestions[a._id]?.question?.question || "") <
+            (mentorQuestions[b._id]?.question?.question || "")
+          ? -1
+          : 0
+      );
+      */
+    const incompleteAnswers = mentorAnswers
+      .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
+      .sort((a, b) =>
+        (mentorQuestions[a._id]?.question?.question || "") >
+        (mentorQuestions[b._id]?.question?.question || "")
+          ? 1
+          : (mentorQuestions[a._id]?.question?.question || "") <
+            (mentorQuestions[b._id]?.question?.question || "")
+          ? -1
+          : 0
+      );
+  
+    return completeAnswers.concat(incompleteAnswers);
+  }
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -279,6 +287,12 @@ function FeedbackItem(props: {
                 mentorAnswers || [],
                 mentorQuestions
               )}
+              /*
+              options={
+                mentorAnswers?.filter((mentorAnswer) =>
+                  isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+                ) || []
+              }*/
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -369,6 +383,7 @@ function FeedbackPage(): JSX.Element {
   const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
   const mentor = getData((state) => state.data);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
 
@@ -621,6 +636,7 @@ function FeedbackPage(): JSX.Element {
                     accessToken={loginState.accessToken}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
+                    mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
                     onUpdated={reloadFeedback}

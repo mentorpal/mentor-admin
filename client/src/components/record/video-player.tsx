@@ -171,7 +171,11 @@ function VideoPlayer(props: {
             }}
             url={recordState.curAnswer?.videoSrc}
             controls={true}
-            playing={!isUploading && !trimInProgress}
+            playing={
+              Boolean(recordState.curAnswer?.videoSrc) &&
+              !isUploading &&
+              !trimInProgress
+            }
             height={height}
             width={width}
             playsinline
