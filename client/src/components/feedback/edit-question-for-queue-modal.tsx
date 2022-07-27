@@ -31,7 +31,10 @@ import {
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue, fetchMentorRecordQueue } from "api";
+import {
+  addOrUpdateSubjectQuestions,
+  addQuestionToRecordQueue,
+} from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
@@ -108,10 +111,10 @@ function EditQuestionForQueueModal(props: {
       [newSubjectQuestion],
       accessToken
     );
-    const newQuestionId = subjectQuestionsReturned[0].question
+    const newQuestionId = subjectQuestionsReturned[0].question;
     // add to record queue
     addQuestionToRecordQueue(accessToken, newQuestionId);
-    await loadQuestions([newQuestionId])
+    await loadQuestions([newQuestionId]);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
@@ -196,7 +199,9 @@ function EditQuestionForQueueModal(props: {
                           onChange={(
                             event: React.ChangeEvent<{ value: unknown }>
                           ) => {
-                            const category = selectedSubject.categories.find(({id})=>id === event.target.value);
+                            const category = selectedSubject.categories.find(
+                              ({ id }) => id === event.target.value
+                            );
                             setSelectedCategory(category);
                           }}
                         >

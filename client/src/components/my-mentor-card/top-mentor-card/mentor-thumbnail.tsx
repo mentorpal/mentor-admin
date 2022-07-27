@@ -5,7 +5,7 @@ import {
   Tooltip,
   Typography,
 } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 import CreateIcon from "@material-ui/icons/Create";
 import CloseIcon from "@material-ui/icons/Close";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
@@ -63,8 +63,6 @@ function MentorThumbnail(props: {
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
-  profileTooltipOpen: boolean;
-  setProfileTooltipOpen: (active: boolean) => void;
 }): JSX.Element {
   const {
     handleOpen,
@@ -77,12 +75,11 @@ function MentorThumbnail(props: {
     incrementTooltip,
     idxTooltip,
     hasSeenTooltips,
-    profileTooltipOpen,
-    setProfileTooltipOpen,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
+  const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
 
   if (!mentorId || !editedMentor) {
     return <div />;
