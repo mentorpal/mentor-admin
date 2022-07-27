@@ -19,16 +19,15 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 
 // Setting the video src to the canvas stream
 function videoSourceToCanvasStream() {
-  var canvas = document.querySelector("[data-cy=draw-canvas]");
+  const canvas = document.querySelector("[data-cy=draw-canvas]");
   console.log("canvas: " + canvas);
-  var video = document.querySelector("[data-cy=video-recorder]");
+  const video = document.querySelector("[data-cy=video-recorder]");
   console.log("video: " + video);
   // Optional frames per second argument.
-  var stream = canvas.captureStream(30);
+  const stream = canvas.captureStream(30);
   console.log("stream: " + stream);
   // Set the source of the <video> element to be the stream from the <canvas>.
   video.srcObject = stream;
-
   console.log("video source: " + video.srcObject);
 }
 
