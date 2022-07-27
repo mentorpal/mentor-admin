@@ -1317,7 +1317,7 @@ export async function removeQuestionFromRecordQueue(
   return await execGql<string[]>(
     {
       query: `
-        mutation RemoveQuestionFromRecordQueue($questionId: String!) {
+        mutation RemoveQuestionFromRecordQueue($questionId: ID!) {
           me {
             removeQuestionFromRecordQueue(questionId: $questionId)
           }
