@@ -5,14 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { Recommendation } from "./recommender";
-
-class WeightedRecommendation {
-  rec: Recommendation;
+export class WeightedObj {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  obj: any;
   weight: number;
-
-  constructor(rec: Recommendation, weight: number) {
-    this.rec = rec;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(obj: any, weight: number) {
+    this.obj = obj;
     this.weight = weight;
   }
 }
@@ -22,19 +21,20 @@ class WeightedRecommendation {
  **************/
 
 export class PriorityQueue {
-  priorityQueue: WeightedRecommendation[];
+  priorityQueue: WeightedObj[];
 
   constructor() {
     this.priorityQueue = [];
   }
 
   //adds to queue depending on the weight
-  public enqueue(rec: Recommendation, weight: number) {
-    const adding = new WeightedRecommendation(rec, weight);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public enqueue(obj: any, weight: number) {
+    const adding = new WeightedObj(obj, weight);
     let stop = false;
 
     for (let i = 0; i < this.priorityQueue.length; i++) {
-      if (this.priorityQueue[i].weight > weight) {
+      if (this.priorityQueue[i].weight < weight) {
         this.priorityQueue.splice(i, 0, adding);
         stop = true;
         break;
@@ -53,14 +53,8 @@ export class PriorityQueue {
     }
   }
 
-  //returns first recommendation of priority queue
-  public getFirstRec() {
-    if (this.priorityQueue.length != 0) {
-      return this.priorityQueue[0];
-    }
-  }
-
-  public getQueue(): WeightedRecommendation[] {
+  //returns the queue
+  public getQueue(): WeightedObj[] {
     return this.priorityQueue;
   }
 }
