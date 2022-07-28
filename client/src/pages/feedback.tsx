@@ -147,6 +147,7 @@ function FeedbackItem(props: {
   mentor: Mentor;
   accessToken?: string;
   feedback: UserQuestion;
+  viewAllQuestions: boolean;
   mentorType: MentorType;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
@@ -158,6 +159,7 @@ function FeedbackItem(props: {
     mentor,
     accessToken,
     feedback,
+    viewAllQuestions,
     mentorAnswers,
     mentorQuestions,
     onUpdated,
@@ -240,7 +242,9 @@ function FeedbackItem(props: {
   async function onUpdateAnswer(answerId?: string) {
     setSelectedAnswerID(answerId || "");
     await updateUserQuestion(feedback._id, answerId || "");
-    onUpdated();
+    if (viewAllQuestions) {
+      onUpdated();
+    }
   }
 
   return (
@@ -323,7 +327,7 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => onUpdateAnswer(undefined)}>
+            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined)}}>
               <CloseIcon />
             </IconButton>
 
@@ -657,6 +661,7 @@ function FeedbackPage(): JSX.Element {
                     accessToken={loginState.accessToken}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
+                    viewAllQuestions={viewAllQuestions}
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
