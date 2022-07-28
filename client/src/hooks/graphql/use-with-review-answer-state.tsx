@@ -126,21 +126,6 @@ export function useWithReviewAnswerState(
     const _blocks: RecordingBlock[] = [];
     const subject = mentorSubjects?.find((s) => s._id === selectedSubject);
     if (subject) {
-      const uncategorizedQuestions = subject.questions
-        .filter((sq) => !sq.category)
-        .map((sq) => sq.question);
-      const subjectAnswers = mentorAnswers.filter((a) =>
-        subject.questions.map((q) => q.question).includes(a.question)
-      );
-      if (uncategorizedQuestions.length > 0) {
-        _blocks.push({
-          subject: subject._id,
-          category: undefined,
-          name: `${subject.name} (Uncategorized)`,
-          description: subject.description,
-          questions: uncategorizedQuestions,
-        });
-      }
       subject.categories.forEach((c) => {
         const categoryQuestions = subject.questions
           .filter((sq) => sq.category?.id === c.id)
@@ -155,6 +140,23 @@ export function useWithReviewAnswerState(
           });
         }
       });
+      const uncategorizedQuestions = subject.questions
+        .filter((sq) => !sq.category)
+        .map((sq) => sq.question);
+      if (uncategorizedQuestions.length > 0) {
+        _blocks.push({
+          subject: subject._id,
+          category: undefined,
+          name: `${subject.name} ${
+            subject.categories.length > 0 ? "(Uncategorized)" : ""
+          }`,
+          description: subject.description,
+          questions: uncategorizedQuestions,
+        });
+      }
+      const subjectAnswers = mentorAnswers.filter((a) =>
+        subject.questions.map((q) => q.question).includes(a.question)
+      );
       setProgress({
         complete: subjectAnswers.filter((a) =>
           isAnswerComplete(
@@ -167,18 +169,6 @@ export function useWithReviewAnswerState(
       });
     } else {
       mentorSubjects.forEach((subject) => {
-        const uncategorizedQuestions = subject.questions
-          .filter((sq) => !sq.category)
-          .map((sq) => sq.question);
-        if (uncategorizedQuestions.length > 0) {
-          _blocks.push({
-            subject: subject._id,
-            category: undefined,
-            name: `${subject.name} (Uncategorized)`,
-            description: subject.description,
-            questions: uncategorizedQuestions,
-          });
-        }
         subject.categories.forEach((c) => {
           const categoryQuestions = subject.questions
             .filter((sq) => sq.category?.id === c.id)
@@ -193,6 +183,20 @@ export function useWithReviewAnswerState(
             });
           }
         });
+        const uncategorizedQuestions = subject.questions
+          .filter((sq) => !sq.category)
+          .map((sq) => sq.question);
+        if (uncategorizedQuestions.length > 0) {
+          _blocks.push({
+            subject: subject._id,
+            category: undefined,
+            name: `${subject.name} ${
+              subject.categories.length > 0 ? "(Uncategorized)" : ""
+            }`,
+            description: subject.description,
+            questions: uncategorizedQuestions,
+          });
+        }
       });
       setProgress({
         complete: mentorAnswers.filter((a) =>
