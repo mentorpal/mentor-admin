@@ -40,18 +40,17 @@ const mockCurrentState: RecommenderInterface = {
 
 // A master list of all possible attributes, this list should also have an typescript interface to type the list
 // Attributes from this list are provided to the Recommendations
-export interface MasterList {
-  coverage_attribute: number;
-  setup_attribute: number;
-  offTopic_attribute: number;
-}
+// export interface MasterList {
+//   coverage_attribute: number;
+//   setup_attribute: number;
+//   offTopic_attribute: number;
+// }
 
-// TODO: This probably has to be a Record<string, number> so that we can work with key value pairs
-const masterScoredAttributesList: Record<string, number> = {
-  coverage_attribute: 0,
-  setup_attribute: 0,
-  offTopic_attribute: 0,
-};
+// const masterScoredAttributesList: Record<string, number> = {
+//   coverage_attribute: 0,
+//   setup_attribute: 0,
+//   offTopic_attribute: 0,
+// };
 
 /**
  * the first testing production rule
@@ -87,8 +86,8 @@ function setupPhase() {
   // TODO: Each phase holds (possibly different) weights for each attribute
   const weightedAttributes = {
     setup_attribute: 2,
-    coverage_attribute: 0,
-    offTopic_attribute: 0,
+    coverage_attribute: 0.5,
+    offTopic_attribute: 0.1,
   };
   const productionRules = [buildProductionRule()];
   const setupPhase = new Phase(
@@ -104,10 +103,11 @@ function setupPhase() {
 /**
  * Calling the recommender
  */
-function callingRecommender() {
+export function callingRecommender() {
   const phase = [setupPhase()];
   const recommendationOrder = new Recommender<RecommenderInterface>(
     mockCurrentState,
     phase
   );
+  return recommendationOrder.getCalculatedRecs();
 }

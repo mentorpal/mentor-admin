@@ -9,7 +9,7 @@ export class WeightedObj {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any;
   weight: number;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(obj: any, weight: number) {
     this.obj = obj;
     this.weight = weight;

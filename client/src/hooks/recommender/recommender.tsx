@@ -39,7 +39,7 @@ export class Recommender<IRecommender> {
        for each key in recommendation, use that key to get weight from weight Record, and perform calculation
     Third, sort recommendations by order of calculated weight
     */
-  public calculations() {
+  public getCalculatedRecs(): PriorityQueue["priorityQueue"] {
     //array of recommendations from the production rules
     const allRec = this.getRecommendations();
     const phaseWeights = this.activePhase.getPhaseWeights();

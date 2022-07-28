@@ -46,6 +46,7 @@ import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { callingRecommender } from "hooks/recommender/use-with-improve-mentor-recc";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -139,6 +140,8 @@ function HomePage(props: {
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
+
+  const allRecommendations = callingRecommender();
 
   const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
@@ -393,6 +396,8 @@ function HomePage(props: {
         closeDialog={() => {
           setLocalHasSeenSplash(true);
           userSawSplashScreen(props.accessToken);
+          console.log("helloooooo");
+          console.log(allRecommendations);
         }}
       />
       <Dialog
