@@ -8,7 +8,6 @@ import React from "react";
 import { Card, CardContent, Grid } from "@material-ui/core";
 import StageToast from "./stage-toast";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { UseMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 import "styles/layout.css";
@@ -16,18 +15,17 @@ import MentorThumbnail from "./top-mentor-card/mentor-thumbnail";
 import MentorStatus from "./top-mentor-card/mentor-status";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
 import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
+import { Mentor } from "types";
 
-export default function MyMentorCard(props: {
+function MyMentorCard(props: {
   continueAction: () => void;
-  useMentor: UseMentorEdits;
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
   localHasSeenTooltips: boolean;
-  profileTooltipOpen: boolean;
-  setProfileTooltipOpen: (active: boolean) => void;
-  statusTooltipOpen: boolean;
-  setStatusTooltipOpen: (active: boolean) => void;
+  editedMentor?: Mentor;
+  editMentor: (edits: Partial<Mentor>) => void;
+  saveMentorDetails: () => void;
 }): JSX.Element {
   const {
     error: mentorError,
@@ -35,7 +33,7 @@ export default function MyMentorCard(props: {
     isSaving: isMentorSaving,
     getData,
   } = useActiveMentor();
-  const { editedMentor, editMentor, saveMentorDetails } = props.useMentor;
+  const { editedMentor, editMentor, saveMentorDetails } = props;
   const mentorId = getData((ms) => ms.data?._id || "");
   const [thumbnail, updateThumbnail] = useWithThumbnail();
 
@@ -73,8 +71,6 @@ export default function MyMentorCard(props: {
                 thumbnail={thumbnail}
                 updateThumbnail={updateThumbnail}
                 hasSeenTooltips={props.hasSeenTooltips}
-                profileTooltipOpen={props.profileTooltipOpen}
-                setProfileTooltipOpen={props.setProfileTooltipOpen}
               />
             </Grid>
             <Grid item xs={8}>
@@ -85,8 +81,6 @@ export default function MyMentorCard(props: {
                 idxTooltip={props.idxTooltip}
                 localHasSeenTooltips={props.localHasSeenTooltips}
                 hasSeenTooltips={props.hasSeenTooltips}
-                statusTooltipOpen={props.statusTooltipOpen}
-                setStatusTooltipOpen={props.setStatusTooltipOpen}
               />
             </Grid>
           </Grid>
@@ -104,3 +98,5 @@ export default function MyMentorCard(props: {
     </div>
   );
 }
+
+export default React.memo(MyMentorCard);

@@ -388,4 +388,4 @@ export function NavBar(props: {
   );
 }
 
-export default withLocation(NavBar);
+export default React.memo(withLocation(NavBar));
