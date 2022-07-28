@@ -163,6 +163,38 @@ function FeedbackItem(props: {
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
 
+    function formatMentorQuestions(
+      mentorAnswers: Answer[],
+      mentorQuestions: Record<string, QuestionState>
+    ) {
+      if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
+        return mentorAnswers;
+      }
+      const completeAnswers = mentorAnswers
+        .filter((mentorAnswer) => mentorAnswer.status === Status.COMPLETE)
+        .sort((a, b) =>
+          (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
+          (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+            ? 1
+            : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") <
+              (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+            ? -1
+            : 0
+        );
+      const incompleteAnswers = mentorAnswers
+        .filter((mentorAnswer) => mentorAnswer.status != Status.COMPLETE)
+        .sort((a, b) =>
+          (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
+          (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+            ? 1
+            : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") <
+              (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+            ? -1
+            : 0
+        );
+      return completeAnswers.concat(incompleteAnswers);
+    }
+/*
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -198,17 +230,21 @@ function FeedbackItem(props: {
           : 0
       );
     return completeAnswers.concat(incompleteAnswers);
-  }
+  }*/
 
   // function to add/remove from queue
   async function queueButtonClicked(
     selectedAnswerID: string,
     accessToken: string
   ) {
+    console.log("Answer ID: "+selectedAnswerID);
     if (queueList.includes(selectedAnswerID)) {
+      console.log("queue: "+queueList);
+      console.log("removing: " + selectedAnswerID);
       setQueueList(
         await removeQuestionFromRecordQueue(accessToken, selectedAnswerID)
       );
+      console.log("queue: "+queueList);
     } else if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
     } else {
@@ -225,7 +261,8 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
-    setSelectedAnswerID(answerId || "");
+    //setSelectedAnswerID(answerId || "");
+    console.log("onUpdate: " +answerId);
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -285,6 +322,12 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
+                console.log("Answer onChnage: "+v?._id);
+                console.log("undefined? "+v);
+                console.log("question ID: "+v?.question);
+                console.log("status: "+v?.status);
+                setSelectedAnswerID(v?._id);
+                console.log("ID after setting: " + selectedAnswerID);
                 setSelectedAnswerStatus(v?.status);
                 onUpdateAnswer(v?._id);
               }}
@@ -297,7 +340,7 @@ function FeedbackItem(props: {
                 <Typography
                   style={{
                     color:
-                      option.status === Status.INCOMPLETE ? "grey" : "black",
+                      option.status === Status.COMPLETE ? "black" : "grey",
                   }}
                   data-cy={`Drop-down-qu-${option._id}`}
                   align="left"
@@ -320,6 +363,7 @@ function FeedbackItem(props: {
                 color="primary"
                 disabled={selectedAnswerStatus === Status.COMPLETE}
                 onClick={() => {
+                  console.log("BUTTON SELECTED ANSWER: "+ selectedAnswerID);
                   queueButtonClicked(selectedAnswerID || "", accessToken);
                 }}
               >
@@ -630,7 +674,7 @@ function FeedbackPage(): JSX.Element {
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
-                    onUpdated={reloadFeedback}
+                    onUpdated={reloadFeedback} // issue with the feedback. 
                     queueList={queueList}
                     setQueueList={setQueueList}
                     mentor={mentor}
