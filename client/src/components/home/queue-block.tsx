@@ -27,16 +27,16 @@ import { urlBuild } from "helpers";
 
 export default function QueueBlockItem(props: {
   classes: Record<string, string>;
-  queueIDList: unknown;
+  queueIDList: string[];
   queuedQuestions: string[];
 }): JSX.Element {
   const [isExpanded, setExpanded] = React.useState(false);
   const { classes, queueIDList, queuedQuestions } = props;
 
-  function onRecordOne(queueID: string) {
+  function onRecordOne(questionId: string) {
     navigate(
       urlBuild("/record", {
-        videoId: queueID,
+        videoId: questionId,
         back: urlBuild("/", {}),
       })
     );
@@ -94,7 +94,7 @@ export default function QueueBlockItem(props: {
                   <Button
                     data-cy="record-all-queue"
                     variant="outlined"
-                    onClick={() => onRecordAll(queueIDList as string[])}
+                    onClick={() => onRecordAll(queueIDList)}
                     disabled={
                       queuedQuestions.length == 0 ||
                       queuedQuestions == null ||
@@ -129,9 +129,7 @@ export default function QueueBlockItem(props: {
                               data-cy={`record-one-${i}`}
                               variant="outlined"
                               endIcon={<PlayArrowIcon />}
-                              onClick={() =>
-                                onRecordOne((queueIDList as string[])[i])
-                              }
+                              onClick={() => onRecordOne(queueIDList[i])}
                             >
                               Record
                             </Button>

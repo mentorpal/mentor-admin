@@ -186,6 +186,7 @@ function HomePage(props: {
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
   const { userSawSplashScreen, userSawTooltips } = loginState;
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [answerStatuses, setAnswerStatuses] = useState<Status[]>([]);
 
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
@@ -206,6 +207,28 @@ function HomePage(props: {
   }, []);
 
   useEffect(() => {
+    if (!mentorAnswers) {
+      return;
+    }
+    if (mentorAnswers.length && !answerStatuses.length) {
+      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
+      return;
+    }
+    const differentLength = mentorAnswers.length !== answerStatuses.length;
+    let differentStatus = false;
+    if (!differentLength) {
+      mentorAnswers.forEach((answer, i) => {
+        if (answerStatuses[i] !== answer.status) {
+          differentStatus = true;
+        }
+      });
+    }
+    if (differentStatus || differentLength) {
+      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
+    }
+  }, [mentorAnswers]);
+
+  useEffect(() => {
     if (!mentorAnswers || queueIDList.length == 0) {
       return;
     }
@@ -214,7 +237,7 @@ function HomePage(props: {
       mentorAnswers
     );
     setQueueIDList(idListAfterRemoval);
-  }, [mentorAnswers?.map((answer) => answer.status)]);
+  }, [answerStatuses]);
 
   useEffect(() => {
     const _blocks = reviewAnswerState.getBlocks();
