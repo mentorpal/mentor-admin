@@ -43,4 +43,34 @@ describe("Feedback Page", () => {
       "rgb(128, 128, 128)"
     );*/
   });
+  it("Feedback is filtered by default", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UserQuestionSetAnswer", {}),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.contains("Off topic");
+    cy.contains("Bad");
+    cy.contains("low confidence");
+    cy.contains("hey").should("not.exist");
+  });
+  it("Toggle shows all feedback", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UserQuestionSetAnswer", {}),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.get("[data-cy=filter-feedback-switch]").click();
+    cy.contains("hey");
+  });
 });

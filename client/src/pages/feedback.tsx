@@ -69,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
+    height: "100vh", //
   },
   container: {
     flex: 1,
@@ -81,11 +82,16 @@ const useStyles = makeStyles((theme) => ({
     height: "10%",
     top: "auto",
     bottom: 0,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   fab: {
     position: "absolute",
     right: theme.spacing(1),
     zIndex: 1,
+    width: 100,
   },
   progress: {
     marginLeft: "50%",
@@ -163,6 +169,12 @@ function FeedbackItem(props: {
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
+  console.log("Grader answer: " + !feedback.graderAnswer);
+  console.log(feedback.graderAnswer);
+  console.log("Con 1 : " + !feedback.graderAnswer.question);
+  console.log(feedback.graderAnswer.question);
+  console.log("Con 2 : " + !feedback.hasBeenUsedtoCreateNewQuestion);
+  console.log(feedback.hasBeenUsedtoCreateNewQuestion);
 
   function formatMentorQuestions(
     mentorAnswers: Answer[],
@@ -412,6 +424,7 @@ function FeedbackPage(): JSX.Element {
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     setViewAllQuestions(event.target.checked);
   }
+  const label = { inputProps: { "aria-label": "Switch demo" } };
 
   const questionsToDisplay = feedback?.edges.filter((edge) =>
     viewAllQuestions
@@ -419,11 +432,9 @@ function FeedbackPage(): JSX.Element {
       : (edge.node.feedback === Feedback.BAD ||
           edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC ||
           edge.node.confidence <= -0.45) &&
-        edge.node.graderAnswer === undefined &&
+        !edge.node.graderAnswer.question &&
         !edge.node.hasBeenUsedtoCreateNewQuestion
   );
-
-  const label = { inputProps: { "aria-label": "Switch demo" } };
 
   useEffect(() => {
     if (mentorId) {
@@ -636,7 +647,7 @@ function FeedbackPage(): JSX.Element {
           </TableContainer>
         </Paper>
         <AppBar position="sticky" color="default" className={classes.appBar}>
-          <Toolbar>
+          <Toolbar style={{ width: "fit-content" }}>
             <IconButton
               data-cy="prev-page"
               disabled={!feedback?.pageInfo.hasPreviousPage}
@@ -651,29 +662,27 @@ function FeedbackPage(): JSX.Element {
             >
               <KeyboardArrowRightIcon />
             </IconButton>
-            <Fab
-              data-cy="train-button"
-              variant="extended"
-              color="primary"
-              className={classes.fab}
-              onClick={() => {
-                if (mentorId) startTraining(mentorId);
-              }}
-              disabled={isTraining || isMentorLoading || isFeedbackLoading}
-            >
-              Train Mentor
-            </Fab>
-          </Toolbar>
-          <span style={{ marginTop: 0 }}>
-            <span>
+            <span style={{ margin: "15px" }}>
               <Switch
-                data-cy="subject-type-switch"
+                data-cy="filter-feedback-switch"
                 {...label}
                 onChange={onViewAllQuestions}
               />
               Show All Questions
             </span>
-          </span>
+          </Toolbar>
+          <Fab
+            data-cy="train-button"
+            variant="extended"
+            color="primary"
+            className={classes.fab}
+            onClick={() => {
+              if (mentorId) startTraining(mentorId);
+            }}
+            disabled={isTraining || isMentorLoading || isFeedbackLoading}
+          >
+            Train Mentor
+          </Fab>
         </AppBar>
       </div>
       <LoadingDialog
