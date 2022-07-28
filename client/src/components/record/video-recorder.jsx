@@ -18,11 +18,7 @@ import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 
 // Setting the video src to the canvas stream
-function videoSourceToCanvasStream() {
-  const canvas = document.querySelector("[data-cy=draw-canvas]");
-  console.log("canvas: " + canvas);
-  const video = document.querySelector("[data-cy=video-recorder]");
-  console.log("video: " + video);
+function videoSourceToCanvasStream(canvas, video) {
   // Optional frames per second argument.
   const stream = canvas.captureStream(30);
   console.log("stream: " + stream);
@@ -70,6 +66,7 @@ function VideoRecorder({
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
+  const [canvasRef, setCanvasRef] = useState();
 
   const VirtualBg = () => (
     <img
@@ -109,6 +106,13 @@ function VideoRecorder({
   }, [recordState.isRecording]);
 
   useEffect(() => {
+    if (!canvasRef || !videoRef) {
+      return;
+    }
+    videoSourceToCanvasStream(canvasRef, videoRef);
+  }, [canvasRef, videoRef]);
+
+  useEffect(() => {
     if (!videoRef || videoRecorderRef) {
       return;
     }
@@ -125,7 +129,6 @@ function VideoRecorder({
     });
     player.on("progressRecord", function () {
       setRecordDurationCounter(player.record().getDuration());
-      videoSourceToCanvasStream();
     });
     player.on("finishRecord", function () {
       setRecordedVideo(new File([player.recordedData], "video.mp4"));
@@ -170,7 +173,7 @@ function VideoRecorder({
     () => {
       segmentVideoAndDrawToCanvas();
     },
-    recordState.isRecording ? 100 : null
+    recordState.isRecording ? 1000 : null
   );
 
   useInterval(
@@ -278,6 +281,9 @@ function VideoRecorder({
         <canvas
           data-cy="draw-canvas"
           id="canvas"
+          ref={(e) => {
+            setCanvasRef(e || undefined);
+          }}
           style={{
             display: "block",
             margin: "auto",
