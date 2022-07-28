@@ -85,7 +85,7 @@ function buildProductionRule() {
  */
 function setupPhase() {
   // TODO: Each phase holds (possibly different) weights for each attribute
-  const weightedAttributes: MasterList = {
+  const weightedAttributes = {
     setup_attribute: 2,
     coverage_attribute: 0,
     offTopic_attribute: 0,
