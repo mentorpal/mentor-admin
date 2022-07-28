@@ -33,8 +33,10 @@
     "draft-js": "^0.11.7",
     "draftjs-md-converter": "^1.5.2",
     "gatsby": "^3.14.3",
+    "gatsby-plugin-manifest": "^4.19.0",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
     "react-dom": "^17.0.2",
     "react-draft-wysiwyg": "^1.14.7",
     "react-google-login": "^5.2.2",
@@ -53,6 +55,7 @@
   "devDependencies": {
     "@types/node": "^14.17.4",
     "@types/react-beautiful-dnd": "^13.0.0",
+    "@types/react-color": "^3.0.6",
     "@types/redux-logger": "^3.0.9",
     "@types/store": "^2.0.2",
     "@types/storejs": "^2.0.3",
