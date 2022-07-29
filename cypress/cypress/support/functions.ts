@@ -79,6 +79,7 @@ export interface Config {
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
+  subjectRecordPriority: string[];
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
@@ -98,6 +99,7 @@ export const CONFIG_DEFAULT: Config = {
   activeMentors: [],
   googleClientId: "fake-google-client-id",
   urlDocSetup: "",
+  subjectRecordPriority: [],
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "https://classifierendpoint.com/classifier",
