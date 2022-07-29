@@ -148,6 +148,7 @@ function FeedbackItem(props: {
   accessToken?: string;
   feedback: UserQuestion;
   viewAllQuestions: boolean;
+  showExactConfidence: boolean;
   mentorType: MentorType;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
@@ -160,6 +161,7 @@ function FeedbackItem(props: {
     accessToken,
     feedback,
     viewAllQuestions,
+    showExactConfidence,
     mentorAnswers,
     mentorQuestions,
     onUpdated,
@@ -247,6 +249,11 @@ function FeedbackItem(props: {
     }
   }
 
+  function inConfidenceRange(min: number, max: number) {
+    const confidence = Math.round(feedback.confidence * 100) / 100;
+    return confidence >= min && confidence < max;
+  }
+
   return (
     <TableRow hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="grade" align="center">
@@ -266,11 +273,20 @@ function FeedbackItem(props: {
                 : "",
           }}
         >
-          {feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
-            ? "Exact"
-            : feedback.classifierAnswerType === ClassifierAnswerType.PARAPHRASE
-            ? "Paraphrase"
-            : Math.round(feedback.confidence * 100) / 100}
+          {showExactConfidence
+            ? feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
+              ? "Exact"
+              : feedback.classifierAnswerType ===
+                ClassifierAnswerType.PARAPHRASE
+              ? "Paraphrase"
+              : Math.round(feedback.confidence * 100) / 100
+            : Math.round(feedback.confidence * 100) / 100 < -0.55
+            ? "OFF TOPIC"
+            : inConfidenceRange(-0.55, -0.45)
+            ? "LOW"
+            : inConfidenceRange(-0.45, -0.1)
+            ? "MEDIUM"
+            : "HIGH"}
         </Typography>
       </TableCell>
       <TableCell data-cy="question" align="left">
@@ -327,7 +343,12 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined)}}>
+            <IconButton
+              onClick={() => {
+                onUpdateAnswer(undefined);
+                setSelectedAnswerStatus(undefined);
+              }}
+            >
               <CloseIcon />
             </IconButton>
 
@@ -391,16 +412,13 @@ function FeedbackPage(): JSX.Element {
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
-
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
   );
-
   const questionsLoading = isQuestionsLoading(
     (mentorAnswers || []).map((a) => a.question)
   );
-
   const {
     isPolling: isTraining,
     error: trainError,
@@ -431,6 +449,11 @@ function FeedbackPage(): JSX.Element {
   const [viewAllQuestions, setViewAllQuestions] = useState<boolean>(false);
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     setViewAllQuestions(event.target.checked);
+  }
+  const [showExactConfidence, setShowExactConfidence] =
+    useState<boolean>(false);
+  function onShowExactConfidence(event: React.ChangeEvent<HTMLInputElement>) {
+    setShowExactConfidence(event.target.checked);
   }
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
@@ -662,6 +685,7 @@ function FeedbackPage(): JSX.Element {
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
                     viewAllQuestions={viewAllQuestions}
+                    showExactConfidence={showExactConfidence}
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
@@ -698,6 +722,14 @@ function FeedbackPage(): JSX.Element {
                 onChange={onViewAllQuestions}
               />
               Show All Questions
+            </span>
+            <span style={{ margin: "15px" }}>
+              <Switch
+                data-cy="show-exact-confidence-switch"
+                {...label}
+                onChange={onShowExactConfidence}
+              />
+              Show Exact Confidence
             </span>
           </Toolbar>
           <Fab

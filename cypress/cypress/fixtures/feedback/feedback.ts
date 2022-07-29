@@ -139,7 +139,7 @@ export const feedback = {
         node: {
           _id: "filter-test1",
           question: "Off topic",
-          confidence: 1,
+          confidence: -7,
           classifierAnswerType: "OFF_TOPIC",
           feedback: "BAD",
           updatedAt: "2022-05-19T22:50:39.530Z",
@@ -154,7 +154,7 @@ export const feedback = {
         node: {
           _id: "filter-test2",
           question: "Bad",
-          confidence: 1,
+          confidence: -0.3,
           classifierAnswerType: "EXACT",
           feedback: "BAD",
           updatedAt: "2022-05-19T22:50:39.530Z",
@@ -169,7 +169,7 @@ export const feedback = {
         node: {
           _id: "filter-test3",
           question: "low confidence",
-          confidence: -7,
+          confidence: -0.55,
           classifierAnswerType: "",
           feedback: "NUETRAL",
           updatedAt: "2022-05-19T22:50:39.530Z",
