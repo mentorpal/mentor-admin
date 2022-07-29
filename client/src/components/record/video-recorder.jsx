@@ -23,9 +23,7 @@ function videoSourceToCanvasStream(canvas, video) {
   const stream = canvas.captureStream(30);
   console.log("stream: " + stream);
   // Set the source of the <video> element to be the stream from the <canvas>.
-  if (video.srcObject !== stream) {
-    video.srcObject = stream;
-  }
+  video.srcObject = stream;
   // video.srcObject = stream;
   console.log("video source: " + video.srcObject);
 }
@@ -113,7 +111,7 @@ function VideoRecorder({
       return;
     }
     videoSourceToCanvasStream(canvasRef, videoRef);
-  }, []);
+  }, [canvasRef, videoRef]);
 
   useEffect(() => {
     if (!videoRef || videoRecorderRef) {
