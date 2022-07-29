@@ -33,12 +33,7 @@ export class Recommender<IRecommender> {
     return [];
   }
 
-  /*
-    First, getRecommendations
-    Second, score each recommendation:
-       for each key in recommendation, use that key to get weight from weight Record, and perform calculation
-    Third, sort recommendations by order of calculated weight
-    */
+
   public getCalculatedRecs(): PriorityQueue["priorityQueue"] {
     //array of recommendations from the production rules
     const allRec = this.getRecommendations();
@@ -72,6 +67,7 @@ export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
   activeCondition: (recState: IRecommender) => boolean;
   phaseWeightedAttributes: Record<string, number>;
+  allRecs: Recommendation[];
 
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
@@ -81,10 +77,11 @@ export class Phase<IRecommender> {
     this.productionRules = productionRules;
     this.activeCondition = activeCondition;
     this.phaseWeightedAttributes = phaseWeightedAttributes;
+    this.allRecs = [];
   }
 
   public isActive(recState: IRecommender): boolean {
-    // Note: I wonder if this should instead return true if any production rules are active
+    // Return true if any production rules are active
     for (let x = 0; x < this.productionRules.length; x++) {
       if (!this.productionRules[x].isActive(recState)) {
         return false;
@@ -93,13 +90,21 @@ export class Phase<IRecommender> {
     return true;
   }
 
+ 
   public getRecommendations(recState: IRecommender): Recommendation[] {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {
-        return this.productionRules[i].getRecommendations(recState);
+        // adds recommendations from all active production rules into an array
+        for (
+          let x = 0;
+          x < this.productionRules[i].getRecommendations().length;
+          x++
+        ) {
+          this.allRecs.push(this.productionRules[i].getRecommendations()[x]);
+        }
       }
     }
-    return [];
+    return this.allRecs;
   }
 
   public getPhaseWeights(): Record<string, number> {
@@ -126,7 +131,7 @@ export class ProductionRule<IRecommender> {
     return this.activeCondition(recState);
   }
 
-  public getRecommendations(recState: IRecommender): Recommendation[] {
+  public getRecommendations(): Recommendation[] {
     return this.actionRecommendations;
   }
 }

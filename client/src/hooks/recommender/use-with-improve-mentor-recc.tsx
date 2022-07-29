@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import { WeightedObj } from "./priorityQueue";
 import {
   Recommendation,
   ProductionRule,
@@ -21,14 +22,14 @@ interface RecommenderInterface {
   //idleIncomplete: boolean;
   //isVideo: boolean;
   offTopic: boolean;
-  // hasThumbnail: boolean;
+  hasThumbnail: boolean;
   // isDirty: boolean;
   // categories: boolean;
   // incompleteRequirement?: boolean;
   // firstIncomplete?: boolean;
   // completedAnswers: boolean;
   // totalAnswers: boolean;
-  // neverBuilt: boolean;
+  neverBuilt: boolean;
   // builttNeverPreview: boolean;
   // needSubject: boolean;
 }
@@ -36,6 +37,8 @@ interface RecommenderInterface {
 const mockCurrentState: RecommenderInterface = {
   intro: true,
   offTopic: true,
+  hasThumbnail: true,
+  neverBuilt: true,
 };
 
 // A master list of all possible attributes, this list should also have an typescript interface to type the list
@@ -55,7 +58,7 @@ const mockCurrentState: RecommenderInterface = {
 /**
  * the first testing production rule
  */
-function buildProductionRule() {
+function buildProductionRule1() {
   const recommendation1 = new Recommendation(
     {
       coverage_attribute: 2,
@@ -80,16 +83,37 @@ function buildProductionRule() {
 }
 
 /**
- * Creation of phases happen in this file and then they get passed into the recommender constructor
+ * second production rule testing
+ */
+function buildProductionRule2() {
+  const recommendation1 = new Recommendation(
+    {
+      coverage_attribute: 0.01,
+      setup_attribute: 2,
+    },
+    "give thumbnail"
+  );
+  const productionRule = new ProductionRule<RecommenderInterface>(
+    (recState: RecommenderInterface) => {
+      return recState.hasThumbnail === true;
+    },
+    [recommendation1]
+  );
+  return productionRule;
+}
+
+/**
+ * Creation of phases happens in this file and then they get passed into the recommender constructor
  */
 function setupPhase() {
-  // TODO: Each phase holds (possibly different) weights for each attribute
+  // Each phase holds (possibly different) weights for each attribute
   const weightedAttributes = {
     setup_attribute: 2,
     coverage_attribute: 0.5,
     offTopic_attribute: 0.1,
+    thumbnail_attribute: 0.3,
   };
-  const productionRules = [buildProductionRule()];
+  const productionRules = [buildProductionRule1(), buildProductionRule2()];
   const setupPhase = new Phase(
     (recState: RecommenderInterface) => {
       return recState.offTopic === true;
@@ -103,7 +127,7 @@ function setupPhase() {
 /**
  * Calling the recommender
  */
-export function callingRecommender() {
+export function callingRecommender(): WeightedObj[] {
   const phase = [setupPhase()];
   const recommendationOrder = new Recommender<RecommenderInterface>(
     mockCurrentState,

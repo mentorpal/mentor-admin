@@ -29,7 +29,7 @@ export class PriorityQueue {
 
   //adds to queue depending on the weight
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public enqueue(obj: any, weight: number) {
+  public enqueue(obj: any, weight: number): void {
     const adding = new WeightedObj(obj, weight);
     let stop = false;
 
@@ -47,7 +47,7 @@ export class PriorityQueue {
   }
 
   //deletes from the front of the queue
-  public dequeue() {
+  public dequeue(): void {
     if (this.priorityQueue.length != 0) {
       this.priorityQueue.shift();
     }
