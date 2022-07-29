@@ -29,6 +29,7 @@ import {
 } from "types";
 import { SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 interface Progress {
   complete: number;
@@ -84,7 +85,7 @@ export function useWithReviewAnswerState(
   const [answers, setAnswers] = useState<Answer[]>();
   const [questions, setQuestions] = useState<QuestionEdits[]>();
   const { getData, isLoading: isMentorLoading, loadMentor } = useActiveMentor();
-
+  const { state: configState } = useWithConfig();
   const mentorId: string = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
@@ -120,10 +121,10 @@ export function useWithReviewAnswerState(
   }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
-    if (!mentorSubjects || !mentorAnswers) {
+    if (!mentorSubjects || !mentorAnswers || !configState.config) {
       return;
     }
-    const _blocks: RecordingBlock[] = [];
+    let _blocks: RecordingBlock[] = [];
     const subject = mentorSubjects?.find((s) => s._id === selectedSubject);
     if (subject) {
       subject.categories.forEach((c) => {
@@ -198,6 +199,24 @@ export function useWithReviewAnswerState(
           });
         }
       });
+      // Sort blocks by config priority
+      const subjectPriority = configState.config.subjectRecordPriority;
+      const prioritizedBlocks = _blocks.filter((block) =>
+        subjectPriority.find((subj) => subj === block.subject)
+      );
+      const unprioritizedBlocks = _blocks.filter(
+        (block) =>
+          !prioritizedBlocks.find(
+            (prioBlock) => prioBlock.subject === block.subject
+          )
+      );
+      prioritizedBlocks.sort((a, b) => {
+        return (
+          subjectPriority.indexOf(a.subject) -
+          subjectPriority.indexOf(b.subject)
+        );
+      });
+      _blocks = [...prioritizedBlocks, ...unprioritizedBlocks];
       setProgress({
         complete: mentorAnswers.filter((a) =>
           isAnswerComplete(
@@ -210,7 +229,7 @@ export function useWithReviewAnswerState(
       });
     }
     setBlocks(_blocks);
-  }, [mentorSubjects, mentorAnswers, selectedSubject]);
+  }, [mentorSubjects, mentorAnswers, selectedSubject, configState]);
 
   function clearError() {
     setError(undefined);

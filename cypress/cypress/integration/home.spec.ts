@@ -157,6 +157,19 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=preview-tooltip-title").should("not.exist");
   });
 
+  it("shows subjects in priority order", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clint,
+      config: { subjectRecordPriority: ["idle_and_initial_recordings"] },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=block-0]").within(() => {
+      cy.get("[data-cy=block-name]").should("contain", "Category2");
+    });
+  });
+
   it("doesn't show splash if mentor seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
