@@ -278,7 +278,7 @@ function VideoRecorder({
           playsInline
           ref={(e) => setVideoRef(e || undefined)}
         />
-        <VirtualBg />
+        {/* <VirtualBg /> */}
         <canvas
           data-cy="draw-canvas"
           id="canvas"
