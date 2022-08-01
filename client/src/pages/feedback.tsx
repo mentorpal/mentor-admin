@@ -176,30 +176,9 @@ function FeedbackItem(props: {
     const completeAnswers = mentorAnswers?.filter((mentorAnswer) =>
                     isAnswerComplete(mentorAnswer, undefined, props.mentorType)
                   ) || []
-    /*
-    const completeAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.COMPLETE)
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question || "") >
-        (mentorQuestions[b._id]?.question?.question || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question || "") <
-            (mentorQuestions[b._id]?.question?.question || "")
-          ? -1
-          : 0
-      );
-      */
-    const incompleteAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status == Status.INCOMPLETE)
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question || "") >
-        (mentorQuestions[b._id]?.question?.question || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question || "") <
-            (mentorQuestions[b._id]?.question?.question || "")
-          ? -1
-          : 0
-      );
+    const incompleteAnswers = mentorAnswers?.filter((mentorAnswer) =>
+                    !isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+                  ) || []
   
     return completeAnswers.concat(incompleteAnswers);
   }
@@ -283,12 +262,6 @@ function FeedbackItem(props: {
                 mentorAnswers || [],
                 mentorQuestions
               )}
-              /*
-              options={
-                mentorAnswers?.filter((mentorAnswer) =>
-                  isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                ) || []
-              }*/
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
@@ -508,7 +481,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell align="center">
                     <Select
                       data-cy="filter-confidence"
-                      value={feedbackSearchParams.filter.classifierAnswerType}
+                      value={feedbackSearchParams.filter.ClassifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
@@ -555,16 +528,43 @@ function FeedbackPage(): JSX.Element {
                   <TableCell />
                   <TableCell>
                     <Autocomplete
+                    /**<Select
+                      data-cy="filter-confidence"
+                      value={feedbackSearchParams.filter.ClassifierAnswerType}
+                      style={{ flexGrow: 1, marginLeft: 10 }}
+                      onChange={(
+                        event: React.ChangeEvent<{
+                          value: unknown;
+                          name?: unknown;
+                        }>
+                      ) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          classifierAnswerType: event.target
+                            .value as ClassifierAnswerType,
+                        })
+                      }
+                    > */
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
+                      value={feedbackSearchParams.filter.classifierAnswer}
                       getOptionLabel={(option: Answer) =>
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
                       }
-                      onChange={(e, v) =>
+                      /*
+                      onChange={(e, v) => {
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswer: v || undefined,
+                        })
+                        console.log(v);
+                      }
+                      }*/
+                      onChange={(e, v) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          classifierAnswer: v as Answer,
                         })
                       }
                       style={{ minWidth: 300 }}
