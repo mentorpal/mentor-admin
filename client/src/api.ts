@@ -791,20 +791,16 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId?: string,
-  questionId?: string,
-  mentorId?: string
+  answerId: string,
+  questionId: string,
+  mentorId: string
 ): Promise<void> {
-  if (answerId && questionId && mentorId) {
-    throw new Error(
-      "Can only accept either answerId, or question and mentorId"
-    );
-  }
+  // if an answerId exists, then only send that over, else send question and mentorid
   const variables = {
     id: feedbackId,
     ...(answerId ? { answer: answerId } : {}),
-    ...(questionId ? { question: questionId } : {}),
-    ...(mentorId ? { mentorId: mentorId } : {}),
+    ...(questionId && !answerId ? { question: questionId } : {}),
+    ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
   };
   execGql<UserQuestion>(
     {
