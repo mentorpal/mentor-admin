@@ -11,6 +11,7 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
+import { PhotoshopPicker } from "react-color";
 import {
   Button,
   Card,
@@ -89,6 +90,11 @@ const useStyles = makeStyles((theme) => ({
   },
   expandOpen: {
     transform: "rotate(180deg)",
+  },
+  thumbnail: {
+    boxSizing: "border-box",
+    height: 56,
+    padding: 5,
   },
 }));
 
@@ -575,6 +581,124 @@ function MentorPanelList(props: {
   );
 }
 
+function HeaderStyle(props: {
+  styles: Record<string, string>;
+  config: Config;
+  updateConfig: (c: Partial<Config>) => void;
+}): JSX.Element {
+  const { styles, config, updateConfig } = props;
+  return (
+    <div>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <TextField
+          fullWidth
+          data-cy="styleHeaderLogo"
+          data-test={config.styleHeaderLogo}
+          variant="outlined"
+          label="Header Logo"
+          value={config.styleHeaderLogo}
+          onChange={(e) => updateConfig({ styleHeaderLogo: e.target.value })}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <img
+          data-cy="image-thumbnail"
+          className={styles.thumbnail}
+          src={config.styleHeaderLogo}
+          onClick={() => {
+            window.open(config.styleHeaderLogo || "", "_blank");
+          }}
+        />
+      </div>
+      <Typography
+        variant="subtitle1"
+        data-cy="styleHeaderColor"
+        data-test={config.styleHeaderColor}
+        style={{ marginTop: 20, textAlign: "start" }}
+      >
+        Header Color: {config.styleHeaderColor}
+      </Typography>
+      <PhotoshopPicker
+        color={config.styleHeaderColor}
+        onChangeComplete={(color: { hex: string }) =>
+          updateConfig({ styleHeaderColor: color.hex })
+        }
+      />
+      <Typography
+        variant="subtitle1"
+        data-cy="styleHeaderTextColor"
+        data-test={config.styleHeaderTextColor}
+        style={{ marginTop: 20, textAlign: "start" }}
+      >
+        Header Text Color: {config.styleHeaderTextColor}
+      </Typography>
+      <PhotoshopPicker
+        color={config.styleHeaderTextColor}
+        onChangeComplete={(color: { hex: string }) =>
+          updateConfig({ styleHeaderTextColor: color.hex })
+        }
+      />
+    </div>
+  );
+}
+
+function Disclaimer(props: {
+  config: Config;
+  updateConfig: (c: Partial<Config>) => void;
+}): JSX.Element {
+  const { config, updateConfig } = props;
+  return (
+    <div>
+      <TextField
+        fullWidth
+        data-cy="disclaimerTitle"
+        data-test={config.disclaimerTitle}
+        variant="outlined"
+        label="Disclaimer Title"
+        multiline={true}
+        value={config.disclaimerTitle}
+        onChange={(e) => updateConfig({ disclaimerTitle: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        fullWidth
+        data-cy="disclaimerText"
+        data-test={config.disclaimerText}
+        variant="outlined"
+        label="Disclaimer Text"
+        multiline={true}
+        value={config.disclaimerText}
+        onChange={(e) => updateConfig({ disclaimerText: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <FormControlLabel
+        data-cy="disclaimerDisabled"
+        data-test={config.disclaimerDisabled}
+        control={
+          <Checkbox
+            checked={config.disclaimerDisabled}
+            onChange={() =>
+              updateConfig({
+                disclaimerDisabled: !config.disclaimerDisabled,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Disable Disclaimer Popup"
+        style={{ justifySelf: "center" }}
+      />
+    </div>
+  );
+}
+
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
   const {
@@ -586,6 +710,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     isLoading,
     isSaving,
     saveConfig,
+    updateConfig,
     moveMentor,
     moveMentorPanel,
     toggleActiveMentor,
@@ -611,6 +736,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
       <div>You must be an admin or content manager to view this page.</div>
     );
   }
+
   if (isLoading || !config) {
     return (
       <div className={styles.root}>
@@ -633,6 +759,16 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             label="Featured Mentor Panels"
             value="featured-mentor-panels"
             data-cy="toggle-featured-mentor-panels"
+          />
+          <Tab
+            label="Header Style"
+            value="header-style"
+            data-cy="toggle-header-style"
+          />
+          <Tab
+            label="Disclaimer"
+            value="disclaimer"
+            data-cy="toggle-disclaimer"
           />
         </TabList>
         <TabPanel
@@ -664,6 +800,24 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             toggleFeatured={toggleFeaturedMentorPanel}
             saveMentorPanel={saveMentorPanel}
           />
+        </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="header-style"
+        >
+          <HeaderStyle
+            styles={styles}
+            config={config}
+            updateConfig={updateConfig}
+          />
+        </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="disclaimer"
+        >
+          <Disclaimer config={config} updateConfig={updateConfig} />
         </TabPanel>
       </TabContext>
       <Button
