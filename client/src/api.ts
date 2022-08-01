@@ -241,6 +241,7 @@ export async function fetchConfig(): Promise<Config> {
           disclaimerDisabled
           displayGuestPrompt
           videoRecorderMaxLength
+          subjectRecordPriority
         }
       }
   `,
