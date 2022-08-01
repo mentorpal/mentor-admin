@@ -33,7 +33,6 @@ export class Recommender<IRecommender> {
     return [];
   }
 
-
   public getCalculatedRecs(): PriorityQueue["priorityQueue"] {
     //array of recommendations from the production rules
     const allRec = this.getRecommendations();
@@ -90,7 +89,6 @@ export class Phase<IRecommender> {
     return true;
   }
 
- 
   public getRecommendations(recState: IRecommender): Recommendation[] {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {

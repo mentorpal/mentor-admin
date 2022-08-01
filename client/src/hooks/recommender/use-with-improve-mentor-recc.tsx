@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { WeightedObj } from "./priorityQueue";
 import {
   Recommendation,
@@ -18,10 +19,10 @@ interface RecommenderInterface {
   // idle?: boolean;
   // intro?: boolean;
   // offTopic?: boolean;
-  intro: boolean;
+  hasIntro: boolean;
   //idleIncomplete: boolean;
   //isVideo: boolean;
-  offTopic: boolean;
+  hasOffTopic: boolean;
   hasThumbnail: boolean;
   // isDirty: boolean;
   // categories: boolean;
@@ -29,31 +30,17 @@ interface RecommenderInterface {
   // firstIncomplete?: boolean;
   // completedAnswers: boolean;
   // totalAnswers: boolean;
-  neverBuilt: boolean;
+  hasBuilt: boolean;
   // builttNeverPreview: boolean;
   // needSubject: boolean;
 }
 
 const mockCurrentState: RecommenderInterface = {
-  intro: true,
-  offTopic: true,
+  hasIntro: intro?.status === Status.INCOMPLETE,
+  hasOffTopic: true,
   hasThumbnail: true,
-  neverBuilt: true,
+  hasBuilt: true,
 };
-
-// A master list of all possible attributes, this list should also have an typescript interface to type the list
-// Attributes from this list are provided to the Recommendations
-// export interface MasterList {
-//   coverage_attribute: number;
-//   setup_attribute: number;
-//   offTopic_attribute: number;
-// }
-
-// const masterScoredAttributesList: Record<string, number> = {
-//   coverage_attribute: 0,
-//   setup_attribute: 0,
-//   offTopic_attribute: 0,
-// };
 
 /**
  * the first testing production rule
@@ -75,7 +62,7 @@ function buildProductionRule1() {
   );
   const productionRule = new ProductionRule<RecommenderInterface>(
     (recState: RecommenderInterface) => {
-      return recState.offTopic === true;
+      return recState.hasOffTopic === true;
     },
     [recommendation1, recommendation2]
   );
@@ -105,7 +92,7 @@ function buildProductionRule2() {
 /**
  * Creation of phases happens in this file and then they get passed into the recommender constructor
  */
-function setupPhase() {
+function setupPhase(): Phase<RecommenderInterface> {
   // Each phase holds (possibly different) weights for each attribute
   const weightedAttributes = {
     setup_attribute: 2,
@@ -116,7 +103,7 @@ function setupPhase() {
   const productionRules = [buildProductionRule1(), buildProductionRule2()];
   const setupPhase = new Phase(
     (recState: RecommenderInterface) => {
-      return recState.offTopic === true;
+      return recState.hasOffTopic === true;
     },
     productionRules,
     weightedAttributes
