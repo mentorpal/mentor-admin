@@ -445,7 +445,7 @@ function FeedbackPage(): JSX.Element {
     });
   }, []);
 
-  //Trending code:
+  //Trending Feedback task:
   const [viewAllQuestions, setViewAllQuestions] = useState<boolean>(false);
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     setViewAllQuestions(event.target.checked);

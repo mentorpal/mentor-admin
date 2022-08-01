@@ -73,4 +73,33 @@ describe("Feedback Page", () => {
     cy.get("[data-cy=filter-feedback-switch]").click();
     cy.contains("hey");
   });
+  it("Confidence levels are labeled by default", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UserQuestionSetAnswer", {}),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.contains("OFF TOPIC");
+    cy.contains("-7").should("not.exist");
+  });
+  it("Toggle shows exact confidence values", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor,
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("ImportTask", { importTask: null }),
+        mockGQL("UserQuestionSetAnswer", {}),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.get("[data-cy=show-exact-confidence-switch]").click();
+    cy.contains("OFF TOPIC").should("not.exist");
+    cy.contains("-7");
+  });
 });
