@@ -163,38 +163,40 @@ function FeedbackItem(props: {
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
 
-    function formatMentorQuestions(
-      mentorAnswers: Answer[],
-      mentorQuestions: Record<string, QuestionState>
-    ) {
-      if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
-        return mentorAnswers;
-      }
-      const completeAnswers = mentorAnswers
-        .filter((mentorAnswer) => mentorAnswer.status === Status.COMPLETE)
-        .sort((a, b) =>
-          (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
-          (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-            ? 1
-            : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") <
-              (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-            ? -1
-            : 0
-        );
-      const incompleteAnswers = mentorAnswers
-        .filter((mentorAnswer) => mentorAnswer.status != Status.COMPLETE)
-        .sort((a, b) =>
-          (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
-          (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-            ? 1
-            : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") <
-              (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-            ? -1
-            : 0
-        );
-      return completeAnswers.concat(incompleteAnswers);
+  function formatMentorQuestions(
+    mentorAnswers: Answer[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
+      return mentorAnswers;
     }
-/*
+    const completeAnswers = mentorAnswers
+      .filter((mentorAnswer) => mentorAnswer.status === Status.COMPLETE)
+      .sort((a, b) =>
+        (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
+        (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+          ? 1
+          : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase ||
+              "") <
+            (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+          ? -1
+          : 0
+      );
+    const incompleteAnswers = mentorAnswers
+      .filter((mentorAnswer) => mentorAnswer.status != Status.COMPLETE)
+      .sort((a, b) =>
+        (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
+        (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+          ? 1
+          : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase ||
+              "") <
+            (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
+          ? -1
+          : 0
+      );
+    return completeAnswers.concat(incompleteAnswers);
+  }
+  /*
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -237,14 +239,14 @@ function FeedbackItem(props: {
     selectedAnswerID: string,
     accessToken: string
   ) {
-    console.log("Answer ID: "+selectedAnswerID);
+    console.log("Answer ID: " + selectedAnswerID);
     if (queueList.includes(selectedAnswerID)) {
-      console.log("queue: "+queueList);
+      console.log("queue: " + queueList);
       console.log("removing: " + selectedAnswerID);
       setQueueList(
         await removeQuestionFromRecordQueue(accessToken, selectedAnswerID)
       );
-      console.log("queue: "+queueList);
+      console.log("queue: " + queueList);
     } else if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
     } else {
@@ -262,7 +264,7 @@ function FeedbackItem(props: {
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string) {
     //setSelectedAnswerID(answerId || "");
-    console.log("onUpdate: " +answerId);
+    console.log("onUpdate: " + answerId);
     await updateUserQuestion(feedback._id, answerId || "");
     onUpdated();
   }
@@ -322,10 +324,10 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                console.log("Answer onChnage: "+v?._id);
-                console.log("undefined? "+v);
-                console.log("question ID: "+v?.question);
-                console.log("status: "+v?.status);
+                console.log("Answer onChnage: " + v?._id);
+                console.log("undefined? " + v);
+                console.log("question ID: " + v?.question);
+                console.log("status: " + v?.status);
                 setSelectedAnswerID(v?._id);
                 console.log("ID after setting: " + selectedAnswerID);
                 setSelectedAnswerStatus(v?.status);
@@ -339,8 +341,7 @@ function FeedbackItem(props: {
               renderOption={(option) => (
                 <Typography
                   style={{
-                    color:
-                      option.status === Status.COMPLETE ? "black" : "grey",
+                    color: option.status === Status.COMPLETE ? "black" : "grey",
                   }}
                   data-cy={`Drop-down-qu-${option._id}`}
                   align="left"
@@ -363,7 +364,7 @@ function FeedbackItem(props: {
                 color="primary"
                 disabled={selectedAnswerStatus === Status.COMPLETE}
                 onClick={() => {
-                  console.log("BUTTON SELECTED ANSWER: "+ selectedAnswerID);
+                  console.log("BUTTON SELECTED ANSWER: " + selectedAnswerID);
                   queueButtonClicked(selectedAnswerID || "", accessToken);
                 }}
               >
@@ -674,7 +675,7 @@ function FeedbackPage(): JSX.Element {
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
-                    onUpdated={reloadFeedback} // issue with the feedback. 
+                    onUpdated={reloadFeedback} // issue with the feedback.
                     queueList={queueList}
                     setQueueList={setQueueList}
                     mentor={mentor}

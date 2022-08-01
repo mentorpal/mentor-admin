@@ -791,18 +791,31 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string
+  answerId?: string,
+  questionId?: string,
+  mentorId?: string
 ): Promise<void> {
+  if (answerId && questionId && mentorId) {
+    throw new Error(
+      "Can only accept either answerId, or question and mentorId"
+    );
+  }
+  const variables = {
+    id: feedbackId,
+    ...(answerId ? { answer: answerId } : {}),
+    ...(questionId ? { question: questionId } : {}),
+    ...(mentorId ? { mentorId: mentorId } : {}),
+  };
   execGql<UserQuestion>(
     {
       query: `
-      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
-        userQuestionSetAnswer(id: $id, answer: $answer) {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
+        userQuestionSetAnswer(id: $id, answer: $answer, question: $question, mentorId: $mentorId) {
           _id
         }
       }
     `,
-      variables: { id: feedbackId, answer: answerId },
+      variables,
     },
     { dataPath: "userQuestionSetAnswer" }
   );
