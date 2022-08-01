@@ -262,11 +262,11 @@ function FeedbackItem(props: {
   };
 
   // TODO: MOVE THIS TO A HOOK
-  async function onUpdateAnswer(answerId?: string) {
+  async function onUpdateAnswer(answerId?: string, questionId?: string) {
     //setSelectedAnswerID(answerId || "");
     console.log("onUpdate: " + answerId);
     // TODO: update this to pass in answerId, questionId, and mentorId
-    await updateUserQuestion(feedback._id, answerId || "");
+    await updateUserQuestion(feedback._id, answerId || "", questionId || "", mentor._id);
     onUpdated();
   }
 
@@ -325,6 +325,7 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
+                onUpdateAnswer(v?._id, v?.question);
                 console.log("Answer onChnage: " + v?._id);
                 console.log("undefined? " + v);
                 console.log("question ID: " + v?.question);
@@ -332,7 +333,6 @@ function FeedbackItem(props: {
                 setSelectedAnswerID(v?._id);
                 console.log("ID after setting: " + selectedAnswerID);
                 setSelectedAnswerStatus(v?.status);
-                onUpdateAnswer(v?._id);
               }}
               style={{
                 minWidth: 300,
