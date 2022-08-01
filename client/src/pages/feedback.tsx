@@ -535,13 +535,11 @@ function FeedbackPage(): JSX.Element {
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
                       }
-                      onChange={(e, v) => {
+                      onChange={(e, v) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswer: v || undefined,
                         })
-                        console.log(v);
-                      }
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
