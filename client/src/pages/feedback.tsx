@@ -528,23 +528,6 @@ function FeedbackPage(): JSX.Element {
                   <TableCell />
                   <TableCell>
                     <Autocomplete
-                    /**<Select
-                      data-cy="filter-confidence"
-                      value={feedbackSearchParams.filter.ClassifierAnswerType}
-                      style={{ flexGrow: 1, marginLeft: 10 }}
-                      onChange={(
-                        event: React.ChangeEvent<{
-                          value: unknown;
-                          name?: unknown;
-                        }>
-                      ) =>
-                        filterFeedback({
-                          ...feedbackSearchParams.filter,
-                          classifierAnswerType: event.target
-                            .value as ClassifierAnswerType,
-                        })
-                      }
-                    > */
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
                       value={feedbackSearchParams.filter.classifierAnswer}
@@ -552,7 +535,6 @@ function FeedbackPage(): JSX.Element {
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
                       }
-                      /*
                       onChange={(e, v) => {
                         filterFeedback({
                           ...feedbackSearchParams.filter,
@@ -560,12 +542,6 @@ function FeedbackPage(): JSX.Element {
                         })
                         console.log(v);
                       }
-                      }*/
-                      onChange={(e, v) =>
-                        filterFeedback({
-                          ...feedbackSearchParams.filter,
-                          classifierAnswer: v as Answer,
-                        })
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
