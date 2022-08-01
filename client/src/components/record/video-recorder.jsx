@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 /** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import videojs from "video.js";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
@@ -56,7 +56,8 @@ function VideoRecorder({
     },
   };
   const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
-  const [videoRef, setVideoRef] = useState();
+  const videoRef = useRef();
+  const canvasRef = useRef();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
   // snapshot recordState from when player first initializes and doesn't
@@ -67,7 +68,6 @@ function VideoRecorder({
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const [canvasRef, setCanvasRef] = useState();
 
   const VirtualBg = () => (
     <img
@@ -102,24 +102,26 @@ function VideoRecorder({
     _setRecordStopCountdown(n);
   };
   const isRecordingRef = React.useRef(recordState.isRecording);
+
+  useEffect(() => {
+    videoSourceToCanvasStream(canvasRef.current, videoRef.current);
+  }, []);
+
   useEffect(() => {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
 
   useEffect(() => {
-    if (!canvasRef || !videoRef) {
+    if (!videoRef.current || videoRecorderRef) {
       return;
     }
-    videoSourceToCanvasStream(canvasRef, videoRef);
-  }, [canvasRef, videoRef]);
-
-  useEffect(() => {
-    if (!videoRef || videoRecorderRef) {
-      return;
-    }
-    const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
-      setVideoRecorderRef(player);
-    });
+    const player = videojs(
+      videoRef.current,
+      videoJsOptions,
+      function onPlayerReady() {
+        setVideoRecorderRef(player);
+      }
+    );
     player.on("deviceReady", function () {
       setIsCameraOn(true);
     });
@@ -250,6 +252,8 @@ function VideoRecorder({
     };
   }, []);
 
+  console.log("re-render");
+
   return (
     <div
       data-cy="recorder"
@@ -276,20 +280,18 @@ function VideoRecorder({
           data-cy="video-recorder"
           className="video-js vjs-default-skin"
           playsInline
-          ref={(e) => setVideoRef(e || undefined)}
+          ref={videoRef}
         />
         {/* <VirtualBg /> */}
         <canvas
           data-cy="draw-canvas"
           id="canvas"
-          ref={(e) => {
-            setCanvasRef(e || undefined);
-          }}
+          ref={canvasRef}
           style={{
             display: "block",
             margin: "auto",
             position: "absolute",
-            top: 0,
+            top: 1000,
             bottom: 0,
             left: 0,
             right: 0,
