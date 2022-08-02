@@ -162,7 +162,7 @@ function FeedbackItem(props: {
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
-
+/*
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -195,8 +195,8 @@ function FeedbackItem(props: {
           : 0
       );
     return completeAnswers.concat(incompleteAnswers);
-  }
-  /*
+  }*/
+  
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -232,7 +232,7 @@ function FeedbackItem(props: {
           : 0
       );
     return completeAnswers.concat(incompleteAnswers);
-  }*/
+  }
 
   // function to add/remove from queue
   async function queueButtonClicked(
@@ -263,10 +263,11 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answerId?: string, questionId?: string) {
-    //setSelectedAnswerID(answerId || "");
     console.log("onUpdate: " + answerId);
     // TODO: update this to pass in answerId, questionId, and mentorId
     await updateUserQuestion(feedback._id, answerId || "", questionId || "", mentor._id);
+    setSelectedAnswerID(answerId || "");
+    console.log("selected ID: "+selectedAnswerID);
     onUpdated();
   }
 
@@ -327,11 +328,9 @@ function FeedbackItem(props: {
               onChange={(e, v) => {
                 onUpdateAnswer(v?._id, v?.question);
                 console.log("Answer onChnage: " + v?._id);
-                console.log("undefined? " + v);
+                console.log("undefined? " + !v);
                 console.log("question ID: " + v?.question);
                 console.log("status: " + v?.status);
-                setSelectedAnswerID(v?._id);
-                console.log("ID after setting: " + selectedAnswerID);
                 setSelectedAnswerStatus(v?.status);
               }}
               style={{
@@ -355,7 +354,7 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => onUpdateAnswer(undefined)}>
+            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setSelectedAnswerID(undefined);}}>
               <CloseIcon />
             </IconButton>
 
