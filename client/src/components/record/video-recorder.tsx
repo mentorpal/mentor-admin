@@ -6,42 +6,70 @@ The full terms of this copyright and license should always be found in the root 
 */
 /** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
-import React, { useEffect, useState } from "react";
-import videojs from "video.js";
+import React, { useEffect, useRef, useState } from "react";
+// import videojs from "video.js";
+import RecordRTC, {
+  CanvasRecorder,
+  invokeSaveAsDialog,
+  MediaStreamRecorder,
+} from "recordrtc";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+import stream from "stream";
 
-function VideoRecorder({
-  classes,
-  height,
-  width,
-  recordState,
-  videoRecorderMaxLength,
-  stopRequests,
-}) {
-  const videoJsOptions = {
-    controls: true,
-    bigPlayButton: false,
-    controlBar: {
-      fullscreenToggle: false,
-      volumePanel: false,
-      recordToggle: false,
-    },
-    fluid: true,
-    aspectRatio: "16:9",
-    plugins: {
-      record: {
-        audio: true,
-        video: true,
-        debug: true,
-        maxLength: videoRecorderMaxLength,
-      },
-    },
-  };
-  const [videoRef, setVideoRef] = useState();
+function getVideoRecorder() {
+  return document.querySelectorAll("[data-cy=video-recorder]")[1];
+}
+
+function getCanvas() {
+  return document.querySelector("[data-cy=draw-canvas]");
+}
+
+function VideoRecorder({}): JSX.Element {
+  navigator.mediaDevices
+    .getUserMedia({
+      video: true,
+      audio: true,
+    })
+    .then((stream) => {
+      // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
+      // if (!useVirtualBackground) {
+      const recorder = new RecordRTC(stream, {
+        type: "video",
+        mimeType: "video/webm",
+        // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
+        // CanvasRecorder, GifRecorder, WhammyRecorder
+        recorderType: MediaStreamRecorder,
+        timeSlice: 1000,
+        ondataavailable: function (blob) {},
+        checkForInactiveTracks: true,
+        onTimeStamp: function (timestamp) {},
+        previewStream: function (stream) {},
+      });
+
+      // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
+      // return new RecordRTC(getCanvas(), recordRtcConfig);
+
+      // const recorder = new RecordRTC(stream, {
+      //   type: 'canvas',
+      //   mimeType: 'video/webm',
+      //   recorderType: CanvasRecorder,
+      //   timeSlice: 1000,
+      //   ondataavailable: function(blob) {},
+      //   checkForInactiveTracks: true,
+      //   onTimeStamp: function(timestamp) {},
+      //   previewStream: function(stream) {},
+      // });
+
+      return recorder;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
   // snapshot recordState from when player first initializes and doesn't
@@ -67,28 +95,27 @@ function VideoRecorder({
     if (!videoRef || videoRecorderRef) {
       return;
     }
-    const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
-      setVideoRecorderRef(player);
+    // const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
+    //   setVideoRecorderRef(player);
+    // });
+    const player = new RecordRTC(videoRef, {
+      type: "video",
+      mimeType: "video/webm",
+      recorderType: MediaStreamRecorder,
+      disableLogs: true,
+      timeSlice: 1000,
+      ondataavailable: function (blob) {
+        setRecordedVideo(blob);
+      },
     });
-    player.on("deviceReady", function () {
-      setIsCameraOn(true);
-    });
-    player.on("startRecord", function () {
-      setRecordStartCountdown(0);
-      setRecordStopCountdown(0);
-      setRecordDurationCounter(0);
-    });
-    player.on("progressRecord", function () {
-      setRecordDurationCounter(player.record().getDuration());
-    });
-    player.on("finishRecord", function () {
-      setRecordedVideo(new File([player.recordedData], "video.mp4"));
-      setRecordStartCountdown(0);
-      setRecordStopCountdown(0);
-      setRecordDurationCounter(0);
-      setIsCameraOn(false);
-      player.record().reset();
-    });
+    // player.on("deviceReady", function () {
+    // });
+    // player.on("startRecord", function () {
+    // });
+    // player.on("progressRecord", function () {
+    // });
+    // player.on("finishRecord", function () {
+    // });
     return () => {
       player?.dispose();
     };
