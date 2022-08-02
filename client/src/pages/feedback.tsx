@@ -63,7 +63,6 @@ import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
-import { consoleSandbox } from "@sentry/utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -164,41 +163,7 @@ function FeedbackItem(props: {
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
   const [queueButtonText, setQueueButtonText] = useState<boolean>(false);
-/*
-  function formatMentorQuestions(
-    mentorAnswers: Answer[],
-    mentorQuestions: Record<string, QuestionState>
-  ) {
-    if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
-      return mentorAnswers;
-    }
-    const completeAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status === Status.COMPLETE)
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
-        (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase ||
-              "") <
-            (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-          ? -1
-          : 0
-      );
-    const incompleteAnswers = mentorAnswers
-      .filter((mentorAnswer) => mentorAnswer.status != Status.COMPLETE)
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase || "") >
-        (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question.toLocaleLowerCase ||
-              "") <
-            (mentorQuestions[b._id]?.question?.question.toLocaleLowerCase || "")
-          ? -1
-          : 0
-      );
-    return completeAnswers.concat(incompleteAnswers);
-  }*/
-  
+
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -239,22 +204,26 @@ function FeedbackItem(props: {
   // function to add/remove from queue
   async function queueButtonClicked() {
     console.log("Answer ID: " + selectedAnswerID);
-    if (queueButtonText) {
+    console.log("empty: " + (selectedAnswerID === ""));
+    console.log(!selectedAnswerID);
+    if (!selectedAnswerID) {
+      setCustomQuestionModalOpen(true);
+    }
+    else if (props.queueList.includes(selectedAnswerID)) {
       console.log("queue: " + queueList);
       console.log("removing: " + selectedAnswerID);
       setQueueList(
-        await removeQuestionFromRecordQueue(props.accessToken || "", selectedAnswerID || "")
+        await removeQuestionFromRecordQueue(props.accessToken || "", selectedAnswerID)
       );
-      console.log("queue: " + queueList);
       setQueueButtonText(false);
-    } else if (!selectedAnswerID) {
-      setCustomQuestionModalOpen(true);
     } else {
-      setQueueList(
-        await addQuestionToRecordQueue(props.accessToken || "", selectedAnswerID || "")
+      console.log("adding");
+      props.setQueueList(
+        await addQuestionToRecordQueue(props.accessToken || "", selectedAnswerID)
       );
       setQueueButtonText(true);
     }
+    console.log("queue: " + queueList);
   }
 
   const handleClose = () => {
@@ -263,15 +232,16 @@ function FeedbackItem(props: {
   };
 
   // TODO: MOVE THIS TO A HOOK
-  async function onUpdateAnswer(answerId?: string, questionId?: string) {
-    console.log("onUpdate: " + answerId);
-    // TODO: update this to pass in answerId, questionId, and mentorId
-    (!answerId ?
-       await updateUserQuestion(feedback._id, "", questionId || "", mentor._id) : 
-      await updateUserQuestion(feedback._id, answerId, "", ""));
+  async function onUpdateAnswer(answer?: Answer) {
+    (!answer?._id ? (await updateUserQuestion(feedback._id, "", answer?.question || "", mentor._id)) : 
+    (await updateUserQuestion(feedback._id, answer._id, "", "").then(() =>
+    setSelectedAnswerID(answer._id))));
+
+
+    console.log("answerID: " +selectedAnswerID);
+    setQueueButtonText(queueList.includes(selectedAnswerID || ""));
     onUpdated();
-    setSelectedAnswerID(answerId || "");
-    console.log("asnwerID: "+selectedAnswerID);
+    console.log("answerID: " +selectedAnswerID);
   }
 
   return (
@@ -329,16 +299,10 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                console.log("Answer onChnage: " + v?._id);
-
-                console.log("status: " + v?.status);
                 setSelectedAnswerStatus(v?.status);
-                console.log(selectedAnswerStatus);
-
-                setQueueButtonText(queueList.includes(selectedAnswerID || "")); 
+                console.log(queueList.includes(""));
                 console.log("in queue: "+ queueButtonText);
-                onUpdateAnswer(v?._id, v?.question);
-
+                onUpdateAnswer(v || undefined);
               }}
               style={{
                 minWidth: 300,
@@ -361,8 +325,8 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setSelectedAnswerID(undefined); setQueueButtonText(false)}}>
-              <CloseIcon />
+            <IconButton onClick={() => {setSelectedAnswerID(undefined); onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setQueueButtonText(false);}}>
+              <CloseIcon onClick={() => {setSelectedAnswerID(undefined); setSelectedAnswerStatus(undefined); setQueueButtonText(false)}}/>
             </IconButton>
 
             {accessToken ? (
