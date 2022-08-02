@@ -63,6 +63,7 @@ import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
+import { consoleSandbox } from "@sentry/utils";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -162,6 +163,7 @@ function FeedbackItem(props: {
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
+  const [queueButtonText, setQueueButtonText] = useState<boolean>(false);
 /*
   function formatMentorQuestions(
     mentorAnswers: Answer[],
@@ -235,24 +237,23 @@ function FeedbackItem(props: {
   }
 
   // function to add/remove from queue
-  async function queueButtonClicked(
-    selectedAnswerID: string,
-    accessToken: string
-  ) {
+  async function queueButtonClicked() {
     console.log("Answer ID: " + selectedAnswerID);
-    if (queueList.includes(selectedAnswerID)) {
+    if (queueButtonText) {
       console.log("queue: " + queueList);
       console.log("removing: " + selectedAnswerID);
       setQueueList(
-        await removeQuestionFromRecordQueue(accessToken, selectedAnswerID)
+        await removeQuestionFromRecordQueue(props.accessToken || "", selectedAnswerID || "")
       );
       console.log("queue: " + queueList);
+      setQueueButtonText(false);
     } else if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
     } else {
       setQueueList(
-        await addQuestionToRecordQueue(accessToken, selectedAnswerID)
+        await addQuestionToRecordQueue(props.accessToken || "", selectedAnswerID || "")
       );
+      setQueueButtonText(true);
     }
   }
 
@@ -265,10 +266,12 @@ function FeedbackItem(props: {
   async function onUpdateAnswer(answerId?: string, questionId?: string) {
     console.log("onUpdate: " + answerId);
     // TODO: update this to pass in answerId, questionId, and mentorId
-    await updateUserQuestion(feedback._id, answerId || "", questionId || "", mentor._id);
-    setSelectedAnswerID(answerId || "");
-    console.log("selected ID: "+selectedAnswerID);
+    (!answerId ?
+       await updateUserQuestion(feedback._id, "", questionId || "", mentor._id) : 
+      await updateUserQuestion(feedback._id, answerId, "", ""));
     onUpdated();
+    setSelectedAnswerID(answerId || "");
+    console.log("asnwerID: "+selectedAnswerID);
   }
 
   return (
@@ -326,12 +329,16 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                onUpdateAnswer(v?._id, v?.question);
                 console.log("Answer onChnage: " + v?._id);
-                console.log("undefined? " + !v);
-                console.log("question ID: " + v?.question);
+
                 console.log("status: " + v?.status);
                 setSelectedAnswerStatus(v?.status);
+                console.log(selectedAnswerStatus);
+
+                setQueueButtonText(queueList.includes(selectedAnswerID || "")); 
+                console.log("in queue: "+ queueButtonText);
+                onUpdateAnswer(v?._id, v?.question);
+
               }}
               style={{
                 minWidth: 300,
@@ -354,7 +361,7 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setSelectedAnswerID(undefined);}}>
+            <IconButton onClick={() => {onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setSelectedAnswerID(undefined); setQueueButtonText(false)}}>
               <CloseIcon />
             </IconButton>
 
@@ -365,10 +372,10 @@ function FeedbackItem(props: {
                 disabled={selectedAnswerStatus === Status.COMPLETE}
                 onClick={() => {
                   console.log("BUTTON SELECTED ANSWER: " + selectedAnswerID);
-                  queueButtonClicked(selectedAnswerID || "", accessToken);
+                  queueButtonClicked();
                 }}
               >
-                {queueList.includes(selectedAnswerID || "")
+                {queueButtonText
                   ? "Remove from Queue"
                   : "Add to Queue"}
               </Button>
