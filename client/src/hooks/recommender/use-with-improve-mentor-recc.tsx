@@ -195,11 +195,11 @@ function unique(array: Category[]) {
   );
 }
 
-/**********************************
- * SETUP PRODUCTION RULES AND PHASE
- **********************************/
+/**********************
+ * ALL PRODUCTION RULES
+ **********************/
 
-function buildSetupProductionRule() {
+function buildSetupProductionRule(): ProductionRule<RecommenderInterface> {
   const resumeSetup = new Recommendation(
     {
       setup_attribute: 1,
@@ -226,14 +226,19 @@ function buildSetupProductionRule() {
   );
   const setupProductionRule = new ProductionRule<RecommenderInterface>(
     (recState: RecommenderInterface) => {
-      return recState.introIncomplete === true;
+      return (
+        recState.introIncomplete &&
+        recState.introIncomplete &&
+        recState.idleIncomplete &&
+        recState.needSubject
+      );
     },
     [resumeSetup, addYourIntro, recordIdleVideo, addSubject]
   );
   return setupProductionRule;
 }
 
-function buildIncompleteProductionRule() {
+function buildIncompleteProductionRule(): ProductionRule<RecommenderInterface> {
   const addThumbnail = new Recommendation(
     {
       coverage_attribute: 1,
@@ -250,12 +255,67 @@ function buildIncompleteProductionRule() {
   );
   const incompleteProductionRule = new ProductionRule<RecommenderInterface>(
     (recState: RecommenderInterface) => {
-      return recState.hasThumbnail === false;
+      return !recState.hasThumbnail && recState.offTopicIncomplete;
     },
     [addThumbnail, offTopicResponse]
   );
   return incompleteProductionRule;
 }
+
+function buildRecordingQuestions(): ProductionRule<RecommenderInterface> {
+  const recordQuestions = new Recommendation(
+    {
+      coverage_attribute: 1,
+    },
+    "Record More Questions"
+  );
+  const recordQuestionsProductionRule =
+    new ProductionRule<RecommenderInterface>(
+      (recState: RecommenderInterface) => {
+        return recState.completedAnswers < 5 ? true : false;
+      },
+      [recordQuestions]
+    );
+  return recordQuestionsProductionRule;
+}
+
+function buildBuildMentorProductionRule(): ProductionRule<RecommenderInterface> {
+  const buildMentor = new Recommendation(
+    {
+      coverage_attribute: 0.5,
+    },
+    "Build your Mentor"
+  );
+  const buildMentorProductionRule = new ProductionRule<RecommenderInterface>(
+    (recState: RecommenderInterface) => {
+      return recState.neverBuilt;
+    },
+    [buildMentor]
+  );
+  return buildMentorProductionRule;
+}
+
+function buildAnswerMissedQuestionsPR(): ProductionRule<RecommenderInterface> {
+  const answerMissedQuestions = new Recommendation(
+    {
+      coverage_attribute: 2,
+    },
+    "Answer Missed Questions"
+  );
+  const answerMissedQuestionsPR = new ProductionRule<RecommenderInterface>(
+    (recState: RecommenderInterface) => {
+      return recState.totalAnswers - recState.completedAnswers > 0
+        ? true
+        : false;
+    },
+    [answerMissedQuestions]
+  );
+  return answerMissedQuestionsPR;
+}
+
+/*************
+ * SETUP PHASE
+ *************/
 
 function setupPhase(): Phase<RecommenderInterface> {
   // Each phase holds (possibly different) weights for each attribute
@@ -279,11 +339,54 @@ function setupPhase(): Phase<RecommenderInterface> {
   return setupPhase;
 }
 
-/**
- * Calling the recommender
- */
+/********************
+ * FIRST BUILD PHASE
+ ********************/
+
+function firstBuildPhase(): Phase<RecommenderInterface> {
+  const weightedAttributes = {
+    coverage_attribute: 4,
+  };
+  const productionRules = [
+    buildRecordingQuestions(),
+    buildBuildMentorProductionRule(),
+  ];
+  const firstBuildPhase = new Phase(
+    (recState: RecommenderInterface) => {
+      return recState.builttNeverPreview === true;
+    },
+    productionRules,
+    weightedAttributes
+  );
+  return firstBuildPhase;
+}
+
+/****************
+ * SCRIPTED PHASE
+ ****************/
+
+function scriptedPhase(): Phase<RecommenderInterface> {
+  const weightedAttributes = {
+    coverage_attribute: 4,
+  };
+  const productionRules = [
+    buildRecordingQuestions(),
+    buildBuildMentorProductionRule(),
+    buildAnswerMissedQuestionsPR(),
+  ];
+  const scriptedPhase = new Phase(
+    (recState: RecommenderInterface) => {
+      return recState.builttNeverPreview === true;
+    },
+    productionRules,
+    weightedAttributes
+  );
+  return scriptedPhase;
+}
+
+// Calling the recommender
 export function callingRecommender(): WeightedObj[] {
-  const phases = [setupPhase()];
+  const phases = [setupPhase(), firstBuildPhase(), scriptedPhase()];
   const recommendationOrder = new Recommender<RecommenderInterface>(
     mockCurrentState,
     phases
