@@ -17,6 +17,7 @@ import { getValueIfKeyExists } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import { QuestionState } from "store/slices/questions";
+import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 
 /*************************
  * ALL POSSIBLE ATTRIBUTES
@@ -199,30 +200,42 @@ function unique(array: Category[]) {
  * ALL PRODUCTION RULES
  **********************/
 
-function buildSetupProductionRule(): ProductionRule<RecommenderInterface> {
-  const resumeSetup = new Recommendation(
+function setupProductionRule(): ProductionRule<RecommenderInterface> {
+  const setUpName = new Recommendation(
     {
-      setup_attribute: 1,
+      setup_attribute: 0.9,
     },
-    "The Setup is Incomplete"
+    "Finish Setup: Name"
   );
-  const addYourIntro = new Recommendation(
+  const setupType = new Recommendation(
     {
-      setup_attribute: 0.5,
+      setup_attribute: 0.8,
     },
-    "Add your Intro"
+    "Finish Setup: Type"
   );
-  const recordIdleVideo = new Recommendation(
+  const setupSubject = new Recommendation(
     {
-      setup_attribute: 0.5,
+      setup_attribute: 0.7,
+    },
+    "Finish Setup: Subject"
+  );
+  const setupIdle = new Recommendation(
+    {
+      setup_attribute: 0.6,
     },
     "Record an Idle Video"
   );
-  const addSubject = new Recommendation(
+  const setupBio = new Recommendation(
     {
       setup_attribute: 0.5,
     },
     "Add a Subject"
+  );
+  const setupOffTopic = new Recommendation(
+    {
+      setup_attribute: 0.4,
+    },
+    "Finish Setup: Off Topic"
   );
   const setupProductionRule = new ProductionRule<RecommenderInterface>(
     (recState: RecommenderInterface) => {
@@ -233,12 +246,12 @@ function buildSetupProductionRule(): ProductionRule<RecommenderInterface> {
         recState.needSubject
       );
     },
-    [resumeSetup, addYourIntro, recordIdleVideo, addSubject]
+    [setUpName, setupType, setupSubject, setupIdle, setupBio, setupOffTopic]
   );
   return setupProductionRule;
 }
 
-function buildIncompleteProductionRule(): ProductionRule<RecommenderInterface> {
+function incompleteProductionRule(): ProductionRule<RecommenderInterface> {
   const addThumbnail = new Recommendation(
     {
       coverage_attribute: 1,
@@ -246,54 +259,45 @@ function buildIncompleteProductionRule(): ProductionRule<RecommenderInterface> {
     },
     "Add a Thumbnail"
   );
-  const offTopicResponse = new Recommendation(
-    {
-      coverage_attribute: 1,
-      offTopic_attribute: 1,
-    },
-    "Add an Off Topic Response"
-  );
   const incompleteProductionRule = new ProductionRule<RecommenderInterface>(
     (recState: RecommenderInterface) => {
       return !recState.hasThumbnail && recState.offTopicIncomplete;
     },
-    [addThumbnail, offTopicResponse]
+    [addThumbnail]
   );
   return incompleteProductionRule;
 }
 
-function buildRecordingQuestions(): ProductionRule<RecommenderInterface> {
+function basicProductionRule(): ProductionRule<RecommenderInterface> {
   const recordQuestions = new Recommendation(
     {
-      coverage_attribute: 1,
+      coverage_attribute: 1/recState.completedAnswers,
     },
     "Record More Questions"
+  );
+  const buildMentor = new Recommendation(
+    {
+      coverage_attribute: 1/recState.completedAnswers,
+    },
+    "Build your Mentor"
+  );
+  const previewMentor = new Recommendation(
+    {
+      coverage_attribute: 0.5,
+    },
+    "Preview your Mentor"
   );
   const recordQuestionsProductionRule =
     new ProductionRule<RecommenderInterface>(
       (recState: RecommenderInterface) => {
         return recState.completedAnswers < 5 ? true : false;
       },
-      [recordQuestions]
+      [recordQuestions, buildMentor, previewMentor]
+      //somehow need to bring in rec state to get num of comAnswer
     );
   return recordQuestionsProductionRule;
 }
 
-function buildBuildMentorProductionRule(): ProductionRule<RecommenderInterface> {
-  const buildMentor = new Recommendation(
-    {
-      coverage_attribute: 0.5,
-    },
-    "Build your Mentor"
-  );
-  const buildMentorProductionRule = new ProductionRule<RecommenderInterface>(
-    (recState: RecommenderInterface) => {
-      return recState.neverBuilt;
-    },
-    [buildMentor]
-  );
-  return buildMentorProductionRule;
-}
 
 function buildAnswerMissedQuestionsPR(): ProductionRule<RecommenderInterface> {
   const answerMissedQuestions = new Recommendation(
@@ -313,21 +317,22 @@ function buildAnswerMissedQuestionsPR(): ProductionRule<RecommenderInterface> {
   return answerMissedQuestionsPR;
 }
 
-/*************
- * SETUP PHASE
- *************/
+/************************
+ * SETUP PHASE - LEVEL 1
+************************/
 
 function setupPhase(): Phase<RecommenderInterface> {
   // Each phase holds (possibly different) weights for each attribute
   const weightedAttributes = {
-    setup_attribute: 2,
-    coverage_attribute: 0.5,
-    offTopic_attribute: 0.1,
-    thumbnail_attribute: 0.3,
+    setup_attribute: 1,
+    coverage_attribute: 1,
+    publishUpdates_attribute: 1,
+    testing_attribute: 0.5,
   };
   const productionRules = [
-    buildSetupProductionRule(),
-    buildIncompleteProductionRule(),
+    setupProductionRule(),
+    incompleteProductionRule(),
+    basicProductionRule(),
   ];
   const setupPhase = new Phase(
     (recState: RecommenderInterface) => {
@@ -340,7 +345,7 @@ function setupPhase(): Phase<RecommenderInterface> {
 }
 
 /********************
- * FIRST BUILD PHASE
+ * FIRST BUILD PHASE - LEVEL 2
  ********************/
 
 function firstBuildPhase(): Phase<RecommenderInterface> {
@@ -348,8 +353,7 @@ function firstBuildPhase(): Phase<RecommenderInterface> {
     coverage_attribute: 4,
   };
   const productionRules = [
-    buildRecordingQuestions(),
-    buildBuildMentorProductionRule(),
+    basicProductionRule(),
   ];
   const firstBuildPhase = new Phase(
     (recState: RecommenderInterface) => {
@@ -362,7 +366,7 @@ function firstBuildPhase(): Phase<RecommenderInterface> {
 }
 
 /****************
- * SCRIPTED PHASE
+ * SCRIPTED PHASE - LEVEL 3
  ****************/
 
 function scriptedPhase(): Phase<RecommenderInterface> {
@@ -370,8 +374,7 @@ function scriptedPhase(): Phase<RecommenderInterface> {
     coverage_attribute: 4,
   };
   const productionRules = [
-    buildRecordingQuestions(),
-    buildBuildMentorProductionRule(),
+    basicProductionRule(),
     buildAnswerMissedQuestionsPR(),
   ];
   const scriptedPhase = new Phase(
@@ -383,6 +386,10 @@ function scriptedPhase(): Phase<RecommenderInterface> {
   );
   return scriptedPhase;
 }
+
+/**
+ * LEVEL 4
+ */
 
 // Calling the recommender
 export function callingRecommender(): WeightedObj[] {

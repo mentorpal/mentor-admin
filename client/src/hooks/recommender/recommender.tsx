@@ -116,13 +116,16 @@ PRODUCTION RULES CLASS
 export class ProductionRule<IRecommender> {
   activeCondition: (recState: IRecommender) => boolean;
   actionRecommendations: Recommendation[];
+  completedQuestions?: number;
 
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
-    actionRecommendations: Recommendation[]
+    actionRecommendations: Recommendation[],
+    completedQuestions? :number,
   ) {
     this.activeCondition = activeCondition;
     this.actionRecommendations = actionRecommendations;
+    this.completedQuestions = completedQuestions;
   }
 
   public isActive(recState: IRecommender): boolean {
