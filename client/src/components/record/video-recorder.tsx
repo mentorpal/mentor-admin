@@ -28,7 +28,7 @@ function getCanvas() {
   return document.querySelector("[data-cy=draw-canvas]");
 }
 
-function VideoRecorder({}): JSX.Element {
+function createVideoRecorder() {
   navigator.mediaDevices
     .getUserMedia({
       video: true,
@@ -37,7 +37,7 @@ function VideoRecorder({}): JSX.Element {
     .then((stream) => {
       // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
       // if (!useVirtualBackground) {
-      const recorder = new RecordRTC(stream, {
+      new RecordRTC(stream, {
         type: "video",
         mimeType: "video/webm",
         // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
@@ -48,28 +48,32 @@ function VideoRecorder({}): JSX.Element {
         checkForInactiveTracks: true,
         onTimeStamp: function (timestamp) {},
         previewStream: function (stream) {},
+
+        // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
+
+        // const recorder = new RecordRTC(stream, {
+        //   type: 'canvas',
+        //   mimeType: 'video/webm',
+        //   recorderType: CanvasRecorder,
+        //   timeSlice: 1000,
+        //   ondataavailable: function(blob) {},
+        //   checkForInactiveTracks: true,
+        //   onTimeStamp: function(timestamp) {},
+        //   previewStream: function(stream) {},
+        // });
       });
-
-      // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
-      // return new RecordRTC(getCanvas(), recordRtcConfig);
-
-      // const recorder = new RecordRTC(stream, {
-      //   type: 'canvas',
-      //   mimeType: 'video/webm',
-      //   recorderType: CanvasRecorder,
-      //   timeSlice: 1000,
-      //   ondataavailable: function(blob) {},
-      //   checkForInactiveTracks: true,
-      //   onTimeStamp: function(timestamp) {},
-      //   previewStream: function(stream) {},
-      // });
-
-      return recorder;
+    })
+    .then((recorder) => {
+      // SET VIDEO OR CANVAS RECORDER DEPENDING IF VIRTUAL BACKGROUND MENTOR
+      setVideoRecorder(recorder);
     })
     .catch((err) => {
       console.error(err);
     });
+}
 
+function VideoRecorder({}): JSX.Element {
+  const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
   // snapshot recordState from when player first initializes and doesn't
@@ -90,6 +94,11 @@ function VideoRecorder({}): JSX.Element {
   useEffect(() => {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
+
+  useEffect(() => {
+    const recorder = createVideoRecorder();
+    setVideoRecorderRef(recorder);
+  }, []);
 
   useEffect(() => {
     if (!videoRef || videoRecorderRef) {
