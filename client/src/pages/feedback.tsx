@@ -169,7 +169,7 @@ function FeedbackItem(props: {
     setQueueList,
   } = props;
   const [selectedAnswerStatus, setSelectedAnswerStatus] =
-    React.useState<Status>(); // for disabling/enabling queue button
+    React.useState<Status>(); // disabling/enabling queue button
   const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
@@ -630,10 +630,18 @@ function FeedbackPage(): JSX.Element {
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
                       }
+                      /*
                       onChange={(e, v) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswer: v || undefined,
+                        })
+                      }*/
+                      value={feedbackSearchParams.filter.classifierAnswer}
+                      onChange={(e, v) =>
+                        filterFeedback({
+                          ...feedbackSearchParams.filter,
+                          classifierAnswer: v as Answer,
                         })
                       }
                       style={{ minWidth: 300 }}
