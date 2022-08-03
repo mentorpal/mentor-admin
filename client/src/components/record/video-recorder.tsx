@@ -51,7 +51,7 @@ function VideoRecorder({}): JSX.Element {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
 
-  function createVideoRecorder() {
+  useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({
         video: true,
@@ -88,11 +88,6 @@ function VideoRecorder({}): JSX.Element {
           })
         );
       });
-  }
-
-  useEffect(() => {
-    const recorder = createVideoRecorder();
-    setVideoRecorderRef(recorder);
   }, []);
 
   useEffect(() => {
