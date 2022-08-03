@@ -157,13 +157,12 @@ function FeedbackItem(props: {
     queueList,
     setQueueList,
   } = props;
-  const [selectedAnswerStatus, setSelectedAnswerStatus] =
-    React.useState<Status>(); // for disabling/enabling queue button
-  const [selectedAnswerID, setSelectedAnswerID] = React.useState<string>();
+  const [selectedAnswer, setSelectedAnswer] = React.useState<Answer>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
   const [queueButtonText, setQueueButtonText] = useState<boolean>(false);
 
+  // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
@@ -171,64 +170,57 @@ function FeedbackItem(props: {
     if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
       return mentorAnswers;
     }
-    const completeAnswers = mentorAnswers
-      .filter((mentorAnswer) =>
+    const completeAnswers = Array.from(
+      mentorAnswers.filter((mentorAnswer) =>
         isAnswerComplete(mentorAnswer, undefined, props.mentorType)
       )
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question || "") >
-        (mentorQuestions[b._id]?.question?.question || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question || "") <
-            (mentorQuestions[b._id]?.question?.question || "")
-          ? -1
-          : 0
+    ).sort((a, b) => {
+      return (
+        mentorQuestions[a.question]?.question?.question || ""
+      ).localeCompare(
+        mentorQuestions[b.question]?.question?.question || "",
+        "en",
+        { sensitivity: "base" }
       );
-    const incompleteAnswers = mentorAnswers
-      .filter(
+    });
+    const incompleteAnswers = Array.from(
+      mentorAnswers.filter(
         (mentorAnswer) =>
           !isAnswerComplete(mentorAnswer, undefined, props.mentorType)
       )
-      .sort((a, b) =>
-        (mentorQuestions[a._id]?.question?.question || "") >
-        (mentorQuestions[b._id]?.question?.question || "")
-          ? 1
-          : (mentorQuestions[a._id]?.question?.question || "") <
-            (mentorQuestions[b._id]?.question?.question || "")
-          ? -1
-          : 0
+    ).sort((a, b) => {
+      return (
+        mentorQuestions[a.question]?.question?.question || ""
+      ).localeCompare(
+        mentorQuestions[b.question]?.question?.question || "",
+        "en",
+        { sensitivity: "base" }
       );
+    });
     return completeAnswers.concat(incompleteAnswers);
   }
 
-  // function to add/remove from queue
+  // function to add/remove from queue/create question
   async function queueButtonClicked() {
-    console.log("Answer ID: " + selectedAnswerID);
-    console.log("empty: " + (selectedAnswerID === ""));
-    console.log(!selectedAnswerID);
-    if (!selectedAnswerID) {
+    if (!selectedAnswer) {
       setCustomQuestionModalOpen(true);
-    } else if (props.queueList.includes(selectedAnswerID)) {
-      console.log("queue: " + queueList);
-      console.log("removing: " + selectedAnswerID);
+    } else if (props.queueList.includes(selectedAnswer.question)) {
       setQueueList(
         await removeQuestionFromRecordQueue(
           props.accessToken || "",
-          selectedAnswerID
+          selectedAnswer.question
         )
       );
       setQueueButtonText(false);
     } else {
-      console.log("adding");
-      props.setQueueList(
+      setQueueList(
         await addQuestionToRecordQueue(
           props.accessToken || "",
-          selectedAnswerID
+          selectedAnswer.question
         )
       );
       setQueueButtonText(true);
     }
-    console.log("queue: " + queueList);
   }
 
   const handleClose = () => {
@@ -238,6 +230,8 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answer?: Answer) {
+    setSelectedAnswer(answer);
+    setQueueButtonText(queueList.includes(answer?.question || ""));
     !answer?._id
       ? await updateUserQuestion(
           feedback._id,
@@ -245,14 +239,8 @@ function FeedbackItem(props: {
           answer?.question || "",
           mentor._id
         )
-      : await updateUserQuestion(feedback._id, answer._id, "", "").then(() =>
-          setSelectedAnswerID(answer._id)
-        );
-
-    console.log("answerID: " + selectedAnswerID);
-    setQueueButtonText(queueList.includes(selectedAnswerID || ""));
+      : await updateUserQuestion(feedback._id, answer._id, "", "");
     onUpdated();
-    console.log("answerID: " + selectedAnswerID);
   }
 
   return (
@@ -299,7 +287,7 @@ function FeedbackItem(props: {
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
-              key={`${feedback._id}-${feedback.updatedAt}-${selectedAnswerID}`}
+              key={`${feedback._id}-${feedback.updatedAt}-${selectedAnswer?._id}`}
               data-cy="select-answer"
               options={formatMentorQuestions(
                 mentorAnswers || [],
@@ -310,9 +298,6 @@ function FeedbackItem(props: {
                   ?.question || ""
               }
               onChange={(e, v) => {
-                setSelectedAnswerStatus(v?.status);
-                console.log(queueList.includes(""));
-                console.log("in queue: " + queueButtonText);
                 onUpdateAnswer(v || undefined);
               }}
               style={{
@@ -338,16 +323,13 @@ function FeedbackItem(props: {
             />
             <IconButton
               onClick={() => {
-                setSelectedAnswerID(undefined);
                 onUpdateAnswer(undefined);
-                setSelectedAnswerStatus(undefined);
                 setQueueButtonText(false);
               }}
             >
               <CloseIcon
                 onClick={() => {
-                  setSelectedAnswerID(undefined);
-                  setSelectedAnswerStatus(undefined);
+                  setSelectedAnswer(undefined);
                   setQueueButtonText(false);
                 }}
               />
@@ -357,9 +339,8 @@ function FeedbackItem(props: {
               <Button
                 data-cy="queue-btn"
                 color="primary"
-                disabled={selectedAnswerStatus === Status.COMPLETE}
+                disabled={selectedAnswer?.status === Status.COMPLETE}
                 onClick={() => {
-                  console.log("BUTTON SELECTED ANSWER: " + selectedAnswerID);
                   queueButtonClicked();
                 }}
               >
