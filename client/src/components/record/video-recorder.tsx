@@ -8,27 +8,21 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useRef, useState } from "react";
 // import videojs from "video.js";
-import RecordRTC, {
-  CanvasRecorder,
-  invokeSaveAsDialog,
-  MediaStreamRecorder,
-} from "recordrtc";
+import RecordRTC, { MediaStreamRecorder } from "recordrtc";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
-import stream from "stream";
 
-function getVideoRecorder() {
-  return document.querySelectorAll("[data-cy=video-recorder]")[1];
-}
-
-function getCanvas() {
-  return document.querySelector("[data-cy=draw-canvas]");
-}
-
-function VideoRecorder({}): JSX.Element {
+function VideoRecorder({
+  classes,
+  height,
+  width,
+  recordState,
+  videoRecorderMaxLength,
+  stopRequests,
+}): JSX.Element {
   const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
@@ -39,17 +33,26 @@ function VideoRecorder({}): JSX.Element {
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
   //Using refs to access states variables in event handler
-  const recordStopCountdownRef = React.useRef(recordStopCountdown);
+  const recordStopCountdownRef = useRef(recordStopCountdown);
   const setRecordStopCountdown = (n) => {
     recordStopCountdownRef.current = n;
     _setRecordStopCountdown(n);
   };
-  const isRecordingRef = React.useRef(recordState.isRecording);
+  const isRecordingRef = useRef(recordState.isRecording);
   useEffect(() => {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
+
+  function getVideoRecorder() {
+    return document.querySelectorAll("[data-cy=video-recorder]")[1];
+  }
+  
+  function getCanvas() {
+    return document.querySelector("[data-cy=draw-canvas]");
+  }
 
   useEffect(() => {
     navigator.mediaDevices
@@ -91,34 +94,24 @@ function VideoRecorder({}): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (!videoRef || videoRecorderRef) {
+    if (!videoRecorder) {
       return;
     }
-    // const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
-    //   setVideoRecorderRef(player);
-    // });
-    const player = new RecordRTC(videoRef, {
-      type: "video",
-      mimeType: "video/webm",
-      recorderType: MediaStreamRecorder,
-      disableLogs: true,
-      timeSlice: 1000,
-      ondataavailable: function (blob) {
-        setRecordedVideo(blob);
-      },
-    });
     // player.on("deviceReady", function () {
     // });
-    // player.on("startRecord", function () {
-    // });
+    videoRecorder.startRecording() {
+      setIsCameraOn(true);
+    }
     // player.on("progressRecord", function () {
     // });
     // player.on("finishRecord", function () {
     // });
+    videoRecorder.
+
     return () => {
       player?.dispose();
     };
-  }, [videoRef]);
+  }, [videoRecorder]);
 
   useEffect(() => {
     if (recordedVideo) {
