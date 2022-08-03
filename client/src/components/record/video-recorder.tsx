@@ -14,17 +14,26 @@ import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+import { UseWithRecordState } from "types";
 
-function VideoRecorder({
-  classes,
-  height,
-  width,
-  recordState,
-  videoRecorderMaxLength,
-  stopRequests,
+function VideoRecorder(props: {
+  classes: Record<string, string>;
+  height: number;
+  width: number;
+  recordState: UseWithRecordState;
+  videoRecorderMaxLength: number;
+  stopRequests: number;
 }): JSX.Element {
+  const {
+    classes,
+    height,
+    width,
+    recordState,
+    videoRecorderMaxLength,
+    stopRequests,
+  } = props;
   const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
-  const [videoRecorderRef, setVideoRecorderRef] = useState();
+  // const [videoRecorderRef, setVideoRecorderRef] = useState();
   // can't store these in RecordingState because player.on callbacks
   // snapshot recordState from when player first initializes and doesn't
   // update when changing answers
@@ -33,11 +42,10 @@ function VideoRecorder({
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
   const [recordedVideo, setRecordedVideo] = useState();
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
-  const setRecordStopCountdown = (n) => {
+  const setRecordStopCountdown = (n: number) => {
     recordStopCountdownRef.current = n;
     _setRecordStopCountdown(n);
   };
@@ -49,7 +57,7 @@ function VideoRecorder({
   function getVideoRecorder() {
     return document.querySelectorAll("[data-cy=video-recorder]")[1];
   }
-  
+
   function getCanvas() {
     return document.querySelector("[data-cy=draw-canvas]");
   }
@@ -75,21 +83,22 @@ function VideoRecorder({
             checkForInactiveTracks: true,
             onTimeStamp: function (timestamp) {},
             previewStream: function (stream) {},
-
-            // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
-
-            // const recorder = new RecordRTC(stream, {
-            //   type: 'canvas',
-            //   mimeType: 'video/webm',
-            //   recorderType: CanvasRecorder,
-            //   timeSlice: 1000,
-            //   ondataavailable: function(blob) {},
-            //   checkForInactiveTracks: true,
-            //   onTimeStamp: function(timestamp) {},
-            //   previewStream: function(stream) {},
-            // });
           })
         );
+
+        // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
+        // const recorder = new RecordRTC(stream, {
+        //   type: 'canvas',
+        //   mimeType: 'video/webm',
+        //   recorderType: CanvasRecorder,
+        //   timeSlice: 1000,
+        //   ondataavailable: function(blob) {},
+        //   checkForInactiveTracks: true,
+        //   onTimeStamp: function(timestamp) {},
+        //   previewStream: function(stream) {},
+        // });
+
+        setIsCameraOn(true);
       });
   }, []);
 
@@ -99,14 +108,12 @@ function VideoRecorder({
     }
     // player.on("deviceReady", function () {
     // });
-    videoRecorder.startRecording() {
-      setIsCameraOn(true);
-    }
+
+    videoRecorder.onStateChanged((state) => {});
     // player.on("progressRecord", function () {
     // });
     // player.on("finishRecord", function () {
     // });
-    videoRecorder.
 
     return () => {
       player?.dispose();
@@ -123,7 +130,10 @@ function VideoRecorder({
   }, [recordedVideo]);
 
   useEffect(() => {
-    videoRecorderRef?.record().reset();
+    if (!recordState) {
+      return;
+    }
+    videoRecorder?.reset();
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
@@ -131,11 +141,11 @@ function VideoRecorder({
   }, [recordState.curAnswer.answer._id]);
 
   useEffect(() => {
-    if (!recordState.isRecording || !recordState.curAnswer.minVideoLength) {
+    if (!recordState.isRecording || !recordState?.curAnswer?.minVideoLength) {
       return;
     }
-    if (recordDurationCounter > recordState.curAnswer.minVideoLength) {
-      videoRecorderRef?.record().stop();
+    if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
+      videoRecorder?.stopRecording();
     }
   }, [recordDurationCounter]);
 
@@ -148,7 +158,7 @@ function VideoRecorder({
       setRecordStartCountdown(counter);
       if (counter <= 0) {
         recordState.startRecording();
-        videoRecorderRef?.record().start();
+        videoRecorder?.startRecording();
       }
     },
     recordStartCountdown > 0 ? 1000 : null
@@ -162,7 +172,7 @@ function VideoRecorder({
       const counter = recordStopCountdown - 1;
       setRecordStopCountdown(counter);
       if (counter <= 0) {
-        videoRecorderRef?.record().stop();
+        videoRecorderRef?.stopRecording();
       }
     },
     recordStopCountdown > 0 ? 1000 : null
@@ -193,7 +203,10 @@ function VideoRecorder({
     setRecordStopCountdown(2);
   }
 
-  const spaceBarStopRecording = (event) => {
+  const spaceBarStopRecording = (event: {
+    keyCode: number;
+    preventDefault: () => void;
+  }) => {
     if (
       event.keyCode === 32 &&
       recordStopCountdownRef.current == 0 &&
@@ -277,7 +290,7 @@ function VideoRecorder({
             ? "Recording ends in"
             : Math.max(
                 Math.ceil(
-                  (recordState.curAnswer.minVideoLength || 0) -
+                  (recordState?.curAnswer?.minVideoLength || 0) -
                     recordDurationCounter
                 ),
                 0
@@ -303,7 +316,7 @@ function VideoRecorder({
             recordStopCountdown ||
             Math.max(
               Math.ceil(
-                (recordState.curAnswer.minVideoLength || 0) -
+                (recordState?.curAnswer?.minVideoLength || 0) -
                   recordDurationCounter
               ),
               0
