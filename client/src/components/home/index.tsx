@@ -401,6 +401,7 @@ function HomePage(props: {
       console.log(a);
     });
     console.log(queueQuestions);
+    console.log(mentorQuestions);
     return queueQuestions;
   }
 
