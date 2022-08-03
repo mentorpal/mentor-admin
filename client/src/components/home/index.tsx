@@ -398,6 +398,7 @@ function HomePage(props: {
     // get question string
     queueIDList.forEach((a) => {
       queueQuestions.push(mentorQuestions[a]?.question?.question || "");
+      console.log(a);
     });
     console.log(queueQuestions);
     return queueQuestions;

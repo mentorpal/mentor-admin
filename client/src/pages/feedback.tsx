@@ -208,18 +208,23 @@ function FeedbackItem(props: {
     console.log(!selectedAnswerID);
     if (!selectedAnswerID) {
       setCustomQuestionModalOpen(true);
-    }
-    else if (props.queueList.includes(selectedAnswerID)) {
+    } else if (props.queueList.includes(selectedAnswerID)) {
       console.log("queue: " + queueList);
       console.log("removing: " + selectedAnswerID);
       setQueueList(
-        await removeQuestionFromRecordQueue(props.accessToken || "", selectedAnswerID)
+        await removeQuestionFromRecordQueue(
+          props.accessToken || "",
+          selectedAnswerID
+        )
       );
       setQueueButtonText(false);
     } else {
       console.log("adding");
       props.setQueueList(
-        await addQuestionToRecordQueue(props.accessToken || "", selectedAnswerID)
+        await addQuestionToRecordQueue(
+          props.accessToken || "",
+          selectedAnswerID
+        )
       );
       setQueueButtonText(true);
     }
@@ -233,15 +238,21 @@ function FeedbackItem(props: {
 
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answer?: Answer) {
-    (!answer?._id ? (await updateUserQuestion(feedback._id, "", answer?.question || "", mentor._id)) : 
-    (await updateUserQuestion(feedback._id, answer._id, "", "").then(() =>
-    setSelectedAnswerID(answer._id))));
+    !answer?._id
+      ? await updateUserQuestion(
+          feedback._id,
+          "",
+          answer?.question || "",
+          mentor._id
+        )
+      : await updateUserQuestion(feedback._id, answer._id, "", "").then(() =>
+          setSelectedAnswerID(answer._id)
+        );
 
-
-    console.log("answerID: " +selectedAnswerID);
+    console.log("answerID: " + selectedAnswerID);
     setQueueButtonText(queueList.includes(selectedAnswerID || ""));
     onUpdated();
-    console.log("answerID: " +selectedAnswerID);
+    console.log("answerID: " + selectedAnswerID);
   }
 
   return (
@@ -301,7 +312,7 @@ function FeedbackItem(props: {
               onChange={(e, v) => {
                 setSelectedAnswerStatus(v?.status);
                 console.log(queueList.includes(""));
-                console.log("in queue: "+ queueButtonText);
+                console.log("in queue: " + queueButtonText);
                 onUpdateAnswer(v || undefined);
               }}
               style={{
@@ -325,8 +336,21 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => {setSelectedAnswerID(undefined); onUpdateAnswer(undefined); setSelectedAnswerStatus(undefined); setQueueButtonText(false);}}>
-              <CloseIcon onClick={() => {setSelectedAnswerID(undefined); setSelectedAnswerStatus(undefined); setQueueButtonText(false)}}/>
+            <IconButton
+              onClick={() => {
+                setSelectedAnswerID(undefined);
+                onUpdateAnswer(undefined);
+                setSelectedAnswerStatus(undefined);
+                setQueueButtonText(false);
+              }}
+            >
+              <CloseIcon
+                onClick={() => {
+                  setSelectedAnswerID(undefined);
+                  setSelectedAnswerStatus(undefined);
+                  setQueueButtonText(false);
+                }}
+              />
             </IconButton>
 
             {accessToken ? (
@@ -339,9 +363,7 @@ function FeedbackItem(props: {
                   queueButtonClicked();
                 }}
               >
-                {queueButtonText
-                  ? "Remove from Queue"
-                  : "Add to Queue"}
+                {queueButtonText ? "Remove from Queue" : "Add to Queue"}
               </Button>
             ) : undefined}
 
