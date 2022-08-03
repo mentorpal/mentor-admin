@@ -28,50 +28,6 @@ function getCanvas() {
   return document.querySelector("[data-cy=draw-canvas]");
 }
 
-function createVideoRecorder() {
-  navigator.mediaDevices
-    .getUserMedia({
-      video: true,
-      audio: true,
-    })
-    .then((stream) => {
-      // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
-      // if (!useVirtualBackground) {
-      new RecordRTC(stream, {
-        type: "video",
-        mimeType: "video/webm",
-        // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
-        // CanvasRecorder, GifRecorder, WhammyRecorder
-        recorderType: MediaStreamRecorder,
-        timeSlice: 1000,
-        ondataavailable: function (blob) {},
-        checkForInactiveTracks: true,
-        onTimeStamp: function (timestamp) {},
-        previewStream: function (stream) {},
-
-        // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
-
-        // const recorder = new RecordRTC(stream, {
-        //   type: 'canvas',
-        //   mimeType: 'video/webm',
-        //   recorderType: CanvasRecorder,
-        //   timeSlice: 1000,
-        //   ondataavailable: function(blob) {},
-        //   checkForInactiveTracks: true,
-        //   onTimeStamp: function(timestamp) {},
-        //   previewStream: function(stream) {},
-        // });
-      });
-    })
-    .then((recorder) => {
-      // SET VIDEO OR CANVAS RECORDER DEPENDING IF VIRTUAL BACKGROUND MENTOR
-      setVideoRecorder(recorder);
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-}
-
 function VideoRecorder({}): JSX.Element {
   const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
   const [videoRecorderRef, setVideoRecorderRef] = useState();
@@ -94,6 +50,45 @@ function VideoRecorder({}): JSX.Element {
   useEffect(() => {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
+
+  function createVideoRecorder() {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true,
+      })
+      .then((stream) => {
+        // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
+        // if (!useVirtualBackground) {
+        setVideoRecorder(
+          new RecordRTC(stream, {
+            type: "video",
+            mimeType: "video/webm",
+            // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
+            // CanvasRecorder, GifRecorder, WhammyRecorder
+            recorderType: MediaStreamRecorder,
+            timeSlice: 1000,
+            ondataavailable: function (blob) {},
+            checkForInactiveTracks: true,
+            onTimeStamp: function (timestamp) {},
+            previewStream: function (stream) {},
+
+            // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
+
+            // const recorder = new RecordRTC(stream, {
+            //   type: 'canvas',
+            //   mimeType: 'video/webm',
+            //   recorderType: CanvasRecorder,
+            //   timeSlice: 1000,
+            //   ondataavailable: function(blob) {},
+            //   checkForInactiveTracks: true,
+            //   onTimeStamp: function(timestamp) {},
+            //   previewStream: function(stream) {},
+            // });
+          })
+        );
+      });
+  }
 
   useEffect(() => {
     const recorder = createVideoRecorder();
