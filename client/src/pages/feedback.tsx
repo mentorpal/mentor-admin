@@ -299,7 +299,7 @@ function FeedbackItem(props: {
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
-              key={`${feedback._id}-${feedback.updatedAt}`}
+              key={`${feedback._id}-${feedback.updatedAt}-${selectedAnswerID}`}
               data-cy="select-answer"
               options={formatMentorQuestions(
                 mentorAnswers || [],
