@@ -121,7 +121,7 @@ export class ProductionRule<IRecommender> {
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
     actionRecommendations: Recommendation[],
-    completedQuestions? :number,
+    completedQuestions?: number
   ) {
     this.activeCondition = activeCondition;
     this.actionRecommendations = actionRecommendations;
