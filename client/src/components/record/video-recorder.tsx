@@ -350,7 +350,13 @@ function VideoRecorder(props: {
           data-cy="upload-file"
           type="file"
           accept="audio/*,video/*"
-          onChange={(e) => recordState.stopRecording(e.target.files[0])}
+          onChange={(e) => {
+            if (e.target.files === null) {
+              return;
+            } else {
+              recordState.stopRecording(e.target.files[0]);
+            }
+          }}
         />
       </div>
     </div>
