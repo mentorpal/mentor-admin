@@ -421,7 +421,6 @@ function FeedbackPage(): JSX.Element {
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const [queueList, _setQueueList] = useState<string[]>([]);
   const [questionsAddedToQueue, setQuestionsAddedToQueue] = useState(false);
-  // TODO: On back, reload mentor if new questions were added to queue
 
   useEffect(() => {
     fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
