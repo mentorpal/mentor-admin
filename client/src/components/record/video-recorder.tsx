@@ -116,7 +116,7 @@ function VideoRecorder(props: {
     // });
 
     return () => {
-      player?.dispose();
+      videoRecorder?.destroy();
     };
   }, [videoRecorder]);
 
@@ -138,7 +138,7 @@ function VideoRecorder(props: {
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
     setIsCameraOn(false);
-  }, [recordState.curAnswer.answer._id]);
+  }, [recordState?.curAnswer?.answer._id]);
 
   useEffect(() => {
     if (!recordState.isRecording || !recordState?.curAnswer?.minVideoLength) {
@@ -172,7 +172,7 @@ function VideoRecorder(props: {
       const counter = recordStopCountdown - 1;
       setRecordStopCountdown(counter);
       if (counter <= 0) {
-        videoRecorderRef?.stopRecording();
+        videoRecorder?.stopRecording();
       }
     },
     recordStopCountdown > 0 ? 1000 : null
@@ -231,7 +231,8 @@ function VideoRecorder(props: {
       style={{
         position: "absolute",
         visibility:
-          recordState.curAnswer.videoSrc || recordState.curAnswer.isUploading
+          recordState?.curAnswer?.videoSrc ||
+          recordState?.curAnswer?.isUploading
             ? "hidden"
             : "visible",
       }}
