@@ -83,42 +83,50 @@ export function useWithUploadStatus(
             return;
           }
           setPollStatusCount(pollStatusCount + 1);
-          const updatedUploadsList: UploadTask[] = JSON.parse(
-            JSON.stringify(uploads)
-          );
-          let changes = false;
-          data.forEach((u) => {
-            const findUploadIdx = updatedUploadsList.findIndex(
-              (up) => up.question === u.question
+          setUploads((prevData) => {
+            const updatedUploadsList: UploadTask[] = JSON.parse(
+              JSON.stringify(prevData)
             );
-            const newUploadTask = {
-              ...u,
-              isCancelling:
-                u?.isCancelling || isATaskCancelling(u) || isATaskCancelled(u),
-              errorMessage: isATaskFailed(u)
-                ? `Failed to process file: ${whichTaskFailed(u)} task failed`
-                : "",
-            };
-            if (findUploadIdx < 0) {
-              changes = true;
-              updatedUploadsList.push(newUploadTask);
-              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
-                onUploadedCallback(newUploadTask);
+            let changes = false;
+            data.forEach((u) => {
+              const findUploadIdx = updatedUploadsList.findIndex(
+                (up) => up.question === u.question
+              );
+              const newUploadTask = {
+                ...u,
+                isCancelling:
+                  u?.isCancelling ||
+                  isATaskCancelling(u) ||
+                  isATaskCancelled(u),
+                errorMessage: isATaskFailed(u)
+                  ? `Failed to process file: ${whichTaskFailed(u)} task failed`
+                  : "",
+              };
+              if (findUploadIdx < 0) {
+                changes = true;
+                updatedUploadsList.push(newUploadTask);
+                if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
+                  onUploadedCallback(newUploadTask);
+                }
+              } else if (
+                fetchedTaskHasUpdates(
+                  updatedUploadsList[findUploadIdx],
+                  newUploadTask
+                )
+              ) {
+                changes = true;
+                updatedUploadsList[findUploadIdx] = newUploadTask;
+                if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
+                  onUploadedCallback(newUploadTask);
+                }
               }
-            } else if (
-              fetchedTaskHasUpdates(
-                updatedUploadsList[findUploadIdx],
-                newUploadTask
-              )
-            ) {
-              changes = true;
-              updatedUploadsList[findUploadIdx] = newUploadTask;
-              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
-                onUploadedCallback(newUploadTask);
-              }
+            });
+            if (changes) {
+              return updatedUploadsList;
+            } else {
+              return prevData;
             }
           });
-          if (changes) setUploads(updatedUploadsList);
         })
         .catch((err) => {
           console.error(err);
@@ -128,11 +136,14 @@ export function useWithUploadStatus(
   );
 
   function removeCompletedOrFailedTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question === task.question);
-    if (idx !== -1 && areAllTasksDoneOrOneFailed(uploads[idx])) {
-      const newArray = uploads.filter((u) => u.question !== task.question);
-      setUploads(newArray);
-    }
+    setUploads((prevState) => {
+      const idx = prevState.findIndex((u) => u.question === task.question);
+      if (idx !== -1 && areAllTasksDoneOrOneFailed(prevState[idx])) {
+        const newArray = prevState.filter((u) => u.question !== task.question);
+        return newArray;
+      }
+      return prevState;
+    });
   }
 
   function fetchedTaskHasUpdates(
@@ -163,12 +174,16 @@ export function useWithUploadStatus(
   }
 
   function addOrEditTask(task: UploadTask) {
-    const idx = uploads.findIndex((u) => u.question === task.question);
-    if (idx === -1) {
-      setUploads([...uploads, task]);
-    } else {
-      setUploads(copyAndSet(uploads, idx, task));
-    }
+    setUploads((prevData) => {
+      const idx = prevData.findIndex((u) => u.question === task.question);
+      if (idx === -1) {
+        const newArray = [...prevData, task];
+        return newArray;
+      } else {
+        const newArray = copyAndSet(prevData, idx, task);
+        return newArray;
+      }
+    });
   }
 
   function upload(
