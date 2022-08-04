@@ -539,7 +539,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell align="center">
                     <Select
                       data-cy="filter-confidence"
-                      value={feedbackSearchParams.filter.classifierAnswerType}
+                      value={feedbackSearchParams.filter.ClassifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
@@ -588,6 +588,7 @@ function FeedbackPage(): JSX.Element {
                     <Autocomplete
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
+                      value={feedbackSearchParams.filter.classifierAnswer}
                       getOptionLabel={(option: Answer) =>
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
