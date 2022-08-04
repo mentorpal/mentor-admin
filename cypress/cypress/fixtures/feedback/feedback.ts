@@ -15,7 +15,7 @@ export const feedback = {
           confidence: 1,
           classifierAnswerType: "EXACT",
           feedback: "NEUTRAL",
-          updatedAt: "2022-05-27T05:40:26.675Z",
+          : "2022-05-27T05:40:26.675Z",
           createdAt: "2022-05-27T05:40:26.675Z",
           mentor: {
             _id: "60bad2ab733e6a54b909a351",

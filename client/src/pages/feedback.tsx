@@ -695,6 +695,7 @@ function FeedbackPage(): JSX.Element {
                     feedback={row.node}
                     viewAllQuestions={viewAllQuestions}
                     showExactConfidence={showExactConfidence}
+                    onUpdated={reloadFeedback}
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}

@@ -9,6 +9,7 @@ import { CancelTokenSource } from "axios";
 import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
+import exp from "constants";
 
 export interface Config {
   mentorsDefault: string[];
@@ -171,6 +172,16 @@ export interface UserQuestion {
   updatedAt: string;
   createdAt: string;
   hasBeenUsedtoCreateNewQuestion?: boolean; // for filtering feedback
+}
+
+export interface UserQuestionBin {
+  userQuestions: UserQuestion[];
+  averageEmbedding: number;
+}
+
+export interface BinCollection {
+  bins: UserQuestionBin[];
+  lastUpdated: string;
 }
 
 export interface MentorInfo {
