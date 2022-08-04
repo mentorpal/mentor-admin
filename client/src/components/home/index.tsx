@@ -390,12 +390,12 @@ function HomePage(props: {
     });
   }
 
+  // get question string
   function getQueueQuestions(
     queueIDList: string[],
     mentorQuestions: Record<string, QuestionState>
   ) {
     const queueQuestions: string[] = [];
-    // get question string
     queueIDList.forEach((a) => {
       queueQuestions.push(mentorQuestions[a]?.question?.question || "");
     });

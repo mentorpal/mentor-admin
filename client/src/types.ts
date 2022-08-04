@@ -15,12 +15,20 @@ export interface Config {
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
+  subjectRecordPriority: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
+  styleHeaderLogo: string;
+  styleHeaderColor: string;
+  styleHeaderTextColor: string;
+  displayGuestPrompt: boolean;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  disclaimerDisabled: boolean;
 }
 
 export interface Connection<T> {

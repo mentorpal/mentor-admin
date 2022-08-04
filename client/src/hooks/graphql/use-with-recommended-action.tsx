@@ -377,9 +377,9 @@ export function UseWithRecommendedAction(
     mentorAnswers?.map((a) => a.question)
   );
 
-  const conditions = getData((ms) =>
-    parseMentorConditions(mentorQuestions, ms.data)
-  );
+  const mentorData = getData((ms) => ms.data);
+
+  const [conditions, setConditions] = useState<Conditions>();
 
   const finalRecommendation: Recommendation = {
     text: "Add a Subject",
@@ -397,12 +397,22 @@ export function UseWithRecommendedAction(
   const [recListIndex, setRecListIndex] = useState<number>(0);
 
   React.useEffect(() => {
+    if (!mentorData || !mentorQuestions) {
+      return;
+    }
+    setConditions(parseMentorConditions(mentorQuestions, mentorData));
+  }, [mentorData, mentorQuestions]);
+
+  React.useEffect(() => {
+    if (!conditions) {
+      return;
+    }
     const generatedReccomendationsList = createAllRecommendations(
       conditions,
       continueAction
     );
     setRecommendationList(generatedReccomendationsList);
-  }, [mentorQuestions]);
+  }, [conditions]);
 
   React.useEffect(() => {
     setRecommendedAction(reccomendationList[0]);

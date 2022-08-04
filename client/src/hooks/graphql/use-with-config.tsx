@@ -9,7 +9,7 @@ import {
   fetchConfig,
   fetchMentorPanels,
   fetchMentors,
-  updateConfigFeatured,
+  updateConfig,
 } from "api";
 import { copyAndRemove, copyAndMove } from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
@@ -28,6 +28,7 @@ interface UseWithConfig {
   isSaving: boolean;
   isEdited: boolean;
   saveConfig: () => void;
+  updateConfig: (c: Partial<Config>) => void;
   moveMentor: (from: number, to: number) => void;
   moveMentorPanel: (from: number, to: number) => void;
   toggleFeaturedMentor: (id: string) => void;
@@ -124,8 +125,18 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   function saveConfig(): void {
     saveAndReturnConfig({
       action: async (editedData: Config) => {
-        return await updateConfigFeatured(accessToken, editedData);
+        return await updateConfig(accessToken, editedData);
       },
+    });
+  }
+
+  function edit(c: Partial<Config>): void {
+    if (!config) {
+      return;
+    }
+    editConfig({
+      ...config,
+      ...c,
     });
   }
 
@@ -215,16 +226,17 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     config,
     mentors,
     mentorPanels,
+    error: configError || mentorsError || mentorPanelsError,
+    isLoading: isConfigLoading || isMentorsLoading || isMentorPanelsLoading,
+    isEdited: isConfigEdited,
+    isSaving: isConfigSaving,
     saveConfig,
+    updateConfig: edit,
     moveMentor,
     moveMentorPanel,
     toggleFeaturedMentor,
     toggleActiveMentor,
     toggleFeaturedMentorPanel,
     saveMentorPanel,
-    error: configError || mentorsError || mentorPanelsError,
-    isLoading: isConfigLoading || isMentorsLoading || isMentorPanelsLoading,
-    isEdited: isConfigEdited,
-    isSaving: isConfigSaving,
   };
 }
