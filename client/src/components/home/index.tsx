@@ -396,7 +396,7 @@ function HomePage(props: {
         closeDialog={() => {
           setLocalHasSeenSplash(true);
           userSawSplashScreen(props.accessToken);
-          console.log("helloooooo");
+          console.log("List of Recommendations");
           console.log(allRecommendations);
         }}
       />

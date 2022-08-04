@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+
 import { WeightedObj } from "./priorityQueue";
 import {
   Recommendation,
@@ -28,24 +29,26 @@ interface RecommenderInterface {
   totalAnswers: number;
   hasBuilt: boolean;
   hasPreviewed: boolean;
+  falseNeg: number;
 }
 
 /**
  * Mocking the current state of the program to test values
  */
 const mockCurrentState: RecommenderInterface = {
-  hasName: false,
+  hasName: true,
   hasType: true,
-  hasSubject: false,
+  hasSubject: true,
   hasIdle: true,
   isVideo: true,
-  hasBio: false,
-  hasOffTopic: false,
-  hasThumbnail: false,
-  completedAnswers: 10,
+  hasBio: true,
+  hasOffTopic: true,
+  hasThumbnail: true,
+  completedAnswers: 30,
   totalAnswers: 20,
   hasBuilt: false,
   hasPreviewed: false,
+  falseNeg: 5,
 };
 
 /**********************
@@ -97,7 +100,8 @@ function setupProductionRule(): ProductionRule<RecommenderInterface> {
         !recState.hasSubject === true ||
         (recState.isVideo ? !recState.hasIdle === true : recState.hasIdle) ||
         !recState.hasBio === true ||
-        !recState.hasOffTopic === true
+        !recState.hasOffTopic === true ||
+        recState.completedAnswers < 5
       );
     },
     [setUpName, setupType, setupSubject, setupIdle, setupBio, setupOffTopic]
@@ -108,8 +112,7 @@ function setupProductionRule(): ProductionRule<RecommenderInterface> {
 function incompleteProductionRule(): ProductionRule<RecommenderInterface> {
   const addThumbnail = new Recommendation(
     {
-      coverage_attribute: 1,
-      thumbnail_attribute: 1,
+      coverage_attribute: 0.3,
     },
     "Add a Thumbnail"
   );
@@ -127,7 +130,7 @@ function basicProductionRule(
 ): ProductionRule<RecommenderInterface> {
   const recordQuestions = new Recommendation(
     {
-      coverage_attribute: 1 / recState.completedAnswers,
+      coverage_attribute: 5 / recState.completedAnswers,
     },
     "Record More Questions"
   );
@@ -139,38 +142,39 @@ function basicProductionRule(
   );
   const previewMentor = new Recommendation(
     {
-      coverage_attribute: 0.5,
+      coverage_attribute: recState.hasBuilt
+        ? 5 / recState.completedAnswers
+        : 0.01,
     },
     "Preview your Mentor"
   );
   const recordQuestionsProductionRule =
     new ProductionRule<RecommenderInterface>(
       (recState: RecommenderInterface) => {
-        //not adding and breaks whole thing
-        return (recState.completedAnswers < 5 ? true : false) === true;
+        return recState.completedAnswers >= 4 === true;
       },
       [recordQuestions, buildMentor, previewMentor]
     );
   return recordQuestionsProductionRule;
 }
 
-// function buildAnswerMissedQuestionsPR(): ProductionRule<RecommenderInterface> {
-//   const answerMissedQuestions = new Recommendation(
-//     {
-//       coverage_attribute: 2,
-//     },
-//     "Answer Missed Questions"
-//   );
-//   const answerMissedQuestionsPR = new ProductionRule<RecommenderInterface>(
-//     (recState: RecommenderInterface) => {
-//       return (recState.totalAnswers - recState.completedAnswers > 0
-//         ? true
-//         : false) === true;
-//     },
-//     [answerMissedQuestions]
-//   );
-//   return answerMissedQuestionsPR;
-// }
+function answerMissedQuestionsPR(
+  recState: RecommenderInterface
+): ProductionRule<RecommenderInterface> {
+  const answerMissedQuestions = new Recommendation(
+    {
+      coverage_attribute: 10 / recState.falseNeg,
+    },
+    "Answer Missed Questions"
+  );
+  const answerMissedQuestionsPR = new ProductionRule<RecommenderInterface>(
+    (recState: RecommenderInterface) => {
+      return recState.completedAnswers > 0 === true;
+    },
+    [answerMissedQuestions]
+  );
+  return answerMissedQuestionsPR;
+}
 
 /**********
  * PHASES
@@ -189,7 +193,7 @@ function setupPhase(): Phase<RecommenderInterface> {
   const productionRules = [
     setupProductionRule(),
     incompleteProductionRule(),
-    //basicProductionRule(mockCurrentState),
+    basicProductionRule(mockCurrentState),
   ];
   const setupPhase = new Phase(
     (recState: RecommenderInterface) => {
@@ -199,7 +203,8 @@ function setupPhase(): Phase<RecommenderInterface> {
         !recState.hasSubject === true ||
         (recState.isVideo ? !recState.hasIdle === true : recState.hasIdle) ||
         !recState.hasBio === true ||
-        !recState.hasOffTopic === true
+        !recState.hasOffTopic === true ||
+        recState.completedAnswers < 5 === true
       );
     },
     productionRules,
@@ -209,55 +214,78 @@ function setupPhase(): Phase<RecommenderInterface> {
 }
 
 //Level II - First Build Phase
-// function firstBuildPhase(): Phase<RecommenderInterface> {
-//   const weightedAttributes = {
-//     setup_attribute: 0,
-//     coverage_attribute: 1,
-//     minFakeNeg_attribute: 0.2,
-//     pushUpdates_attribute: 0.5,
-//     testing_attribute: 0.5,
-//   };
-//   const productionRules = [basicProductionRule(mockCurrentState)];
-//   const firstBuildPhase = new Phase(
-//     (recState: RecommenderInterface) => {
-//       return (
-//         (recState.completedAnswers >= 5 ? true : false) === true
-//       );
-//     },
-//     productionRules,
-//     weightedAttributes
-//   );
-//   return firstBuildPhase;
-// }
+function firstBuildPhase(): Phase<RecommenderInterface> {
+  const weightedAttributes = {
+    setup_attribute: 0,
+    coverage_attribute: 1,
+    minFakeNeg_attribute: 0.2,
+    pushUpdates_attribute: 0.5,
+    testing_attribute: 0.5,
+  };
+  const productionRules = [
+    basicProductionRule(mockCurrentState),
+    answerMissedQuestionsPR(mockCurrentState),
+  ];
+  const firstBuildPhase = new Phase(
+    (recState: RecommenderInterface) => {
+      return recState.completedAnswers >= 5 === true;
+    },
+    productionRules,
+    weightedAttributes
+  );
+  return firstBuildPhase;
+}
 
 //Level III - Scripted
-// function scriptedPhase(): Phase<RecommenderInterface> {
-//   const weightedAttributes = {
-//     setup_attribute: 0,
-//     coverage_attribute: 1,
-//     minFakeNeg_attribute: 0.5,
-//     pushUpdates_attribute: 1,
-//     testing_attribute: 0.5,
-//   };
-//   const productionRules = [
-//     basicProductionRule(mockCurrentState),
-//     buildAnswerMissedQuestionsPR(),
-//   ];
-//   const scriptedPhase = new Phase(
-//     (recState: RecommenderInterface) => {
-//       return (recState.completedAnswers >= 25 ? true : false) === true;
-//     },
-//     productionRules,
-//     weightedAttributes
-//   );
-//   return scriptedPhase;
-// }
+function scriptedPhase(): Phase<RecommenderInterface> {
+  const weightedAttributes = {
+    setup_attribute: 0,
+    coverage_attribute: 1,
+    minFakeNeg_attribute: 0.5,
+    pushUpdates_attribute: 1,
+    testing_attribute: 0.5,
+  };
+  const productionRules = [
+    basicProductionRule(mockCurrentState),
+    answerMissedQuestionsPR(mockCurrentState),
+  ];
+  const scriptedPhase = new Phase(
+    (recState: RecommenderInterface) => {
+      return recState.completedAnswers >= 25 === true;
+    },
+    productionRules,
+    weightedAttributes
+  );
+  return scriptedPhase;
+}
 
 //Level IV?
+function phaseFour(): Phase<RecommenderInterface> {
+  const weightedAttributes = {
+    setup_attribute: 0,
+    coverage_attribute: 0.2,
+    minFakeNeg_attribute: 1,
+    pushUpdates_attribute: 1,
+    testing_attribute: 0.5,
+  };
+  const productionRules = [
+    basicProductionRule(mockCurrentState),
+    answerMissedQuestionsPR(mockCurrentState),
+  ];
+  const scriptedPhase = new Phase(
+    (recState: RecommenderInterface) => {
+      return recState.completedAnswers >= 30 === true;
+    },
+    productionRules,
+    weightedAttributes
+  );
+  return scriptedPhase;
+}
+
 
 // Calling the recommender
 export function callingRecommender(): WeightedObj[] {
-  const phases = [setupPhase()];
+  const phases = [setupPhase(), firstBuildPhase(), scriptedPhase(), phaseFour()];
   const recommendationOrder = new Recommender<RecommenderInterface>(
     mockCurrentState,
     phases

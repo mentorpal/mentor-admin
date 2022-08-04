@@ -82,11 +82,11 @@ export class Phase<IRecommender> {
   public isActive(recState: IRecommender): boolean {
     // Return true if any production rules are active
     for (let x = 0; x < this.productionRules.length; x++) {
-      if (!this.productionRules[x].isActive(recState)) {
-        return false;
+      if (this.productionRules[x].isActive(recState)) {
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   public getRecommendations(recState: IRecommender): Recommendation[] {
