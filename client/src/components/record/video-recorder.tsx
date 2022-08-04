@@ -40,8 +40,10 @@ function VideoRecorder(props: {
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, _setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
-  const [recordedVideo, setRecordedVideo] = useState();
+  const [recordedVideo, setRecordedVideo] = useState<File>();
   const [isCameraOn, setIsCameraOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -54,37 +56,39 @@ function VideoRecorder(props: {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
 
-  function getVideoRecorder() {
-    return document.querySelectorAll("[data-cy=video-recorder]")[1];
-  }
-
-  function getCanvas() {
-    return document.querySelector("[data-cy=draw-canvas]");
-  }
-
   useEffect(() => {
     navigator.mediaDevices
       .getUserMedia({
         video: true,
         audio: true,
       })
-      .then((stream) => {
+      .then((cameraStream) => {
         // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
         // if (!useVirtualBackground) {
-        setVideoRecorder(
-          new RecordRTC(stream, {
-            type: "video",
-            mimeType: "video/webm",
-            // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
-            // CanvasRecorder, GifRecorder, WhammyRecorder
-            recorderType: MediaStreamRecorder,
-            timeSlice: 1000,
-            ondataavailable: function (blob) {},
-            checkForInactiveTracks: true,
-            onTimeStamp: function (timestamp) {},
-            previewStream: function (stream) {},
-          })
-        );
+        const recorder = new RecordRTC(cameraStream, {
+          type: "video",
+          mimeType: "video/webm",
+          // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
+          // CanvasRecorder, GifRecorder, WhammyRecorder
+          recorderType: MediaStreamRecorder,
+          timeSlice: 1000,
+          // ondataavailable: function (blob) {},
+          checkForInactiveTracks: true,
+          // onTimeStamp: function (timestamp) {},
+          // previewStream: function (stream) {},
+        });
+        setVideoRecorder(recorder);
+
+        const video = videoRef.current;
+        if (!video) {
+          // TODO: Remove this and handle better
+          throw new Error("No videoRef found");
+        }
+        video.muted = true;
+        video.volume = 0;
+        video.srcObject = cameraStream;
+
+        // recorder.startRecording()
 
         // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
         // const recorder = new RecordRTC(stream, {
@@ -140,12 +144,16 @@ function VideoRecorder(props: {
     setIsCameraOn(false);
   }, [recordState?.curAnswer?.answer._id]);
 
+  // Making sure we don't record over minVideoLength
   useEffect(() => {
     if (!recordState.isRecording || !recordState?.curAnswer?.minVideoLength) {
       return;
     }
     if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
-      videoRecorder?.stopRecording();
+      videoRecorder?.stopRecording(() => {
+        const videoBlob = videoRecorder.getBlob();
+        setRecordedVideo(new File([videoBlob], "video.mp4"));
+      });
     }
   }, [recordDurationCounter]);
 
@@ -186,7 +194,7 @@ function VideoRecorder(props: {
     if (stopRequests == 0) {
       return;
     }
-    stopRecording();
+    beginStopRecordingCountdown();
   }, [stopRequests]);
 
   function startRecording() {
@@ -196,7 +204,7 @@ function VideoRecorder(props: {
     setRecordStartCountdown(3);
   }
 
-  function stopRecording() {
+  function beginStopRecordingCountdown() {
     if (countdownInProgress) {
       return;
     }
@@ -213,7 +221,7 @@ function VideoRecorder(props: {
       isRecordingRef.current
     ) {
       event.preventDefault();
-      stopRecording();
+      beginStopRecordingCountdown();
     }
   };
 
@@ -249,10 +257,13 @@ function VideoRecorder(props: {
       </Typography>
       <div data-vjs-player style={{ height, width }}>
         <video
-          data-cy="video-recorder"
-          className="video-js vjs-default-skin"
+          height={height}
+          width={width}
+          controls
+          autoPlay
           playsInline
-          ref={(e) => setVideoRef(e || undefined)}
+          style={{ backgroundColor: "black" }}
+          ref={videoRef}
         />
         <div
           data-cy="outline"
@@ -336,7 +347,7 @@ function VideoRecorder(props: {
         }}
       >
         <IconButton
-          onClick={recordState.isRecording ? stopRecording : startRecording}
+          onClick={recordState.isRecording ? beginStopRecordingCountdown : startRecording}
           style={{ color: "red" }}
         >
           {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
@@ -351,7 +362,7 @@ function VideoRecorder(props: {
           type="file"
           accept="audio/*,video/*"
           onChange={(e) => {
-            if (e.target.files === null) {
+            if (!e.target.files) {
               return;
             } else {
               recordState.stopRecording(e.target.files[0]);
