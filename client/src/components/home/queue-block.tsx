@@ -25,7 +25,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
 
-export default function QueueBlockItem(props: {
+export default function QueueBlock(props: {
   classes: Record<string, string>;
   queueIDList: string[];
   queuedQuestions: string[];
@@ -95,11 +95,7 @@ export default function QueueBlockItem(props: {
                     data-cy="record-all-queue"
                     variant="outlined"
                     onClick={() => onRecordAll(queueIDList)}
-                    disabled={
-                      queuedQuestions.length == 0 ||
-                      queuedQuestions == null ||
-                      queuedQuestions == undefined
-                    }
+                    disabled={!queuedQuestions.length}
                   >
                     Record All
                   </Button>

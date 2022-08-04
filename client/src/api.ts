@@ -1343,6 +1343,26 @@ export async function removeQuestionFromRecordQueue(
   );
 }
 
+export async function setRecordQueueGQL(
+  accessToken: string,
+  questionIds: string[]
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation SetRecordQueue($questionIds: [ID]!) {
+          me {
+            setRecordQueue(questionIds: $questionIds)
+          }
+        }`,
+      variables: {
+        questionIds,
+      },
+    },
+    { accessToken, dataPath: ["me", "setRecordQueue"] }
+  );
+}
+
 export async function deleteUploadTask(
   question: string,
   accessToken: string,

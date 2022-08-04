@@ -48,8 +48,8 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
-import QueueBlockItem from "./queue-block";
-import { fetchMentorRecordQueue, removeQuestionFromRecordQueue } from "api";
+import QueueBlock from "./queue-block";
+import { fetchMentorRecordQueue, setRecordQueueGQL } from "api";
 import useQuestions from "store/slices/questions/useQuestions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { QuestionState } from "store/slices/questions";
@@ -198,6 +198,7 @@ function HomePage(props: {
       localHasSeenTooltips
   );
 
+  // TODO: Move all QueueBlock logic/data to a hook
   const [queueIDList, setQueueIDList] = useState<string[]>([]);
 
   useEffect(() => {
@@ -374,12 +375,7 @@ function HomePage(props: {
     const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer) =>
       queueIDList.includes(mentorAnswer.question)
     );
-    mentorAnswersInRecordQueue.forEach(async (mentorAnswer) => {
-      if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
-        removeQuestionFromRecordQueue(props.accessToken, mentorAnswer.question);
-      }
-    });
-    return queueIDList.filter((questionId) => {
+    const newQueueIdList = queueIDList.filter((questionId) => {
       const answer = mentorAnswersInRecordQueue.find(
         (a) => a.question === questionId
       );
@@ -388,6 +384,8 @@ function HomePage(props: {
       }
       return !isAnswerComplete(answer, undefined, mentorType);
     });
+    setRecordQueueGQL(props.accessToken, newQueueIdList);
+    return newQueueIdList;
   }
 
   // get question string
@@ -395,11 +393,9 @@ function HomePage(props: {
     queueIDList: string[],
     mentorQuestions: Record<string, QuestionState>
   ) {
-    const queueQuestions: string[] = [];
-    queueIDList.forEach((a) => {
-      queueQuestions.push(mentorQuestions[a]?.question?.question || "");
-    });
-    return queueQuestions;
+    return queueIDList.map(
+      (id) => mentorQuestions[id]?.question?.question || ""
+    );
   }
 
   function closeDialog() {
@@ -551,7 +547,7 @@ function HomePage(props: {
           }}
         >
           <ListItem>
-            <QueueBlockItem
+            <QueueBlock
               classes={classes}
               queueIDList={queueIDList}
               queuedQuestions={getQueueQuestions(queueIDList, mentorQuestions)}

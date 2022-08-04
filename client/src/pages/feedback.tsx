@@ -160,7 +160,7 @@ function FeedbackItem(props: {
   const [selectedAnswer, setSelectedAnswer] = React.useState<Answer>();
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
-  const [queueButtonText, setQueueButtonText] = useState<boolean>(false);
+  const [isQuestionInQueue, setIsQuestionInQueue] = useState<boolean>(false);
 
   // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
@@ -211,7 +211,7 @@ function FeedbackItem(props: {
           selectedAnswer.question
         )
       );
-      setQueueButtonText(false);
+      setIsQuestionInQueue(false);
     } else {
       setQueueList(
         await addQuestionToRecordQueue(
@@ -219,7 +219,7 @@ function FeedbackItem(props: {
           selectedAnswer.question
         )
       );
-      setQueueButtonText(true);
+      setIsQuestionInQueue(true);
     }
   }
 
@@ -231,7 +231,7 @@ function FeedbackItem(props: {
   // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answer?: Answer) {
     setSelectedAnswer(answer);
-    setQueueButtonText(queueList.includes(answer?.question || ""));
+    setIsQuestionInQueue(queueList.includes(answer?.question || ""));
     !answer?._id
       ? await updateUserQuestion(
           feedback._id,
@@ -324,13 +324,13 @@ function FeedbackItem(props: {
             <IconButton
               onClick={() => {
                 onUpdateAnswer(undefined);
-                setQueueButtonText(false);
+                setIsQuestionInQueue(false);
               }}
             >
               <CloseIcon
                 onClick={() => {
                   setSelectedAnswer(undefined);
-                  setQueueButtonText(false);
+                  setIsQuestionInQueue(false);
                 }}
               />
             </IconButton>
@@ -344,7 +344,7 @@ function FeedbackItem(props: {
                   queueButtonClicked();
                 }}
               >
-                {queueButtonText ? "Remove from Queue" : "Add to Queue"}
+                {isQuestionInQueue ? "Remove from Queue" : "Add to Queue"}
               </Button>
             ) : undefined}
 
@@ -650,7 +650,7 @@ function FeedbackPage(): JSX.Element {
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
-                    onUpdated={reloadFeedback} // issue with the feedback.
+                    onUpdated={reloadFeedback}
                     queueList={queueList}
                     setQueueList={setQueueList}
                     mentor={mentor}

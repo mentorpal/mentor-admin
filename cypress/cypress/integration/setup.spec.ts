@@ -379,8 +379,7 @@ describe("Setup", () => {
     });
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)")
-      .pause();
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=name]").within(($input) => {
       cy.get("input").should("have.value", "Clinton Anderson");
     });
