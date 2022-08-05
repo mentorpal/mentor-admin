@@ -638,13 +638,13 @@ function FeedbackPage(): JSX.Element {
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
                       }
-                      onChange={(e, v) =>{
+                      onChange={(e, v) => {
                         console.log(v);
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswer: v || undefined,
-                        })}
-                      }
+                        });
+                      }}
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">

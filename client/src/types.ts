@@ -176,7 +176,7 @@ export interface UserQuestion {
 
 export interface UserQuestionBin {
   userQuestions: UserQuestion[];
-  averageEmbedding: number;
+  averageEmbedding: number[];
 }
 
 export interface BinCollection {
