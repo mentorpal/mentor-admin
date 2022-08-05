@@ -7,7 +7,6 @@ The full terms of this copyright and license should always be found in the root 
 /** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
 import React, { useEffect, useRef, useState } from "react";
-// import videojs from "video.js";
 import RecordRTC, { MediaStreamRecorder } from "recordrtc";
 import { IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
@@ -24,28 +23,16 @@ function VideoRecorder(props: {
   videoRecorderMaxLength: number;
   stopRequests: number;
 }): JSX.Element {
-  const {
-    classes,
-    height,
-    width,
-    recordState,
-    videoRecorderMaxLength,
-    stopRequests,
-  } = props;
+  const { classes, height, width, recordState, stopRequests } = props;
   const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
-  // const [videoRecorderRef, setVideoRecorderRef] = useState();
-  // can't store these in RecordingState because player.on callbacks
-  // snapshot recordState from when player first initializes and doesn't
-  // update when changing answers
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, _setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
   const [recordedVideo, setRecordedVideo] = useState<File>();
   const [isCameraOn, setIsCameraOn] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  
-  const videoSrc = recordState.curAnswer?.videoSrc
+
+  const videoSrc = recordState.curAnswer?.videoSrc;
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -65,48 +52,26 @@ function VideoRecorder(props: {
         audio: true,
       })
       .then((cameraStream) => {
-        // IF USER DOES NOT WANT VIRTUAL BACKGROUND TO BE USED
-        // if (!useVirtualBackground) {
         const recorder = new RecordRTC(cameraStream, {
           type: "video",
           mimeType: "video/webm",
-          // MediaStreamRecorder, StereoAudioRecorder, WebAssemblyRecorder
-          // CanvasRecorder, GifRecorder, WhammyRecorder
           recorderType: MediaStreamRecorder,
           timeSlice: 1000,
           ondataavailable: function () {
             // This function is called once every timeSlice, so we can assume 1 second has passed
-            setRecordDurationCounter(prevState=>prevState+1);
+            setRecordDurationCounter((prevState) => prevState + 1);
           },
           checkForInactiveTracks: true,
-          // onTimeStamp: function (timestamp) {},
-          // previewStream: function (stream) {},
         });
         setVideoRecorder(recorder);
 
         const video = videoRef.current;
         if (!video) {
-          // TODO: Remove this and handle better
           throw new Error("No videoRef found");
         }
         video.muted = true;
         video.volume = 0;
         video.srcObject = cameraStream;
-
-        // recorder.beginStartRecordingCountdown()
-
-        // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
-        // const recorder = new RecordRTC(stream, {
-        //   type: 'canvas',
-        //   mimeType: 'video/webm',
-        //   recorderType: CanvasRecorder,
-        //   timeSlice: 1000,
-        //   ondataavailable: function(blob) {},
-        //   checkForInactiveTracks: true,
-        //   onTimeStamp: function(timestamp) {},
-        //   previewStream: function(stream) {},
-        // });
-
       });
   }, []);
 
@@ -114,9 +79,6 @@ function VideoRecorder(props: {
     if (!videoRecorder) {
       return;
     }
-
-    // videoRecorder.onStateChanged((state) => {});
-
     return () => {
       videoRecorder?.destroy();
     };
@@ -125,16 +87,14 @@ function VideoRecorder(props: {
   // When a recordedVideo gets set in this files state, add it to record state
   useEffect(() => {
     if (recordedVideo) {
-      // if you put onRecordStop directly into player.on("finishRecord")
-      // it overwrite with the state from whatever the first question was
-      recordState.stopRecording(recordedVideo)
+      recordState.stopRecording(recordedVideo);
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
 
-  useEffect(()=>{
-    setIsCameraOn(!videoSrc)
-  }, [videoSrc])
+  useEffect(() => {
+    setIsCameraOn(!videoSrc);
+  }, [videoSrc]);
 
   // When we change questions, reset everything
   useEffect(() => {
@@ -187,9 +147,9 @@ function VideoRecorder(props: {
       setRecordStopCountdown(counter);
       if (counter <= 0) {
         // countdown is finished, time to stop recording
-        videoRecorder?.stopRecording(()=>{
-          const newVideoFile = new File([videoRecorder.getBlob()], "video.mp4")
-          recordStateStopRecording(newVideoFile)
+        videoRecorder?.stopRecording(() => {
+          const newVideoFile = new File([videoRecorder.getBlob()], "video.mp4");
+          recordStateStopRecording(newVideoFile);
         });
       }
     },
@@ -222,7 +182,7 @@ function VideoRecorder(props: {
   }
 
   function recordStateStopRecording(recordedVideo: File) {
-    setRecordedVideo(recordedVideo)
+    setRecordedVideo(recordedVideo);
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
