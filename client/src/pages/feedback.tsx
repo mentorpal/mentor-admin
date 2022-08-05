@@ -4,9 +4,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   AppBar,
+  Button,
   Fab,
   IconButton,
   MenuItem,
@@ -31,11 +32,19 @@ import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
-import { updateUserQuestion } from "api";
+//IMPORT FUNCTIONS
+import {
+  updateUserQuestion,
+  addQuestionToRecordQueue,
+  removeQuestionFromRecordQueue,
+  fetchMentorRecordQueue,
+} from "api";
 import {
   Answer,
   ClassifierAnswerType,
   Feedback,
+  Mentor,
+  Status,
   MentorType,
   UserQuestion,
 } from "types";
@@ -46,9 +55,14 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { useQuestions } from "store/slices/questions/useQuestions";
+import {
+  isQuestionsLoading,
+  useQuestions,
+} from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -123,17 +137,121 @@ const columnHeaders: ColumnDef[] = [
 ];
 
 function FeedbackItem(props: {
+  mentor: Mentor;
+  accessToken?: string;
   feedback: UserQuestion;
   mentorType: MentorType;
   mentorAnswers?: Answer[];
   mentorQuestions: Record<string, QuestionState>;
   onUpdated: () => void;
+  queueList: string[];
+  setQueueList: (queueList: string[]) => void;
 }): JSX.Element {
-  const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
+  const {
+    mentor,
+    accessToken,
+    feedback,
+    mentorAnswers,
+    mentorQuestions,
+    onUpdated,
+    queueList,
+    setQueueList,
+  } = props;
+  const [selectedAnswer, setSelectedAnswer] = React.useState<Answer>();
+  const [customQuestionModalOpen, setCustomQuestionModalOpen] =
+    useState<boolean>(false);
+  const [isQuestionInQueue, setIsQuestionInQueue] = useState<boolean>(false);
+
+  // language-specific alphabetic sort ordering, ignoring cases or diacritics
+  function formatMentorQuestions(
+    mentorAnswers: Answer[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    if (!mentorAnswers.length || !Object.keys(mentorQuestions).length) {
+      return mentorAnswers;
+    }
+    const completeAnswers = Array.from(
+      mentorAnswers.filter((mentorAnswer) =>
+        isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
+    ).sort((a, b) => {
+      return (
+        mentorQuestions[a.question]?.question?.question || ""
+      ).localeCompare(
+        mentorQuestions[b.question]?.question?.question || "",
+        "en",
+        { sensitivity: "base" }
+      );
+    });
+    const incompleteAnswers = Array.from(
+      mentorAnswers.filter(
+        (mentorAnswer) =>
+          !isAnswerComplete(mentorAnswer, undefined, props.mentorType)
+      )
+    ).sort((a, b) => {
+      return (
+        mentorQuestions[a.question]?.question?.question || ""
+      ).localeCompare(
+        mentorQuestions[b.question]?.question?.question || "",
+        "en",
+        { sensitivity: "base" }
+      );
+    });
+    return completeAnswers.concat(incompleteAnswers);
+  }
+
+  // function to add/remove from queue/create question
+  async function queueButtonClicked() {
+    if (!selectedAnswer) {
+      if (
+        feedback.graderAnswer &&
+        props.queueList.includes(feedback.graderAnswer.question)
+      ) {
+        setQueueList(
+          await removeQuestionFromRecordQueue(
+            props.accessToken || "",
+            feedback.graderAnswer.question
+          )
+        );
+      } else {
+        setCustomQuestionModalOpen(true);
+      }
+    } else if (props.queueList.includes(selectedAnswer.question)) {
+      setQueueList(
+        await removeQuestionFromRecordQueue(
+          props.accessToken || "",
+          selectedAnswer.question
+        )
+      );
+      setIsQuestionInQueue(false);
+    } else {
+      setQueueList(
+        await addQuestionToRecordQueue(
+          props.accessToken || "",
+          selectedAnswer.question
+        )
+      );
+      setIsQuestionInQueue(true);
+    }
+  }
+
+  const handleClose = () => {
+    setQueueList(queueList);
+    setCustomQuestionModalOpen(false);
+  };
 
   // TODO: MOVE THIS TO A HOOK
-  async function onUpdateAnswer(answerId?: string) {
-    await updateUserQuestion(feedback._id, answerId || "");
+  async function onUpdateAnswer(answer?: Answer) {
+    setSelectedAnswer(answer);
+    setIsQuestionInQueue(queueList.includes(answer?.question || ""));
+    !answer?._id
+      ? await updateUserQuestion(
+          feedback._id,
+          "",
+          answer?.question || "",
+          mentor._id
+        )
+      : await updateUserQuestion(feedback._id, answer._id, "", "");
     onUpdated();
   }
 
@@ -181,19 +299,18 @@ function FeedbackItem(props: {
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
-              key={`${feedback._id}-${feedback.updatedAt}`}
+              key={`${feedback._id}-${feedback.updatedAt}-${selectedAnswer?._id}`}
               data-cy="select-answer"
-              options={
-                mentorAnswers?.filter((mentorAnswer) =>
-                  isAnswerComplete(mentorAnswer, undefined, props.mentorType)
-                ) || []
-              }
+              options={formatMentorQuestions(
+                mentorAnswers || [],
+                mentorQuestions
+              )}
               getOptionLabel={(option: Answer) =>
                 getValueIfKeyExists(option.question, mentorQuestions)?.question
                   ?.question || ""
               }
               onChange={(e, v) => {
-                onUpdateAnswer(v?._id);
+                onUpdateAnswer(v || undefined);
               }}
               style={{
                 minWidth: 300,
@@ -201,7 +318,13 @@ function FeedbackItem(props: {
                 flexGrow: 1,
               }}
               renderOption={(option) => (
-                <Typography data-cy={`Drop-down-qu-${option._id}`} align="left">
+                <Typography
+                  style={{
+                    color: option.status === Status.COMPLETE ? "black" : "grey",
+                  }}
+                  data-cy={`Drop-down-qu-${option._id}`}
+                  align="left"
+                >
                   {getValueIfKeyExists(option.question, mentorQuestions)
                     ?.question?.question || ""}
                 </Typography>
@@ -210,9 +333,44 @@ function FeedbackItem(props: {
                 <TextField {...params} variant="outlined" />
               )}
             />
-            <IconButton onClick={() => onUpdateAnswer(undefined)}>
-              <CloseIcon />
+            <IconButton
+              onClick={() => {
+                onUpdateAnswer(undefined);
+                setIsQuestionInQueue(false);
+              }}
+            >
+              <CloseIcon
+                onClick={() => {
+                  setSelectedAnswer(undefined);
+                  setIsQuestionInQueue(false);
+                }}
+              />
             </IconButton>
+
+            {accessToken ? (
+              <Button
+                data-cy="queue-btn"
+                color="primary"
+                disabled={selectedAnswer?.status === Status.COMPLETE}
+                onClick={() => {
+                  queueButtonClicked();
+                }}
+              >
+                {queueList.includes(feedback.graderAnswer.question) ||
+                isQuestionInQueue
+                  ? "Remove from Queue"
+                  : "Add to Queue"}
+              </Button>
+            ) : undefined}
+
+            {/* {modal} */}
+            <EditQuestionForQueueModal
+              handleClose={handleClose}
+              open={customQuestionModalOpen}
+              mentor={mentor}
+              userQuestion={feedback.question}
+              accessToken={accessToken || ""}
+            />
           </div>
         )}
         <Tooltip
@@ -242,22 +400,29 @@ function FeedbackPage(): JSX.Element {
     getData,
     isLoading: isMentorLoading,
     error: mentorError,
+    loadMentor,
   } = useActiveMentor();
-
+  const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
+  const mentor = getData((state) => state.data);
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    (mentorAnswers || []).map((a) => a.question)
   );
+
+  const questionsLoading = isQuestionsLoading(
+    (mentorAnswers || []).map((a) => a.question)
+  );
+
   const {
     isPolling: isTraining,
     error: trainError,
     startTask: startTraining,
   } = useWithTraining();
-
   const {
     data: feedback,
     isLoading: isFeedbackLoading,
@@ -268,6 +433,15 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
+  const [initialLoad, setInitialLoad] = useState<boolean>(false);
+  const [queueList, _setQueueList] = useState<string[]>([]);
+  const [questionsAddedToQueue, setQuestionsAddedToQueue] = useState(false);
+
+  useEffect(() => {
+    fetchMentorRecordQueue(loginState.accessToken || "").then((queueList) => {
+      _setQueueList(queueList);
+    });
+  }, []);
 
   useEffect(() => {
     if (mentorId) {
@@ -286,9 +460,53 @@ function FeedbackPage(): JSX.Element {
     }
   }, [needsFiltering, isFeedbackLoading]);
 
+  function setQueueList(queueList: string[]) {
+    setQuestionsAddedToQueue(true);
+    _setQueueList(queueList);
+  }
+
+  // TODO: This reload is a workaround. What we need is a redux dispatch to load a set of answers afters
+  const reloadMentor = useCallback(
+    (cb: () => void) => {
+      if (!mentorId) {
+        cb();
+        return;
+      }
+      if (questionsAddedToQueue) {
+        loadMentor();
+      }
+      cb();
+    },
+    [mentorId, questionsAddedToQueue]
+  );
+
+  const initialDisplayReady =
+    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+
+  if (!initialLoad && initialDisplayReady) {
+    setInitialLoad(true);
+  }
+
+  if (!initialLoad && !initialDisplayReady) {
+    return (
+      <div>
+        <NavBar title="Feedback" mentorId={mentorId} />
+        <LoadingDialog
+          title={
+            isMentorLoading || isFeedbackLoading
+              ? "Loading..."
+              : isTraining
+              ? "Building mentor..."
+              : ""
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentorId} />
+      <NavBar title="Feedback" mentorId={mentorId} onNav={reloadMentor} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -335,7 +553,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell align="center">
                     <Select
                       data-cy="filter-confidence"
-                      value={feedbackSearchParams.filter.classifierAnswerType}
+                      value={feedbackSearchParams.filter.ClassifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
@@ -384,6 +602,7 @@ function FeedbackPage(): JSX.Element {
                     <Autocomplete
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
+                      value={feedbackSearchParams.filter.classifierAnswer}
                       getOptionLabel={(option: Answer) =>
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
@@ -439,12 +658,16 @@ function FeedbackPage(): JSX.Element {
                 {feedback?.edges.map((row, i) => (
                   <FeedbackItem
                     key={`feedback-${i}`}
+                    accessToken={loginState.accessToken}
                     data-cy={`feedback-${i}`}
                     feedback={row.node}
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers}
                     mentorQuestions={mentorQuestions}
                     onUpdated={reloadFeedback}
+                    queueList={queueList}
+                    setQueueList={setQueueList}
+                    mentor={mentor}
                   />
                 ))}
               </TableBody>
