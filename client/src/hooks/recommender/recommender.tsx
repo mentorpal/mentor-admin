@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
+import { chownSync } from "fs";
 import { PriorityQueue } from "./priorityQueue";
 
 /*****************
@@ -26,6 +27,7 @@ export class Recommender<IRecommender> {
   public getRecommendations(): Recommendation[] {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
+        console.log(this.phases[i]);
         this.activePhase = this.phases[i];
         return this.phases[i].getRecommendations(this.recState);
       }
@@ -82,7 +84,10 @@ export class Phase<IRecommender> {
   public isActive(recState: IRecommender): boolean {
     // Return true if any production rules are active
     for (let x = 0; x < this.productionRules.length; x++) {
-      if (this.productionRules[x].isActive(recState)) {
+      if (
+        this.activeCondition(recState) === true &&
+        this.productionRules[x].isActive(recState)
+      ) {
         return true;
       }
     }
