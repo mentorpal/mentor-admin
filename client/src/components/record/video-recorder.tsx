@@ -128,7 +128,7 @@ function VideoRecorder(props: {
     if (recordedVideo) {
       // if you put onRecordStop directly into player.on("finishRecord")
       // it overwrite with the state from whatever the first question was
-      recordState.stopRecording(recordedVideo);
+      recordStateStopRecording(recordedVideo);
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
@@ -209,6 +209,15 @@ function VideoRecorder(props: {
       return;
     }
     setRecordStopCountdown(2);
+  }
+
+  function recordStateStopRecording(recordedVideo: File) {
+    recordStateStopRecording(recordedVideo);
+    setRecordStartCountdown(0);
+    setRecordStopCountdown(0);
+    setRecordDurationCounter(0);
+    setIsCameraOn(false);
+    videoRecorder?.reset();
   }
 
   const spaceBarStopRecording = (event: {
@@ -347,7 +356,11 @@ function VideoRecorder(props: {
         }}
       >
         <IconButton
-          onClick={recordState.isRecording ? beginStopRecordingCountdown : startRecording}
+          onClick={
+            recordState.isRecording
+              ? beginStopRecordingCountdown
+              : startRecording
+          }
           style={{ color: "red" }}
         >
           {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
@@ -365,7 +378,7 @@ function VideoRecorder(props: {
             if (!e.target.files) {
               return;
             } else {
-              recordState.stopRecording(e.target.files[0]);
+              recordStateStopRecording(e.target.files[0]);
             }
           }}
         />
