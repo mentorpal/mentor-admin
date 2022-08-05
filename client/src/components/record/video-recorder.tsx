@@ -46,12 +46,18 @@ function VideoRecorder(props: {
   }, [recordState.isRecording]);
 
   useEffect(() => {
+    if (videoRecorder) {
+      return;
+    }
     navigator.mediaDevices
       .getUserMedia({
         video: true,
         audio: true,
       })
       .then((cameraStream) => {
+        if (!videoRef.current) {
+          return;
+        }
         const recorder = new RecordRTC(cameraStream, {
           type: "video",
           mimeType: "video/webm",
@@ -66,9 +72,6 @@ function VideoRecorder(props: {
         setVideoRecorder(recorder);
 
         const video = videoRef.current;
-        if (!video) {
-          throw new Error("No videoRef found");
-        }
         video.muted = true;
         video.volume = 0;
         video.srcObject = cameraStream;
