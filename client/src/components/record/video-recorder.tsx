@@ -72,7 +72,10 @@ function VideoRecorder(props: {
           // CanvasRecorder, GifRecorder, WhammyRecorder
           recorderType: MediaStreamRecorder,
           timeSlice: 1000,
-          // ondataavailable: function (blob) {},
+          ondataavailable: function () {
+            // This function is called once every timeSlice, so we can assume 1 second has passed
+            setRecordDurationCounter(prevState=>prevState+1);
+          },
           checkForInactiveTracks: true,
           // onTimeStamp: function (timestamp) {},
           // previewStream: function (stream) {},
@@ -106,33 +109,31 @@ function VideoRecorder(props: {
       });
   }, []);
 
+  console.log(recordDurationCounter)
+
   useEffect(() => {
     if (!videoRecorder) {
       return;
     }
-    // player.on("deviceReady", function () {
-    // });
 
-    videoRecorder.onStateChanged((state) => {});
-    // player.on("progressRecord", function () {
-    // });
-    // player.on("finishRecord", function () {
-    // });
+    // videoRecorder.onStateChanged((state) => {});
 
     return () => {
       videoRecorder?.destroy();
     };
   }, [videoRecorder]);
 
+  // When a recordedVideo gets set in this files state, add it to record state
   useEffect(() => {
     if (recordedVideo) {
       // if you put onRecordStop directly into player.on("finishRecord")
       // it overwrite with the state from whatever the first question was
-      recordStateStopRecording(recordedVideo);
+      recordState.stopRecording(recordedVideo)
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
 
+  // When we change questions, reset everything
   useEffect(() => {
     if (!recordState) {
       return;
@@ -157,6 +158,7 @@ function VideoRecorder(props: {
     }
   }, [recordDurationCounter]);
 
+  // When start recording is pressed, this interval begins
   useInterval(
     (isCancelled) => {
       if (isCancelled()) {
@@ -172,6 +174,7 @@ function VideoRecorder(props: {
     recordStartCountdown > 0 ? 1000 : null
   );
 
+  // When stop recording is pressed, this interval begins
   useInterval(
     (isCancelled) => {
       if (isCancelled()) {
@@ -180,7 +183,11 @@ function VideoRecorder(props: {
       const counter = recordStopCountdown - 1;
       setRecordStopCountdown(counter);
       if (counter <= 0) {
-        videoRecorder?.stopRecording();
+        // countdown is finished, time to stop recording
+        videoRecorder?.stopRecording(()=>{
+          const newVideoFile = new File([videoRecorder.getBlob()], "video.mp4")
+          recordStateStopRecording(newVideoFile)
+        });
       }
     },
     recordStopCountdown > 0 ? 1000 : null
@@ -212,11 +219,12 @@ function VideoRecorder(props: {
   }
 
   function recordStateStopRecording(recordedVideo: File) {
-    recordStateStopRecording(recordedVideo);
+    setRecordedVideo(recordedVideo)
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
     setIsCameraOn(false);
+    videoRecorder?.stopRecording();
     videoRecorder?.reset();
   }
 
