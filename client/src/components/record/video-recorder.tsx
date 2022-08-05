@@ -44,6 +44,8 @@ function VideoRecorder(props: {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  const videoSrc = recordState.curAnswer?.videoSrc
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -91,7 +93,7 @@ function VideoRecorder(props: {
         video.volume = 0;
         video.srcObject = cameraStream;
 
-        // recorder.startRecording()
+        // recorder.beginStartRecordingCountdown()
 
         // ELSE IF USER WANTS VIRTUAL BACKGROUND TO BE USED
         // const recorder = new RecordRTC(stream, {
@@ -105,11 +107,8 @@ function VideoRecorder(props: {
         //   previewStream: function(stream) {},
         // });
 
-        setIsCameraOn(true);
       });
   }, []);
-
-  console.log(recordDurationCounter)
 
   useEffect(() => {
     if (!videoRecorder) {
@@ -132,6 +131,10 @@ function VideoRecorder(props: {
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
+
+  useEffect(()=>{
+    setIsCameraOn(!videoSrc)
+  }, [videoSrc])
 
   // When we change questions, reset everything
   useEffect(() => {
@@ -204,7 +207,7 @@ function VideoRecorder(props: {
     beginStopRecordingCountdown();
   }, [stopRequests]);
 
-  function startRecording() {
+  function beginStartRecordingCountdown() {
     if (countdownInProgress) {
       return;
     }
@@ -367,7 +370,7 @@ function VideoRecorder(props: {
           onClick={
             recordState.isRecording
               ? beginStopRecordingCountdown
-              : startRecording
+              : beginStartRecordingCountdown
           }
           style={{ color: "red" }}
         >
