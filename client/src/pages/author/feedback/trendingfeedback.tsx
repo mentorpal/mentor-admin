@@ -1,5 +1,10 @@
 import { BinCollection, Edge, UserQuestion, UserQuestionBin } from "/types";
 
+// Took first 3 functions from:
+// https://github.com/thatsKevinJain/string-cosine-similarity
+// altered it so functions don't compare just 2 string
+// instead, it compares a string with the embedding in bins
+
 // Split the string that contains any character
 // other then alpha-numeric characters
 // Convert string into array (Tokenize, toLowerCase)
