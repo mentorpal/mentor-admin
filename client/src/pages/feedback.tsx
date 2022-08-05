@@ -203,7 +203,19 @@ function FeedbackItem(props: {
   // function to add/remove from queue/create question
   async function queueButtonClicked() {
     if (!selectedAnswer) {
-      setCustomQuestionModalOpen(true);
+      if (
+        feedback.graderAnswer &&
+        props.queueList.includes(feedback.graderAnswer.question)
+      ) {
+        setQueueList(
+          await removeQuestionFromRecordQueue(
+            props.accessToken || "",
+            feedback.graderAnswer.question
+          )
+        );
+      } else {
+        setCustomQuestionModalOpen(true);
+      }
     } else if (props.queueList.includes(selectedAnswer.question)) {
       setQueueList(
         await removeQuestionFromRecordQueue(
@@ -344,7 +356,10 @@ function FeedbackItem(props: {
                   queueButtonClicked();
                 }}
               >
-                {isQuestionInQueue ? "Remove from Queue" : "Add to Queue"}
+                {queueList.includes(feedback.graderAnswer.question) ||
+                isQuestionInQueue
+                  ? "Remove from Queue"
+                  : "Add to Queue"}
               </Button>
             ) : undefined}
 
