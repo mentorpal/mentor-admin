@@ -5,8 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { chownSync } from "fs";
-import { PriorityQueue } from "./priorityQueue";
+import { PriorityQueue, WeightedObj } from "./priorityQueue";
 
 /*****************
 RECOMMENDER CLASS
@@ -15,7 +14,7 @@ export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
   activePhase: Phase<IRecommender>;
-  orderedRecs: PriorityQueue;
+  orderedRecs: PriorityQueue<Recommendation>;
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     this.recState = recState;
@@ -27,7 +26,6 @@ export class Recommender<IRecommender> {
   public getRecommendations(): Recommendation[] {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
-        console.log(this.phases[i]);
         this.activePhase = this.phases[i];
         return this.phases[i].getRecommendations(this.recState);
       }
@@ -35,7 +33,7 @@ export class Recommender<IRecommender> {
     return [];
   }
 
-  public getCalculatedRecs(): PriorityQueue["priorityQueue"] {
+  public getCalculatedRecs(): WeightedObj<Recommendation>[] {
     //array of recommendations from the production rules
     const allRec = this.getRecommendations();
     const phaseWeights = this.activePhase.getPhaseWeights();

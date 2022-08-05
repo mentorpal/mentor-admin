@@ -210,8 +210,6 @@ function setupPhase(): Phase<RecommenderInterface> {
     productionRules,
     weightedAttributes
   );
-  console.log("find me");
-  console.log(setupPhase);
   return setupPhase;
 }
 
@@ -285,7 +283,7 @@ function phaseFour(): Phase<RecommenderInterface> {
 }
 
 // Calling the recommender
-export function callingRecommender(): WeightedObj[] {
+export function callingRecommender(): WeightedObj<Recommendation>[] {
   const setup = setupPhase();
   const firstBuild = firstBuildPhase();
   const scripted = scriptedPhase();

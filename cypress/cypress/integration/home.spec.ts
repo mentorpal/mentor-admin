@@ -21,13 +21,22 @@ import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
     cySetup(cy);
-    cyMockDefault(cy, { mentor: clint });
+    cyMockDefault(cy, {
+      mentor: clint,
+      gqlQueries: [
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: [],
+          },
+        }),
+      ],
+    });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 4);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
@@ -56,7 +65,7 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=answer-list]").children().should("have.length", 0);
         });
       });
-      cy.get("[data-cy=block-2]").within(($block) => {
+      cy.get("[data-cy=block-3]").within(($block) => {
         cy.get("[data-cy=block-name]").should(
           "contain.text",
           "Idle and Initial Recordings"
@@ -88,7 +97,7 @@ describe("My Mentor Page", () => {
     });
   });
 
-  it.only("shows splash if mentor has not seen before", () => {
+  it("shows splash and tooltips if mentor has not seen before", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,
@@ -96,7 +105,12 @@ describe("My Mentor Page", () => {
       gqlQueries: [
         // This intercepts any call to FirstTimeTrackingUpdate and returns with the data below
         mockGQL("FirstTimeTrackingUpdate", {
-          me: { firstTimeTrackingUpdate: { myMentorSplash: true } },
+          me: {
+            firstTimeTrackingUpdate: {
+              myMentorSplash: true,
+              tooltips: true,
+            },
+          },
         }),
       ],
     });
@@ -106,11 +120,63 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=notification-dialog]").should("exist");
     cy.get("[data-cy=notification-dialog-title]").should(
       "have.text",
-      "This page is for setting up your mentor!"
+      "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
     );
     cy.get("[data-cy=notification-dialog-button]").should("have.text", "Close");
     cy.get("[data-cy=notification-dialog-button]").trigger("mouseover").click();
     cy.get("[data-cy=notification-dialog]").should("not.exist");
+
+    cy.get("[data-cy=profile-tooltip").should("exist");
+    cy.get("[data-cy=profile-tooltip-title").should("have.text", "My Profile");
+    cy.get("[data-cy=profile-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=profile-tooltip-title").should("not.exist");
+
+    cy.get("[data-cy=status-tooltip").should("exist");
+    cy.get("[data-cy=status-tooltip-title").should(
+      "have.text",
+      "Mentor Status"
+    );
+    cy.get("[data-cy=status-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=status-tooltip-title").should("not.exist");
+
+    cy.get("[data-cy=categories-tooltip-title").should(
+      "have.text",
+      "Recording Subjects"
+    );
+    cy.get("[data-cy=categories-tooltip-close-btn]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=categories-tooltip-title").should("not.exist");
+
+    cy.get("[data-cy=recommender-tooltip-title").should(
+      "have.text",
+      "Recommender"
+    );
+    cy.get("[data-cy=recommender-tooltip-close-btn]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
+
+    cy.get("[data-cy=build-tooltip-title").should("have.text", "Build");
+    cy.get("[data-cy=build-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=build-tooltip-title").should("not.exist");
+
+    cy.get("[data-cy=preview-tooltip-title").should("have.text", "Preview");
+    cy.get("[data-cy=preview-tooltip-close-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=preview-tooltip-title").should("not.exist");
+  });
+
+  it("shows subjects in priority order", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clint,
+      config: { subjectRecordPriority: ["idle_and_initial_recordings"] },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=block-0]").within(() => {
+      cy.get("[data-cy=block-name]").should("contain", "Category2");
+    });
   });
 
   it("doesn't show splash if mentor seen before", () => {
@@ -121,6 +187,13 @@ describe("My Mentor Page", () => {
 
     cy.visit("/");
     cy.get("[data-cy=notification-dialog]").should("not.exist");
+    cy.get("[data-cy=profile-tooltip-title").should("not.exist");
+    cy.get("[data-cy=status-tooltip-title").should("not.exist");
+    cy.get("[data-cy=categories-tooltip-title").should("not.exist");
+    cy.get("[data-cy=recommender-tooltip-title").should("not.exist");
+    cy.get("[data-cy=save-tooltip-title").should("not.exist");
+    cy.get("[data-cy=build-tooltip-title").should("not.exist");
+    cy.get("[data-cy=preview-tooltip-title").should("not.exist");
   });
 
   it("shows my mentor card", () => {
@@ -229,7 +302,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
@@ -258,7 +331,7 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=answer-list]").children().should("have.length", 0);
         });
       });
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should("have.text", "A category");
@@ -299,7 +372,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").children().should("have.length", 2);
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should(
@@ -328,7 +401,7 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=answer-list]").children().should("have.length", 0);
         });
       });
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=block-progress]").should("have.text", "1 / 1 (100%)");
         cy.get("[data-cy=block-description]").should("have.text", "A category");
@@ -368,7 +441,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-0]").within(($block) => {
+      cy.get("[data-cy=block-1]").within(($block) => {
         cy.get("[data-cy=block-name]").should("contain.text", "Background");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -391,7 +464,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-3]").within(($block) => {
+      cy.get("[data-cy=block-2]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -414,7 +487,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -448,7 +521,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=select-subject]").contains("All Answers (4 / 5)");
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-2]").within(($block) => {
+      cy.get("[data-cy=block-3]").within(($block) => {
         cy.get("[data-cy=block-name]").should(
           "contain.text",
           "Idle and Initial Recordings"
@@ -479,7 +552,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -504,7 +577,7 @@ describe("My Mentor Page", () => {
       "Idle and Initial Recordings (2 / 3)"
     );
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=record-all]").trigger("mouseover").click();
@@ -527,7 +600,7 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
     cy.get("[data-cy=select-subject]").contains("Background (2 / 2)");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category");
         cy.get("[data-cy=answers-Complete]").within(($completeAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -566,7 +639,7 @@ describe("My Mentor Page", () => {
     );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -604,7 +677,7 @@ describe("My Mentor Page", () => {
     );
     // cy.get("[data-cy=save-button]").should("be.disabled");
     cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(($incompleteAnswers) => {
           cy.get("[data-cy=expand-btn]").trigger("mouseover").click();
@@ -770,7 +843,7 @@ describe("My Mentor Page", () => {
         "Idle and Initial Recordings (2 / 3)"
       );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-        cy.get("[data-cy=block-1]").within(($block) => {
+        cy.get("[data-cy=block-0]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
           cy.get("[data-cy=answers-Incomplete]").within(
             ($incompleteAnswers) => {
@@ -812,7 +885,7 @@ describe("My Mentor Page", () => {
           cy.get("[data-cy=select-subject]").contains(
             "Idle and Initial Recordings (2 / 4)"
           );
-          cy.get("[data-cy=block-1]").within(($block) => {
+          cy.get("[data-cy=block-0]").within(($block) => {
             cy.get("[data-cy=unsaved-changes-warning]").should("not.exist");
             cy.get("[data-cy=answer-1]").should("contain.text", "test");
             cy.get("[data-cy=edit-question]").should("exist");
@@ -836,7 +909,7 @@ describe("My Mentor Page", () => {
         "Idle and Initial Recordings (2 / 3)"
       );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-        cy.get("[data-cy=block-1]").within(($block) => {
+        cy.get("[data-cy=block-0]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
           cy.get("[data-cy=answers-Incomplete]").within(
             ($incompleteAnswers) => {
@@ -894,7 +967,7 @@ describe("My Mentor Page", () => {
         "Idle and Initial Recordings (2 / 3)"
       );
       cy.get("[data-cy=recording-blocks]").within(($blocks) => {
-        cy.get("[data-cy=block-1]").within(($block) => {
+        cy.get("[data-cy=block-0]").within(($block) => {
           cy.get("[data-cy=block-name]").should("have.text", "Category2");
           cy.get("[data-cy=answers-Incomplete]").within(
             ($incompleteAnswers) => {
@@ -928,7 +1001,7 @@ describe("My Mentor Page", () => {
         });
       });
       cy.get("[data-cy=unsaved-changes-warning]").should("exist");
-      cy.get("[data-cy=block-1]").within(($block) => {
+      cy.get("[data-cy=block-0]").within(($block) => {
         cy.get("[data-cy=block-name]").should("have.text", "Category2");
         cy.get("[data-cy=answers-Incomplete]").within(() => {
           cy.get("[data-cy=answer-1]").within(($within) => {

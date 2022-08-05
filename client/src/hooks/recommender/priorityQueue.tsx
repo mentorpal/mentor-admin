@@ -5,12 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-export class WeightedObj {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  obj: any;
+export class WeightedObj<T> {
+  obj: T;
   weight: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(obj: any, weight: number) {
+  constructor(obj: T, weight: number) {
     this.obj = obj;
     this.weight = weight;
   }
@@ -20,17 +18,16 @@ export class WeightedObj {
  PRIORITY QUEUE
  **************/
 
-export class PriorityQueue {
-  priorityQueue: WeightedObj[];
+export class PriorityQueue<T> {
+  priorityQueue: WeightedObj<T>[];
 
   constructor() {
     this.priorityQueue = [];
   }
 
   //adds to queue depending on the weight
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public enqueue(obj: any, weight: number): void {
-    const adding = new WeightedObj(obj, weight);
+  public enqueue(obj: T, weight: number): void {
+    const adding = new WeightedObj<T>(obj, weight);
     let stop = false;
 
     for (let i = 0; i < this.priorityQueue.length; i++) {
@@ -54,7 +51,7 @@ export class PriorityQueue {
   }
 
   //returns the queue
-  public getQueue(): WeightedObj[] {
+  public getQueue(): WeightedObj<T>[] {
     return this.priorityQueue;
   }
 }

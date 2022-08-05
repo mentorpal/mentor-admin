@@ -8,6 +8,7 @@ import { CLIENT_ENDPOINT } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import axios from "axios";
+import { Answer, MediaType, MentorType, Status, UtteranceName } from "types";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -78,6 +79,15 @@ export function launchMentor(mentorId: string, newTab?: boolean): void {
   else window.location.href = path;
 }
 
+export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
+  let path = `${location.origin}${CLIENT_ENDPOINT}/?`;
+  for (const mentorId of mentorIds) {
+    path += `&mentor=${mentorId}`;
+  }
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
+}
+
 export function getValueIfKeyExists<T>(
   key: string,
   dict: Record<string, T>
@@ -122,4 +132,38 @@ export function extractErrorMessageFromError(err: any | unknown): string {
       return "Cannot stringify error, unknown error structure";
     }
   }
+}
+
+export function sanitizeWysywigString(str: string): string {
+  // When exporting markdown from WYSYWIG editor, it automatically adds a ZERO WIDTH SPACE char and a newline char
+  return str.replace(/\u200B/g, "").trimRight();
+}
+
+export function isAnswerValid(
+  answer: Answer,
+  questionType: UtteranceName | undefined,
+  mentorType: MentorType
+): boolean {
+  if (mentorType === MentorType.CHAT) {
+    return Boolean(answer.transcript);
+  }
+  if (mentorType === MentorType.VIDEO) {
+    return (
+      Boolean(answer.media?.find((m) => m.type === MediaType.VIDEO)?.url) &&
+      (questionType === UtteranceName.IDLE || Boolean(answer.transcript))
+    );
+  }
+  return false;
+}
+
+export function isAnswerComplete(
+  answer: Answer,
+  questionType: UtteranceName | undefined,
+  mentorType: MentorType
+): boolean {
+  return (
+    answer.status === Status.COMPLETE ||
+    (answer.status === Status.NONE &&
+      isAnswerValid(answer, questionType, mentorType))
+  );
 }

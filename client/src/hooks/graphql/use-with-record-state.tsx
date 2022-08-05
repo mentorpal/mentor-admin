@@ -24,8 +24,15 @@ import {
   UseWithRecordState,
   UtteranceName,
   RecordStateError,
+  Status,
 } from "types";
-import { copyAndSet, equals, getValueIfKeyExists } from "helpers";
+import {
+  copyAndSet,
+  equals,
+  extractErrorMessageFromError,
+  getValueIfKeyExists,
+  isAnswerComplete,
+} from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -97,7 +104,7 @@ export function useWithRecordState(
     curAnswer?.answer.question !== answers[answerIdx]?.answer.question;
 
   useEffect(() => {
-    if (!mentorAnswers || !mentorSubjects || isMentorLoading) {
+    if (isMentorLoading || !mentorAnswers || !mentorSubjects) {
       return;
     }
     const { videoId, subject, category, status } = filter;
@@ -122,10 +129,18 @@ export function useWithRecordState(
     const answerStates: AnswerState[] = [];
     for (const a of answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
+      let checkStatus = !status;
+      if (status === Status.COMPLETE) {
+        checkStatus = isAnswerComplete(a, q?.question?.name, mentorType);
+      } else if (status === Status.INCOMPLETE) {
+        checkStatus = !isAnswerComplete(a, q?.question?.name, mentorType);
+      } else if (status === Status.NONE) {
+        checkStatus = a.status === Status.NONE;
+      }
       if (
         q?.question &&
         (!q.question.mentorType || q.question.mentorType === mentorType) &&
-        (!status || a.status === status)
+        checkStatus
       ) {
         answerStates.push({
           answer: a,
@@ -134,6 +149,7 @@ export function useWithRecordState(
           recordedVideo: undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
+          localTranscriptChanges: false,
         });
       }
     }
@@ -178,7 +194,8 @@ export function useWithRecordState(
       ...answer,
       isEdited:
         !equals(answer.answer, answer.editedAnswer) ||
-        !equals(question, answer.editedQuestion),
+        !equals(question, answer.editedQuestion) ||
+        answer.localTranscriptChanges,
       isValid: isAnswerValid(),
       isUploading: isAnswerUploading(answer.editedAnswer),
       videoSrc: idxChanged
@@ -198,6 +215,7 @@ export function useWithRecordState(
     }
     return 0;
   }
+
   function updateAnswerState(
     edits: Partial<AnswerState>,
     idx: number = answerIdx
@@ -228,7 +246,8 @@ export function useWithRecordState(
     if (idx !== -1) {
       const answer = answers[idx];
       const newTranscript =
-        upload.transcript || upload.transcript === ""
+        (upload.transcript || upload.transcript === "") &&
+        !answer.localTranscriptChanges // check if local edits were made while upload in progress
           ? upload.transcript
           : answer.editedAnswer.transcript;
       updateAnswerState(
@@ -237,11 +256,13 @@ export function useWithRecordState(
           answer: {
             ...answer.answer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
           editedAnswer: {
             ...answer.editedAnswer,
             transcript: newTranscript,
+            markdownTranscript: newTranscript,
             media: upload.media || [],
           },
         },
@@ -331,9 +352,15 @@ export function useWithRecordState(
     updateAnswerState({ minVideoLength: length });
   }
 
-  function editAnswer(edits: Partial<Answer>) {
+  function editAnswer(
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) {
     const answer = answers[answerIdx];
-    updateAnswerState({ editedAnswer: { ...answer.editedAnswer, ...edits } });
+    updateAnswerState({
+      editedAnswer: { ...answer.editedAnswer, ...edits },
+      ...answerStateEdits,
+    });
   }
 
   function editQuestion(edits: Partial<Question>) {
@@ -343,9 +370,8 @@ export function useWithRecordState(
     });
   }
 
-  function saveAnswer() {
-    const answer = answers[answerIdx].answer;
-    const editedAnswer = answers[answerIdx].editedAnswer;
+  async function saveAnswer() {
+    const { answer, editedAnswer, localTranscriptChanges } = answers[answerIdx];
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -356,39 +382,43 @@ export function useWithRecordState(
     }
     // update the question if it has changed
     if (!equals(question, editedQuestion)) {
-      saveQuestion(editedQuestion);
+      await saveQuestion(editedQuestion);
     }
     // update the answer if it has changed
-    if (!equals(answer, editedAnswer)) {
+    if (!equals(answer, editedAnswer) || localTranscriptChanges) {
       setIsSaving(true);
-      updateAnswer(editedAnswer, accessToken, mentorId)
-        .then((didUpdate) => {
-          if (!didUpdate) {
-            setIsSaving(false);
-            return;
-          }
-          setIsSaving(false);
-          updateAnswerState({ answer: editedAnswer });
-          if (
-            editedAnswer.hasEditedTranscript &&
-            mentorType === MentorType.VIDEO &&
-            configState.config?.uploadLambdaEndpoint
-          ) {
-            regenerateVTTForQuestion(
-              editedAnswer.question,
-              mentorId,
-              accessToken,
-              configState.config.uploadLambdaEndpoint
-            );
-          }
-        })
-        .catch((err) => {
-          setIsSaving(false);
-          setError({
-            message: "Failed to save answer",
-            error: err.message,
-          });
+      let didUpdate = false;
+      try {
+        didUpdate = await updateAnswer(editedAnswer, accessToken, mentorId);
+      } catch (e) {
+        const errorMessage = extractErrorMessageFromError(e);
+        setIsSaving(false);
+        setError({
+          message: "Failed to save answer",
+          error: errorMessage,
         });
+        return;
+      }
+      setIsSaving(false);
+      if (!didUpdate) {
+        return;
+      }
+      updateAnswerState({
+        answer: { ...editedAnswer },
+        localTranscriptChanges: false,
+      });
+      if (
+        editedAnswer.hasEditedTranscript &&
+        mentorType === MentorType.VIDEO &&
+        configState.config?.uploadLambdaEndpoint
+      ) {
+        regenerateVTTForQuestion(
+          editedAnswer.question,
+          mentorId,
+          accessToken,
+          configState.config.uploadLambdaEndpoint
+        );
+      }
     }
   }
 

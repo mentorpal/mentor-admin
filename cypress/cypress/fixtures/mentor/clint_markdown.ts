@@ -148,7 +148,7 @@ export const mentor: Mentor = {
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       markdownTranscript:
-        "My _name_ is **Clint Anderson** and I'm a ++Nuclear Electrician's Mate++",
+        "My *name* is **Clint Anderson** and I'm a Nuclear Electrician's Mate",
       status: Status.INCOMPLETE,
     },
     {

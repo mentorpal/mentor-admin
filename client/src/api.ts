@@ -4,11 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/*
-This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
-Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
-*/
 import axios, {
   CancelTokenSource,
   AxiosResponse,
@@ -38,6 +33,7 @@ import {
   ReplacedMentorDataChanges,
   PresignedUrlResponse,
   FirstTimeTracking,
+  MentorPanel,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -72,8 +68,8 @@ function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
-function isValidObjectID(id: string) {
-  return id.match(/^[0-9a-fA-F]{24}$/);
+export function isValidObjectID(id: string): boolean {
+  return Boolean(id.match(/^[0-9a-fA-F]{24}$/));
 }
 
 const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
@@ -172,7 +168,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (!(res.status >= 200 && res.status <= 299)) {
-    throw new Error(`http request failed: ${res.statusText}`);
+    throw new Error(`http request failed: ${res.data}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
@@ -227,12 +223,25 @@ export async function fetchConfig(): Promise<Config> {
       query: `
       query FetchConfig{
         config {
+          mentorsDefault
+          featuredMentors
+          featuredMentorPanels
+          activeMentors
           googleClientId
           urlDocSetup
           urlVideoIdleTips
           videoRecorderMaxLength
           classifierLambdaEndpoint
           uploadLambdaEndpoint
+          styleHeaderLogo
+          styleHeaderColor
+          styleHeaderTextColor
+          disclaimerTitle
+          disclaimerText
+          disclaimerDisabled
+          displayGuestPrompt
+          videoRecorderMaxLength
+          subjectRecordPriority
         }
       }
   `,
@@ -531,7 +540,8 @@ export async function updateMyFirstTimeTracking(
       mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
         me{
           firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash
+            myMentorSplash,
+            tooltips,
           }
         }
       }
@@ -781,18 +791,27 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string
+  answerId: string,
+  questionId: string,
+  mentorId: string
 ): Promise<void> {
+  // if an answerId exists, then only send that over, else send question and mentorid
+  const variables = {
+    id: feedbackId,
+    ...(answerId ? { answer: answerId } : {}),
+    ...(questionId && !answerId ? { question: questionId } : {}),
+    ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
+  };
   execGql<UserQuestion>(
     {
       query: `
-      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
-        userQuestionSetAnswer(id: $id, answer: $answer) {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
+        userQuestionSetAnswer(id: $id, answer: $answer, question: $question, mentorId: $mentorId) {
           _id
         }
       }
     `,
-      variables: { id: feedbackId, answer: answerId },
+      variables,
     },
     { dataPath: "userQuestionSetAnswer" }
   );
@@ -1165,7 +1184,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
               _id
             }
             firstTimeTracking{
-              myMentorSplash
+              myMentorSplash,
+              tooltips,
             }
           }
           accessToken
@@ -1262,6 +1282,85 @@ export async function fetchUploadTasks(
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
   return gql.map((u) => convertUploadTaskGQL(u));
+}
+
+//Fetches the record queue for the mentor that is logged in (using the accessToken to know which mentor to fetch from)
+export async function fetchMentorRecordQueue(
+  accessToken: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        query FetchMentorRecordQueue {
+          me {
+            fetchMentorRecordQueue
+          }
+        }`,
+    },
+    { accessToken, dataPath: ["me", "fetchMentorRecordQueue"] }
+  );
+}
+
+//Returns the new list after the addition
+export async function addQuestionToRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation AddQuestionToRecordQueue($questionId: ID!) {
+          me {
+            addQuestionToRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "addQuestionToRecordQueue"] }
+  );
+}
+
+//Returns the new list after the removal
+export async function removeQuestionFromRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation RemoveQuestionFromRecordQueue($questionId: ID!) {
+          me {
+            removeQuestionFromRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
+  );
+}
+
+export async function setRecordQueueGQL(
+  accessToken: string,
+  questionIds: string[]
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation SetRecordQueue($questionIds: [ID]!) {
+          me {
+            setRecordQueue(questionIds: $questionIds)
+          }
+        }`,
+      variables: {
+        questionIds,
+      },
+    },
+    { accessToken, dataPath: ["me", "setRecordQueue"] }
+  );
 }
 
 export async function deleteUploadTask(
@@ -1668,4 +1767,191 @@ export async function importMentor(
     },
     accessToken,
   });
+}
+
+export async function fetchMentors(
+  accessToken: string,
+  searchParams?: SearchParams
+): Promise<Connection<MentorGQL>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const { filter, limit, cursor, sortBy, sortAscending } = params;
+  return execGql<Connection<MentorGQL>>(
+    {
+      query: `
+        query Mentors($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+          mentors (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+            edges {
+              node {
+                _id
+                name
+                title
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }`,
+      variables: {
+        filter: JSON.stringify(filter),
+        limit,
+        cursor,
+        sortBy,
+        sortAscending,
+      },
+    },
+    { dataPath: "mentors", accessToken }
+  );
+}
+
+export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
+  return await execGql<MentorPanel>(
+    {
+      query: `
+        query MentorPanel($id: ID!) {
+          mentorPanel(id: $id) {
+            _id
+            subject
+            mentors
+            title
+            subtitle
+          }
+        }
+      `,
+      variables: { id },
+    },
+    { dataPath: "mentorPanel" }
+  );
+}
+
+export async function fetchMentorPanels(
+  searchParams?: SearchParams
+): Promise<Connection<MentorPanel>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return await execGql<Connection<MentorPanel>>(
+    {
+      query: `
+      query MentorPanels($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        mentorPanels(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              subject
+              mentors
+              title
+              subtitle
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "mentorPanels" }
+  );
+}
+
+export async function addOrUpdateMentorPanel(
+  accessToken: string,
+  mentorPanel: MentorPanel,
+  id?: string
+): Promise<MentorPanel> {
+  return execGql<MentorPanel>(
+    {
+      query: `mutation AddOrUpdateMentorPanel($id: ID, $mentorPanel: AddOrUpdateMentorPanelInputType!) {
+        me {
+          addOrUpdateMentorPanel(id: $id, mentorPanel: $mentorPanel) {
+            _id
+            subject
+            mentors
+            title
+            subtitle
+          }
+        }
+      }`,
+      variables: {
+        id,
+        mentorPanel: {
+          subject: mentorPanel.subject,
+          mentors: mentorPanel.mentors,
+          title: mentorPanel.title,
+          subtitle: mentorPanel.subtitle,
+        },
+      },
+    },
+    { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
+  );
+}
+
+export async function updateConfig(
+  accessToken: string,
+  config: Config
+): Promise<Config> {
+  return execGql<Config>(
+    {
+      query: `mutation UpdateConfig($config: ConfigUpdateInputType!) {
+        me {
+          updateConfig(config: $config) {
+            mentorsDefault
+            featuredMentors
+            featuredMentorPanels
+            activeMentors
+            googleClientId
+            urlDocSetup
+            urlVideoIdleTips
+            videoRecorderMaxLength
+            classifierLambdaEndpoint
+            uploadLambdaEndpoint
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderTextColor
+            disclaimerTitle
+            disclaimerText
+            disclaimerDisabled
+            displayGuestPrompt
+            videoRecorderMaxLength
+          }
+        }
+      }`,
+      variables: {
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          mentorsDefault: config.mentorsDefault,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          disclaimerDisabled: config.disclaimerDisabled,
+          displayGuestPrompt: config.displayGuestPrompt,
+          videoRecorderMaxLength: config.videoRecorderMaxLength,
+        },
+      },
+    },
+    { dataPath: ["me", "updateConfig"], accessToken }
+  );
 }

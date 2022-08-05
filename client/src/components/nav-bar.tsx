@@ -37,6 +37,7 @@ import {
   RateReview as RateReviewIcon,
   Subject as SubjectIcon,
   PublishRounded as PublishRoundedIcon,
+  Settings as SettingsIcon,
 } from "@material-ui/icons";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -250,14 +251,20 @@ function NavMenu(props: {
         onNav={props.onNav}
       />
       {editUsersPermission ? (
-        <>
-          <NavItem
-            text={"Users"}
-            link={"/users"}
-            icon={<Group />}
-            onNav={props.onNav}
-          />
-        </>
+        <NavItem
+          text={"Users"}
+          link={"/users"}
+          icon={<Group />}
+          onNav={props.onNav}
+        />
+      ) : undefined}
+      {editUsersPermission ? (
+        <NavItem
+          text={"Config"}
+          link={"/config"}
+          icon={<SettingsIcon />}
+          onNav={props.onNav}
+        />
       ) : undefined}
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
@@ -381,4 +388,4 @@ export function NavBar(props: {
   );
 }
 
-export default withLocation(NavBar);
+export default React.memo(withLocation(NavBar));

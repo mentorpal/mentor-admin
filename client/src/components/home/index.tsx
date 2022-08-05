@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   AppBar,
   Button,
@@ -15,14 +15,17 @@ import {
   DialogContentText,
   DialogTitle,
   Fab,
+  IconButton,
   List,
   ListItem,
   MenuItem,
   Select,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import CloseIcon from "@material-ui/icons/Close";
 import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
@@ -30,7 +33,7 @@ import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
-import { launchMentor } from "helpers";
+import { isAnswerComplete, launchMentor } from "helpers";
 import {
   QuestionEdits,
   useWithReviewAnswerState,
@@ -40,13 +43,22 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status } from "types";
+import { User, Subject, UserRole, Status, Answer } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import QueueBlock from "./queue-block";
+import { fetchMentorRecordQueue, setRecordQueueGQL } from "api";
+import useQuestions from "store/slices/questions/useQuestions";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { callingRecommender } from "hooks/recommender/use-with-improve-mentor-recc";
+import { QuestionState } from "store/slices/questions";
+
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "secondary",
+  },
+})(Tooltip);
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -87,6 +99,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+//order of the tooltips
+export enum TooltipStep {
+  PROFILE = 0,
+  STATUS = 1,
+  CATEGORIES = 2,
+  RECOMMENDER = 3,
+  BUILD = 4,
+  PREVIEW = 5,
+}
+
 interface ConfirmSave {
   message: string;
   callback: () => void;
@@ -102,6 +124,7 @@ function HomePage(props: {
     props.search
   );
   const useMentor = useMentorEdits();
+  const { editedMentor, editMentor, saveMentorDetails } = useMentor;
   const {
     isPolling: isTraining,
     error: trainError,
@@ -115,11 +138,17 @@ function HomePage(props: {
     isLoading: mentorLoading,
     error: mentorError,
   } = useActiveMentor();
+
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
+  const mentorType = getData((m) => m.data?.mentorType);
   const defaultMentor = props.user.defaultMentor._id;
-  const classes = useStyles();
+  const [classes] = useState(useStyles());
   const [showSetupAlert, setShowSetupAlert] = useState(true);
+
+  const [idxTooltip, setIdxTooltip] = useState<number>(0);
+  const [recordingItemBlocks, setRecordingItemBlocks] =
+    useState<JSX.Element[]>();
 
   const mentorSubjectNamesById: Record<string, string> = getData((m) =>
     (m.data?.subjects || []).reduce(
@@ -133,22 +162,116 @@ function HomePage(props: {
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
   const recordState = useWithRecordState(props.accessToken, props.search);
+
+  const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
+    useState<boolean>(false);
+  const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
+  const [previewTooltipOpen, setPreviewTooltipOpen] = useState<boolean>(false);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
   const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
-  const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
-
-  const allRecommendations = callingRecommender();
 
   const loginState = useWithLogin();
+
+  const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
+  const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
+  const { userSawSplashScreen, userSawTooltips } = loginState;
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [answerStatuses, setAnswerStatuses] = useState<Status[]>([]);
+
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
       localHasSeenSplash
   );
-  const { userSawSplashScreen } = loginState;
+  const hasSeenTooltips = Boolean(
+    !hasSeenSplash ||
+      loginState.state.user?.firstTimeTracking.tooltips ||
+      localHasSeenTooltips
+  );
+
+  // TODO: Move all QueueBlock logic/data to a hook
+  const [queueIDList, setQueueIDList] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchMentorRecordQueue(props.accessToken).then((queueIDList) => {
+      setQueueIDList(queueIDList);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!mentorAnswers) {
+      return;
+    }
+    if (mentorAnswers.length && !answerStatuses.length) {
+      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
+      return;
+    }
+    const differentLength = mentorAnswers.length !== answerStatuses.length;
+    let differentStatus = false;
+    if (!differentLength) {
+      mentorAnswers.forEach((answer, i) => {
+        if (answerStatuses[i] !== answer.status) {
+          differentStatus = true;
+        }
+      });
+    }
+    if (differentStatus || differentLength) {
+      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
+    }
+  }, [mentorAnswers]);
+
+  useEffect(() => {
+    if (!mentorAnswers || queueIDList.length == 0) {
+      return;
+    }
+    const idListAfterRemoval = removeCompleteAnswerFromQueue(
+      queueIDList,
+      mentorAnswers
+    );
+    setQueueIDList(idListAfterRemoval);
+  }, [answerStatuses]);
+
+  useEffect(() => {
+    const _blocks = reviewAnswerState.getBlocks();
+    if (
+      reviewAnswerState.questionsLoading ||
+      (_blocks.length === 0 && recordingItemBlocks !== undefined)
+    ) {
+      return;
+    }
+    const blocks = _blocks.map((b, i) => (
+      <ListItem key={b.name + String(i)} data-cy={`block-${i}`}>
+        <RecordingBlockItem
+          mentorId={mentorId || ""}
+          mentorType={mentorType}
+          classes={classes}
+          block={b}
+          getAnswers={reviewAnswerState.getAnswers}
+          getQuestions={reviewAnswerState.getQuestions}
+          recordAnswers={recordAnswers}
+          recordAnswer={recordAnswer}
+          addNewQuestion={reviewAnswerState.addNewQuestion}
+          editQuestion={reviewAnswerState.editQuestion}
+        />
+      </ListItem>
+    ));
+    setRecordingItemBlocks(blocks);
+  }, [
+    reviewAnswerState.questionsLoading,
+    reviewAnswerState.getBlocks(),
+    reviewAnswerState.getAnswers(),
+    reviewAnswerState.getQuestions(),
+    mentorId,
+  ]);
 
   useEffect(() => {
     if (!setupStatus || !showSetupAlert) {
@@ -157,7 +280,44 @@ function HomePage(props: {
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
 
-  if (!(mentorId && setupStatus)) {
+  // memoized train mentor
+  const startTrainingMentor = useCallback(() => {
+    startTraining(mentorId);
+  }, [mentorId]);
+
+  // memoized increment tooltip
+  const incrementTooltip = useCallback(() => {
+    if (hasSeenTooltips) {
+      return;
+    }
+    setIdxTooltip(idxTooltip + 1);
+  }, [hasSeenTooltips, idxTooltip]);
+
+  // memoized on leave
+  const onLeave = useCallback(
+    (cb: () => void, msg?: string) => {
+      if (reviewAnswerState.unsavedChanges()) {
+        setConfirmSaveBeforeCallback({
+          message:
+            msg ||
+            "You have unsaved changes, would you like to save them before leaving this page?",
+          callback: cb,
+        });
+      } else {
+        cb();
+      }
+    },
+    [reviewAnswerState.unsavedChanges()]
+  );
+
+  if (
+    !initialLoadComplete &&
+    (!mentorId ||
+      mentorLoading ||
+      !setupStatus ||
+      !recordingItemBlocks ||
+      reviewAnswerState.questionsLoading)
+  ) {
     return (
       <div>
         <NavBar title="Mentor Studio" mentorId="" />
@@ -165,21 +325,13 @@ function HomePage(props: {
       </div>
     );
   }
-  if (!setupStatus.isMentorInfoDone) {
-    navigate("/setup");
+
+  if (!initialLoadComplete) {
+    setInitialLoadComplete(true);
   }
 
-  function onLeave(cb: () => void, msg?: string) {
-    if (reviewAnswerState.unsavedChanges()) {
-      setConfirmSaveBeforeCallback({
-        message:
-          msg ||
-          "You have unsaved changes, would you like to save them before leaving this page?",
-        callback: cb,
-      });
-    } else {
-      cb();
-    }
+  if (!setupStatus?.isMentorInfoDone) {
+    navigate("/setup");
   }
 
   async function saveBeforeCallback() {
@@ -215,6 +367,42 @@ function HomePage(props: {
       );
     }
   }
+  function removeCompleteAnswerFromQueue(
+    queueIDList: string[],
+    mentorAnswers: Answer[]
+  ): string[] {
+    // remove answered questions from queue
+    const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer) =>
+      queueIDList.includes(mentorAnswer.question)
+    );
+    const newQueueIdList = queueIDList.filter((questionId) => {
+      const answer = mentorAnswersInRecordQueue.find(
+        (a) => a.question === questionId
+      );
+      if (!answer) {
+        return false;
+      }
+      return !isAnswerComplete(answer, undefined, mentorType);
+    });
+    setRecordQueueGQL(props.accessToken, newQueueIdList);
+    return newQueueIdList;
+  }
+
+  // get question string
+  function getQueueQuestions(
+    queueIDList: string[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    return queueIDList.map(
+      (id) => mentorQuestions[id]?.question?.question || ""
+    );
+  }
+
+  function closePreviewTooltip() {
+    incrementTooltip();
+    setLocalHasSeenTooltips(true);
+    userSawTooltips(props.accessToken);
+  }
 
   return (
     <div data-cy="my-mentor-wrapper" className={classes.root}>
@@ -239,8 +427,14 @@ function HomePage(props: {
           onNav={onLeave}
         />
         <MyMentorCard
-          continueAction={() => startTraining(mentorId)}
-          useMentor={useMentor}
+          continueAction={startTrainingMentor}
+          incrementTooltip={incrementTooltip}
+          editedMentor={editedMentor}
+          editMentor={editMentor}
+          saveMentorDetails={saveMentorDetails}
+          idxTooltip={idxTooltip}
+          hasSeenTooltips={hasSeenTooltips}
+          localHasSeenTooltips={localHasSeenTooltips}
         />
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
@@ -254,39 +448,108 @@ function HomePage(props: {
             Default Mentor
           </Fab>
         )}
-        <Select
-          data-cy="select-subject"
-          value={
-            reviewAnswerState.selectedSubject
-              ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-              : undefined
+
+        <ColorTooltip
+          interactive={true}
+          open={
+            !hasSeenTooltips
+              ? idxTooltip == TooltipStep.CATEGORIES
+              : recordSubjectTooltipOpen
           }
-          displayEmpty
-          renderValue={() => (
-            <Typography variant="h6" className={classes.title}>
-              {reviewAnswerState.selectedSubject
-                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-                : "All Answers"}{" "}
-              ({reviewAnswerState.progress.complete} /{" "}
-              {reviewAnswerState.progress.total})
-            </Typography>
-          )}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) => {
-            reviewAnswerState.selectSubject(event.target.value as string);
+          onClose={incrementTooltip}
+          //if this is false then the tooltip doesn't respond to focus-visible elements
+          disableHoverListener={!hasSeenTooltips}
+          arrow
+          placement="left"
+          enterDelay={1500}
+          //contains all text inside tooltip
+          title={
+            <React.Fragment>
+              <IconButton
+                data-cy="categories-tooltip-close-btn"
+                color="inherit"
+                size="small"
+                text-align="right"
+                align-content="right"
+                onClick={incrementTooltip}
+              >
+                <CloseIcon />
+              </IconButton>
+              <Typography
+                color="inherit"
+                align="center"
+                data-cy="categories-tooltip-title"
+              >
+                Recording Subjects
+              </Typography>
+              <p style={{ textAlign: "center" }}>
+                The Subjects dropdown lets you review and add Subjects.
+                Categories in a Subject help you record similar questions. You
+                can add your own custom questions to a category.
+              </p>
+            </React.Fragment>
+          }
+          PopperProps={{
+            style: { maxWidth: 300, textAlign: "right" },
           }}
         >
-          <MenuItem data-cy="all-subjects" value={undefined}>
-            Show All Subjects
-          </MenuItem>
-          {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
-            <MenuItem key={id} data-cy={`select-${id}`} value={id}>
-              {name}
+          <Select
+            data-cy="select-subject"
+            value={
+              reviewAnswerState.selectedSubject
+                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
+                : undefined
+            }
+            displayEmpty
+            onMouseEnter={() => {
+              hasSeenTooltips && setRecordSubjectTooltipOpen(true);
+            }}
+            onMouseLeave={() => {
+              hasSeenTooltips && setRecordSubjectTooltipOpen(false);
+            }}
+            renderValue={() => (
+              <Typography variant="h6" className={classes.title}>
+                {reviewAnswerState.selectedSubject
+                  ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
+                  : "All Answers"}{" "}
+                ({reviewAnswerState.progress.complete} /{" "}
+                {reviewAnswerState.progress.total})
+              </Typography>
+            )}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => {
+              reviewAnswerState.selectSubject(event.target.value as string);
+            }}
+          >
+            <MenuItem data-cy="all-subjects" value={undefined}>
+              Show All Subjects
             </MenuItem>
-          ))}
-        </Select>
+            {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
+              <MenuItem key={id} data-cy={`select-${id}`} value={id}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        </ColorTooltip>
       </div>
+      {queueIDList.length != 0 ? (
+        <List
+          data-cy="queue-block"
+          style={{
+            flex: "auto",
+            backgroundColor: "#eee",
+          }}
+        >
+          <ListItem>
+            <QueueBlock
+              classes={classes}
+              queueIDList={queueIDList}
+              queuedQuestions={getQueueQuestions(queueIDList, mentorQuestions)}
+            />
+          </ListItem>
+        </List>
+      ) : undefined}
       <List
         data-cy="recording-blocks"
         style={{
@@ -294,22 +557,9 @@ function HomePage(props: {
           backgroundColor: "#eee",
         }}
       >
-        {reviewAnswerState.getBlocks().map((b, i) => (
-          <ListItem key={b.name} data-cy={`block-${i}`}>
-            <RecordingBlockItem
-              mentorId={mentorId || ""}
-              classes={classes}
-              block={b}
-              getAnswers={reviewAnswerState.getAnswers}
-              getQuestions={reviewAnswerState.getQuestions}
-              recordAnswers={recordAnswers}
-              recordAnswer={recordAnswer}
-              addNewQuestion={reviewAnswerState.addNewQuestion}
-              editQuestion={reviewAnswerState.editQuestion}
-            />
-          </ListItem>
-        ))}
+        {recordingItemBlocks || []}
       </List>
+
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>
         <Toolbar
@@ -344,30 +594,128 @@ function HomePage(props: {
             >
               Save Changes
             </Fab>
-            <Fab
-              data-cy="train-button"
-              variant="extended"
-              color="primary"
-              disabled={
-                !mentorId ||
-                isTraining ||
-                mentorLoading ||
-                reviewAnswerState.isSaving
+            <ColorTooltip
+              data-cy="build-tooltip"
+              interactive={true}
+              open={
+                !hasSeenTooltips
+                  ? idxTooltip == TooltipStep.BUILD
+                  : buildTooltipOpen
               }
-              onClick={() => startTraining(mentorId)}
-              className={classes.fab}
+              onClose={incrementTooltip}
+              disableHoverListener={!hasSeenTooltips}
+              enterDelay={1500}
+              arrow
+              title={
+                <React.Fragment>
+                  <IconButton
+                    data-cy="build-tooltip-close-btn"
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                    onClick={incrementTooltip}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                  <Typography
+                    color="inherit"
+                    align="center"
+                    data-cy="build-tooltip-title"
+                  >
+                    Build
+                  </Typography>
+                  <p style={{ textAlign: "center" }}>
+                    Build every time you change an answer so it is correct and
+                    build after you add a batch of questions.
+                  </p>
+                </React.Fragment>
+              }
+              PopperProps={{
+                style: { maxWidth: 250, textAlign: "right" },
+              }}
             >
-              Build Mentor
-            </Fab>
-            <Fab
-              data-cy="preview-button"
-              variant="extended"
-              color="secondary"
-              onClick={() => launchMentor(mentorId, true)}
-              className={classes.fab}
+              <Fab
+                data-cy="train-button"
+                variant="extended"
+                color="primary"
+                disabled={
+                  !mentorId ||
+                  isTraining ||
+                  mentorLoading ||
+                  reviewAnswerState.isSaving
+                }
+                onClick={startTrainingMentor}
+                className={classes.fab}
+                onMouseEnter={() => {
+                  hasSeenTooltips && setBuildTooltipOpen(true);
+                }}
+                onMouseLeave={() => {
+                  hasSeenTooltips && setBuildTooltipOpen(false);
+                }}
+              >
+                Build Mentor
+              </Fab>
+            </ColorTooltip>
+
+            <ColorTooltip
+              data-cy="preview-tooltip"
+              interactive={true}
+              open={
+                hasSeenTooltips
+                  ? previewTooltipOpen
+                  : idxTooltip == TooltipStep.PREVIEW
+              }
+              onClose={closePreviewTooltip}
+              enterDelay={1500}
+              disableHoverListener
+              arrow
+              title={
+                <React.Fragment>
+                  <IconButton
+                    data-cy="preview-tooltip-close-btn"
+                    color="inherit"
+                    size="small"
+                    text-align="right"
+                    align-content="right"
+                    onClick={closePreviewTooltip}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                  <Typography
+                    color="inherit"
+                    align="center"
+                    data-cy="preview-tooltip-title"
+                  >
+                    Preview
+                  </Typography>
+                  <p style={{ textAlign: "center" }}>
+                    Preview the mentor to ask it questions and see how it
+                    responds. You can improve it later using the User Feedback,
+                    in the upper-left menu.
+                  </p>
+                </React.Fragment>
+              }
+              PopperProps={{
+                style: { maxWidth: 250, textAlign: "right" },
+              }}
             >
-              Preview Mentor
-            </Fab>
+              <Fab
+                data-cy="preview-button"
+                variant="extended"
+                color="secondary"
+                onClick={() => launchMentor(mentorId, true)}
+                className={classes.fab}
+                onMouseEnter={() => {
+                  hasSeenTooltips && setPreviewTooltipOpen(true);
+                }}
+                onMouseLeave={() => {
+                  hasSeenTooltips && setPreviewTooltipOpen(false);
+                }}
+              >
+                Preview Mentor
+              </Fab>
+            </ColorTooltip>
           </div>
         </Toolbar>
       </AppBar>
@@ -391,20 +739,20 @@ function HomePage(props: {
         }}
       />
       <NotificationDialog
-        title={"This page is for setting up your mentor!"}
+        title={
+          "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
+        }
         open={!hasSeenSplash}
         closeDialog={() => {
           setLocalHasSeenSplash(true);
           userSawSplashScreen(props.accessToken);
-          console.log("List of Recommendations");
-          console.log(allRecommendations);
         }}
       />
       <Dialog
         data-cy="setup-dialog"
         maxWidth="sm"
         fullWidth={true}
-        open={setupStatus && !setupStatus.isSetupComplete && showSetupAlert}
+        open={!setupStatus?.isSetupComplete && showSetupAlert}
         onClose={() => setShowSetupAlert(false)}
       >
         <DialogTitle data-cy="setup-dialog-title">Finish Setup?</DialogTitle>

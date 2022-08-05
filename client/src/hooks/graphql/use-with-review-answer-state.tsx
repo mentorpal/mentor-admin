@@ -7,9 +7,13 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import { v4 as uuid } from "uuid";
-import { isValidObjectId } from "mongoose";
-import { addOrUpdateSubjectQuestions } from "api";
-import { urlBuild, copyAndSet } from "helpers";
+import { addOrUpdateSubjectQuestions, isValidObjectID } from "api";
+import {
+  urlBuild,
+  copyAndSet,
+  isAnswerComplete,
+  getValueIfKeyExists,
+} from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions, {
   isQuestionsLoading,
@@ -25,6 +29,7 @@ import {
 } from "types";
 import { SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 interface Progress {
   complete: number;
@@ -45,6 +50,7 @@ interface UseWithReviewAnswerState {
   isSaving: boolean;
   unsavedChanges: () => boolean;
   error?: LoadingError;
+  questionsLoading: boolean;
   getBlocks: () => RecordingBlock[];
   getAnswers: () => Answer[];
   getQuestions: () => QuestionEdits[];
@@ -79,8 +85,9 @@ export function useWithReviewAnswerState(
   const [answers, setAnswers] = useState<Answer[]>();
   const [questions, setQuestions] = useState<QuestionEdits[]>();
   const { getData, isLoading: isMentorLoading, loadMentor } = useActiveMentor();
-
+  const { state: configState } = useWithConfig();
   const mentorId: string = getData((state) => state.data?._id);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -114,27 +121,12 @@ export function useWithReviewAnswerState(
   }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
-    if (!mentorSubjects || !mentorAnswers) {
+    if (!mentorSubjects || !mentorAnswers || !configState.config) {
       return;
     }
-    const _blocks: RecordingBlock[] = [];
+    let _blocks: RecordingBlock[] = [];
     const subject = mentorSubjects?.find((s) => s._id === selectedSubject);
     if (subject) {
-      const uncategorizedQuestions = subject.questions
-        .filter((sq) => !sq.category)
-        .map((sq) => sq.question);
-      const subjectAnswers = mentorAnswers.filter((a) =>
-        subject.questions.map((q) => q.question).includes(a.question)
-      );
-      if (uncategorizedQuestions.length > 0) {
-        _blocks.push({
-          subject: subject._id,
-          category: undefined,
-          name: `${subject.name} (Uncategorized)`,
-          description: subject.description,
-          questions: uncategorizedQuestions,
-        });
-      }
       subject.categories.forEach((c) => {
         const categoryQuestions = subject.questions
           .filter((sq) => sq.category?.id === c.id)
@@ -149,25 +141,35 @@ export function useWithReviewAnswerState(
           });
         }
       });
+      const uncategorizedQuestions = subject.questions
+        .filter((sq) => !sq.category)
+        .map((sq) => sq.question);
+      if (uncategorizedQuestions.length > 0) {
+        _blocks.push({
+          subject: subject._id,
+          category: undefined,
+          name: `${subject.name} ${
+            subject.categories.length > 0 ? "(Uncategorized)" : ""
+          }`,
+          description: subject.description,
+          questions: uncategorizedQuestions,
+        });
+      }
+      const subjectAnswers = mentorAnswers.filter((a) =>
+        subject.questions.map((q) => q.question).includes(a.question)
+      );
       setProgress({
-        complete: subjectAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: subjectAnswers.filter((a) =>
+          isAnswerComplete(
+            a,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+            mentorType
+          )
+        ).length,
         total: subjectAnswers.length,
       });
     } else {
       mentorSubjects.forEach((subject) => {
-        const uncategorizedQuestions = subject.questions
-          .filter((sq) => !sq.category)
-          .map((sq) => sq.question);
-        if (uncategorizedQuestions.length > 0) {
-          _blocks.push({
-            subject: subject._id,
-            category: undefined,
-            name: `${subject.name} (Uncategorized)`,
-            description: subject.description,
-            questions: uncategorizedQuestions,
-          });
-        }
         subject.categories.forEach((c) => {
           const categoryQuestions = subject.questions
             .filter((sq) => sq.category?.id === c.id)
@@ -182,15 +184,52 @@ export function useWithReviewAnswerState(
             });
           }
         });
+        const uncategorizedQuestions = subject.questions
+          .filter((sq) => !sq.category)
+          .map((sq) => sq.question);
+        if (uncategorizedQuestions.length > 0) {
+          _blocks.push({
+            subject: subject._id,
+            category: undefined,
+            name: `${subject.name} ${
+              subject.categories.length > 0 ? "(Uncategorized)" : ""
+            }`,
+            description: subject.description,
+            questions: uncategorizedQuestions,
+          });
+        }
       });
+      // Sort blocks by config priority
+      const subjectPriority = configState.config.subjectRecordPriority;
+      const prioritizedBlocks = _blocks.filter((block) =>
+        subjectPriority.find((subj) => subj === block.subject)
+      );
+      const unprioritizedBlocks = _blocks.filter(
+        (block) =>
+          !prioritizedBlocks.find(
+            (prioBlock) => prioBlock.subject === block.subject
+          )
+      );
+      prioritizedBlocks.sort((a, b) => {
+        return (
+          subjectPriority.indexOf(a.subject) -
+          subjectPriority.indexOf(b.subject)
+        );
+      });
+      _blocks = [...prioritizedBlocks, ...unprioritizedBlocks];
       setProgress({
-        complete: mentorAnswers.filter((a) => a.status === Status.COMPLETE)
-          .length,
+        complete: mentorAnswers.filter((a) =>
+          isAnswerComplete(
+            a,
+            getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+            mentorType
+          )
+        ).length,
         total: mentorAnswers.length,
       });
     }
     setBlocks(_blocks);
-  }, [mentorSubjects, mentorAnswers, selectedSubject]);
+  }, [mentorSubjects, mentorAnswers, selectedSubject, configState]);
 
   function clearError() {
     setError(undefined);
@@ -250,7 +289,7 @@ export function useWithReviewAnswerState(
       hasEditedTranscript: false,
       transcript: "",
       markdownTranscript: "",
-      status: Status.INCOMPLETE,
+      status: Status.NONE,
       media: undefined,
       hasUntransferredMedia: false,
     };
@@ -390,7 +429,7 @@ export function useWithReviewAnswerState(
       ?.filter(
         (q) =>
           q.originalQuestion.question !== q.newQuestionText &&
-          isValidObjectId(q.originalQuestion._id)
+          isValidObjectID(q.originalQuestion._id)
       )
       .map((q) => q.originalQuestion._id);
     if (qIds) {
@@ -403,6 +442,7 @@ export function useWithReviewAnswerState(
     selectedSubject,
     isSaving,
     error,
+    questionsLoading,
     unsavedChanges,
     getBlocks,
     getAnswers,
