@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Card,
@@ -24,14 +24,27 @@ import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
+import { Answer } from "types";
+import useQuestions from "store/slices/questions/useQuestions";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { QuestionState } from "store/slices/questions";
 
-export default function QueueBlock(props: {
+export default function RecordQueueBlock(props: {
   classes: Record<string, string>;
-  queueIDList: string[];
-  queuedQuestions: string[];
+  accessToken: string;
+  recordQueue: string[];
 }): JSX.Element {
+  const { recordQueue } = props;
+  const { getData } = useActiveMentor();
+  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    mentorAnswers?.map((a) => a.question)
+  );
+
   const [isExpanded, setExpanded] = React.useState(false);
-  const { classes, queueIDList, queuedQuestions } = props;
+  const [recordQueueTexts, setRecordQueueTexts] = React.useState<string[]>([]);
+  const { classes } = props;
 
   function onRecordOne(questionId: string) {
     navigate(
@@ -42,20 +55,37 @@ export default function QueueBlock(props: {
     );
   }
 
-  function onRecordAll(queueIDList: string[]) {
+  function onRecordAll(recordQueue: string[]) {
     let link = "/record?";
-    for (let i = 0; i < queueIDList.length; i++) {
-      link += "videoId=" + queueIDList[i];
-      if (i != queueIDList.length - 1) {
+    for (let i = 0; i < recordQueue.length; i++) {
+      link += "videoId=" + recordQueue[i];
+      if (i != recordQueue.length - 1) {
         link += "&";
       }
     }
     navigate(link);
   }
 
+  function getQueueQuestions(
+    queueIDList: string[],
+    mentorQuestions: Record<string, QuestionState>
+  ) {
+    return queueIDList.map(
+      (id) => mentorQuestions[id]?.question?.question || ""
+    );
+  }
+
+  useEffect(() => {
+    if (!mentorQuestions) {
+      return;
+    }
+    setRecordQueueTexts(getQueueQuestions(recordQueue, mentorQuestions));
+  }, [recordQueue, mentorQuestions]);
+
   return (
     <Paper className={classes.paper}>
       <div
+        data-cy="queue-block"
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
       >
         <Typography data-cy="block-name" variant="h6" className={classes.title}>
@@ -88,14 +118,14 @@ export default function QueueBlock(props: {
                   variant="h6"
                   style={{ padding: 15 }}
                 >
-                  Queued ({queuedQuestions.length})
+                  Queued ({recordQueueTexts.length})
                 </Typography>
                 <CardActions>
                   <Button
                     data-cy="record-all-queue"
                     variant="outlined"
-                    onClick={() => onRecordAll(queueIDList)}
-                    disabled={!queuedQuestions.length}
+                    onClick={() => onRecordAll(recordQueue)}
+                    disabled={!recordQueueTexts.length}
                   >
                     Record All
                   </Button>
@@ -108,7 +138,7 @@ export default function QueueBlock(props: {
                 style={{ paddingLeft: 15, paddingTop: 10 }}
               >
                 <List data-cy="queue-list" style={{ border: 1 }}>
-                  {queuedQuestions.map((qu, i) => {
+                  {recordQueueTexts.map((qu, i) => {
                     return (
                       <ListItem
                         data-cy={`question-${i}`}
@@ -125,7 +155,7 @@ export default function QueueBlock(props: {
                               data-cy={`record-one-${i}`}
                               variant="outlined"
                               endIcon={<PlayArrowIcon />}
-                              onClick={() => onRecordOne(queueIDList[i])}
+                              onClick={() => onRecordOne(recordQueue[i])}
                             >
                               Record
                             </Button>

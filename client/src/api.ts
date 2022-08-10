@@ -791,9 +791,9 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string,
-  questionId: string,
-  mentorId: string
+  answerId?: string,
+  questionId?: string,
+  mentorId?: string
 ): Promise<void> {
   // if an answerId exists, then only send that over, else send question and mentorid
   const variables = {
