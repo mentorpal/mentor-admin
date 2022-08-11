@@ -281,7 +281,6 @@ describe("Setup", () => {
       ...baseMock,
       mentor: { ...setup0, title: "" },
       gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
     });
@@ -679,8 +678,6 @@ describe("Setup", () => {
       ],
       subject: repeatAfterMe,
       gqlQueries: [
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {

@@ -200,7 +200,12 @@ function FeedbackItem(props: {
   };
 
   return (
-    <TableRow hover role="checkbox" tabIndex={-1}>
+    <TableRow
+      hover
+      role="checkbox"
+      tabIndex={-1}
+      data-cy={`row-${feedback._id}`}
+    >
       <TableCell data-cy="grade" align="center">
         {feedback.feedback === Feedback.BAD ? (
           <ThumbDownIcon style={{ color: "red" }} />
@@ -297,7 +302,7 @@ function FeedbackItem(props: {
           placement="top-start"
           title={feedback.graderAnswer?.transcript || ""}
         >
-          <Typography variant="body2">
+          <Typography variant="body2" data-cy="grader-answer-question-text">
             {(feedback.graderAnswer &&
               getValueIfKeyExists(
                 feedback.graderAnswer.question,

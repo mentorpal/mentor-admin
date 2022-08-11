@@ -83,7 +83,6 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
       if (!answer) {
         return true;
       }
-      console.log(isAnswerComplete(answer, undefined, mentorType));
       return !isAnswerComplete(answer, undefined, mentorType);
     });
     setRecordQueueGQL(accessToken, newQueueIdList);
