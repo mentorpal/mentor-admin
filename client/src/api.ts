@@ -802,7 +802,7 @@ export async function updateUserQuestion(
     ...(questionId && !answerId ? { question: questionId } : {}),
     ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
   };
-  execGql<UserQuestion>(
+  await execGql<UserQuestion>(
     {
       query: `
       mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
