@@ -51,7 +51,7 @@ export class PriorityQueue<T> {
   }
 
   //returns the queue
-  public getQueue(): WeightedObj<T>[] {
-    return this.priorityQueue;
+  public getQueue(): T[] {
+    return this.priorityQueue.map((weightedObj) => weightedObj.obj);
   }
 }

@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { PriorityQueue, WeightedObj } from "./priorityQueue";
+import { PriorityQueue } from "./priorityQueue";
 
 /*****************
 RECOMMENDER CLASS
@@ -13,49 +13,22 @@ RECOMMENDER CLASS
 export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
-  activePhase: Phase<IRecommender>;
-  orderedRecs: PriorityQueue<Recommendation>;
 
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     this.recState = recState;
     this.phases = phases;
-    this.activePhase = this.phases[0];
-    this.orderedRecs = new PriorityQueue();
   }
 
+  /**
+   * @returns list of recommendations in weighted order from first active phase + production rule
+   */
   public getRecommendations(): Recommendation[] {
     for (let i = 0; i < this.phases.length; i++) {
       if (this.phases[i].isActive(this.recState)) {
-        this.activePhase = this.phases[i];
         return this.phases[i].getRecommendations(this.recState);
       }
     }
     return [];
-  }
-
-  public getCalculatedRecs(): WeightedObj<Recommendation>[] {
-    //array of recommendations from the production rules
-    const allRec = this.getRecommendations();
-    const phaseWeights = this.activePhase.getPhaseWeights();
-
-    //for each recommendation
-    for (let x = 0; x < allRec.length; x++) {
-      //get all the attributes of a single recommendation
-      const individualRec = allRec[x].getScoredAttributes();
-      let finalWeight = 0;
-
-      //iterate through all the attributes of a single recommendation and calculate score
-      for (const key in individualRec) {
-        const initialValue = individualRec[key];
-        const phaseValue = phaseWeights[key];
-        finalWeight += initialValue * phaseValue;
-      }
-
-      //pass in the final weight as well as the recommendation into the priority queue
-      this.orderedRecs.enqueue(allRec[x], finalWeight);
-    }
-
-    return this.orderedRecs.getQueue();
   }
 }
 
@@ -64,71 +37,80 @@ PHASE CLASS
 ***********/
 export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
-  activeCondition: (recState: IRecommender) => boolean;
   phaseWeightedAttributes: Record<string, number>;
-  allRecs: Recommendation[];
 
+  /**
+   * @param productionRules list of production rules that this phase will hold onto
+   * @param phaseWeightedAttributes a record of weights for all possible attributes in this phase, used to perform dot product with recommendations attribute weights to get a recommendations weight
+   */
   constructor(
-    activeCondition: (recState: IRecommender) => boolean,
     productionRules: ProductionRule<IRecommender>[],
     phaseWeightedAttributes: Record<string, number>
   ) {
     this.productionRules = productionRules;
-    this.activeCondition = activeCondition;
     this.phaseWeightedAttributes = phaseWeightedAttributes;
-    this.allRecs = [];
   }
 
   public isActive(recState: IRecommender): boolean {
     // Return true if any production rules are active
     for (let x = 0; x < this.productionRules.length; x++) {
-      if (
-        this.activeCondition(recState) === true &&
-        this.productionRules[x].isActive(recState)
-      ) {
+      if (this.productionRules[x].isActive(recState)) {
         return true;
       }
     }
     return false;
   }
 
+  /**
+   * @param recState the current state of the recommender
+   * @returns list of recommendations in weighted order
+   */
   public getRecommendations(recState: IRecommender): Recommendation[] {
     for (let i = 0; i < this.productionRules.length; i++) {
       if (this.productionRules[i].isActive(recState)) {
-        // adds recommendations from all active production rules into an array
-        for (
-          let x = 0;
-          x < this.productionRules[i].getRecommendations().length;
-          x++
-        ) {
-          this.allRecs.push(this.productionRules[i].getRecommendations()[x]);
-        }
+        const recommendations = this.productionRules[i].getRecommendations();
+        const priorityQueue = new PriorityQueue<Recommendation>();
+        recommendations.forEach((rec) => {
+          const recWeight = this.getRecommendationWeight(
+            rec.getScoredAttributes(),
+            this.phaseWeightedAttributes
+          );
+          priorityQueue.enqueue(rec, recWeight);
+        });
+        return priorityQueue.getQueue();
       }
     }
-    return this.allRecs;
+    return [];
   }
 
-  public getPhaseWeights(): Record<string, number> {
-    return this.phaseWeightedAttributes;
+  public getRecommendationWeight(
+    recWeights: Record<string, number>,
+    phaseWeights: Record<string, number>
+  ): number {
+    let totalWeight = 0;
+    // Dot products all the keys together
+    Object.keys(phaseWeights).forEach((key) => {
+      const recWeight = key in recWeights ? recWeights[key] : 0;
+      const phaseWeight = phaseWeights[key];
+      totalWeight += phaseWeight * recWeight;
+    });
+    return totalWeight;
   }
 }
 
 /*********************
-PRODUCTION RULES CLASS
+Production Rule
 *********************/
 export class ProductionRule<IRecommender> {
   activeCondition: (recState: IRecommender) => boolean;
   actionRecommendations: Recommendation[];
-  completedQuestions?: number;
 
   constructor(
     activeCondition: (recState: IRecommender) => boolean,
-    actionRecommendations: Recommendation[],
-    completedQuestions?: number
+    actionRecommendations: Recommendation[]
   ) {
     this.activeCondition = activeCondition;
     this.actionRecommendations = actionRecommendations;
-    this.completedQuestions = completedQuestions;
   }
 
   public isActive(recState: IRecommender): boolean {
