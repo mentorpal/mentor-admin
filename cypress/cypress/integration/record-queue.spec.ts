@@ -173,6 +173,163 @@ describe("Feedback Page add/remove from record queue", () => {
         );
       });
     });
+    it("Adding a new user question to queue opens modal", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        gqlQueries: [
+          mockGQL("UserQuestions", userQuestions),
+          mockGQL("ImportTask", { importTask: null }),
+          mockGQL("FetchMentorRecordQueue", {
+            me: {
+              fetchMentorRecordQueue: [],
+            },
+          }),
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: { subjectAddOrUpdateQuestions: {} },
+          }),
+          mockGQL("AddQuestionToRecordQueue", {
+            me: {
+              addQuestionToRecordQueue: [],
+            },
+          }),
+          mockGQL("RemoveQuestionFromRecordQueue", {
+            me: {
+              removeQuestionFromRecordQueue: [],
+            },
+          }),
+        ],
+      });
+      cy.visit("/feedback");
+      cy.get("[data-cy=user-question-queue-btn]").click();
+      cy.get("[data-cy=create-question-modal]").should("be.visible");
+
+      cy.get("[data-cy=subject-drop-down]").click();
+      cy.get("[data-cy=Subject-option-background]").should("be.visible");
+      cy.get("[data-cy=Subject-option-idle_and_initial_recordings]").should(
+        "be.visible"
+      );
+      cy.get("[data-cy=Subject-option-background]").click();
+
+      cy.get("[data-cy=category-drop-down]").click();
+      cy.get("[data-cy=Category-option-category1]").should("be.visible");
+      cy.get("[data-cy=Category-option-category3]").should("be.visible");
+      cy.get("[data-cy=Category-option-category1]").click();
+
+      cy.get("[data-cy=topic-selector]").click();
+      cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
+      cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
+    });
+
+    it("Can create and adds new custom question, visible on queue card", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [
+          clint,
+          {
+            ...clint,
+            answers: [
+              ...clint.answers,
+              {
+                _id: "A1_1_2",
+                question: {
+                  _id: "A1_1_2",
+                  question: "hey",
+                  type: QuestionType.QUESTION,
+                  name: clint._id,
+                  clientId: "",
+                  paraphrases: [],
+                },
+                transcript: "",
+                status: Status.INCOMPLETE,
+              },
+            ],
+          },
+        ],
+        questions: [
+          questions,
+          [
+            ...questions,
+            {
+              _id: "A1_1_2",
+              question: "hey",
+              type: QuestionType.QUESTION,
+              name: clint._id,
+              clientId: "",
+              paraphrases: [],
+            },
+          ],
+        ],
+        gqlQueries: [
+          mockGQL("UserQuestions", userQuestions),
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: {
+              subjectAddOrUpdateQuestions: [
+                "background",
+                {
+                  question: [
+                    "A1_1_2",
+                    "hey",
+                    "QUESTION",
+                    "",
+                    clint._id,
+                    [],
+                    clint._id,
+                  ],
+                  topics: [],
+                  category: "category",
+                },
+              ],
+            },
+          }),
+          mockGQL("SubjectAddOrUpdateQuestions", {
+            me: {
+              subjectAddOrUpdateQuestions: [
+                {
+                  question: "ID",
+                  topics: [],
+                },
+              ],
+            },
+          }),
+          mockGQL("AddQuestionToRecordQueue", {
+            me: {
+              addQuestionToRecordQueue: [],
+              category: "category1",
+              topics: ["back-topic2-id"],
+            },
+          }),
+          mockGQL("FetchMentorRecordQueue", [
+            {
+              me: {
+                fetchMentorRecordQueue: [],
+              },
+            },
+            {
+              me: {
+                fetchMentorRecordQueue: ["A1_1_2"],
+              },
+            },
+          ]),
+          mockGQL("UserQuestionSetAnswer", {}),
+        ],
+      });
+      cy.visit("/feedback");
+      cy.get("[data-cy=user-question-queue-btn]").click();
+      cy.get("[data-cy=subject-drop-down]").click();
+      cy.get("[data-cy=Subject-option-background]").click();
+      cy.get("[data-cy=category-drop-down]").click();
+      cy.get("[data-cy=Category-option-category]").click();
+      cy.get("[data-cy=modal-OK-btn]").click();
+      cy.visit("/");
+      cy.location("pathname").then(($el) => {
+        assert($el.replace("/admin", ""), "/");
+      });
+      cy.get("[data-cy=setup-no]").click();
+      cy.get("[data-cy=queue-block]").should("exist");
+      cy.get("[data-cy=queue-expand-btn]").click();
+      cy.contains("hey");
+    });
   });
 
   describe("grader answer queue button", () => {
@@ -247,164 +404,6 @@ describe("Feedback Page add/remove from record queue", () => {
           .should("contain.text", "Remove from queue");
       });
     });
-  });
-
-  it("Adding a new user question to queue opens modal", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor,
-      gqlQueries: [
-        mockGQL("UserQuestions", userQuestions),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchMentorRecordQueue", {
-          me: {
-            fetchMentorRecordQueue: [],
-          },
-        }),
-        mockGQL("SubjectAddOrUpdateQuestions", {
-          me: { subjectAddOrUpdateQuestions: {} },
-        }),
-        mockGQL("AddQuestionToRecordQueue", {
-          me: {
-            addQuestionToRecordQueue: [],
-          },
-        }),
-        mockGQL("RemoveQuestionFromRecordQueue", {
-          me: {
-            removeQuestionFromRecordQueue: [],
-          },
-        }),
-      ],
-    });
-    cy.visit("/feedback");
-    cy.get("[data-cy=user-question-queue-btn]").click();
-    cy.get("[data-cy=create-question-modal]").should("be.visible");
-
-    cy.get("[data-cy=subject-drop-down]").click();
-    cy.get("[data-cy=Subject-option-background]").should("be.visible");
-    cy.get("[data-cy=Subject-option-idle_and_initial_recordings]").should(
-      "be.visible"
-    );
-    cy.get("[data-cy=Subject-option-background]").click();
-
-    cy.get("[data-cy=category-drop-down]").click();
-    cy.get("[data-cy=Category-option-category1]").should("be.visible");
-    cy.get("[data-cy=Category-option-category3]").should("be.visible");
-    cy.get("[data-cy=Category-option-category1]").click();
-
-    cy.get("[data-cy=topic-selector]").click();
-    cy.get("[data-cy=Topic-option-back-topic1-id]").should("be.visible");
-    cy.get("[data-cy=Topic-option-back-topic2-id]").should("be.visible");
-  });
-
-  it("Can create and adds new custom question, visible on queue card", () => {
-    cySetup(cy);
-    cyMockDefault(cy, {
-      mentor: [
-        clint,
-        {
-          ...clint,
-          answers: [
-            ...clint.answers,
-            {
-              _id: "A1_1_2",
-              question: {
-                _id: "A1_1_2",
-                question: "hey",
-                type: QuestionType.QUESTION,
-                name: clint._id,
-                clientId: "",
-                paraphrases: [],
-              },
-              transcript: "",
-              status: Status.INCOMPLETE,
-            },
-          ],
-        },
-      ],
-      questions: [
-        questions,
-        [
-          ...questions,
-          {
-            _id: "A1_1_2",
-            question: "hey",
-            type: QuestionType.QUESTION,
-            name: clint._id,
-            clientId: "",
-            paraphrases: [],
-          },
-        ],
-      ],
-      gqlQueries: [
-        mockGQL("UserQuestions", userQuestions),
-        mockGQL("SubjectAddOrUpdateQuestions", {
-          me: {
-            subjectAddOrUpdateQuestions: [
-              "background",
-              {
-                question: [
-                  "A1_1_2",
-                  "hey",
-                  "QUESTION",
-                  "",
-                  clint._id,
-                  [],
-                  clint._id,
-                ],
-                topics: [],
-                category: "category",
-              },
-            ],
-          },
-        }),
-        mockGQL("SubjectAddOrUpdateQuestions", {
-          me: {
-            subjectAddOrUpdateQuestions: [
-              {
-                question: "ID",
-                topics: [],
-              },
-            ],
-          },
-        }),
-        mockGQL("AddQuestionToRecordQueue", {
-          me: {
-            addQuestionToRecordQueue: [],
-            category: "category1",
-            topics: ["back-topic2-id"],
-          },
-        }),
-        mockGQL("FetchMentorRecordQueue", [
-          {
-            me: {
-              fetchMentorRecordQueue: [],
-            },
-          },
-          {
-            me: {
-              fetchMentorRecordQueue: ["A1_1_2"],
-            },
-          },
-        ]),
-        mockGQL("UserQuestionSetAnswer", {}),
-      ],
-    });
-    cy.visit("/feedback");
-    cy.get("[data-cy=user-question-queue-btn]").click();
-    cy.get("[data-cy=subject-drop-down]").click();
-    cy.get("[data-cy=Subject-option-background]").click();
-    cy.get("[data-cy=category-drop-down]").click();
-    cy.get("[data-cy=Category-option-category]").click();
-    cy.get("[data-cy=modal-OK-btn]").click();
-    cy.visit("/");
-    cy.location("pathname").then(($el) => {
-      assert($el.replace("/admin", ""), "/");
-    });
-    cy.get("[data-cy=setup-no]").click();
-    cy.get("[data-cy=queue-block]").should("exist");
-    cy.get("[data-cy=queue-expand-btn]").click();
-    cy.contains("hey");
   });
 });
 

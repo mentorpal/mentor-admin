@@ -117,8 +117,22 @@ function FeedbackItem(props: {
   }
 
   const userQuestionButton = () => {
+    const mentorQuestionsInQueue = queueList.reduce(
+      (acc: Record<string, QuestionState>, cur: string) => {
+        if (cur in mentorQuestions) {
+          acc[cur] = mentorQuestions[cur];
+        }
+        return acc;
+      },
+      {}
+    );
     const questionDocId =
       feedbackQuestionDocId ||
+      // First check mentorQuestions that are in queue
+      Object.values(mentorQuestionsInQueue).find(
+        (question) => question.question?.question === feedback.question
+      )?.question?._id ||
+      // Then check all mentorQuestions
       Object.values(mentorQuestions).find(
         (question) => question.question?.question === feedback.question
       )?.question?._id;

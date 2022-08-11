@@ -130,6 +130,7 @@ function FeedbackPage(): JSX.Element {
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
 
   const mentorQuestions = useQuestions(
     (state) => state.questions,
@@ -177,6 +178,38 @@ function FeedbackPage(): JSX.Element {
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
+
+  useEffect(() => {
+    if (!feedback || !mentor) {
+      return;
+    }
+    const feedbackEdges = feedback.edges.filter((edge) => Boolean(edge.node));
+    const feedbackItems = feedbackEdges.map((row, i) => (
+      <FeedbackItem
+        accessToken={loginState.accessToken}
+        mentorType={mentorType}
+        mentorAnswers={mentorAnswers || []}
+        mentorQuestions={mentorQuestions}
+        mentor={mentor}
+        queueList={queueList}
+        key={`feedback-${i}`}
+        data-cy={`feedback-${i}`}
+        feedback={row.node}
+        onUpdated={reloadFeedback}
+        addQuestionToQueue={addQuestionToQueue}
+        removeQuestionFromQueue={removeQuestionFromQueue}
+      />
+    ));
+    setFeedbackItems(feedbackItems);
+  }, [
+    feedback,
+    loginState.accessToken,
+    mentorType,
+    mentorAnswers,
+    mentorQuestions,
+    mentor,
+    queueList,
+  ]);
 
   const initialDisplayReady =
     mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
@@ -357,24 +390,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell />
                 </TableRow>
               </TableHead>
-              <TableBody data-cy="feedbacks">
-                {feedback?.edges.map((row, i) => (
-                  <FeedbackItem
-                    accessToken={loginState.accessToken}
-                    mentorType={mentorType}
-                    mentorAnswers={mentorAnswers || []}
-                    mentorQuestions={mentorQuestions}
-                    mentor={mentor}
-                    queueList={queueList}
-                    key={`feedback-${i}`}
-                    data-cy={`feedback-${i}`}
-                    feedback={row.node}
-                    onUpdated={reloadFeedback}
-                    addQuestionToQueue={addQuestionToQueue}
-                    removeQuestionFromQueue={removeQuestionFromQueue}
-                  />
-                ))}
-              </TableBody>
+              <TableBody data-cy="feedbacks">{feedbackItems}</TableBody>
             </Table>
           </TableContainer>
         </Paper>
