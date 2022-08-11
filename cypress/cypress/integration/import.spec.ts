@@ -425,7 +425,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             ...importPreview,
           },
         }),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/importexport");
@@ -461,7 +460,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             ...importPreview,
           },
         }),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/importexport");
@@ -496,7 +494,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             ...importPreview,
           },
         }),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/importexport");
@@ -545,7 +542,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             ...importPreview,
           },
         }),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/importexport");
@@ -608,7 +604,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             ...importPreview,
           },
         }),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/importexport");

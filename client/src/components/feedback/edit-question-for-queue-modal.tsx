@@ -18,7 +18,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Category,
   Mentor,
@@ -31,7 +31,7 @@ import {
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
+import { addOrUpdateSubjectQuestions } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
@@ -68,12 +68,22 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function EditQuestionForQueueModal(props: {
   handleClose: () => void;
+  addQuestionToQueue: (questionId: string) => void;
+  setFeedbackQuestionDocId: (questionId: string) => void;
   open: boolean;
   mentor: Mentor;
   userQuestion: string;
   accessToken: string;
 }): JSX.Element {
-  const { handleClose, open, userQuestion, mentor, accessToken } = props;
+  const {
+    handleClose,
+    open,
+    userQuestion,
+    mentor,
+    accessToken,
+    addQuestionToQueue,
+    setFeedbackQuestionDocId,
+  } = props;
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
@@ -108,13 +118,18 @@ function EditQuestionForQueueModal(props: {
       accessToken
     );
     const newQuestionId = subjectQuestionsReturned[0].question;
+    setFeedbackQuestionDocId(newQuestionId);
     // add to record queue
-    addQuestionToRecordQueue(accessToken, newQuestionId);
+    addQuestionToQueue(newQuestionId);
     await loadQuestions([newQuestionId]);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
   }
+
+  useEffect(() => {
+    setCustomQuestion(userQuestion);
+  }, [userQuestion]);
 
   return (
     <div>
@@ -253,7 +268,10 @@ function EditQuestionForQueueModal(props: {
                   ) : undefined}
                 </Grid>
                 <Button
-                  onClick={handleClose}
+                  onClick={() => {
+                    setCustomQuestion(userQuestion);
+                    handleClose();
+                  }}
                   data-cy="modal-close-btn"
                   variant="contained"
                   color="primary"

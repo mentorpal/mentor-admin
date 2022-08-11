@@ -125,9 +125,6 @@ describe("generating followups", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
         mockGQL("FetchUploadTasks", []),
         mockGQL("Subject", [{ subject: [] }]),
@@ -201,9 +198,6 @@ describe("generating followups", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
         mockGQL("FetchUploadTasks", []),
         mockGQL("Subject", [{ subject: [] }]),
@@ -280,9 +274,6 @@ describe("generating followups", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
         mockGQL("FetchUploadTasks", []),
         mockGQL("Subject", [{ subject: [] }]),
