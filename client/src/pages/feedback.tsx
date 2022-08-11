@@ -41,8 +41,8 @@ import {
 } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import FeedbackItem from "./feedback-item";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
+import FeedbackItem from "components/feedback/feedback-item";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -186,6 +186,7 @@ function FeedbackPage(): JSX.Element {
     const feedbackEdges = feedback.edges.filter((edge) => Boolean(edge.node));
     const feedbackItems = feedbackEdges.map((row, i) => (
       <FeedbackItem
+        feedback={row.node}
         accessToken={loginState.accessToken}
         mentorType={mentorType}
         mentorAnswers={mentorAnswers || []}
@@ -194,7 +195,6 @@ function FeedbackPage(): JSX.Element {
         queueList={queueList}
         key={`feedback-${i}`}
         data-cy={`feedback-${i}`}
-        feedback={row.node}
         onUpdated={reloadFeedback}
         addQuestionToQueue={addQuestionToQueue}
         removeQuestionFromQueue={removeQuestionFromQueue}

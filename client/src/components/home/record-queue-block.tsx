@@ -22,6 +22,7 @@ import {
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import CloseIcon from "@material-ui/icons/Close";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
 import { Answer } from "types";
@@ -33,8 +34,9 @@ export default function RecordQueueBlock(props: {
   classes: Record<string, string>;
   accessToken: string;
   recordQueue: string[];
+  removeFromQueue: (questionId: string) => void;
 }): JSX.Element {
-  const { recordQueue } = props;
+  const { recordQueue, removeFromQueue } = props;
   const { getData } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -138,16 +140,27 @@ export default function RecordQueueBlock(props: {
                 style={{ paddingLeft: 15, paddingTop: 10 }}
               >
                 <List data-cy="queue-list" style={{ border: 1 }}>
-                  {recordQueueTexts.map((qu, i) => {
+                  {recordQueueTexts.map((questionText, i) => {
                     return (
                       <ListItem
                         data-cy={`question-${i}`}
-                        key={`item-${i}-${qu}`}
+                        key={`item-${i}-${questionText}`}
                         style={{ backgroundColor: "#eee" }}
                       >
                         <div>
                           <ListItemText
-                            primary={qu}
+                            primary={
+                              <>
+                                <Button
+                                  onClick={() => {
+                                    removeFromQueue(recordQueue[i]);
+                                  }}
+                                >
+                                  <CloseIcon />
+                                </Button>
+                                {questionText}
+                              </>
+                            }
                             style={{ marginRight: 100 }}
                           />
                           <ListItemSecondaryAction>

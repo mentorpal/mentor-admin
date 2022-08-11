@@ -161,7 +161,9 @@ function HomePage(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
-  const { recordQueue } = useWithRecordQueue(props.accessToken);
+  const { recordQueue, removeQuestionFromQueue } = useWithRecordQueue(
+    props.accessToken
+  );
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
   const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
@@ -468,6 +470,7 @@ function HomePage(props: {
             classes={classes}
             accessToken={props.accessToken}
             recordQueue={recordQueue}
+            removeFromQueue={removeQuestionFromQueue}
           />
         </ListItem>
       ) : undefined}
