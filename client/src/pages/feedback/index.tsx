@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Fab,
@@ -27,8 +27,6 @@ import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { Autocomplete } from "@material-ui/lab";
 
-//IMPORT FUNCTIONS
-import { fetchMentorRecordQueue } from "api";
 import { Answer, ClassifierAnswerType, Feedback } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
@@ -163,7 +161,6 @@ function FeedbackPage(): JSX.Element {
     removeQuestionFromQueue,
     addQuestionToQueue,
   } = useWithRecordQueue(loginState.accessToken || "");
-  console.log(queueList);
   useEffect(() => {
     if (mentorId) {
       if (!isFeedbackLoading) {
@@ -363,16 +360,16 @@ function FeedbackPage(): JSX.Element {
               <TableBody data-cy="feedbacks">
                 {feedback?.edges.map((row, i) => (
                   <FeedbackItem
-                    key={`feedback-${i}`}
                     accessToken={loginState.accessToken}
-                    data-cy={`feedback-${i}`}
-                    feedback={row.node}
                     mentorType={mentorType}
                     mentorAnswers={mentorAnswers || []}
                     mentorQuestions={mentorQuestions}
-                    onUpdated={reloadFeedback}
                     mentor={mentor}
                     queueList={queueList}
+                    key={`feedback-${i}`}
+                    data-cy={`feedback-${i}`}
+                    feedback={row.node}
+                    onUpdated={reloadFeedback}
                     addQuestionToQueue={addQuestionToQueue}
                     removeQuestionFromQueue={removeQuestionFromQueue}
                   />

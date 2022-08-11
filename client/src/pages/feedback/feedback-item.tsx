@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   IconButton,
@@ -33,23 +33,6 @@ import {
 import { getValueIfKeyExists, isAnswerComplete } from "helpers";
 import { QuestionState } from "store/slices/questions";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
-import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
-
-/**
- * TODO:
- * Lets move all this into a reducer to help determine the whole state when things change (mostly to help determine which buttons are visible)
- *
- * Button changes:
- *    - make 2 buttons, SMALL "Add to queue" buttons that sit next to userQuestion and selected graderAnswer (if one exists)
- *    - Add to queue button next to userQuestion does not exist if a graderAnswer exists
- *
- * Button Logic:
- *    - if graderAnswer exists and the answer is not complete, add to queue
- *    - if graderAnswer exists and the answer is in queue, remove from queue
- *    - if userQuestion is not in queue and there is a mentorAnswer for userQuestion text, put that answers question in queue
- *    - if userQuestion is not in queue and no mentorAnswer for question text, open custom modal
- *    - if userQuestion is in queue, remove from queue
- */
 
 function FeedbackItem(props: {
   mentor: Mentor;
@@ -76,6 +59,8 @@ function FeedbackItem(props: {
   } = props;
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
+  const [feedbackQuestionDocId, setFeedbackQuestionDocId] =
+    useState<string>("");
 
   // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
@@ -117,6 +102,7 @@ function FeedbackItem(props: {
 
   const handleClose = () => {
     setCustomQuestionModalOpen(false);
+    onUpdated();
   };
 
   // TODO: MOVE THIS TO A HOOK
@@ -131,13 +117,16 @@ function FeedbackItem(props: {
   }
 
   const userQuestionButton = () => {
-    // Left off: Trying to find if a question doc for the question text exists in mentorQuestions, because i was trying to index by question text
-    const questionDoc = mentorQuestions;
+    const questionDocId =
+      feedbackQuestionDocId ||
+      Object.values(mentorQuestions).find(
+        (question) => question.question?.question === feedback.question
+      )?.question?._id;
     const userQuestionAlreadyAnswered = Boolean(
-      questionDoc &&
+      questionDocId &&
         mentorAnswers.find((answer) => {
           return (
-            answer.question === questionDoc.question?._id &&
+            answer.question === questionDocId &&
             isAnswerComplete(answer, undefined, props.mentorType)
           );
         })
@@ -147,12 +136,11 @@ function FeedbackItem(props: {
       feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH ||
       userQuestionAlreadyAnswered
     ) {
-      // or if there is a mentorAnswer with this questionText already answered
       return <></>;
     }
     const questionIsInQueue = Boolean(
-      questionDoc &&
-        queueList.find((questionId) => questionId === questionDoc.question?._id)
+      questionDocId &&
+        queueList.find((questionId) => questionId === questionDocId)
     );
     return (
       <Button
@@ -160,10 +148,10 @@ function FeedbackItem(props: {
         color="primary"
         style={{ fontSize: "12px" }}
         onClick={() => {
-          if (questionIsInQueue && questionDoc?.question?._id) {
-            removeQuestionFromQueue(questionDoc.question._id);
+          if (questionIsInQueue && questionDocId) {
+            removeQuestionFromQueue(questionDocId);
           } else {
-            const questionId = questionDoc?.question?._id;
+            const questionId = questionDocId;
             if (questionId) {
               //if question doc already exists
               addQuestionToQueue(questionId);
@@ -296,6 +284,8 @@ function FeedbackItem(props: {
             {/* {modal} */}
             <EditQuestionForQueueModal
               handleClose={handleClose}
+              addQuestionToQueue={addQuestionToQueue}
+              setFeedbackQuestionDocId={setFeedbackQuestionDocId}
               open={customQuestionModalOpen}
               mentor={mentor}
               userQuestion={feedback.question}
