@@ -167,7 +167,7 @@ export interface UserQuestion {
   mentor: Mentor;
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
-  graderAnswer: Answer;
+  graderAnswer?: Answer;
   updatedAt: string;
   createdAt: string;
 }
