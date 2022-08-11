@@ -319,11 +319,6 @@ function HomePage(props: {
     }
   }
 
-  function closeDialog() {
-    setLocalHasSeenSplash(true);
-    userSawSplashScreen(props.accessToken);
-  }
-
   function closePreviewTooltip() {
     incrementTooltip();
     setLocalHasSeenTooltips(true);
@@ -667,7 +662,10 @@ function HomePage(props: {
           "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
         }
         open={!hasSeenSplash}
-        closeDialog={() => closeDialog()}
+        closeDialog={() => {
+          setLocalHasSeenSplash(true);
+          userSawSplashScreen(props.accessToken);
+        }}
       />
       <Dialog
         data-cy="setup-dialog"
