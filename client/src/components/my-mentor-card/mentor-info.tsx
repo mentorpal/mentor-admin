@@ -4,6 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+import { isAnswerComplete } from "helpers";
 import { Mentor, MentorType } from "types";
 interface Stage {
   name: string;
@@ -130,7 +131,9 @@ function StageSelect(value: number): Stage {
 
 export default function parseMentor(mentor: Mentor): MentorInfo {
   const value =
-    mentor?.answers.filter((a) => a.status === "COMPLETE").length || 0;
+    mentor?.answers.filter((a) =>
+      isAnswerComplete(a, undefined, mentor.mentorType)
+    ).length || 0;
   return {
     mentorId: mentor?._id || "",
     name: mentor?.name || "Unnamed",

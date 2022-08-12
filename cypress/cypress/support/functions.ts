@@ -79,9 +79,17 @@ export interface Config {
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
+  subjectRecordPriority: string[];
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
+  styleHeaderLogo: string;
+  styleHeaderColor: string;
+  styleHeaderTextColor: string;
+  displayGuestPrompt: boolean;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  disclaimerDisabled: boolean;
 }
 
 export const CONFIG_DEFAULT: Config = {
@@ -91,10 +99,18 @@ export const CONFIG_DEFAULT: Config = {
   activeMentors: [],
   googleClientId: "fake-google-client-id",
   urlDocSetup: "",
+  subjectRecordPriority: [],
   urlVideoIdleTips: "",
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "https://classifierendpoint.com/classifier",
   uploadLambdaEndpoint: "https://lambdaendpoint.com/upload",
+  styleHeaderLogo: "",
+  styleHeaderColor: "",
+  styleHeaderTextColor: "",
+  displayGuestPrompt: true,
+  disclaimerTitle: "",
+  disclaimerText: "",
+  disclaimerDisabled: false,
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -237,6 +253,7 @@ export function cyMockDefault(
   }
 
   cyInterceptGraphQL(cy, [
+    ...gqlQueries,
     mockGQLConfig(config),
     mockGQL("Login", { login: args.login || loginDefault }),
     // ...(args.mentor
@@ -249,6 +266,14 @@ export function cyMockDefault(
       ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
     ...gqlQueries,
+    //Defaults
+    mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
+    mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
+    mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
+    mockGQL("ImportTask", { importTask: null }),
+    mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
+    mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
+    mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
   ]);
 }
 

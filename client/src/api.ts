@@ -4,11 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/*
-This software is Copyright ©️ 2020 The University of Southern California. All Rights Reserved. 
-Permission to use, copy, modify, and distribute this software and its documentation for educational, research and non-profit purposes, without fee, and without a written agreement is hereby granted, provided that the above copyright notice and subject to the full license file found in the root of this software deliverable. Permission to make commercial use of this software may be obtained by contacting:  USC Stevens Center for Innovation University of Southern California 1150 S. Olive Street, Suite 2300, Los Angeles, CA 90115, USA Email: accounting@stevens.usc.edu
-The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
-*/
 import axios, {
   CancelTokenSource,
   AxiosResponse,
@@ -73,8 +68,8 @@ function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
 }
 
-function isValidObjectID(id: string) {
-  return id.match(/^[0-9a-fA-F]{24}$/);
+export function isValidObjectID(id: string): boolean {
+  return Boolean(id.match(/^[0-9a-fA-F]{24}$/));
 }
 
 const REQUEST_TIMEOUT_GRAPHQL_DEFAULT = 30000;
@@ -173,7 +168,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (!(res.status >= 200 && res.status <= 299)) {
-    throw new Error(`http request failed: ${res.statusText}`);
+    throw new Error(`http request failed: ${res.data}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
@@ -238,6 +233,15 @@ export async function fetchConfig(): Promise<Config> {
           videoRecorderMaxLength
           classifierLambdaEndpoint
           uploadLambdaEndpoint
+          styleHeaderLogo
+          styleHeaderColor
+          styleHeaderTextColor
+          disclaimerTitle
+          disclaimerText
+          disclaimerDisabled
+          displayGuestPrompt
+          videoRecorderMaxLength
+          subjectRecordPriority
         }
       }
   `,
@@ -536,7 +540,8 @@ export async function updateMyFirstTimeTracking(
       mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
         me{
           firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash
+            myMentorSplash,
+            tooltips,
           }
         }
       }
@@ -786,18 +791,27 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string
+  answerId?: string,
+  questionId?: string,
+  mentorId?: string
 ): Promise<void> {
-  execGql<UserQuestion>(
+  // if an answerId exists, then only send that over, else send question and mentorid
+  const variables = {
+    id: feedbackId,
+    ...(answerId ? { answer: answerId } : {}),
+    ...(questionId && !answerId ? { question: questionId } : {}),
+    ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
+  };
+  await execGql<UserQuestion>(
     {
       query: `
-      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
-        userQuestionSetAnswer(id: $id, answer: $answer) {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
+        userQuestionSetAnswer(id: $id, answer: $answer, question: $question, mentorId: $mentorId) {
           _id
         }
       }
     `,
-      variables: { id: feedbackId, answer: answerId },
+      variables,
     },
     { dataPath: "userQuestionSetAnswer" }
   );
@@ -1170,7 +1184,8 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
               _id
             }
             firstTimeTracking{
-              myMentorSplash
+              myMentorSplash,
+              tooltips,
             }
           }
           accessToken
@@ -1267,6 +1282,85 @@ export async function fetchUploadTasks(
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
   return gql.map((u) => convertUploadTaskGQL(u));
+}
+
+//Fetches the record queue for the mentor that is logged in (using the accessToken to know which mentor to fetch from)
+export async function fetchMentorRecordQueue(
+  accessToken: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        query FetchMentorRecordQueue {
+          me {
+            fetchMentorRecordQueue
+          }
+        }`,
+    },
+    { accessToken, dataPath: ["me", "fetchMentorRecordQueue"] }
+  );
+}
+
+//Returns the new list after the addition
+export async function addQuestionToRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation AddQuestionToRecordQueue($questionId: ID!) {
+          me {
+            addQuestionToRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "addQuestionToRecordQueue"] }
+  );
+}
+
+//Returns the new list after the removal
+export async function removeQuestionFromRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation RemoveQuestionFromRecordQueue($questionId: ID!) {
+          me {
+            removeQuestionFromRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
+  );
+}
+
+export async function setRecordQueueGQL(
+  accessToken: string,
+  questionIds: string[]
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation SetRecordQueue($questionIds: [ID]!) {
+          me {
+            setRecordQueue(questionIds: $questionIds)
+          }
+        }`,
+      variables: {
+        questionIds,
+      },
+    },
+    { accessToken, dataPath: ["me", "setRecordQueue"] }
+  );
 }
 
 export async function deleteUploadTask(
@@ -1797,21 +1891,29 @@ export async function addOrUpdateMentorPanel(
           }
         }
       }`,
-      variables: { id, mentorPanel },
+      variables: {
+        id,
+        mentorPanel: {
+          subject: mentorPanel.subject,
+          mentors: mentorPanel.mentors,
+          title: mentorPanel.title,
+          subtitle: mentorPanel.subtitle,
+        },
+      },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
   );
 }
 
-export async function updateConfigFeatured(
+export async function updateConfig(
   accessToken: string,
   config: Config
 ): Promise<Config> {
   return execGql<Config>(
     {
-      query: `mutation UpdateConfigFeatured($config: ConfigUpdateFeaturedInputType!) {
+      query: `mutation UpdateConfig($config: ConfigUpdateInputType!) {
         me {
-          updateConfigFeatured(config: $config) {
+          updateConfig(config: $config) {
             mentorsDefault
             featuredMentors
             featuredMentorPanels
@@ -1822,11 +1924,34 @@ export async function updateConfigFeatured(
             videoRecorderMaxLength
             classifierLambdaEndpoint
             uploadLambdaEndpoint
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderTextColor
+            disclaimerTitle
+            disclaimerText
+            disclaimerDisabled
+            displayGuestPrompt
+            videoRecorderMaxLength
           }
         }
       }`,
-      variables: { config },
+      variables: {
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          mentorsDefault: config.mentorsDefault,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          disclaimerDisabled: config.disclaimerDisabled,
+          displayGuestPrompt: config.displayGuestPrompt,
+          videoRecorderMaxLength: config.videoRecorderMaxLength,
+        },
+      },
     },
-    { dataPath: ["me", "updateConfigFeatured"], accessToken }
+    { dataPath: ["me", "updateConfig"], accessToken }
   );
 }

@@ -1,11 +1,25 @@
-import { Avatar, Grid, IconButton, Typography } from "@material-ui/core";
-import React from "react";
+import {
+  Avatar,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@material-ui/core";
+import React, { useState } from "react";
 import CreateIcon from "@material-ui/icons/Create";
+import CloseIcon from "@material-ui/icons/Close";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import { makeStyles, Theme } from "@material-ui/core/styles";
+import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
+import { TooltipStep } from "components/home";
+
+const ColorTooltip = withStyles({
+  tooltip: {
+    backgroundColor: "secondary",
+  },
+})(Tooltip);
 
 const useStyles = makeStyles((theme: Theme) => ({
   homeThumbnail: {
@@ -46,6 +60,9 @@ function MentorThumbnail(props: {
   open: boolean;
   thumbnail: string;
   updateThumbnail: (file: File) => void;
+  incrementTooltip: () => void;
+  idxTooltip: number;
+  hasSeenTooltips: boolean;
 }): JSX.Element {
   const {
     handleOpen,
@@ -55,10 +72,14 @@ function MentorThumbnail(props: {
     open,
     thumbnail,
     updateThumbnail,
+    incrementTooltip,
+    idxTooltip,
+    hasSeenTooltips,
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
   const classes = useStyles();
+  const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
 
   if (!mentorId || !editedMentor) {
     return <div />;
@@ -81,6 +102,7 @@ function MentorThumbnail(props: {
           className="mentorName"
         >
           <div style={{ display: "flex" }}>
+            {/* this is the pencil editing icon */}
             <div style={{ margin: "10px 0 0 0" }}>
               <IconButton
                 data-cy="edit-mentor-data"
@@ -92,9 +114,64 @@ function MentorThumbnail(props: {
               >
                 <CreateIcon />
               </IconButton>
-              <b style={{ margin: "0 0 0 12px" }}>{editedMentor.name}</b>
+
+              <ColorTooltip
+                data-cy="profile-tooltip"
+                interactive={true}
+                open={
+                  hasSeenTooltips
+                    ? profileTooltipOpen
+                    : idxTooltip == TooltipStep.PROFILE
+                }
+                onClose={incrementTooltip}
+                disableHoverListener={!hasSeenTooltips}
+                arrow
+                placement="right"
+                enterDelay={1500}
+                title={
+                  <React.Fragment>
+                    <IconButton
+                      data-cy="profile-tooltip-close-btn"
+                      color="inherit"
+                      size="small"
+                      text-align="right"
+                      align-content="right"
+                      onClick={incrementTooltip}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                    <Typography
+                      color="inherit"
+                      align="center"
+                      data-cy="profile-tooltip-title"
+                    >
+                      My Profile
+                    </Typography>
+                    <p style={{ textAlign: "center" }}>
+                      Your profile shows how people will first see you on the
+                      Home page, with your name, picture, and job description.
+                      Try to pick something inviting!
+                    </p>
+                  </React.Fragment>
+                }
+                PopperProps={{
+                  style: { maxWidth: 250, textAlign: "right" },
+                }}
+              >
+                <b
+                  style={{ margin: "0 0 0 12px" }}
+                  onMouseEnter={() => {
+                    hasSeenTooltips && setProfileTooltipOpen(true);
+                  }}
+                  onMouseLeave={() => {
+                    hasSeenTooltips && setProfileTooltipOpen(false);
+                  }}
+                >
+                  {editedMentor.name}
+                </b>
+              </ColorTooltip>
             </div>
-            {/* {modal} */}
+
             <EditMentorInfoModal
               handleClose={handleClose}
               editMentor={editMentor}

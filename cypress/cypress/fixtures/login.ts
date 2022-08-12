@@ -14,6 +14,7 @@ export const login: UserAccessToken = {
     userRole: UserRole.USER,
     firstTimeTracking: {
       myMentorSplash: true,
+      tooltips: true,
     },
     defaultMentor: {
       _id: "clintanderson",

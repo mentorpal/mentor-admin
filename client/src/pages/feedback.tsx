@@ -20,25 +20,14 @@ import {
   TableRow,
   TextField,
   Toolbar,
-  Tooltip,
   Typography,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import CloseIcon from "@material-ui/icons/Close";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
-import { updateUserQuestion } from "api";
-import {
-  Answer,
-  ClassifierAnswerType,
-  Feedback,
-  Status,
-  UserQuestion,
-} from "types";
+import { Answer, ClassifierAnswerType, Feedback } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -46,9 +35,14 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithFeedback } from "hooks/graphql/use-with-feedback";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import { useQuestions } from "store/slices/questions/useQuestions";
+import {
+  isQuestionsLoading,
+  useQuestions,
+} from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
-import { QuestionState } from "store/slices/questions";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
+import FeedbackItem from "components/feedback/feedback-item";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,140 +116,36 @@ const columnHeaders: ColumnDef[] = [
   },
 ];
 
-function FeedbackItem(props: {
-  feedback: UserQuestion;
-  mentorAnswers?: Answer[];
-  mentorQuestions: Record<string, QuestionState>;
-  onUpdated: () => void;
-}): JSX.Element {
-  const { feedback, mentorAnswers, mentorQuestions, onUpdated } = props;
-
-  // TODO: MOVE THIS TO A HOOK
-  async function onUpdateAnswer(answerId?: string) {
-    await updateUserQuestion(feedback._id, answerId || "");
-    onUpdated();
-  }
-
-  return (
-    <TableRow hover role="checkbox" tabIndex={-1}>
-      <TableCell data-cy="grade" align="center">
-        {feedback.feedback === Feedback.BAD ? (
-          <ThumbDownIcon style={{ color: "red" }} />
-        ) : feedback.feedback === Feedback.GOOD ? (
-          <ThumbUpIcon style={{ color: "green" }} />
-        ) : undefined}
-      </TableCell>
-      <TableCell data-cy="confidence" align="center">
-        <Typography
-          variant="body2"
-          style={{
-            color:
-              feedback.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
-                ? "red"
-                : "",
-          }}
-        >
-          {feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH
-            ? "Exact"
-            : feedback.classifierAnswerType === ClassifierAnswerType.PARAPHRASE
-            ? "Paraphrase"
-            : Math.round(feedback.confidence * 100) / 100}
-        </Typography>
-      </TableCell>
-      <TableCell data-cy="question" align="left">
-        {feedback.question}
-      </TableCell>
-      <TableCell data-cy="classifierAnswer" align="left">
-        <Tooltip title={feedback.classifierAnswer?.transcript || ""}>
-          <Typography variant="body2">
-            {getValueIfKeyExists(
-              feedback.classifierAnswer.question,
-              mentorQuestions
-            )?.question?.question || ""}
-          </Typography>
-        </Tooltip>
-      </TableCell>
-      <TableCell data-cy="graderAnswer" align="left">
-        {feedback.classifierAnswerType ===
-        ClassifierAnswerType.EXACT_MATCH ? undefined : (
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <Autocomplete
-              key={`${feedback._id}-${feedback.updatedAt}`}
-              data-cy="select-answer"
-              options={
-                mentorAnswers?.filter(
-                  (mentorAnswer) => mentorAnswer.status == Status.COMPLETE
-                ) || []
-              }
-              getOptionLabel={(option: Answer) =>
-                getValueIfKeyExists(option.question, mentorQuestions)?.question
-                  ?.question || ""
-              }
-              onChange={(e, v) => {
-                onUpdateAnswer(v?._id);
-              }}
-              style={{
-                minWidth: 300,
-                background: feedback.graderAnswer ? "#eee" : "",
-                flexGrow: 1,
-              }}
-              renderOption={(option) => (
-                <Typography data-cy={`Drop-down-qu-${option._id}`} align="left">
-                  {getValueIfKeyExists(option.question, mentorQuestions)
-                    ?.question?.question || ""}
-                </Typography>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} variant="outlined" />
-              )}
-            />
-            <IconButton onClick={() => onUpdateAnswer(undefined)}>
-              <CloseIcon />
-            </IconButton>
-          </div>
-        )}
-        <Tooltip
-          placement="top-start"
-          title={feedback.graderAnswer?.transcript || ""}
-        >
-          <Typography variant="body2">
-            {getValueIfKeyExists(
-              feedback.graderAnswer?.question,
-              mentorQuestions
-            )?.question?.question || ""}
-          </Typography>
-        </Tooltip>
-      </TableCell>
-      <TableCell data-cy="date" align="center">
-        {feedback.updatedAt
-          ? new Date(feedback.updatedAt).toLocaleString()
-          : ""}
-      </TableCell>
-    </TableRow>
-  );
-}
-
 function FeedbackPage(): JSX.Element {
   const classes = useStyles();
   const {
     getData,
     isLoading: isMentorLoading,
     error: mentorError,
+    loadMentor,
   } = useActiveMentor();
-
+  const { state: loginState } = useWithLogin();
   const mentorId = getData((state) => state.data?._id);
+  const mentor = getData((state) => state.data);
+  const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
+
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    (mentorAnswers || []).map((a) => a.question)
   );
+
+  const questionsLoading = isQuestionsLoading(
+    (mentorAnswers || []).map((a) => a.question)
+  );
+
   const {
     isPolling: isTraining,
     error: trainError,
     startTask: startTraining,
   } = useWithTraining();
-
   const {
     data: feedback,
     isLoading: isFeedbackLoading,
@@ -266,7 +156,12 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
   } = useWithFeedback();
-
+  const [initialLoad, setInitialLoad] = useState<boolean>(false);
+  const {
+    recordQueue: queueList,
+    removeQuestionFromQueue,
+    addQuestionToQueue,
+  } = useWithRecordQueue(loginState.accessToken || "");
   useEffect(() => {
     if (mentorId) {
       if (!isFeedbackLoading) {
@@ -284,9 +179,70 @@ function FeedbackPage(): JSX.Element {
     }
   }, [needsFiltering, isFeedbackLoading]);
 
+  useEffect(() => {
+    if (!feedback || !mentor) {
+      return;
+    }
+    const feedbackEdges = feedback.edges.filter((edge) => Boolean(edge.node));
+    const feedbackItems = feedbackEdges.map((row, i) => (
+      <FeedbackItem
+        feedback={row.node}
+        accessToken={loginState.accessToken}
+        mentorType={mentorType}
+        mentorAnswers={mentorAnswers || []}
+        mentorQuestions={mentorQuestions}
+        mentor={mentor}
+        queueList={queueList}
+        key={`feedback-${i}`}
+        data-cy={`feedback-${i}`}
+        onUpdated={reloadFeedback}
+        addQuestionToQueue={addQuestionToQueue}
+        removeQuestionFromQueue={removeQuestionFromQueue}
+      />
+    ));
+    setFeedbackItems(feedbackItems);
+  }, [
+    feedback,
+    loginState.accessToken,
+    mentorType,
+    mentorAnswers,
+    mentorQuestions,
+    mentor,
+    queueList,
+  ]);
+
+  const initialDisplayReady =
+    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+
+  if (!initialLoad && initialDisplayReady) {
+    setInitialLoad(true);
+  }
+
+  if (!initialLoad && !initialDisplayReady) {
+    return (
+      <div>
+        <NavBar title="Feedback" mentorId={mentorId} />
+        <LoadingDialog
+          title={
+            isMentorLoading || isFeedbackLoading
+              ? "Loading..."
+              : isTraining
+              ? "Building mentor..."
+              : ""
+          }
+        />
+      </div>
+    );
+  }
+
+  const reloadMentor = (cb: () => void) => {
+    loadMentor();
+    cb();
+  };
+
   return (
     <div>
-      <NavBar title="Feedback" mentorId={mentorId} />
+      <NavBar title="Feedback" mentorId={mentorId} onNav={reloadMentor} />
       <div className={classes.root}>
         <Paper className={classes.container}>
           <TableContainer>
@@ -333,7 +289,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell align="center">
                     <Select
                       data-cy="filter-confidence"
-                      value={feedbackSearchParams.filter.classifierAnswerType}
+                      value={feedbackSearchParams.filter.ClassifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
                       onChange={(
                         event: React.ChangeEvent<{
@@ -382,6 +338,7 @@ function FeedbackPage(): JSX.Element {
                     <Autocomplete
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
+                      value={feedbackSearchParams.filter.classifierAnswer}
                       getOptionLabel={(option: Answer) =>
                         getValueIfKeyExists(option.question, mentorQuestions)
                           ?.question?.question || ""
@@ -433,18 +390,7 @@ function FeedbackPage(): JSX.Element {
                   <TableCell />
                 </TableRow>
               </TableHead>
-              <TableBody data-cy="feedbacks">
-                {feedback?.edges.map((row, i) => (
-                  <FeedbackItem
-                    key={`feedback-${i}`}
-                    data-cy={`feedback-${i}`}
-                    feedback={row.node}
-                    mentorAnswers={mentorAnswers}
-                    mentorQuestions={mentorQuestions}
-                    onUpdated={reloadFeedback}
-                  />
-                ))}
-              </TableBody>
+              <TableBody data-cy="feedbacks">{feedbackItems}</TableBody>
             </Table>
           </TableContainer>
         </Paper>

@@ -32,6 +32,7 @@ export interface PageInfo {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  tooltips: boolean;
 }
 
 export interface User {
@@ -133,8 +134,13 @@ export interface Answer {
   _id: string;
   question: Question;
   transcript: string;
+  hasEditedTranscript?: boolean;
+  markdownTranscript?: string;
   status: Status;
   media?: Media[];
+  webMedia?: Media;
+  mobileMedia?: Media;
+  vttMedia?: Media;
 }
 
 export interface UserQuestion {
@@ -156,6 +162,7 @@ export enum MentorType {
 }
 
 export enum Status {
+  NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }

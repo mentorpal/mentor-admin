@@ -7,20 +7,23 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@material-ui/core";
-import { Status, Subject, Answer } from "types";
+import { Subject, Answer, MentorType } from "types";
 import { Slide } from "./slide";
-import { urlBuild } from "helpers";
+import { isAnswerComplete, urlBuild } from "helpers";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
+  mentorType: MentorType;
   subject: Subject;
-  questions: Answer[];
+  answers: Answer[];
   i: number;
   customTitle?: string; // pass in optional slide title
 }): JSX.Element {
-  const { classes, subject, questions, i } = props;
-  const recorded = questions.filter((q) => q.status === Status.COMPLETE);
-  const isRecorded = questions.length === recorded.length;
+  const { classes, subject, answers, i } = props;
+  const recorded = answers.filter((a) =>
+    isAnswerComplete(a, undefined, props.mentorType)
+  );
+  const isRecorded = answers.length === recorded.length;
 
   function onRecord() {
     navigate(
@@ -52,7 +55,7 @@ export function RecordSubjectSlide(props: {
             Record
           </Button>
           <Typography variant="h6" className={classes.text}>
-            {recorded.length} / {questions.length}
+            {recorded.length} / {answers.length}
           </Typography>
         </div>
       }

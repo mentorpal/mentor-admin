@@ -15,12 +15,20 @@ export interface Config {
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
+  subjectRecordPriority: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
+  styleHeaderLogo: string;
+  styleHeaderColor: string;
+  styleHeaderTextColor: string;
+  displayGuestPrompt: boolean;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  disclaimerDisabled: boolean;
 }
 
 export interface Connection<T> {
@@ -48,6 +56,7 @@ export interface UserAccessToken {
 
 export interface FirstTimeTracking {
   myMentorSplash: boolean;
+  tooltips: boolean;
 }
 
 export interface User {
@@ -158,7 +167,7 @@ export interface UserQuestion {
   mentor: Mentor;
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
-  graderAnswer: Answer;
+  graderAnswer?: Answer;
   updatedAt: string;
   createdAt: string;
 }
@@ -324,6 +333,7 @@ export enum MentorType {
 }
 
 export enum Status {
+  NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
 }
@@ -437,7 +447,10 @@ export interface UseWithRecordState {
   reloadMentorData: () => void;
   nextAnswer: () => void;
   setAnswerIdx: (id: number) => void;
-  editAnswer: (edits: Partial<Answer>) => void;
+  editAnswer: (
+    edits: Partial<Answer>,
+    answerStateEdits?: Partial<AnswerState>
+  ) => void;
   editQuestion: (edits: Partial<Question>) => void;
   saveAnswer: () => Promise<void>;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
@@ -456,6 +469,7 @@ export interface AnswerState {
   editedAnswer: Answer;
   editedQuestion: Question;
   attentionNeeded: AnswerAttentionNeeded;
+  localTranscriptChanges: boolean;
   recordedVideo?: File;
   minVideoLength?: number;
 }

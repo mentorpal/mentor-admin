@@ -65,8 +65,8 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
-          me: { updateConfigFeatured: config },
+        mockGQL("UpdateConfig", {
+          me: { updateConfig: config },
         }),
       ],
     });
@@ -86,8 +86,8 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
-          me: { updateConfigFeatured: config },
+        mockGQL("UpdateConfig", {
+          me: { updateConfig: config },
         }),
       ],
     });
@@ -107,8 +107,8 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
-          me: { updateConfigFeatured: config },
+        mockGQL("UpdateConfig", {
+          me: { updateConfig: config },
         }),
       ],
     });
@@ -128,9 +128,9 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
+        mockGQL("UpdateConfig", {
           me: {
-            updateConfigFeatured: {
+            updateConfig: {
               ...config,
               activeMentors: ["62aa503082f27ce347bdc7f4"],
             },
@@ -192,9 +192,9 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
+        mockGQL("UpdateConfig", {
           me: {
-            updateConfigFeatured: {
+            updateConfig: {
               ...config,
               featuredMentors: ["62aa503082f27ce347bdc7f4"],
             },
@@ -256,8 +256,8 @@ describe("users screen", () => {
         mockGQL("Subject", subjects),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
-        mockGQL("UpdateConfigFeatured", {
-          me: { updateConfigFeatured: { ...config, featuredMentorPanels: [] } },
+        mockGQL("UpdateConfig", {
+          me: { updateConfig: { ...config, featuredMentorPanels: [] } },
         }),
       ],
     });
@@ -530,5 +530,125 @@ describe("users screen", () => {
         cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
       });
     });
+  });
+
+  it("admin can update header styles", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: {
+        ...config,
+        styleHeaderColor: "#ff0000",
+        styleHeaderTextColor: "#00ff00",
+      },
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              styleHeaderColor: "#ff0000",
+              styleHeaderTextColor: "#00ff00",
+              styleHeaderLogo:
+                "https://styles.redditmedia.com/t5_3l2acu/styles/communityIcon_k6hl8k9v3s891.jpeg?width=256&format=pjpg&s=5bc9d810009d151a336731145f4788c8c039c8c3",
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-header-style]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=styleHeaderLogo]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=styleHeaderColor]").should(
+      "have.attr",
+      "data-test",
+      "#ff0000"
+    );
+    cy.get("[data-cy=styleHeaderTextColor]").should(
+      "have.attr",
+      "data-test",
+      "#00ff00"
+    );
+    cy.get("[data-cy=styleHeaderLogo]").type(
+      "https://styles.redditmedia.com/t5_3l2acu/styles/communityIcon_k6hl8k9v3s891.jpeg?width=256&format=pjpg&s=5bc9d810009d151a336731145f4788c8c039c8c3"
+    );
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=styleHeaderLogo]").should(
+      "have.attr",
+      "data-test",
+      "https://styles.redditmedia.com/t5_3l2acu/styles/communityIcon_k6hl8k9v3s891.jpeg?width=256&format=pjpg&s=5bc9d810009d151a336731145f4788c8c039c8c3"
+    );
+    cy.get("[data-cy=styleHeaderColor]").should(
+      "have.attr",
+      "data-test",
+      "#ff0000"
+    );
+    cy.get("[data-cy=styleHeaderTextColor]").should(
+      "have.attr",
+      "data-test",
+      "#00ff00"
+    );
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=image-thumbnail]").trigger("mouseover").click();
+  });
+
+  it("admin can update disclaimer", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              disclaimerTitle: "title",
+              disclaimerText: "text",
+              disclaimerDisabled: true,
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-disclaimer]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=disclaimerTitle]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=disclaimerText]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=disclaimerDisabled]").should(
+      "have.attr",
+      "data-test",
+      "false"
+    );
+    cy.get("[data-cy=disclaimerTitle]").type("title");
+    cy.get("[data-cy=disclaimerText]").type("text");
+    cy.get("[data-cy=disclaimerDisabled]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=disclaimerTitle]").should(
+      "have.attr",
+      "data-test",
+      "title"
+    );
+    cy.get("[data-cy=disclaimerText]").should("have.attr", "data-test", "text");
+    cy.get("[data-cy=disclaimerDisabled]").should(
+      "have.attr",
+      "data-test",
+      "true"
+    );
+    cy.get("[data-cy=save-button").should("be.disabled");
   });
 });
