@@ -4,122 +4,111 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-/** VIDEOJS DOESN'T WORK IF TYPESCRIPT... */
 
-import React, { useEffect, useState } from "react";
-import videojs from "video.js";
-import { IconButton, Typography } from "@material-ui/core";
+import React, { useEffect, useRef, useState } from "react";
+import RecordRTC, { MediaStreamRecorder } from "recordrtc";
+import { Button, IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
+import { UseWithRecordState } from "types";
+import PermCameraMicIcon from "@material-ui/icons/PermCameraMic";
 
-function VideoRecorder({
-  classes,
-  height,
-  width,
-  recordState,
-  videoRecorderMaxLength,
-  stopRequests,
-}) {
-  const videoJsOptions = {
-    controls: true,
-    bigPlayButton: false,
-    controlBar: {
-      fullscreenToggle: false,
-      volumePanel: false,
-      recordToggle: false,
-    },
-    fluid: true,
-    aspectRatio: "16:9",
-    plugins: {
-      record: {
-        audio: true,
-        video: true,
-        debug: true,
-        maxLength: videoRecorderMaxLength,
-      },
-    },
-  };
-  const [videoRef, setVideoRef] = useState();
-  const [videoRecorderRef, setVideoRecorderRef] = useState();
-  // can't store these in RecordingState because player.on callbacks
-  // snapshot recordState from when player first initializes and doesn't
-  // update when changing answers
+function VideoRecorder(props: {
+  classes: Record<string, string>;
+  height: number;
+  width: number;
+  recordState: UseWithRecordState;
+  videoRecorderMaxLength: number;
+  stopRequests: number;
+}): JSX.Element {
+  const { classes, height, width, recordState, stopRequests } = props;
+  const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, _setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
-  const [recordedVideo, setRecordedVideo] = useState();
-  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [recordedVideo, setRecordedVideo] = useState<File>();
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   //Using refs to access states variables in event handler
-  const recordStopCountdownRef = React.useRef(recordStopCountdown);
-  const setRecordStopCountdown = (n) => {
+  const recordStopCountdownRef = useRef(recordStopCountdown);
+  const setRecordStopCountdown = (n: number) => {
     recordStopCountdownRef.current = n;
     _setRecordStopCountdown(n);
   };
-  const isRecordingRef = React.useRef(recordState.isRecording);
+  const isRecordingRef = useRef(recordState.isRecording);
   useEffect(() => {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
 
-  useEffect(() => {
-    if (!videoRef || videoRecorderRef) {
-      return;
-    }
-    const player = videojs(videoRef, videoJsOptions, function onPlayerReady() {
-      setVideoRecorderRef(player);
-    });
-    player.on("deviceReady", function () {
-      setIsCameraOn(true);
-    });
-    player.on("startRecord", function () {
-      setRecordStartCountdown(0);
-      setRecordStopCountdown(0);
-      setRecordDurationCounter(0);
-    });
-    player.on("progressRecord", function () {
-      setRecordDurationCounter(player.record().getDuration());
-    });
-    player.on("finishRecord", function () {
-      setRecordedVideo(new File([player.recordedData], "video.mp4"));
-      setRecordStartCountdown(0);
-      setRecordStopCountdown(0);
-      setRecordDurationCounter(0);
-      setIsCameraOn(false);
-      player.record().reset();
-    });
-    return () => {
-      player?.dispose();
-    };
-  }, [videoRef]);
+  function setupCamera() {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true,
+      })
+      .then((cameraStream) => {
+        if (!videoRef.current) {
+          return;
+        }
+        const recorder = new RecordRTC(cameraStream, {
+          type: "video",
+          mimeType: "video/webm",
+          recorderType: MediaStreamRecorder,
+          timeSlice: 1000,
+          ondataavailable: function () {
+            // This function is called once every timeSlice, so we can assume 1 second has passed
+            setRecordDurationCounter((prevState) => prevState + 1);
+          },
+          checkForInactiveTracks: true,
+        });
+        setVideoRecorder(recorder);
 
+        const video = videoRef.current;
+        video.muted = true;
+        video.volume = 0;
+        video.srcObject = cameraStream;
+      })
+      .catch((err) => {
+        console.error("Failed to find camera", err);
+      });
+  }
+
+  // When a recordedVideo gets set in this files state, add it to record state
   useEffect(() => {
     if (recordedVideo) {
-      // if you put onRecordStop directly into player.on("finishRecord")
-      // it overwrite with the state from whatever the first question was
       recordState.stopRecording(recordedVideo);
       setRecordedVideo(undefined);
     }
   }, [recordedVideo]);
 
+  // When we change questions, reset everything
   useEffect(() => {
-    videoRecorderRef?.record().reset();
+    if (!recordState) {
+      return;
+    }
+    videoRecorder?.destroy();
+    setVideoRecorder(undefined);
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
-    setIsCameraOn(false);
-  }, [recordState.curAnswer.answer._id]);
+  }, [recordState?.curAnswer?.answer._id]);
 
+  // Making sure we don't record over minVideoLength
   useEffect(() => {
-    if (!recordState.isRecording || !recordState.curAnswer.minVideoLength) {
+    if (!recordState.isRecording || !recordState?.curAnswer?.minVideoLength) {
       return;
     }
-    if (recordDurationCounter > recordState.curAnswer.minVideoLength) {
-      videoRecorderRef?.record().stop();
+    if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
+      videoRecorder?.stopRecording(() => {
+        const videoBlob = videoRecorder.getBlob();
+        setRecordedVideo(new File([videoBlob], "video.mp4"));
+      });
     }
   }, [recordDurationCounter]);
 
+  // When start recording is pressed, this interval begins
   useInterval(
     (isCancelled) => {
       if (isCancelled()) {
@@ -129,12 +118,13 @@ function VideoRecorder({
       setRecordStartCountdown(counter);
       if (counter <= 0) {
         recordState.startRecording();
-        videoRecorderRef?.record().start();
+        videoRecorder?.startRecording();
       }
     },
     recordStartCountdown > 0 ? 1000 : null
   );
 
+  // When stop recording is pressed, this interval begins
   useInterval(
     (isCancelled) => {
       if (isCancelled()) {
@@ -143,7 +133,11 @@ function VideoRecorder({
       const counter = recordStopCountdown - 1;
       setRecordStopCountdown(counter);
       if (counter <= 0) {
-        videoRecorderRef?.record().stop();
+        // countdown is finished, time to stop recording
+        videoRecorder?.stopRecording(() => {
+          const newVideoFile = new File([videoRecorder.getBlob()], "video.mp4");
+          recordStateStopRecording(newVideoFile);
+        });
       }
     },
     recordStopCountdown > 0 ? 1000 : null
@@ -157,31 +151,46 @@ function VideoRecorder({
     if (stopRequests == 0) {
       return;
     }
-    stopRecording();
+    beginStopRecordingCountdown();
   }, [stopRequests]);
 
-  function startRecording() {
+  function beginStartRecordingCountdown() {
     if (countdownInProgress) {
       return;
     }
     setRecordStartCountdown(3);
   }
 
-  function stopRecording() {
+  function beginStopRecordingCountdown() {
     if (countdownInProgress) {
       return;
     }
     setRecordStopCountdown(2);
   }
 
-  const spaceBarStopRecording = (event) => {
+  function recordStateStopRecording(recordedVideo: File) {
+    setRecordedVideo(recordedVideo);
+    setRecordStartCountdown(0);
+    setRecordStopCountdown(0);
+    setRecordDurationCounter(0);
+    videoRecorder?.reset();
+    setVideoRecorder(undefined);
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }
+
+  const spaceBarStopRecording = (event: {
+    keyCode: number;
+    preventDefault: () => void;
+  }) => {
     if (
       event.keyCode === 32 &&
       recordStopCountdownRef.current == 0 &&
       isRecordingRef.current
     ) {
       event.preventDefault();
-      stopRecording();
+      beginStopRecordingCountdown();
     }
   };
 
@@ -193,13 +202,26 @@ function VideoRecorder({
     };
   }, []);
 
+  function getRecordTimeText(recordTime: number): string {
+    const minutes = Math.trunc(recordTime / 60);
+    const seconds = Math.trunc(recordTime % 60);
+    const minutesString =
+      minutes < 10 ? `0${minutes.toString()}` : `${minutes.toString()}`;
+    const secondsString =
+      Number(seconds / 10) < 1
+        ? `0${seconds.toString()}`
+        : `${seconds.toString()}`;
+    return `${minutesString}:${secondsString}`;
+  }
+
   return (
     <div
-      data-cy="recorder"
+      data-cy="video-recorder"
       style={{
         position: "absolute",
         visibility:
-          recordState.curAnswer.videoSrc || recordState.curAnswer.isUploading
+          recordState?.curAnswer?.videoSrc ||
+          recordState?.curAnswer?.isUploading
             ? "hidden"
             : "visible",
       }}
@@ -208,19 +230,36 @@ function VideoRecorder({
         data-cy="instruction"
         style={{
           textAlign: "center",
-          visibility: isCameraOn ? "inherit" : "hidden",
+          visibility: videoRecorder ? "inherit" : "hidden",
         }}
       >
         Please get into position by facing forward and lining up with the
         outline.
       </Typography>
-      <div data-vjs-player style={{ height, width }}>
+      <div style={{ height, width, position: "relative" }}>
         <video
-          data-cy="video-recorder"
-          className="video-js vjs-default-skin"
+          height={height}
+          width={width}
+          autoPlay
           playsInline
-          ref={(e) => setVideoRef(e || undefined)}
+          style={{ backgroundColor: "black" }}
+          ref={videoRef}
         />
+        <Button
+          style={{
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: "100%",
+            color: "white",
+            visibility: videoRecorder ? "hidden" : "visible",
+          }}
+          onClick={setupCamera}
+        >
+          <PermCameraMicIcon style={{ width: "30%", height: "auto" }} />
+        </Button>
         <div
           data-cy="outline"
           className={classes.overlay}
@@ -230,14 +269,31 @@ function VideoRecorder({
             bottom: 0,
             left: 0,
             right: 0,
+            width: width,
+            height: height,
             opacity: recordState.isRecording ? 0.5 : 0.75,
-            visibility: isCameraOn ? "visible" : "hidden",
+            visibility: videoRecorder ? "visible" : "hidden",
             backgroundImage: `url(${overlay})`,
             backgroundRepeat: "no-repeat",
             backgroundPosition: "center",
             backgroundSize: "contain",
           }}
         />
+        <span
+          data-cy="video-timer"
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            left: "10px",
+            width: "fit-content",
+            height: "fit-content",
+            visibility: videoRecorder ? "visible" : "hidden",
+            color: "white",
+            background: "rgba(0, 0, 0, 0.3)",
+          }}
+        >
+          {getRecordTimeText(recordDurationCounter)}
+        </span>
         <Typography
           data-cy="countdown-message"
           variant="h2"
@@ -245,10 +301,12 @@ function VideoRecorder({
           style={{
             color: "white",
             position: "absolute",
-            top: 0,
+            top: "20px",
             bottom: 0,
             left: 0,
             right: 0,
+            width: width,
+            height: height,
             visibility: countdownInProgress ? "visible" : "hidden",
           }}
         >
@@ -258,7 +316,7 @@ function VideoRecorder({
             ? "Recording ends in"
             : Math.max(
                 Math.ceil(
-                  (recordState.curAnswer.minVideoLength || 0) -
+                  (recordState?.curAnswer?.minVideoLength || 0) -
                     recordDurationCounter
                 ),
                 0
@@ -284,7 +342,7 @@ function VideoRecorder({
             recordStopCountdown ||
             Math.max(
               Math.ceil(
-                (recordState.curAnswer.minVideoLength || 0) -
+                (recordState?.curAnswer?.minVideoLength || 0) -
                   recordDurationCounter
               ),
               0
@@ -299,11 +357,15 @@ function VideoRecorder({
           position: "absolute",
           bottom: 0,
           left: 0,
-          visibility: isCameraOn ? "visible" : "hidden",
+          visibility: videoRecorder ? "visible" : "hidden",
         }}
       >
         <IconButton
-          onClick={recordState.isRecording ? stopRecording : startRecording}
+          onClick={
+            recordState.isRecording
+              ? beginStopRecordingCountdown
+              : beginStartRecordingCountdown
+          }
           style={{ color: "red" }}
         >
           {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
@@ -317,7 +379,13 @@ function VideoRecorder({
           data-cy="upload-file"
           type="file"
           accept="audio/*,video/*"
-          onChange={(e) => recordState.stopRecording(e.target.files[0])}
+          onChange={(e) => {
+            if (!e.target.files) {
+              return;
+            } else {
+              recordStateStopRecording(e.target.files[0]);
+            }
+          }}
         />
       </div>
     </div>
