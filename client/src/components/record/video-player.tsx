@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import ReactPlayer from "react-player";
 import {
   Button,
@@ -17,6 +17,7 @@ import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
+import VirtualBackground from "images/virtual-background.png";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -24,12 +25,13 @@ function VideoPlayer(props: {
   videoRecorderMaxLength: number;
   stopRequests: number;
 }): JSX.Element {
+  // TODO: Get this from mentor config
+  const isVirtualBgMentor = true;
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, recordState } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -38,6 +40,29 @@ function VideoPlayer(props: {
     windowHeight > windowWidth
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
+
+  const VirtualBg = useMemo<JSX.Element>(
+    () => (
+      <img
+        src={VirtualBackground}
+        alt=""
+        style={{
+          display: "block",
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: -1,
+        }}
+        width={width}
+        height={height}
+      />
+    ),
+    [width, height]
+  );
+
+  const { classes, recordState } = props;
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
   );
@@ -136,7 +161,7 @@ function VideoPlayer(props: {
         </Typography>
         <div
           style={{
-            backgroundColor: "#000",
+            backgroundColor: !isVirtualBgMentor ? "#000" : "",
             height: height,
             width: width,
             color: "white",
@@ -162,6 +187,7 @@ function VideoPlayer(props: {
               ? "You may continue to record other questions."
               : undefined}
           </div>
+          {VirtualBg}
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
@@ -184,25 +210,6 @@ function VideoPlayer(props: {
             onDuration={(d) => setVideoLength(d)}
             style={{
               visibility: isUploading ? "hidden" : "inherit",
-            }}
-          />
-          <div
-            data-cy="outline"
-            className={classes.overlay}
-            style={{
-              width: width,
-              height: height,
-              position: "absolute",
-              top: 25,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              opacity: recordState.isRecording ? 0.5 : 0.75,
-              visibility: trimInProgress ? "visible" : "hidden",
-              backgroundImage: `url(${overlay})`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "contain",
             }}
           />
         </div>

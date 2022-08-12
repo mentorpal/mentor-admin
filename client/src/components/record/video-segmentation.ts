@@ -20,11 +20,17 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
   );
 
   function getVideoRecorder() {
-    return document.querySelectorAll("[data-cy=video-recorder]")[1];
+    const component = document.querySelector(
+      "[data-cy=video-recorder-component]"
+    );
+    console.log("video component", component);
+    return component;
   }
 
   function getCanvas() {
-    return document.querySelector("[data-cy=draw-canvas]");
+    const canvas = document.querySelector("[data-cy=draw-canvas]");
+    console.log("canvas component", canvas);
+    return canvas;
   }
 
   function getCanvasContext(
@@ -49,7 +55,7 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     selfieSegmentation.onResults(onResults);
     return selfieSegmentation;
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   function onResults(results: Results): void {
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
@@ -76,22 +82,24 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Only overwrite missing pixels.
-    // canvasCtx.globalCompositeOperation = "destination-atop";
     canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
 
     canvasCtx.restore();
   }
 
   async function segmentVideoAndDrawToCanvas(): Promise<void> {
-    //const { width: windowWidth, height: windowHeight } = useWithWindowSize();
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
     }
     const videoRecorder = getVideoRecorder();
-    await selfieSegmenter.send({
-      image: videoRecorder as HTMLVideoElement,
-    });
+    await selfieSegmenter
+      .send({
+        image: videoRecorder as HTMLVideoElement,
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
   return {
     segmentVideoAndDrawToCanvas,
