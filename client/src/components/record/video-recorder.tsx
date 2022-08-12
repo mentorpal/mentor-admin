@@ -13,6 +13,7 @@ import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 import { UseWithRecordState } from "types";
+import PermCameraMicIcon from "@material-ui/icons/PermCameraMic";
 
 function VideoRecorder(props: {
   classes: Record<string, string>;
@@ -257,7 +258,7 @@ function VideoRecorder(props: {
           }}
           onClick={setupCamera}
         >
-          Click Here to turn on camera
+          <PermCameraMicIcon style={{ width: "30%", height: "auto" }} />
         </Button>
         <div
           data-cy="outline"
