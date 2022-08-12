@@ -253,6 +253,7 @@ export function cyMockDefault(
   }
 
   cyInterceptGraphQL(cy, [
+    ...gqlQueries,
     mockGQLConfig(config),
     mockGQL("Login", { login: args.login || loginDefault }),
     // ...(args.mentor
@@ -270,6 +271,9 @@ export function cyMockDefault(
     mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
     mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
     mockGQL("ImportTask", { importTask: null }),
+    mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
+    mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
+    mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
   ]);
 }
 

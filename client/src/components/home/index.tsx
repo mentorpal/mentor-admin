@@ -48,7 +48,9 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
+import RecordQueueBlock from "./record-queue-block";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -159,7 +161,9 @@ function HomePage(props: {
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
-
+  const { recordQueue, removeQuestionFromQueue } = useWithRecordQueue(
+    props.accessToken
+  );
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
   const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
@@ -170,16 +174,17 @@ function HomePage(props: {
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
 
+  const loginState = useWithLogin();
+
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
+  const { userSawSplashScreen, userSawTooltips } = loginState;
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  const loginState = useWithLogin();
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
       localHasSeenSplash
   );
-  const { userSawSplashScreen, userSawTooltips } = loginState;
   const hasSeenTooltips = Boolean(
     !hasSeenSplash ||
       loginState.state.user?.firstTimeTracking.tooltips ||
@@ -312,11 +317,6 @@ function HomePage(props: {
         question.originalQuestion.clientId || question.originalQuestion._id
       );
     }
-  }
-
-  function closeDialog() {
-    setLocalHasSeenSplash(true);
-    userSawSplashScreen(props.accessToken);
   }
 
   function closePreviewTooltip() {
@@ -454,6 +454,21 @@ function HomePage(props: {
           </Select>
         </ColorTooltip>
       </div>
+      {recordQueue.length != 0 ? (
+        <ListItem
+          style={{
+            flex: "auto",
+            backgroundColor: "#eee",
+          }}
+        >
+          <RecordQueueBlock
+            classes={classes}
+            accessToken={props.accessToken}
+            recordQueue={recordQueue}
+            removeFromQueue={removeQuestionFromQueue}
+          />
+        </ListItem>
+      ) : undefined}
       <List
         data-cy="recording-blocks"
         style={{
@@ -463,6 +478,7 @@ function HomePage(props: {
       >
         {recordingItemBlocks || []}
       </List>
+
       <div className={classes.toolbar} />
       <AppBar position="fixed" color="default" className={classes.appBar}>
         <Toolbar
@@ -646,7 +662,10 @@ function HomePage(props: {
           "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
         }
         open={!hasSeenSplash}
-        closeDialog={() => closeDialog()}
+        closeDialog={() => {
+          setLocalHasSeenSplash(true);
+          userSawSplashScreen(props.accessToken);
+        }}
       />
       <Dialog
         data-cy="setup-dialog"

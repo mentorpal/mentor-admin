@@ -168,7 +168,7 @@ async function execHttp<T>(
 
 function throwErrorsInAxiosResponse(res: AxiosResponse) {
   if (!(res.status >= 200 && res.status <= 299)) {
-    throw new Error(`http request failed: ${res.statusText}`);
+    throw new Error(`http request failed: ${res.data}`);
   }
   if (res.data.errors) {
     throw new Error(`errors in response: ${JSON.stringify(res.data.errors)}`);
@@ -791,18 +791,27 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string
+  answerId?: string,
+  questionId?: string,
+  mentorId?: string
 ): Promise<void> {
-  execGql<UserQuestion>(
+  // if an answerId exists, then only send that over, else send question and mentorid
+  const variables = {
+    id: feedbackId,
+    ...(answerId ? { answer: answerId } : {}),
+    ...(questionId && !answerId ? { question: questionId } : {}),
+    ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
+  };
+  await execGql<UserQuestion>(
     {
       query: `
-      mutation UserQuestionSetAnswer($id: ID!, $answer: String!) {
-        userQuestionSetAnswer(id: $id, answer: $answer) {
+      mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
+        userQuestionSetAnswer(id: $id, answer: $answer, question: $question, mentorId: $mentorId) {
           _id
         }
       }
     `,
-      variables: { id: feedbackId, answer: answerId },
+      variables,
     },
     { dataPath: "userQuestionSetAnswer" }
   );
@@ -1273,6 +1282,85 @@ export async function fetchUploadTasks(
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
   return gql.map((u) => convertUploadTaskGQL(u));
+}
+
+//Fetches the record queue for the mentor that is logged in (using the accessToken to know which mentor to fetch from)
+export async function fetchMentorRecordQueue(
+  accessToken: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        query FetchMentorRecordQueue {
+          me {
+            fetchMentorRecordQueue
+          }
+        }`,
+    },
+    { accessToken, dataPath: ["me", "fetchMentorRecordQueue"] }
+  );
+}
+
+//Returns the new list after the addition
+export async function addQuestionToRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation AddQuestionToRecordQueue($questionId: ID!) {
+          me {
+            addQuestionToRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "addQuestionToRecordQueue"] }
+  );
+}
+
+//Returns the new list after the removal
+export async function removeQuestionFromRecordQueue(
+  accessToken: string,
+  questionId: string
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation RemoveQuestionFromRecordQueue($questionId: ID!) {
+          me {
+            removeQuestionFromRecordQueue(questionId: $questionId)
+          }
+        }`,
+      variables: {
+        questionId,
+      },
+    },
+    { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
+  );
+}
+
+export async function setRecordQueueGQL(
+  accessToken: string,
+  questionIds: string[]
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation SetRecordQueue($questionIds: [ID]!) {
+          me {
+            setRecordQueue(questionIds: $questionIds)
+          }
+        }`,
+      variables: {
+        questionIds,
+      },
+    },
+    { accessToken, dataPath: ["me", "setRecordQueue"] }
+  );
 }
 
 export async function deleteUploadTask(

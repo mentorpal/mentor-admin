@@ -423,9 +423,6 @@ describe("Record", () => {
       cyMockDefault(cy, {
         mentor: chatMentor,
         questions: chatQuestions,
-        gqlQueries: [
-          mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        ],
       });
       cy.visit("/record");
       cy.get("[data-cy=progress]").contains("Questions 1 / 5");
@@ -1586,10 +1583,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1623,10 +1616,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1666,10 +1655,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1725,10 +1710,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1773,13 +1754,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: { ...videoMentor, isDirty: true },
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-cy=upload-video]").should("be.hidden");
@@ -1797,10 +1771,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1898,10 +1868,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -1945,14 +1911,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        mockGQL("ImportTask", { importTask: null }),
-      ],
     });
     cy.visit("/record");
     cy.get("[data-cy=uploading-widget]").should("not.be.visible");
@@ -1962,14 +1920,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-        mockGQL("ImportTask", { importTask: null }),
-      ],
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 1");
@@ -1988,7 +1938,6 @@ describe("Record", () => {
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
     cy.get("[data-cy=incomplete]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
-    cy.get("[data-cy=done-btn]").trigger("mouseover").click();
   });
 
   it("uploading widget should be open if there are active uploads", () => {
@@ -1996,10 +1945,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2041,10 +1986,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2126,10 +2067,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2211,10 +2148,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2302,10 +2235,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2352,13 +2281,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record");
     cy.get("[data-cy=header-uploads-button]").should("have.text", "");
@@ -2374,10 +2296,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2485,13 +2403,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [chatMentor],
       questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("not.exist");
@@ -2502,13 +2413,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record");
     cy.get("[data-cy=video-recorder]").should("exist");
@@ -2526,13 +2430,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record?videoId=A2_1_1");
     cy.get("[data-cy=video-recorder]").should("exist");
@@ -2565,13 +2462,7 @@ describe("Record", () => {
         }),
       ],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record");
     cyAttachUpload(cy);
@@ -2587,13 +2478,7 @@ describe("Record", () => {
         }),
       ],
       questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record");
     cy.get("[data-cy=download-video]").should("not.exist");
@@ -2609,10 +2494,6 @@ describe("Record", () => {
       ],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2648,10 +2529,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2693,10 +2570,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2741,10 +2614,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2796,10 +2665,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -2856,13 +2721,6 @@ describe("Record", () => {
         }),
       ],
       questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
     cy.get("[data-cy=progress]").contains("Questions 1 / 2");
@@ -2900,13 +2758,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: chatMentor,
       questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -2919,13 +2770,6 @@ describe("Record", () => {
     cyMockDefault(cy, {
       mentor: clintMarkdown,
       questions: chatQuestions,
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/record?videoId=A1_1_1");
     cy.get("[data-text]").should("be.visible");
@@ -2954,11 +2798,6 @@ describe("Record", () => {
       mentor: clintMarkdown,
       questions: chatQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
         mockGQL("markdownTranscript", { me: { markdownTranscript: "" } }),
       ],
     });
@@ -3038,8 +2877,6 @@ describe("Record", () => {
       ],
       questions: chatQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
         mockGQL("UpdateQuestion", {
           me: {
             updateQuestion: {
@@ -3048,7 +2885,6 @@ describe("Record", () => {
             },
           },
         }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
       ],
     });
     cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
@@ -3092,10 +2928,6 @@ describe("Record", () => {
       ],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           { me: { uploadTasks: [] } },
           {
@@ -3160,10 +2992,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3237,10 +3065,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3290,10 +3114,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3325,10 +3145,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3360,10 +3176,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3408,13 +3220,7 @@ describe("Record", () => {
   it("Can visit record via url param array", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -3430,13 +3236,7 @@ describe("Record", () => {
   it.skip("while recording, stop recording indicator is visible", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[title=Device]").first().invoke("mouseover").click("center");
@@ -3448,13 +3248,7 @@ describe("Record", () => {
   it.skip("press spacebar to stop recording", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[title=Device]").first().invoke("mouseover").click("center");
@@ -3471,13 +3265,7 @@ describe("Record", () => {
   it.skip("press transcript overlay to stop recording", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get("[title=Device]").first().invoke("mouseover").click("center");
@@ -3493,13 +3281,7 @@ describe("Record", () => {
   it("can edit video mentor transcripts", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get(".editor-class").type("37");
@@ -3511,13 +3293,7 @@ describe("Record", () => {
   it("Warns user to trim their own edited transcripts when trimming video", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
-      gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", []),
-      ],
+      gqlQueries: [mockGQL("FetchUploadTasks", [])],
     });
     cy.visit("/record?videoId=A1_1_1&videoId=A2_1_1");
     cy.get(".editor-class").type("37");
@@ -3654,10 +3430,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -3702,10 +3474,6 @@ describe("Record", () => {
       mentor: [videoMentor],
       questions: videoQuestions,
       gqlQueries: [
-        mockGQL("UploadTaskDelete", { me: { uploadTaskDelete: true } }),
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {

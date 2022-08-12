@@ -62,10 +62,6 @@ describe("Index page", () => {
   it("if not logged in, show login page", () => {
     cyMockDefault(cy, {
       noAccessTokenStored: true,
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
@@ -77,10 +73,6 @@ describe("Index page", () => {
   it("if logged in and setup not complete, redirect to setup page", () => {
     cyMockDefault(cy, {
       mentor: newMentor,
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/");
     cy.location("pathname").then(($el) => {
@@ -91,10 +83,6 @@ describe("Index page", () => {
   it("if logged in and setup complete, show home page", () => {
     cyMockDefault(cy, {
       mentor: clint,
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
 
     cy.visit("/");
@@ -233,10 +221,6 @@ describe("Index page", () => {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
@@ -252,10 +236,6 @@ describe("Index page", () => {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
       },
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
@@ -271,10 +251,6 @@ describe("Index page", () => {
         ...loginDefault,
         user: { ...loginDefault.user, userRole: UserRole.USER },
       },
-      gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
-        mockGQL("FetchUploadTasks", [{ me: { uploadTasks: [] } }]),
-      ],
     });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();
@@ -343,7 +319,6 @@ describe("Index page", () => {
             },
           },
         ]),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/");
@@ -416,7 +391,6 @@ describe("Index page", () => {
             },
           },
         ]),
-        mockGQL("ImportTask", { importTask: null }),
       ],
     });
     cy.visit("/");
