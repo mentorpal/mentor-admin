@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import "@mediapipe/selfie_segmentation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Results, SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 export interface UseWithVideoSegmentation {
@@ -15,21 +15,30 @@ export interface UseWithVideoSegmentation {
 }
 
 export function useWithVideoSegmentation(): UseWithVideoSegmentation {
-  const [selfieSegmenter] = useState<SelfieSegmentation>(
-    createSelfieSegmentation()
-  );
+  const [selfieSegmenter, setSelfieSegmenter] = useState<SelfieSegmentation>();
+
+  useEffect(() => {
+    createSelfieSegmentation().then((_selfieSegmenter) => {
+      setSelfieSegmenter(_selfieSegmenter);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!selfieSegmenter) {
+      return;
+    }
+    selfieSegmenter.onResults(onResults);
+  }, [selfieSegmenter]);
 
   function getVideoRecorder() {
     const component = document.querySelector(
       "[data-cy=video-recorder-component]"
     );
-    console.log("video component", component);
     return component;
   }
 
   function getCanvas() {
     const canvas = document.querySelector("[data-cy=draw-canvas]");
-    console.log("canvas component", canvas);
     return canvas;
   }
 
@@ -42,17 +51,16 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     return canvas.getContext("2d");
   }
 
-  function createSelfieSegmentation(): SelfieSegmentation {
+  async function createSelfieSegmentation(): Promise<SelfieSegmentation> {
     const selfieSegmentation = new SelfieSegmentation({
       locateFile: (file: string) => {
-        console.log(file);
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.1/${file}`;
       },
     });
     selfieSegmentation.setOptions({
       modelSelection: 1,
     });
-    selfieSegmentation.onResults(onResults);
+    await selfieSegmentation.initialize();
     return selfieSegmentation;
   }
 
@@ -93,6 +101,9 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       return;
     }
     const videoRecorder = getVideoRecorder();
+    if (!videoRecorder) {
+      return;
+    }
     await selfieSegmenter
       .send({
         image: videoRecorder as HTMLVideoElement,

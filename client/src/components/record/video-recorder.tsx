@@ -88,14 +88,14 @@ function VideoRecorder(props: {
       audio: true,
     });
     const videoStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        width: 1280,
-        height: 720,
-      },
+      video: true,
     });
-    const canvasStream = canvasRef.current.captureStream(60);
+    videoRef.current.muted = true;
+    videoRef.current.volume = 0;
+    videoRef.current.srcObject = videoStream;
+    const canvasStream = canvasRef.current.captureStream(15);
     const finalStream = new MediaStream();
-    audioStream.getVideoTracks().forEach((track) => {
+    audioStream.getAudioTracks().forEach((track) => {
       finalStream.addTrack(track);
     });
     if (isVirtualBgMentor) {
@@ -116,17 +116,9 @@ function VideoRecorder(props: {
         setRecordDurationCounter((prevState) => prevState + 1);
       },
       checkForInactiveTracks: true,
-      canvas: {
-        width: width,
-        height: height,
-      },
-      bitsPerSecond: 256000,
+      videoBitsPerSecond: 256000,
     });
     setVideoRecorder(recorder);
-    const video = videoRef.current;
-    video.muted = true;
-    video.volume = 0;
-    video.srcObject = videoStream;
   }
 
   // When a recordedVideo gets set in this files state, add it to record state
@@ -262,7 +254,9 @@ function VideoRecorder(props: {
     () => {
       segmentVideoAndDrawToCanvas();
     },
-    isVirtualBgMentor && videoRecorder ? 33 : null
+    isVirtualBgMentor && videoRecorder && videoRef.current?.srcObject
+      ? 33
+      : null
   );
 
   function getRecordTimeText(recordTime: number): string {
@@ -306,7 +300,6 @@ function VideoRecorder(props: {
           width={width}
           autoPlay
           playsInline
-          style={{ visibility: isVirtualBgMentor ? "hidden" : "visible" }}
           ref={videoRef}
         />
         {VirtualBg}
