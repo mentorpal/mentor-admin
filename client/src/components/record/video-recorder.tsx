@@ -80,10 +80,7 @@ function VideoRecorder(props: {
     isRecordingRef.current = recordState.isRecording;
   }, [recordState.isRecording]);
 
-  async function setupVideoStream(
-    videoEle: HTMLVideoElement,
-    canvasEle: HTMLCanvasElement
-  ) {
+  async function setupVideoStream(videoEle: HTMLVideoElement, canvasEle: HTMLCanvasElement) {
     const audioStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
     });
@@ -93,8 +90,7 @@ function VideoRecorder(props: {
     videoEle.muted = true;
     videoEle.volume = 0;
     videoEle.srcObject = videoStream;
-    canvasEle.getContext("2d"); //Firefox require getContext to be called before capture stream
-    const canvasStream = canvasEle.captureStream(15); //canvasRef.current.captureStream(15)
+    const canvasStream = canvasEle.captureStream(15);
 
     const finalStream = new MediaStream();
     audioStream.getAudioTracks().forEach((track) => {
@@ -151,9 +147,7 @@ function VideoRecorder(props: {
     if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
       videoRecorder?.stopRecording(() => {
         const blob = videoRecorder.getBlob();
-        setRecordedVideo(
-          new File([blob], "video.webm", { type: "video/webm" })
-        );
+        setRecordedVideo(new File([blob], "video.webm", {type:"video/webm"}));
       });
     }
   }, [recordDurationCounter]);
@@ -186,9 +180,7 @@ function VideoRecorder(props: {
         // countdown is finished, time to stop recording
         videoRecorder?.stopRecording(() => {
           const blob = videoRecorder.getBlob();
-          const newVideoFile = new File([blob], "video.webm", {
-            type: "video/webm",
-          });
+          const newVideoFile = new File([blob], "video.webm", {type:"video/webm"});
           recordStateStopRecording(newVideoFile);
         });
       }
@@ -336,12 +328,7 @@ function VideoRecorder(props: {
             color: "white",
             visibility: videoRecorder ? "hidden" : "visible",
           }}
-          onClick={() => {
-            if (!videoRef.current || !canvasRef.current) {
-              return;
-            }
-            setupVideoStream(videoRef.current, canvasRef.current);
-          }}
+          onClick={()=>{if(!videoRef.current || !canvasRef.current){ return; } setupVideoStream(videoRef.current, canvasRef.current)}}
         >
           <PermCameraMicIcon style={{ width: "30%", height: "auto" }} />
         </Button>
