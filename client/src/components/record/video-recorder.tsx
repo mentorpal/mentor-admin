@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import RecordRTC, { MediaStreamRecorder, MultiStreamRecorder } from "recordrtc";
+import RecordRTC, { MediaStreamRecorder } from "recordrtc";
 import { Button, IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
@@ -14,7 +14,6 @@ import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 import { UseWithRecordState } from "types";
 import PermCameraMicIcon from "@material-ui/icons/PermCameraMic";
-import VirtualBackground from "images/virtual-background.png";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 
@@ -23,13 +22,20 @@ function VideoRecorder(props: {
   height: number;
   width: number;
   recordState: UseWithRecordState;
+  isVirtualBgMentor: boolean;
+  virtualBackgroundUrl: string;
   videoRecorderMaxLength: number;
   stopRequests: number;
 }): JSX.Element {
-  // TODO: This should come from mentor config
-  const isVirtualBgMentor = true;
-
-  const { classes, height, width, recordState, stopRequests } = props;
+  const {
+    classes,
+    height,
+    width,
+    recordState,
+    stopRequests,
+    isVirtualBgMentor,
+    virtualBackgroundUrl,
+  } = props;
   const [videoRecorder, setVideoRecorder] = useState<RecordRTC>();
   const [cameraIsOn, setCameraIsOn] = useState<boolean>(false);
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
@@ -44,7 +50,7 @@ function VideoRecorder(props: {
   const VirtualBg = useMemo<JSX.Element>(
     () => (
       <img
-        src={VirtualBackground}
+        src={virtualBackgroundUrl}
         alt=""
         style={{
           display: "block",
@@ -67,7 +73,7 @@ function VideoRecorder(props: {
         }
       />
     ),
-    [windowHeight, windowWidth]
+    [windowHeight, windowWidth, virtualBackgroundUrl]
   );
 
   //Using refs to access states variables in event handler
@@ -139,6 +145,7 @@ function VideoRecorder(props: {
     }
     setCameraIsOn(false);
     videoRecorder?.reset();
+
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
@@ -168,8 +175,10 @@ function VideoRecorder(props: {
       const counter = recordStartCountdown - 1;
       setRecordStartCountdown(counter);
       if (counter <= 0) {
-        recordState.startRecording();
+        videoRecorder?.reset();
+
         videoRecorder?.startRecording();
+        recordState.startRecording();
       }
     },
     recordStartCountdown > 0 ? 1000 : null
@@ -228,7 +237,18 @@ function VideoRecorder(props: {
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
+    if (canvasRef.current) {
+      clearCanvas(canvasRef.current);
+    }
     videoRecorder?.reset();
+  }
+
+  function clearCanvas(canvasEle: HTMLCanvasElement) {
+    const canvasCtx = canvasEle.getContext("2d");
+    if (!canvasCtx) {
+      return;
+    }
+    canvasCtx.clearRect(0, 0, canvasEle.width, canvasEle.height);
   }
 
   const spaceBarStopRecording = (event: {
@@ -300,7 +320,14 @@ function VideoRecorder(props: {
         Please get into position by facing forward and lining up with the
         outline.
       </Typography>
-      <div style={{ height, width, position: "relative" }}>
+      <div
+        style={{
+          height,
+          width,
+          position: "relative",
+          backgroundColor: "black",
+        }}
+      >
         <video
           data-cy="video-recorder-component"
           height={height}
@@ -308,8 +335,9 @@ function VideoRecorder(props: {
           autoPlay
           playsInline
           ref={videoRef}
+          style={{ visibility: cameraIsOn ? "visible" : "hidden" }}
         />
-        {VirtualBg}
+        {isVirtualBgMentor ? VirtualBg : undefined}
         <canvas
           data-cy="draw-canvas"
           id="canvas"
@@ -335,7 +363,8 @@ function VideoRecorder(props: {
             right: 0,
             width: "100%",
             color: "white",
-            visibility: cameraIsOn ? "hidden" : "visible",
+            visibility:
+              cameraIsOn || recordState.isUploading ? "hidden" : "visible",
           }}
           onClick={() => {
             if (!videoRef.current || !canvasRef.current) {

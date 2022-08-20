@@ -117,6 +117,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     error,
     editMentor,
     toStep,
+    virtualBackgroundUrls,
+    defaultVirtualBackground,
   } = useWithSetup(props.search);
   if (!readyToDisplay) {
     return (
@@ -158,6 +160,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             key="chat-type"
             classes={classes}
             mentor={mentor}
+            virtualBackgroundUrls={virtualBackgroundUrls}
+            defaultVirtualBackground={defaultVirtualBackground}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
           />

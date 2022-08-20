@@ -49,6 +49,8 @@ interface UseWithSetup {
   idleTipsVideoUrl: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
   mentor?: Mentor;
   isEdited: boolean;
   isLoading: boolean;
@@ -260,6 +262,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     classifierLambdaEndpoint:
       configState.config?.classifierLambdaEndpoint || "",
     uploadLambdaEndpoint: configState.config?.uploadLambdaEndpoint || "",
+    virtualBackgroundUrls: configState.config?.virtualBackgroundUrls || [],
+    defaultVirtualBackground:
+      configState.config?.defaultVirtualBackground || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,

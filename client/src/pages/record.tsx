@@ -406,6 +406,7 @@ function RecordPage(props: {
             <VideoPlayer
               classes={classes}
               recordState={recordState}
+              accessToken={props.accessToken}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
             />

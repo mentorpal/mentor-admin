@@ -14,19 +14,28 @@ import {
 } from "@material-ui/core";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";
-import overlay from "images/face-position-white.png";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
-import VirtualBackground from "images/virtual-background.png";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { useWithConfig } from "hooks/graphql/use-with-config";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
   videoRecorderMaxLength: number;
   stopRequests: number;
+  accessToken: string;
 }): JSX.Element {
-  // TODO: Get this from mentor config
-  const isVirtualBgMentor = true;
+  const { getData } = useActiveMentor();
+  const isVirtualBgMentor: boolean = getData(
+    (m) => m.data?.hasVirtualBackground || false
+  );
+  const config = useWithConfig(props.accessToken);
+  const virtualBackgroundUrl: string =
+    getData((m) => m.data?.virtualBackgroundUrl || "") ||
+    (config.config?.virtualBackgroundUrls.length
+      ? config.config.virtualBackgroundUrls[0]
+      : "");
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
@@ -44,7 +53,7 @@ function VideoPlayer(props: {
   const VirtualBg = useMemo<JSX.Element>(
     () => (
       <img
-        src={VirtualBackground}
+        src={virtualBackgroundUrl}
         alt=""
         style={{
           display: "block",
@@ -59,7 +68,7 @@ function VideoPlayer(props: {
         height={height}
       />
     ),
-    [width, height]
+    [width, height, virtualBackgroundUrl]
   );
 
   const { classes, recordState } = props;
@@ -132,13 +141,15 @@ function VideoPlayer(props: {
         classes={classes}
         height={height}
         width={width}
+        virtualBackgroundUrl={virtualBackgroundUrl}
         recordState={recordState}
+        isVirtualBgMentor={isVirtualBgMentor}
         videoRecorderMaxLength={props.videoRecorderMaxLength}
         stopRequests={props.stopRequests}
       />
       <div
         style={{
-          position: "absolute",
+          position: "relative",
           visibility:
             recordState.curAnswer?.videoSrc || isUploading
               ? "visible"
@@ -165,6 +176,7 @@ function VideoPlayer(props: {
             height: height,
             width: width,
             color: "white",
+            position: "relative",
           }}
         >
           <div
@@ -187,7 +199,7 @@ function VideoPlayer(props: {
               ? "You may continue to record other questions."
               : undefined}
           </div>
-          {VirtualBg}
+          {isVirtualBgMentor ? VirtualBg : undefined}
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}

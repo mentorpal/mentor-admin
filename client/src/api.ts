@@ -242,6 +242,8 @@ export async function fetchConfig(): Promise<Config> {
           displayGuestPrompt
           videoRecorderMaxLength
           subjectRecordPriority
+          virtualBackgroundUrls
+          defaultVirtualBackground
         }
       }
   `,
@@ -836,6 +838,8 @@ export async function fetchMentorById(
           thumbnail
           lastTrainedAt
           isDirty
+          hasVirtualBackground
+          virtualBackgroundUrl
           defaultSubject {
             _id
           }
@@ -939,6 +943,8 @@ export async function updateMentorDetails(
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
           isPrivate: mentor.isPrivate,
+          hasVirtualBackground: mentor.hasVirtualBackground,
+          virtualBackgroundUrl: mentor.virtualBackgroundUrl,
         },
       },
     },
