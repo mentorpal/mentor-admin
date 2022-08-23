@@ -100,8 +100,7 @@ function VideoRecorder(props: {
     videoEle.muted = true;
     videoEle.volume = 0;
     videoEle.srcObject = videoStream;
-    const canvasStream = canvasEle.captureStream(15);
-
+    const canvasStream = canvasEle.captureStream(30);
     const finalStream = new MediaStream();
     audioStream.getAudioTracks().forEach((track) => {
       finalStream.addTrack(track);
@@ -175,8 +174,8 @@ function VideoRecorder(props: {
       const counter = recordStartCountdown - 1;
       setRecordStartCountdown(counter);
       if (counter <= 0) {
+        videoRecorder?.stopRecording();
         videoRecorder?.reset();
-
         videoRecorder?.startRecording();
         recordState.startRecording();
       }
@@ -221,6 +220,9 @@ function VideoRecorder(props: {
     if (countdownInProgress) {
       return;
     }
+    //Note: This is a workaround and is not the actaul start of the recording.
+    // First frame of subsequent recordings contains last frame of previous recording, so we need to start recording, stop, then start again right when the user expectes it to start.
+    videoRecorder?.startRecording();
     setRecordStartCountdown(3);
   }
 
@@ -364,7 +366,11 @@ function VideoRecorder(props: {
             width: "100%",
             color: "white",
             visibility:
-              cameraIsOn || recordState.isUploading ? "hidden" : "visible",
+              cameraIsOn ||
+              (!cameraIsOn && recordState.curAnswer?.videoSrc) ||
+              recordState.isUploading
+                ? "hidden"
+                : "visible",
           }}
           onClick={() => {
             if (!videoRef.current || !canvasRef.current) {
