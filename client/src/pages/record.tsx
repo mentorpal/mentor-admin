@@ -59,6 +59,7 @@ import {
   convertToRaw,
   convertFromRaw,
 } from "draft-js";
+import { useWithBrowser } from "hooks/use-with-browser";
 
 const useStyles = makeStyles((theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -174,9 +175,13 @@ function RecordPage(props: {
     recordState;
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
+  const { browserSupportsVbg } = useWithBrowser();
 
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
+  const hasVirtualBackground = getData(
+    (state) => state.data?.hasVirtualBackground
+  );
   const curQuestion = getValueIfKeyExists(
     curAnswer?.answer.question || "",
     useQuestions(
@@ -396,6 +401,16 @@ function RecordPage(props: {
             total={recordState.answers.length}
           />
         </div>
+        {hasVirtualBackground && !browserSupportsVbg() ? (
+          <span
+            style={{ color: "darkred", width: "80vw" }}
+            data-cy="unsupported-browser-warning"
+          >
+            WARNING: You are trying to record using a virtual background in an
+            unsupported browser. Please use Chrome, Edge, or Opera, or turn off
+            virtual background use in setup.
+          </span>
+        ) : undefined}
 
         {mentorType === MentorType.VIDEO ? (
           <div

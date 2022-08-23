@@ -19,6 +19,7 @@ import { Slide } from "./slide";
 import { getFileSizeInMb } from "helpers";
 import { uploadVbg } from "api";
 import { LoadingDialog } from "components/dialog";
+import { useWithBrowser } from "hooks/use-with-browser";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
@@ -44,6 +45,7 @@ export function MentorTypeSlide(props: {
     useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
+  const { browserSupportsVbg } = useWithBrowser();
 
   if (!mentor || isMentorLoading) {
     return <div />;
@@ -112,19 +114,44 @@ export function MentorTypeSlide(props: {
 
           {mentor.mentorType === MentorType.VIDEO ? (
             <div data-cy="virtual-background-checkbox">
+              {mentor.hasVirtualBackground && !browserSupportsVbg() ? (
+                <div
+                  style={{ color: "darkred", margin: "20px" }}
+                  data-cy="unsupported-browser-warning"
+                >
+                  WARNING: Your browser does not support virtual backgrounds.
+                  Please use Chrome, Edge, or Opera, or turn off virtual
+                  background use.
+                </div>
+              ) : undefined}
               <label>
                 <input
+                  disabled={
+                    !mentor.hasVirtualBackground && !browserSupportsVbg()
+                  }
                   defaultChecked={mentor.hasVirtualBackground}
                   onChange={handleCheckboxChange}
                   type="checkbox"
                 />
                 <span style={{ color: "blue" }}>Beta: </span>Use Virtual
                 Background?
+                <br />
+                <br />
+                {!mentor.hasVirtualBackground && !browserSupportsVbg() ? (
+                  <span style={{ color: "darkred" }}>
+                    Note: Your browser does not support virtual backgrounds. If
+                    you&apos;d like to use a virtual background, please use
+                    Chrome, Edge, or Opera.
+                  </span>
+                ) : (
+                  ""
+                )}
               </label>
             </div>
           ) : undefined}
 
-          {mentor.hasVirtualBackground ? (
+          {mentor.mentorType === MentorType.VIDEO &&
+          mentor.hasVirtualBackground ? (
             <span
               style={{
                 display: "flex",

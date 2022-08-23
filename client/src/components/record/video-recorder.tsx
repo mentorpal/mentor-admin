@@ -114,6 +114,7 @@ function VideoRecorder(props: {
         finalStream.addTrack(track);
       });
     }
+
     const recorder = new RecordRTC(finalStream, {
       type: "video",
       mimeType: "video/webm;codecs=vp9", //;codecs=vp9
@@ -269,7 +270,6 @@ function VideoRecorder(props: {
 
   useEffect(() => {
     document.addEventListener("keydown", spaceBarStopRecording, false);
-
     return () => {
       document.removeEventListener("keydown", spaceBarStopRecording, false);
     };
