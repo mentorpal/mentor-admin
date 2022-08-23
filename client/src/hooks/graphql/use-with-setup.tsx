@@ -64,6 +64,7 @@ interface UseWithSetup {
   toStep: (i: number) => void;
   clearError: () => void;
   navigateToMissingSetup: () => void;
+  onLeave: (cb: () => void) => void;
 }
 
 export function useWithSetup(search?: { i?: string }): UseWithSetup {
@@ -215,6 +216,13 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     addToIdx(-1);
   }
 
+  function onLeave(cb: () => void): void {
+    if (isMentorEdited) {
+      saveMentorDetails();
+    }
+    cb();
+  }
+
   function toStep(i: number): void {
     if (!status || i < 0 || i >= steps.length) {
       return;
@@ -279,5 +287,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     toStep,
     clearError,
     navigateToMissingSetup,
+    onLeave,
   };
 }

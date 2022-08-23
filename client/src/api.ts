@@ -1070,6 +1070,27 @@ export async function uploadThumbnail(
   });
 }
 
+export async function uploadVbg(
+  mentorId: string,
+  vbg: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentor: mentorId }));
+  data.append("background_image", vbg);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vbg"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "virtualBackground"],
+  });
+}
+
 export async function regenerateVTTForQuestion(
   questionId: string,
   mentorId: string,

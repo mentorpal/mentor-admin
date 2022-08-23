@@ -499,7 +499,7 @@ function VideoRecorder(props: {
           type="file"
           accept="audio/*,video/*"
           onChange={(e) => {
-            if (!e.target.files) {
+            if (!e.target.files?.length) {
               return;
             } else {
               recordStateStopRecording(e.target.files[0]);

@@ -26,6 +26,8 @@ import { FinalSetupSlide } from "components/setup/final-setup-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 import withLocation from "wrap-with-location";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -119,7 +121,12 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     toStep,
     virtualBackgroundUrls,
     defaultVirtualBackground,
+    onLeave,
   } = useWithSetup(props.search);
+  const { state: loginState } = useWithLogin();
+  const { state: configState } = useWithConfig();
+  const accessToken = loginState.accessToken || "";
+  const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
   if (!readyToDisplay) {
     return (
       <div className={classes.root}>
@@ -164,6 +171,8 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             defaultVirtualBackground={defaultVirtualBackground}
             isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
+            accessToken={accessToken}
+            uploadLambdaEndpoint={uploadLambdaEndpoint}
           />
         );
       case SetupStepType.INTRODUCTION:
@@ -214,7 +223,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
   }
   return (
     <div className={classes.root}>
-      <NavBar title="Mentor Setup" mentorId={mentor?._id} />
+      <NavBar onNav={onLeave} title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         animation="slide"
         index={idx}

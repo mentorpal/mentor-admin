@@ -16,6 +16,9 @@ import {
 } from "@material-ui/core";
 import { Mentor, MentorType } from "types";
 import { Slide } from "./slide";
+import { getFileSizeInMb } from "helpers";
+import { uploadVbg } from "api";
+import { LoadingDialog } from "components/dialog";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
@@ -23,6 +26,8 @@ export function MentorTypeSlide(props: {
   isMentorLoading: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
+  accessToken: string;
+  uploadLambdaEndpoint: string;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
   const {
@@ -32,9 +37,13 @@ export function MentorTypeSlide(props: {
     editMentor,
     virtualBackgroundUrls,
     defaultVirtualBackground,
+    accessToken,
+    uploadLambdaEndpoint,
   } = props;
   const [backgroundDialogOpen, setBackgroundDialogOpen] =
     useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
 
   if (!mentor || isMentorLoading) {
     return <div />;
@@ -51,6 +60,28 @@ export function MentorTypeSlide(props: {
 
   const currentlyEnabledBackground =
     mentor.virtualBackgroundUrl || defaultVirtualBackground;
+
+  const handleVbgUpload = (file: File) => {
+    const mbFileSize = getFileSizeInMb(file);
+    if (mbFileSize > 5.5) {
+      // AWS lambda max payload is 6 mb
+      setErrorMessage("Error: Image size must be less that 5.5 mb");
+      return;
+    } else {
+      setErrorMessage("");
+      setUploadInProgress(true);
+      uploadVbg(mentor._id, file, accessToken, uploadLambdaEndpoint)
+        .then((vbgUrl) => {
+          setUploadInProgress(false);
+          editMentor({ virtualBackgroundUrl: vbgUrl });
+        })
+        .catch((err) => {
+          setUploadInProgress(false);
+          setErrorMessage("Failed to upload image");
+          console.error(err);
+        });
+    }
+  };
 
   return (
     <Slide
@@ -87,13 +118,21 @@ export function MentorTypeSlide(props: {
                   onChange={handleCheckboxChange}
                   type="checkbox"
                 />
-                Use Virtual Background?
+                <span style={{ color: "blue" }}>Beta: </span>Use Virtual
+                Background?
               </label>
             </div>
           ) : undefined}
 
           {mentor.hasVirtualBackground ? (
-            <>
+            <span
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <div>
                 <img
                   style={{ width: "200px", height: "auto" }}
@@ -105,9 +144,24 @@ export function MentorTypeSlide(props: {
                   setBackgroundDialogOpen(true);
                 }}
               >
-                Change virtual background?
+                change background
               </Button>
-            </>
+              <input
+                data-cy="upload-file"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (!e.target.files?.length) {
+                    return;
+                  } else {
+                    handleVbgUpload(e.target.files[0]);
+                  }
+                }}
+              />
+              <span style={{ color: "red", margin: "5px" }}>
+                {errorMessage}
+              </span>
+            </span>
           ) : undefined}
 
           <Typography style={{ marginTop: 15 }}>
@@ -159,6 +213,7 @@ export function MentorTypeSlide(props: {
               </>
             </DialogContent>
           </Dialog>
+          <LoadingDialog title={uploadInProgress ? "Uploading..." : ""} />
         </div>
       }
     />
