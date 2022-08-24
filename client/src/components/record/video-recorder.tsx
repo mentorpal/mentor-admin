@@ -377,7 +377,7 @@ function VideoRecorder(props: {
             visibility:
               cameraIsOn ||
               (!cameraIsOn && recordState.curAnswer?.videoSrc) ||
-              recordState.isUploading
+              recordState.curAnswer?.isUploading
                 ? "hidden"
                 : "visible",
           }}
