@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Typography,
 } from "@material-ui/core";
+import overlay from "images/face-position-white.png";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";
 import { equals } from "helpers";
@@ -212,6 +213,25 @@ function VideoPlayer(props: {
             }
           />
         </div>
+        <div
+          data-cy="outline"
+          className={classes.overlay}
+          style={{
+            width: width,
+            height: height,
+            position: "absolute",
+            top: 25,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            opacity: recordState.isRecording ? 0.5 : 0.75,
+            visibility: trimInProgress ? "visible" : "hidden",
+            backgroundImage: `url(${overlay})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "contain",
+          }}
+        />
         <Slider
           data-cy="slider"
           valueLabelDisplay="on"

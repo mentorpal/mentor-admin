@@ -2484,7 +2484,7 @@ describe("Record", () => {
     cy.get("[data-cy=download-video]").should("not.exist");
   });
 
-  it("Guide silhouette should be visible while trimming a video", () => {
+  it.only("Guide silhouette should be visible while trimming a video", () => {
     cyMockDefault(cy, {
       mentor: [
         videoMentor,
