@@ -50,27 +50,6 @@ function VideoPlayer(props: {
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
 
-  const VirtualBg = useMemo<JSX.Element>(
-    () => (
-      <img
-        src={virtualBackgroundUrl}
-        alt=""
-        style={{
-          display: "block",
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: -1,
-        }}
-        width={width}
-        height={height}
-      />
-    ),
-    [width, height, virtualBackgroundUrl]
-  );
-
   const { classes, recordState } = props;
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
@@ -199,7 +178,6 @@ function VideoPlayer(props: {
               ? "You may continue to record other questions."
               : undefined}
           </div>
-          {isVirtualBgMentor ? VirtualBg : undefined}
           <ReactPlayer
             data-cy="video-player"
             ref={reactPlayerRef}
@@ -220,9 +198,18 @@ function VideoPlayer(props: {
             progressInterval={100}
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
-            style={{
-              visibility: isUploading ? "hidden" : "inherit",
-            }}
+            style={
+              isVirtualBgMentor
+                ? {
+                    backgroundImage: `url(${virtualBackgroundUrl})`,
+                    backgroundSize: "100% auto",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center",
+                  }
+                : {
+                    visibility: isUploading ? "hidden" : "inherit",
+                  }
+            }
           />
         </div>
         <Slider
