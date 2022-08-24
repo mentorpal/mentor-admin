@@ -4,8 +4,33 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-declare module "*.jpg";
-declare module "*.png";
-declare module "*.jpeg";
-declare module "*.gif";
-declare module "components/record/virtual-bg.jpg";
+import { useEffect, useState } from "react";
+import { detect } from "detect-browser";
+
+interface UseWithBrowser {
+  browserName: string;
+  browserSupportsVbg: () => boolean;
+}
+
+export function useWithBrowser(): UseWithBrowser {
+  const vbgSupportedBrowsers = ["chrome", "edge", "opera"];
+  const [browserName, setBrowserName] = useState<string>("");
+
+  useEffect(() => {
+    const browser = detect();
+    setBrowserName(browser?.name || "");
+  }, []);
+
+  function browserSupportsVbg(): boolean {
+    return Boolean(
+      vbgSupportedBrowsers.find(
+        (vbgSuppBrowser) => vbgSuppBrowser === browserName
+      )
+    );
+  }
+
+  return {
+    browserName,
+    browserSupportsVbg,
+  };
+}

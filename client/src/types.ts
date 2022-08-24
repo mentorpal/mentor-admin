@@ -29,6 +29,8 @@ export interface Config {
   disclaimerTitle: string;
   disclaimerText: string;
   disclaimerDisabled: boolean;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
 }
 
 export interface Connection<T> {
@@ -92,6 +94,8 @@ export interface Mentor {
   subjects: Subject[];
   topics: Topic[];
   answers: Answer[];
+  hasVirtualBackground: boolean;
+  virtualBackgroundUrl: string;
 }
 
 export enum SubjectTypes {

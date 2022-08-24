@@ -3512,4 +3512,41 @@ describe("Record", () => {
     cy.get("[data-cy=video-player]").should("be.visible");
     cy.get("[data-cy=transcript]").contains("I'm 37 years old");
   });
+
+  it("Displays virtual background if virtual mentor", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...videoMentor,
+        hasVirtualBackground: true,
+        virtualBackgroundUrl: "https://www.fakeimageurl.com/",
+      },
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=virtual-background-image]").should("exist");
+    cy.get("[data-cy=virtual-background-image]").should(
+      "have.attr",
+      "src",
+      "https://www.fakeimageurl.com/"
+    );
+  });
+
+  it("Does not display virtual background if not virtual mentor", () => {
+    cyMockDefault(cy, {
+      mentor: { ...videoMentor, hasVirtualBackground: false },
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=virtual-background-image]").should("not.exist");
+  });
+
+  it("Uses default vbg if mentor has none provided", () => {
+    cyMockDefault(cy, {
+      mentor: { ...videoMentor, hasVirtualBackground: true },
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=virtual-background-image]").should(
+      "have.attr",
+      "src",
+      "https://default.image.url.com/"
+    );
+  });
 });

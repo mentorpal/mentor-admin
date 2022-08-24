@@ -62,6 +62,8 @@ export interface MentorGQL {
   subjects: SubjectGQL[];
   topics: Topic[];
   answers: AnswerGQL[];
+  hasVirtualBackground: boolean;
+  virtualBackgroundUrl: string;
 }
 
 export interface SubjectGQL {

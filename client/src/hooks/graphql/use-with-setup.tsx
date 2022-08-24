@@ -49,6 +49,8 @@ interface UseWithSetup {
   idleTipsVideoUrl: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
   mentor?: Mentor;
   isEdited: boolean;
   isLoading: boolean;
@@ -62,6 +64,7 @@ interface UseWithSetup {
   toStep: (i: number) => void;
   clearError: () => void;
   navigateToMissingSetup: () => void;
+  onLeave: (cb: () => void) => void;
 }
 
 export function useWithSetup(search?: { i?: string }): UseWithSetup {
@@ -213,6 +216,13 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     addToIdx(-1);
   }
 
+  function onLeave(cb: () => void): void {
+    if (isMentorEdited) {
+      saveMentorDetails();
+    }
+    cb();
+  }
+
   function toStep(i: number): void {
     if (!status || i < 0 || i >= steps.length) {
       return;
@@ -260,6 +270,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     classifierLambdaEndpoint:
       configState.config?.classifierLambdaEndpoint || "",
     uploadLambdaEndpoint: configState.config?.uploadLambdaEndpoint || "",
+    virtualBackgroundUrls: configState.config?.virtualBackgroundUrls || [],
+    defaultVirtualBackground:
+      configState.config?.defaultVirtualBackground || "",
     mentor: editedMentor,
     isEdited: isMentorEdited,
     isLoading: isMentorLoading,
@@ -274,5 +287,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     toStep,
     clearError,
     navigateToMissingSetup,
+    onLeave,
   };
 }

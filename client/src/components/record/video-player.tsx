@@ -12,25 +12,36 @@ import {
   CircularProgress,
   Typography,
 } from "@material-ui/core";
-import { useWithWindowSize } from "hooks/use-with-window-size";
-
-import VideoRecorder from "./video-recorder";
 import overlay from "images/face-position-white.png";
+import { useWithWindowSize } from "hooks/use-with-window-size";
+import VideoRecorder from "./video-recorder";
 import { equals } from "helpers";
 import { UseWithRecordState } from "types";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { useWithConfig } from "hooks/graphql/use-with-config";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
   recordState: UseWithRecordState;
   videoRecorderMaxLength: number;
   stopRequests: number;
+  accessToken: string;
 }): JSX.Element {
+  const { getData } = useActiveMentor();
+  const isVirtualBgMentor: boolean = getData(
+    (m) => m.data?.hasVirtualBackground || false
+  );
+  const config = useWithConfig(props.accessToken);
+  const virtualBackgroundUrl: string =
+    getData((m) => m.data?.virtualBackgroundUrl) ||
+    config.config?.defaultVirtualBackground ||
+    "";
+
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-  const { classes, recordState } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -39,6 +50,8 @@ function VideoPlayer(props: {
     windowHeight > windowWidth
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
+
+  const { classes, recordState } = props;
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
   );
@@ -108,13 +121,15 @@ function VideoPlayer(props: {
         classes={classes}
         height={height}
         width={width}
+        virtualBackgroundUrl={virtualBackgroundUrl}
         recordState={recordState}
+        isVirtualBgMentor={isVirtualBgMentor}
         videoRecorderMaxLength={props.videoRecorderMaxLength}
         stopRequests={props.stopRequests}
       />
       <div
         style={{
-          position: "absolute",
+          position: "relative",
           visibility:
             recordState.curAnswer?.videoSrc || isUploading
               ? "visible"
@@ -137,10 +152,11 @@ function VideoPlayer(props: {
         </Typography>
         <div
           style={{
-            backgroundColor: "#000",
+            backgroundColor: !isVirtualBgMentor ? "#000" : "",
             height: height,
             width: width,
             color: "white",
+            position: "relative",
           }}
         >
           <div
@@ -183,30 +199,39 @@ function VideoPlayer(props: {
             progressInterval={100}
             onProgress={onVideoProgress}
             onDuration={(d) => setVideoLength(d)}
-            style={{
-              visibility: isUploading ? "hidden" : "inherit",
-            }}
-          />
-          <div
-            data-cy="outline"
-            className={classes.overlay}
-            style={{
-              width: width,
-              height: height,
-              position: "absolute",
-              top: 25,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              opacity: recordState.isRecording ? 0.5 : 0.75,
-              visibility: trimInProgress ? "visible" : "hidden",
-              backgroundImage: `url(${overlay})`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "contain",
-            }}
+            style={
+              isVirtualBgMentor
+                ? {
+                    backgroundImage: `url(${virtualBackgroundUrl})`,
+                    backgroundSize: "100% auto",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "center",
+                  }
+                : {
+                    visibility: isUploading ? "hidden" : "inherit",
+                  }
+            }
           />
         </div>
+        <div
+          data-cy="outline"
+          className={classes.overlay}
+          style={{
+            width: width,
+            height: height,
+            position: "absolute",
+            top: 25,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            opacity: recordState.isRecording ? 0.5 : 0.75,
+            visibility: trimInProgress ? "visible" : "hidden",
+            backgroundImage: `url(${overlay})`,
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "contain",
+          }}
+        />
         <Slider
           data-cy="slider"
           valueLabelDisplay="on"

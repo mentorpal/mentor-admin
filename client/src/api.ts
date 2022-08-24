@@ -242,6 +242,8 @@ export async function fetchConfig(): Promise<Config> {
           displayGuestPrompt
           videoRecorderMaxLength
           subjectRecordPriority
+          virtualBackgroundUrls
+          defaultVirtualBackground
         }
       }
   `,
@@ -836,6 +838,8 @@ export async function fetchMentorById(
           thumbnail
           lastTrainedAt
           isDirty
+          hasVirtualBackground
+          virtualBackgroundUrl
           defaultSubject {
             _id
           }
@@ -939,6 +943,8 @@ export async function updateMentorDetails(
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
           isPrivate: mentor.isPrivate,
+          hasVirtualBackground: mentor.hasVirtualBackground,
+          virtualBackgroundUrl: mentor.virtualBackgroundUrl,
         },
       },
     },
@@ -1061,6 +1067,27 @@ export async function uploadThumbnail(
     },
     accessToken,
     dataPath: ["data", "thumbnail"],
+  });
+}
+
+export async function uploadVbg(
+  mentorId: string,
+  vbg: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentor: mentorId }));
+  data.append("background_image", vbg);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vbg"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "virtualBackground"],
   });
 }
 

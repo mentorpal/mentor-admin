@@ -72,6 +72,8 @@ export interface Mentor {
   topics: Topic[];
   answers: Answer[];
   questions: SubjectQuestion[];
+  hasVirtualBackground: boolean;
+  virtualBackgroundUrl: string;
 }
 
 export enum SubjectTypes {
