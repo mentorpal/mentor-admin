@@ -113,7 +113,7 @@ export function MentorTypeSlide(props: {
           </Select>
 
           {mentor.mentorType === MentorType.VIDEO ? (
-            <div data-cy="virtual-background-checkbox">
+            <div>
               {mentor.hasVirtualBackground && !browserSupportsVbg() ? (
                 <div
                   style={{ color: "darkred", margin: "20px" }}
@@ -126,6 +126,7 @@ export function MentorTypeSlide(props: {
               ) : undefined}
               <label>
                 <input
+                  data-cy="virtual-background-checkbox"
                   disabled={
                     !mentor.hasVirtualBackground && !browserSupportsVbg()
                   }
@@ -153,6 +154,7 @@ export function MentorTypeSlide(props: {
           {mentor.mentorType === MentorType.VIDEO &&
           mentor.hasVirtualBackground ? (
             <span
+              data-cy="virtual-background-config"
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -162,11 +164,13 @@ export function MentorTypeSlide(props: {
             >
               <div>
                 <img
+                  data-cy="current-vbg-img"
                   style={{ width: "200px", height: "auto" }}
                   src={currentlyEnabledBackground}
                 />
               </div>
               <Button
+                data-cy="open-change-background-dialog"
                 onClick={() => {
                   setBackgroundDialogOpen(true);
                 }}

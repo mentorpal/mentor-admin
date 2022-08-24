@@ -90,6 +90,8 @@ export interface Config {
   disclaimerTitle: string;
   disclaimerText: string;
   disclaimerDisabled: boolean;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
@@ -111,6 +113,8 @@ export const CONFIG_DEFAULT: Config = {
   disclaimerTitle: "",
   disclaimerText: "",
   disclaimerDisabled: false,
+  virtualBackgroundUrls: [],
+  defaultVirtualBackground: "https://default.image.url.com/",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {

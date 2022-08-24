@@ -52,6 +52,7 @@ function VideoRecorder(props: {
       <img
         src={virtualBackgroundUrl}
         alt=""
+        data-cy="virtual-background-image"
         style={{
           display: "block",
           margin: "auto",

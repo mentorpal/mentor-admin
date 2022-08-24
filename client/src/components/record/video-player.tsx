@@ -32,10 +32,10 @@ function VideoPlayer(props: {
   );
   const config = useWithConfig(props.accessToken);
   const virtualBackgroundUrl: string =
-    getData((m) => m.data?.virtualBackgroundUrl || "") ||
-    (config.config?.virtualBackgroundUrls.length
-      ? config.config.virtualBackgroundUrls[0]
-      : "");
+    getData((m) => m.data?.virtualBackgroundUrl) ||
+    config.config?.defaultVirtualBackground ||
+    "";
+
   const reactPlayerRef = useRef<ReactPlayer>(null);
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
