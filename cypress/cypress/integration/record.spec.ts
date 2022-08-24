@@ -1750,6 +1750,54 @@ describe("Record", () => {
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
   });
 
+  it("video player not visible while upload in progress", () => {
+    cyMockDefault(cy, {
+      mentor: [videoMentor],
+      questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoMentor.answers[0].question._id,
+                    question: videoMentor.answers[0].question.question,
+                  },
+
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[1].question._id,
+                    question: videoMentor.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+                {
+                  question: {
+                    _id: videoMentor.answers[2].question._id,
+                    question: videoMentor.answers[2].question.question,
+                  },
+
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "i am kayla",
+                },
+              ],
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/record");
+    cy.get("[data-cy=video-player]").should("not.be.visible");
+  });
+
   it("upload button does not change to trim when trim is not editable", () => {
     cyMockDefault(cy, {
       mentor: { ...videoMentor, isDirty: true },

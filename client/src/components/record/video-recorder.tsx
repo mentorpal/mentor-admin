@@ -158,6 +158,7 @@ function VideoRecorder(props: {
       return;
     }
     if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
+      setCameraIsOn(false);
       videoRecorder?.stopRecording(() => {
         const blob = videoRecorder.getBlob();
         setRecordedVideo(
@@ -166,6 +167,12 @@ function VideoRecorder(props: {
       });
     }
   }, [recordDurationCounter]);
+
+  useEffect(() => {
+    if (!cameraIsOn && canvasRef.current) {
+      clearCanvas(canvasRef.current);
+    }
+  }, [cameraIsOn]);
 
   // When start recording is pressed, this interval begins
   useInterval(
@@ -196,6 +203,7 @@ function VideoRecorder(props: {
       if (counter <= 0) {
         // countdown is finished, time to stop recording
         videoRecorder?.stopRecording(() => {
+          setCameraIsOn(false);
           const blob = videoRecorder.getBlob();
           const newVideoFile = new File([blob], "video.webm", {
             type: "video/webm",

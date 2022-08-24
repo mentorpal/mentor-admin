@@ -13,7 +13,7 @@ interface UseWithBrowser {
 }
 
 export function useWithBrowser(): UseWithBrowser {
-  const vbgSupportedBrowsers = ["chrome", "edge", "opera"];
+  const vbgSupportedBrowsers = ["chrome", "edge", "edge-chromium", "opera"];
   const [browserName, setBrowserName] = useState<string>("");
 
   useEffect(() => {

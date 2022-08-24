@@ -152,7 +152,7 @@ function VideoPlayer(props: {
         </Typography>
         <div
           style={{
-            backgroundColor: !isVirtualBgMentor ? "#000" : "",
+            backgroundColor: "black",
             height: height,
             width: width,
             color: "white",
@@ -206,6 +206,7 @@ function VideoPlayer(props: {
                     backgroundSize: "100% auto",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
+                    visibility: isUploading ? "hidden" : "inherit",
                   }
                 : {
                     visibility: isUploading ? "hidden" : "inherit",
