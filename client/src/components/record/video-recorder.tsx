@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import RecordRTC, { MediaStreamRecorder } from "recordrtc";
 import { Button, IconButton, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
@@ -15,7 +15,7 @@ import overlay from "images/face-position-white.png";
 import { UseWithRecordState } from "types";
 import PermCameraMicIcon from "@material-ui/icons/PermCameraMic";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
-import { useWithWindowSize } from "hooks/use-with-window-size";
+import { useWithImage } from "hooks/graphql/use-with-image";
 
 function VideoRecorder(props: {
   classes: Record<string, string>;
@@ -45,37 +45,7 @@ function VideoRecorder(props: {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
-
-  const VirtualBg = useMemo<JSX.Element>(
-    () => (
-      <img
-        src={virtualBackgroundUrl}
-        alt=""
-        data-cy="virtual-background-image"
-        style={{
-          display: "block",
-          margin: "auto",
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-        }}
-        width={
-          windowHeight > windowWidth
-            ? windowWidth
-            : Math.max(windowHeight - 600, 300) * (16 / 9)
-        }
-        height={
-          windowHeight > windowWidth
-            ? windowWidth * (9 / 16)
-            : Math.max(windowHeight - 600, 300)
-        }
-      />
-    ),
-    [windowHeight, windowWidth, virtualBackgroundUrl]
-  );
+  const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -309,6 +279,15 @@ function VideoRecorder(props: {
     return `${minutesString}:${secondsString}`;
   }
 
+  const backgroundImageStyling: React.CSSProperties = isVirtualBgMentor
+    ? {
+        backgroundImage: `url(${virtualBackgroundUrl})`,
+        backgroundSize: vbgAspectRatio >= 1.77 ? "auto 100%" : "100% auto",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+      }
+    : {};
+
   return (
     <div
       data-cy="video-recorder"
@@ -337,6 +316,7 @@ function VideoRecorder(props: {
           width,
           position: "relative",
           backgroundColor: "black",
+          ...backgroundImageStyling,
         }}
       >
         <video
@@ -348,7 +328,6 @@ function VideoRecorder(props: {
           ref={videoRef}
           style={{ visibility: cameraIsOn ? "visible" : "hidden" }}
         />
-        {isVirtualBgMentor ? VirtualBg : undefined}
         <canvas
           data-cy="draw-canvas"
           id="canvas"

@@ -19,6 +19,7 @@ import { equals } from "helpers";
 import { UseWithRecordState } from "types";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithConfig } from "hooks/graphql/use-with-config";
+import { useWithImage } from "hooks/graphql/use-with-image";
 
 function VideoPlayer(props: {
   classes: Record<string, string>;
@@ -42,6 +43,7 @@ function VideoPlayer(props: {
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
+  const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -203,7 +205,8 @@ function VideoPlayer(props: {
               isVirtualBgMentor
                 ? {
                     backgroundImage: `url(${virtualBackgroundUrl})`,
-                    backgroundSize: "100% auto",
+                    backgroundSize:
+                      vbgAspectRatio >= 1.77 ? "auto 100%" : "100% auto",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
                     visibility: isUploading ? "hidden" : "inherit",
