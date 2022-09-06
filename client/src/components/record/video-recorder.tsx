@@ -311,6 +311,7 @@ function VideoRecorder(props: {
         outline.
       </Typography>
       <div
+        data-cy="video-recorder-background"
         style={{
           height,
           width,
