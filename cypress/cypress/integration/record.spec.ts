@@ -3570,11 +3570,10 @@ describe("Record", () => {
       },
     });
     cy.visit("/record");
-    cy.get("[data-cy=virtual-background-image]").should("exist");
-    cy.get("[data-cy=virtual-background-image]").should(
-      "have.attr",
-      "src",
-      "https://www.fakeimageurl.com/"
+    cy.get("[data-cy=video-recorder-background]").should(
+      "have.css",
+      "background-image",
+      'url("https://www.fakeimageurl.com/")'
     );
   });
 
@@ -3583,7 +3582,11 @@ describe("Record", () => {
       mentor: { ...videoMentor, hasVirtualBackground: false },
     });
     cy.visit("/record");
-    cy.get("[data-cy=virtual-background-image]").should("not.exist");
+    cy.get("[data-cy=video-recorder-background]").should(
+      "have.css",
+      "background-image",
+      "none"
+    );
   });
 
   it("Uses default vbg if mentor has none provided", () => {
@@ -3591,10 +3594,10 @@ describe("Record", () => {
       mentor: { ...videoMentor, hasVirtualBackground: true },
     });
     cy.visit("/record");
-    cy.get("[data-cy=virtual-background-image]").should(
-      "have.attr",
-      "src",
-      "https://default.image.url.com/"
+    cy.get("[data-cy=video-recorder-background]").should(
+      "have.css",
+      "background-image",
+      'url("https://default.image.url.com/")'
     );
   });
 });
