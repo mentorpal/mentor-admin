@@ -327,7 +327,9 @@ function VideoRecorder(props: {
           autoPlay
           playsInline
           ref={videoRef}
-          style={{ visibility: cameraIsOn ? "visible" : "hidden" }}
+          style={{
+            visibility: cameraIsOn && !isVirtualBgMentor ? "visible" : "hidden",
+          }}
         />
         <canvas
           data-cy="draw-canvas"
