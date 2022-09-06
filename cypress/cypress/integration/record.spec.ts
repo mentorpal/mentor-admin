@@ -3594,10 +3594,10 @@ describe("Record", () => {
       mentor: { ...videoMentor, hasVirtualBackground: true },
     });
     cy.visit("/record");
-    cy.get("[data-cy=virtual-background-image]").should(
-      "have.attr",
-      "src",
-      "https://default.image.url.com/"
+    cy.get("[data-cy=video-recorder-background]").should(
+      "have.css",
+      "background-image",
+      'url("https://default.image.url.com/")'
     );
   });
 });
