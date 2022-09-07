@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { Results, SelfieSegmentation } from "@mediapipe/selfie_segmentation";
 
 export interface UseWithVideoSegmentation {
-  segmentVideoAndDrawToCanvas: () => void;
+  segmentVideoAndDrawToCanvas: (videoElement: HTMLVideoElement) => void;
 }
 
 export function useWithVideoSegmentation(): UseWithVideoSegmentation {
@@ -29,13 +29,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
     }
     selfieSegmenter.onResults(onResults);
   }, [selfieSegmenter]);
-
-  function getVideoRecorder() {
-    const component = document.querySelector(
-      "[data-cy=video-recorder-component]"
-    );
-    return component;
-  }
 
   function getCanvas() {
     const canvas = document.querySelector("[data-cy=draw-canvas]");
@@ -83,7 +76,6 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
       canvas.width,
       canvas.height
     );
-
     // Only overwrite existing pixels.
     canvasCtx.globalCompositeOperation = "source-in";
     canvasCtx.fillStyle = "#00FF00";
@@ -91,22 +83,22 @@ export function useWithVideoSegmentation(): UseWithVideoSegmentation {
 
     // Only overwrite missing pixels.
     canvasCtx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
     canvasCtx.restore();
   }
 
-  async function segmentVideoAndDrawToCanvas(): Promise<void> {
+  async function segmentVideoAndDrawToCanvas(
+    videoElement: HTMLVideoElement
+  ): Promise<void> {
     if (!selfieSegmenter) {
       // If no segmenter, try to create it and set to state
       return;
     }
-    const videoRecorder = getVideoRecorder();
-    if (!videoRecorder) {
+    if (!videoElement) {
       return;
     }
     await selfieSegmenter
       .send({
-        image: videoRecorder as HTMLVideoElement,
+        image: videoElement,
       })
       .catch((error) => {
         console.error(error);

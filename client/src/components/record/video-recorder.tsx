@@ -257,7 +257,16 @@ function VideoRecorder(props: {
   // When start recording is pressed, this interval begins
   useInterval(
     () => {
-      segmentVideoAndDrawToCanvas();
+      if (!videoRef.current) {
+        return;
+      }
+      // Need to make sure a frame exists before we try to segment anything
+      videoRef.current.requestVideoFrameCallback(() => {
+        if (!videoRef.current) {
+          return;
+        }
+        segmentVideoAndDrawToCanvas(videoRef.current);
+      });
     },
     isVirtualBgMentor &&
       videoRecorder &&
