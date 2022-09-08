@@ -46,6 +46,11 @@ function VideoRecorder(props: {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
   const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
+  const videoRecordMimeType = isVirtualBgMentor
+    ? "video/webm;codecs=vp9"
+    : "video/mp4";
+  const videoSaveMimeType = isVirtualBgMentor ? "video/webm" : "video/mp4";
+  const videoSaveName = isVirtualBgMentor ? "video.webm" : "video.mp4";
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -88,7 +93,7 @@ function VideoRecorder(props: {
 
     const recorder = new RecordRTC(finalStream, {
       type: "video",
-      mimeType: "video/webm;codecs=vp9", //;codecs=vp9
+      mimeType: videoRecordMimeType, //;codecs=vp9
       recorderType: MediaStreamRecorder,
       timeSlice: 1000,
       ondataavailable: function () {
@@ -132,7 +137,7 @@ function VideoRecorder(props: {
       videoRecorder?.stopRecording(() => {
         const blob = videoRecorder.getBlob();
         setRecordedVideo(
-          new File([blob], "video.webm", { type: "video/webm" })
+          new File([blob], videoSaveName, { type: videoSaveMimeType })
         );
       });
     }
@@ -175,8 +180,8 @@ function VideoRecorder(props: {
         videoRecorder?.stopRecording(() => {
           setCameraIsOn(false);
           const blob = videoRecorder.getBlob();
-          const newVideoFile = new File([blob], "video.webm", {
-            type: "video/webm",
+          const newVideoFile = new File([blob], videoSaveName, {
+            type: videoSaveMimeType,
           });
           recordStateStopRecording(newVideoFile);
         });
