@@ -892,12 +892,14 @@ export async function fetchMentorById(
               type
               tag
               url
+              transparentVideoUrl
               needsTransfer
             }
             mobileMedia{
               type
               tag
               url
+              transparentVideoUrl
               needsTransfer
             }
             vttMedia{
@@ -1290,11 +1292,13 @@ export async function fetchUploadTasks(
                 type
                 tag
                 url
+                transparentVideoUrl
               }
               mobileMedia{
                 type
                 tag
                 url
+                transparentVideoUrl
               }
               vttMedia{
                 type

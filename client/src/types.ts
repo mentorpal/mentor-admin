@@ -148,6 +148,7 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  transparentVideoUrl: string;
   needsTransfer: boolean;
 }
 
