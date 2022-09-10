@@ -201,6 +201,7 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
 
 export async function fetchFollowUpQuestions(
   categoryId: string,
+  mentorId: string,
   accessToken: string,
   classifierLambdaEndpoint?: string
 ): Promise<FollowUpQuestion[]> {
@@ -211,7 +212,8 @@ export async function fetchFollowUpQuestions(
       "me",
       "followups",
       "category",
-      categoryId
+      categoryId,
+      mentorId
     ),
     { accessToken, dataPath: "followups" }
   );
