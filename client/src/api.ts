@@ -209,7 +209,6 @@ export async function fetchFollowUpQuestions(
     "POST",
     urljoin(
       classifierLambdaEndpoint,
-      "me",
       "followups",
       "category",
       categoryId,
