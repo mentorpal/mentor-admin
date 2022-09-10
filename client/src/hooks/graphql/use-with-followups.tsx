@@ -62,6 +62,7 @@ export function useWithFollowups(props: {
     dispatch({ type: FollowupsActionType.GENERATING_FOLLOWUPS });
     fetchFollowUpQuestions(
       categoryId,
+      mentorId,
       loginState.accessToken,
       configState?.config?.classifierLambdaEndpoint
     )
