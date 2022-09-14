@@ -407,6 +407,7 @@ export interface ImportS3VideoMigrate {
 export interface ImportTask {
   graphQLUpdate: ImportGraphQLUpdate;
   s3VideoMigrate: ImportS3VideoMigrate;
+  migrationErrors: string[];
 }
 
 export interface PresignedUrlResponse {

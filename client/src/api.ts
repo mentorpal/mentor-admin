@@ -1766,6 +1766,7 @@ export async function fetchImportTask(
               status
               errorMessage
             }
+            migrationErrors
           }
         }
       `,

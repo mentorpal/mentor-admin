@@ -105,6 +105,7 @@ export default function ImportInProgressDialog(props: {
   }
 
   function VideoMigrationDisplay(videoMigration: ImportS3VideoMigrate) {
+    const importErrors = importTask.migrationErrors;
     return (
       <div
         style={{
@@ -128,6 +129,17 @@ export default function ImportInProgressDialog(props: {
         {videoMigration.errorMessage ? (
           <div style={{ color: "red", margin: "10px" }}>
             {videoMigration.errorMessage}
+          </div>
+        ) : undefined}
+
+        {importErrors.length ? (
+          <div data-cy="transfer-fails-display">
+            <h4 style={{ color: "red", margin: "5px" }}>
+              {`${importErrors.length} Failed Transfer(s):`}
+            </h4>
+            {importErrors.map((error) => {
+              return <div key={error}>{error}</div>;
+            })}
           </div>
         ) : undefined}
       </div>

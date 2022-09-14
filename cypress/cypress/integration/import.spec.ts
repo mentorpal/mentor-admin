@@ -176,6 +176,32 @@ describe("Import", { scrollBehavior: "center" }, () => {
     cy.get("[data-cy=import-progress-dialog]").should("be.visible");
   });
 
+  it("import errors are displayed", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("ImportTask", {
+          importTask: {
+            graphQLUpdate: {
+              status: "DONE",
+            },
+            s3VideoMigrate: {
+              status: "IN_PROGRESS",
+            },
+            migrationErrors: ["one transfer failed"],
+          },
+        }),
+        mockGQL("ImportTaskDelete", { me: { importTaskDelete: true } }),
+      ],
+    });
+    cy.visit("/");
+    cy.get("[data-cy=transfer-fails-display]")
+      .should("be.visible")
+      .contains("one transfer failed");
+  });
+
   it("uploads import json and views import preview", () => {
     cySetup(cy);
     cyMockDefault(cy, {
