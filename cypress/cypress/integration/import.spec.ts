@@ -105,24 +105,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
               },
               s3VideoMigrate: {
                 status: "IN_PROGRESS",
-                answerMediaMigrations: [
-                  {
-                    question: "q1",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q2",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q3",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q4",
-                    status: "IN_PROGRESS",
-                  },
-                ],
               },
             },
           },
@@ -133,24 +115,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
               },
               s3VideoMigrate: {
                 status: "DONE",
-                answerMediaMigrations: [
-                  {
-                    question: "q1",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q2",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q3",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q4",
-                    status: "DONE",
-                  },
-                ],
               },
             },
           },
@@ -177,24 +141,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             },
             s3VideoMigrate: {
               status: "IN_PROGRESS",
-              answerMediaMigrations: [
-                {
-                  question: "q1",
-                  status: "DONE",
-                },
-                {
-                  question: "q2",
-                  status: "DONE",
-                },
-                {
-                  question: "q3",
-                  status: "DONE",
-                },
-                {
-                  question: "q4",
-                  status: "IN_PROGRESS",
-                },
-              ],
             },
           },
         }),
@@ -220,24 +166,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             },
             s3VideoMigrate: {
               status: "IN_PROGRESS",
-              answerMediaMigrations: [
-                {
-                  question: "q1",
-                  status: "DONE",
-                },
-                {
-                  question: "q2",
-                  status: "DONE",
-                },
-                {
-                  question: "q3",
-                  status: "DONE",
-                },
-                {
-                  question: "q4",
-                  status: "IN_PROGRESS",
-                },
-              ],
             },
           },
         }),

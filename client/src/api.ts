@@ -1764,11 +1764,7 @@ export async function fetchImportTask(
             }
             s3VideoMigrate{
               status
-              answerMediaMigrations{
-                status
-                question
-                errorMessage
-              }
+              errorMessage
             }
           }
         }
