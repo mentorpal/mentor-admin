@@ -105,7 +105,7 @@ export default function ImportInProgressDialog(props: {
   }
 
   function VideoMigrationDisplay(videoMigration: ImportS3VideoMigrate) {
-    const importErrors = importTask.migrationErrors;
+    const importErrors = importTask.migrationErrors || [];
     return (
       <div
         style={{
