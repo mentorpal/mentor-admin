@@ -399,20 +399,15 @@ export interface ImportGraphQLUpdate {
   errorMessage: string;
 }
 
-export interface ImportAnswerMediaMigrations {
-  status: ImportTaskStatus;
-  question: string;
-  errorMessage: string;
-}
-
 export interface ImportS3VideoMigrate {
   status: ImportTaskStatus;
-  answerMediaMigrations: ImportAnswerMediaMigrations[];
+  errorMessage: string;
 }
 
 export interface ImportTask {
   graphQLUpdate: ImportGraphQLUpdate;
   s3VideoMigrate: ImportS3VideoMigrate;
+  migrationErrors: string[];
 }
 
 export interface PresignedUrlResponse {

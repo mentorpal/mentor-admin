@@ -105,15 +105,15 @@ export default function ImportInProgressDialog(props: {
   }
 
   function VideoMigrationDisplay(videoMigration: ImportS3VideoMigrate) {
-    const migrationTasks = videoMigration.answerMediaMigrations;
-    const completeTasks = migrationTasks.filter(
-      (task) => task.status === ImportTaskStatus.DONE
-    );
-    const failedTasks = migrationTasks.filter(
-      (task) => task.status === ImportTaskStatus.FAILED
-    );
+    const importErrors = importTask.migrationErrors || [];
     return (
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          borderBottom: "1px black solid",
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -121,26 +121,24 @@ export default function ImportInProgressDialog(props: {
             justifyContent: "space-between",
           }}
         >
-          <div style={{ width: "40%" }}>s3 Media Transfer</div>
-          <div style={{ width: "40%" }}>
-            {videoMigration.status === ImportTaskStatus.QUEUED
-              ? "Queued"
-              : `${completeTasks.length} / ${migrationTasks.length} Transferred`}
-          </div>
+          <div style={{ width: "40%" }}>s3 Media Transfers</div>
+          <div style={{ width: "40%" }}>{videoMigration.status}</div>
           <div style={{ width: "10%" }}>{getIcon(videoMigration.status)}</div>
         </div>
 
-        {failedTasks.length ? (
-          <div>
+        {videoMigration.errorMessage ? (
+          <div style={{ color: "red", margin: "10px" }}>
+            {videoMigration.errorMessage}
+          </div>
+        ) : undefined}
+
+        {importErrors.length ? (
+          <div data-cy="transfer-fails-display">
             <h4 style={{ color: "red", margin: "5px" }}>
-              {`${failedTasks.length} Failed Transfer(s):`}
+              {`${importErrors.length} Failed Transfer(s):`}
             </h4>
-            {failedTasks.map((task) => {
-              return (
-                <div key={task.question}>
-                  {`${task.question} failed with message: ${task.errorMessage}`}
-                </div>
-              );
+            {importErrors.map((error) => {
+              return <div key={error}>{error}</div>;
             })}
           </div>
         ) : undefined}

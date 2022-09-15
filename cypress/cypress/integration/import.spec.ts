@@ -105,24 +105,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
               },
               s3VideoMigrate: {
                 status: "IN_PROGRESS",
-                answerMediaMigrations: [
-                  {
-                    question: "q1",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q2",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q3",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q4",
-                    status: "IN_PROGRESS",
-                  },
-                ],
               },
             },
           },
@@ -133,24 +115,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
               },
               s3VideoMigrate: {
                 status: "DONE",
-                answerMediaMigrations: [
-                  {
-                    question: "q1",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q2",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q3",
-                    status: "DONE",
-                  },
-                  {
-                    question: "q4",
-                    status: "DONE",
-                  },
-                ],
               },
             },
           },
@@ -177,24 +141,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             },
             s3VideoMigrate: {
               status: "IN_PROGRESS",
-              answerMediaMigrations: [
-                {
-                  question: "q1",
-                  status: "DONE",
-                },
-                {
-                  question: "q2",
-                  status: "DONE",
-                },
-                {
-                  question: "q3",
-                  status: "DONE",
-                },
-                {
-                  question: "q4",
-                  status: "IN_PROGRESS",
-                },
-              ],
             },
           },
         }),
@@ -220,24 +166,6 @@ describe("Import", { scrollBehavior: "center" }, () => {
             },
             s3VideoMigrate: {
               status: "IN_PROGRESS",
-              answerMediaMigrations: [
-                {
-                  question: "q1",
-                  status: "DONE",
-                },
-                {
-                  question: "q2",
-                  status: "DONE",
-                },
-                {
-                  question: "q3",
-                  status: "DONE",
-                },
-                {
-                  question: "q4",
-                  status: "IN_PROGRESS",
-                },
-              ],
             },
           },
         }),
@@ -246,6 +174,32 @@ describe("Import", { scrollBehavior: "center" }, () => {
     });
     cy.visit("/");
     cy.get("[data-cy=import-progress-dialog]").should("be.visible");
+  });
+
+  it("import errors are displayed", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintNew,
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("ImportTask", {
+          importTask: {
+            graphQLUpdate: {
+              status: "DONE",
+            },
+            s3VideoMigrate: {
+              status: "IN_PROGRESS",
+            },
+            migrationErrors: ["one transfer failed"],
+          },
+        }),
+        mockGQL("ImportTaskDelete", { me: { importTaskDelete: true } }),
+      ],
+    });
+    cy.visit("/");
+    cy.get("[data-cy=transfer-fails-display]")
+      .should("be.visible")
+      .contains("one transfer failed");
   });
 
   it("uploads import json and views import preview", () => {
