@@ -346,7 +346,7 @@ function FeedbackPage(): JSX.Element {
                       onChange={(e, v) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
-                          classifierAnswer: v || undefined,
+                          classifierAnswer: v?._id || undefined,
                         })
                       }
                       style={{ minWidth: 300 }}
