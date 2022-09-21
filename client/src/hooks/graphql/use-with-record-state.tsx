@@ -490,7 +490,10 @@ export function useWithRecordState(
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
-    link.setAttribute("download", `${filename}.mp4`);
+    link.setAttribute(
+      "download",
+      `${filename}.${hasVirtualBackground ? "webm" : "mp4"}`
+    );
     link.click();
     return true;
   }
@@ -523,14 +526,17 @@ export function useWithRecordState(
 
   function downloadVideoFromUpload(upload: UploadTask): boolean {
     const url = upload.media?.find(
-      (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
+      (u) =>
+        u.url.length > 15 &&
+        (u.url.slice(-12) == "original.mp4" ||
+          u.url.slice(-12) == "original.webm")
     )?.url;
     if (url) {
       fetchVideoBlobFromUrl(url)
         .then((videoBlob) => {
           downloadVideoBlob(
             videoBlob,
-            `${upload.question}_video.mp4`,
+            `${upload.question}_video.${hasVirtualBackground ? "webm" : "mp4"}`,
             document
           );
           return true;
