@@ -201,6 +201,7 @@ function getDataFromAxiosResponse(res: AxiosResponse, path: string | string[]) {
 
 export async function fetchFollowUpQuestions(
   categoryId: string,
+  mentorId: string,
   accessToken: string,
   classifierLambdaEndpoint?: string
 ): Promise<FollowUpQuestion[]> {
@@ -208,10 +209,10 @@ export async function fetchFollowUpQuestions(
     "POST",
     urljoin(
       classifierLambdaEndpoint,
-      "me",
       "followups",
       "category",
-      categoryId
+      categoryId,
+      mentorId
     ),
     { accessToken, dataPath: "followups" }
   );
@@ -242,6 +243,8 @@ export async function fetchConfig(): Promise<Config> {
           displayGuestPrompt
           videoRecorderMaxLength
           subjectRecordPriority
+          virtualBackgroundUrls
+          defaultVirtualBackground
         }
       }
   `,
@@ -791,9 +794,9 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
 
 export async function updateUserQuestion(
   feedbackId: string,
-  answerId: string,
-  questionId: string,
-  mentorId: string
+  answerId?: string,
+  questionId?: string,
+  mentorId?: string
 ): Promise<void> {
   // if an answerId exists, then only send that over, else send question and mentorid
   const variables = {
@@ -802,7 +805,7 @@ export async function updateUserQuestion(
     ...(questionId && !answerId ? { question: questionId } : {}),
     ...(mentorId && !answerId ? { mentorId: mentorId } : {}),
   };
-  execGql<UserQuestion>(
+  await execGql<UserQuestion>(
     {
       query: `
       mutation UserQuestionSetAnswer($id: ID!, $answer: String, $question: String, $mentorId: ID) {
@@ -836,6 +839,8 @@ export async function fetchMentorById(
           thumbnail
           lastTrainedAt
           isDirty
+          hasVirtualBackground
+          virtualBackgroundUrl
           defaultSubject {
             _id
           }
@@ -888,12 +893,14 @@ export async function fetchMentorById(
               type
               tag
               url
+              transparentVideoUrl
               needsTransfer
             }
             mobileMedia{
               type
               tag
               url
+              transparentVideoUrl
               needsTransfer
             }
             vttMedia{
@@ -939,6 +946,8 @@ export async function updateMentorDetails(
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
           isPrivate: mentor.isPrivate,
+          hasVirtualBackground: mentor.hasVirtualBackground,
+          virtualBackgroundUrl: mentor.virtualBackgroundUrl,
         },
       },
     },
@@ -1061,6 +1070,27 @@ export async function uploadThumbnail(
     },
     accessToken,
     dataPath: ["data", "thumbnail"],
+  });
+}
+
+export async function uploadVbg(
+  mentorId: string,
+  vbg: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ mentor: mentorId }));
+  data.append("background_image", vbg);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vbg"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "virtualBackground"],
   });
 }
 
@@ -1263,11 +1293,13 @@ export async function fetchUploadTasks(
                 type
                 tag
                 url
+                transparentVideoUrl
               }
               mobileMedia{
                 type
                 tag
                 url
+                transparentVideoUrl
               }
               vttMedia{
                 type
@@ -1340,6 +1372,26 @@ export async function removeQuestionFromRecordQueue(
       },
     },
     { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
+  );
+}
+
+export async function setRecordQueueGQL(
+  accessToken: string,
+  questionIds: string[]
+): Promise<string[]> {
+  return await execGql<string[]>(
+    {
+      query: `
+        mutation SetRecordQueue($questionIds: [ID]!) {
+          me {
+            setRecordQueue(questionIds: $questionIds)
+          }
+        }`,
+      variables: {
+        questionIds,
+      },
+    },
+    { accessToken, dataPath: ["me", "setRecordQueue"] }
   );
 }
 
@@ -1712,12 +1764,9 @@ export async function fetchImportTask(
             }
             s3VideoMigrate{
               status
-              answerMediaMigrations{
-                status
-                question
-                errorMessage
-              }
+              errorMessage
             }
+            migrationErrors
           }
         }
       `,

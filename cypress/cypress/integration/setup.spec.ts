@@ -281,7 +281,6 @@ describe("Setup", () => {
       ...baseMock,
       mentor: { ...setup0, title: "" },
       gqlQueries: [
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
       ],
     });
@@ -680,8 +679,6 @@ describe("Setup", () => {
       ],
       subject: repeatAfterMe,
       gqlQueries: [
-        mockGQL("UpdateAnswer", { me: { updateAnswer: true } }),
-        mockGQL("ImportTask", { importTask: null }),
         mockGQL("FetchUploadTasks", [
           {
             me: {
@@ -763,6 +760,41 @@ describe("Setup", () => {
       cyVisitSetupScreen(cy, SetupScreen.Build_Mentor);
       cy.get("[data-cy=slide-title]").should("have.text", "Good work!");
       cy.get("[data-cy=go-to-my-mentor-button]").should("exist");
+    });
+  });
+
+  describe("virtual background setup", () => {
+    it("video mentor has option to choose virtual backgrounds", () => {
+      cyMockDefault(cy, {
+        mentor: { ...setup7, mentorType: MentorType.VIDEO },
+      });
+      cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
+      cy.get("[data-cy=virtual-background-checkbox]").should("exist");
+    });
+
+    it("chat mentor does not have option to choose virtual backgrounds", () => {
+      cyMockDefault(cy, { mentor: { ...setup7, mentorType: MentorType.CHAT } });
+      cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
+      cy.get("[data-cy=virtual-background-checkbox]").should("not.exist");
+    });
+
+    it("vbg disabled, shouldn't see any vbg components", () => {
+      cyMockDefault(cy, { mentor: { ...setup7, mentorType: MentorType.CHAT } });
+      cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
+      cy.get("[data-cy=virtual-background-config]").should("not.exist");
+    });
+
+    it("vbg enabled, displays default vbg and option to change or upload", () => {
+      cyMockDefault(cy, {
+        mentor: { ...setup7, mentorType: MentorType.VIDEO },
+      });
+      cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
+      cy.getSettled("[data-cy=virtual-background-checkbox]", {
+        retries: 4,
+      }).check();
+      cy.get("[data-cy=upload-file]").should("be.visible");
+      cy.get("[data-cy=open-change-background-dialog]").should("be.visible");
+      cy.get("[data-cy=current-vbg-img]").should("be.visible");
     });
   });
 });

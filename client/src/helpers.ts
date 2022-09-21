@@ -167,3 +167,7 @@ export function isAnswerComplete(
       isAnswerValid(answer, questionType, mentorType))
   );
 }
+
+export function getFileSizeInMb(file: File): number {
+  return file.size / 1024 / 1024;
+}

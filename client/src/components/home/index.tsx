@@ -48,11 +48,9 @@ import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
 import UploadingWidget from "components/record/uploading-widget";
-import QueueBlockItem from "./queue-block";
-import { fetchMentorRecordQueue, removeQuestionFromRecordQueue } from "api";
-import useQuestions from "store/slices/questions/useQuestions";
+import RecordQueueBlock from "./record-queue-block";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { QuestionState } from "store/slices/questions";
+import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -169,7 +167,9 @@ function HomePage(props: {
     mentorAnswers?.map((a) => a.question)
   );
   const recordState = useWithRecordState(props.accessToken, props.search);
-
+  const { recordQueue, removeQuestionFromQueue } = useWithRecordQueue(
+    props.accessToken
+  );
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
   const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
@@ -402,11 +402,6 @@ function HomePage(props: {
     return queueQuestions;
   }
 
-  function closeDialog() {
-    setLocalHasSeenSplash(true);
-    userSawSplashScreen(props.accessToken);
-  }
-
   function closePreviewTooltip() {
     incrementTooltip();
     setLocalHasSeenTooltips(true);
@@ -542,22 +537,20 @@ function HomePage(props: {
           </Select>
         </ColorTooltip>
       </div>
-      {queueIDList.length != 0 ? (
-        <List
-          data-cy="queue-block"
+      {recordQueue.length != 0 ? (
+        <ListItem
           style={{
             flex: "auto",
             backgroundColor: "#eee",
           }}
         >
-          <ListItem>
-            <QueueBlockItem
-              classes={classes}
-              queueIDList={queueIDList}
-              queuedQuestions={getQueueQuestions(queueIDList, mentorQuestions)}
-            />
-          </ListItem>
-        </List>
+          <RecordQueueBlock
+            classes={classes}
+            accessToken={props.accessToken}
+            recordQueue={recordQueue}
+            removeFromQueue={removeQuestionFromQueue}
+          />
+        </ListItem>
       ) : undefined}
       <List
         data-cy="recording-blocks"
@@ -752,7 +745,10 @@ function HomePage(props: {
           "This summarizes what you have recorded so far and recommends next steps to improve your mentor. As a new mentor, you will first Record Questions, Build, and Preview your mentor to try it out. After learners ask your mentor questions, you can also check the User Feedback area (also available in the upper-left menu) which will help you improve responses to user questions your mentor had trouble answering."
         }
         open={!hasSeenSplash}
-        closeDialog={() => closeDialog()}
+        closeDialog={() => {
+          setLocalHasSeenSplash(true);
+          userSawSplashScreen(props.accessToken);
+        }}
       />
       <Dialog
         data-cy="setup-dialog"

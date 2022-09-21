@@ -75,6 +75,9 @@ export function useWithRecordState(
 
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
+  const hasVirtualBackground = getData(
+    (state) => state.data?.hasVirtualBackground
+  );
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const mentorQuestions = useQuestions(
@@ -288,9 +291,12 @@ export function useWithRecordState(
     if (answer.recordedVideo) {
       return URL.createObjectURL(answer.recordedVideo);
     }
-    return answer.editedAnswer?.media?.find(
+    const media = answer.editedAnswer?.media?.find(
       (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
-    )?.url;
+    );
+    return hasVirtualBackground && media?.transparentVideoUrl
+      ? media.transparentVideoUrl
+      : media?.url;
   }
 
   function isAnswerValid() {
@@ -446,9 +452,7 @@ export function useWithRecordState(
       }
     }
     if (!answer.recordedVideo) {
-      const url = answer.answer.media?.find(
-        (u) => u.url.length > 15 && u.url.slice(-7) == "web.mp4"
-      )?.url;
+      const url = curAnswer?.videoSrc;
       if (url) {
         fetchVideoBlobFromUrl(url)
           .then((videoBlob) => {
@@ -486,7 +490,10 @@ export function useWithRecordState(
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", blobUrl);
-    link.setAttribute("download", `${filename}.mp4`);
+    link.setAttribute(
+      "download",
+      `${filename}.${hasVirtualBackground ? "webm" : "mp4"}`
+    );
     link.click();
     return true;
   }
@@ -519,14 +526,17 @@ export function useWithRecordState(
 
   function downloadVideoFromUpload(upload: UploadTask): boolean {
     const url = upload.media?.find(
-      (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
+      (u) =>
+        u.url.length > 15 &&
+        (u.url.slice(-12) == "original.mp4" ||
+          u.url.slice(-12) == "original.webm")
     )?.url;
     if (url) {
       fetchVideoBlobFromUrl(url)
         .then((videoBlob) => {
           downloadVideoBlob(
             videoBlob,
-            `${upload.question}_video.mp4`,
+            `${upload.question}_video.${hasVirtualBackground ? "webm" : "mp4"}`,
             document
           );
           return true;

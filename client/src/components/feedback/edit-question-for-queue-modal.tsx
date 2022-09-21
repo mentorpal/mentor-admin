@@ -18,7 +18,7 @@ import {
   Theme,
   Typography,
 } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Category,
   Mentor,
@@ -69,17 +69,29 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function EditQuestionForQueueModal(props: {
   handleClose: () => void;
+feedback: UserQuestion;
+  addQuestionToQueue: (questionId: string) => void;
+  setFeedbackQuestionDocId: (questionId: string) => void;
   open: boolean;
   mentor: Mentor;
+  userQuestion: string;
   accessToken: string;
-  feedback: UserQuestion;
-}): JSX.Element {
-  const { handleClose, open, mentor, accessToken, feedback } = props;
+  }): JSX.Element {
+  const {
+    handleClose,
+    open,
+    userQuestion,
+    mentor,
+    accessToken,
+    addQuestionToQueue,
+    setFeedbackQuestionDocId,
+    feedback
+  } = props;
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [customQuestion, setCustomQuestion] = useState<string>(
-    feedback.question
+    feedback.question //This was also userQuestion before
   );
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const { loadQuestions } = useQuestionActions();
@@ -113,13 +125,16 @@ function EditQuestionForQueueModal(props: {
     const newQuestionId = subjectQuestionsReturned[0].question;
     // add to record queue
     addQuestionToRecordQueue(accessToken, newQuestionId);
+    setFeedbackQuestionDocId(newQuestionId);
     await loadQuestions([newQuestionId]);
     // close modal & reset
     setSelectedSubject(undefined);
     handleClose();
-    //update attribute.
-    props.feedback.hasBeenUsedtoCreateNewQuestion == true;
   }
+
+  useEffect(() => {
+    setCustomQuestion(userQuestion);
+  }, [userQuestion]);
 
   return (
     <div>
@@ -258,7 +273,10 @@ function EditQuestionForQueueModal(props: {
                   ) : undefined}
                 </Grid>
                 <Button
-                  onClick={handleClose}
+                  onClick={() => {
+                    setCustomQuestion(userQuestion);
+                    handleClose();
+                  }}
                   data-cy="modal-close-btn"
                   variant="contained"
                   color="primary"

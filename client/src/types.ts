@@ -30,6 +30,8 @@ export interface Config {
   disclaimerTitle: string;
   disclaimerText: string;
   disclaimerDisabled: boolean;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
 }
 
 export interface Connection<T> {
@@ -93,6 +95,8 @@ export interface Mentor {
   subjects: Subject[];
   topics: Topic[];
   answers: Answer[];
+  hasVirtualBackground: boolean;
+  virtualBackgroundUrl: string;
 }
 
 export enum SubjectTypes {
@@ -145,6 +149,7 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  transparentVideoUrl: string;
   needsTransfer: boolean;
 }
 
@@ -168,7 +173,7 @@ export interface UserQuestion {
   mentor: Mentor;
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
-  graderAnswer: Answer;
+  graderAnswer?: Answer;
   updatedAt: string;
   createdAt: string;
   hasBeenUsedtoCreateNewQuestion?: boolean; // for filtering feedback
@@ -406,20 +411,15 @@ export interface ImportGraphQLUpdate {
   errorMessage: string;
 }
 
-export interface ImportAnswerMediaMigrations {
-  status: ImportTaskStatus;
-  question: string;
-  errorMessage: string;
-}
-
 export interface ImportS3VideoMigrate {
   status: ImportTaskStatus;
-  answerMediaMigrations: ImportAnswerMediaMigrations[];
+  errorMessage: string;
 }
 
 export interface ImportTask {
   graphQLUpdate: ImportGraphQLUpdate;
   s3VideoMigrate: ImportS3VideoMigrate;
+  migrationErrors: string[];
 }
 
 export interface PresignedUrlResponse {

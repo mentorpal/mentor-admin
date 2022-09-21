@@ -90,6 +90,8 @@ export interface Config {
   disclaimerTitle: string;
   disclaimerText: string;
   disclaimerDisabled: boolean;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
@@ -111,6 +113,8 @@ export const CONFIG_DEFAULT: Config = {
   disclaimerTitle: "",
   disclaimerText: "",
   disclaimerDisabled: false,
+  virtualBackgroundUrls: [],
+  defaultVirtualBackground: "https://default.image.url.com/",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
@@ -272,6 +276,7 @@ export function cyMockDefault(
     mockGQL("UpdateQuestion", { me: { updateQuestion: true } }),
     mockGQL("ImportTask", { importTask: null }),
     mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
+    mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
   ]);
 }
@@ -505,7 +510,7 @@ export function cyMockFollowUpQuestions(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("POST", "/classifier/me/followups/*/*", (req) => {
+  cy.intercept("POST", "/classifier/followups/*/*/*", (req) => {
     req.alias = "followups";
     req.reply(
       staticResponse({
