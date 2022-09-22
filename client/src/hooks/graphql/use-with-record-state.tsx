@@ -463,6 +463,7 @@ export function useWithRecordState(
               mentorId,
               answer.answer.question,
               videoFile,
+              Boolean(hasVirtualBackground),
               trim,
               answer.editedAnswer.hasEditedTranscript ||
                 answer.answer.hasEditedTranscript
@@ -478,7 +479,13 @@ export function useWithRecordState(
         setError({ message: "Failed to find url for answer media", error: "" });
       }
     } else {
-      upload(mentorId, answer.answer.question, answer.recordedVideo, trim);
+      upload(
+        mentorId,
+        answer.answer.question,
+        answer.recordedVideo,
+        Boolean(hasVirtualBackground),
+        trim
+      );
     }
   }
 
