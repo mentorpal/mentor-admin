@@ -386,14 +386,17 @@ function FeedbackPage(): JSX.Element {
                     <Autocomplete
                       data-cy="filter-classifier"
                       options={mentorAnswers || []}
-                      getOptionLabel={(option: Answer) =>{return getValueIfKeyExists(option.question, mentorQuestions)?.question?.question || ""}}
-                      onChange={(e, v) => {
-                        console.log(v);
+                      value={feedbackSearchParams.filter.classifierAnswer}
+                      getOptionLabel={(option: Answer) =>
+                        getValueIfKeyExists(option.question, mentorQuestions)
+                          ?.question?.question || ""
+                      }
+                      onChange={(e, v) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswer: v?._id || undefined,
                         })
-                      })
+                      }
                       style={{ minWidth: 300 }}
                       renderOption={(option) => (
                         <Typography align="left">

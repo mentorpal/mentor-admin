@@ -26,13 +26,12 @@ import {
   QuestionType,
   Subject,
   Topic,
-  UserQuestion,
   UtteranceName,
 } from "types";
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@material-ui/lab";
-import { addOrUpdateSubjectQuestions, addQuestionToRecordQueue } from "api";
+import { addOrUpdateSubjectQuestions } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
@@ -69,14 +68,13 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 function EditQuestionForQueueModal(props: {
   handleClose: () => void;
-feedback: UserQuestion;
   addQuestionToQueue: (questionId: string) => void;
   setFeedbackQuestionDocId: (questionId: string) => void;
   open: boolean;
   mentor: Mentor;
   userQuestion: string;
   accessToken: string;
-  }): JSX.Element {
+}): JSX.Element {
   const {
     handleClose,
     open,
@@ -85,14 +83,11 @@ feedback: UserQuestion;
     accessToken,
     addQuestionToQueue,
     setFeedbackQuestionDocId,
-    feedback
   } = props;
   const classes = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
-  const [customQuestion, setCustomQuestion] = useState<string>(
-    feedback.question //This was also userQuestion before
-  );
+  const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const { loadQuestions } = useQuestionActions();
 
@@ -123,9 +118,9 @@ feedback: UserQuestion;
       accessToken
     );
     const newQuestionId = subjectQuestionsReturned[0].question;
-    // add to record queue
-    addQuestionToRecordQueue(accessToken, newQuestionId);
     setFeedbackQuestionDocId(newQuestionId);
+    // add to record queue
+    addQuestionToQueue(newQuestionId);
     await loadQuestions([newQuestionId]);
     // close modal & reset
     setSelectedSubject(undefined);

@@ -33,7 +33,7 @@ import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
-import { isAnswerComplete, launchMentor } from "helpers";
+import { launchMentor } from "helpers";
 import {
   QuestionEdits,
   useWithReviewAnswerState,
@@ -43,7 +43,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status, Answer } from "types";
+import { User, Subject, UserRole, Status } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -160,12 +160,6 @@ function HomePage(props: {
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
-  const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
-
-  const mentorQuestions = useQuestions(
-    (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
-  );
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { recordQueue, removeQuestionFromQueue } = useWithRecordQueue(
     props.accessToken
@@ -186,7 +180,6 @@ function HomePage(props: {
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
   const { userSawSplashScreen, userSawTooltips } = loginState;
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  const [answerStatuses, setAnswerStatuses] = useState<Status[]>([]);
 
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
@@ -197,47 +190,6 @@ function HomePage(props: {
       loginState.state.user?.firstTimeTracking.tooltips ||
       localHasSeenTooltips
   );
-
-  const [queueIDList, setQueueIDList] = useState<string[]>([]);
-
-  useEffect(() => {
-    fetchMentorRecordQueue(props.accessToken).then((queueIDList) => {
-      setQueueIDList(queueIDList);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!mentorAnswers) {
-      return;
-    }
-    if (mentorAnswers.length && !answerStatuses.length) {
-      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
-      return;
-    }
-    const differentLength = mentorAnswers.length !== answerStatuses.length;
-    let differentStatus = false;
-    if (!differentLength) {
-      mentorAnswers.forEach((answer, i) => {
-        if (answerStatuses[i] !== answer.status) {
-          differentStatus = true;
-        }
-      });
-    }
-    if (differentStatus || differentLength) {
-      setAnswerStatuses(mentorAnswers.map((answer) => answer.status));
-    }
-  }, [mentorAnswers]);
-
-  useEffect(() => {
-    if (!mentorAnswers || queueIDList.length == 0) {
-      return;
-    }
-    const idListAfterRemoval = removeCompleteAnswerFromQueue(
-      queueIDList,
-      mentorAnswers
-    );
-    setQueueIDList(idListAfterRemoval);
-  }, [answerStatuses]);
 
   useEffect(() => {
     const _blocks = reviewAnswerState.getBlocks();
@@ -365,41 +317,6 @@ function HomePage(props: {
         question.originalQuestion.clientId || question.originalQuestion._id
       );
     }
-  }
-  function removeCompleteAnswerFromQueue(
-    queueIDList: string[],
-    mentorAnswers: Answer[]
-  ): string[] {
-    // remove answered questions from queue
-    const mentorAnswersInRecordQueue = mentorAnswers.filter((mentorAnswer) =>
-      queueIDList.includes(mentorAnswer.question)
-    );
-    mentorAnswersInRecordQueue.forEach(async (mentorAnswer) => {
-      if (isAnswerComplete(mentorAnswer, undefined, mentorType)) {
-        removeQuestionFromRecordQueue(props.accessToken, mentorAnswer.question);
-      }
-    });
-    return queueIDList.filter((questionId) => {
-      const answer = mentorAnswersInRecordQueue.find(
-        (a) => a.question === questionId
-      );
-      if (!answer) {
-        return false;
-      }
-      return !isAnswerComplete(answer, undefined, mentorType);
-    });
-  }
-
-  // get question string
-  function getQueueQuestions(
-    queueIDList: string[],
-    mentorQuestions: Record<string, QuestionState>
-  ) {
-    const queueQuestions: string[] = [];
-    queueIDList.forEach((a) => {
-      queueQuestions.push(mentorQuestions[a]?.question?.question || "");
-    });
-    return queueQuestions;
   }
 
   function closePreviewTooltip() {
