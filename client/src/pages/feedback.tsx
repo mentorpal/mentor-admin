@@ -200,16 +200,6 @@ function FeedbackPage(): JSX.Element {
   }
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
-  const questionsToDisplay = feedback?.edges.filter((edge) =>
-    viewAllQuestions
-      ? edge.node
-      : (edge.node.feedback === Feedback.BAD ||
-          edge.node.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC ||
-          edge.node.confidence <= -0.45) &&
-        !edge.node.graderAnswer?.question &&
-        !edge.node.hasBeenUsedtoCreateNewQuestion
-  );
-
   useEffect(() => {
     if (mentorId) {
       if (!isFeedbackLoading) {
@@ -257,6 +247,7 @@ function FeedbackPage(): JSX.Element {
     mentorQuestions,
     mentor,
     queueList,
+    viewAllQuestions,
   ]);
 
   const initialDisplayReady =

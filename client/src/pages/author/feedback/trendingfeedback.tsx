@@ -70,8 +70,8 @@ function findBestMatchBin(question: string, binCollection: BinCollection) {
   // iterate through all bins
   // calculate cosine similarity
   // keep track of the value closest to 1
-  let bestMatchIndex: number = 0;
-  let highestSimilarity: number = 0;
+  let bestMatchIndex = 0;
+  let highestSimilarity = 0;
   for (let i = 0; i < binCollection.bins.length; i++) {
     if (highestSimilarity < cosineSimilarity(question, binCollection.bins[i])) {
       highestSimilarity = cosineSimilarity(question, binCollection.bins[i]);

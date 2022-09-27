@@ -4,7 +4,7 @@ clean:
 
 .PHONY: develop
 develop: node_modules/gatsby
-	npx gatsby develop
+	npx gatsby develop -p 80
 
 .PHONY: pretty
 pretty: 

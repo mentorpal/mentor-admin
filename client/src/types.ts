@@ -176,7 +176,6 @@ export interface UserQuestion {
   graderAnswer?: Answer;
   updatedAt: string;
   createdAt: string;
-  hasBeenUsedtoCreateNewQuestion?: boolean; // for filtering feedback
 }
 
 export interface UserQuestionBin {
