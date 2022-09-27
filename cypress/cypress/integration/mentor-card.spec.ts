@@ -349,9 +349,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action]").contains("Answer More Questions");
-      cy.get("[data-cy=recommended-action-button]")
-        .trigger("mouseover")
-        .click();
+      cy.get("[data-cy=recommended-action-button]").click({ force: true });
       cy.url().should("include", "/record");
     });
 
@@ -419,9 +417,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action]").contains("Answer extra Questions");
-      cy.get("[data-cy=recommended-action-button]")
-        .trigger("mouseover")
-        .click();
+      cy.get("[data-cy=recommended-action-button]").click({ force: true });
       cy.url().should("include", "/record");
     });
 
@@ -455,9 +451,7 @@ describe("My Mentor Page", () => {
       });
       cy.visit("/");
       cy.get("[data-cy=recommended-action]").contains("Add a Subject");
-      cy.get("[data-cy=recommended-action-button]")
-        .trigger("mouseover")
-        .click();
+      cy.get("[data-cy=recommended-action-button]").click({ force: true });
       cy.url().should("include", "/subjects");
     });
 

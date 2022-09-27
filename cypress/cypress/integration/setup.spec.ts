@@ -4,28 +4,21 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import {
-  cyMockDefault,
-  mockGQL,
-  cyMockTrain,
-  cyMockTrainStatus,
-} from "../support/functions";
+import { cyMockDefault, mockGQL } from "../support/functions";
 import {
   setup0,
   setup1,
   setup2,
   setup3,
-  setup4,
   setup6,
   setup7,
   setup8,
-  setup9,
 } from "../fixtures/mentor";
+import { keywords } from "../fixtures/keywords";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
 import {
   MentorType,
-  JobState,
   SubjectTypes,
   QuestionType,
   UtteranceName,
@@ -128,11 +121,13 @@ enum SetupScreen {
   Welcome = 0,
   Tell_Us_About_Yourself = 1,
   Pick_Mentor_Type = 2,
-  Select_Subjects = 3,
-  Start_Recordin = 4,
-  Idle_Video_Tips = 5,
-  Idle_And_Initial_Recordings = 6,
-  Build_Mentor = 7,
+  My_Goal = 3,
+  Experiences_Identities = 4,
+  Select_Subjects = 5,
+  Start_Recordin = 6,
+  Idle_Video_Tips = 7,
+  Idle_And_Initial_Recordings = 8,
+  Build_Mentor = 9,
 }
 
 function cyVisitSetupScreen(cy, screen: SetupScreen) {
@@ -162,6 +157,13 @@ describe("Setup", () => {
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Pick a mentor type."
+      );
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should("have.text", "My Goal");
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
+        "Experiences & Identities"
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "Select subjects?");
@@ -214,6 +216,13 @@ describe("Setup", () => {
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
+        "Experiences & Identities"
+      );
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should("have.text", "My Goal");
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
         "Pick a mentor type."
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
@@ -237,21 +246,55 @@ describe("Setup", () => {
       });
       cy.visit("/setup");
       cy.contains("Welcome to MentorStudio!");
-      cy.get("[data-cy=radio]").eq(1).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Tell_Us_About_Yourself)
+        .trigger("mouseover")
+        .click();
       cy.contains("Tell us a little about yourself.");
-      cy.get("[data-cy=radio]").eq(2).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Pick_Mentor_Type)
+        .trigger("mouseover")
+        .click();
       cy.contains("Pick a mentor type.");
-      cy.get("[data-cy=radio]").eq(3).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.My_Goal)
+        .trigger("mouseover")
+        .click();
+      cy.contains("My Goal");
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Experiences_Identities)
+        .trigger("mouseover")
+        .click();
+      cy.contains("Experiences & Identities");
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Select_Subjects)
+        .trigger("mouseover")
+        .click();
       cy.contains("Select subjects?");
-      cy.get("[data-cy=radio]").eq(4).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Start_Recordin)
+        .trigger("mouseover")
+        .click();
       cy.contains("Let's start recording!");
-      cy.get("[data-cy=radio]").eq(5).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Idle_Video_Tips)
+        .trigger("mouseover")
+        .click();
       cy.contains("Recording an idle video.");
-      cy.get("[data-cy=radio]").eq(6).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Idle_And_Initial_Recordings)
+        .trigger("mouseover")
+        .click();
       cy.contains("Idle and Initial Recordings");
-      cy.get("[data-cy=radio]").eq(7).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Build_Mentor)
+        .trigger("mouseover")
+        .click();
       cy.contains("Good work!");
-      cy.get("[data-cy=radio]").eq(0).trigger("mouseover").click();
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Welcome)
+        .trigger("mouseover")
+        .click();
       cy.contains("Welcome to MentorStudio!");
     });
 
@@ -263,6 +306,10 @@ describe("Setup", () => {
       cy.get("[data-cy=slide]").contains("Tell us a little about yourself.");
       cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
       cy.get("[data-cy=slide]").contains("Pick a mentor type.");
+      cyVisitSetupScreen(cy, SetupScreen.My_Goal);
+      cy.contains("My Goal");
+      cyVisitSetupScreen(cy, SetupScreen.Experiences_Identities);
+      cy.contains("Experiences & Identities");
       cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
       cy.get("[data-cy=slide]").contains("Select subjects?");
       cyVisitSetupScreen(cy, SetupScreen.Start_Recordin);
@@ -282,6 +329,7 @@ describe("Setup", () => {
       mentor: { ...setup0, title: "" },
       gqlQueries: [
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        mockGQL("Keywords", keywords),
       ],
     });
     cyVisitSetupScreen(cy, SetupScreen.Tell_Us_About_Yourself);
@@ -489,11 +537,11 @@ describe("Setup", () => {
     // save changes
     cy.matchImageSnapshot(snapname("type-slide-1"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Select subjects?");
+    cy.contains("My Goal");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-2"));
-    cy.get("[data-cy=radio]").should("have.length", 7);
+    cy.get("[data-cy=radio]").should("have.length", 9);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
@@ -510,17 +558,176 @@ describe("Setup", () => {
     // save changes
     cy.matchImageSnapshot(snapname("type-slide-3"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("Select subjects?");
+    cy.contains("My Goal");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
+      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    cy.get("[data-cy=radio]").should("have.length", 8);
+    cy.get("[data-cy=radio]").should("have.length", 10);
     cy.matchImageSnapshot(snapname("type-slide-4"));
+  });
+
+  it("Shows select keywords slide", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: [
+        setup0,
+        {
+          ...setup0,
+          keywords: [{ _id: "", name: "Actors", type: "Occupation" }],
+        },
+      ],
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        mockGQL("UpdateMentorKeywords", { me: { updateMentorKeywords: true } }),
+        mockGQL("Keywords", keywords),
+      ],
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Experiences_Identities);
+    cy.get("[data-cy=slide]").within(($slide) => {
+      cy.contains("Experiences & Identities");
+      cy.contains(
+        "Please select or add keywords that represent your experiences."
+      );
+      cy.get("[data-cy=keyword-type-Gender]").within(($kt) => {
+        cy.get("[data-cy=keyword-name-Man]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Woman]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Nonbinary]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Transgender]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+      });
+      cy.get("[data-cy=keyword-type-Ethnicity]").within(($kt) => {
+        cy.get("[data-cy=keyword-name-Asian]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-White]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Black]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Latinx]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+      });
+      cy.get("[data-cy=keyword-type-Education]").within(($kt) => {
+        cy.get("[data-cy=keyword-name-Associate]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Bachelors]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Masters]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+        cy.get("[data-cy=keyword-name-Doctorate]").should(
+          "have.attr",
+          "data-test",
+          "false"
+        );
+      });
+      cy.get("[data-cy=keyword-type-Occupation]").within(($kt) => {
+        cy.get("[data-cy=Occupation-input]");
+      });
+    });
+    cy.get("[data-cy=keyword-Asian]").should("not.exist");
+    cy.get("[data-cy=keyword-Woman]").should("not.exist");
+    cy.get("[data-cy=keyword-Masters]").should("not.exist");
+    cy.get("[data-cy=keyword-Actors]").should("not.exist");
+    // select a keyword from topics
+    cy.get("[data-cy=keyword-name-Asian]").click({ force: true });
+    cy.get("[data-cy=keyword-name-Woman]").click({ force: true });
+    // select a keyword from input
+    cy.get("[data-cy=keyword-input]").click();
+    cy.get("[data-cy=keyword-option-Masters]").click();
+    // select a keyword from occupation input
+    cy.get("[data-cy=Occupation-input]").click();
+    cy.get("[data-cy=Occupation-option-Actors]").click();
+    // check that keywords are selected
+    cy.get("[data-cy=keyword-Asian]").should("exist");
+    cy.get("[data-cy=keyword-Woman]").should("exist");
+    cy.get("[data-cy=keyword-Masters]").should("exist");
+    cy.get("[data-cy=keyword-Actors]").should("exist");
+    cy.get("[data-cy=keyword-name-Asian]").should(
+      "have.attr",
+      "data-test",
+      "true"
+    );
+    cy.get("[data-cy=keyword-name-Woman]").should(
+      "have.attr",
+      "data-test",
+      "true"
+    );
+    cy.get("[data-cy=keyword-name-Masters]").should(
+      "have.attr",
+      "data-test",
+      "true"
+    );
+    // deselect keyword from topics
+    cy.get("[data-cy=keyword-name-Asian]").click({ force: true });
+    cy.get("[data-cy=keyword-Asian]").should("not.exist");
+    cy.get("[data-cy=keyword-name-Asian]").should(
+      "have.attr",
+      "data-test",
+      "false"
+    );
+    // deselect keyword from input
+    cy.get("[data-cy=keyword-input]").click();
+    cy.get("[data-cy=keyword-option-Woman]").click();
+    cy.get("[data-cy=keyword-Woman]").should("not.exist");
+    cy.get("[data-cy=keyword-name-Woman]").should(
+      "have.attr",
+      "data-test",
+      "false"
+    );
+    // deselect keyword from button
+    cy.get("[data-cy=keyword-Masters]")
+      .get(".MuiChip-deleteIcon")
+      .eq(0)
+      .click();
+    cy.get("[data-cy=keyword-Masters]").should("not.exist");
+    cy.get("[data-cy=keyword-name-Masters]").should(
+      "have.attr",
+      "data-test",
+      "false"
+    );
+    // save
+    cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+    cy.get("[data-cy=keyword-Actors]").should("exist");
   });
 
   it("shows select subjects slide", () => {
@@ -586,7 +793,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/subjects")
     );
-    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D3");
+    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D5");
     cy.get("[data-cy=subjects]").children().should("have.length", 2);
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -639,7 +846,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=3");
+    cy.location("search").should("contain", "?i=5");
   });
 
   it("shows introduction slide", () => {
@@ -705,7 +912,7 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D6"
+      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D8"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
     cy.get("[data-cy=question-input]").within(($input) => {
@@ -738,7 +945,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=6");
+    cy.location("search").should("contain", "?i=8");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Idle and Initial Recordings");
     cy.get("[data-cy=next-btn]")

@@ -43,6 +43,8 @@
     "draft-js": "^0.11.7",
     "draftjs-md-converter": "^1.5.2",
     "gatsby": "^3.14.3",
+    "gatsby-source-filesystem": "^4.23.0",
+    "gatsby-transformer-csv": "^4.23.0",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.0",
     "react-color": "^2.19.3",

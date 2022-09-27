@@ -83,6 +83,7 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
+  goal: string;
   email: string;
   allowContact: boolean;
   thumbnail: string;
@@ -92,10 +93,17 @@ export interface Mentor {
   isPrivate: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
+  keywords: Keyword[];
   topics: Topic[];
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+}
+
+export interface Keyword {
+  _id: string;
+  name: string;
+  type: string;
 }
 
 export enum SubjectTypes {
@@ -489,6 +497,7 @@ export interface RecordStateError {
 export interface SetupStatus {
   isMentorInfoDone: boolean;
   isMentorTypeChosen: boolean;
+  isMentorGoalDone: boolean;
   idle?: {
     idle: Answer;
     complete: boolean;

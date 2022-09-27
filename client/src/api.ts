@@ -34,6 +34,7 @@ import {
   PresignedUrlResponse,
   FirstTimeTracking,
   MentorPanel,
+  Keyword,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -386,6 +387,50 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
     { dataPath: "subject" }
   );
   // return convertSubjectGQL(gql);
+}
+
+export async function fetchKeywords(
+  searchParams?: SearchParams
+): Promise<Connection<Keyword>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return await execGql<Connection<Keyword>>(
+    {
+      query: `
+      query Keywords($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        keywords(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              name
+              type
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "keywords" }
+  );
 }
 
 export async function fetchSubjects(
@@ -833,6 +878,7 @@ export async function fetchMentorById(
           name
           firstName
           title
+          goal
           email
           allowContact
           mentorType
@@ -843,6 +889,11 @@ export async function fetchMentorById(
           virtualBackgroundUrl
           defaultSubject {
             _id
+          }
+          keywords {
+            _id
+            name
+            type
           }
           subjects {
             _id
@@ -922,6 +973,29 @@ export async function fetchMentorById(
   return convertMentorGQL(gql);
 }
 
+export async function updateMentorKeywords(
+  accessToken: string,
+  mentor: Mentor,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+        mutation UpdateMentorKeywords($keywords: [UpdateKeywordType], $mentorId: ID) {
+          me {
+            updateMentorKeywords(keywords: $keywords, mentorId: $mentorId)
+          }
+        }
+      `,
+      variables: {
+        keywords: mentor.keywords,
+        mentorId,
+      },
+    },
+    { dataPath: ["me", "updateMentorKeywords"], accessToken }
+  );
+}
+
 export async function updateMentorDetails(
   mentor: Mentor,
   accessToken: string,
@@ -942,6 +1016,7 @@ export async function updateMentorDetails(
           name: mentor.name,
           firstName: mentor.firstName,
           title: mentor.title,
+          goal: mentor.goal,
           email: mentor.email,
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
