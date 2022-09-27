@@ -7,11 +7,14 @@ The full terms of this copyright and license should always be found in the root 
 import { fetchUserQuestions } from "api";
 import { UserQuestion } from "types";
 import {
+  SearchParams,
   UseDataConnection,
   useWithDataConnection,
 } from "./use-with-data-connection";
 
-export function useWithFeedback(): UseDataConnection<UserQuestion> {
+export function useWithFeedback(
+  inputSearchParams?: Partial<SearchParams>
+): UseDataConnection<UserQuestion> {
   const {
     data,
     isLoading,
@@ -24,7 +27,8 @@ export function useWithFeedback(): UseDataConnection<UserQuestion> {
     sortBy,
     nextPage,
     prevPage,
-  } = useWithDataConnection<UserQuestion>(fetch);
+    setSearchParams,
+  } = useWithDataConnection<UserQuestion>(fetch, inputSearchParams);
 
   function fetch() {
     return fetchUserQuestions(searchParams);
@@ -42,5 +46,6 @@ export function useWithFeedback(): UseDataConnection<UserQuestion> {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   };
 }

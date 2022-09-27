@@ -166,6 +166,28 @@ function FeedbackPage(): JSX.Element {
     (mentorAnswers || []).map((a) => a.question)
   );
 
+  const questionsNeedAttentionSearchParam = {
+    limit: 20,
+    sortBy: "createdAt",
+    sortAscending: false,
+    filter: {
+      $or: [
+        { classifierAnswer: ClassifierAnswerType.OFF_TOPIC },
+        { feedback: Feedback.BAD },
+        { confidence: { $lt: -0.45 } },
+      ],
+      graderAnswer: null,
+      mentor: mentorId,
+    },
+  };
+
+  const viewAllQuestionsSearchParam = {
+    limit: 20,
+    sortBy: "createdAt",
+    sortAscending: false,
+    filter: { mentor: mentorId },
+  };
+
   const {
     isPolling: isTraining,
     error: trainError,
@@ -180,7 +202,8 @@ function FeedbackPage(): JSX.Element {
     reloadData: reloadFeedback,
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
-  } = useWithFeedback();
+    setSearchParams: setFeedbackSearchParams,
+  } = useWithFeedback(questionsNeedAttentionSearchParam);
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const {
     recordQueue: queueList,
@@ -188,11 +211,21 @@ function FeedbackPage(): JSX.Element {
     addQuestionToQueue,
   } = useWithRecordQueue(loginState.accessToken || "");
 
-  //Trending Feedback task:
-  const [viewAllQuestions, setViewAllQuestions] = useState<boolean>(false);
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
-    setViewAllQuestions(event.target.checked);
+    const displayAllQuestions = event.target.checked;
+    if (displayAllQuestions) {
+      setFeedbackSearchParams({
+        ...feedbackSearchParams,
+        ...viewAllQuestionsSearchParam,
+      });
+    } else {
+      setFeedbackSearchParams({
+        ...feedbackSearchParams,
+        ...questionsNeedAttentionSearchParam,
+      });
+    }
   }
+
   const [showExactConfidence, setShowExactConfidence] =
     useState<boolean>(false);
   function onShowExactConfidence(event: React.ChangeEvent<HTMLInputElement>) {
@@ -203,7 +236,7 @@ function FeedbackPage(): JSX.Element {
   useEffect(() => {
     if (mentorId) {
       if (!isFeedbackLoading) {
-        filterFeedback({ mentor: mentorId });
+        filterFeedback({ ...feedbackSearchParams.filter, mentor: mentorId });
       } else {
         setNeedsFiltering(true);
       }
@@ -212,7 +245,7 @@ function FeedbackPage(): JSX.Element {
 
   useEffect(() => {
     if (!isFeedbackLoading && needsFiltering) {
-      filterFeedback({ mentor: mentorId });
+      filterFeedback({ ...feedbackSearchParams.filter, mentor: mentorId });
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
@@ -247,7 +280,6 @@ function FeedbackPage(): JSX.Element {
     mentorQuestions,
     mentor,
     queueList,
-    viewAllQuestions,
   ]);
 
   const initialDisplayReady =
@@ -372,7 +404,7 @@ function FeedbackPage(): JSX.Element {
                       </MenuItem>
                     </Select>
                   </TableCell>
-                  <TableCell />
+                  <TableCell>{/* Empty Question Column */}</TableCell>
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-classifier"
@@ -426,7 +458,7 @@ function FeedbackPage(): JSX.Element {
                       )}
                     />
                   </TableCell>
-                  <TableCell />
+                  <TableCell>{/* Empty Date column */}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">{feedbackItems}</TableBody>
