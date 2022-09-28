@@ -98,6 +98,12 @@ const useStyles = makeStyles((theme) => ({
 
 const columnHeaders: ColumnDef[] = [
   {
+    id: "dismiss",
+    label: "",
+    minWidth: 10,
+    align: "center",
+  },
+  {
     id: "feedback",
     label: "Feedback",
     minWidth: 50,
@@ -156,6 +162,7 @@ function FeedbackPage(): JSX.Element {
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
+  const [viewingAll, setViewingAll] = useState<boolean>(false)
 
   const mentorQuestions = useQuestions(
     (state) => state.questions,
@@ -170,20 +177,28 @@ function FeedbackPage(): JSX.Element {
     limit: 20,
     sortBy: "createdAt",
     sortAscending: false,
+    cursor: "",
     filter: {
-      $or: [
-        { classifierAnswer: ClassifierAnswerType.OFF_TOPIC },
-        { feedback: Feedback.BAD },
-        { confidence: { $lt: -0.45 } },
-      ],
-      graderAnswer: null,
-      mentor: mentorId,
+      $and: [
+        {$or: [
+          { classifierAnswerType: ClassifierAnswerType.OFF_TOPIC },
+          { feedback: Feedback.BAD },
+          { confidence: { $lt: -0.45 } },
+        ]},
+        {graderAnswer: null},
+        {mentor: mentorId},
+        {$or:[
+          {dismissed: false},
+          {dismissed: {$exists: false}}
+        ]}
+      ]
     },
   };
 
   const viewAllQuestionsSearchParam = {
     limit: 20,
     sortBy: "createdAt",
+    cursor: "",
     sortAscending: false,
     filter: { mentor: mentorId },
   };
@@ -213,6 +228,7 @@ function FeedbackPage(): JSX.Element {
 
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     const displayAllQuestions = event.target.checked;
+    setViewingAll(displayAllQuestions)
     if (displayAllQuestions) {
       setFeedbackSearchParams({
         ...feedbackSearchParams,
@@ -269,6 +285,7 @@ function FeedbackPage(): JSX.Element {
         onUpdated={reloadFeedback}
         addQuestionToQueue={addQuestionToQueue}
         removeQuestionFromQueue={removeQuestionFromQueue}
+        viewingAll={viewingAll}
       />
     ));
     setFeedbackItems(feedbackItems);
@@ -280,6 +297,7 @@ function FeedbackPage(): JSX.Element {
     mentorQuestions,
     mentor,
     queueList,
+    viewingAll
   ]);
 
   const initialDisplayReady =
@@ -319,13 +337,14 @@ function FeedbackPage(): JSX.Element {
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
-                columns={columnHeaders}
+                columns={viewingAll ? columnHeaders.slice(1) : columnHeaders}
                 sortBy={feedbackSearchParams.sortBy}
                 sortAsc={feedbackSearchParams.sortAscending}
                 onSort={sortFeedback}
               />
               <TableHead data-cy="column-filter">
                 <TableRow>
+                  {viewingAll ? undefined : <TableCell ></TableCell>}
                   <TableCell align="center">
                     <Select
                       data-cy="filter-feedback"

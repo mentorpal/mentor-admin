@@ -705,6 +705,7 @@ export async function fetchUserQuestions(
                     feedback
                     updatedAt
                     createdAt
+                    dismissed
                     mentor {
                       _id
                       name
@@ -790,6 +791,31 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
     { dataPath: "userQuestion" }
   );
   return convertUserQuestionGQL(gql);
+}
+
+export async function updateDismissUserQuestion(
+  feedbackId: string,
+  dismiss: boolean,
+  accessToken: string
+): Promise<boolean> {
+  return await execGql<boolean>(
+    {
+      query: `
+      mutation UserQuestionSetDismissed($id: ID!, $dismissed: Boolean!) {
+        me{
+          userQuestionSetDismissed(id: $id, dismissed: $dismissed) {
+            dismissed
+          }
+        }
+      }
+    `,
+      variables:{
+        id: feedbackId,
+        dismissed: dismiss
+      }
+    },
+    { dataPath: ["me","userQuestionSetDismissed","dismissed"], accessToken }
+  );
 }
 
 export async function updateUserQuestion(

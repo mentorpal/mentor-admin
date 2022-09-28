@@ -174,6 +174,7 @@ export interface UserQuestion {
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
   graderAnswer?: Answer;
+  dismissed: boolean;
   updatedAt: string;
   createdAt: string;
 }
