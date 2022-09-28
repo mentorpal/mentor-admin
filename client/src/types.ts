@@ -10,6 +10,11 @@ import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
+export enum QuestionSortOrder {
+  Alphabetical = 0,
+  ReverseAlphabetical = 1,
+}
+
 export interface Config {
   mentorsDefault: string[];
   featuredMentors: string[];
@@ -31,6 +36,10 @@ export interface Config {
   disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
+  questionSortOrder: QuestionSortOrder;
+  featuredKeywordTypes: string[];
+  featuredSubjects: string[];
+  defaultSubject: string;
 }
 
 export interface Connection<T> {

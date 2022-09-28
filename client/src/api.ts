@@ -246,6 +246,10 @@ export async function fetchConfig(): Promise<Config> {
           subjectRecordPriority
           virtualBackgroundUrls
           defaultVirtualBackground
+          questionSortOrder
+          featuredKeywordTypes
+          featuredSubjects
+          defaultSubject
         }
       }
   `,
@@ -2038,6 +2042,10 @@ export async function updateConfig(
             disclaimerDisabled
             displayGuestPrompt
             videoRecorderMaxLength
+            questionSortOrder
+            featuredKeywordTypes
+            featuredSubjects
+            defaultSubject
           }
         }
       }`,
@@ -2055,6 +2063,10 @@ export async function updateConfig(
           disclaimerDisabled: config.disclaimerDisabled,
           displayGuestPrompt: config.displayGuestPrompt,
           videoRecorderMaxLength: config.videoRecorderMaxLength,
+          questionSortOrder: config.questionSortOrder,
+          featuredKeywordTypes: config.featuredKeywordTypes,
+          featuredSubjects: config.featuredSubjects,
+          defaultSubject: config.defaultSubject,
         },
       },
     },

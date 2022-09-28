@@ -12,14 +12,7 @@ import React, { useEffect, useState } from "react";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Keyword, Mentor } from "types";
 import { Slide } from "./slide";
-
-const PINNED_KEYWORD_TYPES = [
-  "Gender",
-  "Ethnicity",
-  "Age",
-  "Education",
-  "Occupation",
-];
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export function SelectKeywordsSlide(props: {
   classes: Record<string, string>;
@@ -32,6 +25,7 @@ export function SelectKeywordsSlide(props: {
     Record<string, Keyword[]>
   >({});
   const { width: windowWidth } = useWithWindowSize();
+  const { state: configState } = useWithConfig();
   const occupationData = useStaticQuery(graphql`
     query AllOccupations {
       allOccupationsCsv {
@@ -49,7 +43,7 @@ export function SelectKeywordsSlide(props: {
       return;
     }
     const kwbt: Record<string, Keyword[]> = {};
-    for (const type of PINNED_KEYWORD_TYPES) {
+    for (const type of configState.config?.featuredKeywordTypes || []) {
       const kws = keywords.filter(
         (kw) => kw.type.toLowerCase() === type.toLowerCase()
       );
