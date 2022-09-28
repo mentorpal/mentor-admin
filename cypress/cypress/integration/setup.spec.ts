@@ -117,7 +117,7 @@ function snapname(n) {
   return `screenshots-setup-${n}`;
 }
 
-enum SetupScreen {
+export enum SetupScreen {
   Welcome = 0,
   Tell_Us_About_Yourself = 1,
   Pick_Mentor_Type = 2,
@@ -130,7 +130,7 @@ enum SetupScreen {
   Build_Mentor = 9,
 }
 
-function cyVisitSetupScreen(cy, screen: SetupScreen) {
+export function cyVisitSetupScreen(cy, screen: SetupScreen) {
   cy.visit(`/setup?i=${screen}`);
 }
 

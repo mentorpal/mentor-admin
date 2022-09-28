@@ -18,6 +18,7 @@ import {
   CardActions,
   CardContent,
   Checkbox,
+  Chip,
   CircularProgress,
   Dialog,
   DialogContent,
@@ -52,10 +53,11 @@ import { useWithConfig } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, MentorPanel, User, UserRole } from "types";
+import { Config, Keyword, MentorPanel, User, UserRole } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
 import withLocation from "wrap-with-location";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
+import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -699,6 +701,120 @@ function Disclaimer(props: {
   );
 }
 
+function Settings(props: {
+  config: Config;
+  keywords: Keyword[];
+  subjects: SubjectGQL[];
+  updateConfig: (c: Partial<Config>) => void;
+}): JSX.Element {
+  const featuredSubjects = props.subjects.filter((s) =>
+    props.config.featuredSubjects?.includes(s._id)
+  );
+  const defaultSubject = props.subjects.find(
+    (s) => props.config.defaultSubject === s._id
+  );
+
+  return (
+    <div>
+      <Autocomplete
+        data-cy="keyword-input"
+        multiple
+        value={props.config.featuredKeywordTypes}
+        options={
+          props.keywords
+            ?.map((k) => k.type)
+            ?.filter((v, i, a) => a.indexOf(v) === i) || []
+        }
+        getOptionLabel={(option: string) => option}
+        onChange={(e, v) => props.updateConfig({ featuredKeywordTypes: v })}
+        renderTags={(value: readonly string[], getTagProps) =>
+          value.map((option: string, index: number) => (
+            <Chip
+              key={`keyword-${option}`}
+              data-cy={`keyword-${option}`}
+              variant="default"
+              label={option}
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            placeholder="Featured Keyword Types"
+          />
+        )}
+        renderOption={(option) => (
+          <Typography align="left" data-cy={`keyword-option-${option}`}>
+            {option}
+          </Typography>
+        )}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
+      <Autocomplete
+        data-cy="subject-input"
+        multiple
+        value={featuredSubjects}
+        options={props.subjects}
+        getOptionLabel={(option: SubjectGQL) => option.name}
+        onChange={(e, v) =>
+          props.updateConfig({ featuredSubjects: v.map((s) => s._id) })
+        }
+        renderTags={(value: readonly SubjectGQL[], getTagProps) =>
+          value.map((option: SubjectGQL, index: number) => (
+            <Chip
+              key={`subject-${option._id}`}
+              data-cy={`subject-${option._id}`}
+              variant="default"
+              label={option.name}
+              {...getTagProps({ index })}
+            />
+          ))
+        }
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            placeholder="Featured Subjects"
+          />
+        )}
+        renderOption={(option) => (
+          <Typography align="left" data-cy={`subject-option-${option._id}`}>
+            {option.name}
+          </Typography>
+        )}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
+      <Autocomplete
+        data-cy="default-subject-input"
+        value={defaultSubject}
+        options={featuredSubjects}
+        getOptionLabel={(option: SubjectGQL) => option.name}
+        onChange={(e, v) =>
+          props.updateConfig({ defaultSubject: v?._id || undefined })
+        }
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            placeholder="Default Subject"
+          />
+        )}
+        renderOption={(option) => (
+          <Typography
+            align="left"
+            data-cy={`default-subject-option-${option._id}`}
+          >
+            {option.name}
+          </Typography>
+        )}
+        style={{ width: "100%", marginBottom: 10 }}
+      />
+    </div>
+  );
+}
+
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
   const {
@@ -719,6 +835,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     saveMentorPanel,
   } = useWithConfig(props.accessToken);
   const { switchActiveMentor } = useActiveMentor();
+  const { data: keywords } = useWithKeywords();
   const { height } = useWithWindowSize();
   const { data: subjects } = useWithSubjects();
 
@@ -770,6 +887,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             value="disclaimer"
             data-cy="toggle-disclaimer"
           />
+          <Tab label="Settings" value="settings" data-cy="toggle-settings" />
         </TabList>
         <TabPanel
           className={styles.tab}
@@ -818,6 +936,18 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="disclaimer"
         >
           <Disclaimer config={config} updateConfig={updateConfig} />
+        </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="settings"
+        >
+          <Settings
+            config={config}
+            subjects={subjects?.edges.map((s) => s.node) || []}
+            keywords={keywords?.edges.map((k) => k.node) || []}
+            updateConfig={updateConfig}
+          />
         </TabPanel>
       </TabContext>
       <Button

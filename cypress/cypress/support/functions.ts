@@ -71,6 +71,11 @@ export function cySetup(cy) {
   cy.clearLocalStorage();
 }
 
+export enum QuestionSortOrder {
+  Alphabetical = 0,
+  ReverseAlphabetical = 1,
+}
+
 export interface Config {
   mentorsDefault: string[];
   featuredMentors: string[];
@@ -92,6 +97,10 @@ export interface Config {
   disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
+  questionSortOrder: QuestionSortOrder;
+  featuredKeywordTypes: string[];
+  featuredSubjects: string[];
+  defaultSubject: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
@@ -115,6 +124,16 @@ export const CONFIG_DEFAULT: Config = {
   disclaimerDisabled: false,
   virtualBackgroundUrls: [],
   defaultVirtualBackground: "https://default.image.url.com/",
+  questionSortOrder: 0,
+  featuredKeywordTypes: [
+    "Gender",
+    "Ethnicity",
+    "Age",
+    "Education",
+    "Occupation",
+  ],
+  featuredSubjects: [],
+  defaultSubject: "",
 };
 
 export function mockGQLConfig(config: Partial<Config>): MockGraphQLQuery {
