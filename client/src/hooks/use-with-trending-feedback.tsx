@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { fetchTrendingFeedback } from "api";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import {
   localStorageClear,
   localStorageGet,
@@ -20,9 +20,15 @@ import {
   UserQuestionBin,
   WeightedTrendingUserQuestion,
 } from "types";
-import { validate, ValidationError } from "jsonschema";
+import { validate } from "jsonschema";
 // import similarity from 'string-cosine-similarity'
 import { cosine } from "string-comparison";
+import {
+  LoadingStatusType,
+  LoadingReducer,
+  LoadingState,
+  LoadingActionType
+} from "./graphql/generic-loading-reducer";
 
 const binCollectionSchema = {
   type: "object",
@@ -94,32 +100,25 @@ const binCollectionSchema = {
   required: ["bins", "lastUpdated"],
 };
 
+const initialState: LoadingState<string[]> = {
+  status: LoadingStatusType.LOADING,
+  data: [],
+  error: undefined,
+};
+
+
 export interface UseWithTrendingFeedback {
-  trendingUserQuestionIds: string[];
-  error: string;
+  loadingStatus: LoadingStatusType,
+  bestRepIds: string[]
 }
 
 export function useWithTrendingFeedback(): UseWithTrendingFeedback {
   const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id) || "";
   const emptyBinCollection = { bins: [], lastUpdated: 0, mentor: mentorId };
-  const [binCollection, setBinCollection] =
-    useState<BinCollection>(emptyBinCollection);
-  const [trendingUserQuestionIds, setTrendingUserQuestionIds] = useState<
-    string[]
-  >([]);
-  const [error, setError] = useState<string>("");
-  const similarityThreshold = 0.9;
 
-  useEffect(() => {
-    console.log("in here", binCollection);
-    if (!binCollection.lastUpdated) {
-      //0 when nothing is loaded yet
-      return;
-    }
-    const bestRepresentatives = getBinRepresentatives(binCollection);
-    setTrendingUserQuestionIds(bestRepresentatives.map((userQ) => userQ._id));
-  }, [binCollection.lastUpdated]);
+  const [state, dispatch] = useReducer(LoadingReducer<string[]>, initialState);
+  const similarityThreshold = 0.9;
 
   function calculateBinWeight(bin: UserQuestionBin) {
     // TODO: Needs to be updated to involve recency
@@ -234,15 +233,15 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     bins: UserQuestionBin[]
   ): UserQuestionBin[] {
     const trendingFeedbackIds = trendingUserQuestions.map((userQ) => userQ._id);
-    console.log("in removeing", bins.length);
+    console.log("in removing", bins.length);
     for (let i = 0; i < bins.length; i++) {
-      console.log(bins[i].userQuestions.length);
+      // console.log(bins[i].userQuestions.length);
       bins[i].userQuestions = bins[i].userQuestions.filter((userQuestion) =>
         trendingFeedbackIds.find(
           (trendingFeedbackId) => trendingFeedbackId == userQuestion._id
         )
       );
-      console.log(bins[i].userQuestions.length);
+      // console.log(bins[i].userQuestions.length);
     }
     // since we removed some questions, make sure we have no empty bins
     bins = bins.filter((bin) => bin.userQuestions.length > 0);
@@ -255,6 +254,7 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     if (!mentorId) {
       return;
     }
+    dispatch({type: LoadingActionType.LOADING_STARTED})
     const localStorageBins = getLocalStorageBins();
     fetchTrendingFeedback({
       limit: 1000,
@@ -279,6 +279,7 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
       .then((data) => {
         const trendingFeedback = data.edges.map((edge) => edge.node);
         let newBins = localStorageBins;
+        console.log(newBins)
         newBins.bins = removeNonTrendingAnswersFromBins(
           trendingFeedback,
           newBins.bins
@@ -304,17 +305,19 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
         newWeightedTrendingFeedback.forEach((feedback) => {
           newBins = addQuestionToBestBin(feedback, newBins);
         });
-        setBinCollection(newBins);
         localStorageStore("userQuestionBins", JSON.stringify(newBins));
+        const bestRepresentatives = getBinRepresentatives(newBins);
+        const bestRepIds = bestRepresentatives.map((userQ) => userQ._id);
+        dispatch({type:LoadingActionType.LOADING_SUCCEEDED, dataPayload: bestRepIds})
       })
       .catch((err) => {
+        dispatch({type: LoadingActionType.LOADING_FAILED, errorPayload: {message:"Failed to fetch trending feedback", error: JSON.stringify(err)}})
         console.error("failed to fetch trending feedback", err);
-        setError(JSON.stringify(err));
       });
   }, [mentorId]);
 
   return {
-    trendingUserQuestionIds,
-    error,
+    loadingStatus: state.status,
+    bestRepIds: state.data || []
   };
 }

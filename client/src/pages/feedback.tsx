@@ -63,6 +63,7 @@ import EditQuestionForQueueModal from "components/feedback/edit-question-for-que
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import FeedbackItem from "components/feedback/feedback-item";
 import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
+import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -164,7 +165,7 @@ function FeedbackPage(): JSX.Element {
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
   const [viewingAll, setViewingAll] = useState<boolean>(false);
-  const { error, trendingUserQuestionIds } = useWithTrendingFeedback();
+  const { bestRepIds: trendingUserQuestionIds, loadingStatus: trendQuestionsLoadStatus } = useWithTrendingFeedback();
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
@@ -181,9 +182,9 @@ function FeedbackPage(): JSX.Element {
     cursor: "",
     filter: {
       _id: { $in: trendingUserQuestionIds },
+      mentor: mentorId
     },
   };
-  console.log(trendingUserQuestionIds);
 
   const viewAllQuestionsSearchParam = {
     limit: 20,
@@ -208,7 +209,7 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
     setSearchParams: setFeedbackSearchParams,
-  } = useWithFeedback(trendingQuestionsSearchParam);
+  } = useWithFeedback(viewAllQuestionsSearchParam);
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const {
     recordQueue: queueList,
@@ -244,30 +245,20 @@ function FeedbackPage(): JSX.Element {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
   useEffect(() => {
-    if (mentorId) {
+    if (mentorId && trendQuestionsLoadStatus === LoadingStatusType.SUCCESS) {
+      console.log("success")
+      console.log(trendingQuestionsSearchParam)
       if (!isFeedbackLoading) {
-        filterFeedback({ ...feedbackSearchParams.filter, mentor: mentorId });
+        setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {
         setNeedsFiltering(true);
       }
     }
-  }, [mentorId]);
-
-  useEffect(() => {
-    if (!trendingUserQuestionIds.length) {
-      return;
-    }
-    setFeedbackSearchParams((prevValue) => {
-      return {
-        ...prevValue,
-        filter: { _id: { $in: trendingUserQuestionIds } },
-      };
-    });
-  }, [trendingUserQuestionIds]);
+  }, [mentorId, trendQuestionsLoadStatus]);
 
   useEffect(() => {
     if (!isFeedbackLoading && needsFiltering) {
-      filterFeedback({ ...feedbackSearchParams.filter, mentor: mentorId });
+      setFeedbackSearchParams(trendingQuestionsSearchParam);
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
