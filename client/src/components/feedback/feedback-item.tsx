@@ -57,22 +57,29 @@ function FeedbackItem(props: {
     queueList,
     removeQuestionFromQueue,
     addQuestionToQueue,
-    viewingAll
+    viewingAll,
   } = props;
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
   const [feedbackQuestionDocId, setFeedbackQuestionDocId] =
     useState<string>("");
-  const [currentGraderAnswer, setCurrentGraderAnswer] = useState<Answer | undefined>(feedback.graderAnswer)
-  const [dismissed, setDismissed] = useState<boolean>(Boolean(feedback.dismissed))
+  const [currentGraderAnswer, setCurrentGraderAnswer] = useState<
+    Answer | undefined
+  >(feedback.graderAnswer);
+  const [dismissed, setDismissed] = useState<boolean>(
+    Boolean(feedback.dismissed)
+  );
   const [dismissInProgress, setDismissInProgress] = useState<boolean>(false);
 
-  useEffect(()=>{
-    if(!feedback.graderAnswer || currentGraderAnswer?._id === feedback.graderAnswer._id){
-      return
+  useEffect(() => {
+    if (
+      !feedback.graderAnswer ||
+      currentGraderAnswer?._id === feedback.graderAnswer._id
+    ) {
+      return;
     }
-    setCurrentGraderAnswer(feedback.graderAnswer)
-  }, [feedback.graderAnswer])
+    setCurrentGraderAnswer(feedback.graderAnswer);
+  }, [feedback.graderAnswer]);
   // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
     mentorAnswers: Answer[],
@@ -223,20 +230,24 @@ function FeedbackItem(props: {
     );
   };
 
-  function onDismissed(): void{
-    setDismissInProgress(_ => true)
-    const oldDismissedValue = dismissed
-    const newDismissedValue = !dismissed
-    setDismissed(_ => newDismissedValue)
-    updateDismissUserQuestion(feedback._id, newDismissedValue, accessToken || "")
-    .then(()=>{
-      setDismissInProgress(_ => false)
-    })
-    .catch((err)=>{
-      console.error("Failed to update dismissed value", err)
-      setDismissed(_ => oldDismissedValue)
-      setDismissInProgress(_ => false)
-    })
+  function onDismissed(): void {
+    setDismissInProgress((_) => true);
+    const oldDismissedValue = dismissed;
+    const newDismissedValue = !dismissed;
+    setDismissed((_) => newDismissedValue);
+    updateDismissUserQuestion(
+      feedback._id,
+      newDismissedValue,
+      accessToken || ""
+    )
+      .then(() => {
+        setDismissInProgress((_) => false);
+      })
+      .catch((err) => {
+        console.error("Failed to update dismissed value", err);
+        setDismissed((_) => oldDismissedValue);
+        setDismissInProgress((_) => false);
+      });
   }
 
   return (
@@ -245,15 +256,15 @@ function FeedbackItem(props: {
       role="checkbox"
       tabIndex={-1}
       data-cy={`row-${feedback._id}`}
-      style={{opacity: dismissed ? 0.4 : 1}}
+      style={{ opacity: dismissed ? 0.4 : 1 }}
     >
-      {viewingAll ? undefined :
-      <TableCell>
-        <Button disabled={dismissInProgress} onClick={onDismissed}>
-          {dismissed ? "Enable" : "Dismiss"}
-        </Button>
-      </TableCell>
-      }
+      {viewingAll ? undefined : (
+        <TableCell>
+          <Button disabled={dismissInProgress} onClick={onDismissed}>
+            {dismissed ? "Enable" : "Dismiss"}
+          </Button>
+        </TableCell>
+      )}
       <TableCell data-cy="grade" align="center">
         {feedback.feedback === Feedback.BAD ? (
           <ThumbDownIcon style={{ color: "red" }} />
@@ -353,10 +364,8 @@ function FeedbackItem(props: {
         >
           <Typography variant="body2" data-cy="grader-answer-question-text">
             {(currentGraderAnswer &&
-              getValueIfKeyExists(
-                currentGraderAnswer.question,
-                mentorQuestions
-              )?.question?.question) ||
+              getValueIfKeyExists(currentGraderAnswer.question, mentorQuestions)
+                ?.question?.question) ||
               ""}
             {graderAnswerButton()}
           </Typography>

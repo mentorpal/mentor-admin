@@ -62,6 +62,7 @@ import { useWithLogin } from "store/slices/login/useWithLogin";
 import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import FeedbackItem from "components/feedback/feedback-item";
+import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -162,8 +163,8 @@ function FeedbackPage(): JSX.Element {
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
-  const [viewingAll, setViewingAll] = useState<boolean>(false)
-
+  const [viewingAll, setViewingAll] = useState<boolean>(false);
+  const { error, trendingUserQuestionIds } = useWithTrendingFeedback();
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
@@ -173,27 +174,16 @@ function FeedbackPage(): JSX.Element {
     (mentorAnswers || []).map((a) => a.question)
   );
 
-  const questionsNeedAttentionSearchParam = {
+  const trendingQuestionsSearchParam = {
     limit: 20,
     sortBy: "createdAt",
     sortAscending: false,
     cursor: "",
     filter: {
-      $and: [
-        {$or: [
-          { classifierAnswerType: ClassifierAnswerType.OFF_TOPIC },
-          { feedback: Feedback.BAD },
-          { confidence: { $lt: -0.45 } },
-        ]},
-        {graderAnswer: null},
-        {mentor: mentorId},
-        {$or:[
-          {dismissed: false},
-          {dismissed: {$exists: false}}
-        ]}
-      ]
+      _id: { $in: trendingUserQuestionIds },
     },
   };
+  console.log(trendingUserQuestionIds);
 
   const viewAllQuestionsSearchParam = {
     limit: 20,
@@ -218,7 +208,7 @@ function FeedbackPage(): JSX.Element {
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
     setSearchParams: setFeedbackSearchParams,
-  } = useWithFeedback(questionsNeedAttentionSearchParam);
+  } = useWithFeedback(trendingQuestionsSearchParam);
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
   const {
     recordQueue: queueList,
@@ -228,16 +218,20 @@ function FeedbackPage(): JSX.Element {
 
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     const displayAllQuestions = event.target.checked;
-    setViewingAll(displayAllQuestions)
+    setViewingAll(displayAllQuestions);
     if (displayAllQuestions) {
-      setFeedbackSearchParams({
-        ...feedbackSearchParams,
-        ...viewAllQuestionsSearchParam,
+      setFeedbackSearchParams((prevValue) => {
+        return {
+          ...prevValue,
+          ...viewAllQuestionsSearchParam,
+        };
       });
     } else {
-      setFeedbackSearchParams({
-        ...feedbackSearchParams,
-        ...questionsNeedAttentionSearchParam,
+      setFeedbackSearchParams((prevValue) => {
+        return {
+          ...prevValue,
+          ...trendingQuestionsSearchParam,
+        };
       });
     }
   }
@@ -258,6 +252,18 @@ function FeedbackPage(): JSX.Element {
       }
     }
   }, [mentorId]);
+
+  useEffect(() => {
+    if (!trendingUserQuestionIds.length) {
+      return;
+    }
+    setFeedbackSearchParams((prevValue) => {
+      return {
+        ...prevValue,
+        filter: { _id: { $in: trendingUserQuestionIds } },
+      };
+    });
+  }, [trendingUserQuestionIds]);
 
   useEffect(() => {
     if (!isFeedbackLoading && needsFiltering) {
@@ -297,7 +303,7 @@ function FeedbackPage(): JSX.Element {
     mentorQuestions,
     mentor,
     queueList,
-    viewingAll
+    viewingAll,
   ]);
 
   const initialDisplayReady =
@@ -344,7 +350,7 @@ function FeedbackPage(): JSX.Element {
               />
               <TableHead data-cy="column-filter">
                 <TableRow>
-                  {viewingAll ? undefined : <TableCell ></TableCell>}
+                  {viewingAll ? undefined : <TableCell></TableCell>}
                   <TableCell align="center">
                     <Select
                       data-cy="filter-feedback"

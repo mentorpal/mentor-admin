@@ -34,6 +34,7 @@ import {
   PresignedUrlResponse,
   FirstTimeTracking,
   MentorPanel,
+  TrendingUserQuestion,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -750,6 +751,44 @@ export async function fetchUserQuestions(
   return convertConnectionGQL(gql, convertUserQuestionGQL);
 }
 
+export async function fetchTrendingFeedback(
+  searchParams: SearchParams
+): Promise<Connection<TrendingUserQuestion>> {
+  const params = { ...searchParams };
+  const gql = await execGql<Connection<TrendingUserQuestion>>(
+    {
+      query: `
+      query TrendingUserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+        userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+           edges {
+                  cursor
+                  node {
+                    _id
+                    question
+                    confidence
+                    classifierAnswerType
+                    feedback
+                    updatedAt
+                    createdAt
+                    dismissed
+                  }
+              }
+        }
+      }
+    `,
+      variables: {
+        filter: params.filter,
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "userQuestions" }
+  );
+  return gql;
+}
+
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
   const gql = await execGql<UserQuestionGQL>(
     {
@@ -809,12 +848,12 @@ export async function updateDismissUserQuestion(
         }
       }
     `,
-      variables:{
+      variables: {
         id: feedbackId,
-        dismissed: dismiss
-      }
+        dismissed: dismiss,
+      },
     },
-    { dataPath: ["me","userQuestionSetDismissed","dismissed"], accessToken }
+    { dataPath: ["me", "userQuestionSetDismissed", "dismissed"], accessToken }
   );
 }
 

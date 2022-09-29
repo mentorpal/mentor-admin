@@ -179,14 +179,30 @@ export interface UserQuestion {
   createdAt: string;
 }
 
+export interface TrendingUserQuestion {
+  _id: string;
+  question: string;
+  confidence: number;
+  feedback: Feedback;
+  classifierAnswerType: ClassifierAnswerType;
+  dismissed: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface WeightedTrendingUserQuestion extends TrendingUserQuestion {
+  weight: number;
+}
+
 export interface UserQuestionBin {
-  userQuestions: UserQuestion[];
-  averageEmbedding: number[];
+  userQuestions: WeightedTrendingUserQuestion[];
+  binWeight: number; //based on average weight of each userQuestion in this bin
 }
 
 export interface BinCollection {
   bins: UserQuestionBin[];
-  lastUpdated: string;
+  lastUpdated: number; // epoch
+  mentor: string;
 }
 
 export interface MentorInfo {

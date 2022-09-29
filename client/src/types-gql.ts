@@ -207,7 +207,7 @@ export function convertUserQuestionGQL(gql: UserQuestionGQL): UserQuestion {
     ...gql,
     mentor: convertMentorGQL(gql.mentor),
     classifierAnswer: convertAnswerGQL(gql.classifierAnswer),
-    graderAnswer: convertAnswerGQL(gql.graderAnswer)
+    graderAnswer: convertAnswerGQL(gql.graderAnswer),
   };
 }
 
