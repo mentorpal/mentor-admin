@@ -56,6 +56,9 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT =
   process.env.GRAPHQL_ENDPOINT || "/graphql/graphql";
 
+export const SBERT_ENDPOINT =
+  process.env.SBERT_ENDPOINT || "/v1";
+
 const defaultSearchParams = {
   limit: 1000,
   filter: {},

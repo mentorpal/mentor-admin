@@ -29,6 +29,7 @@ import {
   LoadingState,
   LoadingActionType
 } from "./graphql/generic-loading-reducer";
+import { getDaysSinceDate } from "helpers";
 
 const binCollectionSchema = {
   type: "object",
@@ -120,12 +121,20 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
   const [state, dispatch] = useReducer(LoadingReducer<string[]>, initialState);
   const similarityThreshold = 0.9;
 
-  function calculateBinWeight(bin: UserQuestionBin) {
-    // TODO: Needs to be updated to involve recency
-    const newBinTotalWeight = bin.userQuestions.reduce((sum, f) => {
+  function calculateBinWeight(userQuestions: WeightedTrendingUserQuestion[]) {
+    const itemScoreSum = userQuestions.reduce((sum, f) => {
       return (sum += f.weight);
     }, 0);
-    return newBinTotalWeight / bin.userQuestions.length;
+    const mostRecentAsked = userQuestions.reduce((prev, cur)=>{
+      if(cur.createdAt > prev.createdAt){
+        prev = cur
+      }
+      return prev
+    })
+    const daysSinceMostRecentAsked = getDaysSinceDate(mostRecentAsked.createdAt)
+    const binWeightConstant = 0.5
+    console.log(itemScoreSum * Math.exp((binWeightConstant*-1) * (1+daysSinceMostRecentAsked)))
+    return itemScoreSum * Math.exp((binWeightConstant*-1) * (1+daysSinceMostRecentAsked))
   }
 
   function getBinRepresentatives(
@@ -141,18 +150,9 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     bin: UserQuestionBin
   ): UserQuestionBin {
     // TODO: need to also calculate binAverageEmbedding here
-    if (!bin.userQuestions.length) {
-      return {
-        userQuestions: [weightedQuestion],
-        binWeight: weightedQuestion.weight,
-      };
-    } else {
-      bin.userQuestions.push(weightedQuestion);
-      return {
-        userQuestions: bin.userQuestions,
-        binWeight: calculateBinWeight(bin),
-      };
-    }
+    bin.userQuestions.push(weightedQuestion)
+    bin.binWeight = calculateBinWeight(bin.userQuestions)
+    return bin
   }
 
   function getLocalStorageBins(): BinCollection {
@@ -179,17 +179,21 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     }
   }
 
+  function createNewUserQuestionBin(weightedQuestion?: WeightedTrendingUserQuestion): UserQuestionBin{
+    return {
+      userQuestions: weightedQuestion ? [weightedQuestion] : [],
+      binWeight: weightedQuestion ? calculateBinWeight([weightedQuestion]) : 0,
+    }
+  }
+
   function addQuestionToBestBin(
     weightedQuestion: WeightedTrendingUserQuestion,
     binCollection: BinCollection
   ): BinCollection {
     binCollection.lastUpdated = Date.now();
     if (!binCollection.bins.length) {
-      const newUserQuestionBin: UserQuestionBin = {
-        userQuestions: [weightedQuestion],
-        binWeight: weightedQuestion.weight,
-      };
-      binCollection.bins = [newUserQuestionBin];
+      binCollection.bins.push(createNewUserQuestionBin(weightedQuestion));
+      return binCollection
     }
     // Determining best bin
     let bestBinIndex = -1;
@@ -211,13 +215,10 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
       }
     }
 
+    // Adding to best found bin
     if (bestBinIndex === -1 || bestSimilarity < similarityThreshold) {
       // no good matched bins found, creating its own
-      const newUserQuestionBin: UserQuestionBin = {
-        userQuestions: [weightedQuestion],
-        binWeight: weightedQuestion.weight,
-      };
-      binCollection.bins.push(newUserQuestionBin);
+      binCollection.bins.push(createNewUserQuestionBin(weightedQuestion));
     } else {
       // best bin index has a similarity >= similarityThreshold
       binCollection.bins[bestBinIndex] = addQuestionToBin(
@@ -306,6 +307,12 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
           newBins = addQuestionToBestBin(feedback, newBins);
         });
         localStorageStore("userQuestionBins", JSON.stringify(newBins));
+        console.log(newBins)
+        // Sort bins by bin weight
+        newBins.bins = newBins.bins.sort((a, b)=>a.binWeight < b.binWeight ? 1 : -1)
+        // Take 60 most important bins only
+        newBins.bins = newBins.bins.slice(0, 60)
+        console.log(newBins)
         const bestRepresentatives = getBinRepresentatives(newBins);
         const bestRepIds = bestRepresentatives.map((userQ) => userQ._id);
         dispatch({type:LoadingActionType.LOADING_SUCCEEDED, dataPayload: bestRepIds})

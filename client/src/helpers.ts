@@ -118,6 +118,14 @@ export function loadSentry(): void {
   });
 }
 
+export function getDaysSinceDate(date:string): number{
+  const dateInEpoch = Date.parse(date)
+  const dateInDays = Math.floor(dateInEpoch/8.64e7);
+  const currentInEpoch = Date.now()
+  const currentInDays = Math.floor(currentInEpoch/8.64e7);
+  return currentInDays - dateInDays
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractErrorMessageFromError(err: any | unknown): string {
   if (err instanceof Error) {
