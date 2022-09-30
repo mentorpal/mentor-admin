@@ -14,6 +14,7 @@ export interface UseMentorEdits {
   editMentor: (edits: Partial<Mentor>) => void;
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
+  saveMentorKeywords: () => void;
 }
 
 export const useMentorEdits = (): UseMentorEdits => {
@@ -24,6 +25,7 @@ export const useMentorEdits = (): UseMentorEdits => {
     isSaving: isMentorSaving,
     saveMentorDetails: saveDetails,
     saveMentorSubjects: saveSubjects,
+    saveMentorKeywords: saveKeywords,
   } = useActiveMentor();
   const isMentorEdited = !equals(mentor, editedMentor);
   const declineMentorSave =
@@ -67,11 +69,25 @@ export const useMentorEdits = (): UseMentorEdits => {
     saveSubjects(editedMentor);
   };
 
+  const saveMentorKeywords = () => {
+    if (
+      !mentor ||
+      isMentorLoading ||
+      isMentorSaving ||
+      !isMentorEdited ||
+      !editedMentor
+    ) {
+      return;
+    }
+    saveKeywords(editedMentor);
+  };
+
   return {
     editedMentor,
     isMentorEdited,
     editMentor: _editMentor,
     saveMentorDetails: _saveMentorDetails,
     saveMentorSubjects,
+    saveMentorKeywords,
   };
 };

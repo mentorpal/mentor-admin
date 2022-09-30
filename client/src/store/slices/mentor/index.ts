@@ -104,6 +104,26 @@ export const saveMentorSubjects = createAsyncThunk(
   }
 );
 
+export const saveMentorKeywords = createAsyncThunk(
+  "mentor/saveMentorKeywords",
+  async (editedData: Mentor, thunkAPI): Promise<Mentor | unknown> => {
+    const state = thunkAPI.getState() as RootState;
+    if (state.login.accessToken) {
+      try {
+        await api.updateMentorKeywords(
+          state.login.accessToken,
+          editedData,
+          editedData._id
+        );
+        // need to fetch the updated mentor
+        return api.fetchMentorById(state.login.accessToken, editedData._id);
+      } catch (err) {
+        throw new Error(extractErrorMessageFromError(err));
+      }
+    }
+  }
+);
+
 export const saveThumbnail = createAsyncThunk(
   "mentor/saveThumbnail",
   async (
@@ -214,6 +234,20 @@ export const mentorSlice = createSlice({
         state.error = {
           message: "failed to save subjects",
           error: saveMentorSubjects.rejected.name,
+        };
+      })
+      .addCase(saveMentorKeywords.pending, (state) => {
+        state.mentorStatus = LoadingStatus.SAVING;
+      })
+      .addCase(saveMentorKeywords.fulfilled, (state, action) => {
+        state.data = action.payload as Mentor;
+        state.mentorStatus = LoadingStatus.SUCCEEDED;
+      })
+      .addCase(saveMentorKeywords.rejected, (state) => {
+        state.mentorStatus = LoadingStatus.FAILED;
+        state.error = {
+          message: "failed to save keywords",
+          error: saveMentorKeywords.rejected.name,
         };
       });
   },
