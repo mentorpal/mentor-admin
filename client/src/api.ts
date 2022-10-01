@@ -35,6 +35,7 @@ import {
   FirstTimeTracking,
   MentorPanel,
   TrendingUserQuestion,
+  SbertEncodedSentence,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -56,8 +57,7 @@ export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT =
   process.env.GRAPHQL_ENDPOINT || "/graphql/graphql";
 
-export const SBERT_ENDPOINT =
-  process.env.SBERT_ENDPOINT || "/v1";
+export const SBERT_ENDPOINT = process.env.SBERT_ENDPOINT || "/sbert";
 
 const defaultSearchParams = {
   limit: 1000,
@@ -389,7 +389,6 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
     },
     { dataPath: "subject" }
   );
-  // return convertSubjectGQL(gql);
 }
 
 export async function fetchSubjects(
@@ -988,6 +987,40 @@ export async function fetchMentorById(
     { dataPath: ["mentor"], accessToken }
   );
   return convertMentorGQL(gql);
+}
+
+export async function sbertEncodeSentences(
+  sentences: string[],
+  accessToken: string
+) {
+  return execHttp<SbertEncodedSentence[]>(
+    "POST",
+    urljoin(SBERT_ENDPOINT, "v1", "encode", "multiple_encode"),
+    {
+      axiosConfig: {
+        data: { sentences: sentences },
+      },
+      accessToken,
+      dataPath: ["results"],
+    }
+  );
+}
+
+export async function sbertSentenceClosestToEmbedding(
+  sentences: string[],
+  averageEmbedding: number[],
+  accessToken: string
+) {
+  return execHttp(
+    "POST",
+    urljoin(SBERT_ENDPOINT, "v1", "encode", "closest_to_embedding"),
+    {
+      axiosConfig: {
+        data: { sentences: sentences, averageEmbedding: averageEmbedding },
+      },
+      accessToken,
+    }
+  );
 }
 
 export async function updateMentorDetails(

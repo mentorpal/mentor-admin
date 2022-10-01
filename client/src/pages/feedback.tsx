@@ -165,7 +165,10 @@ function FeedbackPage(): JSX.Element {
   const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
   const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
   const [viewingAll, setViewingAll] = useState<boolean>(false);
-  const { bestRepIds: trendingUserQuestionIds, loadingStatus: trendQuestionsLoadStatus } = useWithTrendingFeedback();
+  const {
+    bestRepIds: trendingUserQuestionIds,
+    loadingStatus: trendQuestionsLoadStatus,
+  } = useWithTrendingFeedback(loginState.accessToken || "");
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
@@ -182,7 +185,7 @@ function FeedbackPage(): JSX.Element {
     cursor: "",
     filter: {
       _id: { $in: trendingUserQuestionIds },
-      mentor: mentorId
+      mentor: mentorId,
     },
   };
 
@@ -246,8 +249,8 @@ function FeedbackPage(): JSX.Element {
 
   useEffect(() => {
     if (mentorId && trendQuestionsLoadStatus === LoadingStatusType.SUCCESS) {
-      console.log("success")
-      console.log(trendingQuestionsSearchParam)
+      console.log("success");
+      console.log(trendingQuestionsSearchParam);
       if (!isFeedbackLoading) {
         setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {

@@ -34,6 +34,11 @@ export interface Config {
   defaultVirtualBackground: string;
 }
 
+export interface SbertEncodedSentence {
+  original: string;
+  encoded: number[];
+}
+
 export interface Connection<T> {
   edges: Edge<T>[];
   pageInfo: PageInfo;
@@ -192,11 +197,14 @@ export interface TrendingUserQuestion {
 
 export interface WeightedTrendingUserQuestion extends TrendingUserQuestion {
   weight: number;
+  embedding: number[];
 }
 
 export interface UserQuestionBin {
   userQuestions: WeightedTrendingUserQuestion[];
   binWeight: number; //based on average weight of each userQuestion in this bin
+  binAverageEmbedding: number[];
+  bestRepresentativeId: string;
 }
 
 export interface BinCollection {

@@ -9,6 +9,7 @@ import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
 import questions from "../fixtures/questions";
+import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -199,6 +200,7 @@ export function cyMockDefault(
   cyMockUpload(cy);
   cyMockRegenVTT(cy);
   cyMockCancelUpload(cy);
+  cyMockEncodeSentences(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -436,6 +438,28 @@ export function cyMockRegenVTT(
           data: {
             regen_vtt: true,
           },
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockEncodeSentences(
+  cy,
+  params: {
+    statusCode?: number;
+  } = {}
+) {
+  cy.intercept("/sbert/v1/encode/multiple_encode", (req) => {
+    req.alias = "sbertMultipleEncode";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: encodedSentences,
         },
         headers: {
           "Content-Type": "application/json",

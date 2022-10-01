@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchTrendingFeedback } from "api";
+import { fetchTrendingFeedback, sbertEncodeSentences } from "api";
 import { useEffect, useReducer } from "react";
 import {
   localStorageClear,
@@ -19,6 +19,7 @@ import {
   TrendingUserQuestion,
   UserQuestionBin,
   WeightedTrendingUserQuestion,
+  SbertEncodedSentence
 } from "types";
 import { validate } from "jsonschema";
 // import similarity from 'string-cosine-similarity'
@@ -29,7 +30,8 @@ import {
   LoadingState,
   LoadingActionType
 } from "./graphql/generic-loading-reducer";
-import { getDaysSinceDate } from "helpers";
+import { cosinesim, getDaysSinceDate } from "helpers";
+import { useWithLocalStoredEmbeddings } from "./use-with-local-stored-embeddings";
 
 const binCollectionSchema = {
   type: "object",
@@ -113,11 +115,13 @@ export interface UseWithTrendingFeedback {
   bestRepIds: string[]
 }
 
-export function useWithTrendingFeedback(): UseWithTrendingFeedback {
+export function useWithTrendingFeedback(
+  accessToken: string
+): UseWithTrendingFeedback {
   const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id) || "";
   const emptyBinCollection = { bins: [], lastUpdated: 0, mentor: mentorId };
-
+  const {getSavedEmbeddings, saveNewEmbeddings: saveEmbeddingsToLocalStorage} = useWithLocalStoredEmbeddings();
   const [state, dispatch] = useReducer(LoadingReducer<string[]>, initialState);
   const similarityThreshold = 0.9;
 
@@ -140,8 +144,18 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
   function getBinRepresentatives(
     bin: BinCollection
   ): WeightedTrendingUserQuestion[] {
-    // TODO: Implement algorithm to get actual best representatives, not just first questions
-    return bin.bins.map((b) => b.userQuestions[0]);
+    const bins = bin.bins
+    const bestRepresentatives = bins.reduce((reps: WeightedTrendingUserQuestion[], bin)=>{
+      const binsBestRep = bin.userQuestions.reduce((prev, cur)=>{
+        if(cosinesim(cur.embedding, bin.binAverageEmbedding) > cosinesim(prev.embedding, bin.binAverageEmbedding)){
+          return cur
+        }
+        return prev
+      })
+      reps.push(binsBestRep)
+      return reps
+    }, [])
+    return bestRepresentatives
   }
 
   // The question should already be determined to belong to this bin
@@ -179,10 +193,12 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     }
   }
 
-  function createNewUserQuestionBin(weightedQuestion?: WeightedTrendingUserQuestion): UserQuestionBin{
+  function createNewUserQuestionBin(weightedQuestion: WeightedTrendingUserQuestion): UserQuestionBin{
     return {
-      userQuestions: weightedQuestion ? [weightedQuestion] : [],
-      binWeight: weightedQuestion ? calculateBinWeight([weightedQuestion]) : 0,
+      userQuestions: [weightedQuestion],
+      binWeight: calculateBinWeight([weightedQuestion]),
+      binAverageEmbedding: [],
+      bestRepresentativeId: weightedQuestion._id
     }
   }
 
@@ -229,26 +245,102 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
     return binCollection;
   }
 
-  function removeNonTrendingAnswersFromBins(
+  async function removeNonTrendingAnswersFromBins(
     trendingUserQuestions: TrendingUserQuestion[],
     bins: UserQuestionBin[]
-  ): UserQuestionBin[] {
+  ): Promise<UserQuestionBin[]> {
     const trendingFeedbackIds = trendingUserQuestions.map((userQ) => userQ._id);
-    console.log("in removing", bins.length);
     for (let i = 0; i < bins.length; i++) {
-      // console.log(bins[i].userQuestions.length);
       bins[i].userQuestions = bins[i].userQuestions.filter((userQuestion) =>
         trendingFeedbackIds.find(
           (trendingFeedbackId) => trendingFeedbackId == userQuestion._id
         )
       );
-      // console.log(bins[i].userQuestions.length);
     }
     // since we removed some questions, make sure we have no empty bins
     bins = bins.filter((bin) => bin.userQuestions.length > 0);
 
-    // TODO: Recalculate the average embedding of each bin since we may have removed some questions
+    // Recalculate the average embedding of the bins since we may have removed some questions
+    bins = await fetchAndSetBinEmbeddings(bins)
     return bins;
+  }
+
+  function averageEmbedding(embeddings: number[][]): number[]{
+    if(embeddings.length == 0){
+      return []
+    }
+    const expectedEmbeddingsLength = embeddings[0].length; //It is expected that all embeddings are equal length, else issue occured
+    for(let i = 0; i < embeddings.length; i++){
+      if(embeddings[i].length !== expectedEmbeddingsLength){
+        throw new Error("Not all embeddings are equal length")
+      }
+    }
+    const summedColumns = []
+    for(let i = 0; i < expectedEmbeddingsLength; i++){
+      let columnValue = 0;
+      embeddings.forEach((embedding)=>{
+        columnValue += embedding[i]
+      })
+      summedColumns.push(columnValue)
+    }
+    const averageEmbedding = summedColumns.map((columnV)=>columnV/embeddings.length)
+    return averageEmbedding
+  }
+
+  /**
+   * Updates the average embedding of every bin
+   */
+  async function fetchAndSetBinEmbeddings(bins: UserQuestionBin[]): Promise<UserQuestionBin[]>{
+    const sentences: string[] = bins.reduce((acc: string[], bin: UserQuestionBin)=>{
+      acc.push(...bin.userQuestions.map((userQ)=>userQ.question))
+      return acc
+    }, [] as string[])
+    const sentencesSet = new Set(sentences); //Remove any duplicates
+    // First check locally saved embeddings
+    const locallySavedEmbeddings = getSavedEmbeddings();
+    const finalEmbeddings = Array.from(sentencesSet).reduce((record: Record<string,number[]>, sentence)=>{
+      if(sentence in Object.keys(locallySavedEmbeddings)){
+        record[sentence] = locallySavedEmbeddings[sentence]
+      }
+      return record
+    }, {})
+    const sentencesNeedingEmbeddings = Array.from(sentencesSet).filter((sentence)=>!Object.keys(finalEmbeddings).find((savedSentenceKey)=>savedSentenceKey==sentence))
+    // Any leftover sentences needing embeddings are then fetched from sbert
+    const embeddedSentences = sentencesNeedingEmbeddings.length ? await sbertEncodeSentences(sentencesNeedingEmbeddings, accessToken) : [];
+    embeddedSentences.forEach((embeddedSentence)=>{
+      finalEmbeddings[embeddedSentence.original] = embeddedSentence.encoded
+    })
+    // Save up to date embeddings to local storage
+    saveEmbeddingsToLocalStorage(finalEmbeddings)
+    for(let i = 0; i < bins.length; i++){
+      const userQuestions = bins[i].userQuestions
+      const userQuestionEmbeddings = userQuestions.map((userQuestion)=>finalEmbeddings[userQuestion.question])
+      
+      // If we wanted to add the embeddings to each question, but this is too much for local storage
+      bins[i].userQuestions = userQuestions.map((userQuestion)=>{
+        return {
+          ...userQuestion,
+          embedding: finalEmbeddings[userQuestion.question]
+        }
+      })
+
+      bins[i].binAverageEmbedding = averageEmbedding(userQuestionEmbeddings)
+    }
+    return bins
+  }
+
+  function convertFeedbackQuestionToWeighted(userQuestion: TrendingUserQuestion): WeightedTrendingUserQuestion{
+    const feedbackWeight = userQuestion.feedback === Feedback.BAD ? 3 : 0;
+    const offTopicWeight =
+    userQuestion.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
+        ? 2
+        : 0;
+    const lowConfidenceWeight = userQuestion.confidence < -0.45 ? 1 : 0;
+    return {
+      ...userQuestion,
+      weight: feedbackWeight + offTopicWeight + lowConfidenceWeight,
+      embedding: []
+    };
   }
 
   useEffect(() => {
@@ -277,11 +369,10 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
         ],
       },
     })
-      .then((data) => {
+      .then(async (data) => {
         const trendingFeedback = data.edges.map((edge) => edge.node);
         let newBins = localStorageBins;
-        console.log(newBins)
-        newBins.bins = removeNonTrendingAnswersFromBins(
+        newBins.bins = await removeNonTrendingAnswersFromBins(
           trendingFeedback,
           newBins.bins
         );
@@ -289,25 +380,15 @@ export function useWithTrendingFeedback(): UseWithTrendingFeedback {
         const newTrendingFeedback = trendingFeedback.filter((feedback) => {
           return Date.parse(feedback.createdAt) > binsLastUpdated;
         });
-        console.log(newTrendingFeedback);
         const newWeightedTrendingFeedback: WeightedTrendingUserQuestion[] =
-          newTrendingFeedback.map((feedback) => {
-            const feedbackWeight = feedback.feedback === Feedback.BAD ? 3 : 0;
-            const offTopicWeight =
-              feedback.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
-                ? 2
-                : 0;
-            const lowConfidenceWeight = feedback.confidence < -0.45 ? 1 : 0;
-            return {
-              ...feedback,
-              weight: feedbackWeight + offTopicWeight + lowConfidenceWeight,
-            };
-          });
+          newTrendingFeedback.map((feedback) => convertFeedbackQuestionToWeighted(feedback));
         newWeightedTrendingFeedback.forEach((feedback) => {
           newBins = addQuestionToBestBin(feedback, newBins);
         });
+        // Store bins prior to setting the questions embeddings
         localStorageStore("userQuestionBins", JSON.stringify(newBins));
-        console.log(newBins)
+        // Set bin embeddings
+        newBins.bins = await fetchAndSetBinEmbeddings(newBins.bins)
         // Sort bins by bin weight
         newBins.bins = newBins.bins.sort((a, b)=>a.binWeight < b.binWeight ? 1 : -1)
         // Take 60 most important bins only

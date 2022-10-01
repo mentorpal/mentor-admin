@@ -20,13 +20,13 @@ export enum LoadingStatus {
 
 export interface LoadingState<T> {
   status: LoadingStatusType;
-  data?: T,
+  data?: T;
   error?: LoadingError;
 }
 
 export interface LoadingAction<T> {
   type: LoadingActionType;
-  dataPayload?: T,
+  dataPayload?: T;
   errorPayload?: LoadingError;
 }
 
@@ -59,12 +59,16 @@ export function LoadingReducer<T>(
       return { status: LoadingStatusType.SAVING };
     case LoadingActionType.LOADING_SUCCEEDED:
     case LoadingActionType.SAVING_SUCCEEDED:
-      console.log("storing")
-      console.log(dataPayload)
+      console.log("storing");
+      console.log(dataPayload);
       return { status: LoadingStatusType.SUCCESS, data: dataPayload };
     case LoadingActionType.LOADING_FAILED:
     case LoadingActionType.SAVING_FAILED:
-      return { status: LoadingStatusType.ERROR, error: errorPayload, data: undefined };
+      return {
+        status: LoadingStatusType.ERROR,
+        error: errorPayload,
+        data: undefined,
+      };
     default:
       return { status: LoadingStatusType.NONE };
   }
