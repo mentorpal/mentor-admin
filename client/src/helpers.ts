@@ -180,7 +180,7 @@ export function getFileSizeInMb(file: File): number {
   return file.size / 1024 / 1024;
 }
 
-export function cosinesim(A: number[], B: number[]) {
+export function cosinesim(A: number[], B: number[]): number {
   let dotproduct = 0;
   let mA = 0;
   let mB = 0;

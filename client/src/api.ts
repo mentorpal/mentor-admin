@@ -992,7 +992,7 @@ export async function fetchMentorById(
 export async function sbertEncodeSentences(
   sentences: string[],
   accessToken: string
-) {
+): Promise<SbertEncodedSentence[]> {
   return execHttp<SbertEncodedSentence[]>(
     "POST",
     urljoin(SBERT_ENDPOINT, "v1", "encode", "multiple_encode"),
@@ -1002,23 +1002,6 @@ export async function sbertEncodeSentences(
       },
       accessToken,
       dataPath: ["results"],
-    }
-  );
-}
-
-export async function sbertSentenceClosestToEmbedding(
-  sentences: string[],
-  averageEmbedding: number[],
-  accessToken: string
-) {
-  return execHttp(
-    "POST",
-    urljoin(SBERT_ENDPOINT, "v1", "encode", "closest_to_embedding"),
-    {
-      axiosConfig: {
-        data: { sentences: sentences, averageEmbedding: averageEmbedding },
-      },
-      accessToken,
     }
   );
 }

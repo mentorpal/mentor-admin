@@ -28,6 +28,7 @@ export function useWithQuestions(
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   } = useWithDataConnection<Question>(fetch, initalSearchParams);
 
   function fetch() {
@@ -46,5 +47,6 @@ export function useWithQuestions(
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   };
 }

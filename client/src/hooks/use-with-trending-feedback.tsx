@@ -19,16 +19,14 @@ import {
   TrendingUserQuestion,
   UserQuestionBin,
   WeightedTrendingUserQuestion,
-  SbertEncodedSentence
 } from "types";
 import { validate } from "jsonschema";
-// import similarity from 'string-cosine-similarity'
 import { cosine } from "string-comparison";
 import {
   LoadingStatusType,
   LoadingReducer,
   LoadingState,
-  LoadingActionType
+  LoadingActionType,
 } from "./graphql/generic-loading-reducer";
 import { cosinesim, getDaysSinceDate } from "helpers";
 import { useWithLocalStoredEmbeddings } from "./use-with-local-stored-embeddings";
@@ -109,10 +107,9 @@ const initialState: LoadingState<string[]> = {
   error: undefined,
 };
 
-
 export interface UseWithTrendingFeedback {
-  loadingStatus: LoadingStatusType,
-  bestRepIds: string[]
+  loadingStatus: LoadingStatusType;
+  bestRepIds: string[];
 }
 
 export function useWithTrendingFeedback(
@@ -121,7 +118,10 @@ export function useWithTrendingFeedback(
   const { getData } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id) || "";
   const emptyBinCollection = { bins: [], lastUpdated: 0, mentor: mentorId };
-  const {getSavedEmbeddings, saveNewEmbeddings: saveEmbeddingsToLocalStorage} = useWithLocalStoredEmbeddings();
+  const {
+    getSavedEmbeddings,
+    saveNewEmbeddings: saveEmbeddingsToLocalStorage,
+  } = useWithLocalStoredEmbeddings();
   const [state, dispatch] = useReducer(LoadingReducer<string[]>, initialState);
   const similarityThreshold = 0.9;
 
@@ -129,33 +129,43 @@ export function useWithTrendingFeedback(
     const itemScoreSum = userQuestions.reduce((sum, f) => {
       return (sum += f.weight);
     }, 0);
-    const mostRecentAsked = userQuestions.reduce((prev, cur)=>{
-      if(cur.createdAt > prev.createdAt){
-        prev = cur
+    const mostRecentAsked = userQuestions.reduce((prev, cur) => {
+      if (cur.createdAt > prev.createdAt) {
+        prev = cur;
       }
-      return prev
-    })
-    const daysSinceMostRecentAsked = getDaysSinceDate(mostRecentAsked.createdAt)
-    const binWeightConstant = 0.5
-    console.log(itemScoreSum * Math.exp((binWeightConstant*-1) * (1+daysSinceMostRecentAsked)))
-    return itemScoreSum * Math.exp((binWeightConstant*-1) * (1+daysSinceMostRecentAsked))
+      return prev;
+    });
+    const daysSinceMostRecentAsked = getDaysSinceDate(
+      mostRecentAsked.createdAt
+    );
+    const binWeightConstant = 0.5;
+    return (
+      itemScoreSum *
+      Math.exp(binWeightConstant * -1 * (1 + daysSinceMostRecentAsked))
+    );
   }
 
   function getBinRepresentatives(
     bin: BinCollection
   ): WeightedTrendingUserQuestion[] {
-    const bins = bin.bins
-    const bestRepresentatives = bins.reduce((reps: WeightedTrendingUserQuestion[], bin)=>{
-      const binsBestRep = bin.userQuestions.reduce((prev, cur)=>{
-        if(cosinesim(cur.embedding, bin.binAverageEmbedding) > cosinesim(prev.embedding, bin.binAverageEmbedding)){
-          return cur
-        }
-        return prev
-      })
-      reps.push(binsBestRep)
-      return reps
-    }, [])
-    return bestRepresentatives
+    const bins = bin.bins;
+    const bestRepresentatives = bins.reduce(
+      (reps: WeightedTrendingUserQuestion[], bin) => {
+        const binsBestRep = bin.userQuestions.reduce((prev, cur) => {
+          if (
+            cosinesim(cur.embedding, bin.binAverageEmbedding) >
+            cosinesim(prev.embedding, bin.binAverageEmbedding)
+          ) {
+            return cur;
+          }
+          return prev;
+        });
+        reps.push(binsBestRep);
+        return reps;
+      },
+      []
+    );
+    return bestRepresentatives;
   }
 
   // The question should already be determined to belong to this bin
@@ -164,9 +174,9 @@ export function useWithTrendingFeedback(
     bin: UserQuestionBin
   ): UserQuestionBin {
     // TODO: need to also calculate binAverageEmbedding here
-    bin.userQuestions.push(weightedQuestion)
-    bin.binWeight = calculateBinWeight(bin.userQuestions)
-    return bin
+    bin.userQuestions.push(weightedQuestion);
+    bin.binWeight = calculateBinWeight(bin.userQuestions);
+    return bin;
   }
 
   function getLocalStorageBins(): BinCollection {
@@ -193,13 +203,15 @@ export function useWithTrendingFeedback(
     }
   }
 
-  function createNewUserQuestionBin(weightedQuestion: WeightedTrendingUserQuestion): UserQuestionBin{
+  function createNewUserQuestionBin(
+    weightedQuestion: WeightedTrendingUserQuestion
+  ): UserQuestionBin {
     return {
       userQuestions: [weightedQuestion],
       binWeight: calculateBinWeight([weightedQuestion]),
       binAverageEmbedding: [],
-      bestRepresentativeId: weightedQuestion._id
-    }
+      bestRepresentativeId: weightedQuestion._id,
+    };
   }
 
   function addQuestionToBestBin(
@@ -209,7 +221,7 @@ export function useWithTrendingFeedback(
     binCollection.lastUpdated = Date.now();
     if (!binCollection.bins.length) {
       binCollection.bins.push(createNewUserQuestionBin(weightedQuestion));
-      return binCollection
+      return binCollection;
     }
     // Determining best bin
     let bestBinIndex = -1;
@@ -224,7 +236,6 @@ export function useWithTrendingFeedback(
         firstItemInBin.question,
         weightedQuestion.question
       );
-      // console.log(`${firstItemInBin.question} : ${weightedQuestion.question} = ${similarityToBin}`)
       if (similarityToBin > bestSimilarity) {
         bestSimilarity = similarityToBin;
         bestBinIndex = i;
@@ -261,93 +272,134 @@ export function useWithTrendingFeedback(
     bins = bins.filter((bin) => bin.userQuestions.length > 0);
 
     // Recalculate the average embedding of the bins since we may have removed some questions
-    bins = await fetchAndSetBinEmbeddings(bins)
+    bins = await fetchAndSetBinEmbeddings(bins);
     return bins;
   }
 
-  function averageEmbedding(embeddings: number[][]): number[]{
-    if(embeddings.length == 0){
-      return []
+  function averageEmbedding(embeddings: number[][]): number[] {
+    if (embeddings.length == 0) {
+      return [];
     }
     const expectedEmbeddingsLength = embeddings[0].length; //It is expected that all embeddings are equal length, else issue occured
-    for(let i = 0; i < embeddings.length; i++){
-      if(embeddings[i].length !== expectedEmbeddingsLength){
-        throw new Error("Not all embeddings are equal length")
+    for (let i = 0; i < embeddings.length; i++) {
+      if (embeddings[i].length !== expectedEmbeddingsLength) {
+        throw new Error("Not all embeddings are equal length");
       }
     }
-    const summedColumns = []
-    for(let i = 0; i < expectedEmbeddingsLength; i++){
+    const summedColumns = [];
+    for (let i = 0; i < expectedEmbeddingsLength; i++) {
       let columnValue = 0;
-      embeddings.forEach((embedding)=>{
-        columnValue += embedding[i]
-      })
-      summedColumns.push(columnValue)
+      embeddings.forEach((embedding) => {
+        columnValue += embedding[i];
+      });
+      summedColumns.push(columnValue);
     }
-    const averageEmbedding = summedColumns.map((columnV)=>columnV/embeddings.length)
-    return averageEmbedding
+    const averageEmbedding = summedColumns.map(
+      (columnV) => columnV / embeddings.length
+    );
+    return averageEmbedding;
   }
 
   /**
    * Updates the average embedding of every bin
    */
-  async function fetchAndSetBinEmbeddings(bins: UserQuestionBin[]): Promise<UserQuestionBin[]>{
-    const sentences: string[] = bins.reduce((acc: string[], bin: UserQuestionBin)=>{
-      acc.push(...bin.userQuestions.map((userQ)=>userQ.question))
-      return acc
-    }, [] as string[])
+  async function fetchAndSetBinEmbeddings(
+    bins: UserQuestionBin[]
+  ): Promise<UserQuestionBin[]> {
+    const sentences: string[] = bins.reduce(
+      (acc: string[], bin: UserQuestionBin) => {
+        acc.push(...bin.userQuestions.map((userQ) => userQ.question));
+        return acc;
+      },
+      [] as string[]
+    );
     const sentencesSet = new Set(sentences); //Remove any duplicates
     // First check locally saved embeddings
-    const locallySavedEmbeddings = getSavedEmbeddings();
-    const finalEmbeddings = Array.from(sentencesSet).reduce((record: Record<string,number[]>, sentence)=>{
-      if(sentence in Object.keys(locallySavedEmbeddings)){
-        record[sentence] = locallySavedEmbeddings[sentence]
-      }
-      return record
-    }, {})
-    const sentencesNeedingEmbeddings = Array.from(sentencesSet).filter((sentence)=>!Object.keys(finalEmbeddings).find((savedSentenceKey)=>savedSentenceKey==sentence))
+    const locallySavedEmbeddings = await getSavedEmbeddings();
+    const finalEmbeddings = Array.from(sentencesSet).reduce(
+      (record: Record<string, number[]>, sentence) => {
+        if (sentence in Object.keys(locallySavedEmbeddings)) {
+          record[sentence] = locallySavedEmbeddings[sentence];
+        }
+        return record;
+      },
+      {}
+    );
+    const sentencesNeedingEmbeddings = Array.from(sentencesSet).filter(
+      (sentence) =>
+        !Object.keys(finalEmbeddings).find(
+          (savedSentenceKey) => savedSentenceKey == sentence
+        )
+    );
     // Any leftover sentences needing embeddings are then fetched from sbert
-    const embeddedSentences = sentencesNeedingEmbeddings.length ? await sbertEncodeSentences(sentencesNeedingEmbeddings, accessToken) : [];
-    embeddedSentences.forEach((embeddedSentence)=>{
-      finalEmbeddings[embeddedSentence.original] = embeddedSentence.encoded
-    })
+    const embeddedSentences = sentencesNeedingEmbeddings.length
+      ? await sbertEncodeSentences(sentencesNeedingEmbeddings, accessToken)
+      : [];
+    embeddedSentences.forEach((embeddedSentence) => {
+      finalEmbeddings[embeddedSentence.original] = embeddedSentence.encoded;
+    });
     // Save up to date embeddings to local storage
-    saveEmbeddingsToLocalStorage(finalEmbeddings)
-    for(let i = 0; i < bins.length; i++){
-      const userQuestions = bins[i].userQuestions
-      const userQuestionEmbeddings = userQuestions.map((userQuestion)=>finalEmbeddings[userQuestion.question])
-      
+    saveEmbeddingsToLocalStorage(finalEmbeddings);
+    for (let i = 0; i < bins.length; i++) {
+      const userQuestions = bins[i].userQuestions;
+      const userQuestionEmbeddings = userQuestions.map(
+        (userQuestion) => finalEmbeddings[userQuestion.question]
+      );
+
       // If we wanted to add the embeddings to each question, but this is too much for local storage
-      bins[i].userQuestions = userQuestions.map((userQuestion)=>{
+      bins[i].userQuestions = userQuestions.map((userQuestion) => {
         return {
           ...userQuestion,
-          embedding: finalEmbeddings[userQuestion.question]
-        }
-      })
+          embedding: finalEmbeddings[userQuestion.question],
+        };
+      });
 
-      bins[i].binAverageEmbedding = averageEmbedding(userQuestionEmbeddings)
+      bins[i].binAverageEmbedding = averageEmbedding(userQuestionEmbeddings);
     }
-    return bins
+    return bins;
   }
 
-  function convertFeedbackQuestionToWeighted(userQuestion: TrendingUserQuestion): WeightedTrendingUserQuestion{
+  function convertFeedbackQuestionToWeighted(
+    userQuestion: TrendingUserQuestion
+  ): WeightedTrendingUserQuestion {
     const feedbackWeight = userQuestion.feedback === Feedback.BAD ? 3 : 0;
     const offTopicWeight =
-    userQuestion.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
+      userQuestion.classifierAnswerType === ClassifierAnswerType.OFF_TOPIC
         ? 2
         : 0;
     const lowConfidenceWeight = userQuestion.confidence < -0.45 ? 1 : 0;
     return {
       ...userQuestion,
       weight: feedbackWeight + offTopicWeight + lowConfidenceWeight,
-      embedding: []
+      embedding: [],
     };
+  }
+
+  function storeBinsInLocalStorage(binCollection: BinCollection) {
+    // Clean embeddings before storing in localStorage
+    const binsToStore: BinCollection = {
+      ...binCollection,
+      bins: binCollection.bins.map((bin) => {
+        return {
+          ...bin,
+          binAverageEmbedding: [] as number[],
+          userQuestions: bin.userQuestions.map((userQ) => {
+            return {
+              ...userQ,
+              embedding: [] as number[],
+            };
+          }),
+        };
+      }),
+    };
+    localStorageStore("userQuestionBins", JSON.stringify(binsToStore));
   }
 
   useEffect(() => {
     if (!mentorId) {
       return;
     }
-    dispatch({type: LoadingActionType.LOADING_STARTED})
+    dispatch({ type: LoadingActionType.LOADING_STARTED });
     const localStorageBins = getLocalStorageBins();
     fetchTrendingFeedback({
       limit: 1000,
@@ -381,31 +433,42 @@ export function useWithTrendingFeedback(
           return Date.parse(feedback.createdAt) > binsLastUpdated;
         });
         const newWeightedTrendingFeedback: WeightedTrendingUserQuestion[] =
-          newTrendingFeedback.map((feedback) => convertFeedbackQuestionToWeighted(feedback));
+          newTrendingFeedback.map((feedback) =>
+            convertFeedbackQuestionToWeighted(feedback)
+          );
         newWeightedTrendingFeedback.forEach((feedback) => {
           newBins = addQuestionToBestBin(feedback, newBins);
         });
-        // Store bins prior to setting the questions embeddings
-        localStorageStore("userQuestionBins", JSON.stringify(newBins));
         // Set bin embeddings
-        newBins.bins = await fetchAndSetBinEmbeddings(newBins.bins)
+        newBins.bins = await fetchAndSetBinEmbeddings(newBins.bins);
         // Sort bins by bin weight
-        newBins.bins = newBins.bins.sort((a, b)=>a.binWeight < b.binWeight ? 1 : -1)
+        newBins.bins = newBins.bins.sort((a, b) =>
+          a.binWeight < b.binWeight ? 1 : -1
+        );
         // Take 60 most important bins only
-        newBins.bins = newBins.bins.slice(0, 60)
-        console.log(newBins)
+        newBins.bins = newBins.bins.slice(0, 60);
         const bestRepresentatives = getBinRepresentatives(newBins);
         const bestRepIds = bestRepresentatives.map((userQ) => userQ._id);
-        dispatch({type:LoadingActionType.LOADING_SUCCEEDED, dataPayload: bestRepIds})
+        dispatch({
+          type: LoadingActionType.LOADING_SUCCEEDED,
+          dataPayload: bestRepIds,
+        });
+        storeBinsInLocalStorage(newBins);
       })
       .catch((err) => {
-        dispatch({type: LoadingActionType.LOADING_FAILED, errorPayload: {message:"Failed to fetch trending feedback", error: JSON.stringify(err)}})
+        dispatch({
+          type: LoadingActionType.LOADING_FAILED,
+          errorPayload: {
+            message: "Failed to fetch trending feedback",
+            error: JSON.stringify(err),
+          },
+        });
         console.error("failed to fetch trending feedback", err);
       });
   }, [mentorId]);
 
   return {
     loadingStatus: state.status,
-    bestRepIds: state.data || []
+    bestRepIds: state.data || [],
   };
 }

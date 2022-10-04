@@ -231,22 +231,22 @@ function FeedbackItem(props: {
   };
 
   function onDismissed(): void {
-    setDismissInProgress((_) => true);
+    setDismissInProgress(true);
     const oldDismissedValue = dismissed;
     const newDismissedValue = !dismissed;
-    setDismissed((_) => newDismissedValue);
+    setDismissed(newDismissedValue);
     updateDismissUserQuestion(
       feedback._id,
       newDismissedValue,
       accessToken || ""
     )
       .then(() => {
-        setDismissInProgress((_) => false);
+        setDismissInProgress(false);
       })
       .catch((err) => {
         console.error("Failed to update dismissed value", err);
-        setDismissed((_) => oldDismissedValue);
-        setDismissInProgress((_) => false);
+        setDismissed(oldDismissedValue);
+        setDismissInProgress(false);
       });
   }
 

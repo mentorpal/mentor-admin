@@ -4,167 +4,122 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { string } from "@tensorflow/tfjs";
-import { useEffect, useState } from "react";
-import {
-  localStorageClear,
-  localStorageGet,
-  localStorageStore,
-} from "store/local-storage";
-import { validate } from "jsonschema";
-import { v4 as uuid } from "uuid";
+// Using IndexedDB
 
-const storedEmbeddingsSchema = {
-  type: "object",
-  properties: {
-    encoded: {
-      type: "array",
-      items: {
-        type: "number",
-      },
-    },
-    original: {
-      type: "string",
-    },
-  },
-  required: ["encoded", "original"],
-};
+import { useEffect } from "react";
+import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 
 export interface UseWithLocalStoredEmbeddings {
-  getSavedEmbeddings: () => Record<string, number[]>;
+  getSavedEmbeddings: () => Promise<Record<string, number[]>>;
   saveNewEmbeddings: (embeddings: Record<string, number[]>) => void;
 }
 
-export function useWithLocalStoredEmbeddings(): UseWithLocalStoredEmbeddings {
-  const LOCAL_STORAGE_NAME = "sentence_embeddings";
-  // Record that maps each local storage key to the record storage mappings
-  const [embeddingsRecords, setEmbeddingsRecords] = useState<
-    Record<string, Record<string, number[]>>
-  >({});
+// Database Configuration
+const idbConfig = {
+  databaseName: "embeddings-db",
+  version: 1,
+  stores: [
+    {
+      name: "embeddings",
+      id: { keyPath: "question" },
+      indices: [
+        { name: "question", keyPath: "question", options: { unique: true } },
+        { name: "embedding", keyPath: "embedding" },
+        { name: "lastUsed", keyPath: "lastUsed" },
+      ],
+    },
+  ],
+};
 
-  function checkForAlreadyStoredEmbeddings() {
-    const localStorageKeys = Object.keys(localStorage);
-    const embeddingLocalStorageKeys = localStorageKeys.filter((key) =>
-      key.startsWith(LOCAL_STORAGE_NAME)
+interface DBEntry {
+  question: string;
+  embedding: number[];
+  lastUsed: number;
+}
+
+const MAX_STORED_EMBEDDINGS = 2000;
+
+export function useWithLocalStoredEmbeddings(): UseWithLocalStoredEmbeddings {
+  const { add, getOneByKey, getAll, update, deleteByID } =
+    useIndexedDBStore<DBEntry>("embeddings");
+
+  const saveNewEmbeddings = async (embeddings: Record<string, number[]>) => {
+    const epochNow = Date.now();
+    const keys = Object.keys(embeddings);
+    const _existingValues = await Promise.all(
+      keys.map((key) => getOneByKey("question", key))
+    );
+    //remove undefined
+    const existingValues = _existingValues.filter((val) => Boolean(val));
+
+    // All found existing values get their lastUsed updated
+    await Promise.all(
+      existingValues.map((existingValue) => {
+        update({ ...existingValue, lastUsed: epochNow });
+      })
     );
 
-    if (!embeddingLocalStorageKeys.length) {
-      const newLocalStorageKey = `${LOCAL_STORAGE_NAME}_${uuid()}`;
-      const newEmbeddingsRecords: Record<string, Record<string, number[]>> = {};
-      newEmbeddingsRecords[newLocalStorageKey] = {};
-      setEmbeddingsRecords(newEmbeddingsRecords);
-      localStorageStore(newLocalStorageKey, JSON.stringify({}));
+    const keysToAdd = keys.filter((key) => {
+      return !existingValues.find(
+        (existingValue) => existingValue.question === key
+      );
+    });
+    await Promise.all(
+      keysToAdd.map((key) => {
+        add({
+          question: key,
+          embedding: embeddings[key],
+          lastUsed: epochNow,
+        }).catch((err) => {
+          console.error(
+            `Failed to add question:embedding to db: ${key} : ${embeddings[key]}`,
+            err
+          );
+        });
+      })
+    );
+    removeLRUKeys();
+  };
+
+  const removeLRUKeys = async () => {
+    const values = await getAll();
+    if (values.length <= MAX_STORED_EMBEDDINGS) {
       return;
     }
-
-    embeddingLocalStorageKeys.forEach((key) => {
-      const storedEmbeddings = localStorageGet(key);
-      if (!storedEmbeddings) {
-        localStorageClear(key);
-        return;
-      }
-      try {
-        const storedEmbeddingsData: Record<string, number[]> =
-          JSON.parse(storedEmbeddings);
-        validate(storedEmbeddingsData, storedEmbeddingsSchema);
-        setEmbeddingsRecords((prevValue) => {
-          prevValue[key] = storedEmbeddingsData;
-          return prevValue;
+    values.sort((v1, v2) => (v1.lastUsed > v2.lastUsed ? -1 : 1)); //put LRU at bottom
+    const valuesToRemove = values.slice(2000);
+    await Promise.all(
+      valuesToRemove.map((value) => {
+        deleteByID(value.question).catch((err) => {
+          console.error(
+            `Failed to do delete ${value.question} from indexedDB`,
+            err
+          );
         });
-      } catch (err) {
-        console.error(
-          `Incorrectly stored embeddings for key ${key}, clearing out`,
-          err,
-          storedEmbeddings
-        );
-        localStorageClear(key);
-      }
-    });
-  }
-
-  useEffect(() => {
-    checkForAlreadyStoredEmbeddings();
-  }, []);
-
-  function saveNewEmbeddings(embeddings: Record<string, number[]>) {
-    // TODO: add to any record in the state that does not have > 300 embeddings stored in it
-    // Whatever record gets updated, make sure to also store data back into local storage so it's all up to date
-    const alreadySavedEmbeddings = getSavedEmbeddings();
-    const alreadySavedEmbeddingsQuestionKeys = Object.keys(
-      alreadySavedEmbeddings
+      })
     );
-    // Note: There should always be atleast one local storage key since the onCreate useEffect creates 1 if 1 does not exist
+  };
 
-    // Filter out already saved embeddings
-    const embeddingsToSave = Object.keys(embeddings).reduce(
-      (finalRecord: Record<string, number[]>, key) => {
-        if (!(key in alreadySavedEmbeddingsQuestionKeys)) {
-          finalRecord[key] = embeddings[key];
-        }
-        return finalRecord;
+  const getSavedEmbeddings = async (): Promise<Record<string, number[]>> => {
+    const values = await getAll();
+    const recordToReturn = values.reduce(
+      (record: Record<string, number[]>, cur) => {
+        record[cur.question] = cur.embedding;
+        return record;
       },
       {}
     );
-    const questionKeysToSave = Object.keys(embeddingsToSave);
+    return recordToReturn;
+  };
 
-    // Find proper storage to put the embeddings in
-    const copiedEmbeddingRecords: Record<
-      string,
-      Record<string, number[]>
-    > = JSON.parse(JSON.stringify(embeddingsRecords));
-    const locallyStoredEmbeddingKeys = Object.keys(copiedEmbeddingRecords);
-
-    questionKeysToSave.forEach((keyToSave) => {
-      const valueToSave = embeddingsToSave[keyToSave];
-      let saved = false;
-      for (let i = 0; i < locallyStoredEmbeddingKeys.length; i++) {
-        const savedEmbeddingRecordKey = locallyStoredEmbeddingKeys[i];
-        const savedEmbeddingRecord =
-          copiedEmbeddingRecords[savedEmbeddingRecordKey];
-        const numberOfStoredEmbeddings =
-          Object.keys(savedEmbeddingRecord).length;
-        if (numberOfStoredEmbeddings < 300) {
-          saved = true;
-          copiedEmbeddingRecords[savedEmbeddingRecordKey][keyToSave] =
-            valueToSave;
-        }
-      }
-      if (!saved) {
-        copiedEmbeddingRecords[`${LOCAL_STORAGE_NAME}_${uuid()}`] = {
-          keyToSave: valueToSave,
-        };
-      }
-    });
-
-    setEmbeddingsRecords(copiedEmbeddingRecords);
-    saveAllRecordsToLocalStorage(copiedEmbeddingRecords);
-  }
-
-  function saveAllRecordsToLocalStorage(
-    records: Record<string, Record<string, number[]>>
-  ) {
-    const recordKeys = Object.keys(records);
-    recordKeys.forEach((key) => {
-      localStorageStore(key, JSON.stringify(records[key]));
-    });
-  }
-
-  function getSavedEmbeddings() {
-    const mergedRecords: Record<string, number[]> = Object.keys(
-      embeddingsRecords
-    ).reduce((finalRecord: Record<string, number[]>, key) => {
-      const curRecord = embeddingsRecords[key];
-      Object.keys(curRecord).forEach((curRecordKey) => {
-        finalRecord[curRecordKey] = curRecord[curRecordKey];
-      });
-      return finalRecord;
-    }, {});
-
-    return mergedRecords;
-  }
+  useEffect(() => {
+    setupIndexedDB(idbConfig)
+      .then(() => console.log("success"))
+      .catch((err) => console.error("error/unsupported", err));
+  }, []);
 
   return {
-    getSavedEmbeddings,
     saveNewEmbeddings,
+    getSavedEmbeddings,
   };
 }

@@ -4,10 +4,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
-  Button,
   Fab,
   IconButton,
   MenuItem,
@@ -30,21 +29,7 @@ import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { Autocomplete } from "@material-ui/lab";
 
 //IMPORT FUNCTIONS
-import {
-  updateUserQuestion,
-  addQuestionToRecordQueue,
-  removeQuestionFromRecordQueue,
-  fetchMentorRecordQueue,
-} from "api";
-import {
-  Answer,
-  ClassifierAnswerType,
-  Feedback,
-  Mentor,
-  Status,
-  MentorType,
-  UserQuestion,
-} from "types";
+import { Answer, ClassifierAnswerType, Feedback } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -56,10 +41,8 @@ import {
   isQuestionsLoading,
   useQuestions,
 } from "store/slices/questions/useQuestions";
-import { getValueIfKeyExists, isAnswerComplete } from "helpers";
-import { QuestionState } from "store/slices/questions";
+import { getValueIfKeyExists } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import EditQuestionForQueueModal from "components/feedback/edit-question-for-queue-modal";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import FeedbackItem from "components/feedback/feedback-item";
 import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
@@ -240,24 +223,17 @@ function FeedbackPage(): JSX.Element {
     }
   }
 
-  const [showExactConfidence, setShowExactConfidence] =
-    useState<boolean>(false);
-  function onShowExactConfidence(event: React.ChangeEvent<HTMLInputElement>) {
-    setShowExactConfidence(event.target.checked);
-  }
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
   useEffect(() => {
     if (mentorId && trendQuestionsLoadStatus === LoadingStatusType.SUCCESS) {
-      console.log("success");
-      console.log(trendingQuestionsSearchParam);
       if (!isFeedbackLoading) {
         setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {
         setNeedsFiltering(true);
       }
     }
-  }, [mentorId, trendQuestionsLoadStatus]);
+  }, [mentorId, trendQuestionsLoadStatus, trendingUserQuestionIds]);
 
   useEffect(() => {
     if (!isFeedbackLoading && needsFiltering) {
@@ -507,14 +483,6 @@ function FeedbackPage(): JSX.Element {
                 onChange={onViewAllQuestions}
               />
               Show All Questions
-            </span>
-            <span style={{ margin: "15px" }}>
-              <Switch
-                data-cy="show-exact-confidence-switch"
-                {...label}
-                onChange={onShowExactConfidence}
-              />
-              Show Exact Confidence
             </span>
           </Toolbar>
           <Fab

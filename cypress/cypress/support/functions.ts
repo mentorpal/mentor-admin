@@ -550,3 +550,21 @@ export function cyMockFollowUpQuestions(
     );
   });
 }
+
+export function testIndexedDbData(
+  assertionFunc: (data: any) => Chai.Assertion
+) {
+  cy.wait(2000);
+  cy.window().then((win) => {
+    const connection = win.indexedDB.open("embeddings-db");
+    connection.onsuccess = function (event) {
+      const db = connection.result;
+      const transaction = db.transaction("embeddings", "readonly");
+      const storedDataEvent = transaction.objectStore("embeddings").getAll();
+      storedDataEvent.onsuccess = function (event) {
+        const storedData = storedDataEvent.result;
+        assertionFunc(storedData);
+      };
+    };
+  });
+}

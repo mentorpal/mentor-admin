@@ -149,7 +149,7 @@ function NavItem(props: {
 }): JSX.Element {
   return (
     <ListItem
-      data-cy={`${props.text}-menu-button`}
+      data-cy={`${props.text.replace(/\s/g, "-")}-menu-button`}
       button
       selected={location.pathname === props.link}
       onClick={() => {

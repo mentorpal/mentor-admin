@@ -59,8 +59,6 @@ export function LoadingReducer<T>(
       return { status: LoadingStatusType.SAVING };
     case LoadingActionType.LOADING_SUCCEEDED:
     case LoadingActionType.SAVING_SUCCEEDED:
-      console.log("storing");
-      console.log(dataPayload);
       return { status: LoadingStatusType.SUCCESS, data: dataPayload };
     case LoadingActionType.LOADING_FAILED:
     case LoadingActionType.SAVING_FAILED:
