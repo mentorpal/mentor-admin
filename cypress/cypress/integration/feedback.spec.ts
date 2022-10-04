@@ -14,6 +14,32 @@ import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import { feedback as trendingUserQuestions } from "../fixtures/feedback/trendingFeedback";
 
 describe("Feedback", () => {
+  it("Queued items do not disappear from list until refresh", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("TrendingUserQuestions", trendingUserQuestions),
+        mockGQL("UserQuestionSetAnswer", {}),
+        mockGQL("AddQuestionToRecordQueue", {
+          me: {
+            addQuestionToRecordQueue: ["A1_1_1"],
+          },
+        }),
+        mockGQL("SubjectAddOrUpdateQuestions", {
+          me: {
+            subjectAddOrUpdateQuestions: [{ question: "new_id" }],
+          },
+        }),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.get("[data-cy=row-6286c9ae60719ae10dfd70b8]").within(() => {
+      cy.get("[data-cy=grader-answer-queue-btn]").click();
+    });
+    cy.get("[data-cy=row-6286c9ae60719ae10dfd70b8]").should("exist");
+  });
+
   it("embeddings get stored in IndexedDB", () => {
     cySetup(cy);
     cyMockDefault(cy, {

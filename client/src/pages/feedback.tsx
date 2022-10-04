@@ -43,7 +43,6 @@ import {
 } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import FeedbackItem from "components/feedback/feedback-item";
 import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
 import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
@@ -145,13 +144,6 @@ function FeedbackPage(): JSX.Element {
   const mentor = getData((state) => state.data);
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
-  const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
-  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
-  const [viewingAll, setViewingAll] = useState<boolean>(false);
-  const {
-    bestRepIds: trendingUserQuestionIds,
-    loadingStatus: trendQuestionsLoadStatus,
-  } = useWithTrendingFeedback(loginState.accessToken || "");
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
@@ -160,6 +152,16 @@ function FeedbackPage(): JSX.Element {
   const questionsLoading = isQuestionsLoading(
     (mentorAnswers || []).map((a) => a.question)
   );
+  const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
+  const [viewingAll, setViewingAll] = useState<boolean>(false);
+  const {
+    bestRepIds: trendingUserQuestionIds,
+    loadingStatus: trendQuestionsLoadStatus,
+    recordQueue: queueList,
+    removeQuestionFromQueue,
+    addQuestionToQueue,
+  } = useWithTrendingFeedback(loginState.accessToken || "");
 
   const trendingQuestionsSearchParam = {
     limit: 20,
@@ -197,11 +199,6 @@ function FeedbackPage(): JSX.Element {
     setSearchParams: setFeedbackSearchParams,
   } = useWithFeedback(viewAllQuestionsSearchParam);
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
-  const {
-    recordQueue: queueList,
-    removeQuestionFromQueue,
-    addQuestionToQueue,
-  } = useWithRecordQueue(loginState.accessToken || "");
 
   function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
     const displayAllQuestions = event.target.checked;

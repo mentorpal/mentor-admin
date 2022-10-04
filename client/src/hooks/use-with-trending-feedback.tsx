@@ -30,6 +30,7 @@ import {
 } from "./graphql/generic-loading-reducer";
 import { cosinesim, getDaysSinceDate } from "helpers";
 import { useWithLocalStoredEmbeddings } from "./use-with-local-stored-embeddings";
+import { useWithRecordQueue } from "./graphql/use-with-record-queue";
 
 const binCollectionSchema = {
   type: "object",
@@ -110,6 +111,9 @@ const initialState: LoadingState<string[]> = {
 export interface UseWithTrendingFeedback {
   loadingStatus: LoadingStatusType;
   bestRepIds: string[];
+  removeQuestionFromQueue: (questionId: string) => void;
+  addQuestionToQueue: (questionId: string) => void;
+  recordQueue: string[];
 }
 
 export function useWithTrendingFeedback(
@@ -122,6 +126,13 @@ export function useWithTrendingFeedback(
     getSavedEmbeddings,
     saveNewEmbeddings: saveEmbeddingsToLocalStorage,
   } = useWithLocalStoredEmbeddings();
+  const {
+    recordQueue,
+    questionDocsInQueue,
+    loadingStatus: recordQueueLoadStatus,
+    removeQuestionFromQueue,
+    addQuestionToQueue,
+  } = useWithRecordQueue(accessToken);
   const [state, dispatch] = useReducer(LoadingReducer<string[]>, initialState);
   const similarityThreshold = 0.9;
 
@@ -396,11 +407,14 @@ export function useWithTrendingFeedback(
   }
 
   useEffect(() => {
-    if (!mentorId) {
+    if (!mentorId || recordQueueLoadStatus !== LoadingStatusType.SUCCESS) {
       return;
     }
     dispatch({ type: LoadingActionType.LOADING_STARTED });
     const localStorageBins = getLocalStorageBins();
+    const questionsInQueue = questionDocsInQueue.map(
+      (questionDoc) => questionDoc.question
+    );
     fetchTrendingFeedback({
       limit: 1000,
       sortBy: "createdAt",
@@ -418,6 +432,7 @@ export function useWithTrendingFeedback(
           { graderAnswer: null },
           { mentor: mentorId },
           { $or: [{ dismissed: false }, { dismissed: { $exists: false } }] },
+          { question: { $nin: questionsInQueue } },
         ],
       },
     })
@@ -465,10 +480,13 @@ export function useWithTrendingFeedback(
         });
         console.error("failed to fetch trending feedback", err);
       });
-  }, [mentorId]);
+  }, [mentorId, recordQueueLoadStatus]);
 
   return {
     loadingStatus: state.status,
     bestRepIds: state.data || [],
+    removeQuestionFromQueue,
+    addQuestionToQueue,
+    recordQueue,
   };
 }
