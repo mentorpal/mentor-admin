@@ -22,7 +22,9 @@ import {
   SubjectTypes,
   QuestionType,
   UtteranceName,
+  UserRole,
 } from "../support/types";
+import { login as loginDefault } from "../fixtures/login";
 
 const baseMock = {
   mentor: setup0,
@@ -574,6 +576,10 @@ describe("Setup", () => {
   it("Shows select keywords slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
       mentor: [
         setup0,
         {
@@ -590,9 +596,6 @@ describe("Setup", () => {
     cyVisitSetupScreen(cy, SetupScreen.Experiences_Identities);
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.contains("Experiences & Identities");
-      cy.contains(
-        "Please select or add keywords that represent your experiences."
-      );
       cy.get("[data-cy=keyword-type-Gender]").within(($kt) => {
         cy.get("[data-cy=keyword-name-Man]").should(
           "have.attr",

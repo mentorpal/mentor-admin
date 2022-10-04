@@ -100,9 +100,6 @@ export function SelectKeywordsSlide(props: {
       title="Experiences & Identities"
       content={
         <div>
-          <Typography variant="h5" className={classes.text}>
-            Please select or add keywords that represent your experiences.
-          </Typography>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <div style={{ width: windowWidth * 0.85, margin: 10 }}>
               {Object.entries(keywordsByType).map((kv) => (
@@ -157,6 +154,7 @@ export function SelectKeywordsSlide(props: {
                             marginRight: 10,
                             marginTop: 5,
                             marginBottom: 5,
+                            textTransform: "none",
                           }}
                         >
                           {k.name}
