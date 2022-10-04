@@ -18,7 +18,9 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { WelcomeSlide } from "components/setup/welcome-slide";
 import { MentorInfoSlide } from "components/setup/mentor-info-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
+import { MentorGoalSlide } from "components/setup/mentor-goal-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
+import { SelectKeywordsSlide } from "components/setup/select-keywords-slide";
 import { SelectSubjectsSlide } from "components/setup/select-subjects-slide";
 import { IdleTipsSlide } from "components/setup/idle-tips-slide";
 import { RecordSubjectSlide } from "components/setup/record-subject-slide";
@@ -28,6 +30,7 @@ import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 import withLocation from "wrap-with-location";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -123,6 +126,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     defaultVirtualBackground,
     onLeave,
   } = useWithSetup(props.search);
+  const { data: keywords } = useWithKeywords();
   const { state: loginState } = useWithLogin();
   const { state: configState } = useWithConfig();
   const accessToken = loginState.accessToken || "";
@@ -177,10 +181,30 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             uploadLambdaEndpoint={uploadLambdaEndpoint}
           />
         );
-      case SetupStepType.INTRODUCTION:
-        return <IntroductionSlide key="introduction" classes={classes} />;
+      case SetupStepType.MENTOR_GOAL:
+        return (
+          <MentorGoalSlide
+            key="mentor-goal"
+            classes={classes}
+            mentor={mentor}
+            isMentorLoading={isLoading || isSaving}
+            editMentor={editMentor}
+          />
+        );
+      case SetupStepType.SELECT_KEYWORDS:
+        return (
+          <SelectKeywordsSlide
+            key="select-keywords"
+            classes={classes}
+            mentor={mentor}
+            keywords={keywords?.edges.map((e) => e.node) || []}
+            editMentor={editMentor}
+          />
+        );
       case SetupStepType.SELECT_SUBJECTS:
         return <SelectSubjectsSlide classes={classes} i={idx} />;
+      case SetupStepType.INTRODUCTION:
+        return <IntroductionSlide key="introduction" classes={classes} />;
       case SetupStepType.IDLE_TIPS:
         return (
           <IdleTipsSlide

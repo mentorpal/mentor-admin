@@ -30,6 +30,7 @@ import {
   UserQuestion,
   TaskInfo,
   SubjectTypes,
+  Keyword,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -51,6 +52,7 @@ export interface MentorGQL {
   name: string;
   firstName: string;
   title: string;
+  goal: string;
   email: string;
   allowContact: boolean;
   thumbnail: string;
@@ -60,6 +62,7 @@ export interface MentorGQL {
   isPrivate: boolean;
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
+  keywords: Keyword[];
   topics: Topic[];
   answers: AnswerGQL[];
   hasVirtualBackground: boolean;

@@ -23,6 +23,7 @@ export const mentor: Mentor = {
   email: "",
   thumbnail: "",
   isDirty: false,
+  keywords: [],
   questions: [
     {
       question: {
