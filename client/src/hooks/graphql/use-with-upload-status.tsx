@@ -190,6 +190,7 @@ export function useWithUploadStatus(
     mentorId: string,
     question: string,
     video: File,
+    isVbgVideo: boolean,
     trim?: { start: number; end: number },
     hasEditedTranscript?: boolean
   ) {
@@ -209,6 +210,7 @@ export function useWithUploadStatus(
       mentorId,
       video,
       question,
+      isVbgVideo,
       tokenSource,
       accessToken,
       configState.config?.uploadLambdaEndpoint || "",
@@ -254,6 +256,7 @@ export interface UseWithUploadStatus {
     mentorId: string,
     question: string,
     video: File,
+    isVbgVideo: boolean,
     trim?: { start: number; end: number },
     hasEditedTranscript?: boolean
   ) => void;

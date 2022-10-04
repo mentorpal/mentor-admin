@@ -127,6 +127,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
   const { state: configState } = useWithConfig();
   const accessToken = loginState.accessToken || "";
   const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
+
   if (!readyToDisplay) {
     return (
       <div className={classes.root}>
@@ -135,6 +136,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
       </div>
     );
   }
+
   function renderSlide(idx: number): JSX.Element {
     if (!mentor || !status || idx >= steps.length || idx < 0) {
       return <div />;
@@ -213,14 +215,6 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     }
   }
 
-  if (!readyToDisplay) {
-    return (
-      <div className={classes.root}>
-        <LoadingDialog title="Loading..." />
-        <NavBar title="Mentor Setup" mentorId={mentor?._id} />
-      </div>
-    );
-  }
   return (
     <div className={classes.root}>
       <NavBar onNav={onLeave} title="Mentor Setup" mentorId={mentor?._id} />
@@ -292,7 +286,7 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
               data-cy={next ? "next-btn" : "back-btn"}
               onClick={() => onClick()}
               style={{
-                position: "relative",
+                display: "block",
                 right: next ? "-35px" : "",
                 left: prev ? "-35px" : "",
               }}
