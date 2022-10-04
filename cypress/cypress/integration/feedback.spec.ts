@@ -14,6 +14,30 @@ import { feedback as userQuestions } from "../fixtures/feedback/feedback";
 import { feedback as trendingUserQuestions } from "../fixtures/feedback/trendingFeedback";
 
 describe("Feedback", () => {
+  it("Questions in queue are excluded in trending feedback request", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      gqlQueries: [
+        mockGQL("UserQuestions", userQuestions),
+        mockGQL("TrendingUserQuestions", trendingUserQuestions),
+        mockGQL("FetchMentorRecordQueue", {
+          me: {
+            fetchMentorRecordQueue: ["A5_1_1"],
+          },
+        }),
+      ],
+    });
+    cy.visit("/feedback");
+    cy.wait("@TrendingUserQuestions").then((interceptedData) => {
+      const filters = interceptedData.request.body.variables.filter["$and"];
+      const questionFilter = filters.find((filter) => "question" in filter);
+      const filteredQuestions = questionFilter["question"]["$nin"];
+      expect(filteredQuestions).to.eql([
+        "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
+      ]);
+    });
+  });
+
   it("Queued items do not disappear from list until refresh", () => {
     cySetup(cy);
     cyMockDefault(cy, {
