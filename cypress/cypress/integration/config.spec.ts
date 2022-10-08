@@ -4,13 +4,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { cyMockDefault, mockGQL } from "../support/functions";
+import { CONFIG_DEFAULT, cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import { login as loginDefault } from "../fixtures/login";
 import { UserRole } from "../support/types";
 import subjects from "../fixtures/subjects/all-subjects";
+import { keywords } from "../fixtures/keywords";
 
 const config = {
+  ...CONFIG_DEFAULT,
   featuredMentors: ["62b4f62482f27ce347ba02e2"],
   featuredMentorPanels: ["6222512cf2cca4f228cd2e47"],
 };
@@ -649,6 +651,170 @@ describe("users screen", () => {
       "data-test",
       "true"
     );
+    cy.get("[data-cy=save-button").should("be.disabled");
+  });
+
+  it("admin can update featured keyword types", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Keywords", keywords),
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              featuredKeywordTypes: [
+                "Gender",
+                "Age",
+                "Education",
+                "Occupation",
+              ],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=keyword-Gender]").should("exist");
+    cy.get("[data-cy=keyword-Ethnicity]").should("exist");
+    cy.get("[data-cy=keyword-Age]").should("exist");
+    cy.get("[data-cy=keyword-Education]").should("exist");
+    cy.get("[data-cy=keyword-Occupation]").should("exist");
+    // delete keywords
+    cy.get(".MuiChip-deleteIcon").eq(0).click();
+    cy.get(".MuiChip-deleteIcon").eq(0).click();
+    cy.get("[data-cy=keyword-Gender]").should("not.exist");
+    cy.get("[data-cy=keyword-Ethnicity]").should("not.exist");
+    cy.get("[data-cy=keyword-Age]").should("exist");
+    cy.get("[data-cy=keyword-Education]").should("exist");
+    cy.get("[data-cy=keyword-Occupation]").should("exist");
+    cy.get("[data-cy=save-button").should("be.enabled");
+    // add keyword
+    cy.get("[data-cy=keyword-input]").click();
+    cy.get("[data-cy=keyword-option-Gender]").click();
+    cy.get("[data-cy=keyword-Gender]").should("exist");
+    cy.get("[data-cy=keyword-Ethnicity]").should("not.exist");
+    cy.get("[data-cy=keyword-Age]").should("exist");
+    cy.get("[data-cy=keyword-Education]").should("exist");
+    cy.get("[data-cy=keyword-Occupation]").should("exist");
+    cy.get("[data-cy=save-button").should("be.enabled");
+    // save changes
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+  });
+
+  it("admin can update featured subjects", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Keywords", keywords),
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              featuredSubjects: ["background"],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=subject-background]").should("not.exist");
+    cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
+    cy.get("[data-cy=subject-leadership]").should("not.exist");
+    // add subjects
+    cy.get("[data-cy=subject-input]").click();
+    cy.get("[data-cy=subject-option-background]").click();
+    cy.get("[data-cy=subject-input]").click();
+    cy.get("[data-cy=subject-option-leadership]").click();
+    cy.get("[data-cy=subject-background]").should("exist");
+    cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
+    cy.get("[data-cy=subject-leadership]").should("exist");
+    // delete subject
+    cy.get(".MuiChip-deleteIcon").eq(6).click();
+    cy.get("[data-cy=subject-background]").should("exist");
+    cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
+    cy.get("[data-cy=subject-leadership]").should("not.exist");
+    cy.get("[data-cy=save-button").should("be.enabled");
+    // save changes
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+  });
+
+  it("admin can update default subject", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Keywords", keywords),
+        mockGQL("Subjects", { subjects: subjects }),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              featuredSubjects: ["background"],
+              defaultSubject: "background",
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=subject-background]").should("not.exist");
+    cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
+    cy.get("[data-cy=subject-leadership]").should("not.exist");
+    cy.get("[data-cy=default-subject-input]").click();
+    cy.get("[data-cy=default-subject-option-background]").should("not.exist");
+    cy.get(
+      "[data-cy=default-subject-option-idle_and_initial_recordings]"
+    ).should("not.exist");
+    cy.get("[data-cy=default-subject-option-leadership]").should("not.exist");
+    // add subjects
+    cy.get("[data-cy=subject-input]").click();
+    cy.get("[data-cy=subject-option-background]").click();
+    cy.get("[data-cy=subject-input]").click();
+    cy.get("[data-cy=subject-option-leadership]").click();
+    cy.get("[data-cy=subject-background]").should("exist");
+    cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
+    cy.get("[data-cy=subject-leadership]").should("exist");
+    // check that only added subjects are in default subject dropdown
+    cy.get("[data-cy=default-subject-input]").click();
+    cy.get("[data-cy=default-subject-option-background]").should("exist");
+    cy.get(
+      "[data-cy=default-subject-option-idle_and_initial_recordings]"
+    ).should("not.exist");
+    cy.get("[data-cy=default-subject-option-leadership]").should("exist");
+    cy.get("[data-cy=default-subject-option-background]").click();
+    // save changes
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
     cy.get("[data-cy=save-button").should("be.disabled");
   });
 });

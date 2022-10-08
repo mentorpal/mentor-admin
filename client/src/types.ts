@@ -10,6 +10,11 @@ import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
+export enum QuestionSortOrder {
+  Alphabetical = 0,
+  ReverseAlphabetical = 1,
+}
+
 export interface Config {
   mentorsDefault: string[];
   featuredMentors: string[];
@@ -31,6 +36,10 @@ export interface Config {
   disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
+  questionSortOrder: QuestionSortOrder;
+  featuredKeywordTypes: string[];
+  featuredSubjects: string[];
+  defaultSubject: string;
 }
 
 export interface SbertEncodedSentence {
@@ -88,6 +97,7 @@ export interface Mentor {
   name: string;
   firstName: string;
   title: string;
+  goal: string;
   email: string;
   allowContact: boolean;
   thumbnail: string;
@@ -97,10 +107,17 @@ export interface Mentor {
   isPrivate: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
+  keywords: Keyword[];
   topics: Topic[];
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+}
+
+export interface Keyword {
+  _id: string;
+  name: string;
+  type: string;
 }
 
 export enum SubjectTypes {
@@ -524,6 +541,7 @@ export interface RecordStateError {
 export interface SetupStatus {
   isMentorInfoDone: boolean;
   isMentorTypeChosen: boolean;
+  isMentorGoalDone: boolean;
   idle?: {
     idle: Answer;
     complete: boolean;

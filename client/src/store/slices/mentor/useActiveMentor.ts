@@ -83,6 +83,10 @@ export function useActiveMentor(): UseActiveMentor {
     dispatch(mentorActions.saveMentorSubjects(data));
   }
 
+  function saveMentorKeywords(data: Mentor): void {
+    dispatch(mentorActions.saveMentorKeywords(data));
+  }
+
   function clearMentorError(): void {
     dispatch(mentorActions.mentorSlice.actions.clearError());
   }
@@ -97,6 +101,7 @@ export function useActiveMentor(): UseActiveMentor {
     switchActiveMentor,
     saveMentorDetails,
     saveMentorSubjects,
+    saveMentorKeywords,
     clearMentorError,
   };
 }
@@ -112,6 +117,7 @@ interface UseActiveMentor {
   switchActiveMentor: (id?: string) => void;
   saveMentorDetails: (d: Mentor) => void;
   saveMentorSubjects: (d: Mentor) => void;
+  saveMentorKeywords: (d: Mentor) => void;
   clearMentorError: () => void;
 }
 

@@ -9,6 +9,7 @@ module.exports = {
   plugins: [
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
+    `gatsby-transformer-csv`,
     {
       resolve: "gatsby-plugin-material-ui",
     },
@@ -34,6 +35,13 @@ module.exports = {
       resolve: "gatsby-plugin-manifest",
       options: {
         icon: "src/images/favicon.png",
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `data`,
+        path: `src/data/`,
       },
     },
   ],

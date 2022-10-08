@@ -28,12 +28,13 @@ export enum SetupStepType {
   WELCOME = 0,
   MENTOR_INFO = 1,
   MENTOR_TYPE = 2,
-  INTRODUCTION = 3,
-  SELECT_SUBJECTS = 4,
-  IDLE_TIPS = 5,
-  IDLE = 6,
-  REQUIRED_SUBJECT = 7,
-  FINISH_SETUP = 8,
+  MENTOR_GOAL = 3,
+  SELECT_KEYWORDS = 4,
+  SELECT_SUBJECTS = 5,
+  INTRODUCTION = 6,
+  IDLE_TIPS = 7,
+  REQUIRED_SUBJECT = 8,
+  FINISH_SETUP = 9,
 }
 
 interface SetupStep {
@@ -87,8 +88,13 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   const questionsLoading = isQuestionsLoading(
     mentor?.answers?.map((a: Answer) => a.question)
   );
-  const { editedMentor, isMentorEdited, editMentor, saveMentorDetails } =
-    useMentorEdits();
+  const {
+    editedMentor,
+    isMentorEdited,
+    editMentor,
+    saveMentorDetails,
+    saveMentorKeywords,
+  } = useMentorEdits();
   const { state: configState, isConfigLoaded } = useWithConfig();
 
   useEffect(() => {
@@ -146,6 +152,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       });
     const isSetupComplete =
       isMentorInfoDone &&
+      Boolean(mentor.goal) &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
       requiredSubjects.every(
@@ -155,6 +162,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setStatus({
       isMentorInfoDone,
       isMentorTypeChosen,
+      isMentorGoalDone: Boolean(mentor.goal),
       idle,
       requiredSubjects,
       isSetupComplete,
@@ -164,6 +172,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
       { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
+      { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
+      { type: SetupStepType.SELECT_KEYWORDS, complete: true },
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
       { type: SetupStepType.INTRODUCTION, complete: true },
     ];
@@ -202,6 +212,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     }
     if (isMentorEdited) {
       saveMentorDetails();
+      if (idx === SetupStepType.SELECT_KEYWORDS) {
+        saveMentorKeywords();
+      }
     }
     addToIdx(1);
   }
@@ -212,6 +225,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     }
     if (isMentorEdited) {
       saveMentorDetails();
+      if (idx === SetupStepType.SELECT_KEYWORDS) {
+        saveMentorKeywords();
+      }
     }
     addToIdx(-1);
   }
@@ -219,6 +235,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   function onLeave(cb: () => void): void {
     if (isMentorEdited) {
       saveMentorDetails();
+      saveMentorKeywords();
     }
     cb();
   }
@@ -229,6 +246,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     }
     if (isMentorEdited) {
       saveMentorDetails();
+      if (idx === SetupStepType.SELECT_KEYWORDS) {
+        saveMentorKeywords();
+      }
     }
     setIdx(i);
   }
@@ -245,8 +265,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_INFO) }));
     } else if (!status.isMentorTypeChosen) {
       navigate(urlBuild("/setup", { i: String(SetupStepType.MENTOR_TYPE) }));
-    } else if (status.idle && !status.idle.complete) {
-      navigate(urlBuild("/setup", { i: String(SetupStepType.IDLE) }));
     } else {
       for (const [i, s] of status.requiredSubjects.entries()) {
         if (!s.complete) {
