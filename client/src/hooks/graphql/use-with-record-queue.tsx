@@ -65,7 +65,7 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
   function updateQueue(newIdList: string[]) {
     const mentorQuestionDocsInQueue = newIdList.reduce(
       (acc: Question[], questionId) => {
-        const questionDoc = mentorQuestions[questionId].question;
+        const questionDoc = mentorQuestions[questionId]?.question;
         if (questionDoc) {
           acc.push(questionDoc);
         }

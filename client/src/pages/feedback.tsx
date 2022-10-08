@@ -227,7 +227,9 @@ function FeedbackPage(): JSX.Element {
       if (!isFeedbackLoading) {
         setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {
-        setNeedsFiltering(true);
+        if (!needsFiltering) {
+          setNeedsFiltering(true);
+        }
       }
     }
   }, [mentorId, trendQuestionsLoadStatus, trendingUserQuestionIds]);
@@ -274,7 +276,11 @@ function FeedbackPage(): JSX.Element {
   ]);
 
   const initialDisplayReady =
-    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+    mentor &&
+    !isMentorLoading &&
+    !questionsLoading &&
+    !isFeedbackLoading &&
+    trendQuestionsLoadStatus == LoadingStatusType.SUCCESS;
 
   if (!initialLoad && initialDisplayReady) {
     setInitialLoad(true);
@@ -284,15 +290,7 @@ function FeedbackPage(): JSX.Element {
     return (
       <div>
         <NavBar title="Feedback" mentorId={mentorId} />
-        <LoadingDialog
-          title={
-            isMentorLoading || isFeedbackLoading
-              ? "Loading..."
-              : isTraining
-              ? "Building mentor..."
-              : ""
-          }
-        />
+        <LoadingDialog title={"Loading..."} />
       </div>
     );
   }

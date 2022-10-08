@@ -1001,7 +1001,6 @@ export async function sbertEncodeSentences(
         data: { sentences: sentences },
       },
       accessToken,
-      dataPath: ["results"],
     }
   );
 }

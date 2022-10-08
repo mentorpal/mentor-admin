@@ -324,19 +324,19 @@ export function useWithTrendingFeedback(
       },
       [] as string[]
     );
-    const sentencesSet = new Set(sentences); //Remove any duplicates
+    const sentencesSet = Array.from(new Set(sentences)); //Remove any duplicates
     // First check locally saved embeddings
     const locallySavedEmbeddings = await getSavedEmbeddings();
-    const finalEmbeddings = Array.from(sentencesSet).reduce(
+    const finalEmbeddings = sentencesSet.reduce(
       (record: Record<string, number[]>, sentence) => {
-        if (sentence in Object.keys(locallySavedEmbeddings)) {
+        if (sentence in locallySavedEmbeddings) {
           record[sentence] = locallySavedEmbeddings[sentence];
         }
         return record;
       },
       {}
     );
-    const sentencesNeedingEmbeddings = Array.from(sentencesSet).filter(
+    const sentencesNeedingEmbeddings = sentencesSet.filter(
       (sentence) =>
         !Object.keys(finalEmbeddings).find(
           (savedSentenceKey) => savedSentenceKey == sentence
@@ -350,7 +350,7 @@ export function useWithTrendingFeedback(
       finalEmbeddings[embeddedSentence.original] = embeddedSentence.encoded;
     });
     // Save up to date embeddings to local storage
-    saveEmbeddingsToLocalStorage(finalEmbeddings);
+    await saveEmbeddingsToLocalStorage(finalEmbeddings);
     for (let i = 0; i < bins.length; i++) {
       const userQuestions = bins[i].userQuestions;
       const userQuestionEmbeddings = userQuestions.map(

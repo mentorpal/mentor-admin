@@ -66,20 +66,23 @@ function FeedbackItem(props: {
   const [currentGraderAnswer, setCurrentGraderAnswer] = useState<
     Answer | undefined
   >(feedback.graderAnswer);
-  const [dismissed, setDismissed] = useState<boolean>(
+  const [dismissedValue, setDismissedValue] = useState<boolean>(
     Boolean(feedback.dismissed)
   );
   const [dismissInProgress, setDismissInProgress] = useState<boolean>(false);
 
   useEffect(() => {
     if (
-      !feedback.graderAnswer ||
-      currentGraderAnswer?._id === feedback.graderAnswer._id
+      feedback.graderAnswer &&
+      currentGraderAnswer?._id !== feedback.graderAnswer._id
     ) {
-      return;
+      setCurrentGraderAnswer(feedback.graderAnswer);
     }
-    setCurrentGraderAnswer(feedback.graderAnswer);
-  }, [feedback.graderAnswer]);
+    if (dismissedValue !== Boolean(feedback.dismissed)) {
+      setDismissedValue(Boolean(feedback.dismissed));
+    }
+  }, [feedback.graderAnswer, feedback.dismissed]);
+
   // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
     mentorAnswers: Answer[],
@@ -232,9 +235,9 @@ function FeedbackItem(props: {
 
   function onDismissed(): void {
     setDismissInProgress(true);
-    const oldDismissedValue = dismissed;
-    const newDismissedValue = !dismissed;
-    setDismissed(newDismissedValue);
+    const oldDismissedValue = dismissedValue;
+    const newDismissedValue = !dismissedValue;
+    setDismissedValue(newDismissedValue);
     updateDismissUserQuestion(
       feedback._id,
       newDismissedValue,
@@ -244,8 +247,8 @@ function FeedbackItem(props: {
         setDismissInProgress(false);
       })
       .catch((err) => {
-        console.error("Failed to update dismissed value", err);
-        setDismissed(oldDismissedValue);
+        console.error("Failed to update dismissedvalue value", err);
+        setDismissedValue(oldDismissedValue);
         setDismissInProgress(false);
       });
   }
@@ -256,12 +259,12 @@ function FeedbackItem(props: {
       role="checkbox"
       tabIndex={-1}
       data-cy={`row-${feedback._id}`}
-      style={{ opacity: dismissed ? 0.4 : 1 }}
+      style={{ opacity: dismissedValue && !viewingAll ? 0.4 : 1 }}
     >
       {viewingAll ? undefined : (
         <TableCell>
           <Button disabled={dismissInProgress} onClick={onDismissed}>
-            {dismissed ? "Enable" : "Dismiss"}
+            {dismissedValue ? "Enable" : "Dismiss"}
           </Button>
         </TableCell>
       )}

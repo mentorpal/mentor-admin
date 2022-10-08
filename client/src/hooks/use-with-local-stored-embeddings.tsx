@@ -11,7 +11,7 @@ import setupIndexedDB, { useIndexedDBStore } from "use-indexeddb";
 
 export interface UseWithLocalStoredEmbeddings {
   getSavedEmbeddings: () => Promise<Record<string, number[]>>;
-  saveNewEmbeddings: (embeddings: Record<string, number[]>) => void;
+  saveNewEmbeddings: (embeddings: Record<string, number[]>) => Promise<void>;
 }
 
 // Database Configuration
@@ -43,7 +43,9 @@ export function useWithLocalStoredEmbeddings(): UseWithLocalStoredEmbeddings {
   const { add, getOneByKey, getAll, update, deleteByID } =
     useIndexedDBStore<DBEntry>("embeddings");
 
-  const saveNewEmbeddings = async (embeddings: Record<string, number[]>) => {
+  const saveNewEmbeddings = async (
+    embeddings: Record<string, number[]>
+  ): Promise<void> => {
     const epochNow = Date.now();
     const keys = Object.keys(embeddings);
     const _existingValues = await Promise.all(
@@ -114,7 +116,7 @@ export function useWithLocalStoredEmbeddings(): UseWithLocalStoredEmbeddings {
 
   useEffect(() => {
     setupIndexedDB(idbConfig)
-      .then(() => console.log("success"))
+      .then(() => console.log("indexdb setup success"))
       .catch((err) => console.error("error/unsupported", err));
   }, []);
 
