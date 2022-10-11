@@ -83,7 +83,11 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
   }
 
   useEffect(() => {
-    if (mentorIsLoading || questionsLoading) {
+    if (
+      mentorIsLoading ||
+      questionsLoading ||
+      Object.keys(mentorQuestions).length === 0
+    ) {
       return;
     }
     fetchMentorRecordQueue(accessToken)
@@ -100,7 +104,7 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
         });
         console.error("failed to fetch record queue", err);
       });
-  }, [questionsLoading, mentorIsLoading]);
+  }, [questionsLoading, mentorIsLoading, mentorQuestions]);
 
   useEffect(() => {
     if (!mentorAnswers) {

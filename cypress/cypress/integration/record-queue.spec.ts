@@ -94,9 +94,7 @@ describe("Feedback Page add/remove from record queue", () => {
           }),
           mockGQL("AddQuestionToRecordQueue", {
             me: {
-              addQuestionToRecordQueue: [],
-              category: "category1",
-              topics: ["back-topic2-id"],
+              addQuestionToRecordQueue: ["A1_1_2"],
             },
           }),
           mockGQL("FetchMentorRecordQueue", [

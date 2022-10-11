@@ -299,6 +299,7 @@ export function cyMockDefault(
     mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
     mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
+    mockGQL("TrendingUserQuestions", { userQuestions: { edges: [] } }),
   ]);
 }
 
