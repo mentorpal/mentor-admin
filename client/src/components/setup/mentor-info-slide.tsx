@@ -24,15 +24,15 @@ export function MentorInfoSlide(props: {
     if (defaultsSet || isMentorLoading || !mentor) {
       return;
     }
-    setDefaultsSet(true);
     editMentor({
       ...(!mentor.title ? { title: "Please enter your profession here" } : {}),
       ...(!mentor.name ? { name: userName } : {}),
       ...(!mentor.firstName ? { firstName: userName.split(" ")[0] } : {}),
     });
+    setDefaultsSet(true);
   }, [mentor]);
 
-  if (!mentor || isMentorLoading) {
+  if (!mentor || isMentorLoading || !defaultsSet) {
     return <div />;
   }
 
