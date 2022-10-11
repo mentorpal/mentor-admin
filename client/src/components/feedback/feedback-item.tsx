@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   IconButton,
@@ -20,7 +20,7 @@ import ThumbDownIcon from "@material-ui/icons/ThumbDown";
 import { Autocomplete } from "@material-ui/lab";
 
 //IMPORT FUNCTIONS
-import { updateUserQuestion } from "api";
+import { updateDismissUserQuestion, updateUserQuestion } from "api";
 import {
   Answer,
   ClassifierAnswerType,
@@ -45,6 +45,7 @@ function FeedbackItem(props: {
   removeQuestionFromQueue: (id: string) => void;
   addQuestionToQueue: (id: string) => void;
   onUpdated: () => void;
+  viewingAll: boolean;
 }): JSX.Element {
   const {
     mentor,
@@ -56,11 +57,31 @@ function FeedbackItem(props: {
     queueList,
     removeQuestionFromQueue,
     addQuestionToQueue,
+    viewingAll,
   } = props;
   const [customQuestionModalOpen, setCustomQuestionModalOpen] =
     useState<boolean>(false);
   const [feedbackQuestionDocId, setFeedbackQuestionDocId] =
     useState<string>("");
+  const [currentGraderAnswer, setCurrentGraderAnswer] = useState<
+    Answer | undefined
+  >(feedback.graderAnswer);
+  const [dismissedValue, setDismissedValue] = useState<boolean>(
+    Boolean(feedback.dismissed)
+  );
+  const [dismissInProgress, setDismissInProgress] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (
+      feedback.graderAnswer &&
+      currentGraderAnswer?._id !== feedback.graderAnswer._id
+    ) {
+      setCurrentGraderAnswer(feedback.graderAnswer);
+    }
+    if (dismissedValue !== Boolean(feedback.dismissed)) {
+      setDismissedValue(Boolean(feedback.dismissed));
+    }
+  }, [feedback.graderAnswer, feedback.dismissed]);
 
   // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
@@ -105,7 +126,6 @@ function FeedbackItem(props: {
     onUpdated();
   };
 
-  // TODO: MOVE THIS TO A HOOK
   async function onUpdateAnswer(answer?: Answer) {
     await updateUserQuestion(
       feedback._id,
@@ -113,7 +133,7 @@ function FeedbackItem(props: {
       answer?.question,
       mentor._id
     );
-    onUpdated();
+    setCurrentGraderAnswer(answer);
   }
 
   const userQuestionButton = () => {
@@ -146,7 +166,7 @@ function FeedbackItem(props: {
         })
     );
     if (
-      Boolean(feedback.graderAnswer?.question) ||
+      Boolean(currentGraderAnswer?.question) ||
       feedback.classifierAnswerType === ClassifierAnswerType.EXACT_MATCH ||
       userQuestionAlreadyAnswered
     ) {
@@ -183,7 +203,7 @@ function FeedbackItem(props: {
 
   const graderAnswerButton = () => {
     const answerDoc = mentorAnswers.find(
-      (mentorAnswer) => mentorAnswer._id === feedback.graderAnswer?._id
+      (mentorAnswer) => mentorAnswer._id === currentGraderAnswer?._id
     );
     if (
       !answerDoc ||
@@ -213,13 +233,41 @@ function FeedbackItem(props: {
     );
   };
 
+  function onDismissed(): void {
+    setDismissInProgress(true);
+    const oldDismissedValue = dismissedValue;
+    const newDismissedValue = !dismissedValue;
+    setDismissedValue(newDismissedValue);
+    updateDismissUserQuestion(
+      feedback._id,
+      newDismissedValue,
+      accessToken || ""
+    )
+      .then(() => {
+        setDismissInProgress(false);
+      })
+      .catch((err) => {
+        console.error("Failed to update dismissedvalue value", err);
+        setDismissedValue(oldDismissedValue);
+        setDismissInProgress(false);
+      });
+  }
+
   return (
     <TableRow
       hover
       role="checkbox"
       tabIndex={-1}
       data-cy={`row-${feedback._id}`}
+      style={{ opacity: dismissedValue && !viewingAll ? 0.4 : 1 }}
     >
+      {viewingAll ? undefined : (
+        <TableCell>
+          <Button disabled={dismissInProgress} onClick={onDismissed}>
+            {dismissedValue ? "Enable" : "Dismiss"}
+          </Button>
+        </TableCell>
+      )}
       <TableCell data-cy="grade" align="center">
         {feedback.feedback === Feedback.BAD ? (
           <ThumbDownIcon style={{ color: "red" }} />
@@ -262,7 +310,7 @@ function FeedbackItem(props: {
         ClassifierAnswerType.EXACT_MATCH ? undefined : (
           <div style={{ display: "flex", flexDirection: "row" }}>
             <Autocomplete
-              key={`${feedback._id}-${feedback.updatedAt}-${feedback.graderAnswer?._id}`}
+              key={`${feedback._id}-${feedback.updatedAt}-${currentGraderAnswer?._id}`}
               data-cy="select-answer"
               options={formatMentorQuestions(mentorAnswers, mentorQuestions)}
               getOptionLabel={(option: Answer) =>
@@ -274,7 +322,7 @@ function FeedbackItem(props: {
               }}
               style={{
                 minWidth: 300,
-                background: feedback.graderAnswer ? "#eee" : "",
+                background: currentGraderAnswer ? "#eee" : "",
                 flexGrow: 1,
               }}
               renderOption={(option) => (
@@ -294,6 +342,7 @@ function FeedbackItem(props: {
               )}
             />
             <IconButton
+              data-cy="clear-answer-button"
               onClick={() => {
                 onUpdateAnswer(undefined);
               }}
@@ -314,14 +363,12 @@ function FeedbackItem(props: {
         )}
         <Tooltip
           placement="top-start"
-          title={feedback.graderAnswer?.transcript || ""}
+          title={currentGraderAnswer?.transcript || ""}
         >
           <Typography variant="body2" data-cy="grader-answer-question-text">
-            {(feedback.graderAnswer &&
-              getValueIfKeyExists(
-                feedback.graderAnswer.question,
-                mentorQuestions
-              )?.question?.question) ||
+            {(currentGraderAnswer &&
+              getValueIfKeyExists(currentGraderAnswer.question, mentorQuestions)
+                ?.question?.question) ||
               ""}
             {graderAnswerButton()}
           </Typography>

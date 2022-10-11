@@ -12,6 +12,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -27,6 +28,7 @@ import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 import { Autocomplete } from "@material-ui/lab";
 
+//IMPORT FUNCTIONS
 import { Answer, ClassifierAnswerType, Feedback } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
@@ -41,13 +43,15 @@ import {
 } from "store/slices/questions/useQuestions";
 import { getValueIfKeyExists } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
-import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import FeedbackItem from "components/feedback/feedback-item";
+import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
+import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
+    height: "100vh", //
   },
   container: {
     flex: 1,
@@ -60,11 +64,16 @@ const useStyles = makeStyles((theme) => ({
     height: "10%",
     top: "auto",
     bottom: 0,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   fab: {
     position: "absolute",
     right: theme.spacing(1),
     zIndex: 1,
+    width: 100,
   },
   progress: {
     marginLeft: "50%",
@@ -72,6 +81,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const columnHeaders: ColumnDef[] = [
+  {
+    id: "dismiss",
+    label: "",
+    minWidth: 10,
+    align: "center",
+  },
   {
     id: "feedback",
     label: "Feedback",
@@ -129,9 +144,6 @@ function FeedbackPage(): JSX.Element {
   const mentor = getData((state) => state.data);
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
-  const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
-  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
-
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     (mentorAnswers || []).map((a) => a.question)
@@ -140,6 +152,35 @@ function FeedbackPage(): JSX.Element {
   const questionsLoading = isQuestionsLoading(
     (mentorAnswers || []).map((a) => a.question)
   );
+  const [needsFiltering, setNeedsFiltering] = useState<boolean>(false);
+  const [feedbackItems, setFeedbackItems] = useState<JSX.Element[]>([]);
+  const [viewingAll, setViewingAll] = useState<boolean>(false);
+  const {
+    bestRepIds: trendingUserQuestionIds,
+    loadingStatus: trendQuestionsLoadStatus,
+    recordQueue: queueList,
+    removeQuestionFromQueue,
+    addQuestionToQueue,
+  } = useWithTrendingFeedback(loginState.accessToken || "");
+
+  const trendingQuestionsSearchParam = {
+    limit: 20,
+    sortBy: "createdAt",
+    sortAscending: false,
+    cursor: "",
+    filter: {
+      _id: { $in: trendingUserQuestionIds },
+      mentor: mentorId,
+    },
+  };
+
+  const viewAllQuestionsSearchParam = {
+    limit: 20,
+    sortBy: "createdAt",
+    cursor: "",
+    sortAscending: false,
+    filter: { mentor: mentorId },
+  };
 
   const {
     isPolling: isTraining,
@@ -155,26 +196,51 @@ function FeedbackPage(): JSX.Element {
     reloadData: reloadFeedback,
     nextPage: feedbackNextPage,
     prevPage: feedbackPrevPage,
-  } = useWithFeedback();
+    setSearchParams: setFeedbackSearchParams,
+  } = useWithFeedback(viewAllQuestionsSearchParam);
   const [initialLoad, setInitialLoad] = useState<boolean>(false);
-  const {
-    recordQueue: queueList,
-    removeQuestionFromQueue,
-    addQuestionToQueue,
-  } = useWithRecordQueue(loginState.accessToken || "");
+
+  function onViewAllQuestions(event: React.ChangeEvent<HTMLInputElement>) {
+    const displayAllQuestions = event.target.checked;
+    setViewingAll(displayAllQuestions);
+    if (displayAllQuestions) {
+      setFeedbackSearchParams((prevValue) => {
+        return {
+          ...prevValue,
+          ...viewAllQuestionsSearchParam,
+        };
+      });
+    } else {
+      setFeedbackSearchParams((prevValue) => {
+        return {
+          ...prevValue,
+          ...trendingQuestionsSearchParam,
+        };
+      });
+    }
+  }
+
+  const label = { inputProps: { "aria-label": "Switch demo" } };
+
   useEffect(() => {
-    if (mentorId) {
+    if (
+      mentorId &&
+      (trendQuestionsLoadStatus === LoadingStatusType.SUCCESS ||
+        trendQuestionsLoadStatus === LoadingStatusType.ERROR)
+    ) {
       if (!isFeedbackLoading) {
-        filterFeedback({ mentor: mentorId });
+        setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {
-        setNeedsFiltering(true);
+        if (!needsFiltering) {
+          setNeedsFiltering(true);
+        }
       }
     }
-  }, [mentorId]);
+  }, [mentorId, trendQuestionsLoadStatus, trendingUserQuestionIds]);
 
   useEffect(() => {
     if (!isFeedbackLoading && needsFiltering) {
-      filterFeedback({ mentor: mentorId });
+      setFeedbackSearchParams(trendingQuestionsSearchParam);
       setNeedsFiltering(false);
     }
   }, [needsFiltering, isFeedbackLoading]);
@@ -198,6 +264,7 @@ function FeedbackPage(): JSX.Element {
         onUpdated={reloadFeedback}
         addQuestionToQueue={addQuestionToQueue}
         removeQuestionFromQueue={removeQuestionFromQueue}
+        viewingAll={viewingAll}
       />
     ));
     setFeedbackItems(feedbackItems);
@@ -209,10 +276,15 @@ function FeedbackPage(): JSX.Element {
     mentorQuestions,
     mentor,
     queueList,
+    viewingAll,
   ]);
 
   const initialDisplayReady =
-    mentor && !isMentorLoading && !questionsLoading && !isFeedbackLoading;
+    mentor &&
+    !isMentorLoading &&
+    !questionsLoading &&
+    !isFeedbackLoading &&
+    trendQuestionsLoadStatus == LoadingStatusType.SUCCESS;
 
   if (!initialLoad && initialDisplayReady) {
     setInitialLoad(true);
@@ -222,15 +294,7 @@ function FeedbackPage(): JSX.Element {
     return (
       <div>
         <NavBar title="Feedback" mentorId={mentorId} />
-        <LoadingDialog
-          title={
-            isMentorLoading || isFeedbackLoading
-              ? "Loading..."
-              : isTraining
-              ? "Building mentor..."
-              : ""
-          }
-        />
+        <LoadingDialog title={"Loading..."} />
       </div>
     );
   }
@@ -248,13 +312,14 @@ function FeedbackPage(): JSX.Element {
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
-                columns={columnHeaders}
+                columns={viewingAll ? columnHeaders.slice(1) : columnHeaders}
                 sortBy={feedbackSearchParams.sortBy}
                 sortAsc={feedbackSearchParams.sortAscending}
                 onSort={sortFeedback}
               />
               <TableHead data-cy="column-filter">
                 <TableRow>
+                  {viewingAll ? undefined : <TableCell></TableCell>}
                   <TableCell align="center">
                     <Select
                       data-cy="filter-feedback"
@@ -333,7 +398,7 @@ function FeedbackPage(): JSX.Element {
                       </MenuItem>
                     </Select>
                   </TableCell>
-                  <TableCell />
+                  <TableCell>{/* Empty Question Column */}</TableCell>
                   <TableCell>
                     <Autocomplete
                       data-cy="filter-classifier"
@@ -387,7 +452,7 @@ function FeedbackPage(): JSX.Element {
                       )}
                     />
                   </TableCell>
-                  <TableCell />
+                  <TableCell>{/* Empty Date column */}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">{feedbackItems}</TableBody>
@@ -395,7 +460,7 @@ function FeedbackPage(): JSX.Element {
           </TableContainer>
         </Paper>
         <AppBar position="sticky" color="default" className={classes.appBar}>
-          <Toolbar>
+          <Toolbar style={{ width: "fit-content" }}>
             <IconButton
               data-cy="prev-page"
               disabled={!feedback?.pageInfo.hasPreviousPage}
@@ -410,19 +475,27 @@ function FeedbackPage(): JSX.Element {
             >
               <KeyboardArrowRightIcon />
             </IconButton>
-            <Fab
-              data-cy="train-button"
-              variant="extended"
-              color="primary"
-              className={classes.fab}
-              onClick={() => {
-                if (mentorId) startTraining(mentorId);
-              }}
-              disabled={isTraining || isMentorLoading || isFeedbackLoading}
-            >
-              Train Mentor
-            </Fab>
+            <span style={{ margin: "15px" }}>
+              <Switch
+                data-cy="filter-feedback-switch"
+                {...label}
+                onChange={onViewAllQuestions}
+              />
+              Show All Questions
+            </span>
           </Toolbar>
+          <Fab
+            data-cy="train-button"
+            variant="extended"
+            color="primary"
+            className={classes.fab}
+            onClick={() => {
+              if (mentorId) startTraining(mentorId);
+            }}
+            disabled={isTraining || isMentorLoading || isFeedbackLoading}
+          >
+            Train Mentor
+          </Fab>
         </AppBar>
       </div>
       <LoadingDialog

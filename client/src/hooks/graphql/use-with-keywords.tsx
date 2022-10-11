@@ -24,6 +24,7 @@ export function useWithKeywords(): UseDataConnection<Keyword> {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   } = useWithDataConnection<Keyword>(fetch, { limit: 9999 });
 
   function fetch() {
@@ -42,5 +43,6 @@ export function useWithKeywords(): UseDataConnection<Keyword> {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   };
 }

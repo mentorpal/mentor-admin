@@ -34,6 +34,8 @@ import {
   PresignedUrlResponse,
   FirstTimeTracking,
   MentorPanel,
+  TrendingUserQuestion,
+  SbertEncodedSentence,
   Keyword,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
@@ -55,6 +57,8 @@ const urljoin = require("url-join");
 export const CLIENT_ENDPOINT = process.env.CLIENT_ENDPOINT || "/chat";
 export const GRAPHQL_ENDPOINT =
   process.env.GRAPHQL_ENDPOINT || "/graphql/graphql";
+
+export const SBERT_ENDPOINT = process.env.SBERT_ENDPOINT || "/sbert";
 
 const defaultSearchParams = {
   limit: 1000,
@@ -390,7 +394,6 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
     },
     { dataPath: "subject" }
   );
-  // return convertSubjectGQL(gql);
 }
 
 export async function fetchKeywords(
@@ -754,6 +757,7 @@ export async function fetchUserQuestions(
                     feedback
                     updatedAt
                     createdAt
+                    dismissed
                     mentor {
                       _id
                       name
@@ -798,6 +802,44 @@ export async function fetchUserQuestions(
   return convertConnectionGQL(gql, convertUserQuestionGQL);
 }
 
+export async function fetchTrendingFeedback(
+  searchParams: SearchParams
+): Promise<Connection<TrendingUserQuestion>> {
+  const params = { ...searchParams };
+  const gql = await execGql<Connection<TrendingUserQuestion>>(
+    {
+      query: `
+      query TrendingUserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+        userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+           edges {
+                  cursor
+                  node {
+                    _id
+                    question
+                    confidence
+                    classifierAnswerType
+                    feedback
+                    updatedAt
+                    createdAt
+                    dismissed
+                  }
+              }
+        }
+      }
+    `,
+      variables: {
+        filter: params.filter,
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "userQuestions" }
+  );
+  return gql;
+}
+
 export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
   const gql = await execGql<UserQuestionGQL>(
     {
@@ -839,6 +881,31 @@ export async function fetchUserQuestion(id: string): Promise<UserQuestion> {
     { dataPath: "userQuestion" }
   );
   return convertUserQuestionGQL(gql);
+}
+
+export async function updateDismissUserQuestion(
+  feedbackId: string,
+  dismiss: boolean,
+  accessToken: string
+): Promise<boolean> {
+  return await execGql<boolean>(
+    {
+      query: `
+      mutation UserQuestionSetDismissed($id: ID!, $dismissed: Boolean!) {
+        me{
+          userQuestionSetDismissed(id: $id, dismissed: $dismissed) {
+            dismissed
+          }
+        }
+      }
+    `,
+      variables: {
+        id: feedbackId,
+        dismissed: dismiss,
+      },
+    },
+    { dataPath: ["me", "userQuestionSetDismissed", "dismissed"], accessToken }
+  );
 }
 
 export async function updateUserQuestion(
@@ -975,6 +1042,22 @@ export async function fetchMentorById(
     { dataPath: ["mentor"], accessToken }
   );
   return convertMentorGQL(gql);
+}
+
+export async function sbertEncodeSentences(
+  sentences: string[],
+  accessToken: string
+): Promise<SbertEncodedSentence[]> {
+  return execHttp<SbertEncodedSentence[]>(
+    "POST",
+    urljoin(SBERT_ENDPOINT, "v1", "encode", "multiple_encode"),
+    {
+      axiosConfig: {
+        data: { sentences: sentences },
+      },
+      accessToken,
+    }
+  );
 }
 
 export async function updateMentorKeywords(

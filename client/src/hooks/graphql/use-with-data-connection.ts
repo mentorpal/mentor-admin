@@ -31,6 +31,7 @@ export interface UseDataConnection<T> {
   sortBy: (attribute: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter: (f: Record<string, any>) => void;
+  setSearchParams: React.Dispatch<React.SetStateAction<SearchParams>>;
 }
 
 const defaultSearchParams: SearchParams = {
@@ -107,5 +108,6 @@ export function useWithDataConnection<T>(
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   };
 }

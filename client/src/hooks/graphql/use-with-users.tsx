@@ -33,6 +33,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   } = useWithDataConnection<User>(fetch);
 
   function fetch(): Promise<Connection<User>> {
@@ -83,5 +84,6 @@ export function useWithUsers(accessToken: string): UseUserData {
     prevPage,
     onUpdateUserPermissions,
     onUpdateMentorPrivacy,
+    setSearchParams,
   };
 }

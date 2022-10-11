@@ -94,9 +94,7 @@ describe("Feedback Page add/remove from record queue", () => {
           }),
           mockGQL("AddQuestionToRecordQueue", {
             me: {
-              addQuestionToRecordQueue: [],
-              category: "category1",
-              topics: ["back-topic2-id"],
+              addQuestionToRecordQueue: ["A1_1_2"],
             },
           }),
           mockGQL("FetchMentorRecordQueue", [
@@ -434,7 +432,6 @@ describe("Queue Card", () => {
       mentor: clint,
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
-
         mockGQL("FetchMentorRecordQueue", {
           me: {
             fetchMentorRecordQueue: ["A5_1_1"],
@@ -489,7 +486,6 @@ describe("Queue Card", () => {
       ],
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
-
         mockGQL("FetchMentorRecordQueue", {
           me: {
             fetchMentorRecordQueue: ["A5_1_1", "A6_1_2"],
@@ -511,7 +507,6 @@ describe("Queue Card", () => {
       mentor: clint,
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
-
         mockGQL("FetchMentorRecordQueue", {
           me: {
             fetchMentorRecordQueue: ["A5_1_1"],
@@ -533,7 +528,6 @@ describe("Queue Card", () => {
       mentor: clint,
       gqlQueries: [
         mockGQL("ImportTask", { importTask: null }),
-
         mockGQL("RemoveQuestionFromRecordQueue", {
           me: {
             removeQuestionFromRecordQueue: [],

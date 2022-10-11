@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import {
   fetchMentorRecordQueue,
@@ -14,26 +14,97 @@ import {
 } from "api";
 import { isAnswerComplete } from "helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Answer, Status } from "types";
+import { Answer, Question, Status } from "types";
+import {
+  LoadingReducer,
+  LoadingState,
+  LoadingStatusType,
+  LoadingActionType,
+} from "./generic-loading-reducer";
+import useQuestions, {
+  isQuestionsLoading,
+} from "store/slices/questions/useQuestions";
 
 export interface useWithRecordQueue {
   recordQueue: string[];
+  loadingStatus: LoadingStatusType;
+  questionDocsInQueue: Question[];
   removeQuestionFromQueue: (questionId: string) => void;
   addQuestionToQueue: (questionId: string) => void;
 }
 
+export interface RecordQueueData {
+  idsInQueue: string[];
+  docsInQueue: Question[];
+}
+
+const initialState: LoadingState<RecordQueueData> = {
+  status: LoadingStatusType.LOADING,
+  data: { idsInQueue: [], docsInQueue: [] },
+  error: undefined,
+};
+
 export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
-  const { getData } = useActiveMentor();
+  const { getData, isLoading: mentorIsLoading } = useActiveMentor();
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorQuestions = useQuestions(
+    (state) => state.questions,
+    (mentorAnswers || []).map((a) => a.question)
+  );
+
+  const questionsLoading = isQuestionsLoading(
+    (mentorAnswers || []).map((a) => a.question)
+  );
   const mentorType = getData((m) => m.data?.mentorType);
-  const [queueIDList, setQueueIDList] = useState<string[]>([]);
   const [answerStatuses, setAnswerStatuses] = useState<Status[]>([]);
+  const [state, dispatch] = useReducer(
+    LoadingReducer<RecordQueueData>,
+    initialState
+  );
+
+  function updateQueue(newIdList: string[]) {
+    const mentorQuestionDocsInQueue = newIdList.reduce(
+      (acc: Question[], questionId) => {
+        const questionDoc = mentorQuestions[questionId]?.question;
+        if (questionDoc) {
+          acc.push(questionDoc);
+        }
+        return acc;
+      },
+      []
+    );
+    dispatch({
+      type: LoadingActionType.LOADING_SUCCEEDED,
+      dataPayload: {
+        idsInQueue: newIdList,
+        docsInQueue: mentorQuestionDocsInQueue,
+      },
+    });
+  }
 
   useEffect(() => {
-    fetchMentorRecordQueue(accessToken).then((queueIDList) => {
-      setQueueIDList(queueIDList);
-    });
-  }, []);
+    if (
+      mentorIsLoading ||
+      questionsLoading ||
+      Object.keys(mentorQuestions).length === 0
+    ) {
+      return;
+    }
+    fetchMentorRecordQueue(accessToken)
+      .then((queueIDList) => {
+        updateQueue(queueIDList);
+      })
+      .catch((err) => {
+        dispatch({
+          type: LoadingActionType.LOADING_FAILED,
+          errorPayload: {
+            message: "Failed to fetch record queue",
+            error: JSON.stringify(err),
+          },
+        });
+        console.error("failed to fetch record queue", err);
+      });
+  }, [questionsLoading, mentorIsLoading, mentorQuestions]);
 
   useEffect(() => {
     if (!mentorAnswers) {
@@ -58,14 +129,25 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
   }, [mentorAnswers]);
 
   useEffect(() => {
-    if (!mentorAnswers || queueIDList.length == 0) {
+    if (!mentorAnswers || !state.data || state.data.idsInQueue.length == 0) {
       return;
     }
     const idListAfterRemoval = removeCompleteAnswerFromQueue(
-      queueIDList,
+      state.data.idsInQueue,
       mentorAnswers
     );
-    setQueueIDList(idListAfterRemoval);
+    const questionDocsAfterRemoval = state.data.docsInQueue.filter(
+      (questionDoc) => {
+        idListAfterRemoval.find((idInQueue) => idInQueue === questionDoc._id);
+      }
+    );
+    dispatch({
+      type: LoadingActionType.LOADING_SUCCEEDED,
+      dataPayload: {
+        idsInQueue: idListAfterRemoval,
+        docsInQueue: questionDocsAfterRemoval,
+      },
+    });
   }, [answerStatuses]);
 
   function removeCompleteAnswerFromQueue(
@@ -90,20 +172,41 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
   }
 
   function removeQuestionFromQueue(questionId: string) {
-    removeQuestionFromRecordQueue(accessToken, questionId);
-    const newList = queueIDList.filter((qId) => qId !== questionId);
-    setQueueIDList(newList);
+    removeQuestionFromRecordQueue(accessToken, questionId)
+      .then((newList) => {
+        updateQueue(newList);
+      })
+      .catch((err) => {
+        dispatch({
+          type: LoadingActionType.LOADING_FAILED,
+          errorPayload: {
+            message: "Failed to remove question from record queue",
+            error: JSON.stringify(err),
+          },
+        });
+      });
   }
 
   function addQuestionToQueue(questionId: string) {
-    addQuestionToRecordQueue(accessToken, questionId);
-    setQueueIDList((prev) => {
-      return [...prev, questionId];
-    });
+    addQuestionToRecordQueue(accessToken, questionId)
+      .then((newList) => {
+        updateQueue(newList);
+      })
+      .catch((err) => {
+        dispatch({
+          type: LoadingActionType.LOADING_FAILED,
+          errorPayload: {
+            message: "Failed to add question to record queue",
+            error: JSON.stringify(err),
+          },
+        });
+      });
   }
 
   return {
-    recordQueue: queueIDList,
+    recordQueue: state.data?.idsInQueue || [],
+    questionDocsInQueue: state.data?.docsInQueue || [],
+    loadingStatus: state.status,
     removeQuestionFromQueue,
     addQuestionToQueue,
   };

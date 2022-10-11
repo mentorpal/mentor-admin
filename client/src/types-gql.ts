@@ -114,6 +114,7 @@ export interface UserQuestionGQL {
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: AnswerGQL;
   graderAnswer: AnswerGQL;
+  dismissed: boolean;
   updatedAt: string;
   createdAt: string;
 }

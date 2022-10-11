@@ -9,6 +9,7 @@ import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
 import questions from "../fixtures/questions";
+import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -218,6 +219,7 @@ export function cyMockDefault(
   cyMockUpload(cy);
   cyMockRegenVTT(cy);
   cyMockCancelUpload(cy);
+  cyMockEncodeSentences(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -297,6 +299,7 @@ export function cyMockDefault(
     mockGQL("FetchUploadTasks", { me: { uploadTasks: [] } }),
     mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
+    mockGQL("TrendingUserQuestions", { userQuestions: { edges: [] } }),
   ]);
 }
 
@@ -464,6 +467,28 @@ export function cyMockRegenVTT(
   });
 }
 
+export function cyMockEncodeSentences(
+  cy,
+  params: {
+    statusCode?: number;
+  } = {}
+) {
+  cy.intercept("/sbert/v1/encode/multiple_encode", (req) => {
+    req.alias = "sbertMultipleEncode";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: encodedSentences,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
 export function cyMockUploadThumbnail(
   cy,
   args: {
@@ -543,5 +568,23 @@ export function cyMockFollowUpQuestions(
         },
       })
     );
+  });
+}
+
+export function testIndexedDbData(
+  assertionFunc: (data: any) => Chai.Assertion
+) {
+  cy.wait(2000);
+  cy.window().then((win) => {
+    const connection = win.indexedDB.open("embeddings-db");
+    connection.onsuccess = function (event) {
+      const db = connection.result;
+      const transaction = db.transaction("embeddings", "readonly");
+      const storedDataEvent = transaction.objectStore("embeddings").getAll();
+      storedDataEvent.onsuccess = function (event) {
+        const storedData = storedDataEvent.result;
+        assertionFunc(storedData);
+      };
+    };
   });
 }

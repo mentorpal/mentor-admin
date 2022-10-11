@@ -42,6 +42,11 @@ export interface Config {
   defaultSubject: string;
 }
 
+export interface SbertEncodedSentence {
+  original: string;
+  encoded: number[];
+}
+
 export interface Connection<T> {
   edges: Edge<T>[];
   pageInfo: PageInfo;
@@ -190,8 +195,38 @@ export interface UserQuestion {
   classifierAnswerType: ClassifierAnswerType;
   classifierAnswer: Answer;
   graderAnswer?: Answer;
+  dismissed: boolean;
   updatedAt: string;
   createdAt: string;
+}
+
+export interface TrendingUserQuestion {
+  _id: string;
+  question: string;
+  confidence: number;
+  feedback: Feedback;
+  classifierAnswerType: ClassifierAnswerType;
+  dismissed: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export interface WeightedTrendingUserQuestion extends TrendingUserQuestion {
+  weight: number;
+  embedding: number[];
+}
+
+export interface UserQuestionBin {
+  userQuestions: WeightedTrendingUserQuestion[];
+  binWeight: number; //based on average weight of each userQuestion in this bin
+  binAverageEmbedding: number[];
+  bestRepresentativeId: string;
+}
+
+export interface BinCollection {
+  bins: UserQuestionBin[];
+  lastUpdated: number; // epoch
+  mentor: string;
 }
 
 export interface MentorInfo {

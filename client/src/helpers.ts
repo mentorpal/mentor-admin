@@ -118,6 +118,14 @@ export function loadSentry(): void {
   });
 }
 
+export function getDaysSinceDate(date: string): number {
+  const dateInEpoch = Date.parse(date);
+  const dateInDays = Math.floor(dateInEpoch / 8.64e7);
+  const currentInEpoch = Date.now();
+  const currentInDays = Math.floor(currentInEpoch / 8.64e7);
+  return currentInDays - dateInDays;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractErrorMessageFromError(err: any | unknown): string {
   if (err instanceof Error) {
@@ -170,4 +178,20 @@ export function isAnswerComplete(
 
 export function getFileSizeInMb(file: File): number {
   return file.size / 1024 / 1024;
+}
+
+export function cosinesim(A: number[], B: number[]): number {
+  let dotproduct = 0;
+  let mA = 0;
+  let mB = 0;
+  for (let i = 0; i < A.length; i++) {
+    // here you missed the i++
+    dotproduct += A[i] * B[i];
+    mA += A[i] * A[i];
+    mB += B[i] * B[i];
+  }
+  mA = Math.sqrt(mA);
+  mB = Math.sqrt(mB);
+  const similarity = dotproduct / (mA * mB); // here you needed extra brackets
+  return similarity;
 }

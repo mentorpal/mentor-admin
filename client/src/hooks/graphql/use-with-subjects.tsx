@@ -24,6 +24,7 @@ export function useWithSubjects(): UseDataConnection<SubjectGQL> {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   } = useWithDataConnection<SubjectGQL>(fetch);
 
   function fetch() {
@@ -42,5 +43,6 @@ export function useWithSubjects(): UseDataConnection<SubjectGQL> {
     filter,
     nextPage,
     prevPage,
+    setSearchParams,
   };
 }
