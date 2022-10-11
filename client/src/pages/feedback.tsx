@@ -223,7 +223,11 @@ function FeedbackPage(): JSX.Element {
   const label = { inputProps: { "aria-label": "Switch demo" } };
 
   useEffect(() => {
-    if (mentorId && trendQuestionsLoadStatus === LoadingStatusType.SUCCESS) {
+    if (
+      mentorId &&
+      (trendQuestionsLoadStatus === LoadingStatusType.SUCCESS ||
+        trendQuestionsLoadStatus === LoadingStatusType.ERROR)
+    ) {
       if (!isFeedbackLoading) {
         setFeedbackSearchParams(trendingQuestionsSearchParam);
       } else {

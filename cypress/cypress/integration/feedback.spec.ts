@@ -58,6 +58,7 @@ describe("Feedback", () => {
       ],
     });
     cy.visit("/feedback");
+
     cy.get("[data-cy=row-6286c9ae60719ae10dfd70b8]").within(() => {
       cy.get("[data-cy=grader-answer-queue-btn]").click();
     });
@@ -74,9 +75,11 @@ describe("Feedback", () => {
       ],
     });
     cy.visit("/feedback");
-    cy.getSettled("[data-cy=row-6290644add8738d2692fb270]");
-    const assertion = (indexData) => expect(indexData).to.have.length(11);
-    testIndexedDbData(assertion);
+    cy.window().then(() => {
+      cy.getSettled("[data-cy=row-6290644add8738d2692fb270]");
+      const assertion = (indexData) => expect(indexData).to.have.length(11);
+      testIndexedDbData(assertion);
+    });
   });
 
   it("When a question is no longer trending, it gets removed from bins", () => {

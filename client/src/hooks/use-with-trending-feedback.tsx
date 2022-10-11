@@ -28,7 +28,11 @@ import {
   LoadingState,
   LoadingActionType,
 } from "./graphql/generic-loading-reducer";
-import { cosinesim, getDaysSinceDate } from "helpers";
+import {
+  cosinesim,
+  extractErrorMessageFromError,
+  getDaysSinceDate,
+} from "helpers";
 import { useWithLocalStoredEmbeddings } from "./use-with-local-stored-embeddings";
 import { useWithRecordQueue } from "./graphql/use-with-record-queue";
 
@@ -406,16 +410,8 @@ export function useWithTrendingFeedback(
     localStorageStore("userQuestionBins", JSON.stringify(binsToStore));
   }
 
-  useEffect(() => {
-    if (!mentorId || recordQueueLoadStatus !== LoadingStatusType.SUCCESS) {
-      return;
-    }
-    dispatch({ type: LoadingActionType.LOADING_STARTED });
-    const localStorageBins = getLocalStorageBins();
-    const questionsInQueue = questionDocsInQueue.map(
-      (questionDoc) => questionDoc.question
-    );
-    fetchTrendingFeedback({
+  function _fetchTrendingFeedback(questionsInQueue: string[]) {
+    return fetchTrendingFeedback({
       limit: 1000,
       sortBy: "createdAt",
       sortAscending: false,
@@ -435,51 +431,74 @@ export function useWithTrendingFeedback(
           { question: { $nin: questionsInQueue } },
         ],
       },
-    })
-      .then(async (data) => {
-        const trendingFeedback = data.edges.map((edge) => edge.node);
-        let newBins = localStorageBins;
-        newBins.bins = await removeNonTrendingAnswersFromBins(
-          trendingFeedback,
-          newBins.bins
-        );
-        const binsLastUpdated = localStorageBins.lastUpdated;
-        const newTrendingFeedback = trendingFeedback.filter((feedback) => {
-          return Date.parse(feedback.createdAt) > binsLastUpdated;
+    });
+  }
+
+  useEffect(() => {
+    if (!mentorId || recordQueueLoadStatus !== LoadingStatusType.SUCCESS) {
+      return;
+    }
+    dispatch({ type: LoadingActionType.LOADING_STARTED });
+    const localStorageBins = getLocalStorageBins();
+    const questionsInQueue = questionDocsInQueue.map(
+      (questionDoc) => questionDoc.question
+    );
+    const setupTrendingFeedback = async () => {
+      _fetchTrendingFeedback(questionsInQueue)
+        .then(async (data) => {
+          try {
+            const trendingFeedback = data.edges.map((edge) => edge.node);
+            let newBins = localStorageBins;
+            newBins.bins = await removeNonTrendingAnswersFromBins(
+              trendingFeedback,
+              newBins.bins
+            );
+            const binsLastUpdated = localStorageBins.lastUpdated;
+            const newTrendingFeedback = trendingFeedback.filter((feedback) => {
+              return Date.parse(feedback.createdAt) > binsLastUpdated;
+            });
+            const newWeightedTrendingFeedback: WeightedTrendingUserQuestion[] =
+              newTrendingFeedback.map((feedback) =>
+                convertFeedbackQuestionToWeighted(feedback)
+              );
+            newWeightedTrendingFeedback.forEach((feedback) => {
+              newBins = addQuestionToBestBin(feedback, newBins);
+            });
+            // Set bin embeddings
+            newBins.bins = await fetchAndSetBinEmbeddings(newBins.bins);
+            // Sort bins by bin weight
+            newBins.bins = newBins.bins.sort((a, b) =>
+              a.binWeight < b.binWeight ? 1 : -1
+            );
+            // Take 60 most important bins only
+            newBins.bins = newBins.bins.slice(0, 60);
+            const bestRepresentatives = getBinRepresentatives(newBins);
+            const bestRepIds = bestRepresentatives.map((userQ) => userQ._id);
+            dispatch({
+              type: LoadingActionType.LOADING_SUCCEEDED,
+              dataPayload: bestRepIds,
+            });
+            storeBinsInLocalStorage(newBins);
+          } catch (err) {
+            // Fallback to not using bins since something failed.
+            const userQuestionsIds = data.edges.map((edge) => edge.node._id);
+            dispatch({
+              type: LoadingActionType.LOADING_SUCCEEDED,
+              dataPayload: userQuestionsIds,
+            });
+          }
+        })
+        .catch((err) => {
+          dispatch({
+            type: LoadingActionType.LOADING_FAILED,
+            errorPayload: {
+              message: "Failed to fetch trending feedback",
+              error: extractErrorMessageFromError(err),
+            },
+          });
         });
-        const newWeightedTrendingFeedback: WeightedTrendingUserQuestion[] =
-          newTrendingFeedback.map((feedback) =>
-            convertFeedbackQuestionToWeighted(feedback)
-          );
-        newWeightedTrendingFeedback.forEach((feedback) => {
-          newBins = addQuestionToBestBin(feedback, newBins);
-        });
-        // Set bin embeddings
-        newBins.bins = await fetchAndSetBinEmbeddings(newBins.bins);
-        // Sort bins by bin weight
-        newBins.bins = newBins.bins.sort((a, b) =>
-          a.binWeight < b.binWeight ? 1 : -1
-        );
-        // Take 60 most important bins only
-        newBins.bins = newBins.bins.slice(0, 60);
-        const bestRepresentatives = getBinRepresentatives(newBins);
-        const bestRepIds = bestRepresentatives.map((userQ) => userQ._id);
-        dispatch({
-          type: LoadingActionType.LOADING_SUCCEEDED,
-          dataPayload: bestRepIds,
-        });
-        storeBinsInLocalStorage(newBins);
-      })
-      .catch((err) => {
-        dispatch({
-          type: LoadingActionType.LOADING_FAILED,
-          errorPayload: {
-            message: "Failed to fetch trending feedback",
-            error: JSON.stringify(err),
-          },
-        });
-        console.error("failed to fetch trending feedback", err);
-      });
+    };
+    setupTrendingFeedback();
   }, [mentorId, recordQueueLoadStatus]);
 
   return {
