@@ -30,7 +30,7 @@ export function MentorInfoSlide(props: {
       ...(!mentor.firstName ? { firstName: userName.split(" ")[0] } : {}),
     });
     setDefaultsSet(true);
-  }, [mentor]);
+  }, [mentor, isMentorLoading]);
 
   if (!mentor || isMentorLoading || !defaultsSet) {
     return <div />;
