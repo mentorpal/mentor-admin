@@ -261,13 +261,6 @@ function FeedbackItem(props: {
       data-cy={`row-${feedback._id}`}
       style={{ opacity: dismissedValue && !viewingAll ? 0.4 : 1 }}
     >
-      {viewingAll ? undefined : (
-        <TableCell>
-          <Button disabled={dismissInProgress} onClick={onDismissed}>
-            {dismissedValue ? "Enable" : "Dismiss"}
-          </Button>
-        </TableCell>
-      )}
       <TableCell data-cy="grade" align="center">
         {feedback.feedback === Feedback.BAD ? (
           <ThumbDownIcon style={{ color: "red" }} />
@@ -379,6 +372,13 @@ function FeedbackItem(props: {
           ? new Date(feedback.updatedAt).toLocaleString()
           : ""}
       </TableCell>
+      {viewingAll ? undefined : (
+        <TableCell>
+          <Button disabled={dismissInProgress} onClick={onDismissed}>
+            {dismissedValue ? "Enable" : "Dismiss"}
+          </Button>
+        </TableCell>
+      )}
     </TableRow>
   );
 }

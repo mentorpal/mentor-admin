@@ -82,12 +82,6 @@ const useStyles = makeStyles((theme) => ({
 
 const columnHeaders: ColumnDef[] = [
   {
-    id: "dismiss",
-    label: "",
-    minWidth: 10,
-    align: "center",
-  },
-  {
     id: "feedback",
     label: "Feedback",
     minWidth: 50,
@@ -128,6 +122,12 @@ const columnHeaders: ColumnDef[] = [
     minWidth: 100,
     align: "center",
     sortable: true,
+  },
+  {
+    id: "dismiss",
+    label: "",
+    minWidth: 10,
+    align: "center",
   },
 ];
 
@@ -312,14 +312,15 @@ function FeedbackPage(): JSX.Element {
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
               <ColumnHeader
-                columns={viewingAll ? columnHeaders.slice(1) : columnHeaders}
+                columns={
+                  viewingAll ? columnHeaders.slice(0, -1) : columnHeaders
+                }
                 sortBy={feedbackSearchParams.sortBy}
                 sortAsc={feedbackSearchParams.sortAscending}
                 onSort={sortFeedback}
               />
               <TableHead data-cy="column-filter">
                 <TableRow>
-                  {viewingAll ? undefined : <TableCell></TableCell>}
                   <TableCell align="center">
                     <Select
                       data-cy="filter-feedback"
@@ -453,6 +454,7 @@ function FeedbackPage(): JSX.Element {
                     />
                   </TableCell>
                   <TableCell>{/* Empty Date column */}</TableCell>
+                  {viewingAll ? undefined : <TableCell></TableCell>}
                 </TableRow>
               </TableHead>
               <TableBody data-cy="feedbacks">{feedbackItems}</TableBody>
