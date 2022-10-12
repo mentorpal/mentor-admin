@@ -16,7 +16,12 @@ module.exports = {
     {
       resolve: `gatsby-plugin-env-variables`,
       options: {
-        allowList: ["GRAPHQL_ENDPOINT", "STAGE", "IS_SENTRY_ENABLED"],
+        allowList: [
+          "GRAPHQL_ENDPOINT",
+          "STAGE",
+          "IS_SENTRY_ENABLED",
+          "SBERT_ENDPOINT",
+        ],
       },
     },
     {
