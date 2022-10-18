@@ -9,11 +9,11 @@ import { useState } from "react";
 import { Connection, User } from "types";
 import { LoadingError } from "./loading-reducer";
 import {
-  useWithDataConnection,
-  UseDataConnection,
-} from "./use-with-data-connection";
+  UseStaticDataConnection,
+  useWithStaticDataConnection,
+} from "./use-with-static-data-connection";
 
-export interface UseUserData extends UseDataConnection<User> {
+export interface UseUserData extends UseStaticDataConnection<User> {
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
   userDataError?: LoadingError;
@@ -23,18 +23,17 @@ export function useWithUsers(accessToken: string): UseUserData {
   const [userDataError, setUserDataError] = useState<LoadingError>();
   const {
     data,
+    error,
     isLoading,
     searchParams,
-    error,
-    reloadData,
-    editData,
-    saveData,
+    pageData,
+    pageSearchParams,
     sortBy,
     filter,
     nextPage,
     prevPage,
-    setSearchParams,
-  } = useWithDataConnection<User>(fetch);
+    reloadData,
+  } = useWithStaticDataConnection<User>(fetch);
 
   function fetch(): Promise<Connection<User>> {
     return fetchUsers(accessToken, searchParams);
@@ -71,19 +70,18 @@ export function useWithUsers(accessToken: string): UseUserData {
 
   return {
     data,
+    error,
     isLoading,
     searchParams,
-    error,
+    pageSearchParams,
+    pageData,
     userDataError,
-    reloadData,
-    editData,
-    saveData,
     sortBy,
     filter,
     nextPage,
     prevPage,
+    reloadData,
     onUpdateUserPermissions,
     onUpdateMentorPrivacy,
-    setSearchParams,
   };
 }
