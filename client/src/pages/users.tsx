@@ -19,6 +19,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TextField,
   Toolbar,
   Tooltip,
 } from "@material-ui/core";
@@ -30,6 +31,7 @@ import {
   Launch as LaunchIcon,
   ImportExport,
 } from "@material-ui/icons";
+import { Autocomplete } from "@material-ui/lab";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
@@ -37,7 +39,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { Connection, Edge, User, UserRole } from "types";
+import { Edge, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import { launchMentor } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -61,6 +63,8 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
   },
   paging: {
+    display: "flex",
+    flexDirection: "row",
     marginLeft: "auto",
     marginRight: "auto",
   },
@@ -81,21 +85,29 @@ const columns: ColumnDef[] = [
   {
     id: "name",
     label: "Name",
-    minWidth: 170,
+    minWidth: 0,
+    align: "left",
+    sortable: true,
+  },
+  {
+    id: "defaultMentor",
+    subField: ["name"],
+    label: "Mentor",
+    minWidth: 0,
     align: "left",
     sortable: true,
   },
   {
     id: "email",
     label: "Email",
-    minWidth: 170,
+    minWidth: 0,
     align: "left",
     sortable: true,
   },
   {
     id: "userRole",
     label: "Role",
-    minWidth: 170,
+    minWidth: 0,
     align: "left",
     sortable: true,
   },
@@ -109,10 +121,12 @@ const columns: ColumnDef[] = [
 ];
 
 function TableFooter(props: {
+  edges: Edge<User>[];
   hasNext: boolean;
   hasPrev: boolean;
   onNext: () => void;
   onPrev: () => void;
+  onFilter: (f: string) => void;
 }): JSX.Element {
   const styles = useStyles();
   const { hasNext, hasPrev, onNext, onPrev } = props;
@@ -123,6 +137,20 @@ function TableFooter(props: {
           <IconButton data-cy="prev-page" disabled={!hasPrev} onClick={onPrev}>
             <KeyboardArrowLeftIcon />
           </IconButton>
+          <Autocomplete
+            data-cy="user-filter"
+            freeSolo
+            options={props.edges.map((e) => e.node.name)}
+            onChange={(e, v) => props.onFilter(v || "")}
+            style={{ width: 300 }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                placeholder="Search users"
+              />
+            )}
+          />
           <IconButton data-cy="next-page" disabled={!hasNext} onClick={onNext}>
             <KeyboardArrowRightIcon />
           </IconButton>
@@ -158,7 +186,10 @@ function UserItem(props: {
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="name" align="left">
-        {edge.node.defaultMentor?.name || edge.node.name}
+        {edge.node.name}
+      </TableCell>
+      <TableCell data-cy="defaultMentor" align="left">
+        {edge.node.defaultMentor?.name || ""}
       </TableCell>
       <TableCell data-cy="email" align="left">
         {edge.node.email}
@@ -285,12 +316,10 @@ function UserItem(props: {
 
 function UsersTable(props: {
   accessToken: string;
-  userData: Connection<User>;
   userPagin: UseUserData;
   userRole: UserRole;
 }): JSX.Element {
   const styles = useStyles();
-  const edges = props.userData.edges;
 
   return (
     <div className={styles.root}>
@@ -299,12 +328,12 @@ function UsersTable(props: {
           <Table stickyHeader aria-label="sticky table">
             <ColumnHeader
               columns={columns}
-              sortBy={props.userPagin.searchParams.sortBy}
-              sortAsc={props.userPagin.searchParams.sortAscending}
+              sortBy={props.userPagin.pageSearchParams.sortBy}
+              sortAsc={props.userPagin.pageSearchParams.sortAscending}
               onSort={props.userPagin.sortBy}
             />
             <TableBody data-cy="users">
-              {edges.map((edge, i) => (
+              {props.userPagin.pageData?.edges.map((edge, i) => (
                 <UserItem
                   key={i}
                   edge={edge}
@@ -319,10 +348,16 @@ function UsersTable(props: {
         </TableContainer>
       </Paper>
       <TableFooter
-        hasNext={props.userPagin.data?.pageInfo.hasNextPage || false}
-        hasPrev={props.userPagin.data?.pageInfo.hasPreviousPage || false}
+        edges={props.userPagin.data?.edges || []}
+        hasNext={props.userPagin.pageData?.pageInfo.hasNextPage || false}
+        hasPrev={props.userPagin.pageData?.pageInfo.hasPreviousPage || false}
         onNext={props.userPagin.nextPage}
         onPrev={props.userPagin.prevPage}
+        onFilter={(f) =>
+          props.userPagin.filter(
+            f ? { $or: [{ name: f }, { defaultMentor: { name: f } }] } : {}
+          )
+        }
       />
     </div>
   );
@@ -359,7 +394,6 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
       <UsersTable
         accessToken={props.accessToken}
         userRole={props.user.userRole}
-        userData={userPagin.data}
         userPagin={userPagin}
       />
       <ErrorDialog error={userPagin.userDataError} />

@@ -272,7 +272,7 @@ export async function fetchUsers(
     {
       query: `
       query Users($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
-        users (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+        users (filter: $filter, limit: $limit, cursor: $cursor, sortBy: $sortBy, sortAscending: $sortAscending){
           edges {
             node {
               _id
@@ -295,7 +295,7 @@ export async function fetchUsers(
         }
       }`,
       variables: {
-        filter: JSON.stringify(filter),
+        filter,
         limit,
         cursor,
         sortBy,

@@ -12,7 +12,7 @@ export const users = {
       cursor: "cursor 1",
       node: {
         _id: "admin",
-        name: "Admin",
+        name: "Admin User",
         email: "admin@opentutor.org",
         userRole: UserRole.ADMIN,
         defaultMentor: {
