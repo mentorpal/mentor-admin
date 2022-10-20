@@ -86,8 +86,6 @@
     "gatsby-plugin-material-ui": "^3.0.1",
     "gatsby-plugin-sitemap": "^4.4.0",
     "gatsby-plugin-typescript": "^3.8.0",
-    "gatsby-source-filesystem": "^4.23.0",
-    "gatsby-transformer-csv": "^4.23.0",
     "immutable": "^4.1.0",
     "typescript": "^4.3.5"
   }
