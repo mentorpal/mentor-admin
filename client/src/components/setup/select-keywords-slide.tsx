@@ -6,13 +6,13 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { Button, Chip, TextField, Typography } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import { graphql, useStaticQuery } from "gatsby";
 import React, { useEffect, useState } from "react";
 
+import { occupations } from "data/occupations";
 import { useWithWindowSize } from "hooks/use-with-window-size";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 import { Keyword, Mentor } from "types";
 import { Slide } from "./slide";
-import { useWithConfig } from "store/slices/config/useWithConfig";
 
 export function SelectKeywordsSlide(props: {
   classes: Record<string, string>;
@@ -26,20 +26,9 @@ export function SelectKeywordsSlide(props: {
   >({});
   const { width: windowWidth } = useWithWindowSize();
   const { state: configState } = useWithConfig();
-  const occupationData = useStaticQuery(graphql`
-    query AllOccupations {
-      allOccupationsCsv {
-        edges {
-          node {
-            Occupation
-          }
-        }
-      }
-    }
-  `);
 
   useEffect(() => {
-    if (!occupationData || !keywords || keywords.length === 0) {
+    if (!keywords || keywords.length === 0) {
       return;
     }
     const kwbt: Record<string, Keyword[]> = {};
@@ -51,15 +40,13 @@ export function SelectKeywordsSlide(props: {
         kwbt[type] = kws;
       }
     }
-    kwbt["Occupation"] = occupationData.allOccupationsCsv.edges.map(
-      (edge: { node: { Occupation: string } }) => ({
-        _id: "",
-        name: edge.node.Occupation,
-        type: "Occupation",
-      })
-    );
+    kwbt["Occupation"] = occupations.map((o) => ({
+      _id: "",
+      name: o,
+      type: "Occupation",
+    }));
     setKeywordsByType(kwbt);
-  }, [keywords, occupationData]);
+  }, [keywords]);
 
   function hasKeyword(k: Keyword): boolean {
     return Boolean(
