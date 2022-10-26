@@ -34,6 +34,7 @@ interface UseWithConfig {
   toggleFeaturedMentor: (id: string) => void;
   toggleActiveMentor: (id: string) => void;
   toggleFeaturedMentorPanel: (id: string) => void;
+  toggleActiveMentorPanel: (id: string) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
 }
 
@@ -65,50 +66,95 @@ export function useWithConfig(accessToken: string): UseWithConfig {
 
   useEffect(() => {
     if (mentorsData && config) {
-      setMentors(
-        mentorsData.edges
-          .map((e) => e.node)
-          .sort((a, b) => {
-            let aFeatured = config.featuredMentors.findIndex(
-              (m) => m === a._id
-            );
-            let bFeatured = config.featuredMentors.findIndex(
-              (m) => m === b._id
-            );
-            aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-            bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-            if (aFeatured !== bFeatured) {
-              return aFeatured - bFeatured;
-            }
-            let aActive = config.activeMentors.findIndex((m) => m === a._id);
-            let bActive = config.activeMentors.findIndex((m) => m === b._id);
-            aActive = aActive === -1 ? 9999 : aActive;
-            bActive = bActive === -1 ? 9999 : bActive;
-            return aActive - bActive;
-          })
-      );
+      if (mentors.length > 0) {
+        setMentors([
+          ...mentors.filter(
+            (m) =>
+              config.activeMentors.includes(m._id) ||
+              config.featuredMentors.includes(m._id)
+          ),
+          ...mentors.filter(
+            (m) =>
+              !config.activeMentors.includes(m._id) &&
+              !config.featuredMentors.includes(m._id)
+          ),
+        ]);
+      } else {
+        setMentors(
+          mentorsData.edges
+            .map((e) => e.node)
+            .sort((a, b) => {
+              let aFeatured = config.featuredMentors.findIndex(
+                (m) => m === a._id
+              );
+              let bFeatured = config.featuredMentors.findIndex(
+                (m) => m === b._id
+              );
+              aFeatured = aFeatured === -1 ? 9999 : aFeatured;
+              bFeatured = bFeatured === -1 ? 9999 : bFeatured;
+              if (aFeatured !== bFeatured) {
+                return aFeatured - bFeatured;
+              }
+              let aActive = config.activeMentors.findIndex((m) => m === a._id);
+              let bActive = config.activeMentors.findIndex((m) => m === b._id);
+              aActive = aActive === -1 ? 9999 : aActive;
+              bActive = bActive === -1 ? 9999 : bActive;
+              return aActive - bActive;
+            })
+        );
+      }
     }
-  }, [mentorsData, config]);
+  }, [mentorsData, config?.activeMentors, config?.featuredMentors]);
 
   useEffect(() => {
     if (mentorPanelsData && config) {
-      setMentorPanels(
-        mentorPanelsData.edges
-          .map((e) => e.node)
-          .sort((a, b) => {
-            let aFeatured = config.featuredMentorPanels.findIndex(
-              (m) => m === a._id
-            );
-            let bFeatured = config.featuredMentorPanels.findIndex(
-              (m) => m === b._id
-            );
-            aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-            bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-            return aFeatured - bFeatured;
-          })
-      );
+      if (mentorPanels.length > 0) {
+        setMentorPanels([
+          ...mentorPanels.filter(
+            (m) =>
+              config.activeMentorPanels.includes(m._id) ||
+              config.featuredMentorPanels.includes(m._id)
+          ),
+          ...mentorPanels.filter(
+            (m) =>
+              !config.activeMentorPanels.includes(m._id) &&
+              !config.featuredMentorPanels.includes(m._id)
+          ),
+        ]);
+      } else {
+        setMentorPanels(
+          mentorPanelsData.edges
+            .map((e) => e.node)
+            .sort((a, b) => {
+              let aFeatured = config.featuredMentorPanels.findIndex(
+                (m) => m === a._id
+              );
+              let bFeatured = config.featuredMentorPanels.findIndex(
+                (m) => m === b._id
+              );
+              aFeatured = aFeatured === -1 ? 9999 : aFeatured;
+              bFeatured = bFeatured === -1 ? 9999 : bFeatured;
+              if (aFeatured !== bFeatured) {
+                return aFeatured - bFeatured;
+              }
+              let aActive = config.activeMentorPanels.findIndex(
+                (m) => m === a._id
+              );
+              let bActive = config.activeMentorPanels.findIndex(
+                (m) => m === b._id
+              );
+              aActive = aActive === -1 ? 9999 : aActive;
+              bActive = bActive === -1 ? 9999 : bActive;
+              return aActive - bActive;
+            })
+        );
+      }
     }
-  }, [mentorPanelsData, config]);
+  }, [
+    mentorPanelsData,
+    config?.activeMentorPanels,
+    config?.featuredMentorPanels,
+  ]);
 
   function _fetchConfig(): Promise<Config> {
     return fetchConfig();
@@ -141,10 +187,11 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function moveMentor(from: number, to: number): void {
-    if (!config || !mentorsData || !mentorPanelsData) {
+    if (!config || !mentorsData) {
       return;
     }
     const _mentors = copyAndMove(mentors, from, to);
+    setMentors(_mentors);
     editConfig({
       activeMentors: _mentors
         .filter((m) => config.activeMentors.includes(m._id))
@@ -153,7 +200,6 @@ export function useWithConfig(accessToken: string): UseWithConfig {
         .filter((m) => config.featuredMentors.includes(m._id))
         .map((m) => m._id),
     });
-    setMentors(_mentors);
   }
 
   function moveMentorPanel(from: number, to: number): void {
@@ -161,16 +207,19 @@ export function useWithConfig(accessToken: string): UseWithConfig {
       return;
     }
     const _mentorPanels = copyAndMove(mentorPanels, from, to);
+    setMentorPanels(_mentorPanels);
     editConfig({
+      activeMentorPanels: _mentorPanels
+        .filter((m) => config.activeMentorPanels.includes(m._id))
+        .map((m) => m._id),
       featuredMentorPanels: _mentorPanels
         .filter((m) => config.featuredMentorPanels.includes(m._id))
         .map((m) => m._id),
     });
-    setMentorPanels(_mentorPanels);
   }
 
   function toggleFeaturedMentor(id: string): void {
-    if (!config || !mentorsData || !mentorPanelsData) {
+    if (!config || !mentorsData) {
       return;
     }
     const idx = config.featuredMentors.findIndex((i) => i === id);
@@ -217,8 +266,25 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     });
   }
 
+  function toggleActiveMentorPanel(id: string): void {
+    if (!config || !mentorsData || !mentorPanelsData) {
+      return;
+    }
+    const idx = config.activeMentorPanels.findIndex((i) => i === id);
+    const activeMentorPanels =
+      idx === -1
+        ? [...config.activeMentorPanels, id]
+        : copyAndRemove(config.activeMentorPanels, idx);
+    editConfig({
+      activeMentorPanels: mentorPanels
+        .filter((m) => activeMentorPanels.includes(m._id))
+        .map((m) => m._id),
+    });
+  }
+
   async function saveMentorPanel(panel: MentorPanel): Promise<void> {
     await addOrUpdateMentorPanel(accessToken, panel, panel._id);
+    setMentorPanels([]);
     reloadMentorPanels();
   }
 
@@ -237,6 +303,7 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     toggleFeaturedMentor,
     toggleActiveMentor,
     toggleFeaturedMentorPanel,
+    toggleActiveMentorPanel,
     saveMentorPanel,
   };
 }

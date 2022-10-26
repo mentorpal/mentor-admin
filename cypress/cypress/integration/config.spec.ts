@@ -246,6 +246,66 @@ describe("users screen", () => {
     });
   });
 
+  it("admin can toggle and launch active mentor panels", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("UpdateConfig", {
+          me: {
+            updateConfig: {
+              ...config,
+              activeMentorPanels: ["6222512cf2cca4f228cd2e47"],
+            },
+          },
+        }),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=toggle-featured-mentor-panels]")
+      .trigger("mouseover")
+      .click();
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "not.be.checked"
+        );
+        cy.get('[data-cy=toggle-active] [type="checkbox"]')
+          .trigger("mouseover")
+          .click();
+      });
+    });
+    cy.get("[data-cy=save-button").should("not.be.disabled");
+    cy.get("[data-cy=save-button").trigger("mouseover").click();
+    cy.get("[data-cy=save-button").should("be.disabled");
+    cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+        cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
+          "be.checked"
+        );
+        cy.get("[data-cy=launch-mentor-panel]").trigger("mouseover").click();
+      });
+    });
+  });
+
   it("admin can toggle and launch featured mentor panels", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
