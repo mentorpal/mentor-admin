@@ -233,6 +233,7 @@ export async function fetchConfig(): Promise<Config> {
           featuredMentors
           featuredMentorPanels
           activeMentors
+          activeMentorPanels
           googleClientId
           urlDocSetup
           urlVideoIdleTips
@@ -2111,6 +2112,7 @@ export async function updateConfig(
             featuredMentors
             featuredMentorPanels
             activeMentors
+            activeMentorPanels
             googleClientId
             urlDocSetup
             urlVideoIdleTips
@@ -2137,6 +2139,7 @@ export async function updateConfig(
           featuredMentors: config.featuredMentors,
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
+          activeMentorPanels: config.activeMentorPanels,
           mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,

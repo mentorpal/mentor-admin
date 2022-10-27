@@ -82,6 +82,7 @@ export interface Config {
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
+  activeMentorPanels: string[];
   googleClientId: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
@@ -109,6 +110,7 @@ export const CONFIG_DEFAULT: Config = {
   featuredMentors: [],
   featuredMentorPanels: [],
   activeMentors: [],
+  activeMentorPanels: [],
   googleClientId: "fake-google-client-id",
   urlDocSetup: "",
   subjectRecordPriority: [],
