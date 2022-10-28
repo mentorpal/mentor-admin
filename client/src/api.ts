@@ -233,6 +233,7 @@ export async function fetchConfig(): Promise<Config> {
           featuredMentors
           featuredMentorPanels
           activeMentors
+          activeMentorPanels
           googleClientId
           urlDocSetup
           urlVideoIdleTips
@@ -272,7 +273,7 @@ export async function fetchUsers(
     {
       query: `
       query Users($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
-        users (filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
+        users (filter: $filter, limit: $limit, cursor: $cursor, sortBy: $sortBy, sortAscending: $sortAscending){
           edges {
             node {
               _id
@@ -295,7 +296,7 @@ export async function fetchUsers(
         }
       }`,
       variables: {
-        filter: JSON.stringify(filter),
+        filter,
         limit,
         cursor,
         sortBy,
@@ -2111,6 +2112,7 @@ export async function updateConfig(
             featuredMentors
             featuredMentorPanels
             activeMentors
+            activeMentorPanels
             googleClientId
             urlDocSetup
             urlVideoIdleTips
@@ -2137,6 +2139,7 @@ export async function updateConfig(
           featuredMentors: config.featuredMentors,
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
+          activeMentorPanels: config.activeMentorPanels,
           mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,

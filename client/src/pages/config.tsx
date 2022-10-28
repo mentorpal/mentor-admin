@@ -104,7 +104,7 @@ function MentorList(props: {
   styles: Record<string, string>;
   config: Config;
   mentors: MentorGQL[];
-  moveMentor: (toMove: number, moveTo: number) => void;
+  move: (toMove: number, moveTo: number) => void;
   toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
 }): JSX.Element {
@@ -117,7 +117,7 @@ function MentorList(props: {
     if (!result.destination) {
       return;
     }
-    props.moveMentor(result.source.index, result.destination.index);
+    props.move(result.source.index, result.destination.index);
   }
 
   return (
@@ -136,6 +136,10 @@ function MentorList(props: {
                 index={i}
                 key={`mentor-${i}`}
                 draggableId={`mentor-${i}`}
+                isDragDisabled={
+                  !props.config.activeMentors.includes(m._id) &&
+                  !props.config.featuredMentors.includes(m._id)
+                }
               >
                 {(provided) => (
                   <ListItem
@@ -153,7 +157,13 @@ function MentorList(props: {
                         }}
                       >
                         <CardActions>
-                          <IconButton size="small">
+                          <IconButton
+                            size="small"
+                            disabled={
+                              !props.config.activeMentors.includes(m._id) &&
+                              !props.config.featuredMentors.includes(m._id)
+                            }
+                          >
                             <DragHandleIcon />
                           </IconButton>
                         </CardActions>
@@ -225,12 +235,14 @@ function MentorPanelList(props: {
   mentors: MentorGQL[];
   mentorPanels: MentorPanel[];
   subjects: SubjectGQL[];
-  moveMentorPanel: (toMove: number, moveTo: number) => void;
+  move: (toMove: number, moveTo: number) => void;
+  toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
 }): JSX.Element {
   const { styles, mentors, mentorPanels, subjects } = props;
   const featuredMentorPanels = props.config.featuredMentorPanels || [];
+  const activeMentorPanels = props.config.activeMentorPanels || [];
   const { height: windowHeight } = useWithWindowSize();
   const [editMentorPanel, setEditMentorPanel] = useState<MentorPanel>();
 
@@ -238,7 +250,7 @@ function MentorPanelList(props: {
     if (!result.destination) {
       return;
     }
-    props.moveMentorPanel(result.source.index, result.destination.index);
+    props.move(result.source.index, result.destination.index);
   }
 
   function onDragMentor(result: DropResult) {
@@ -267,12 +279,16 @@ function MentorPanelList(props: {
               style={{ height: windowHeight - 350, overflow: "auto" }}
               {...provided.droppableProps}
             >
-              {mentorPanels.map((panel, i) => {
+              {mentorPanels.map((mp, i) => {
                 return (
                   <Draggable
                     index={i}
                     key={`mentor-panel-${i}`}
                     draggableId={`mentor-panel-${i}`}
+                    isDragDisabled={
+                      !props.config.activeMentorPanels.includes(mp._id) &&
+                      !props.config.featuredMentorPanels.includes(mp._id)
+                    }
                   >
                     {(provided) => (
                       <ListItem
@@ -290,15 +306,25 @@ function MentorPanelList(props: {
                             }}
                           >
                             <CardActions>
-                              <IconButton size="small">
+                              <IconButton
+                                size="small"
+                                disabled={
+                                  !props.config.activeMentorPanels.includes(
+                                    mp._id
+                                  ) &&
+                                  !props.config.featuredMentorPanels.includes(
+                                    mp._id
+                                  )
+                                }
+                              >
                                 <DragHandleIcon />
                               </IconButton>
                             </CardActions>
                             <ListItemText
                               data-cy="name"
-                              data-test={panel?.title}
-                              primary={panel?.title}
-                              secondary={panel?.subtitle}
+                              data-test={mp?.title}
+                              primary={mp?.title}
+                              secondary={mp?.subtitle}
                               style={{ flexGrow: 1 }}
                             />
                             <CardActions>
@@ -307,10 +333,10 @@ function MentorPanelList(props: {
                                   <Checkbox
                                     data-cy="toggle-featured"
                                     checked={featuredMentorPanels.includes(
-                                      panel._id
+                                      mp._id
                                     )}
                                     onChange={() =>
-                                      props.toggleFeatured(panel._id)
+                                      props.toggleFeatured(mp._id)
                                     }
                                     color="primary"
                                     style={{ padding: 0 }}
@@ -321,11 +347,26 @@ function MentorPanelList(props: {
                               />
                               <FormControlLabel
                                 control={
+                                  <Checkbox
+                                    data-cy="toggle-active"
+                                    checked={activeMentorPanels.includes(
+                                      mp._id
+                                    )}
+                                    onChange={() => props.toggleActive(mp._id)}
+                                    color="secondary"
+                                    style={{ padding: 0 }}
+                                  />
+                                }
+                                label="Active"
+                                labelPlacement="top"
+                              />
+                              <FormControlLabel
+                                control={
                                   <IconButton
                                     data-cy="launch-mentor-panel"
                                     size="small"
                                     onClick={() =>
-                                      launchMentorPanel(panel.mentors, true)
+                                      launchMentorPanel(mp.mentors, true)
                                     }
                                   >
                                     <LaunchIcon />
@@ -339,7 +380,7 @@ function MentorPanelList(props: {
                                   <IconButton
                                     data-cy="edit-mentor-panel"
                                     size="small"
-                                    onClick={() => setEditMentorPanel(panel)}
+                                    onClick={() => setEditMentorPanel(mp)}
                                   >
                                     <EditIcon />
                                   </IconButton>
@@ -832,6 +873,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     toggleActiveMentor,
     toggleFeaturedMentor,
     toggleFeaturedMentorPanel,
+    toggleActiveMentorPanel,
     saveMentorPanel,
   } = useWithConfig(props.accessToken);
   const { switchActiveMentor } = useActiveMentor();
@@ -898,7 +940,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             styles={styles}
             config={config}
             mentors={mentors}
-            moveMentor={moveMentor}
+            move={moveMentor}
             toggleActive={toggleActiveMentor}
             toggleFeatured={toggleFeaturedMentor}
           />
@@ -912,10 +954,11 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             styles={styles}
             config={config}
             mentors={mentors}
-            subjects={subjects?.edges.map((s) => s.node) || []}
             mentorPanels={mentorPanels}
-            moveMentorPanel={moveMentorPanel}
+            subjects={subjects?.edges.map((s) => s.node) || []}
+            move={moveMentorPanel}
             toggleFeatured={toggleFeaturedMentorPanel}
+            toggleActive={toggleActiveMentorPanel}
             saveMentorPanel={saveMentorPanel}
           />
         </TabPanel>

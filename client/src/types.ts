@@ -20,6 +20,7 @@ export interface Config {
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
+  activeMentorPanels: string[];
   subjectRecordPriority: string[];
   googleClientId: string;
   urlDocSetup: string;

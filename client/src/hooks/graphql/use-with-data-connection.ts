@@ -34,7 +34,7 @@ export interface UseDataConnection<T> {
   setSearchParams: React.Dispatch<React.SetStateAction<SearchParams>>;
 }
 
-const defaultSearchParams: SearchParams = {
+export const defaultSearchParams: SearchParams = {
   limit: 20,
   cursor: "",
   sortBy: "",

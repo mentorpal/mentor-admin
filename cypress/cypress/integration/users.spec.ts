@@ -22,15 +22,18 @@ describe("users screen", () => {
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=name]").should("have.text", "Admin User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
       cy.get("[data-cy=select-role]").should("exist");
     });
     cy.get("[data-cy=user-1]").within(($within) => {
       cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Content Manager");
       cy.get("[data-cy=select-role]").should("exist");
     });
     cy.get("[data-cy=user-2]").within(($within) => {
       cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "User");
       cy.get("[data-cy=select-role]").should("exist");
     });
   });
@@ -49,7 +52,7 @@ describe("users screen", () => {
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
       cy.get("[data-cy=select-role]").invoke("mouseover").click();
     });
     cy.get("[data-cy=role-dropdown-USER]").invoke("mouseover").click();
@@ -72,15 +75,15 @@ describe("users screen", () => {
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
       cy.get("[data-cy=select-role]").should("not.exist");
     });
     cy.get("[data-cy=user-1]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Content Manager");
       cy.get("[data-cy=select-role]").should("exist");
     });
     cy.get("[data-cy=user-2]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "User");
       cy.get("[data-cy=select-role]").should("exist");
     });
   });
@@ -157,7 +160,7 @@ describe("users screen", () => {
     });
     cy.visit("/users");
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
       cy.get("[data-cy=select-privacy]").should("exist");
       cy.get("[data-cy=select-privacy]")
         .contains("Public")
@@ -169,7 +172,7 @@ describe("users screen", () => {
       .trigger("mouseover")
       .click();
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=name]").should("have.text", "Admin");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
       cy.get("[data-cy=select-privacy]").should("exist");
       cy.get("[data-cy=select-privacy]").contains("Private");
     });

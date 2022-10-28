@@ -14,6 +14,7 @@ import {
 
 export interface ColumnDef {
   id: string;
+  subField?: string[];
   name?: string;
   label: string;
   minWidth: number;
@@ -26,7 +27,7 @@ export const ColumnHeader = (props: {
   columns: ColumnDef[];
   sortBy: string;
   sortAsc: boolean;
-  onSort: (id: string) => void;
+  onSort: (id: string, subField?: string[]) => void;
 }): JSX.Element => {
   const { columns, sortBy, sortAsc, onSort } = props;
 
@@ -48,7 +49,7 @@ export const ColumnHeader = (props: {
                 active={sortBy === column.id}
                 direction={sortAsc ? "asc" : "desc"}
                 onClick={() => {
-                  onSort(column.id);
+                  onSort(column.id, column.subField);
                 }}
               >
                 {column.label}
