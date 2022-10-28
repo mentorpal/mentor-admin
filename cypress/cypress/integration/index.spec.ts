@@ -408,4 +408,17 @@ describe("Index page", () => {
       "Who are you and what do you do?"
     );
   });
+
+  it("add a subject button brings you to select subject page", () => {
+    cyMockDefault(cy, {
+      mentor: clint,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=select-subject]").click();
+    cy.get("[data-cy=add-a-subject]").click();
+    cy.location("pathname").then(($el) => {
+      assert($el, "/subjects");
+    });
+  });
 });

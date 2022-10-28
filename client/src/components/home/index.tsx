@@ -451,6 +451,14 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
+            <Button
+              data-cy="add-a-subject"
+              onClick={() => {
+                navigate("/subjects");
+              }}
+            >
+              + Add a subject
+            </Button>
           </Select>
         </ColorTooltip>
       </div>
