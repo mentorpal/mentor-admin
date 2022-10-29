@@ -218,7 +218,7 @@ export const mentorSlice = createSlice({
       .addCase(saveThumbnail.rejected, (state) => {
         state.mentorStatus = LoadingStatus.FAILED;
         state.error = {
-          message: "failed to save mentor",
+          message: "failed to save thumbnail",
           error: saveThumbnail.rejected.name,
         };
       })

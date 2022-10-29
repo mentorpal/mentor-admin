@@ -229,7 +229,7 @@ function MentorThumbnail(props: {
               hidden
               accept="image/*"
               onChange={(e) => {
-                e.target.files instanceof FileList
+                e.target.files instanceof FileList && e.target.files[0]
                   ? updateThumbnail(e.target.files[0])
                   : undefined;
               }}
@@ -262,7 +262,7 @@ function MentorThumbnail(props: {
               hidden
               accept="image/*"
               onChange={(e) => {
-                e.target.files instanceof FileList
+                e.target.files instanceof FileList && e.target.files[0]
                   ? updateThumbnail(e.target.files[0])
                   : undefined;
               }}
