@@ -3,7 +3,7 @@ version: 0.2
 env:
   variables:
     GRAPHQL_ENDPOINT: 'https://api-qa.mentorpal.org/graphql/graphql'
-    SBERT_ENDPOINT: 'https://sbert.mentorpal.org/'
+    SBERT_ENDPOINT: 'https://sbert-qa.mentorpal.org/'
     STAGE: 'v2'
     IS_SENTRY_ENABLED: true
   parameter-store:
