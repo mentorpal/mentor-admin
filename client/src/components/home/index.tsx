@@ -51,6 +51,7 @@ import UploadingWidget from "components/record/uploading-widget";
 import RecordQueueBlock from "./record-queue-block";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
+import { useWithMentorRecommender } from "hooks/mentor-recommender/use-with-mentor-recommender";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -190,6 +191,9 @@ function HomePage(props: {
       loginState.state.user?.firstTimeTracking.tooltips ||
       localHasSeenTooltips
   );
+
+  const { recommender } = useWithMentorRecommender();
+  console.log(recommender?.getRecommendations());
 
   useEffect(() => {
     const _blocks = reviewAnswerState.getBlocks();
@@ -631,7 +635,7 @@ function HomePage(props: {
                 data-cy="preview-button"
                 variant="extended"
                 color="secondary"
-                onClick={() => launchMentor(mentorId, true)}
+                onClick={() => launchMentor(mentorId, true, true)}
                 className={classes.fab}
                 onMouseEnter={() => {
                   hasSeenTooltips && setPreviewTooltipOpen(true);

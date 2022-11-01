@@ -104,6 +104,7 @@ export interface Mentor {
   thumbnail: string;
   mentorType: MentorType;
   lastTrainedAt: string;
+  lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
   defaultSubject?: Subject;

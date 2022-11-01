@@ -36,7 +36,7 @@ import {
 import { useWithLocalStoredEmbeddings } from "./use-with-local-stored-embeddings";
 import { useWithRecordQueue } from "./graphql/use-with-record-queue";
 
-const binCollectionSchema = {
+export const binCollectionSchema = {
   type: "object",
   properties: {
     bins: {

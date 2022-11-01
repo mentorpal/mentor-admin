@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { CLIENT_ENDPOINT } from "api";
+import { CLIENT_ENDPOINT, previewedMentor } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import axios from "axios";
@@ -71,7 +71,14 @@ function appendKeyPairToQuery(
   query.append(key, pval);
 }
 
-export function launchMentor(mentorId: string, newTab?: boolean): void {
+export function launchMentor(
+  mentorId: string,
+  newTab?: boolean,
+  previewingOwnMentor?: boolean
+): void {
+  if (previewingOwnMentor) {
+    previewedMentor(mentorId);
+  }
   const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
     mentor: mentorId,
   });
