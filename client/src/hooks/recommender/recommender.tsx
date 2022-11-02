@@ -14,6 +14,10 @@ export class Recommender<IRecommender> {
   recState: IRecommender;
   phases: Phase<IRecommender>[];
 
+  /**
+   * @param recState The current state data that the recommender relies on.
+   * @param phases Phases that the recommender will consider, the order of these phases may matter depending on active conditions of the phases.
+   */
   constructor(recState: IRecommender, phases: Phase<IRecommender>[]) {
     this.recState = recState;
     this.phases = phases;
@@ -38,27 +42,33 @@ PHASE CLASS
 export class Phase<IRecommender> {
   productionRules: ProductionRule<IRecommender>[];
   phaseWeightedAttributes: Record<string, number>;
+  activeCondition?: (recState: IRecommender) => boolean;
 
   /**
    * @param productionRules list of production rules that this phase will hold onto
    * @param phaseWeightedAttributes a record of weights for all possible attributes in this phase, used to perform dot product with recommendations attribute weights to get a recommendations weight
+   * @param activeCondition Determines if the phase is active or not (the phase must also have active production rules). If no condition provided, this phase will be active if any of its productions rules are active.
    */
   constructor(
     productionRules: ProductionRule<IRecommender>[],
-    phaseWeightedAttributes: Record<string, number>
+    phaseWeightedAttributes: Record<string, number>,
+    activeCondition?: (recState: IRecommender) => boolean
   ) {
     this.productionRules = productionRules;
     this.phaseWeightedAttributes = phaseWeightedAttributes;
+    this.activeCondition = activeCondition;
   }
 
   public isActive(recState: IRecommender): boolean {
-    // Return true if any production rules are active
-    for (let x = 0; x < this.productionRules.length; x++) {
-      if (this.productionRules[x].isActive(recState)) {
-        return true;
-      }
-    }
-    return false;
+    const atleastOneActivePR = Boolean(
+      this.productionRules.find((productionRule) =>
+        productionRule.isActive(recState)
+      )
+    );
+    const activeCondition = this.activeCondition
+      ? this.activeCondition(recState)
+      : true;
+    return atleastOneActivePR && activeCondition;
   }
 
   /**

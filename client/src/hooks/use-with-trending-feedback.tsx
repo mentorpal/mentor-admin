@@ -15,6 +15,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import {
   BinCollection,
   ClassifierAnswerType,
+  Connection,
   Feedback,
   TrendingUserQuestion,
   UserQuestionBin,
@@ -118,6 +119,34 @@ export interface UseWithTrendingFeedback {
   removeQuestionFromQueue: (questionId: string) => void;
   addQuestionToQueue: (questionId: string) => void;
   recordQueue: string[];
+}
+
+export function _fetchTrendingFeedback(
+  questionsInQueue: string[],
+  mentorId: string,
+  limit?: number
+): Promise<Connection<TrendingUserQuestion>> {
+  return fetchTrendingFeedback({
+    limit: limit || 1000,
+    sortBy: "createdAt",
+    sortAscending: false,
+    cursor: "",
+    filter: {
+      $and: [
+        {
+          $or: [
+            { classifierAnswerType: ClassifierAnswerType.OFF_TOPIC },
+            { feedback: Feedback.BAD },
+            { confidence: { $lt: -0.45 } },
+          ],
+        },
+        { graderAnswer: null },
+        { mentor: mentorId },
+        { $or: [{ dismissed: false }, { dismissed: { $exists: false } }] },
+        { question: { $nin: questionsInQueue } },
+      ],
+    },
+  });
 }
 
 export function useWithTrendingFeedback(
@@ -410,30 +439,6 @@ export function useWithTrendingFeedback(
     localStorageStore("userQuestionBins", JSON.stringify(binsToStore));
   }
 
-  function _fetchTrendingFeedback(questionsInQueue: string[]) {
-    return fetchTrendingFeedback({
-      limit: 1000,
-      sortBy: "createdAt",
-      sortAscending: false,
-      cursor: "",
-      filter: {
-        $and: [
-          {
-            $or: [
-              { classifierAnswerType: ClassifierAnswerType.OFF_TOPIC },
-              { feedback: Feedback.BAD },
-              { confidence: { $lt: -0.45 } },
-            ],
-          },
-          { graderAnswer: null },
-          { mentor: mentorId },
-          { $or: [{ dismissed: false }, { dismissed: { $exists: false } }] },
-          { question: { $nin: questionsInQueue } },
-        ],
-      },
-    });
-  }
-
   useEffect(() => {
     if (!mentorId || recordQueueLoadStatus !== LoadingStatusType.SUCCESS) {
       return;
@@ -444,7 +449,7 @@ export function useWithTrendingFeedback(
       (questionDoc) => questionDoc.question
     );
     const setupTrendingFeedback = async () => {
-      _fetchTrendingFeedback(questionsInQueue)
+      _fetchTrendingFeedback(questionsInQueue, mentorId)
         .then(async (data) => {
           try {
             const trendingFeedback = data.edges.map((edge) => edge.node);

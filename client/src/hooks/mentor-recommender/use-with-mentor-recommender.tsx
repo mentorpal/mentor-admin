@@ -38,7 +38,11 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     useState<Recommender<RecommenderState>>();
 
   useEffect(() => {
-    if (!mentorData || !mentorUtteranceVideos || !numberOfTrendingAnswers) {
+    if (
+      !mentorData ||
+      !mentorUtteranceVideos ||
+      numberOfTrendingAnswers == undefined
+    ) {
       return;
     }
     setRecommender(
@@ -208,15 +212,25 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 1,
       responseQuality: 0,
     };
-
+    const targetAnswerAmount = 5;
     const allProductionRules = [
-      recordQuestionProductionRule(recordQuestionRecWeights, 5),
-      addSubjectProductionRule(addNewSubjectRecWeights, 5),
+      recordQuestionProductionRule(
+        recordQuestionRecWeights,
+        targetAnswerAmount
+      ),
+      addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
       buildMentorProductionRule(buildMentorRecWeights),
     ];
     return new Phase<RecommenderState>(
       allProductionRules,
-      phaseAttributeWeights
+      phaseAttributeWeights,
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
     );
   }
 
@@ -264,7 +278,14 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     ];
     return new Phase<RecommenderState>(
       allProductionRules,
-      phaseAttributeWeights
+      phaseAttributeWeights,
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
     );
   }
 
@@ -312,7 +333,14 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     ];
     return new Phase<RecommenderState>(
       allProductionRules,
-      phaseAttributeWeights
+      phaseAttributeWeights,
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
     );
   }
 
@@ -360,7 +388,14 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     ];
     return new Phase<RecommenderState>(
       allProductionRules,
-      phaseAttributeWeights
+      phaseAttributeWeights,
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
     );
   }
 
@@ -402,7 +437,14 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     ];
     return new Phase<RecommenderState>(
       allProductionRules,
-      phaseAttributeWeights
+      phaseAttributeWeights,
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
     );
   }
 
@@ -418,7 +460,10 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       const completeMentorAnswers = state.mentorData.answers.filter((answer) =>
         isAnswerComplete(answer, undefined, state.mentorData.mentorType)
       );
-      return completeMentorAnswers.length < targetAnswerAmount;
+      return (
+        state.mentorData.answers.length >= targetAnswerAmount &&
+        completeMentorAnswers.length < targetAnswerAmount
+      );
     };
     const productionRule = new ProductionRule(activeCondition, [
       recordQuestionRec,

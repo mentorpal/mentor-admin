@@ -6,7 +6,8 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import { getValueIfKeyExists } from "helpers";
-import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
+import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
+import { _fetchTrendingFeedback } from "hooks/use-with-trending-feedback";
 import { useEffect, useState } from "react";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
@@ -23,7 +24,11 @@ export interface MentorUtteranceVideos {
 export function useWithMentorRecommenderData(): Partial<RecommenderState> {
   const { getData } = useActiveMentor();
   const { state: loginState } = useWithLogin();
-  const { bestRepIds } = useWithTrendingFeedback(loginState.accessToken || "");
+  const [numberOfTrendingAnswers, setNumberOfTrendingAnswers] =
+    useState<number>(0);
+  const { questionDocsInQueue } = useWithRecordQueue(
+    loginState.accessToken || ""
+  );
 
   const mentorData: Mentor | undefined = getData((m) => m.data);
   const mentorQuestions = useQuestions(
@@ -55,9 +60,29 @@ export function useWithMentorRecommenderData(): Partial<RecommenderState> {
     setMentorUtteranceVideos({ idle, intro, offTopic });
   }, [mentorData, mentorQuestions]);
 
+  useEffect(() => {
+    if (!loginState.accessToken || !mentorData?._id) {
+      return;
+    }
+    const questionIdsInQueue = questionDocsInQueue.map((doc) => doc._id);
+    // Note: limit to 25 because we really only care if there are at least 5 bins
+    _fetchTrendingFeedback(questionIdsInQueue, mentorData._id, 25)
+      .then((feedbackConnection) => {
+        const feedback = feedbackConnection.edges.map((edge) => edge.node);
+        setNumberOfTrendingAnswers(feedback.length);
+        console.log(feedback.length);
+      })
+      .catch((err) => {
+        console.error(
+          "Failed to fetch trending feedback in mentor recommender data",
+          err
+        );
+      });
+  }, [loginState, mentorData?._id]);
+
   return {
     mentorData,
     mentorUtteranceVideos,
-    numberOfTrendingAnswers: bestRepIds.length,
+    numberOfTrendingAnswers,
   };
 }
