@@ -70,7 +70,6 @@ export function useWithMentorRecommenderData(): Partial<RecommenderState> {
       .then((feedbackConnection) => {
         const feedback = feedbackConnection.edges.map((edge) => edge.node);
         setNumberOfTrendingAnswers(feedback.length);
-        console.log(feedback.length);
       })
       .catch((err) => {
         console.error(

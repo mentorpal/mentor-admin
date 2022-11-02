@@ -4,9 +4,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { isAnswerComplete } from "helpers";
+import { navigate } from "gatsby";
+import { isAnswerComplete, launchMentor, urlBuild } from "helpers";
+import { useWithTraining } from "hooks/task/use-with-train";
 import { useEffect, useState } from "react";
-import { Mentor, UtteranceName } from "types";
+import { Mentor, SetupScreen, UtteranceName } from "types";
 import {
   Phase,
   ProductionRule,
@@ -28,14 +30,31 @@ export interface RecommenderState {
 }
 
 export interface UseWithMentorRecommender {
-  recommender?: Recommender<RecommenderState>;
+  recommender?: Recommender<RecommenderState, RecommendationName>;
+}
+
+export enum RecommendationName {
+  NONE = "NONE",
+  ADD_NAME_OR_JOB = "ADD_NAME_OR_JOB",
+  ADD_GOAL = "ADD_GOAL",
+  ADD_KEYWORDS = "ADD_KEYWORDS",
+  ADD_SUBJECT = "ADD_SUBJECT",
+  RECORD_IDLE = "RECORD_IDLE",
+  RECORD_INTRO = "RECORD_INTRO",
+  RECORD_OFF_TOPIC = "RECORD_OFF_TOPIC",
+  ADD_THUMBNAIL = "ADD_THUMBNAIL",
+  RECORD_MORE_QUESTIONS = "RECORD_MORE_QUESTIONS",
+  BUILD_MENTOR = "BUILD_MENTOR",
+  PREVIEW_MENTOR = "PREVIEW_MENTOR",
+  ANSWER_TRENDING = "ANSWER_TRENDING",
 }
 
 export function useWithMentorRecommender(): UseWithMentorRecommender {
+  const { startTask: startTraining } = useWithTraining();
   const { mentorData, mentorUtteranceVideos, numberOfTrendingAnswers } =
     useWithMentorRecommenderData();
   const [recommender, setRecommender] =
-    useState<Recommender<RecommenderState>>();
+    useState<Recommender<RecommenderState, RecommendationName>>();
 
   useEffect(() => {
     if (
@@ -46,7 +65,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       return;
     }
     setRecommender(
-      new Recommender(
+      new Recommender<RecommenderState, RecommendationName>(
         { mentorData, mentorUtteranceVideos, numberOfTrendingAnswers },
         [
           createAnyPhase(),
@@ -123,42 +142,83 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 1,
       responseQuality: 1,
     };
-    const addnameAndJobRoleRec = new Recommendation(
+    // Left off: Need to add actions to this phase
+    const addnameAndJobRoleRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Add Name And Job Role"
+      "Add Name and/or Job Role",
+      RecommendationName.ADD_NAME_OR_JOB,
+      () => navigate(`setup?i=${SetupScreen.Tell_Us_About_Yourself}`)
     );
-    const addGoalRec = new Recommendation(
+    const addGoalRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Add Your Goal"
+      "Add Your Goal",
+      RecommendationName.ADD_GOAL,
+      () => navigate(`setup?i=${SetupScreen.My_Goal}`)
     );
-    const addKeywordsRec = new Recommendation(
+    const addKeywordsRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Add Keywords"
+      "Add Keywords",
+      RecommendationName.ADD_KEYWORDS,
+      () => navigate(`setup?i=${SetupScreen.Experiences_Identities}`)
     );
-    const addSubjectRec = new Recommendation(
+    const addSubjectRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Add a Subject"
+      "Add a Subject",
+      RecommendationName.ADD_SUBJECT,
+      () => navigate("/subjects")
     );
-    const recordIdleRec = new Recommendation(
+    const recordIdleRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Record Your Idle video"
+      "Record Your Idle video",
+      RecommendationName.RECORD_IDLE,
+      mentorUtteranceVideos?.idle
+        ? () =>
+            navigate(
+              urlBuild("/record", {
+                subject: "",
+                videoId: mentorUtteranceVideos?.idle?.question || "",
+              })
+            )
+        : undefined
     );
-    const recordIntroRec = new Recommendation(
+    const recordIntroRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Record Your Intro video"
+      "Record Your Intro video",
+      RecommendationName.RECORD_INTRO,
+      mentorUtteranceVideos?.intro
+        ? () =>
+            navigate(
+              urlBuild("/record", {
+                subject: "",
+                videoId: mentorUtteranceVideos?.intro?.question || "",
+              })
+            )
+        : undefined
     );
-    const recordOffTopicRec = new Recommendation(
+    const recordOffTopicRec = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Record Off Topic Rec"
+      "Record Off Topic Rec",
+      RecommendationName.RECORD_OFF_TOPIC,
+      mentorUtteranceVideos?.offTopic
+        ? () =>
+            navigate(
+              urlBuild("/record", {
+                subject: "",
+                videoId: mentorUtteranceVideos?.offTopic?.question || "",
+              })
+            )
+        : undefined
     );
-    const addThumbnail = new Recommendation(
+    const addThumbnail = new Recommendation<RecommendationName>(
       recommendationWeights,
-      "Add Thumbnail"
+      "Add a Thumbnail",
+      RecommendationName.ADD_THUMBNAIL
     );
 
-    const addNameAndJobRolePR = new ProductionRule(nameOrJobTitleMissing, [
-      addnameAndJobRoleRec,
-    ]);
+    const addNameAndJobRolePR = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(nameOrJobTitleMissing, [addnameAndJobRoleRec]);
     const addGoalPR = new ProductionRule(goalMissing, [addGoalRec]);
     const addKeywordsPR = new ProductionRule(keywordsMissing, [addKeywordsRec]);
     const addSubjectPR = new ProductionRule(noSubject, [addSubjectRec]);
@@ -184,7 +244,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       addThumbnailPR,
     ];
 
-    const anyPhase = new Phase<RecommenderState>(
+    const anyPhase = new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights
     );
@@ -221,7 +281,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
       buildMentorProductionRule(buildMentorRecWeights),
     ];
-    return new Phase<RecommenderState>(
+    return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
       (state: RecommenderState) => {
@@ -276,7 +336,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
     ];
-    return new Phase<RecommenderState>(
+    return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
       (state: RecommenderState) => {
@@ -331,7 +391,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
     ];
-    return new Phase<RecommenderState>(
+    return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
       (state: RecommenderState) => {
@@ -386,7 +446,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
     ];
-    return new Phase<RecommenderState>(
+    return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
       (state: RecommenderState) => {
@@ -428,14 +488,11 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     };
     const allProductionRules = [
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
-      recordQuestionProductionRule(
-        recordQuestionRecWeights,
-        targetAnswerAmount
-      ),
+      recordQuestionProductionRule(recordQuestionRecWeights),
       buildMentorProductionRule(buildMentorRecWeights),
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
     ];
-    return new Phase<RecommenderState>(
+    return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
       (state: RecommenderState) => {
@@ -450,24 +507,34 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
 
   function recordQuestionProductionRule(
     recWeights: AttributeWeightRecord,
-    targetAnswerAmount: number
+    targetAnswerAmount?: number
   ) {
-    const recordQuestionRec = new Recommendation(
+    const recordQuestionRec = new Recommendation<RecommendationName>(
       recWeights,
-      "Record More Questions"
+      "Record More Questions",
+      RecommendationName.RECORD_MORE_QUESTIONS,
+      () =>
+        navigate(
+          urlBuild("/record", {
+            subject: "",
+            status: "INCOMPLETE",
+            category: "",
+          })
+        )
     );
     const activeCondition = (state: RecommenderState) => {
       const completeMentorAnswers = state.mentorData.answers.filter((answer) =>
         isAnswerComplete(answer, undefined, state.mentorData.mentorType)
       );
-      return (
-        state.mentorData.answers.length >= targetAnswerAmount &&
-        completeMentorAnswers.length < targetAnswerAmount
-      );
+      return targetAnswerAmount
+        ? state.mentorData.answers.length >= targetAnswerAmount &&
+            completeMentorAnswers.length < targetAnswerAmount
+        : completeMentorAnswers.length < state.mentorData.answers.length;
     };
-    const productionRule = new ProductionRule(activeCondition, [
-      recordQuestionRec,
-    ]);
+    const productionRule = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(activeCondition, [recordQuestionRec]);
     return productionRule;
   }
 
@@ -475,30 +542,46 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     recWeights: AttributeWeightRecord,
     targetAnswerAmount: number
   ) {
-    const addSubjectRec = new Recommendation(recWeights, "Add A Subject");
+    const addSubjectRec = new Recommendation<RecommendationName>(
+      recWeights,
+      "Add A Subject",
+      RecommendationName.ADD_SUBJECT,
+      () => navigate("/subjects")
+    );
     const activeConditon = (state: RecommenderState) => {
       // mentorData.answers contains complete AND incomplete answers.
       return state.mentorData.answers.length < targetAnswerAmount;
     };
-    const productionRule = new ProductionRule(activeConditon, [addSubjectRec]);
+    const productionRule = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(activeConditon, [addSubjectRec]);
     return productionRule;
   }
 
   function buildMentorProductionRule(recWeights: AttributeWeightRecord) {
-    const buildMentorRec = new Recommendation(recWeights, "Build your mentor");
+    const buildMentorRec = new Recommendation<RecommendationName>(
+      recWeights,
+      "Build your mentor",
+      RecommendationName.BUILD_MENTOR,
+      () => startTraining(mentorData?._id || "")
+    );
     const activeCondition = (state: RecommenderState) => {
       return !state.mentorData.lastTrainedAt || state.mentorData.isDirty;
     };
-    const productionRule = new ProductionRule(activeCondition, [
-      buildMentorRec,
-    ]);
+    const productionRule = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(activeCondition, [buildMentorRec]);
     return productionRule;
   }
 
   function previewMentorProductionRule(recWeights: AttributeWeightRecord) {
-    const previewMentorRec = new Recommendation(
+    const previewMentorRec = new Recommendation<RecommendationName>(
       recWeights,
-      "Preview your mentor"
+      "Preview your mentor",
+      RecommendationName.PREVIEW_MENTOR,
+      () => launchMentor(mentorData?._id || "")
     );
     const activeCondition = (state: RecommenderState) => {
       const lastPreviewedDate = state.mentorData.lastPreviewedAt
@@ -511,25 +594,29 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
         !state.mentorData.lastPreviewedAt || lastBuiltDate > lastPreviewedDate
       );
     };
-    const productionRule = new ProductionRule(activeCondition, [
-      previewMentorRec,
-    ]);
+    const productionRule = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(activeCondition, [previewMentorRec]);
     return productionRule;
   }
 
   function answerTrendingQuestionsProductionRule(
     recWeights: AttributeWeightRecord
   ) {
-    const answerTrendingQuestionsRec = new Recommendation(
+    const answerTrendingQuestionsRec = new Recommendation<RecommendationName>(
       recWeights,
-      "Answer Trending Questions"
+      "Answer Trending Questions",
+      RecommendationName.ANSWER_TRENDING,
+      () => navigate("/feedback")
     );
     const activeCondition = (state: RecommenderState) => {
       return state.numberOfTrendingAnswers >= 5;
     };
-    const productionRule = new ProductionRule(activeCondition, [
-      answerTrendingQuestionsRec,
-    ]);
+    const productionRule = new ProductionRule<
+      RecommenderState,
+      RecommendationName
+    >(activeCondition, [answerTrendingQuestionsRec]);
     return productionRule;
   }
 
