@@ -24,6 +24,7 @@ export const mentor: Mentor = {
   lastTrainedAt: "Today",
   isDirty: false,
   questions: [],
+  keywords: [],
   subjects: [
     {
       _id: "background",

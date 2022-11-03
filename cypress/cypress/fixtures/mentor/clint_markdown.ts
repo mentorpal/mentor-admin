@@ -20,6 +20,7 @@ export const mentor: Mentor = {
   title: "The Original Clint",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
+  keywords: [],
   questions: [
     {
       question: {

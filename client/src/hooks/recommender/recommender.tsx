@@ -45,6 +45,7 @@ PHASE CLASS
 export class Phase<IRecommender, RecommendationName> {
   productionRules: ProductionRule<IRecommender, RecommendationName>[];
   phaseWeightedAttributes: Record<string, number>;
+  name: string;
   activeCondition?: (recState: IRecommender) => boolean;
 
   /**
@@ -55,11 +56,13 @@ export class Phase<IRecommender, RecommendationName> {
   constructor(
     productionRules: ProductionRule<IRecommender, RecommendationName>[],
     phaseWeightedAttributes: Record<string, number>,
+    name: string,
     activeCondition?: (recState: IRecommender) => boolean
   ) {
     this.productionRules = productionRules;
     this.phaseWeightedAttributes = phaseWeightedAttributes;
     this.activeCondition = activeCondition;
+    this.name = name;
   }
 
   public isActive(recState: IRecommender): boolean {
@@ -145,18 +148,21 @@ export class Recommendation<RecommendationName> {
   scoredAttributes: Record<string, number>;
   message: string;
   name: RecommendationName;
+  reason: string;
   action?: () => void;
 
   constructor(
     scoredAttributes: Record<string, number>,
     message: string,
     name: RecommendationName,
+    reason: string,
     action?: () => void
   ) {
     this.scoredAttributes = scoredAttributes;
     this.message = message;
     this.action = action;
     this.name = name;
+    this.reason = reason;
   }
 
   public getScoredAttributes(): Record<string, number> {

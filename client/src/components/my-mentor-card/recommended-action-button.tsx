@@ -50,7 +50,6 @@ export default function RecommendedActionButton(props: {
     setCurrentRecommendations(recommender.getRecommendations());
     setCurRecIndex(0);
   }, [recommender]);
-  console.log(currentRecommendations);
 
   useEffect(() => {
     if (!currentRecommendations[curRecIndex]) {
@@ -113,7 +112,7 @@ export default function RecommendedActionButton(props: {
         data-cy="recommended-action-reason"
       >
         <div className="helpbox">
-          <p>{curRec.message}</p>
+          <p>{curRec.reason}</p>
         </div>
       </Typography>
       <div
