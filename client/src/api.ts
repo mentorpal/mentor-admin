@@ -956,6 +956,7 @@ export async function fetchMentorById(
           mentorType
           thumbnail
           lastTrainedAt
+          lastPreviewedAt
           isDirty
           hasVirtualBackground
           virtualBackgroundUrl
@@ -1538,6 +1539,21 @@ export async function removeQuestionFromRecordQueue(
     },
     { accessToken, dataPath: ["me", "removeQuestionFromRecordQueue"] }
   );
+}
+
+//Returns the new list after the removal
+export async function previewedMentor(mentorId: string): Promise<void> {
+  return await execGql<void>({
+    query: `
+      mutation MentorPreviewed($mentorId: ID!) {
+        mentorPreviewed(id: $mentorId){
+          lastPreviewedAt
+        }
+      }`,
+    variables: {
+      mentorId,
+    },
+  });
 }
 
 export async function setRecordQueueGQL(

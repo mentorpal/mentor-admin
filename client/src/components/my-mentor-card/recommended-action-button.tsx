@@ -12,13 +12,17 @@ import {
   withStyles,
 } from "@material-ui/core";
 import { HelpOutline } from "@material-ui/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
-import { UseWithRecommendedAction } from "../../hooks/graphql/use-with-recommended-action";
 import CloseIcon from "@material-ui/icons/Close";
 import { TooltipStep } from "components/home";
+import {
+  RecommendationName,
+  useWithMentorRecommender,
+} from "hooks/mentor-recommender/use-with-mentor-recommender";
+import { Recommendation } from "hooks/recommender/recommender";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
   continueAction: () => void;
@@ -27,16 +31,33 @@ export default function RecommendedActionButton(props: {
   hasSeenTooltips: boolean;
 }): JSX.Element {
   const { incrementTooltip, idxTooltip, hasSeenTooltips } = props;
-  const [
-    recommendedAction,
-    skipRecommendation,
-    recListLength,
-    questionsLoading,
-  ] = UseWithRecommendedAction(props.continueAction);
+  const [currentRecommendations, setCurrentRecommendations] = useState<
+    Recommendation<RecommendationName>[]
+  >([]);
+  const [curRecIndex, setCurRecIndex] = useState<number>(0);
+  const [curRec, setCurRec] = useState<Recommendation<RecommendationName>>();
+
+  const { recommender } = useWithMentorRecommender();
   const { getData } = useActiveMentor();
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo
   );
+
+  useEffect(() => {
+    if (!recommender) {
+      return;
+    }
+    setCurrentRecommendations(recommender.getRecommendations());
+    setCurRecIndex(0);
+  }, [recommender]);
+
+  useEffect(() => {
+    if (!currentRecommendations[curRecIndex]) {
+      setCurRecIndex(0);
+      return;
+    }
+    setCurRec(currentRecommendations[curRecIndex]);
+  }, [curRecIndex, currentRecommendations]);
 
   const ColorTooltip = withStyles({
     tooltip: {
@@ -44,7 +65,7 @@ export default function RecommendedActionButton(props: {
     },
   })(Tooltip);
 
-  if (questionsLoading) {
+  if (!curRec) {
     return <></>;
   }
 
@@ -91,7 +112,7 @@ export default function RecommendedActionButton(props: {
         data-cy="recommended-action-reason"
       >
         <div className="helpbox">
-          <p>{recommendedAction.reason}</p>
+          <p>{curRec.reason}</p>
         </div>
       </Typography>
       <div
@@ -108,10 +129,10 @@ export default function RecommendedActionButton(props: {
           }}
         >
           <Button
-            onClick={skipRecommendation}
+            onClick={() => setCurRecIndex((prevValue) => (prevValue += 1))}
             className="skip-btn"
             data-cy="skip-action-button"
-            disabled={recListLength <= 1}
+            disabled={currentRecommendations.length <= 1}
             style={{
               width: "40px",
               height: "40px",
@@ -120,7 +141,7 @@ export default function RecommendedActionButton(props: {
           >
             skip{" "}
           </Button>
-          {recommendedAction.input ? (
+          {curRec.name === RecommendationName.ADD_THUMBNAIL ? (
             <>
               <input
                 accept="image/*"
@@ -143,7 +164,7 @@ export default function RecommendedActionButton(props: {
                     style={{ marginBottom: 5 }}
                   >
                     <p className="recommended-action-text">
-                      <b>{recommendedAction.text}</b>
+                      <b>{curRec.message}</b>
                     </p>
                   </Typography>
 
@@ -192,9 +213,10 @@ export default function RecommendedActionButton(props: {
                       variant="contained"
                       component="span"
                       data-cy="recommended-action-thumbnail"
-                      startIcon={recommendedAction.icon}
                       className={
-                        recommendedAction.input ? "go-btn-label" : "go-btn"
+                        curRec.name === RecommendationName.ADD_THUMBNAIL
+                          ? "go-btn-label"
+                          : "go-btn"
                       }
                     >
                       Go
@@ -219,7 +241,7 @@ export default function RecommendedActionButton(props: {
                 style={{ marginBottom: 5 }}
               >
                 <p className="recommended-action-text">
-                  <b>{recommendedAction.text}</b>
+                  <b>{curRec.message}</b>
                 </p>
               </Typography>
 
@@ -272,8 +294,7 @@ export default function RecommendedActionButton(props: {
                   color="primary"
                   variant="contained"
                   data-cy="recommended-action-button"
-                  onClick={recommendedAction.action}
-                  startIcon={recommendedAction.icon}
+                  onClick={curRec.action}
                   className="go-btn"
                 >
                   Go
