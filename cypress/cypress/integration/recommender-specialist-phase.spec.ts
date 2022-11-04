@@ -5,16 +5,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { answered100Questions } from "../fixtures/mentor-statuses/recommender-phase-4-statuses";
+import { answered100Questions } from "../fixtures/mentor-statuses/recommender-interactive-phase-statuses";
 import { cyMockDefault, cySetup } from "../support/functions";
 import {
   builtMentor,
-  hasSubjectQuestionsOver250,
+  hasSubjectQuestionsOver200,
   hasBuiltButNotPreviewed,
-  answered250Questions,
-} from "../fixtures/mentor-statuses/recommender-single-area-statuses";
+  answered200Questions,
+} from "../fixtures/mentor-statuses/recommender-specialist-phase-statuses";
 
-describe("Recommender Single Area Phase (100 <= answers < 250)", () => {
+describe("Recommender Specialist Phase (50 <= answers < 150)", () => {
   it("Build Mentor (high precedence): mentor is dirty", () => {
     const [mentor, newQuestionSet] = answered100Questions();
     cySetup(cy);
@@ -28,7 +28,7 @@ describe("Recommender Single Area Phase (100 <= answers < 250)", () => {
     );
   });
 
-  it("Add a subject: need more subject questions to reach target of 250", () => {
+  it("Add a subject: need more subject questions to reach target of 150", () => {
     const [mentor, newQuestionSet] = builtMentor();
     cySetup(cy);
     cyMockDefault(cy, {
@@ -42,7 +42,7 @@ describe("Recommender Single Area Phase (100 <= answers < 250)", () => {
   });
 
   it("Record more answers: has enough questions to reach target", () => {
-    const [mentor, newQuestionSet] = hasSubjectQuestionsOver250();
+    const [mentor, newQuestionSet] = hasSubjectQuestionsOver200();
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: mentor,
@@ -69,16 +69,17 @@ describe("Recommender Single Area Phase (100 <= answers < 250)", () => {
     );
   });
 
-  it("Moves to Conversational Phase once reaches 250 answers", () => {
-    const [mentor, newQuestionSet] = answered250Questions();
+  it("Moves to Conversational Phase once reaches 150 answers", () => {
+    const [mentor, newQuestionSet] = answered200Questions();
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: mentor,
       questions: newQuestionSet,
     });
     cy.visit("/");
-    cy.get("[data-cy=recommended-action-reason]").contains(
-      "You've answered new questions since you last trained your mentor. Rebuild so you can preview."
+    cy.get("[data-cy=mentor-card-scope]").should(
+      "contain.text",
+      "Conversational"
     );
   });
 });

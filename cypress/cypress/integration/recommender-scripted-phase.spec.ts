@@ -5,13 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 
-import { builtMentor } from "../fixtures/mentor-statuses/recommender-phase-2-statuses";
+import { builtMentor } from "../fixtures/mentor-statuses/recommender-incomplete-phase-statuses";
 import {
   answered20Questions,
   hasSubjectQuestionsOver20,
   isBuiltButNotPreviewed,
   isDirtyMentor,
-} from "../fixtures/mentor-statuses/recommender-phase-3-statuses";
+} from "../fixtures/mentor-statuses/recommender-scripted-phase-statuses";
 import { cyMockDefault, cySetup, mockGQL } from "../support/functions";
 import { feedback as trendingUserQuestions } from "../fixtures/feedback/trendingFeedback";
 
@@ -86,7 +86,7 @@ describe("Recommender Scripted Phase (5 <= answers < 20)", () => {
     );
   });
 
-  it("Goes to limited phase once reaching 20 questions", () => {
+  it("Goes to interactive phase once reaching 20 questions", () => {
     const [mentor, newQuestionSet] = answered20Questions();
     cySetup(cy);
     cyMockDefault(cy, {
@@ -95,6 +95,6 @@ describe("Recommender Scripted Phase (5 <= answers < 20)", () => {
       gqlQueries: [mockGQL("TrendingUserQuestions", trendingUserQuestions)],
     });
     cy.visit("/");
-    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=mentor-card-scope]").should("contain.text", "Interactive");
   });
 });

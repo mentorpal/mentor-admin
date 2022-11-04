@@ -11,7 +11,7 @@ import {
   Status,
   SubjectTypes,
 } from "../../support/types";
-import { hasThumbnail } from "./recommender-phase-1-statuses";
+import { hasThumbnail } from "./recommender-any-phase-statuses";
 
 export const hasSubjectQuestionsOver5: Mentor = {
   ...hasThumbnail,

@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { getUniqueQuestionAndAnswer } from "../../support/functions";
 import { Mentor, Question, Status } from "../../support/types";
-import { answered100Questions } from "./recommender-phase-4-statuses";
+import { answered100Questions } from "./recommender-interactive-phase-statuses";
 
 export const builtMentor = (): [Mentor, Question[]] => {
   const [newMentor, newQuestionSet] = answered100Questions();
@@ -20,10 +20,10 @@ export const builtMentor = (): [Mentor, Question[]] => {
   return [updatedMentor, newQuestionSet];
 };
 
-export const hasSubjectQuestionsOver250 = (): [Mentor, Question[]] => {
+export const hasSubjectQuestionsOver200 = (): [Mentor, Question[]] => {
   const [oldMentor, oldQuestionSet] = builtMentor();
   const { questions: newQuestionSet, answers: newAnswers } =
-    getUniqueQuestionAndAnswer(150);
+    getUniqueQuestionAndAnswer(100);
   const newMentor: Mentor = {
     ...oldMentor,
     subjects: oldMentor.subjects.map((subj) => {
@@ -42,7 +42,7 @@ export const hasSubjectQuestionsOver250 = (): [Mentor, Question[]] => {
 };
 
 export const hasBuiltButNotPreviewed = (): [Mentor, Question[]] => {
-  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver250();
+  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver200();
   const newMentor: Mentor = {
     ...oldMentor,
     lastTrainedAt: "101",
@@ -52,7 +52,7 @@ export const hasBuiltButNotPreviewed = (): [Mentor, Question[]] => {
   return [newMentor, oldQuestionSet];
 };
 
-export const answered250Questions = (): [Mentor, Question[]] => {
+export const answered200Questions = (): [Mentor, Question[]] => {
   const [oldMentor, oldQuestionSet] = hasBuiltButNotPreviewed();
 
   const updatedMentor: Mentor = {

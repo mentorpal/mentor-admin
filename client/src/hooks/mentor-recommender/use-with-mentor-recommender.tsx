@@ -71,8 +71,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
           createAnyPhase(),
           createIncompletePhase(),
           createScriptedPhase(),
-          createLimitedPhase(),
-          createSingleAreaPhase(),
+          createInteractivePhase(),
+          createSpecialistPhase(),
           createConversationalPhase(),
         ]
       )
@@ -142,7 +142,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 1,
       responseQuality: 1,
     };
-    // Left off: Need to add actions to this phase
+
     const addnameAndJobRoleRec = new Recommendation<RecommendationName>(
       recommendationWeights,
       "Add Name and/or Job Role",
@@ -363,8 +363,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     );
   }
 
-  function createLimitedPhase() {
-    const targetAnswerAmount = 100;
+  function createInteractivePhase() {
+    const targetAnswerAmount = 50;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
       questionCover: 0.9,
@@ -408,7 +408,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
-      "Limited",
+      "Interactive",
       (state: RecommenderState) => {
         const completeMentorAnswers = state.mentorData.answers.filter(
           (answer) =>
@@ -419,8 +419,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     );
   }
 
-  function createSingleAreaPhase() {
-    const targetAnswerAmount = 250;
+  function createSpecialistPhase() {
+    const targetAnswerAmount = 150;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
       questionCover: 0.7,
@@ -464,7 +464,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,
       phaseAttributeWeights,
-      "Single Area",
+      "Specialist",
       (state: RecommenderState) => {
         const completeMentorAnswers = state.mentorData.answers.filter(
           (answer) =>
@@ -476,7 +476,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
   }
 
   function createConversationalPhase() {
-    const targetAnswerAmount = 1000;
+    const targetAnswerAmount = 250;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
       questionCover: 0.5,
@@ -504,9 +504,12 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     };
     const allProductionRules = [
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
-      recordQuestionProductionRule(recordQuestionRecWeights),
+      recordQuestionProductionRule(
+        recordQuestionRecWeights,
+        targetAnswerAmount
+      ),
       buildMentorProductionRule(buildMentorRecWeights),
-      addSubjectProductionRule(addNewSubjectRecWeights),
+      addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
     ];
     return new Phase<RecommenderState, RecommendationName>(
       allProductionRules,

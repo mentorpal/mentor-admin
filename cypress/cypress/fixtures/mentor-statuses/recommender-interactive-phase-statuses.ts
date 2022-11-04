@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { getUniqueQuestionAndAnswer } from "../../support/functions";
 import { Mentor, Question, Status } from "../../support/types";
-import { answered20Questions } from "./recommender-phase-3-statuses";
+import { answered20Questions } from "./recommender-scripted-phase-statuses";
 
 export const builtMentor = (): [Mentor, Question[]] => {
   const [newMentor, newQuestionSet] = answered20Questions();

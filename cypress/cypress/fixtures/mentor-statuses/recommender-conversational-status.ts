@@ -4,20 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { update } from "cypress/types/lodash";
 import { getUniqueQuestionAndAnswer } from "../../support/functions";
-import {
-  Mentor,
-  Question,
-  QuestionType,
-  Status,
-  SubjectTypes,
-} from "../../support/types";
-import questions from "../questions";
-import { answered250Questions } from "./recommender-single-area-statuses";
+import { Mentor, Question } from "../../support/types";
+import { answered200Questions } from "./recommender-specialist-phase-statuses";
 
 export const builtMentor = (): [Mentor, Question[]] => {
-  const [newMentor, newQuestionSet] = answered250Questions();
+  const [newMentor, newQuestionSet] = answered200Questions();
 
   const updatedMentor: Mentor = {
     ...newMentor,

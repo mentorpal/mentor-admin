@@ -14,7 +14,7 @@ import {
   hasSubjects,
   missingOffTopicTranscript,
   startState,
-} from "../fixtures/mentor-statuses/recommender-phase-1-statuses";
+} from "../fixtures/mentor-statuses/recommender-any-phase-statuses";
 import { cySetup, cyMockDefault } from "../support/functions";
 
 describe("Recommender Any Phase Recommendations", () => {

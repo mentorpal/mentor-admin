@@ -10,11 +10,11 @@ import {
   builtMentor,
   hasBuiltButNotPreviewed,
   hasSubjectQuestionsOver100,
-} from "../fixtures/mentor-statuses/recommender-phase-4-statuses";
-import { answered20Questions } from "../fixtures/mentor-statuses/recommender-phase-3-statuses";
+} from "../fixtures/mentor-statuses/recommender-interactive-phase-statuses";
+import { answered20Questions } from "../fixtures/mentor-statuses/recommender-scripted-phase-statuses";
 import { cyMockDefault, cySetup } from "../support/functions";
 
-describe("Recommender Limited Phase (20 <= answers < 100)", () => {
+describe("Recommender Interactive Phase (20 <= answers < 50)", () => {
   it("Build Mentor (high precedence): mentor is dirty", () => {
     const [mentor, newQuestionSet] = answered20Questions();
     cySetup(cy);
@@ -69,7 +69,7 @@ describe("Recommender Limited Phase (20 <= answers < 100)", () => {
     );
   });
 
-  it("Moves to Single Area Phase once reaches 100 answers", () => {
+  it("Moves to Specialist Area Phase once reaches 50 answers", () => {
     const [mentor, newQuestionSet] = answered100Questions();
     cySetup(cy);
     cyMockDefault(cy, {
@@ -77,8 +77,6 @@ describe("Recommender Limited Phase (20 <= answers < 100)", () => {
       questions: newQuestionSet,
     });
     cy.visit("/");
-    cy.get("[data-cy=recommended-action-reason]").contains(
-      "You've answered new questions since you last trained your mentor. Rebuild so you can preview."
-    );
+    cy.get("[data-cy=mentor-card-scope]").should("contain.text", "Specialist");
   });
 });

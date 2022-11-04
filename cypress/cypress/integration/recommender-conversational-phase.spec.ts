@@ -7,15 +7,15 @@ The full terms of this copyright and license should always be found in the root 
 
 import { cyMockDefault, cySetup, mockGQL } from "../support/functions";
 import { feedback as trendingUserQuestions } from "../fixtures/feedback/trendingFeedback";
-import { answered250Questions } from "../fixtures/mentor-statuses/recommender-single-area-statuses";
+import { answered200Questions } from "../fixtures/mentor-statuses/recommender-specialist-phase-statuses";
 import {
   builtMentor,
   hasSubjectQuestionsOver400,
 } from "../fixtures/mentor-statuses/recommender-conversational-status";
 
-describe("Recommender Single Area Phase (100 <= answers < 250)", () => {
+describe("Recommender Conversational Phase (150 <= answers < 250)", () => {
   it("Build Mentor (high precedence): mentor is dirty", () => {
-    const [mentor, newQuestionSet] = answered250Questions();
+    const [mentor, newQuestionSet] = answered200Questions();
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: mentor,

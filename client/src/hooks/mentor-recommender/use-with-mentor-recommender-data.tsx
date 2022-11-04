@@ -69,7 +69,7 @@ export function useWithMentorRecommenderData(): Partial<RecommenderState> {
     _fetchTrendingFeedback(questionIdsInQueue, mentorData._id, 25)
       .then((feedbackConnection) => {
         const feedback = feedbackConnection.edges.map((edge) => edge.node);
-  
+
         setNumberOfTrendingAnswers(feedback.length);
       })
       .catch((err) => {
