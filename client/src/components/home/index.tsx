@@ -631,7 +631,7 @@ function HomePage(props: {
                 data-cy="preview-button"
                 variant="extended"
                 color="secondary"
-                onClick={() => launchMentor(mentorId, true)}
+                onClick={() => launchMentor(mentorId, true, true)}
                 className={classes.fab}
                 onMouseEnter={() => {
                   hasSeenTooltips && setPreviewTooltipOpen(true);

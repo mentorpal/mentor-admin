@@ -10,6 +10,19 @@ import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
+export enum SetupScreen {
+  Welcome = 0,
+  Tell_Us_About_Yourself = 1,
+  Pick_Mentor_Type = 2,
+  My_Goal = 3,
+  Experiences_Identities = 4,
+  Select_Subjects = 5,
+  Start_Recordin = 6,
+  Idle_Video_Tips = 7,
+  Idle_And_Initial_Recordings = 8,
+  Build_Mentor = 9,
+}
+
 export enum QuestionSortOrder {
   Alphabetical = 0,
   ReverseAlphabetical = 1,
@@ -104,6 +117,7 @@ export interface Mentor {
   thumbnail: string;
   mentorType: MentorType;
   lastTrainedAt: string;
+  lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
   defaultSubject?: Subject;
