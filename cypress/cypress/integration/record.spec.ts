@@ -1473,7 +1473,7 @@ describe("Record", () => {
   });
 
   describe("Recording Session Ending Page", () => {
-    it.only("Done Button after recording sessions leads to session ending page", () => {
+    it("Done Button after recording sessions leads to session ending page", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
