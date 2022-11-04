@@ -77,6 +77,7 @@ const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.CHAT,
   lastTrainedAt: null,
+  keywords: [],
   subjects: [
     completeSubject({
       _id: "background",
@@ -1472,7 +1473,7 @@ describe("Record", () => {
   });
 
   describe("Recording Session Ending Page", () => {
-    it("Done Button after recording sessions leads to session ending page", () => {
+    it.only("Done Button after recording sessions leads to session ending page", () => {
       cyMockDefault(cy, { mentor: chatMentor, questions: chatQuestions });
       cy.visit("/record?subject=background");
       cy.get("[data-cy=progress]").contains("Questions 1 / 2");
