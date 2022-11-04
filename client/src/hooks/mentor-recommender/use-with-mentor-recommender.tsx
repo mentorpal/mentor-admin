@@ -74,6 +74,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
           createInteractivePhase(),
           createSpecialistPhase(),
           createConversationalPhase(),
+          createFullSubjectPhase(),
+          createLifeStoryPhase(),
         ]
       )
     );
@@ -367,8 +369,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     const targetAnswerAmount = 50;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
-      questionCover: 0.9,
-      responseQuality: 0.1,
+      questionCover: 0.8,
+      responseQuality: 0.2,
     };
     const recordQuestionRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
@@ -423,8 +425,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     const targetAnswerAmount = 150;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
-      questionCover: 0.7,
-      responseQuality: 0.3,
+      questionCover: 0.8,
+      responseQuality: 0.2,
     };
     const recordQuestionRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
@@ -479,8 +481,8 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
     const targetAnswerAmount = 250;
     const phaseAttributeWeights: AttributeWeightRecord = {
       functionalMentor: 1,
-      questionCover: 0.5,
-      responseQuality: 0.5,
+      questionCover: 0.7,
+      responseQuality: 0.3,
     };
     const trendingAnswerRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
@@ -515,6 +517,100 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       allProductionRules,
       phaseAttributeWeights,
       "Conversational",
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
+    );
+  }
+
+  function createFullSubjectPhase() {
+    const targetAnswerAmount = 1000;
+    const phaseAttributeWeights: AttributeWeightRecord = {
+      functionalMentor: 1,
+      questionCover: 0.5,
+      responseQuality: 0.5,
+    };
+    const trendingAnswerRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.6,
+      responseQuality: 0.5,
+    };
+    const recordQuestionRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.8,
+      responseQuality: 0,
+    };
+    const buildMentorRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.5,
+      responseQuality: 0,
+    };
+    const addNewSubjectRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.3,
+      responseQuality: 0,
+    };
+    const allProductionRules = [
+      answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
+      recordQuestionProductionRule(recordQuestionRecWeights),
+      buildMentorProductionRule(buildMentorRecWeights),
+      addSubjectProductionRule(addNewSubjectRecWeights),
+    ];
+    return new Phase<RecommenderState, RecommendationName>(
+      allProductionRules,
+      phaseAttributeWeights,
+      "Full Subject",
+      (state: RecommenderState) => {
+        const completeMentorAnswers = state.mentorData.answers.filter(
+          (answer) =>
+            isAnswerComplete(answer, undefined, state.mentorData.mentorType)
+        );
+        return completeMentorAnswers.length < targetAnswerAmount;
+      }
+    );
+  }
+
+  function createLifeStoryPhase() {
+    const targetAnswerAmount = 10000;
+    const phaseAttributeWeights: AttributeWeightRecord = {
+      functionalMentor: 1,
+      questionCover: 0.5,
+      responseQuality: 0.5,
+    };
+    const addNewSubjectRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 1,
+      responseQuality: 0,
+    };
+    const trendingAnswerRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.6,
+      responseQuality: 0.4,
+    };
+    const recordQuestionRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.8,
+      responseQuality: 0,
+    };
+    const buildMentorRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.5,
+      responseQuality: 0,
+    };
+    const allProductionRules = [
+      addSubjectProductionRule(addNewSubjectRecWeights),
+      answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
+      recordQuestionProductionRule(recordQuestionRecWeights),
+      buildMentorProductionRule(buildMentorRecWeights),
+    ];
+    return new Phase<RecommenderState, RecommendationName>(
+      allProductionRules,
+      phaseAttributeWeights,
+      "Life Story",
       (state: RecommenderState) => {
         const completeMentorAnswers = state.mentorData.answers.filter(
           (answer) =>

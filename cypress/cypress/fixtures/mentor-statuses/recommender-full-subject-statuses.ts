@@ -6,22 +6,10 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { getUniqueQuestionAndAnswer } from "../../support/functions";
 import { Mentor, Question, Status } from "../../support/types";
-import { answered200Questions } from "./recommender-specialist-phase-statuses";
+import { answered400Questions } from "./recommender-conversational-status";
 
-export const builtMentor = (): [Mentor, Question[]] => {
-  const [newMentor, newQuestionSet] = answered200Questions();
-
-  const updatedMentor: Mentor = {
-    ...newMentor,
-    isDirty: false,
-    lastTrainedAt: "12354",
-  };
-
-  return [updatedMentor, newQuestionSet];
-};
-
-export const hasSubjectQuestionsOver400 = (): [Mentor, Question[]] => {
-  const [oldMentor, oldQuestionSet] = builtMentor();
+export const hasSubjectQuestionsOver600 = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = answered400Questions();
   const { questions: newQuestionSet, answers: newAnswers } =
     getUniqueQuestionAndAnswer(200);
   const newMentor: Mentor = {
@@ -41,12 +29,50 @@ export const hasSubjectQuestionsOver400 = (): [Mentor, Question[]] => {
   ];
 };
 
-export const answered400Questions = (): [Mentor, Question[]] => {
-  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver400();
+export const answered600Questions = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver600();
 
   const updatedMentor: Mentor = {
     ...oldMentor,
-    isDirty: true,
+    isDirty: false,
+    lastTrainedAt: "1235",
+    lastPreviewedAt: "",
+    answers: oldMentor.answers.map((a) => {
+      a.status = Status.COMPLETE;
+      return a;
+    }),
+  };
+
+  return [updatedMentor, oldQuestionSet];
+};
+
+export const hasSubjectQuestionsOver1100 = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = answered600Questions();
+  const { questions: newQuestionSet, answers: newAnswers } =
+    getUniqueQuestionAndAnswer(500);
+  const newMentor: Mentor = {
+    ...oldMentor,
+    subjects: oldMentor.subjects.map((subj) => {
+      if (subj._id == "new_subject_1") {
+        subj.questions = [...subj.questions, ...newQuestionSet];
+      }
+      return subj;
+    }),
+    answers: [...oldMentor.answers, ...newAnswers],
+  };
+
+  return [
+    newMentor,
+    [...oldQuestionSet, ...newQuestionSet.map((subjQ) => subjQ.question)],
+  ];
+};
+
+export const answered1100Questions = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver1100();
+
+  const updatedMentor: Mentor = {
+    ...oldMentor,
+    isDirty: false,
     lastTrainedAt: "1235",
     lastPreviewedAt: "",
     answers: oldMentor.answers.map((a) => {

@@ -4,24 +4,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
+
 import { getUniqueQuestionAndAnswer } from "../../support/functions";
 import { Mentor, Question, Status } from "../../support/types";
-import { answered200Questions } from "./recommender-specialist-phase-statuses";
+import { answered1100Questions } from "./recommender-full-subject-statuses";
 
-export const builtMentor = (): [Mentor, Question[]] => {
-  const [newMentor, newQuestionSet] = answered200Questions();
-
-  const updatedMentor: Mentor = {
-    ...newMentor,
-    isDirty: false,
-    lastTrainedAt: "12354",
-  };
-
-  return [updatedMentor, newQuestionSet];
-};
-
-export const hasSubjectQuestionsOver400 = (): [Mentor, Question[]] => {
-  const [oldMentor, oldQuestionSet] = builtMentor();
+export const hasSubjectQuestionsOver1300 = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = answered1100Questions();
   const { questions: newQuestionSet, answers: newAnswers } =
     getUniqueQuestionAndAnswer(200);
   const newMentor: Mentor = {
@@ -41,18 +30,12 @@ export const hasSubjectQuestionsOver400 = (): [Mentor, Question[]] => {
   ];
 };
 
-export const answered400Questions = (): [Mentor, Question[]] => {
-  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver400();
+export const dirtyMentor = (): [Mentor, Question[]] => {
+  const [oldMentor, oldQuestionSet] = hasSubjectQuestionsOver1300();
 
   const updatedMentor: Mentor = {
     ...oldMentor,
     isDirty: true,
-    lastTrainedAt: "1235",
-    lastPreviewedAt: "",
-    answers: oldMentor.answers.map((a) => {
-      a.status = Status.COMPLETE;
-      return a;
-    }),
   };
 
   return [updatedMentor, oldQuestionSet];
