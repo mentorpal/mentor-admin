@@ -8,7 +8,16 @@ import { CLIENT_ENDPOINT, previewedMentor } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import axios from "axios";
-import { Answer, MediaType, MentorType, Status, UtteranceName } from "types";
+import {
+  Answer,
+  MediaType,
+  MentorType,
+  Organization,
+  Status,
+  User,
+  UserRole,
+  UtteranceName,
+} from "types";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -31,6 +40,7 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
   const removed = copyAndRemove(a, moveFrom);
   return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }
+
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
@@ -201,4 +211,55 @@ export function cosinesim(A: number[], B: number[]): number {
   mB = Math.sqrt(mB);
   const similarity = dotproduct / (mA * mB); // here you needed extra brackets
   return similarity;
+}
+
+export function canEditContent(user: User | undefined): boolean {
+  if (!user) {
+    return false;
+  }
+  const userRole = user.userRole;
+  return (
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canViewOrganization(org: Organization, user: User): boolean {
+  if (!org) {
+    return false;
+  }
+  if (org.isPrivate) {
+    if (!user) {
+      return false;
+    }
+    if (
+      user.userRole === UserRole.SUPER_ADMIN ||
+      user.userRole === UserRole.SUPER_CONTENT_MANAGER
+    ) {
+      return true;
+    }
+    return Boolean(org.members.find((m) => equals(m.user._id, user._id)));
+  }
+  return true;
+}
+
+export function canEditOrganization(org: Organization, user: User): boolean {
+  if (!org || !user) {
+    return false;
+  }
+  if (
+    user.userRole === UserRole.SUPER_ADMIN ||
+    user.userRole === UserRole.SUPER_CONTENT_MANAGER
+  ) {
+    return true;
+  }
+  return Boolean(
+    org.members.find(
+      (m) =>
+        equals(m.user._id, user._id) &&
+        (m.role === UserRole.CONTENT_MANAGER || m.role === UserRole.ADMIN)
+    )
+  );
 }

@@ -43,8 +43,8 @@ import {
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import withLocation from "wrap-with-location";
-import { UploadTask, UserRole } from "types";
-import { launchMentor } from "helpers";
+import { UploadTask } from "types";
+import { canEditContent, launchMentor } from "helpers";
 import {
   areAllTasksDone,
   isATaskCancelled,
@@ -173,9 +173,7 @@ function NavMenu(props: {
 }): JSX.Element {
   const { classes } = props;
   const { logout, state } = useWithLogin();
-  const editUsersPermission =
-    state.user?.userRole === UserRole.ADMIN ||
-    state.user?.userRole === UserRole.CONTENT_MANAGER;
+  const editPermission = canEditContent(state.user);
 
   function onLogout(): void {
     logout();
@@ -250,7 +248,13 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
-      {editUsersPermission ? (
+      <NavItem
+        text={"Organizations"}
+        link={"/organizations"}
+        icon={<Group />}
+        onNav={props.onNav}
+      />
+      {editPermission ? (
         <NavItem
           text={"Users"}
           link={"/users"}
@@ -258,7 +262,7 @@ function NavMenu(props: {
           onNav={props.onNav}
         />
       ) : undefined}
-      {editUsersPermission ? (
+      {editPermission ? (
         <NavItem
           text={"Config"}
           link={"/config"}

@@ -54,6 +54,50 @@ const mentorPanels = {
   },
 };
 
+const organizations = {
+  organizations: {
+    edges: [
+      {
+        node: {
+          _id: "csuf",
+          uuid: "csuf",
+          name: "CSUF",
+          subdomain: "careerfair",
+          isPrivate: false,
+          members: [
+            {
+              user: {
+                _id: "admin",
+                name: "Admin",
+              },
+              role: UserRole.ADMIN,
+            },
+            {
+              user: {
+                _id: "contentmanager",
+                name: "Content Manager",
+              },
+              role: UserRole.CONTENT_MANAGER,
+            },
+            {
+              user: {
+                _id: "user",
+                name: "User",
+              },
+              role: UserRole.USER,
+            },
+          ],
+          config: {
+            ...CONFIG_DEFAULT,
+            featuredMentors: [],
+            featuredMentorPanels: [],
+          },
+        },
+      },
+    ],
+  },
+};
+
 describe("users screen", () => {
   it("users cannot view config settings", () => {
     cyMockDefault(cy, {
@@ -141,7 +185,6 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
@@ -162,9 +205,7 @@ describe("users screen", () => {
         );
       });
     });
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
@@ -205,7 +246,6 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
@@ -226,9 +266,7 @@ describe("users screen", () => {
           .click();
       });
     });
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentors-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
@@ -269,7 +307,6 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=toggle-featured-mentor-panels]")
       .trigger("mouseover")
       .click();
@@ -288,9 +325,7 @@ describe("users screen", () => {
           .click();
       });
     });
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should(
@@ -324,7 +359,6 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=toggle-featured-mentor-panels]")
       .trigger("mouseover")
       .click();
@@ -343,9 +377,7 @@ describe("users screen", () => {
           .click();
       });
     });
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=mentor-panels-list]").within(($mentorsList) => {
       cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
         cy.get("[data-cy=name]").should(
@@ -625,7 +657,6 @@ describe("users screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-header-style]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=styleHeaderLogo]").should("have.attr", "data-test", "");
     cy.get("[data-cy=styleHeaderColor]").should(
       "have.attr",
@@ -640,7 +671,6 @@ describe("users screen", () => {
     cy.get("[data-cy=styleHeaderLogo]").type(
       "https://styles.redditmedia.com/t5_3l2acu/styles/communityIcon_k6hl8k9v3s891.jpeg?width=256&format=pjpg&s=5bc9d810009d151a336731145f4788c8c039c8c3"
     );
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
     cy.get("[data-cy=styleHeaderLogo]").should(
       "have.attr",
@@ -657,7 +687,6 @@ describe("users screen", () => {
       "data-test",
       "#00ff00"
     );
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=image-thumbnail]").trigger("mouseover").click();
   });
 
@@ -687,7 +716,6 @@ describe("users screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-disclaimer]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=disclaimerTitle]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerText]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerDisabled]").should(
@@ -698,7 +726,6 @@ describe("users screen", () => {
     cy.get("[data-cy=disclaimerTitle]").type("title");
     cy.get("[data-cy=disclaimerText]").type("text");
     cy.get("[data-cy=disclaimerDisabled]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("not.be.disabled");
     cy.get("[data-cy=save-button").trigger("mouseover").click();
     cy.get("[data-cy=disclaimerTitle]").should(
       "have.attr",
@@ -711,7 +738,6 @@ describe("users screen", () => {
       "data-test",
       "true"
     );
-    cy.get("[data-cy=save-button").should("be.disabled");
   });
 
   it("admin can update featured keyword types", () => {
@@ -744,7 +770,6 @@ describe("users screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=keyword-Gender]").should("exist");
     cy.get("[data-cy=keyword-Ethnicity]").should("exist");
     cy.get("[data-cy=keyword-Age]").should("exist");
@@ -770,7 +795,6 @@ describe("users screen", () => {
     cy.get("[data-cy=save-button").should("be.enabled");
     // save changes
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
   });
 
   it("admin can update featured subjects", () => {
@@ -798,7 +822,6 @@ describe("users screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=subject-background]").should("not.exist");
     cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
     cy.get("[data-cy=subject-leadership]").should("not.exist");
@@ -818,7 +841,6 @@ describe("users screen", () => {
     cy.get("[data-cy=save-button").should("be.enabled");
     // save changes
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
   });
 
   it("admin can update default subject", () => {
@@ -847,7 +869,6 @@ describe("users screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-settings]").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
     cy.get("[data-cy=subject-background]").should("not.exist");
     cy.get("[data-cy=subject-idle_and_initial_recordings]").should("not.exist");
     cy.get("[data-cy=subject-leadership]").should("not.exist");
@@ -875,6 +896,74 @@ describe("users screen", () => {
     cy.get("[data-cy=default-subject-option-background]").click();
     // save changes
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=save-button").should("be.disabled");
+  });
+
+  describe("edit config for an organization", () => {
+    it("if super admin", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.get("[data-cy=select-org]").should("exist");
+    });
+
+    it("if super admin", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: {
+            ...loginDefault.user,
+            userRole: UserRole.SUPER_CONTENT_MANAGER,
+          },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.get("[data-cy=select-org]").should("exist");
+    });
+
+    it("if admin of org", () => {});
+
+    it("if content manager of org", () => {});
+
+    it("is hidden if no editable orgs", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.get("[data-cy=select-org]").should("not.exist");
+    });
   });
 });

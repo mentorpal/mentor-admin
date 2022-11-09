@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import { CancelTokenSource } from "axios";
 import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
@@ -96,6 +95,20 @@ export interface User {
   userRole: UserRole;
   defaultMentor: Mentor;
   firstTimeTracking: FirstTimeTracking;
+}
+
+export interface Organization {
+  _id: string;
+  uuid: string;
+  name: string;
+  subdomain: string;
+  isPrivate: boolean;
+  members: OrgMember[];
+  config: Config;
+}
+export interface OrgMember {
+  user: User;
+  role: string;
 }
 
 export interface MentorPanel {
@@ -398,6 +411,8 @@ export enum UserRole {
   ADMIN = "ADMIN",
   CONTENT_MANAGER = "CONTENT_MANAGER",
   USER = "USER",
+  SUPER_CONTENT_MANAGER = "SUPER_CONTENT_MANAGER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export enum MentorType {

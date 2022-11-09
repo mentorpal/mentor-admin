@@ -37,6 +37,7 @@ import {
   TrendingUserQuestion,
   SbertEncodedSentence,
   Keyword,
+  Organization,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -2122,6 +2123,217 @@ export async function addOrUpdateMentorPanel(
       },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
+  );
+}
+
+export async function fetchOrganizations(
+  accessToken: string,
+  searchParams?: SearchParams
+): Promise<Connection<Organization>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const { filter, limit, cursor, sortBy, sortAscending } = params;
+  return execGql<Connection<Organization>>(
+    {
+      query: `
+        query Organizations($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+          organizations (filter: $filter, limit: $limit, cursor: $cursor, sortBy: $sortBy, sortAscending: $sortAscending){
+            edges {
+              node {
+                _id
+                uuid
+                name
+                subdomain
+                isPrivate
+                members {
+                  user {
+                    _id
+                    name
+                  }
+                  role
+                }
+                config {
+                  mentorsDefault
+                  featuredMentors
+                  featuredMentorPanels
+                  activeMentors
+                  activeMentorPanels
+                  googleClientId
+                  urlDocSetup
+                  urlVideoIdleTips
+                  videoRecorderMaxLength
+                  classifierLambdaEndpoint
+                  uploadLambdaEndpoint
+                  styleHeaderLogo
+                  styleHeaderColor
+                  styleHeaderTextColor
+                  disclaimerTitle
+                  disclaimerText
+                  disclaimerDisabled
+                  displayGuestPrompt
+                  videoRecorderMaxLength
+                  subjectRecordPriority
+                  virtualBackgroundUrls
+                  defaultVirtualBackground
+                  questionSortOrder
+                  featuredKeywordTypes
+                  featuredSubjects
+                  defaultSubject
+                }
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }`,
+      variables: {
+        filter: JSON.stringify(filter),
+        limit,
+        cursor,
+        sortBy,
+        sortAscending,
+      },
+    },
+    { dataPath: "organizations", accessToken }
+  );
+}
+
+export async function addOrUpdateOrganization(
+  accessToken: string,
+  organization: Organization,
+  id?: string
+): Promise<Organization> {
+  return execGql<Organization>(
+    {
+      query: `mutation AddOrUpdateOrganization($id: ID, $organization: AddOrUpdateOrganizationInputType!) {
+        me {
+          addOrUpdateOrganization(id: $id, organization: $organization) {
+            _id
+            uuid
+            name
+            subdomain
+            isPrivate
+            members {
+              user {
+                _id
+                name
+              }
+              role
+            }
+            config {
+              mentorsDefault
+              featuredMentors
+              featuredMentorPanels
+              activeMentors
+              activeMentorPanels
+              googleClientId
+              urlDocSetup
+              urlVideoIdleTips
+              videoRecorderMaxLength
+              classifierLambdaEndpoint
+              uploadLambdaEndpoint
+              styleHeaderLogo
+              styleHeaderColor
+              styleHeaderTextColor
+              disclaimerTitle
+              disclaimerText
+              disclaimerDisabled
+              displayGuestPrompt
+              videoRecorderMaxLength
+              subjectRecordPriority
+              virtualBackgroundUrls
+              defaultVirtualBackground
+              questionSortOrder
+              featuredKeywordTypes
+              featuredSubjects
+              defaultSubject
+            }
+          }
+        }
+      }`,
+      variables: {
+        id,
+        organization: {
+          name: organization.name,
+          subdomain: organization.subdomain,
+          isPrivate: organization.isPrivate,
+          members: organization.members.map((m) => ({
+            user: m.user._id,
+            role: m.role,
+          })),
+        },
+      },
+    },
+    { dataPath: ["me", "addOrUpdateOrganization"], accessToken }
+  );
+}
+
+export async function updateOrgConfig(
+  accessToken: string,
+  id: string,
+  config: Config
+): Promise<Config> {
+  return execGql<Config>(
+    {
+      query: `mutation UpdateOrganizationConfig($id: ID!, $config: ConfigUpdateInputType!) {
+        me {
+          updateOrgConfig(id: $id, config: $config) {
+            mentorsDefault
+            featuredMentors
+            featuredMentorPanels
+            activeMentors
+            activeMentorPanels
+            googleClientId
+            urlDocSetup
+            urlVideoIdleTips
+            videoRecorderMaxLength
+            classifierLambdaEndpoint
+            uploadLambdaEndpoint
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderTextColor
+            disclaimerTitle
+            disclaimerText
+            disclaimerDisabled
+            displayGuestPrompt
+            videoRecorderMaxLength
+            subjectRecordPriority
+            virtualBackgroundUrls
+            defaultVirtualBackground
+            questionSortOrder
+            featuredKeywordTypes
+            featuredSubjects
+            defaultSubject
+          }
+        }
+      }`,
+      variables: {
+        id,
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          activeMentorPanels: config.activeMentorPanels,
+          mentorsDefault: config.mentorsDefault,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          disclaimerDisabled: config.disclaimerDisabled,
+          displayGuestPrompt: config.displayGuestPrompt,
+          videoRecorderMaxLength: config.videoRecorderMaxLength,
+          questionSortOrder: config.questionSortOrder,
+          featuredKeywordTypes: config.featuredKeywordTypes,
+          featuredSubjects: config.featuredSubjects,
+          defaultSubject: config.defaultSubject,
+        },
+      },
+    },
+    { dataPath: ["me", "updateOrgConfig"], accessToken }
   );
 }
 

@@ -169,10 +169,9 @@ function UserItem(props: {
 }): JSX.Element {
   const { edge, i } = props;
   const styles = useStyles();
-  const noEditPermission =
-    props.userRole === UserRole.USER ||
-    (edge.node.userRole === UserRole.ADMIN &&
-      props.userRole !== UserRole.ADMIN);
+  const hasEditPermission =
+    props.userRole === UserRole.ADMIN ||
+    props.userRole === UserRole.SUPER_ADMIN;
   const { switchActiveMentor } = useActiveMentor();
 
   function handleRoleChange(user: string, permission: string): void {
@@ -195,9 +194,7 @@ function UserItem(props: {
         {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
-        {noEditPermission ? (
-          edge.node.userRole
-        ) : (
+        {hasEditPermission ? (
           <Select
             data-cy="select-role"
             value={edge.node.userRole}
@@ -220,19 +217,35 @@ function UserItem(props: {
             >
               Content Manager
             </MenuItem>
-            {props.userRole === UserRole.ADMIN ? (
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.ADMIN}`}
+              value={UserRole.ADMIN}
+            >
+              Admin
+            </MenuItem>
+            {props.userRole === UserRole.SUPER_ADMIN ? (
               <MenuItem
-                data-cy={`role-dropdown-${UserRole.ADMIN}`}
-                value={UserRole.ADMIN}
+                data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
+                value={UserRole.SUPER_ADMIN}
               >
-                Admin
+                Super Admin
+              </MenuItem>
+            ) : undefined}
+            {props.userRole === UserRole.SUPER_ADMIN ? (
+              <MenuItem
+                data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
+                value={UserRole.SUPER_ADMIN}
+              >
+                Super Admin
               </MenuItem>
             ) : undefined}
           </Select>
+        ) : (
+          edge.node.userRole
         )}
       </TableCell>
       <TableCell data-cy="privacy" align="left">
-        {noEditPermission ? (
+        {hasEditPermission ? (
           edge.node.defaultMentor?.isPrivate ? (
             "Private"
           ) : (

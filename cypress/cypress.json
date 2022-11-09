@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:80",
+  "baseUrl": "http://localhost:59979/",
   "video": false,
   "$schema": "https://on.cypress.io/cypress.schema.json",
   "chromeWebSecurity": false,

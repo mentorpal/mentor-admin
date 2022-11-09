@@ -30,6 +30,8 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
+  MenuItem,
+  Select,
   Tab,
   TextField,
   Typography,
@@ -44,6 +46,7 @@ import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import {
+  canEditContent,
   copyAndMove,
   copyAndRemove,
   launchMentor,
@@ -52,12 +55,12 @@ import {
 import { useWithConfig } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, Keyword, MentorPanel, User, UserRole } from "types";
-import { MentorGQL, SubjectGQL } from "types-gql";
-import withLocation from "wrap-with-location";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { Config, Keyword, MentorPanel, Organization, User } from "types";
+import { MentorGQL, SubjectGQL } from "types-gql";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -859,31 +862,31 @@ function Settings(props: {
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
   const {
+    org,
+    orgs,
     config,
     mentors,
     mentorPanels,
     error,
-    isEdited,
     isLoading,
     isSaving,
     saveConfig,
-    updateConfig,
+    editConfig,
     moveMentor,
     moveMentorPanel,
     toggleActiveMentor,
     toggleFeaturedMentor,
     toggleFeaturedMentorPanel,
     toggleActiveMentorPanel,
+    setOrganization,
     saveMentorPanel,
-  } = useWithConfig(props.accessToken);
+  } = useWithConfig(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
   const { height } = useWithWindowSize();
   const { data: subjects } = useWithSubjects();
 
-  const permissionToView =
-    props.user.userRole === UserRole.ADMIN ||
-    props.user.userRole === UserRole.CONTENT_MANAGER;
+  const permissionToView = canEditContent(props.user);
   const [tab, setTab] = useState<string>("featured-mentors");
 
   useEffect(() => {
@@ -906,7 +909,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
 
   return (
     <div className={styles.root}>
-      <NavBar title="Manage Config" />
+      <NavBar title={`Manage Config`} />
       <TabContext value={tab}>
         <TabList onChange={(event, newValue) => setTab(newValue)}>
           <Tab
@@ -970,7 +973,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           <HeaderStyle
             styles={styles}
             config={config}
-            updateConfig={updateConfig}
+            updateConfig={editConfig}
           />
         </TabPanel>
         <TabPanel
@@ -978,7 +981,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="disclaimer"
         >
-          <Disclaimer config={config} updateConfig={updateConfig} />
+          <Disclaimer config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
@@ -989,16 +992,45 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             config={config}
             subjects={subjects?.edges.map((s) => s.node) || []}
             keywords={keywords?.edges.map((k) => k.node) || []}
-            updateConfig={updateConfig}
+            updateConfig={editConfig}
           />
         </TabPanel>
       </TabContext>
+      {orgs.length > 0 ? (
+        <Select
+          data-cy="select-org"
+          label="Organization"
+          value={org?._id}
+          cy-value={org?._id}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) =>
+            setOrganization(
+              orgs.find((o) => (event.target.value as string) === o._id)
+            )
+          }
+          style={{ width: 270, position: "absolute", bottom: 25, right: 25 }}
+        >
+          <MenuItem data-cy="org-none" value={undefined}>
+            None
+          </MenuItem>
+          {orgs.map((o) => (
+            <MenuItem
+              data-cy={`org-${o._id}`}
+              key={`org-${o._id}`}
+              value={o._id}
+            >
+              {o.name}
+            </MenuItem>
+          ))}
+        </Select>
+      ) : undefined}
       <Button
         data-cy="save-button"
         variant="contained"
         color="primary"
         className={styles.button}
-        disabled={!isEdited || isSaving}
+        disabled={isSaving}
         onClick={saveConfig}
       >
         Save
