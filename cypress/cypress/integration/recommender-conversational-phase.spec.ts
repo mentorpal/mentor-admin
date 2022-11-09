@@ -70,6 +70,21 @@ describe("Recommender Conversational Phase (150 <= answers < 250)", () => {
     );
   });
 
+  it("Preview Mentor: Has not previewed mentor since last build", () => {
+    const [mentor, newQuestionSet] = hasSubjectQuestionsOver400();
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: { ...mentor, lastPreviewedAt: "" },
+      questions: newQuestionSet,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=skip-action-button]").click();
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "Preview your mentor to review its current status."
+    );
+  });
+
   it("Moves on to Full Subject phase once reaching over 250 answers", () => {
     const [mentor, newQuestionSet] = answered400Questions();
     cySetup(cy);

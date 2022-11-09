@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import { isAnswerComplete, launchMentor, urlBuild } from "helpers";
-import { useWithTraining } from "hooks/task/use-with-train";
 import { useEffect, useState } from "react";
 import { Mentor, SetupScreen, UtteranceName } from "types";
 import {
@@ -49,8 +48,9 @@ export enum RecommendationName {
   ANSWER_TRENDING = "ANSWER_TRENDING",
 }
 
-export function useWithMentorRecommender(): UseWithMentorRecommender {
-  const { startTask: startTraining } = useWithTraining();
+export function useWithMentorRecommender(
+  trainMentor?: () => void
+): UseWithMentorRecommender {
   const { mentorData, mentorUtteranceVideos, numberOfTrendingAnswers } =
     useWithMentorRecommenderData();
   const [recommender, setRecommender] =
@@ -484,11 +484,6 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 0.7,
       responseQuality: 0.3,
     };
-    const trendingAnswerRecWeights: AttributeWeightRecord = {
-      functionalMentor: 0,
-      questionCover: 0.3,
-      responseQuality: 0.5,
-    };
     const recordQuestionRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
       questionCover: 1,
@@ -499,18 +494,29 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 0.5,
       responseQuality: 0,
     };
+    const previewMentorRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0,
+      responseQuality: 0.5,
+    };
+    const trendingAnswerRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0.3,
+      responseQuality: 0.5,
+    };
     const addNewSubjectRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
       questionCover: 0.3,
       responseQuality: 0,
     };
     const allProductionRules = [
-      answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
       recordQuestionProductionRule(
         recordQuestionRecWeights,
         targetAnswerAmount
       ),
       buildMentorProductionRule(buildMentorRecWeights),
+      previewMentorProductionRule(previewMentorRecWeights),
+      answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
       addSubjectProductionRule(addNewSubjectRecWeights, targetAnswerAmount),
     ];
     return new Phase<RecommenderState, RecommendationName>(
@@ -549,6 +555,11 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       questionCover: 0.5,
       responseQuality: 0,
     };
+    const previewMentorRecWeights: AttributeWeightRecord = {
+      functionalMentor: 0,
+      questionCover: 0,
+      responseQuality: 0.5,
+    };
     const addNewSubjectRecWeights: AttributeWeightRecord = {
       functionalMentor: 0,
       questionCover: 0.3,
@@ -558,6 +569,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       answerTrendingQuestionsProductionRule(trendingAnswerRecWeights),
       recordQuestionProductionRule(recordQuestionRecWeights),
       buildMentorProductionRule(buildMentorRecWeights),
+      previewMentorProductionRule(previewMentorRecWeights),
       addSubjectProductionRule(addNewSubjectRecWeights),
     ];
     return new Phase<RecommenderState, RecommendationName>(
@@ -688,7 +700,7 @@ export function useWithMentorRecommender(): UseWithMentorRecommender {
       "Build your mentor",
       RecommendationName.BUILD_MENTOR,
       "You've answered new questions since you last trained your mentor. Rebuild so you can preview.",
-      () => startTraining(mentorData?._id || "")
+      () => trainMentor && trainMentor()
     );
     const activeCondition = (state: RecommenderState) => {
       return !state.mentorData.lastTrainedAt || state.mentorData.isDirty;

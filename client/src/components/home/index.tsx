@@ -348,7 +348,7 @@ function HomePage(props: {
           onNav={onLeave}
         />
         <MyMentorCard
-          continueAction={startTrainingMentor}
+          trainMentor={startTrainingMentor}
           incrementTooltip={incrementTooltip}
           editedMentor={editedMentor}
           editMentor={editMentor}

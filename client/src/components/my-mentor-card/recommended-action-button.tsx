@@ -25,7 +25,7 @@ import {
 import { Recommendation } from "hooks/recommender/recommender";
 export default function RecommendedActionButton(props: {
   setThumbnail: (file: File) => void;
-  continueAction: () => void;
+  trainMentor: () => void;
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
@@ -37,7 +37,7 @@ export default function RecommendedActionButton(props: {
   const [curRecIndex, setCurRecIndex] = useState<number>(0);
   const [curRec, setCurRec] = useState<Recommendation<RecommendationName>>();
 
-  const { recommender } = useWithMentorRecommender();
+  const { recommender } = useWithMentorRecommender(props.trainMentor);
   const { getData } = useActiveMentor();
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data) : defaultMentorInfo

@@ -65,8 +65,22 @@ describe("Recommender Full Subject Phase (250 <= answers < 1000)", () => {
       questions: newQuestionSet,
     });
     cy.visit("/");
+    cy.get("[data-cy=skip-action-button]").click();
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Your mentor doesn't have any subject areas. Subjects give you sets of questions to record."
+    );
+  });
+
+  it("Preview Mentor: Mentor has not been previewed since last build", () => {
+    const [mentor, newQuestionSet] = answered600Questions();
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: mentor,
+      questions: newQuestionSet,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=recommended-action-reason]").contains(
+      "Preview your mentor to review its current status."
     );
   });
 
