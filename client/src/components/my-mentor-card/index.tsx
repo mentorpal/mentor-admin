@@ -18,7 +18,7 @@ import { useWithThumbnail } from "hooks/graphql/use-with-thumbnail";
 import { Mentor } from "types";
 
 function MyMentorCard(props: {
-  continueAction: () => void;
+  trainMentor: () => void;
   incrementTooltip: () => void;
   idxTooltip: number;
   hasSeenTooltips: boolean;
@@ -75,7 +75,7 @@ function MyMentorCard(props: {
             </Grid>
             <Grid item xs={8}>
               <MentorStatus
-                continueAction={props.continueAction}
+                trainMentor={props.trainMentor}
                 updateThumbnail={updateThumbnail}
                 incrementTooltip={props.incrementTooltip}
                 idxTooltip={props.idxTooltip}

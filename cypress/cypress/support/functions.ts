@@ -4,12 +4,22 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Mentor, TaskInfo, TrainingInfo, _Ref } from "./types";
+import {
+  Answer,
+  Mentor,
+  QuestionType,
+  Status,
+  SubjectQuestion,
+  TaskInfo,
+  TrainingInfo,
+  _Ref,
+} from "./types";
 import { login as loginDefault } from "../fixtures/login";
 import { mentorDefault } from "../fixtures/mentor";
 import { TaskStatus, UserAccessToken } from "./types";
 import questions from "../fixtures/questions";
 import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
+import { v4 as uuid } from "uuid";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -589,4 +599,49 @@ export function testIndexedDbData(
       };
     };
   });
+}
+
+interface GetUniqueQuestionAndAnswer {
+  answers: Answer[];
+  questions: SubjectQuestion[];
+}
+
+export function getUniqueQuestionAndAnswer(
+  numOfDocs: number,
+  answerComplete?: boolean
+): GetUniqueQuestionAndAnswer {
+  const answers: Answer[] = [] as Answer[];
+  const questions: SubjectQuestion[] = [] as SubjectQuestion[];
+  for (let i = 0; i < numOfDocs; i++) {
+    const questionId = uuid();
+    const questionClientId = uuid();
+    questions.push({
+      question: {
+        _id: questionId,
+        clientId: questionClientId,
+        question: `New Question ${i}`,
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
+      },
+      topics: [],
+    });
+    answers.push({
+      _id: uuid(),
+      question: {
+        _id: questionId,
+        clientId: questionClientId,
+        question: `New Question ${i}`,
+        type: QuestionType.QUESTION,
+        name: null,
+        paraphrases: [],
+      },
+      transcript: `Transcript for new answer ${i}`,
+      status: answerComplete ? Status.COMPLETE : Status.INCOMPLETE,
+    });
+  }
+  return {
+    questions,
+    answers,
+  };
 }

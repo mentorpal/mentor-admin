@@ -348,7 +348,7 @@ function HomePage(props: {
           onNav={onLeave}
         />
         <MyMentorCard
-          continueAction={startTrainingMentor}
+          trainMentor={startTrainingMentor}
           incrementTooltip={incrementTooltip}
           editedMentor={editedMentor}
           editMentor={editMentor}
@@ -451,6 +451,14 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
+            <Button
+              data-cy="add-a-subject"
+              onClick={() => {
+                navigate("/subjects");
+              }}
+            >
+              + Add a subject
+            </Button>
           </Select>
         </ColorTooltip>
       </div>
@@ -623,7 +631,7 @@ function HomePage(props: {
                 data-cy="preview-button"
                 variant="extended"
                 color="secondary"
-                onClick={() => launchMentor(mentorId, true)}
+                onClick={() => launchMentor(mentorId, true, true)}
                 className={classes.fab}
                 onMouseEnter={() => {
                   hasSeenTooltips && setPreviewTooltipOpen(true);

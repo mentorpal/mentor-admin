@@ -77,6 +77,7 @@ const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.CHAT,
   lastTrainedAt: null,
+  keywords: [],
   subjects: [
     completeSubject({
       _id: "background",

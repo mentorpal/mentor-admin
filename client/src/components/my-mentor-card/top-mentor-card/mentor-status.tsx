@@ -20,7 +20,7 @@ const ColorTooltip = withStyles({
 })(Tooltip);
 
 function MentorStatus(props: {
-  continueAction: () => void;
+  trainMentor: () => void;
   updateThumbnail: (file: File) => void;
   incrementTooltip: () => void;
   localHasSeenTooltips: boolean;
@@ -28,7 +28,7 @@ function MentorStatus(props: {
   idxTooltip: number;
 }): JSX.Element {
   const { incrementTooltip, idxTooltip, hasSeenTooltips } = props;
-  const { continueAction, updateThumbnail } = props;
+  const { trainMentor, updateThumbnail } = props;
   const { getData } = useActiveMentor();
   const [statusTooltipOpen, setStatusTooltipOpen] = useState<boolean>(false);
 
@@ -84,7 +84,7 @@ function MentorStatus(props: {
     <Grid xs={12} md={10}>
       <RecommendedActionButton
         setThumbnail={updateThumbnail}
-        continueAction={continueAction}
+        trainMentor={trainMentor}
         incrementTooltip={incrementTooltip}
         idxTooltip={idxTooltip}
         hasSeenTooltips={hasSeenTooltips}

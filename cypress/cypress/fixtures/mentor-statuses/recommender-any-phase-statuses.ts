@@ -12,65 +12,31 @@ import {
   SubjectTypes,
   UtteranceName,
 } from "../../support/types";
-
-export const mentor: Mentor = {
-  _id: "clintanderson",
-  thumbnail: "https://new.url/test.png",
-  name: "Clinton Anderson",
-  firstName: "Clint",
-  title: "Nuclear Electrician's Mate",
-  mentorType: MentorType.VIDEO,
-  lastTrainedAt: "Today",
-  isDirty: false,
-  email: "clint@anderson.com",
-  questions: [],
-  keywords: [],
-  subjects: [
+import { status1 } from "../mentor";
+export const startState: Mentor = {
+  ...status1,
+  answers: [],
+  subjects: [],
+  thumbnail: "",
+};
+export const hasGoal: Mentor = {
+  ...startState,
+  goal: "Hello, world",
+};
+export const hasKeywords: Mentor = {
+  ...hasGoal,
+  keywords: [
     {
-      _id: "background",
-      name: "Background",
-      type: SubjectTypes.SUBJECT,
-      isRequired: true,
-      description:
-        "These questions will ask general questions about your background that might be relevant to how people understand your career.",
-      categories: [
-        {
-          id: "category",
-          name: "Category",
-          description: "A category",
-        },
-      ],
-      topics: [],
-      questions: [
-        {
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Who are you and what do you do?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-          category: {
-            id: "category",
-            name: "Category",
-            description: "A category",
-          },
-        },
-        {
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "How old are you now?",
-            type: QuestionType.QUESTION,
-            name: null,
-            paraphrases: [],
-          },
-          topics: [],
-        },
-      ],
+      _id: "12",
+      name: "White",
+      type: "Ethnicity",
     },
+  ],
+};
+
+export const hasSubjects: Mentor = {
+  ...hasKeywords,
+  subjects: [
     {
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
@@ -123,118 +89,110 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
-          category: {
-            id: "category2",
-            name: "Category2",
-            description: "Another category",
-          },
-        },
-        {
-          question: {
-            _id: "A8_1_1",
-            clientId: "C8_1_1",
-            question: "test",
-            type: QuestionType.UTTERANCE,
-            name: UtteranceName.OFF_TOPIC,
-            paraphrases: [],
-            mentor: "clintanderson",
-          },
-          topics: [],
-          category: {
-            id: "category2",
-            name: "Category2",
-            description: "Another category",
-          },
         },
       ],
     },
   ],
-  topics: [],
+};
+
+export const hasIdle: Mentor = {
+  ...hasSubjects,
   answers: [
-    {
-      _id: "A1_1_1",
-      question: {
-        _id: "A1_1_1",
-        clientId: "C_A1_1_1",
-        question: "Who are you and what do you do?",
-        type: QuestionType.QUESTION,
-        name: null,
-        paraphrases: [],
-      },
-      transcript:
-        "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
-      status: Status.COMPLETE,
-    },
-    {
-      _id: "A2_1_1",
-      question: {
-        _id: "A2_1_1",
-        clientId: "C_A2_1_1",
-        question: "How old are you now?",
-        type: QuestionType.QUESTION,
-        name: null,
-        paraphrases: [],
-      },
-      transcript: "I'm 37 years old",
-      status: Status.COMPLETE,
-    },
+    ...hasSubjects.answers,
     {
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
-        clientId: "C_A3_1_1",
+        clientId: "C3_1_1",
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.IDLE,
         paraphrases: [],
       },
-      media: [{ url: "video.mp4", tag: "idle", type: "video" }],
+      webMedia: { url: "video.mp4", tag: "intro", type: "video" },
       transcript: "",
       status: Status.COMPLETE,
     },
+  ],
+};
+
+export const hasIntroNoTranscript: Mentor = {
+  ...hasIdle,
+  answers: [
+    ...hasIdle.answers,
     {
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
-        clientId: "C_A4_1_1",
+        clientId: "C4_1_1",
         question:
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.INTRO,
         paraphrases: [],
       },
-      transcript: "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
-      status: Status.COMPLETE,
+      webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+      transcript: "",
+      status: Status.NONE,
     },
+  ],
+};
+
+export const hasIntroAndNoOffTopicVideo: Mentor = {
+  ...hasIntroNoTranscript,
+  answers: [
+    ...hasIntroNoTranscript.answers.map((a) => {
+      const aCopy = JSON.parse(JSON.stringify(a));
+      if (aCopy.question.name === UtteranceName.INTRO) {
+        aCopy.transcript = "intro transcript";
+        aCopy.status = Status.COMPLETE;
+      }
+      return aCopy;
+    }),
     {
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
-        clientId: "C_A5_1_1",
+        clientId: "C5_1_1",
         question:
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
         type: QuestionType.UTTERANCE,
         name: UtteranceName.OFF_TOPIC,
         paraphrases: [],
       },
-      transcript: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      _id: "A8_1_1",
-      question: {
-        _id: "A8_1_1",
-        clientId: "C_A8_1_1",
-        question: "test",
-        type: QuestionType.UTTERANCE,
-        name: UtteranceName.OFF_TOPIC,
-        paraphrases: [],
-        mentor: "clintanderson",
-      },
-      transcript: "",
+      transcript: "transcript",
       status: Status.INCOMPLETE,
     },
   ],
 };
-export default mentor;
+
+export const missingOffTopicTranscript: Mentor = {
+  ...hasIntroAndNoOffTopicVideo,
+  answers: hasIntroAndNoOffTopicVideo.answers.map((a) => {
+    const aCopy = JSON.parse(JSON.stringify(a));
+    if (aCopy.question.name === UtteranceName.OFF_TOPIC) {
+      aCopy.webMedia = { url: "video.mp4", tag: "intro", type: "video" };
+      aCopy.transcript = "";
+    }
+    return aCopy;
+  }),
+};
+
+export const hasOffTopicComplete: Mentor = {
+  ...missingOffTopicTranscript,
+  answers: missingOffTopicTranscript.answers.map((a) => {
+    const aCopy = JSON.parse(JSON.stringify(a));
+    if (aCopy.question.name === UtteranceName.OFF_TOPIC) {
+      aCopy.transcript = "off topic transcript";
+      aCopy.webMedia = { url: "video.mp4", tag: "intro", type: "video" };
+      aCopy.status = Status.COMPLETE;
+    }
+    return aCopy;
+  }),
+};
+
+export const hasThumbnail: Mentor = {
+  ...hasOffTopicComplete,
+  thumbnail: "fake/thumbnail",
+};

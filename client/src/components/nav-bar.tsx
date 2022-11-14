@@ -230,9 +230,9 @@ function NavMenu(props: {
         disabled={!props.mentorId}
         onClick={() => {
           if (props.onNav) {
-            props.onNav(() => launchMentor(props.mentorId));
+            props.onNav(() => launchMentor(props.mentorId, false, true));
           } else {
-            launchMentor(props.mentorId);
+            launchMentor(props.mentorId, false, true);
           }
         }}
       >
