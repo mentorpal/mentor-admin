@@ -232,6 +232,7 @@ export function cyMockDefault(
   cyMockRegenVTT(cy);
   cyMockCancelUpload(cy);
   cyMockEncodeSentences(cy);
+  cyMockTrain(cy);
 
   const mentors = [];
   if (args.mentor) {
