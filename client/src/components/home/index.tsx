@@ -51,6 +51,8 @@ import UploadingWidget from "components/record/uploading-widget";
 import RecordQueueBlock from "./record-queue-block";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
+import { trainMentor } from "api";
+import { useWithConfig } from "store/slices/config/useWithConfig";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -164,6 +166,7 @@ function HomePage(props: {
   const { recordQueue, removeQuestionFromQueue } = useWithRecordQueue(
     props.accessToken
   );
+  const { state: configState } = useWithConfig();
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
   const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
@@ -230,6 +233,27 @@ function HomePage(props: {
     }
     setShowSetupAlert(!setupStatus.isSetupComplete);
   }, [setupStatus]);
+
+  useEffect(() => {
+    if (
+      !mentorId ||
+      !props.accessToken ||
+      !configState.config?.classifierLambdaEndpoint
+    ) {
+      return;
+    }
+    // ping classifier to spin up lambda
+    trainMentor(
+      mentorId,
+      props.accessToken,
+      configState.config?.classifierLambdaEndpoint,
+      true
+    );
+  }, [
+    props.accessToken,
+    configState.config?.classifierLambdaEndpoint,
+    mentorId,
+  ]);
 
   // memoized train mentor
   const startTrainingMentor = useCallback(() => {

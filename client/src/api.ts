@@ -1194,11 +1194,12 @@ export async function deleteImportTask(
 export async function trainMentor(
   mentorId: string,
   accessToken: string,
-  classifierLambdaEndpoint?: string
+  classifierLambdaEndpoint?: string,
+  ping?: boolean
 ): Promise<AsyncJob> {
   return execHttp("POST", urljoin(classifierLambdaEndpoint, "train"), {
     axiosConfig: {
-      data: { mentor: mentorId },
+      data: { mentor: mentorId, ping: ping || false },
     },
     accessToken,
   });
