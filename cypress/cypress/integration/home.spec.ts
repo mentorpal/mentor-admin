@@ -1015,4 +1015,56 @@ describe("My Mentor Page", () => {
       );
     });
   });
+
+  it("can use button to expand and collapse all question lists", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clint,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    // Confirm no answers showing by default
+    cy.get("[data-cy=block-0]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-1]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-2]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-3]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    // expand all
+    cy.get("[data-cy=toggle-all-dropdowns]").click();
+    // confirm all answers are expanded (visible)
+    cy.get("[data-cy=block-0]").within(() => {
+      cy.get("[data-cy=answer-0]").should("exist");
+    });
+    cy.get("[data-cy=block-1]").within(() => {
+      cy.get("[data-cy=answer-0]").should("exist");
+    });
+    cy.get("[data-cy=block-2]").within(() => {
+      cy.get("[data-cy=answer-0]").should("exist");
+    });
+    cy.get("[data-cy=block-3]").within(() => {
+      cy.get("[data-cy=answer-0]").should("exist");
+    });
+    // collapse all
+    cy.get("[data-cy=toggle-all-dropdowns]").click();
+    // confirm all answers are collapsed (not visible)
+    cy.get("[data-cy=block-0]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-1]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-2]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+    cy.get("[data-cy=block-3]").within(() => {
+      cy.get("[data-cy=answer-0]").should("not.exist");
+    });
+  });
 });

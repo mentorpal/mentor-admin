@@ -183,6 +183,8 @@ function HomePage(props: {
   const [localHasSeenTooltips, setLocalHasSeenTooltips] = useState(false);
   const { userSawSplashScreen, userSawTooltips } = loginState;
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  const [expandAllRecordingBlocks, setExpandAllRecordingBlocks] =
+    useState(false);
 
   const hasSeenSplash = Boolean(
     loginState.state.user?.firstTimeTracking.myMentorSplash ||
@@ -215,6 +217,7 @@ function HomePage(props: {
           recordAnswer={recordAnswer}
           addNewQuestion={reviewAnswerState.addNewQuestion}
           editQuestion={reviewAnswerState.editQuestion}
+          expandAllRecordingBlocks={expandAllRecordingBlocks}
         />
       </ListItem>
     ));
@@ -225,6 +228,7 @@ function HomePage(props: {
     reviewAnswerState.getAnswers(),
     reviewAnswerState.getQuestions(),
     mentorId,
+    expandAllRecordingBlocks,
   ]);
 
   useEffect(() => {
@@ -357,7 +361,7 @@ function HomePage(props: {
         onRecordPage={false}
         recordState={recordState}
       />
-      <div>
+      <div style={{ position: "relative" }}>
         <NavBar
           title={
             mentorId === defaultMentor
@@ -381,6 +385,21 @@ function HomePage(props: {
           hasSeenTooltips={hasSeenTooltips}
           localHasSeenTooltips={localHasSeenTooltips}
         />
+        <Button
+          variant="contained"
+          data-cy="toggle-all-dropdowns"
+          style={{
+            width: "fit-content",
+            position: "absolute",
+            left: 20,
+            bottom: 5,
+          }}
+          onClick={() => {
+            setExpandAllRecordingBlocks((prevValue) => !prevValue);
+          }}
+        >
+          {expandAllRecordingBlocks ? "Collapse" : "Expand"} All
+        </Button>
         {props.user.userRole === UserRole.ADMIN && (
           <Fab
             data-cy="default-mentor-button"
@@ -497,6 +516,7 @@ function HomePage(props: {
             classes={classes}
             accessToken={props.accessToken}
             recordQueue={recordQueue}
+            expandLists={expandAllRecordingBlocks}
             removeFromQueue={removeQuestionFromQueue}
           />
         </ListItem>

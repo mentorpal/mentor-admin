@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Card,
@@ -29,6 +29,7 @@ function AnswerList(props: {
   header: string;
   answers: Answer[];
   questions: QuestionEdits[];
+  expandLists: boolean;
   onRecordAll: () => void;
   onRecordOne: (question: QuestionEdits) => void;
   onEditQuestion: (question: QuestionEdits) => void;
@@ -44,6 +45,10 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
+
+  useEffect(() => {
+    setExpanded(props.expandLists);
+  }, [props.expandLists]);
 
   return (
     <Card
