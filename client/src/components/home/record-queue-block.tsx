@@ -35,6 +35,7 @@ export default function RecordQueueBlock(props: {
   accessToken: string;
   recordQueue: string[];
   removeFromQueue: (questionId: string) => void;
+  expandLists: boolean;
 }): JSX.Element {
   const { recordQueue, removeFromQueue } = props;
   const { getData } = useActiveMentor();
@@ -47,6 +48,10 @@ export default function RecordQueueBlock(props: {
   const [isExpanded, setExpanded] = React.useState(false);
   const [recordQueueTexts, setRecordQueueTexts] = React.useState<string[]>([]);
   const { classes } = props;
+
+  useEffect(() => {
+    setExpanded(props.expandLists);
+  }, [props.expandLists]);
 
   function onRecordOne(questionId: string) {
     navigate(

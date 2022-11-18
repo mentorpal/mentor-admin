@@ -20,6 +20,7 @@ export default function RecordingBlockItem(props: {
   block: RecordingBlock;
   mentorId: string;
   mentorType: MentorType;
+  expandAllRecordingBlocks: boolean;
   getAnswers: () => Answer[];
   getQuestions: () => QuestionEdits[];
   recordAnswers: (status: Status, subject: string, category: string) => void;
@@ -75,6 +76,7 @@ export default function RecordingBlockItem(props: {
             header="Complete"
             answers={complete}
             questions={questionEdits}
+            expandLists={props.expandAllRecordingBlocks}
             onRecordAll={() =>
               props.recordAnswers(
                 Status.COMPLETE,
@@ -90,6 +92,7 @@ export default function RecordingBlockItem(props: {
             header="Incomplete"
             answers={incomplete}
             questions={questionEdits}
+            expandLists={props.expandAllRecordingBlocks}
             mentorId={props.mentorId}
             onRecordAll={() =>
               props.recordAnswers(
