@@ -56,7 +56,7 @@ export function useWithUsers(accessToken: string): UseUserData {
   }
 
   function onUpdateMentorPrivacy(mentorId: string, isPrivate: boolean): void {
-    updateMentorPrivacy(mentorId, isPrivate, accessToken)
+    updateMentorPrivacy(accessToken, { isPrivate }, mentorId)
       .then(() => {
         reloadData();
       })

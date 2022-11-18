@@ -57,7 +57,6 @@ import {
   UseOrganizationData,
   useWithOrganizations,
 } from "hooks/graphql/use-with-organizations";
-import { useWithConfig } from "hooks/graphql/use-with-config";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Organization, User, UserRole } from "types";
@@ -258,20 +257,15 @@ function OrganizationsTable(props: {
   user: User;
 }): JSX.Element {
   const styles = useStyles();
-  const [editOrg, setEditOrg] = useState<Organization>();
-  const config = useWithConfig(props.accessToken);
+  const [editOrg, setEditOrg] = useState<Partial<Organization>>();
 
   function onCreateOrg(): void {
-    if (!config.config) {
-      return;
-    }
     setEditOrg({
       uuid: uuid(),
       _id: "",
       name: "",
       subdomain: "",
       isPrivate: false,
-      config: config.config,
       members: [],
     });
   }
@@ -326,10 +320,10 @@ function OrganizationsTable(props: {
 }
 
 function EditOrganization(props: {
-  org: Organization | undefined;
+  org: Partial<Organization> | undefined;
   orgPagin: UseOrganizationData;
   userPagin: UseUserData;
-  edit: (org: Organization | undefined) => void;
+  edit: (org: Partial<Organization> | undefined) => void;
   save: () => void;
 }): JSX.Element {
   const styles = useStyles();
@@ -346,6 +340,17 @@ function EditOrganization(props: {
       setMsg("* must have name");
     } else if (!org.subdomain) {
       setMsg("* must have subdomain");
+    } else if (
+      org.subdomain === "newdev" ||
+      org.subdomain === "v2" ||
+      org.subdomain === "careerfair" ||
+      org.subdomain === "mentorpal"
+    ) {
+      setMsg("* subdomain is reserved");
+    } else if (!/^[a-z0-9]{3,20}$/.test(org.subdomain)) {
+      throw new Error(
+        "* subdomain must be lower-case, alpha-numerical, and 3-20 characters"
+      );
     } else if (
       orgPagin.data.edges.find(
         (e) => e.node.subdomain === org.subdomain && e.node._id !== org._id
@@ -408,7 +413,7 @@ function EditOrganization(props: {
           style={{ height: 300, overflow: "auto", marginTop: 10 }}
           subheader={<ListSubheader>Members</ListSubheader>}
         >
-          {org?.members.map((m, i) => {
+          {org?.members?.map((m, i) => {
             return (
               <ListItem key={`member-${i}`} data-cy={`member-${i}`}>
                 <Card style={{ width: "100%" }}>
@@ -423,6 +428,7 @@ function EditOrganization(props: {
                       data-cy="member-name"
                       data-test={m.user.name}
                       primary={m.user.name}
+                      secondary={m.user.email}
                       style={{ flexGrow: 1 }}
                     />
                     <Select
@@ -436,7 +442,7 @@ function EditOrganization(props: {
                       ) =>
                         edit({
                           ...org!,
-                          members: copyAndSet(org.members, i, {
+                          members: copyAndSet(org.members || [], i, {
                             ...m,
                             role: event.target.value as string,
                           }),
@@ -466,7 +472,7 @@ function EditOrganization(props: {
                             onClick={() =>
                               edit({
                                 ...org!,
-                                members: copyAndRemove(org.members, i),
+                                members: copyAndRemove(org.members || [], i),
                               })
                             }
                           >
@@ -488,13 +494,16 @@ function EditOrganization(props: {
           options={userPagin.data?.edges.map((e) => e.node) || []}
           getOptionLabel={(option: User) => option.name}
           getOptionDisabled={(option: User) =>
-            Boolean(org!.members.find((m) => m.user._id === option._id))
+            Boolean(org!.members?.find((m) => m.user._id === option._id))
           }
           onChange={(e, v) => {
             if (v)
               edit({
                 ...org!,
-                members: [...org!.members, { user: v, role: UserRole.USER }],
+                members: [
+                  ...(org!.members || []),
+                  { user: v, role: UserRole.USER },
+                ],
               });
           }}
           style={{ width: "100%" }}

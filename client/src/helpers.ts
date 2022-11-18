@@ -11,8 +11,10 @@ import axios from "axios";
 import {
   Answer,
   MediaType,
+  Mentor,
   MentorType,
   Organization,
+  OrgPermissionType,
   Status,
   User,
   UserRole,
@@ -62,6 +64,12 @@ export function urlBuild(
   });
   const qs = query.toString();
   return qs ? `${base}?${qs}` : base; // don't put ? if no query string
+}
+
+export function removeQueryParamFromUrl(param: string): void {
+  const url = new URL(window.location.href);
+  url.searchParams.delete(param);
+  window.history.pushState({ path: url.href }, "", url.href);
 }
 
 /**
@@ -226,6 +234,99 @@ export function canEditContent(user: User | undefined): boolean {
   );
 }
 
+export function canEditMentor(
+  mentor: Mentor,
+  user: User,
+  orgs: Organization[] = []
+): boolean {
+  if (!mentor || !user) {
+    return false;
+  }
+  const ops = mentor.orgPermissions?.filter(
+    (op) =>
+      op.permission === OrgPermissionType.MANAGE ||
+      op.permission === OrgPermissionType.ADMIN
+  );
+  if (ops) {
+    const os = ops.map((op) => op.org);
+    for (const org of orgs.filter((o) => os.includes(o._id))) {
+      if (
+        org.members.find(
+          (m) =>
+            m.user._id === user._id &&
+            (m.role === UserRole.ADMIN || m.role === UserRole.CONTENT_MANAGER)
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  const userRole = user.userRole;
+  return (
+    user.defaultMentor._id === mentor._id ||
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canEditMentorPrivacy(
+  mentor: Mentor,
+  user: User,
+  orgs: Organization[] = []
+): boolean {
+  if (!mentor || !user) {
+    return false;
+  }
+  const ops = mentor.orgPermissions?.filter(
+    (op) => op.permission === OrgPermissionType.ADMIN
+  );
+  if (ops) {
+    const os = ops.map((op) => op.org);
+    for (const org of orgs.filter((o) => os.includes(o._id))) {
+      if (
+        org.members.find(
+          (m) => m.user._id === user._id && m.role === UserRole.ADMIN
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  const userRole = user.userRole;
+  return (
+    user.defaultMentor._id === mentor._id ||
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canEditUserRole(
+  user: User,
+  toEdit: User,
+  role: UserRole
+): boolean {
+  if (
+    user.userRole !== UserRole.ADMIN &&
+    user.userRole !== UserRole.SUPER_ADMIN
+  ) {
+    return false;
+  }
+  if (role === UserRole.SUPER_ADMIN && user.userRole !== UserRole.SUPER_ADMIN) {
+    return false;
+  }
+  if (
+    toEdit.userRole == UserRole.SUPER_ADMIN &&
+    user.userRole !== UserRole.SUPER_ADMIN
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function canViewOrganization(org: Organization, user: User): boolean {
   if (!org) {
     return false;
@@ -240,7 +341,7 @@ export function canViewOrganization(org: Organization, user: User): boolean {
     ) {
       return true;
     }
-    return Boolean(org.members.find((m) => equals(m.user._id, user._id)));
+    return Boolean(org.members?.find((m) => equals(m.user._id, user._id)));
   }
   return true;
 }
@@ -256,7 +357,7 @@ export function canEditOrganization(org: Organization, user: User): boolean {
     return true;
   }
   return Boolean(
-    org.members.find(
+    org.members?.find(
       (m) =>
         equals(m.user._id, user._id) &&
         (m.role === UserRole.CONTENT_MANAGER || m.role === UserRole.ADMIN)

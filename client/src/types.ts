@@ -133,6 +133,7 @@ export interface Mentor {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
   keywords: Keyword[];
@@ -140,6 +141,19 @@ export interface Mentor {
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+}
+
+export enum OrgPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  HIDDEN = "HIDDEN", // org cannot see or use mentor
+  SHARE = "SHARE", // org can use mentor as-is
+  MANAGE = "MANAGE", // org can edit content
+  ADMIN = "ADMIN", // org can edit content and edit sharing settings
+}
+export interface OrgPermission {
+  org: string;
+  orgName: string;
+  permission: OrgPermissionType;
 }
 
 export interface Keyword {

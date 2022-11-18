@@ -58,7 +58,7 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, Keyword, MentorPanel, Organization, User } from "types";
+import { Config, Keyword, MentorPanel, User } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
 import withLocation from "wrap-with-location";
 
@@ -883,33 +883,30 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   } = useWithConfig(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
-  const { height } = useWithWindowSize();
   const { data: subjects } = useWithSubjects();
-
-  const permissionToView = canEditContent(props.user);
+  const { height } = useWithWindowSize();
   const [tab, setTab] = useState<string>("featured-mentors");
 
   useEffect(() => {
     switchActiveMentor();
   }, []);
 
-  if (!permissionToView) {
-    return (
-      <div>You must be an admin or content manager to view this page.</div>
-    );
-  }
-
-  if (isLoading || !config) {
+  if (isLoading) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
       </div>
     );
   }
+  if (!canEditContent(props.user) && orgs.length === 0) {
+    return (
+      <div>You must be an admin or content manager to view this page.</div>
+    );
+  }
 
   return (
     <div className={styles.root}>
-      <NavBar title={`Manage Config`} />
+      <NavBar title={`Manage${org ? ` ${org.name} ` : " "}Config`} />
       <TabContext value={tab}>
         <TabList onChange={(event, newValue) => setTab(newValue)}>
           <Tab
@@ -1011,7 +1008,11 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           }
           style={{ width: 270, position: "absolute", bottom: 25, right: 25 }}
         >
-          <MenuItem data-cy="org-none" value={undefined}>
+          <MenuItem
+            data-cy="org-none"
+            value={undefined}
+            disabled={!canEditContent(props.user)}
+          >
             None
           </MenuItem>
           {orgs.map((o) => (

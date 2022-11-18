@@ -39,10 +39,16 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { Edge, User, UserRole } from "types";
+import { Edge, Organization, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import { launchMentor } from "../helpers";
+import {
+  canEditMentor,
+  canEditMentorPrivacy,
+  canEditUserRole,
+  launchMentor,
+} from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -112,6 +118,13 @@ const columns: ColumnDef[] = [
     sortable: true,
   },
   {
+    id: "isPrivate",
+    label: "Privacy",
+    minWidth: 0,
+    align: "left",
+    sortable: true,
+  },
+  {
     id: "actions",
     label: "",
     minWidth: 0,
@@ -165,14 +178,14 @@ function UserItem(props: {
   i: number;
   accessToken: string;
   userPagin: UseUserData;
-  userRole: UserRole;
+  user: User;
+  orgs: Organization[];
 }): JSX.Element {
-  const { edge, i } = props;
+  const { edge, i, user, orgs } = props;
   const styles = useStyles();
-  const hasEditPermission =
-    props.userRole === UserRole.ADMIN ||
-    props.userRole === UserRole.SUPER_ADMIN;
   const { switchActiveMentor } = useActiveMentor();
+  const userRole = user.userRole;
+  const mentor = edge.node.defaultMentor;
 
   function handleRoleChange(user: string, permission: string): void {
     props.userPagin.onUpdateUserPermissions(user, permission);
@@ -188,13 +201,13 @@ function UserItem(props: {
         {edge.node.name}
       </TableCell>
       <TableCell data-cy="defaultMentor" align="left">
-        {edge.node.defaultMentor?.name || ""}
+        {mentor?.name || ""}
       </TableCell>
       <TableCell data-cy="email" align="left">
         {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
-        {hasEditPermission ? (
+        {userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN ? (
           <Select
             data-cy="select-role"
             value={edge.node.userRole}
@@ -208,58 +221,71 @@ function UserItem(props: {
             <MenuItem
               data-cy={`role-dropdown-${UserRole.USER}`}
               value={UserRole.USER}
+              disabled={!canEditUserRole(props.user, edge.node, UserRole.USER)}
             >
               User
             </MenuItem>
             <MenuItem
               data-cy={`role-dropdown-${UserRole.CONTENT_MANAGER}`}
               value={UserRole.CONTENT_MANAGER}
+              disabled={
+                !canEditUserRole(
+                  props.user,
+                  edge.node,
+                  UserRole.CONTENT_MANAGER
+                )
+              }
             >
               Content Manager
             </MenuItem>
             <MenuItem
               data-cy={`role-dropdown-${UserRole.ADMIN}`}
               value={UserRole.ADMIN}
+              disabled={!canEditUserRole(props.user, edge.node, UserRole.ADMIN)}
             >
               Admin
             </MenuItem>
-            {props.userRole === UserRole.SUPER_ADMIN ? (
+            {props.user.userRole === UserRole.SUPER_CONTENT_MANAGER ? (
               <MenuItem
-                data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
-                value={UserRole.SUPER_ADMIN}
+                data-cy={`role-dropdown-${UserRole.SUPER_CONTENT_MANAGER}`}
+                value={UserRole.SUPER_CONTENT_MANAGER}
+                disabled={
+                  !canEditUserRole(
+                    props.user,
+                    edge.node,
+                    UserRole.SUPER_CONTENT_MANAGER
+                  )
+                }
               >
-                Super Admin
+                Super Content Manager
               </MenuItem>
             ) : undefined}
-            {props.userRole === UserRole.SUPER_ADMIN ? (
+            {props.user.userRole === UserRole.SUPER_ADMIN ? (
               <MenuItem
                 data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
                 value={UserRole.SUPER_ADMIN}
+                disabled={
+                  !canEditUserRole(props.user, edge.node, UserRole.SUPER_ADMIN)
+                }
               >
                 Super Admin
               </MenuItem>
             ) : undefined}
           </Select>
         ) : (
-          edge.node.userRole
+          <div>{edge.node.userRole}</div>
         )}
       </TableCell>
       <TableCell data-cy="privacy" align="left">
-        {hasEditPermission ? (
-          edge.node.defaultMentor?.isPrivate ? (
-            "Private"
-          ) : (
-            "Public"
-          )
-        ) : (
+        {canEditMentorPrivacy(mentor, props.user, props.orgs) ? (
           <Select
             data-cy="select-privacy"
-            value={edge.node.defaultMentor.isPrivate ? "true" : "false"}
+            value={mentor.isPrivate ? "true" : "false"}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) => {
               handlePrivacyChange(
-                edge.node.defaultMentor._id,
+                mentor._id,
                 (event.target.value as string) === "true"
               );
             }}
@@ -272,6 +298,8 @@ function UserItem(props: {
               Private
             </MenuItem>
           </Select>
+        ) : (
+          <div>{mentor.isPrivate ? "Private" : "Public"}</div>
         )}
       </TableCell>
       <TableCell data-cy="actions" align="right">
@@ -279,8 +307,7 @@ function UserItem(props: {
           <IconButton
             data-cy="launch-default-mentor"
             onClick={() => {
-              if (edge.node.defaultMentor._id)
-                launchMentor(edge.node.defaultMentor._id, true);
+              if (mentor._id) launchMentor(mentor._id, true);
             }}
             className={styles.normalButton}
           >
@@ -291,9 +318,10 @@ function UserItem(props: {
           <IconButton
             data-cy="import-button"
             onClick={() => {
-              switchActiveMentor(edge.node.defaultMentor._id);
+              switchActiveMentor(mentor._id);
               navigate("/importexport");
             }}
+            disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
           >
             <ImportExport />
@@ -302,9 +330,8 @@ function UserItem(props: {
         <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
           <IconButton
             data-cy="export-button"
-            onClick={() =>
-              exportMentor(edge.node.defaultMentor._id, props.accessToken)
-            }
+            onClick={() => exportMentor(mentor._id, props.accessToken)}
+            disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
           >
             <GetAppIcon />
@@ -314,9 +341,10 @@ function UserItem(props: {
           <IconButton
             data-cy="edit-button"
             onClick={() => {
-              switchActiveMentor(edge.node.defaultMentor._id);
+              switchActiveMentor(mentor._id);
               navigate("/");
             }}
+            disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
           >
             <EditIcon />
@@ -329,11 +357,11 @@ function UserItem(props: {
 
 function UsersTable(props: {
   accessToken: string;
+  orgs: Organization[];
   userPagin: UseUserData;
-  userRole: UserRole;
+  user: User;
 }): JSX.Element {
   const styles = useStyles();
-
   return (
     <div className={styles.root}>
       <Paper className={styles.container}>
@@ -352,8 +380,9 @@ function UsersTable(props: {
                   edge={edge}
                   i={i}
                   accessToken={props.accessToken}
+                  orgs={props.orgs}
                   userPagin={props.userPagin}
-                  userRole={props.userRole}
+                  user={props.user}
                 />
               ))}
             </TableBody>
@@ -378,26 +407,30 @@ function UsersTable(props: {
 
 function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
+  const orgsPagin = useWithOrganizations(props.accessToken);
   const styles = useStyles();
   const { switchActiveMentor } = useActiveMentor();
-  const permissionToView =
-    props.user.userRole === UserRole.ADMIN ||
-    props.user.userRole === UserRole.CONTENT_MANAGER;
+
+  const mentors = userPagin.data?.edges.map((e) => e.node.defaultMentor) || [];
+  const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
+  const mentorsCanEdit = mentors.filter((m) =>
+    canEditMentor(m, props.user, orgs)
+  );
 
   useEffect(() => {
     switchActiveMentor();
   }, []);
 
-  if (!permissionToView) {
-    return (
-      <div>You must be an admin or content manager to view this page.</div>
-    );
-  }
   if (!userPagin.data) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
       </div>
+    );
+  }
+  if (mentorsCanEdit.length === 0) {
+    return (
+      <div>You must be an admin or content manager to view this page.</div>
     );
   }
 
@@ -406,8 +439,9 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
       <NavBar title="Manage Users" />
       <UsersTable
         accessToken={props.accessToken}
-        userRole={props.user.userRole}
+        user={props.user}
         userPagin={userPagin}
+        orgs={orgs}
       />
       <ErrorDialog error={userPagin.userDataError} />
       <LoadingDialog title={userPagin.isLoading ? "Loading..." : ""} />

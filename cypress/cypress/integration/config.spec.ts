@@ -916,10 +916,14 @@ describe("users screen", () => {
         ],
       });
       cy.visit("/config");
+      cy.contains("Manage Config");
       cy.get("[data-cy=select-org]").should("exist");
+      cy.get("[data-cy=select-org]").click();
+      cy.get("[data-cy=org-csuf]").click();
+      cy.contains("Manage CSUF Config");
     });
 
-    it("if super admin", () => {
+    it("if super content manager", () => {
       cyMockDefault(cy, {
         mentor: [newMentor],
         config: config,
@@ -939,12 +943,68 @@ describe("users screen", () => {
         ],
       });
       cy.visit("/config");
+      cy.contains("Manage Config");
       cy.get("[data-cy=select-org]").should("exist");
+      cy.get("[data-cy=select-org]").click();
+      cy.get("[data-cy=org-csuf]").click();
+      cy.contains("Manage CSUF Config");
     });
 
-    it("if admin of org", () => {});
+    it("if admin of org", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: {
+            ...loginDefault.user,
+            _id: "admin",
+            userRole: UserRole.ADMIN,
+          },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.contains("Manage Config");
+      cy.get("[data-cy=select-org]").should("exist");
+      cy.get("[data-cy=select-org]").click();
+      cy.get("[data-cy=org-csuf]").click();
+      cy.contains("Manage CSUF Config");
+    });
 
-    it("if content manager of org", () => {});
+    it("if content manager of org", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: {
+            ...loginDefault.user,
+            _id: "contentmanager",
+            userRole: UserRole.ADMIN,
+          },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.contains("Manage Config");
+      cy.get("[data-cy=select-org]").should("exist");
+      cy.get("[data-cy=select-org]").click();
+      cy.get("[data-cy=org-csuf]").click();
+      cy.contains("Manage CSUF Config");
+    });
 
     it("is hidden if no editable orgs", () => {
       cyMockDefault(cy, {
@@ -963,7 +1023,29 @@ describe("users screen", () => {
         ],
       });
       cy.visit("/config");
+      cy.contains("Manage Config");
       cy.get("[data-cy=select-org]").should("not.exist");
+    });
+
+    it("uses org config as default if query params", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config?org=csuf");
+      cy.contains("Manage CSUF Config");
+      cy.get("[data-cy=select-org]").should("exist");
     });
   });
 });

@@ -17,8 +17,7 @@ import {
 
 export interface UseOrganizationData
   extends UseStaticDataConnection<Organization> {
-  saveOrganization: (org: Organization) => void;
-  updatePrivacy: (org: Organization, isPrivate: boolean) => void;
+  saveOrganization: (org: Partial<Organization>) => void;
   updateOrganizationConfig: (org: Organization, config: Config) => void;
 }
 
@@ -41,15 +40,11 @@ export function useWithOrganizations(accessToken: string): UseOrganizationData {
     return fetchOrganizations(accessToken, searchParams);
   }
 
-  function updatePrivacy(org: Organization, isPrivate: boolean): void {
-    saveOrganization({ ...org, isPrivate });
-  }
-
   function updateOrganizationConfig(org: Organization, config: Config): void {
     updateOrgConfig(accessToken, org._id, config).then(() => reloadData());
   }
 
-  function saveOrganization(org: Organization): void {
+  function saveOrganization(org: Partial<Organization>): void {
     addOrUpdateOrganization(accessToken, org, org._id).then(() => reloadData());
   }
 
@@ -65,7 +60,6 @@ export function useWithOrganizations(accessToken: string): UseOrganizationData {
     nextPage,
     prevPage,
     reloadData,
-    updatePrivacy,
     updateOrganizationConfig,
     saveOrganization,
   };

@@ -12,7 +12,13 @@ import {
   updateConfig,
   updateOrgConfig,
 } from "api";
-import { copyAndRemove, copyAndMove, canEditOrganization } from "helpers";
+import {
+  copyAndRemove,
+  copyAndMove,
+  canEditOrganization,
+  canEditContent,
+  removeQueryParamFromUrl,
+} from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
 import { useEffect, useState } from "react";
 import { Config, Connection, MentorPanel, Organization, User } from "types";
@@ -43,6 +49,7 @@ interface UseWithConfig {
 }
 
 export function useWithConfig(accessToken: string, user: User): UseWithConfig {
+  const params = new URLSearchParams(location.search);
   const {
     data: orgsData,
     error: orgsError,
@@ -76,10 +83,10 @@ export function useWithConfig(accessToken: string, user: User): UseWithConfig {
   const [mentorPanels, setMentorPanels] = useState<MentorPanel[]>([]);
 
   useEffect(() => {
-    if (!org && configData) {
-      setConfig(configData);
-    } else if (org) {
+    if (org) {
       setConfig(org.config);
+    } else if (canEditContent(user) && configData) {
+      setConfig(configData);
     }
   }, [configData, org]);
 
@@ -184,6 +191,25 @@ export function useWithConfig(accessToken: string, user: User): UseWithConfig {
       );
     }
   }, [orgsData]);
+
+  useEffect(() => {
+    if (!orgs || orgs.length === 0) {
+      return;
+    }
+    let o: Organization | undefined = undefined;
+    if (params.get("org")) {
+      o = orgs.find((o) => o._id === params.get("org"));
+    }
+    if (!canEditContent(user) && !o && !org) {
+      o = orgs[0];
+    }
+    if (o) {
+      setOrg(o);
+    }
+    if (params.get("org")) {
+      removeQueryParamFromUrl("org");
+    }
+  }, [orgs, params]);
 
   function _fetchConfig(): Promise<Config> {
     return fetchConfig();

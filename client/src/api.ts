@@ -285,6 +285,10 @@ export async function fetchUsers(
                 _id
                 name
                 isPrivate
+                orgPermissions {
+                  org
+                  permission
+                }
               }
             }
           }
@@ -308,24 +312,6 @@ export async function fetchUsers(
   );
 }
 
-export async function updateMentorPrivacy(
-  mentorId: string,
-  isPrivate: boolean,
-  accessToken: string
-): Promise<boolean> {
-  return execGql<boolean>(
-    {
-      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!) {
-        me {
-          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate)
-        }
-      }`,
-      variables: { mentorId, isPrivate },
-    },
-    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
-  );
-}
-
 export async function updateUserPermissions(
   userId: string,
   permissionLevel: string,
@@ -343,6 +329,50 @@ export async function updateUserPermissions(
       variables: { userId, permissionLevel },
     },
     { dataPath: ["me", "updateUserPermissions"], accessToken }
+  );
+}
+
+export async function fetchKeywords(
+  searchParams?: SearchParams
+): Promise<Connection<Keyword>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  return await execGql<Connection<Keyword>>(
+    {
+      query: `
+      query Keywords($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
+        keywords(
+          filter:$filter,
+          cursor:$cursor,
+          limit:$limit,
+          sortBy:$sortBy,
+          sortAscending:$sortAscending
+        ) {
+          edges {
+            cursor
+            node {
+              _id
+              name
+              type
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
+        }
+      }
+    `,
+      variables: {
+        filter: stringifyObject(params.filter),
+        limit: params.limit,
+        cursor: params.cursor,
+        sortBy: params.sortBy,
+        sortAscending: params.sortAscending,
+      },
+    },
+    { dataPath: "keywords" }
   );
 }
 
@@ -396,50 +426,6 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
       variables: { id },
     },
     { dataPath: "subject" }
-  );
-}
-
-export async function fetchKeywords(
-  searchParams?: SearchParams
-): Promise<Connection<Keyword>> {
-  const params = { ...defaultSearchParams, ...searchParams };
-  return await execGql<Connection<Keyword>>(
-    {
-      query: `
-      query Keywords($filter: Object!, $cursor: String!, $limit: Int!, $sortBy: String!, $sortAscending: Boolean!) {
-        keywords(
-          filter:$filter,
-          cursor:$cursor,
-          limit:$limit,
-          sortBy:$sortBy,
-          sortAscending:$sortAscending
-        ) {
-          edges {
-            cursor
-            node {
-              _id
-              name
-              type
-            }
-          }
-          pageInfo {
-            startCursor
-            endCursor
-            hasPreviousPage
-            hasNextPage
-          }
-        }
-      }
-    `,
-      variables: {
-        filter: stringifyObject(params.filter),
-        limit: params.limit,
-        cursor: params.cursor,
-        sortBy: params.sortBy,
-        sortAscending: params.sortAscending,
-      },
-    },
-    { dataPath: "keywords" }
   );
 }
 
@@ -592,30 +578,6 @@ export async function updateSubject(
   );
 }
 
-export async function updateMyFirstTimeTracking(
-  updates: Partial<FirstTimeTracking>,
-  accessToken: string
-): Promise<FirstTimeTracking> {
-  return await execGql<FirstTimeTracking>(
-    {
-      query: `
-      mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
-        me{
-          firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash,
-            tooltips,
-          }
-        }
-      }
-    `,
-      variables: {
-        updates,
-      },
-    },
-    { dataPath: ["me", "firstTimeTrackingUpdate"], accessToken }
-  );
-}
-
 export async function addOrUpdateSubjectQuestions(
   subject: string,
   questions: SubjectQuestionGQL[],
@@ -640,6 +602,30 @@ export async function addOrUpdateSubjectQuestions(
       },
     },
     { dataPath: ["me", "subjectAddOrUpdateQuestions"], accessToken }
+  );
+}
+
+export async function updateMyFirstTimeTracking(
+  updates: Partial<FirstTimeTracking>,
+  accessToken: string
+): Promise<FirstTimeTracking> {
+  return await execGql<FirstTimeTracking>(
+    {
+      query: `
+      mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
+        me{
+          firstTimeTrackingUpdate(updates: $updates){
+            myMentorSplash,
+            tooltips,
+          }
+        }
+      }
+    `,
+      variables: {
+        updates,
+      },
+    },
+    { dataPath: ["me", "firstTimeTrackingUpdate"], accessToken }
   );
 }
 
@@ -755,44 +741,44 @@ export async function fetchUserQuestions(
       query UserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
         userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
            edges {
-                  cursor
-                  node {
-                    _id
-                    question
-                    confidence
-                    classifierAnswerType
-                    feedback
-                    updatedAt
-                    createdAt
-                    dismissed
-                    mentor {
-                      _id
-                      name
-                    }
-                    classifierAnswer {
-                      _id
-                      transcript
-                      question {
-                        _id
-                        question
-                      }
-                    }
-                    graderAnswer {
-                      _id
-                      transcript
-                      question {
-                        _id
-                        question
-                      }
-                    }
-                  }
+            cursor
+            node {
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              updatedAt
+              createdAt
+              dismissed
+              mentor {
+                _id
+                name
+              }
+              classifierAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
                 }
-                pageInfo {
-                  startCursor
-                  endCursor
-                  hasPreviousPage
-                  hasNextPage
+              }
+              graderAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
                 }
+              }
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
         }
       }
     `,
@@ -819,18 +805,18 @@ export async function fetchTrendingFeedback(
       query TrendingUserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
         userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
            edges {
-                  cursor
-                  node {
-                    _id
-                    question
-                    confidence
-                    classifierAnswerType
-                    feedback
-                    updatedAt
-                    createdAt
-                    dismissed
-                  }
-              }
+            cursor
+            node {
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              updatedAt
+              createdAt
+              dismissed
+            }
+          }
         }
       }
     `,
@@ -966,6 +952,10 @@ export async function fetchMentorById(
           isDirty
           hasVirtualBackground
           virtualBackgroundUrl
+          orgPermissions {
+            org
+            permission
+          }
           defaultSubject {
             _id
           }
@@ -1149,6 +1139,28 @@ export async function updateMentorSubjects(
       },
     },
     { accessToken, dataPath: ["me", "updateMentorSubjects"] }
+  );
+}
+
+export async function updateMentorPrivacy(
+  accessToken: string,
+  mentor: Partial<Mentor>,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, orgPermissions: [OrgPermissionInputType]) {
+        me {
+          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate, orgPermissions: $orgPermissions)
+        }
+      }`,
+      variables: {
+        mentorId,
+        isPrivate: mentor.isPrivate,
+        orgPermissions: mentor.orgPermissions,
+      },
+    },
+    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
   );
 }
 
@@ -2148,6 +2160,7 @@ export async function fetchOrganizations(
                   user {
                     _id
                     name
+                    email
                   }
                   role
                 }
@@ -2203,7 +2216,7 @@ export async function fetchOrganizations(
 
 export async function addOrUpdateOrganization(
   accessToken: string,
-  organization: Organization,
+  organization: Partial<Organization>,
   id?: string
 ): Promise<Organization> {
   return execGql<Organization>(
@@ -2220,6 +2233,7 @@ export async function addOrUpdateOrganization(
               user {
                 _id
                 name
+                email
               }
               role
             }
@@ -2260,10 +2274,11 @@ export async function addOrUpdateOrganization(
           name: organization.name,
           subdomain: organization.subdomain,
           isPrivate: organization.isPrivate,
-          members: organization.members.map((m) => ({
-            user: m.user._id,
-            role: m.role,
-          })),
+          members:
+            organization.members?.map((m) => ({
+              user: m.user._id,
+              role: m.role,
+            })) || [],
         },
       },
     },
