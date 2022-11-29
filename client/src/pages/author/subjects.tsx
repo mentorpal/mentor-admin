@@ -89,10 +89,10 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
       tabIndex={-1}
     >
       <TableCell data-cy="name" align="left">
-        <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>{" "}
+        <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
         {subject.isArchived ? (
           <span style={{ color: "orangered" }}>
-            <i>Archived</i>
+            <i> Archived</i>
           </span>
         ) : undefined}
       </TableCell>
