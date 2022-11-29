@@ -7,25 +7,24 @@ The full terms of this copyright and license should always be found in the root 
 import { fetchSubjects } from "api";
 import { SubjectGQL } from "types-gql";
 import {
-  UseDataConnection,
-  useWithDataConnection,
-} from "./use-with-data-connection";
+  UseStaticDataConnection,
+  useWithStaticDataConnection,
+} from "./use-with-static-data-connection";
 
-export function useWithSubjects(): UseDataConnection<SubjectGQL> {
+export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
   const {
     data,
+    error,
     isLoading,
     searchParams,
-    error,
-    reloadData,
-    editData,
-    saveData,
+    pageData,
+    pageSearchParams,
     sortBy,
     filter,
     nextPage,
     prevPage,
-    setSearchParams,
-  } = useWithDataConnection<SubjectGQL>(fetch);
+    reloadData,
+  } = useWithStaticDataConnection<SubjectGQL>(fetch);
 
   function fetch() {
     return fetchSubjects(searchParams);
@@ -36,13 +35,12 @@ export function useWithSubjects(): UseDataConnection<SubjectGQL> {
     error,
     isLoading,
     searchParams,
-    reloadData,
-    editData,
-    saveData,
+    pageSearchParams,
+    pageData,
     sortBy,
     filter,
     nextPage,
     prevPage,
-    setSearchParams,
+    reloadData,
   };
 }

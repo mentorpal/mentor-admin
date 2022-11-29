@@ -32,6 +32,7 @@ const mentor = {
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      isArchived: false,
       categories: [],
       topics: [],
       questions: [],
@@ -42,6 +43,7 @@ const mentor = {
       type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
+      isArchived: false,
       categories: [],
       topics: [],
       questions: [],

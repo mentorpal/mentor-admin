@@ -79,29 +79,10 @@ export function useWithStaticDataConnection<T>(
         )
       );
     }
-    if (pageSearchParams.filter !== {}) {
+    if (Object.keys(pageSearchParams.filter).length > 0) {
       edges = edges.filter((e) =>
         filterComparator(e.node, pageSearchParams.filter)
       );
-      // edges = edges.filter((e) => {
-      //   for (const [k, v] of Object.entries(pageSearchParams.filter)) {
-      //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      //     const node = e.node as any;
-      //     if (typeof node[k] === "number" && node[k] !== v) {
-      //       return false;
-      //     }
-      //     if (
-      //       typeof node[k] === "string" &&
-      //       !(
-      //         node[k].toLowerCase() === v.toLowerCase() ||
-      //         node[k].toLowerCase().includes(v.toLowerCase())
-      //       )
-      //     ) {
-      //       return false;
-      //     }
-      //   }
-      //   return true;
-      // });
     }
     return edges;
   }
@@ -155,6 +136,9 @@ export function useWithStaticDataConnection<T>(
       if (k === "$and" && Array.isArray(v)) {
         return v.every((f) => filterComparator(node, f));
       }
+      if (k === "$in" && Array.isArray(v)) {
+        return v.find((v) => v === node);
+      }
       if (
         typeof v === "number" &&
         typeof node[k] === "number" &&
@@ -172,7 +156,17 @@ export function useWithStaticDataConnection<T>(
       ) {
         return false;
       }
+      if (
+        typeof v === "boolean" &&
+        typeof node[k] === "boolean" &&
+        node[k] !== v
+      ) {
+        return false;
+      }
       if (typeof v === "object" && typeof node[k] === "object") {
+        return filterComparator(node[k], v);
+      }
+      if (typeof v === "object" && typeof node[k] !== "object") {
         return filterComparator(node[k], v);
       }
     }

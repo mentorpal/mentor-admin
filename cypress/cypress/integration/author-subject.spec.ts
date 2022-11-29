@@ -10,7 +10,9 @@ import {
   Question,
   QuestionType,
   SubjectTypes,
+  UserRole,
 } from "../support/types";
+import { login as loginDefault } from "../fixtures/login";
 
 const mentor = {
   _id: "clint",
@@ -80,6 +82,7 @@ const subject = {
 const utteranceSubject = {
   ...subject,
   type: SubjectTypes.UTTERANCES,
+  isArchived: false,
 };
 
 const questions: Connection<Partial<Question>> = {
@@ -1139,6 +1142,66 @@ describe("Edit subject", () => {
         cy.get("[data-cy=select-type]").should("have.class", "Mui-disabled");
         cy.get("[data-cy=select-type]").should("contain.text", "Utterance");
       });
+    });
+  });
+
+  describe("Archiving Subject", () => {
+    it("Archive checkbox not visible to Users", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        subject: utteranceSubject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      cy.contains("Subject Type"); //crude way of waiting for page to fully load
+      cy.get("[data-cy=archive-subject-checkbox]").should("not.exist");
+    });
+
+    it("Archive checkbox visible to Content Managers", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+        },
+        subject: utteranceSubject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      cy.get("[data-cy=archive-subject-checkbox]").should("exist");
+    });
+
+    it("Archive checkbox visible to Admins", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subject: utteranceSubject,
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      cy.get("[data-cy=archive-subject-checkbox]").should("exist");
+    });
+
+    it("Archive checkbox initial value based on fetched subject data", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subject: { ...utteranceSubject, isArchived: true },
+        gqlQueries: [mockGQL("Questions", { questions: questions })],
+      });
+      cy.visit("/author/subject?id=background");
+      cy.get("[data-cy=archive-subject-checkbox]").should("exist");
+      cy.get("[data-cy=archive-subject-checkbox]").should("be.checked");
     });
   });
 });

@@ -76,6 +76,7 @@ export interface SubjectGQL {
   type: SubjectTypes;
   description: string;
   isRequired: boolean;
+  isArchived: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestionGQL[];
