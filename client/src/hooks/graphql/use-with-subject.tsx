@@ -16,10 +16,12 @@ import {
   UtteranceName,
   Question,
   SubjectTypes,
+  UserRole,
 } from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 export interface NewQuestionArgs {
   question?: Question;
@@ -33,6 +35,7 @@ interface UseWithSubject {
   isLoading: boolean;
   isSaving: boolean;
   error: LoadingError | undefined;
+  userCanArchiveSubjects: boolean;
   editData: (d: Partial<SubjectGQL>) => void;
   saveSubject: () => void;
   addCategory: () => void;
@@ -62,6 +65,10 @@ export function useWithSubject(
     editData,
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
+  const { state } = useWithLogin();
+  const canArchiveSubjects =
+    state.user?.userRole === UserRole.ADMIN ||
+    state.user?.userRole === UserRole.CONTENT_MANAGER;
 
   const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCES;
 
@@ -74,6 +81,7 @@ export function useWithSubject(
           type: SubjectTypes.SUBJECT,
           description: "",
           isRequired: false,
+          isArchived: false,
           categories: [],
           topics: [],
           questions: [],
@@ -276,6 +284,7 @@ export function useWithSubject(
     isLoading,
     isSaving,
     error,
+    userCanArchiveSubjects: canArchiveSubjects,
     editData,
     saveSubject,
     addCategory,

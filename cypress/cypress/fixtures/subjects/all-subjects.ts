@@ -23,6 +23,7 @@ export const subjects: Connection<Partial<Subject>> = {
         description:
           "These questions will ask general questions about your background that might be relevant to how people understand your career.",
         isRequired: true,
+        isArchived: false,
         categories: [],
         topics: [],
         questions: [
@@ -60,6 +61,7 @@ export const subjects: Connection<Partial<Subject>> = {
         description:
           "These are miscellaneous phrases you'll be asked to repeat.",
         isRequired: true,
+        isArchived: false,
         categories: [],
         topics: [],
         questions: [
@@ -111,6 +113,7 @@ export const subjects: Connection<Partial<Subject>> = {
         description:
           "These questions will ask about being in a leadership role.",
         isRequired: false,
+        isArchived: false,
         categories: [],
         topics: [],
         questions: [

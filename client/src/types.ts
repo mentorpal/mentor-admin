@@ -146,6 +146,7 @@ export interface Subject {
   type: SubjectTypes;
   description: string;
   isRequired: boolean;
+  isArchived: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestion[];

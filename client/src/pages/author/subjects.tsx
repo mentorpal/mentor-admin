@@ -5,12 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { Link, navigate } from "gatsby";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Fab,
   IconButton,
   Paper,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -89,6 +90,11 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
     >
       <TableCell data-cy="name" align="left">
         <Link to={`/author/subject?id=${subject._id}`}>{subject.name}</Link>
+        {subject.isArchived ? (
+          <span style={{ color: "orangered" }}>
+            <i> Archived</i>
+          </span>
+        ) : undefined}
       </TableCell>
       <TableCell data-cy="description" align="left">
         {subject.description}
@@ -105,26 +111,49 @@ function SubjectsPage(): JSX.Element {
     isLoading: isMentorLoading,
     error: mentorError,
   } = useActiveMentor();
-
+  const [viewArchivedSubjects, setViewArchivedSubjects] =
+    useState<boolean>(false);
   const { state } = useWithLogin();
-  const editUsersPermission =
+  const canManageContent =
     state.user?.userRole === UserRole.ADMIN ||
     state.user?.userRole === UserRole.CONTENT_MANAGER;
   const mentorId = getData((state) => state.data?._id);
+  const mentorSubjects: Subject[] =
+    getData((state) => state.data?.subjects) || [];
+  const mentorSubjectIds = mentorSubjects.map(
+    (mentorSubject) => mentorSubject._id
+  );
   const {
-    data: subjects,
+    pageData: subjects,
     error: subjectsError,
     isLoading: isSubjectsLoading,
     searchParams: subjectSearchParams,
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
+    filter: filterSubjects,
   } = useWithSubjects();
 
   useEffect(() => {
-    if (!state || editUsersPermission) return;
+    if (!state || canManageContent) return;
     switchActiveMentor();
   }, [state]);
+
+  useEffect(() => {
+    if (viewArchivedSubjects) {
+      filterSubjects({});
+    } else {
+      filterSubjects({
+        $or: [{ isArchived: false }, { _id: { $in: mentorSubjectIds } }],
+      });
+    }
+  }, [viewArchivedSubjects, mentorSubjectIds.length]);
+
+  function onToggleViewArchivedSubjects(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setViewArchivedSubjects(event.target.checked);
+  }
 
   return (
     <div>
@@ -166,6 +195,17 @@ function SubjectsPage(): JSX.Element {
             >
               <KeyboardArrowRightIcon />
             </IconButton>
+            {canManageContent ? (
+              <span style={{ margin: "15px" }}>
+                <span>
+                  View Archived Subjects
+                  <Switch
+                    data-cy="archived-subject-view-switch"
+                    onChange={onToggleViewArchivedSubjects}
+                  />
+                </span>
+              </span>
+            ) : undefined}
             <Fab
               data-cy="create-button"
               variant="extended"

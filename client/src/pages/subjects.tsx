@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Checkbox,
@@ -22,7 +22,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject, SubjectTypes } from "types";
+import { Subject, SubjectTypes, UserRole } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
@@ -35,6 +35,7 @@ import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 import { convertSubjectGQL } from "types-gql";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,18 +111,47 @@ function SubjectsPage(props: {
   } = useActiveMentor();
   const [viewUtteranceSubjects, setViewUtteranceSubjects] =
     useState<boolean>(false);
-
+  const { state } = useWithLogin();
+  const canManageContent =
+    state.user?.userRole === UserRole.ADMIN ||
+    state.user?.userRole === UserRole.CONTENT_MANAGER;
+  const [viewArchivedSubjects, setViewArchivedSubjects] =
+    useState<boolean>(false);
   const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =
     useMentorEdits();
+  const mentorSubjectIds =
+    editedMentor?.subjects.map((subject) => subject._id) || [];
   const {
-    data: subjects,
+    pageData: subjects,
     isLoading: isSubjectsLoading,
     searchParams: subjectSearchParams,
     error: subjectsError,
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
+    filter: filterSubjects,
   } = useWithSubjects();
+
+  useEffect(() => {
+    if (viewArchivedSubjects) {
+      filterSubjects({
+        type: viewUtteranceSubjects
+          ? SubjectTypes.UTTERANCES
+          : SubjectTypes.SUBJECT,
+      });
+    } else {
+      filterSubjects({
+        $and: [
+          {
+            type: viewUtteranceSubjects
+              ? SubjectTypes.UTTERANCES
+              : SubjectTypes.SUBJECT,
+          },
+          { $or: [{ isArchived: false }, { _id: { $in: mentorSubjectIds } }] },
+        ],
+      });
+    }
+  }, [viewArchivedSubjects, viewUtteranceSubjects, mentorSubjectIds.length]);
 
   function toggleSubject(subject: Subject) {
     if (!editedMentor) {
@@ -150,6 +180,12 @@ function SubjectsPage(props: {
     });
   }
 
+  function onToggleViewArchivedSubjects(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    setViewArchivedSubjects(event.target.checked);
+  }
+
   function onToggleViewSubjectType(event: React.ChangeEvent<HTMLInputElement>) {
     setViewUtteranceSubjects(event.target.checked);
   }
@@ -158,13 +194,7 @@ function SubjectsPage(props: {
     props.search.back ? navigate(decodeURI(props.search.back)) : navigate("/");
   };
 
-  const subjectToDisplay = subjects?.edges.filter(
-    (edge) =>
-      edge.node.type ===
-      (viewUtteranceSubjects ? SubjectTypes.UTTERANCES : SubjectTypes.SUBJECT)
-  );
   const label = { inputProps: { "aria-label": "Switch demo" } };
-  // const subjectExists
   return (
     <div>
       <NavBar title="Subjects" mentor={editedMentor?._id} onBack={onBack} />
@@ -179,7 +209,7 @@ function SubjectsPage(props: {
                 onSort={subjectsSortBy}
               />
               <TableBody data-cy="subjects">
-                {subjectToDisplay?.map((edge, i) => {
+                {subjects?.edges.map((edge, i) => {
                   const subject = edge.node;
                   return (
                     <TableRow
@@ -191,6 +221,11 @@ function SubjectsPage(props: {
                     >
                       <TableCell data-cy="name" align="left">
                         {subject.name}
+                        {subject.isArchived ? (
+                          <span style={{ color: "orangered" }}>
+                            <i> Archived</i>
+                          </span>
+                        ) : undefined}
                       </TableCell>
                       <TableCell data-cy="description" align="left">
                         {subject.description}
@@ -249,6 +284,17 @@ function SubjectsPage(props: {
               <KeyboardArrowRightIcon />
             </IconButton>
           </Toolbar>
+          {canManageContent ? (
+            <span style={{ margin: "15px" }}>
+              <span>
+                View Archived Subjects
+                <Switch
+                  data-cy="archived-subject-view-switch"
+                  onChange={onToggleViewArchivedSubjects}
+                />
+              </span>
+            </span>
+          ) : undefined}
           <span style={{ margin: "15px" }}>
             <span>
               Subjects

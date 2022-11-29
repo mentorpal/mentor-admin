@@ -7,9 +7,30 @@ The full terms of this copyright and license should always be found in the root 
 import { cySetup, cyMockDefault } from "../support/functions";
 import allSubjects from "../fixtures/subjects/all-subjects";
 import { background } from "../fixtures/subjects";
+import { login as loginDefault } from "../fixtures/login";
+import { UserRole } from "../support/types";
+import clint from "../fixtures/mentor/clint_home";
 
 const mentor = {
   _id: "clint",
+};
+
+const singleArchivedSubject = {
+  ...allSubjects,
+  edges: allSubjects.edges.map((edge, i) => {
+    if (i == 0) {
+      return {
+        ...edge,
+        node: {
+          ...edge.node,
+          isArchived: true,
+        },
+      };
+    }
+    return {
+      ...edge,
+    };
+  }),
 };
 
 describe("Edit subjects", () => {
@@ -81,5 +102,102 @@ describe("Edit subjects", () => {
       assert($el.replace("/admin", ""), "/author/subject")
     );
     cy.location("search").should("equal", "");
+  });
+
+  describe("archived subjects", () => {
+    it("View Archived Subjects button not visible to Users", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.USER },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.contains("Leadership");
+      cy.get("[data-cy=archived-subject-view-switch]").should("not.exist");
+    });
+
+    it("View Archived Subjects button visible to Content Managers", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.contains("Leadership");
+      cy.get("[data-cy=archived-subject-view-switch]").should("exist");
+    });
+
+    it("View Archived Subjects button visible to Admins", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.contains("Leadership");
+      cy.get("[data-cy=archived-subject-view-switch]").should("exist");
+    });
+
+    it("Archived subjects are not visible by default", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.contains("Leadership");
+      cy.get("[data-cy=subject-background]").should("not.exist");
+    });
+
+    it("Archived subjects are visible to users if they had those subjects prior to being archived", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: { ...clint },
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.get("[data-cy=subject-background]").should("exist");
+      cy.get("[data-cy=subject-background]").should("contain", "Archived");
+    });
+
+    it("Archived subjects appear via toggle", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        },
+        subjects: [singleArchivedSubject],
+      });
+      cy.visit("/author/subjects");
+      cy.contains("Leadership");
+      cy.get("[data-cy=subject-background]").should("not.exist");
+      cy.get("[data-cy=archived-subject-view-switch]").click();
+      cy.get("[data-cy=subject-background]").should("exist");
+      cy.get("[data-cy=subject-background]").should("contain", "Archived");
+      cy.get("[data-cy=archived-subject-view-switch]").click();
+      cy.get("[data-cy=subject-background]").should("not.exist");
+    });
   });
 });

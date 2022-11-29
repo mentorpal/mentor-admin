@@ -356,6 +356,7 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
             type
             description
             isRequired
+            isArchived
             categories {
               id
               name
@@ -464,6 +465,7 @@ export async function fetchSubjects(
               type
               description
               isRequired
+              isArchived
               categories {
                 id
                 name
@@ -534,6 +536,7 @@ export async function updateSubject(
             type
             description
             isRequired
+            isArchived
             categories {
               id
               name
@@ -575,6 +578,8 @@ export async function updateSubject(
           _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
           name: subject?.name,
           type: subject?.type,
+          isRequired: subject?.isRequired,
+          isArchived: subject?.isArchived,
           description: subject?.description,
           categories: subject?.categories,
           topics: subject?.topics,
@@ -974,6 +979,7 @@ export async function fetchMentorById(
             type
             description
             isRequired
+            isArchived
             categories {
               id
               name
@@ -1623,6 +1629,7 @@ export async function exportMentor(
               type
               description
               isRequired
+              isArchived
               topics {
                 id
                 name
@@ -1755,6 +1762,7 @@ export async function importMentorPreview(
                 type
                 description
                 isRequired
+                isArchived
                 topics {
                   id
                   name
@@ -1794,6 +1802,7 @@ export async function importMentorPreview(
                 type
                 description
                 isRequired
+                isArchived
                 topics {
                   id
                   name
