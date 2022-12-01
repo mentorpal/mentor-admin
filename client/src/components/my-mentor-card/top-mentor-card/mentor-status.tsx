@@ -39,14 +39,7 @@ function MentorStatus(props: {
   const leftColumnAlign = "left";
 
   const currentStatus = (
-    <Grid
-      item
-      alignItems="center"
-      alignContent="flex-start"
-      xs={12}
-      md={10}
-      className="status-item-wrapper"
-    >
+    <Grid item xs={12} md={10} className="status-item-wrapper">
       <Typography
         variant="h6"
         color="textPrimary"
@@ -65,9 +58,9 @@ function MentorStatus(props: {
         className="stage-text"
         align={leftColumnAlign}
       >
-        <div className="helpbox">
-          <p>{mentorInfo.currentStage.description}</p>
-        </div>
+        <span className="helpbox">
+          <span>{mentorInfo.currentStage.description}</span>
+        </span>
       </Typography>
 
       {mentorInfo.currentStage.floor != 1000 && (
@@ -81,7 +74,7 @@ function MentorStatus(props: {
   );
 
   const nextStatus = (
-    <Grid xs={12} md={10}>
+    <Grid item xs={12} md={10}>
       <RecommendedActionButton
         setThumbnail={updateThumbnail}
         trainMentor={trainMentor}
@@ -166,7 +159,6 @@ function MentorStatus(props: {
             sm={6}
             md={6}
             className="next-status-wrapper status-item-wrapper"
-            next-states
           >
             {nextStatus}
           </Grid>

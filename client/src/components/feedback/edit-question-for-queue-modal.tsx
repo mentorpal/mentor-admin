@@ -149,7 +149,7 @@ function EditQuestionForQueueModal(props: {
           >
             <Fade in={open}>
               <div className={classes.paper}>
-                <Grid item alignItems="center" xs={12} md={12}>
+                <Grid item xs={12} md={12}>
                   <TextField
                     // user-asked question (editable)
                     label="Create new question:"
