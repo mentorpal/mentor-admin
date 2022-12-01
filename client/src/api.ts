@@ -243,6 +243,7 @@ export async function fetchConfig(): Promise<Config> {
           uploadLambdaEndpoint
           styleHeaderLogo
           styleHeaderColor
+          styleHeaderText
           styleHeaderTextColor
           disclaimerTitle
           disclaimerText
@@ -2178,6 +2179,7 @@ export async function fetchOrganizations(
                   uploadLambdaEndpoint
                   styleHeaderLogo
                   styleHeaderColor
+                  styleHeaderText
                   styleHeaderTextColor
                   disclaimerTitle
                   disclaimerText
@@ -2251,6 +2253,7 @@ export async function addOrUpdateOrganization(
               uploadLambdaEndpoint
               styleHeaderLogo
               styleHeaderColor
+              styleHeaderText
               styleHeaderTextColor
               disclaimerTitle
               disclaimerText
@@ -2309,6 +2312,7 @@ export async function updateOrgConfig(
             uploadLambdaEndpoint
             styleHeaderLogo
             styleHeaderColor
+            styleHeaderText
             styleHeaderTextColor
             disclaimerTitle
             disclaimerText
@@ -2335,6 +2339,7 @@ export async function updateOrgConfig(
           mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,
+          styleHeaderText: config.styleHeaderText,
           styleHeaderTextColor: config.styleHeaderTextColor,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,
@@ -2374,6 +2379,7 @@ export async function updateConfig(
             uploadLambdaEndpoint
             styleHeaderLogo
             styleHeaderColor
+            styleHeaderText
             styleHeaderTextColor
             disclaimerTitle
             disclaimerText
@@ -2396,6 +2402,7 @@ export async function updateConfig(
           mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,
+          styleHeaderText: config.styleHeaderText,
           styleHeaderTextColor: config.styleHeaderTextColor,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,

@@ -671,6 +671,18 @@ function HeaderStyle(props: {
           updateConfig({ styleHeaderColor: color.hex })
         }
       />
+      <TextField
+        fullWidth
+        data-cy="styleHeaderText"
+        data-test={config.styleHeaderText}
+        variant="outlined"
+        label="Header Text"
+        value={config.styleHeaderText}
+        onChange={(e) => updateConfig({ styleHeaderText: e.target.value })}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
       <Typography
         variant="subtitle1"
         data-cy="styleHeaderTextColor"
@@ -891,7 +903,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     switchActiveMentor();
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !config) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />

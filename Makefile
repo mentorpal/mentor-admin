@@ -125,8 +125,17 @@ test-e2e-image-snapshots-update:
 test-e2e-up:
 	$(TEST_E2E_DOCKER_COMPOSE) up -d
 
-.PHONY: deploy
-deploy:
+.PHONY: deploy-dev
+deploy-dev:
+	cd client && \
+	export GRAPHQL_ENDPOINT=https://api.devmentorpal.org/graphql/graphql && \
+	export STAGE=dev && \
+	npm run build && \
+	aws s3 sync ./public/ s3://devmentorpal-us-east-1-devmentorpal-origin/admin && \
+	aws cloudfront create-invalidation --distribution-id E3HDCIFPF2WWHK --paths "/admin*"
+
+.PHONY: deploy-newdev
+deploy-newdev:
 	cd client && \
 	export GRAPHQL_ENDPOINT=https://api-dev.mentorpal.org/graphql/graphql && \
 	export STAGE=dev && \

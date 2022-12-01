@@ -16,7 +16,7 @@ import overlay from "images/face-position-white.png";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";
 import { equals } from "helpers";
-import { UseWithRecordState } from "types";
+import { User, UseWithRecordState } from "types";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithConfig } from "hooks/graphql/use-with-config";
 import { useWithImage } from "hooks/graphql/use-with-image";
@@ -27,12 +27,13 @@ function VideoPlayer(props: {
   videoRecorderMaxLength: number;
   stopRequests: number;
   accessToken: string;
+  user: User;
 }): JSX.Element {
   const { getData } = useActiveMentor();
   const isVirtualBgMentor: boolean = getData(
     (m) => m.data?.hasVirtualBackground || false
   );
-  const config = useWithConfig(props.accessToken);
+  const config = useWithConfig(props.accessToken, props.user);
   const virtualBackgroundUrl: string =
     getData((m) => m.data?.virtualBackgroundUrl) ||
     config.config?.defaultVirtualBackground ||

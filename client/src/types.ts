@@ -42,6 +42,7 @@ export interface Config {
   uploadLambdaEndpoint: string;
   styleHeaderLogo: string;
   styleHeaderColor: string;
+  styleHeaderText: string;
   styleHeaderTextColor: string;
   displayGuestPrompt: boolean;
   disclaimerTitle: string;
