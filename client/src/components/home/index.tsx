@@ -459,11 +459,7 @@ function HomePage(props: {
         >
           <Select
             data-cy="select-subject"
-            value={
-              reviewAnswerState.selectedSubject
-                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-                : undefined
-            }
+            value={reviewAnswerState.selectedSubject}
             displayEmpty
             onMouseEnter={() => {
               hasSeenTooltips && setRecordSubjectTooltipOpen(true);

@@ -233,6 +233,7 @@ export function cyMockDefault(
   cyMockCancelUpload(cy);
   cyMockEncodeSentences(cy);
   cyMockTrain(cy);
+  cyMockGoogleLogin(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -575,6 +576,23 @@ export function cyMockFollowUpQuestions(
         body: {
           errors: params.errors,
           data: params.data || {},
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockGoogleLogin(cy): void {
+  cy.intercept("GET", "https://accounts.google.com/**", (req) => {
+    req.alias = "googleLogin";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {},
         },
         headers: {
           "Content-Type": "application/json",
