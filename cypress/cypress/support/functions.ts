@@ -299,8 +299,12 @@ export function cyMockDefault(
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
     ...[mockGQL("MentorFindOne", mentors)],
-    ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
-    ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
+    ...(args.subject
+      ? [mockGQL("Subject", subjectList)]
+      : [mockGQL("Subject", {})]),
+    ...(args.subjects
+      ? [mockGQL("Subjects", subjectsList)]
+      : [mockGQL("Subjects", { edges: [] })]),
     ...(args.questions
       ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
@@ -314,6 +318,9 @@ export function cyMockDefault(
     mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
     mockGQL("TrendingUserQuestions", { userQuestions: { edges: [] } }),
+    mockGQL("Mentors", { edges: [] }),
+    mockGQL("MentorPanels", { edges: [] }),
+    mockGQL("Keywords", { edges: [] }),
   ]);
 }
 

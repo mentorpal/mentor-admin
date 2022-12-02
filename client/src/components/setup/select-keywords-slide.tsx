@@ -80,7 +80,6 @@ export function SelectKeywordsSlide(props: {
   if (!mentor) {
     return <div />;
   }
-
   return (
     <Slide
       classes={classes}
@@ -107,6 +106,9 @@ export function SelectKeywordsSlide(props: {
                       data-cy={`${kv[0]}-input`}
                       options={kv[1]}
                       getOptionLabel={(option: Keyword) => option.name}
+                      getOptionSelected={(option, value) =>
+                        option._id === value._id
+                      }
                       onChange={(e, v) => {
                         if (v) toggleKeyword(v);
                       }}

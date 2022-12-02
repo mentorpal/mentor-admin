@@ -84,6 +84,7 @@ describe("Edit subjects", () => {
         });
       });
     });
+    cy.wait("@Subject");
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/author/subject")
     );

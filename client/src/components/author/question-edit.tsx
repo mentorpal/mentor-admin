@@ -60,7 +60,7 @@ export function QuestionEditCard(props: {
               disabled={isUtteranceSubject}
               data-cy="select-type"
               label="Question Type"
-              value={question.question.type}
+              value={question.question.type || ""}
               cy-value={question.question.type}
               onChange={(
                 event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -90,7 +90,7 @@ export function QuestionEditCard(props: {
               <Select
                 data-cy="select-name"
                 label="Utterance Type"
-                value={question.question.name}
+                value={question.question.name || ""}
                 cy-value={question.question.name}
                 onChange={(
                   event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -104,7 +104,7 @@ export function QuestionEditCard(props: {
                   })
                 }
               >
-                <MenuItem data-cy="none" value={undefined}>
+                <MenuItem data-cy="none" value={""}>
                   Not specified
                 </MenuItem>
                 {Object.entries(UtteranceName).map((kv) => (
@@ -127,7 +127,7 @@ export function QuestionEditCard(props: {
             <Select
               data-cy="select-mentor-type"
               label="Mentor Type"
-              value={question.question.mentorType}
+              value={question.question.mentorType || ""}
               cy-value={question.question.mentorType}
               onChange={(
                 event: React.ChangeEvent<{ value: unknown; name?: unknown }>
@@ -141,7 +141,7 @@ export function QuestionEditCard(props: {
                 })
               }
             >
-              <MenuItem data-cy="none-mentor-type" value={undefined}>
+              <MenuItem data-cy="none-mentor-type" value={""}>
                 Not specified
               </MenuItem>
               <MenuItem data-cy="chat-mentor-type" value={MentorType.CHAT}>
@@ -162,7 +162,7 @@ export function QuestionEditCard(props: {
               variant="outlined"
               fullWidth
               disabled={question.question.mentorType !== MentorType.VIDEO}
-              value={question.question.minVideoLength}
+              value={question.question.minVideoLength || 0}
               onChange={(e) => {
                 props.updateQuestion({
                   ...question,

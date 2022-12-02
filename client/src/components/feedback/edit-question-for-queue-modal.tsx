@@ -12,6 +12,7 @@ import {
   Grid,
   InputLabel,
   makeStyles,
+  MenuItem,
   Modal,
   Select,
   TextField,
@@ -174,6 +175,7 @@ function EditQuestionForQueueModal(props: {
                         required={true}
                         data-cy="subject-drop-down"
                         style={{ width: 200 }}
+                        defaultValue={""}
                         onChange={(
                           event: React.ChangeEvent<{ value: unknown }>
                         ) => {
@@ -184,17 +186,15 @@ function EditQuestionForQueueModal(props: {
                           );
                         }}
                       >
-                        <option selected disabled>
-                          --Select a subject--
-                        </option>
+                        <MenuItem disabled>--Select a subject--</MenuItem>
                         {mentor.subjects.map((subject) => (
-                          <option
+                          <MenuItem
                             data-cy={`Subject-option-${subject._id}`}
                             key={subject.name}
                             value={subject._id}
                           >
                             {subject.name}
-                          </option>
+                          </MenuItem>
                         ))}
                       </Select>
                     </FormControl>
@@ -207,6 +207,7 @@ function EditQuestionForQueueModal(props: {
                           data-cy="category-drop-down"
                           style={{ width: 200 }}
                           required={true}
+                          defaultValue={""}
                           onChange={(
                             event: React.ChangeEvent<{ value: unknown }>
                           ) => {
@@ -216,17 +217,15 @@ function EditQuestionForQueueModal(props: {
                             setSelectedCategory(category);
                           }}
                         >
-                          <option selected disabled>
-                            --Select a category--
-                          </option>
+                          <MenuItem disabled>--Select a category--</MenuItem>
                           {selectedSubject.categories.map((category) => (
-                            <option
+                            <MenuItem
                               data-cy={`Category-option-${category.id}`}
                               key={category.name}
                               value={category.id}
                             >
                               {category.name}
-                            </option>
+                            </MenuItem>
                           ))}
                         </Select>
                       </FormControl>
