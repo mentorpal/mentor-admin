@@ -254,16 +254,18 @@ function MentorPanelList(props: {
   }
 
   function onDragMentor(result: DropResult) {
-    if (!result.destination) {
-      return;
-    }
-    setEditMentorPanel({
-      ...editMentorPanel!,
-      mentors: copyAndMove(
-        editMentorPanel?.mentors || [],
-        result.source.index,
-        result.destination.index
-      ),
+    setEditMentorPanel((prevValue) => {
+      if (!prevValue || !result.destination) {
+        return prevValue;
+      }
+      return {
+        ...prevValue,
+        mentors: copyAndMove(
+          prevValue.mentors || [],
+          result.source.index,
+          result.destination.index
+        ),
+      };
     });
   }
 
@@ -419,207 +421,230 @@ function MentorPanelList(props: {
       >
         Create Mentor Panel
       </Button>
-      <Dialog
-        data-cy="edit-mentor-panel"
-        maxWidth="sm"
-        fullWidth={true}
-        open={Boolean(editMentorPanel)}
-      >
-        <DialogTitle>Edit Mentor Panel</DialogTitle>
-        <DialogContent>
-          <TextField
-            data-cy="panel-title"
-            data-test={editMentorPanel?.title}
-            label="Title"
-            variant="outlined"
-            value={editMentorPanel?.title}
-            onChange={(e) =>
-              setEditMentorPanel({ ...editMentorPanel!, title: e.target.value })
-            }
-            fullWidth
-            multiline
-          />
-          <TextField
-            data-cy="panel-subtitle"
-            data-test={editMentorPanel?.subtitle}
-            label="Subtitle"
-            variant="outlined"
-            value={editMentorPanel?.subtitle}
-            onChange={(e) =>
-              setEditMentorPanel({
-                ...editMentorPanel!,
-                subtitle: e.target.value,
-              })
-            }
-            style={{ marginTop: 10 }}
-            fullWidth
-            multiline
-          />
-          <Autocomplete
-            data-cy="panel-subject"
-            data-test={editMentorPanel?.subject}
-            options={subjects}
-            getOptionLabel={(option: SubjectGQL) => option.name}
-            value={subjects.find((s) => s._id === editMentorPanel?.subject)}
-            onChange={(e, v) =>
-              setEditMentorPanel({ ...editMentorPanel!, subject: v?._id || "" })
-            }
-            style={{ width: "100%", marginTop: 10 }}
-            renderOption={(option) => (
-              <Typography data-cy={`panel-subject-${option._id}`}>
-                {option.name}
-              </Typography>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder="Choose a subject"
-                label="Subject"
-              />
-            )}
-          />
-          <DragDropContext onDragEnd={onDragMentor}>
-            <Droppable droppableId="droppable-mentor-panel-mentors">
-              {(provided) => (
-                <List
-                  data-cy="mentor-panels-mentors"
-                  ref={provided.innerRef}
-                  className={styles.list}
-                  style={{ height: 300, overflow: "auto", marginTop: 10 }}
-                  subheader={<ListSubheader>Mentors</ListSubheader>}
-                  {...provided.droppableProps}
-                >
-                  {editMentorPanel?.mentors.map((mId, i) => {
-                    const mentor = mentors.find((m) => m._id === mId);
-                    return (
-                      <Draggable
-                        index={i}
-                        key={`mentor-panel-mentor-${i}`}
-                        draggableId={`mentor-panel-mentor-${i}`}
-                      >
-                        {(provided) => (
-                          <ListItem
-                            data-cy={`mentor-panel-mentor-${i}`}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <Card style={{ width: "100%" }}>
-                              <CardContent
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <CardActions>
-                                  <IconButton size="small">
-                                    <DragHandleIcon />
-                                  </IconButton>
-                                </CardActions>
-                                <ListItemText
-                                  data-cy="name"
-                                  data-test={mentor?.name}
-                                  primary={mentor?.name}
-                                  secondary={mentor?.title}
-                                  style={{ flexGrow: 1 }}
-                                />
-                                <CardActions>
-                                  <FormControlLabel
-                                    control={
-                                      <IconButton
-                                        data-cy="remove-mentor-panel-mentor"
-                                        size="small"
-                                        onClick={() =>
-                                          setEditMentorPanel({
-                                            ...editMentorPanel!,
-                                            mentors: copyAndRemove(
-                                              editMentorPanel?.mentors || [],
-                                              i
-                                            ),
-                                          })
-                                        }
-                                      >
-                                        <DeleteIcon />
-                                      </IconButton>
-                                    }
-                                    label="Remove"
-                                    labelPlacement="top"
-                                  />
-                                </CardActions>
-                              </CardContent>
-                            </Card>
-                          </ListItem>
-                        )}
-                      </Draggable>
-                    );
-                  })}
-                  {provided.placeholder}
-                </List>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <Autocomplete
-            data-cy="panel-mentors"
-            options={mentors}
-            getOptionLabel={(option: MentorGQL) => option.name}
-            getOptionDisabled={(option: MentorGQL) =>
-              Boolean(editMentorPanel?.mentors.includes(option._id))
-            }
-            onChange={(e, v) => {
-              if (v)
-                setEditMentorPanel({
-                  ...editMentorPanel!,
-                  mentors: [...(editMentorPanel?.mentors || []), v._id],
-                });
-            }}
-            style={{ width: "100%" }}
-            renderOption={(option) => (
-              <Typography data-cy={`panel-mentor-${option._id}`}>
-                {option.name}
-              </Typography>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder="Choose a mentor"
-                label="Add Mentor"
-              />
-            )}
-          />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              data-cy="save-mentor-panel"
-              color="primary"
+      {editMentorPanel ? (
+        <Dialog
+          data-cy="edit-mentor-panel"
+          maxWidth="sm"
+          fullWidth={true}
+          open={Boolean(editMentorPanel)}
+        >
+          <DialogTitle>Edit Mentor Panel</DialogTitle>
+          <DialogContent>
+            <TextField
+              data-cy="panel-title"
+              data-test={editMentorPanel.title}
+              label="Title"
               variant="outlined"
-              className={styles.button}
-              onClick={() => {
-                props.saveMentorPanel(editMentorPanel!);
-                setEditMentorPanel(undefined);
+              value={editMentorPanel.title}
+              onChange={(e) =>
+                setEditMentorPanel((prevValue) => {
+                  if (!prevValue) {
+                    return prevValue;
+                  }
+                  return { ...prevValue, title: e.target.value };
+                })
+              }
+              fullWidth
+              multiline
+            />
+            <TextField
+              data-cy="panel-subtitle"
+              data-test={editMentorPanel.subtitle}
+              label="Subtitle"
+              variant="outlined"
+              value={editMentorPanel.subtitle}
+              onChange={(e) =>
+                setEditMentorPanel((prevValue) => {
+                  if (!prevValue) {
+                    return prevValue;
+                  }
+                  return { ...prevValue, subtitle: e.target.value };
+                })
+              }
+              style={{ marginTop: 10 }}
+              fullWidth
+              multiline
+            />
+            <Autocomplete
+              data-cy="panel-subject"
+              data-test={editMentorPanel.subject}
+              options={subjects}
+              getOptionLabel={(option: SubjectGQL) => option.name}
+              onChange={(e, v) =>
+                setEditMentorPanel((prevValue) => {
+                  if (!prevValue) {
+                    return prevValue;
+                  }
+                  return { ...prevValue, subject: v?._id || "" };
+                })
+              }
+              style={{ width: "100%", marginTop: 10 }}
+              renderOption={(option) => (
+                <Typography data-cy={`panel-subject-${option._id}`}>
+                  {option.name}
+                </Typography>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder="Choose a subject"
+                  label="Subject"
+                />
+              )}
+            />
+            <DragDropContext onDragEnd={onDragMentor}>
+              <Droppable droppableId="droppable-mentor-panel-mentors">
+                {(provided) => (
+                  <List
+                    data-cy="mentor-panels-mentors"
+                    ref={provided.innerRef}
+                    className={styles.list}
+                    style={{ height: 300, overflow: "auto", marginTop: 10 }}
+                    subheader={<ListSubheader>Mentors</ListSubheader>}
+                    {...provided.droppableProps}
+                  >
+                    {editMentorPanel.mentors.map((mId, i) => {
+                      const mentor = mentors.find((m) => m._id === mId);
+                      return (
+                        <Draggable
+                          index={i}
+                          key={`mentor-panel-mentor-${i}`}
+                          draggableId={`mentor-panel-mentor-${i}`}
+                        >
+                          {(provided) => (
+                            <ListItem
+                              data-cy={`mentor-panel-mentor-${i}`}
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <Card style={{ width: "100%" }}>
+                                <CardContent
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <CardActions>
+                                    <IconButton size="small">
+                                      <DragHandleIcon />
+                                    </IconButton>
+                                  </CardActions>
+                                  <ListItemText
+                                    data-cy="name"
+                                    data-test={mentor?.name}
+                                    primary={mentor?.name}
+                                    secondary={mentor?.title}
+                                    style={{ flexGrow: 1 }}
+                                  />
+                                  <CardActions>
+                                    <FormControlLabel
+                                      control={
+                                        <IconButton
+                                          data-cy="remove-mentor-panel-mentor"
+                                          size="small"
+                                          onClick={() =>
+                                            setEditMentorPanel((prevValue) => {
+                                              if (!prevValue) {
+                                                return undefined;
+                                              }
+                                              return {
+                                                ...prevValue,
+                                                mentors: copyAndRemove(
+                                                  prevValue.mentors,
+                                                  i
+                                                ),
+                                              };
+                                            })
+                                          }
+                                        >
+                                          <DeleteIcon />
+                                        </IconButton>
+                                      }
+                                      label="Remove"
+                                      labelPlacement="top"
+                                    />
+                                  </CardActions>
+                                </CardContent>
+                              </Card>
+                            </ListItem>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                  </List>
+                )}
+              </Droppable>
+            </DragDropContext>
+            <Autocomplete
+              data-cy="panel-mentors"
+              options={mentors}
+              getOptionLabel={(option: MentorGQL) => option.name}
+              getOptionDisabled={(option: MentorGQL) =>
+                Boolean(editMentorPanel.mentors.includes(option._id))
+              }
+              onChange={(e, v) => {
+                if (v)
+                  setEditMentorPanel((prevValue) => {
+                    if (!prevValue) {
+                      return prevValue;
+                    }
+                    return {
+                      ...prevValue,
+                      mentors: [...prevValue.mentors, v._id],
+                    };
+                  });
+              }}
+              style={{ width: "100%" }}
+              renderOption={(option) => (
+                <Typography data-cy={`panel-mentor-${option._id}`}>
+                  {option.name}
+                </Typography>
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  variant="outlined"
+                  placeholder="Choose a mentor"
+                  label="Add Mentor"
+                />
+              )}
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
               }}
             >
-              Save
-            </Button>
-            <Button
-              data-cy="cancel-mentor-panel"
-              color="secondary"
-              variant="outlined"
-              className={styles.button}
-              onClick={() => setEditMentorPanel(undefined)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+              <Button
+                data-cy="save-mentor-panel"
+                color="primary"
+                variant="outlined"
+                className={styles.button}
+                onClick={() => {
+                  props.saveMentorPanel(editMentorPanel);
+                  setEditMentorPanel(undefined);
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                data-cy="cancel-mentor-panel"
+                color="secondary"
+                variant="outlined"
+                className={styles.button}
+                onClick={() => setEditMentorPanel(undefined)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : undefined}
     </div>
   );
 }
@@ -751,9 +776,6 @@ function Settings(props: {
   const featuredSubjects = props.subjects.filter((s) =>
     props.config.featuredSubjects?.includes(s._id)
   );
-  const defaultSubject = props.subjects.find(
-    (s) => props.config.defaultSubject === s._id
-  );
 
   return (
     <div>
@@ -829,7 +851,6 @@ function Settings(props: {
       />
       <Autocomplete
         data-cy="default-subject-input"
-        value={defaultSubject}
         options={featuredSubjects}
         getOptionLabel={(option: SubjectGQL) => option.name}
         onChange={(e, v) =>

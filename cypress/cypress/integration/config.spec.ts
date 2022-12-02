@@ -73,6 +73,10 @@ describe("users screen", () => {
       ],
     });
     cy.visit("/config");
+    cy.wait("@FetchConfig");
+    cy.wait("@Mentors");
+    cy.wait("@MentorPanels");
+    cy.wait("@Subjects");
     cy.contains("You must be an admin or content manager to view this page.");
   });
 
@@ -723,7 +727,21 @@ describe("users screen", () => {
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
       gqlQueries: [
-        mockGQL("Keywords", keywords),
+        mockGQL("Keywords", {
+          ...keywords,
+          keywords: {
+            edges: [
+              ...keywords.keywords.edges,
+              {
+                node: {
+                  _id: "occupation",
+                  name: "Occupation",
+                  type: "Occupation",
+                },
+              },
+            ],
+          },
+        }),
         mockGQL("Subjects", { subjects: subjects }),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
@@ -782,7 +800,21 @@ describe("users screen", () => {
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
       gqlQueries: [
-        mockGQL("Keywords", keywords),
+        mockGQL("Keywords", {
+          ...keywords,
+          keywords: {
+            edges: [
+              ...keywords.keywords.edges,
+              {
+                node: {
+                  _id: "occupation",
+                  name: "Occupation",
+                  type: "Occupation",
+                },
+              },
+            ],
+          },
+        }),
         mockGQL("Subjects", { subjects: subjects }),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
@@ -830,7 +862,21 @@ describe("users screen", () => {
         user: { ...loginDefault.user, userRole: UserRole.ADMIN },
       },
       gqlQueries: [
-        mockGQL("Keywords", keywords),
+        mockGQL("Keywords", {
+          ...keywords,
+          keywords: {
+            edges: [
+              ...keywords.keywords.edges,
+              {
+                node: {
+                  _id: "occupation",
+                  name: "Occupation",
+                  type: "Occupation",
+                },
+              },
+            ],
+          },
+        }),
         mockGQL("Subjects", { subjects: subjects }),
         mockGQL("Mentors", mentors),
         mockGQL("MentorPanels", mentorPanels),
