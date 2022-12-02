@@ -273,10 +273,10 @@ export function canEditMentor(
 
 export function canEditMentorPrivacy(
   mentor: Mentor,
-  user: User,
+  myUser: User,
   orgs: Organization[] = []
 ): boolean {
-  if (!mentor || !user) {
+  if (!mentor || !myUser) {
     return false;
   }
   const ops = mentor.orgPermissions?.filter(
@@ -287,16 +287,16 @@ export function canEditMentorPrivacy(
     for (const org of orgs.filter((o) => os.includes(o._id))) {
       if (
         org.members.find(
-          (m) => m.user._id === user._id && m.role === UserRole.ADMIN
+          (m) => m.user._id === myUser._id && m.role === UserRole.ADMIN
         )
       ) {
         return true;
       }
     }
   }
-  const userRole = user.userRole;
+  const userRole = myUser.userRole;
   return (
-    user.defaultMentor._id === mentor._id ||
+    myUser.defaultMentor._id === mentor._id ||
     userRole === UserRole.CONTENT_MANAGER ||
     userRole === UserRole.ADMIN ||
     userRole === UserRole.SUPER_CONTENT_MANAGER ||
@@ -305,22 +305,30 @@ export function canEditMentorPrivacy(
 }
 
 export function canEditUserRole(
-  user: User,
+  myUser: User,
   toEdit: User,
   role: UserRole
 ): boolean {
+  // only admins and super-admins can edit user roles
   if (
-    user.userRole !== UserRole.ADMIN &&
-    user.userRole !== UserRole.SUPER_ADMIN
+    myUser.userRole !== UserRole.ADMIN &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
   ) {
     return false;
   }
-  if (role === UserRole.SUPER_ADMIN && user.userRole !== UserRole.SUPER_ADMIN) {
+  // only super admins can give super admin or super content manager permissions
+  if (
+    (role === UserRole.SUPER_ADMIN ||
+      role === UserRole.SUPER_CONTENT_MANAGER) &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
+  ) {
     return false;
   }
+  // only super admins can edit a super admin or super content manager's permissions
   if (
-    toEdit.userRole == UserRole.SUPER_ADMIN &&
-    user.userRole !== UserRole.SUPER_ADMIN
+    (toEdit.userRole == UserRole.SUPER_ADMIN ||
+      toEdit.userRole == UserRole.SUPER_CONTENT_MANAGER) &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
   ) {
     return false;
   }

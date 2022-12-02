@@ -679,6 +679,7 @@ function HeaderStyle(props: {
         label="Header Text"
         value={config.styleHeaderText}
         onChange={(e) => updateConfig({ styleHeaderText: e.target.value })}
+        style={{ marginTop: 20 }}
         InputLabelProps={{
           shrink: true,
         }}

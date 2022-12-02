@@ -245,32 +245,28 @@ function UserItem(props: {
             >
               Admin
             </MenuItem>
-            {props.user.userRole === UserRole.SUPER_CONTENT_MANAGER ? (
-              <MenuItem
-                data-cy={`role-dropdown-${UserRole.SUPER_CONTENT_MANAGER}`}
-                value={UserRole.SUPER_CONTENT_MANAGER}
-                disabled={
-                  !canEditUserRole(
-                    props.user,
-                    edge.node,
-                    UserRole.SUPER_CONTENT_MANAGER
-                  )
-                }
-              >
-                Super Content Manager
-              </MenuItem>
-            ) : undefined}
-            {props.user.userRole === UserRole.SUPER_ADMIN ? (
-              <MenuItem
-                data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
-                value={UserRole.SUPER_ADMIN}
-                disabled={
-                  !canEditUserRole(props.user, edge.node, UserRole.SUPER_ADMIN)
-                }
-              >
-                Super Admin
-              </MenuItem>
-            ) : undefined}
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.SUPER_CONTENT_MANAGER}`}
+              value={UserRole.SUPER_CONTENT_MANAGER}
+              disabled={
+                !canEditUserRole(
+                  props.user,
+                  edge.node,
+                  UserRole.SUPER_CONTENT_MANAGER
+                )
+              }
+            >
+              Super Content Manager
+            </MenuItem>
+            <MenuItem
+              data-cy={`role-dropdown-${UserRole.SUPER_ADMIN}`}
+              value={UserRole.SUPER_ADMIN}
+              disabled={
+                !canEditUserRole(props.user, edge.node, UserRole.SUPER_ADMIN)
+              }
+            >
+              Super Admin
+            </MenuItem>
           </Select>
         ) : (
           <div>{edge.node.userRole}</div>

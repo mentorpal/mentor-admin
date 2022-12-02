@@ -39,18 +39,6 @@ const initialState: LoginState = {
 
 /** Actions */
 
-export const googleLogin = createAsyncThunk(
-  "login/googleLogin",
-  async (accessToken: string) => {
-    try {
-      const googleToken = await api.loginGoogle(accessToken);
-      return await api.login(googleToken.accessToken);
-    } catch (err) {
-      throw new Error(extractErrorMessageFromError(err));
-    }
-  }
-);
-
 // This is the action that calls the api and sets the userSawSplashScreen action in motion
 export const userSawSplashScreen = createAsyncThunk(
   "login/userSawSplashScreen", //action
@@ -79,6 +67,20 @@ export const userSawTooltips = createAsyncThunk(
         { tooltips: true },
         accessToken
       );
+    } catch (err) {
+      throw new Error(extractErrorMessageFromError(err));
+    }
+  }
+);
+
+export const googleLogin = createAsyncThunk(
+  "login/googleLogin",
+  async (accessToken: string) => {
+    try {
+      const login = await api.loginGoogle(accessToken);
+      localStorageStore(ACCESS_TOKEN_KEY, login.accessToken);
+      sessionStorageClear(ACTIVE_MENTOR_KEY);
+      return login;
     } catch (err) {
       throw new Error(extractErrorMessageFromError(err));
     }

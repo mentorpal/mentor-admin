@@ -208,7 +208,7 @@ export function cyVisitSetupScreen(cy, screen: SetupScreen) {
   cy.visit(`/setup?i=${screen}`);
 }
 
-describe.only("Setup", () => {
+describe("Setup", () => {
   describe("can navigate through slides", () => {
     it("with next button", () => {
       cyMockDefault(cy, {
@@ -662,7 +662,7 @@ describe.only("Setup", () => {
     cy.matchImageSnapshot(snapname("type-slide-4"));
   });
 
-  it.only("Shows mentor privacy slide", () => {
+  it("Shows mentor privacy slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: { ...setup0, mentorType: null, subjects: subjectData },

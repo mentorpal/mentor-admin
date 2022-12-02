@@ -1150,15 +1150,20 @@ export async function updateMentorPrivacy(
 ): Promise<boolean> {
   return execGql<boolean>(
     {
-      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, orgPermissions: [OrgPermissionInputType]) {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, $orgPermissions: [OrgPermissionInputType]) {
         me {
           updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate, orgPermissions: $orgPermissions)
         }
       }`,
       variables: {
         mentorId,
-        isPrivate: mentor.isPrivate,
-        orgPermissions: mentor.orgPermissions,
+        isPrivate: mentor.isPrivate === undefined ? false : mentor.isPrivate,
+        orgPermissions: mentor.orgPermissions
+          ? mentor.orgPermissions.map((op) => ({
+              org: op.org,
+              permission: op.permission,
+            }))
+          : [],
       },
     },
     { dataPath: ["me", "updateMentorPrivacy"], accessToken }
@@ -1397,7 +1402,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
-            defaultMentor{
+            defaultMentor {
               _id
             }
             firstTimeTracking{
@@ -1412,7 +1417,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
       variables: { accessToken },
     },
     // login responds with set-cookie, w/o withCredentials it doesnt get stored
-    { dataPath: "login", axiosConfig: { withCredentials: true } }
+    { accessToken, dataPath: "login", axiosConfig: { withCredentials: true } }
   );
 }
 
@@ -1428,6 +1433,13 @@ export async function loginGoogle(
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
+            firstTimeTracking{
+              myMentorSplash,
+              tooltips,
+            }
           }
           accessToken
         }

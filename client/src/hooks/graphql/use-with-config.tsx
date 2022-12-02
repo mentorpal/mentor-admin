@@ -54,6 +54,7 @@ export function useWithConfig(accessToken: string, user: User): UseWithConfig {
     data: orgsData,
     error: orgsError,
     isLoading: isOrgsLoading,
+    reloadData: reloadOrganizations,
   } = useWithOrganizations(accessToken);
   const {
     data: configData,
@@ -231,7 +232,13 @@ export function useWithConfig(accessToken: string, user: User): UseWithConfig {
       {
         action: async (config: Config) => {
           if (org) {
-            return await updateOrgConfig(accessToken, org._id, config);
+            const updatedOrgConfig = await updateOrgConfig(
+              accessToken,
+              org._id,
+              config
+            );
+            reloadOrganizations();
+            return configData || updatedOrgConfig;
           } else {
             return await updateConfig(accessToken, config);
           }
