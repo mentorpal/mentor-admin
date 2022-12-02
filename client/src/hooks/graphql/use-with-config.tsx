@@ -27,10 +27,11 @@ import { LoadingError } from "./loading-reducer";
 import { useWithDataConnection } from "./use-with-data-connection";
 import { useWithOrganizations } from "./use-with-organizations";
 
-interface UseWithConfig {
+interface UseWithConfigEdits {
   org: Organization | undefined;
   orgs: Organization[];
   config: Config | undefined;
+  configData: Config | undefined;
   mentors: MentorGQL[];
   mentorPanels: MentorPanel[];
   error: LoadingError | undefined;
@@ -48,7 +49,10 @@ interface UseWithConfig {
   saveMentorPanel: (panel: MentorPanel) => void;
 }
 
-export function useWithConfig(accessToken: string, user: User): UseWithConfig {
+export function useWithConfigEdits(
+  accessToken: string,
+  user: User
+): UseWithConfigEdits {
   const params = new URLSearchParams(location.search);
   const {
     data: orgsData,
@@ -361,6 +365,7 @@ export function useWithConfig(accessToken: string, user: User): UseWithConfig {
   }
 
   return {
+    configData,
     config,
     mentors,
     mentorPanels,

@@ -149,6 +149,12 @@ export const loginSlice = createSlice({
         state.user = action.payload?.user;
         state.accessToken = action.payload?.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
+        if (action.payload.user) {
+          sessionStorageStore(
+            ACTIVE_MENTOR_KEY,
+            action.payload.user.defaultMentor._id
+          );
+        }
       })
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;

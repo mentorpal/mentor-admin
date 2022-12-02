@@ -115,7 +115,7 @@ function SubjectsPage(): JSX.Element {
   const [viewArchivedSubjects, setViewArchivedSubjects] =
     useState<boolean>(false);
   const { state } = useWithLogin();
-  const editPermission = canEditContent(state.user);
+  const canManageContent = canEditContent(state.user);
   const mentorId = getData((state) => state.data?._id);
   const mentorSubjects: Subject[] =
     getData((state) => state.data?.subjects) || [];
@@ -134,7 +134,7 @@ function SubjectsPage(): JSX.Element {
   } = useWithSubjects();
 
   useEffect(() => {
-    if (!state || editPermission) return;
+    if (!state || canManageContent) return;
     switchActiveMentor();
   }, [state]);
 

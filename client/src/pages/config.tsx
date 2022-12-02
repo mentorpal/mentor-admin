@@ -47,12 +47,13 @@ import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import {
   canEditContent,
+  canEditOrganization,
   copyAndMove,
   copyAndRemove,
   launchMentor,
   launchMentorPanel,
 } from "helpers";
-import { useWithConfig } from "hooks/graphql/use-with-config";
+import { useWithConfigEdits } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
@@ -878,6 +879,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     org,
     orgs,
     config,
+    configData,
     mentors,
     mentorPanels,
     error,
@@ -893,7 +895,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     toggleActiveMentorPanel,
     setOrganization,
     saveMentorPanel,
-  } = useWithConfig(props.accessToken, props.user);
+  } = useWithConfigEdits(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
   const { data: subjects } = useWithSubjects();
@@ -904,14 +906,18 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     switchActiveMentor();
   }, []);
 
-  if (isLoading || !config) {
+  if (isLoading) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
       </div>
     );
   }
-  if (!canEditContent(props.user) && orgs.length === 0) {
+  const editableOrgs = orgs.filter((o) => canEditOrganization(o, props.user));
+  if (
+    !configData ||
+    (!canEditContent(props.user) && editableOrgs.length === 0)
+  ) {
     return (
       <div>You must be an admin or content manager to view this page.</div>
     );
@@ -951,7 +957,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <MentorList
             styles={styles}
-            config={config}
+            config={config!}
             mentors={mentors}
             move={moveMentor}
             toggleActive={toggleActiveMentor}
@@ -965,7 +971,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <MentorPanelList
             styles={styles}
-            config={config}
+            config={config!}
             mentors={mentors}
             mentorPanels={mentorPanels}
             subjects={subjects?.edges.map((s) => s.node) || []}
@@ -982,7 +988,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <HeaderStyle
             styles={styles}
-            config={config}
+            config={config!}
             updateConfig={editConfig}
           />
         </TabPanel>
@@ -991,7 +997,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="disclaimer"
         >
-          <Disclaimer config={config} updateConfig={editConfig} />
+          <Disclaimer config={config!} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
@@ -999,7 +1005,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="settings"
         >
           <Settings
-            config={config}
+            config={config!}
             subjects={subjects?.edges.map((s) => s.node) || []}
             keywords={keywords?.edges.map((k) => k.node) || []}
             updateConfig={editConfig}
