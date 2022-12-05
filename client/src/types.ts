@@ -152,7 +152,7 @@ export enum OrgPermissionType {
   ADMIN = "ADMIN", // org can edit content and edit sharing settings
 }
 export interface OrgPermission {
-  org: string;
+  orgId: string;
   orgName: string;
   permission: OrgPermissionType;
 }

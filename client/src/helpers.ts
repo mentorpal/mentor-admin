@@ -248,7 +248,7 @@ export function canEditMentor(
       op.permission === OrgPermissionType.ADMIN
   );
   if (ops) {
-    const os = ops.map((op) => op.org);
+    const os = ops.map((op) => op.orgId);
     for (const org of orgs.filter((o) => os.includes(o._id))) {
       if (
         org.members.find(
@@ -283,7 +283,7 @@ export function canEditMentorPrivacy(
     (op) => op.permission === OrgPermissionType.ADMIN
   );
   if (ops) {
-    const os = ops.map((op) => op.org);
+    const os = ops.map((op) => op.orgId);
     for (const org of orgs.filter((o) => os.includes(o._id))) {
       if (
         org.members.find(

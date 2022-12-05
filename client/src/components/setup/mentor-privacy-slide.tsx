@@ -33,7 +33,7 @@ export function MentorPrivacySlide(props: {
     }
     let orgPermissions = mentor.orgPermissions || [];
     for (const [i, op] of orgPermissions.entries()) {
-      if (op.org === org._id) {
+      if (op.orgId === org._id) {
         editMentor({
           orgPermissions: copyAndSet(orgPermissions, i, {
             org: org._id,
@@ -46,7 +46,7 @@ export function MentorPrivacySlide(props: {
     }
     orgPermissions = [
       ...orgPermissions,
-      { org: org._id, orgName: org.name, permission: p },
+      { orgId: org._id, orgName: org.name, permission: p },
     ];
     editMentor({ orgPermissions });
   }
@@ -56,7 +56,7 @@ export function MentorPrivacySlide(props: {
       return <div />;
     }
     const orgPermission =
-      mentor.orgPermissions?.find((op) => op.org === org._id)?.permission ||
+      mentor.orgPermissions?.find((op) => op.orgId === org._id)?.permission ||
       OrgPermissionType.NONE;
     return (
       <WithTooltip

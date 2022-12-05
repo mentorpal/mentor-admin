@@ -287,7 +287,7 @@ export async function fetchUsers(
                 name
                 isPrivate
                 orgPermissions {
-                  org
+                  orgId
                   permission
                 }
               }
@@ -954,7 +954,7 @@ export async function fetchMentorById(
           hasVirtualBackground
           virtualBackgroundUrl
           orgPermissions {
-            org
+            orgId
             permission
           }
           defaultSubject {
@@ -1160,7 +1160,7 @@ export async function updateMentorPrivacy(
         isPrivate: mentor.isPrivate === undefined ? false : mentor.isPrivate,
         orgPermissions: mentor.orgPermissions
           ? mentor.orgPermissions.map((op) => ({
-              org: op.org,
+              org: op.orgId,
               permission: op.permission,
             }))
           : [],
