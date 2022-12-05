@@ -922,6 +922,13 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
       <div>You must be an admin or content manager to view this page.</div>
     );
   }
+  if (!config) {
+    return (
+      <div className={styles.root}>
+        <CircularProgress className={styles.progress} />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.root}>
@@ -957,7 +964,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <MentorList
             styles={styles}
-            config={config!}
+            config={config}
             mentors={mentors}
             move={moveMentor}
             toggleActive={toggleActiveMentor}

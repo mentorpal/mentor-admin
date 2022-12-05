@@ -479,15 +479,33 @@ describe("Setup", () => {
     });
   });
 
-  it("Shows mentor slide", () => {
+  it.skip("Shows mentor slide", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
-        { ...setup0, name: "", title: "" },
-        setup1,
-        setup2,
-        setup3,
-        { ...setup3, email: "clint@anderson.com" },
+        { ...setup0, firstName: "", name: "", title: "", email: "" },
+        { ...setup0, firstName: "Clint", name: "", title: "", email: "" },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "",
+          email: "",
+        },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "Nuclear Electrician's Mate",
+          email: "",
+        },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "Nuclear Electrician's Mate",
+          email: "clint@anderson.com",
+        },
       ],
       gqlQueries: [
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),

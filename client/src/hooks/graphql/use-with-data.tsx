@@ -121,9 +121,7 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     }
     dispatch({ type: LoadingActionType.SAVING_STARTED });
     try {
-      console.log(JSON.stringify(e));
       const updated = await update.action(e);
-      console.log(JSON.stringify(updated));
       dispatch({ type: LoadingActionType.SAVING_SUCCEEDED });
       setData(updated);
       setEditedData(undefined);

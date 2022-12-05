@@ -13,7 +13,7 @@ import { WithTooltip } from "components/tooltip";
 
 export function MentorPrivacySlide(props: {
   classes: Record<string, string>;
-  mentor?: Mentor;
+  mentor: Mentor;
   orgs: Organization[];
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
@@ -36,7 +36,7 @@ export function MentorPrivacySlide(props: {
       if (op.orgId === org._id) {
         editMentor({
           orgPermissions: copyAndSet(orgPermissions, i, {
-            org: org._id,
+            orgId: org._id,
             orgName: org.name,
             permission: p,
           }),

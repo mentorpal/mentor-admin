@@ -210,7 +210,7 @@ function UserItem(props: {
         {userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN ? (
           <Select
             data-cy="select-role"
-            value={edge.node.userRole}
+            value={edge.node.userRole || UserRole.USER}
             onChange={(
               event: React.ChangeEvent<{ value: unknown; name?: unknown }>
             ) => {
