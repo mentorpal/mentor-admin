@@ -348,7 +348,7 @@ function EditOrganization(props: {
     ) {
       setMsg("* subdomain is reserved");
     } else if (!/^[a-z0-9]{3,20}$/.test(org.subdomain)) {
-      throw new Error(
+      setMsg(
         "* subdomain must be lower-case, alpha-numerical, and 3-20 characters"
       );
     } else if (
