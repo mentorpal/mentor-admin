@@ -22,13 +22,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject, SubjectTypes, UserRole } from "types";
+import { Subject, SubjectTypes } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
-import { copyAndRemove } from "helpers";
+import { canEditContent, copyAndRemove } from "helpers";
 import { navigate } from "gatsby";
 import withLocation from "wrap-with-location";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
@@ -112,9 +112,7 @@ function SubjectsPage(props: {
   const [viewUtteranceSubjects, setViewUtteranceSubjects] =
     useState<boolean>(false);
   const { state } = useWithLogin();
-  const canManageContent =
-    state.user?.userRole === UserRole.ADMIN ||
-    state.user?.userRole === UserRole.CONTENT_MANAGER;
+  const canManageContent = canEditContent(state.user);
   const [viewArchivedSubjects, setViewArchivedSubjects] =
     useState<boolean>(false);
   const { editedMentor, isMentorEdited, editMentor, saveMentorSubjects } =

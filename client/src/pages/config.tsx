@@ -30,6 +30,8 @@ import {
   ListItemText,
   ListSubheader,
   makeStyles,
+  MenuItem,
+  Select,
   Tab,
   TextField,
   Typography,
@@ -44,20 +46,22 @@ import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import {
+  canEditContent,
+  canEditOrganization,
   copyAndMove,
   copyAndRemove,
   launchMentor,
   launchMentorPanel,
 } from "helpers";
-import { useWithConfig } from "hooks/graphql/use-with-config";
+import { useWithConfigEdits } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, Keyword, MentorPanel, User, UserRole } from "types";
-import { MentorGQL, SubjectGQL } from "types-gql";
-import withLocation from "wrap-with-location";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { Config, Keyword, MentorPanel, User } from "types";
+import { MentorGQL, SubjectGQL } from "types-gql";
+import withLocation from "wrap-with-location";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -668,6 +672,19 @@ function HeaderStyle(props: {
           updateConfig({ styleHeaderColor: color.hex })
         }
       />
+      <TextField
+        fullWidth
+        data-cy="styleHeaderText"
+        data-test={config.styleHeaderText}
+        variant="outlined"
+        label="Header Text"
+        value={config.styleHeaderText}
+        onChange={(e) => updateConfig({ styleHeaderText: e.target.value })}
+        style={{ marginTop: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
       <Typography
         variant="subtitle1"
         data-cy="styleHeaderTextColor"
@@ -859,44 +876,53 @@ function Settings(props: {
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
   const {
+    org,
+    orgs,
     config,
+    configData,
     mentors,
     mentorPanels,
     error,
-    isEdited,
     isLoading,
     isSaving,
     saveConfig,
-    updateConfig,
+    editConfig,
     moveMentor,
     moveMentorPanel,
     toggleActiveMentor,
     toggleFeaturedMentor,
     toggleFeaturedMentorPanel,
     toggleActiveMentorPanel,
+    setOrganization,
     saveMentorPanel,
-  } = useWithConfig(props.accessToken);
+  } = useWithConfigEdits(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
-  const { height } = useWithWindowSize();
   const { data: subjects } = useWithSubjects();
-
-  const permissionToView =
-    props.user.userRole === UserRole.ADMIN ||
-    props.user.userRole === UserRole.CONTENT_MANAGER;
+  const { height } = useWithWindowSize();
   const [tab, setTab] = useState<string>("featured-mentors");
 
   useEffect(() => {
     switchActiveMentor();
   }, []);
 
-  if (!permissionToView) {
+  if (isLoading) {
+    return (
+      <div className={styles.root}>
+        <CircularProgress className={styles.progress} />
+      </div>
+    );
+  }
+  const editableOrgs = orgs.filter((o) => canEditOrganization(o, props.user));
+  if (
+    !configData ||
+    (!canEditContent(props.user) && editableOrgs.length === 0)
+  ) {
     return (
       <div>You must be an admin or content manager to view this page.</div>
     );
   }
-
-  if (isLoading || !config) {
+  if (!config) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
@@ -906,7 +932,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
 
   return (
     <div className={styles.root}>
-      <NavBar title="Manage Config" />
+      <NavBar title={`Manage${org ? ` ${org.name} ` : " "}Config`} />
       <TabContext value={tab}>
         <TabList onChange={(event, newValue) => setTab(newValue)}>
           <Tab
@@ -952,7 +978,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <MentorPanelList
             styles={styles}
-            config={config}
+            config={config!}
             mentors={mentors}
             mentorPanels={mentorPanels}
             subjects={subjects?.edges.map((s) => s.node) || []}
@@ -969,8 +995,8 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <HeaderStyle
             styles={styles}
-            config={config}
-            updateConfig={updateConfig}
+            config={config!}
+            updateConfig={editConfig}
           />
         </TabPanel>
         <TabPanel
@@ -978,7 +1004,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="disclaimer"
         >
-          <Disclaimer config={config} updateConfig={updateConfig} />
+          <Disclaimer config={config!} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
@@ -986,19 +1012,52 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="settings"
         >
           <Settings
-            config={config}
+            config={config!}
             subjects={subjects?.edges.map((s) => s.node) || []}
             keywords={keywords?.edges.map((k) => k.node) || []}
-            updateConfig={updateConfig}
+            updateConfig={editConfig}
           />
         </TabPanel>
       </TabContext>
+      {orgs.length > 0 ? (
+        <Select
+          data-cy="select-org"
+          label="Organization"
+          value={org?._id}
+          cy-value={org?._id}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) =>
+            setOrganization(
+              orgs.find((o) => (event.target.value as string) === o._id)
+            )
+          }
+          style={{ width: 270, position: "absolute", bottom: 25, right: 25 }}
+        >
+          <MenuItem
+            data-cy="org-none"
+            value={undefined}
+            disabled={!canEditContent(props.user)}
+          >
+            None
+          </MenuItem>
+          {orgs.map((o) => (
+            <MenuItem
+              data-cy={`org-${o._id}`}
+              key={`org-${o._id}`}
+              value={o._id}
+            >
+              {o.name}
+            </MenuItem>
+          ))}
+        </Select>
+      ) : undefined}
       <Button
         data-cy="save-button"
         variant="contained"
         color="primary"
         className={styles.button}
-        disabled={!isEdited || isSaving}
+        disabled={isSaving}
         onClick={saveConfig}
       >
         Save

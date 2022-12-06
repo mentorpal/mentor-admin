@@ -10,42 +10,61 @@ import {
   fetchMentorPanels,
   fetchMentors,
   updateConfig,
+  updateOrgConfig,
 } from "api";
-import { copyAndRemove, copyAndMove } from "helpers";
+import {
+  copyAndRemove,
+  copyAndMove,
+  canEditOrganization,
+  canEditContent,
+  removeQueryParamFromUrl,
+} from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
 import { useEffect, useState } from "react";
-import { Config, Connection, MentorPanel } from "types";
+import { Config, Connection, MentorPanel, Organization, User } from "types";
 import { MentorGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import { useWithDataConnection } from "./use-with-data-connection";
+import { useWithOrganizations } from "./use-with-organizations";
 
-interface UseWithConfig {
+interface UseWithConfigEdits {
+  org: Organization | undefined;
+  orgs: Organization[];
   config: Config | undefined;
+  configData: Config | undefined;
   mentors: MentorGQL[];
   mentorPanels: MentorPanel[];
   error: LoadingError | undefined;
   isLoading: boolean;
   isSaving: boolean;
-  isEdited: boolean;
   saveConfig: () => void;
-  updateConfig: (c: Partial<Config>) => void;
+  editConfig: (c: Partial<Config>) => void;
   moveMentor: (from: number, to: number) => void;
   moveMentorPanel: (from: number, to: number) => void;
   toggleFeaturedMentor: (id: string) => void;
   toggleActiveMentor: (id: string) => void;
   toggleFeaturedMentorPanel: (id: string) => void;
   toggleActiveMentorPanel: (id: string) => void;
+  setOrganization: (org?: Organization) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
 }
 
-export function useWithConfig(accessToken: string): UseWithConfig {
+export function useWithConfigEdits(
+  accessToken: string,
+  user: User
+): UseWithConfigEdits {
+  const params = new URLSearchParams(location.search);
   const {
-    editedData: config,
+    data: orgsData,
+    error: orgsError,
+    isLoading: isOrgsLoading,
+    reloadData: reloadOrganizations,
+  } = useWithOrganizations(accessToken);
+  const {
+    data: configData,
     error: configError,
-    isEdited: isConfigEdited,
     isLoading: isConfigLoading,
     isSaving: isConfigSaving,
-    editData: editConfig,
     saveAndReturnData: saveAndReturnConfig,
   } = useWithData<Config>(_fetchConfig);
   const {
@@ -61,8 +80,20 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     searchParams: mentorPanelsSearchParams,
     reloadData: reloadMentorPanels,
   } = useWithDataConnection<MentorPanel>(_fetchMentorPanels, { limit: 9999 });
+
+  const [config, setConfig] = useState<Config>();
+  const [org, setOrg] = useState<Organization>();
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const [mentors, setMentors] = useState<MentorGQL[]>([]);
   const [mentorPanels, setMentorPanels] = useState<MentorPanel[]>([]);
+
+  useEffect(() => {
+    if (org) {
+      setConfig(org.config);
+    } else if (canEditContent(user) && configData) {
+      setConfig(configData);
+    }
+  }, [configData, org]);
 
   useEffect(() => {
     if (mentorsData && config) {
@@ -156,6 +187,35 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     config?.featuredMentorPanels,
   ]);
 
+  useEffect(() => {
+    if (orgsData) {
+      setOrgs(
+        orgsData.edges
+          .map((e) => e.node)
+          .filter((o) => canEditOrganization(o, user))
+      );
+    }
+  }, [orgsData]);
+
+  useEffect(() => {
+    if (!orgs || orgs.length === 0) {
+      return;
+    }
+    let o: Organization | undefined = undefined;
+    if (params.get("org")) {
+      o = orgs.find((o) => o._id === params.get("org"));
+    }
+    if (!canEditContent(user) && !o && !org) {
+      o = orgs[0];
+    }
+    if (o) {
+      setOrg(o);
+    }
+    if (params.get("org")) {
+      removeQueryParamFromUrl("org");
+    }
+  }, [orgs, params]);
+
   function _fetchConfig(): Promise<Config> {
     return fetchConfig();
   }
@@ -169,18 +229,34 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function saveConfig(): void {
-    saveAndReturnConfig({
-      action: async (editedData: Config) => {
-        return await updateConfig(accessToken, editedData);
-      },
-    });
-  }
-
-  function edit(c: Partial<Config>): void {
     if (!config) {
       return;
     }
-    editConfig({
+    saveAndReturnConfig(
+      {
+        action: async (config: Config) => {
+          if (org) {
+            const updatedOrgConfig = await updateOrgConfig(
+              accessToken,
+              org._id,
+              config
+            );
+            reloadOrganizations();
+            return configData || updatedOrgConfig;
+          } else {
+            return await updateConfig(accessToken, config);
+          }
+        },
+      },
+      config
+    );
+  }
+
+  function editConfig(c: Partial<Config>): void {
+    if (!config) {
+      return;
+    }
+    setConfig({
       ...config,
       ...c,
     });
@@ -289,21 +365,28 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   return {
+    configData,
     config,
     mentors,
     mentorPanels,
-    error: configError || mentorsError || mentorPanelsError,
-    isLoading: isConfigLoading || isMentorsLoading || isMentorPanelsLoading,
-    isEdited: isConfigEdited,
+    error: configError || mentorsError || mentorPanelsError || orgsError,
+    isLoading:
+      isOrgsLoading ||
+      isConfigLoading ||
+      isMentorsLoading ||
+      isMentorPanelsLoading,
     isSaving: isConfigSaving,
+    org,
+    orgs,
     saveConfig,
-    updateConfig: edit,
+    editConfig,
     moveMentor,
     moveMentorPanel,
     toggleFeaturedMentor,
     toggleActiveMentor,
     toggleFeaturedMentorPanel,
     toggleActiveMentorPanel,
+    setOrganization: setOrg,
     saveMentorPanel,
   };
 }

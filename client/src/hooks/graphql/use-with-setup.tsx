@@ -28,13 +28,14 @@ export enum SetupStepType {
   WELCOME = 0,
   MENTOR_INFO = 1,
   MENTOR_TYPE = 2,
-  MENTOR_GOAL = 3,
-  SELECT_KEYWORDS = 4,
-  SELECT_SUBJECTS = 5,
-  INTRODUCTION = 6,
-  IDLE_TIPS = 7,
-  REQUIRED_SUBJECT = 8,
-  FINISH_SETUP = 9,
+  MENTOR_PRIVACY = 3,
+  MENTOR_GOAL = 4,
+  SELECT_KEYWORDS = 5,
+  SELECT_SUBJECTS = 6,
+  INTRODUCTION = 7,
+  IDLE_TIPS = 8,
+  REQUIRED_SUBJECT = 9,
+  FINISH_SETUP = 10,
 }
 
 interface SetupStep {
@@ -94,6 +95,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     editMentor,
     saveMentorDetails,
     saveMentorKeywords,
+    saveMentorPrivacy,
   } = useMentorEdits();
   const { state: configState, isConfigLoaded } = useWithConfig();
 
@@ -172,6 +174,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
       { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
+      { type: SetupStepType.MENTOR_PRIVACY, complete: true },
       { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
       { type: SetupStepType.SELECT_KEYWORDS, complete: true },
       { type: SetupStepType.SELECT_SUBJECTS, complete: true },
@@ -245,9 +248,12 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       return;
     }
     if (isMentorEdited) {
-      saveMentorDetails();
       if (idx === SetupStepType.SELECT_KEYWORDS) {
         saveMentorKeywords();
+      } else if (idx === SetupStepType.MENTOR_PRIVACY) {
+        saveMentorPrivacy();
+      } else {
+        saveMentorDetails();
       }
     }
     setIdx(i);

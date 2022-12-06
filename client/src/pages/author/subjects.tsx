@@ -24,7 +24,7 @@ import AddIcon from "@material-ui/icons/Add";
 import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
 
-import { Subject, UserRole } from "types";
+import { Subject } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -33,6 +33,7 @@ import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { LoadingDialog, ErrorDialog } from "components/dialog";
 import { convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { canEditContent } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -114,9 +115,7 @@ function SubjectsPage(): JSX.Element {
   const [viewArchivedSubjects, setViewArchivedSubjects] =
     useState<boolean>(false);
   const { state } = useWithLogin();
-  const canManageContent =
-    state.user?.userRole === UserRole.ADMIN ||
-    state.user?.userRole === UserRole.CONTENT_MANAGER;
+  const canManageContent = canEditContent(state.user);
   const mentorId = getData((state) => state.data?._id);
   const mentorSubjects: Subject[] =
     getData((state) => state.data?.subjects) || [];

@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import { CancelTokenSource } from "axios";
 import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
@@ -43,6 +42,7 @@ export interface Config {
   uploadLambdaEndpoint: string;
   styleHeaderLogo: string;
   styleHeaderColor: string;
+  styleHeaderText: string;
   styleHeaderTextColor: string;
   displayGuestPrompt: boolean;
   disclaimerTitle: string;
@@ -98,6 +98,20 @@ export interface User {
   firstTimeTracking: FirstTimeTracking;
 }
 
+export interface Organization {
+  _id: string;
+  uuid: string;
+  name: string;
+  subdomain: string;
+  isPrivate: boolean;
+  members: OrgMember[];
+  config: Config;
+}
+export interface OrgMember {
+  user: User;
+  role: string;
+}
+
 export interface MentorPanel {
   _id: string;
   subject: string;
@@ -120,6 +134,7 @@ export interface Mentor {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
   keywords: Keyword[];
@@ -127,6 +142,19 @@ export interface Mentor {
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+}
+
+export enum OrgPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  HIDDEN = "HIDDEN", // org cannot see or use mentor
+  SHARE = "SHARE", // org can use mentor as-is
+  MANAGE = "MANAGE", // org can edit content
+  ADMIN = "ADMIN", // org can edit content and edit sharing settings
+}
+export interface OrgPermission {
+  orgId: string;
+  orgName: string;
+  permission: OrgPermissionType;
 }
 
 export interface Keyword {
@@ -398,6 +426,8 @@ export enum UserRole {
   ADMIN = "ADMIN",
   CONTENT_MANAGER = "CONTENT_MANAGER",
   USER = "USER",
+  SUPER_CONTENT_MANAGER = "SUPER_CONTENT_MANAGER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export enum MentorType {
