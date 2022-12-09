@@ -12,6 +12,7 @@ import {
   Answer,
   MediaType,
   Mentor,
+  MentorPanel,
   MentorType,
   Organization,
   OrgPermissionType,
@@ -20,6 +21,7 @@ import {
   UserRole,
   UtteranceName,
 } from "types";
+import { MentorGQL } from "types-gql";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -232,6 +234,42 @@ export function canEditContent(user: User | undefined): boolean {
     userRole === UserRole.SUPER_CONTENT_MANAGER ||
     userRole === UserRole.SUPER_ADMIN
   );
+}
+
+export function canViewMentorOnHome(
+  mentor: MentorGQL,
+  org?: Organization
+): boolean {
+  if (!mentor) {
+    return false;
+  }
+  const orgPerm = mentor.orgPermissions?.find((op) =>
+    equals(op.orgId, org?._id)
+  );
+  if (mentor.isPrivate) {
+    return orgPerm?.permission === OrgPermissionType.SHARE;
+  }
+  if (orgPerm) {
+    return orgPerm.permission !== OrgPermissionType.HIDDEN;
+  }
+  return true;
+}
+
+export function canViewMentorPanelOnHome(
+  mentorPanel: MentorPanel,
+  mentors: MentorGQL[],
+  org?: Organization
+): boolean {
+  for (const mId of mentorPanel.mentors) {
+    const mentor = mentors.find((m) => equals(m._id, mId));
+    if (!mentor) {
+      return false;
+    }
+    if (!canViewMentorOnHome(mentor, org)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export function canEditMentor(

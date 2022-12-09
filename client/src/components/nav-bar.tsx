@@ -29,15 +29,16 @@ import {
   Close as CloseIcon,
   Edit as EditIcon,
   ExitToApp as ExitToAppIcon,
-  Group,
+  Group as GroupIcon,
   GetApp as GetAppIcon,
   Menu as MenuIcon,
   Mic as MicIcon,
+  Person as PersonIcon,
+  PublishRounded as PublishRoundedIcon,
   QuestionAnswer as QuestionAnswerIcon,
   RateReview as RateReviewIcon,
-  Subject as SubjectIcon,
-  PublishRounded as PublishRoundedIcon,
   Settings as SettingsIcon,
+  Subject as SubjectIcon,
 } from "@material-ui/icons";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -239,7 +240,6 @@ function NavMenu(props: {
         </ListItemIcon>
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
-
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
       <NavItem
@@ -248,20 +248,20 @@ function NavMenu(props: {
         icon={<EditIcon />}
         onNav={props.onNav}
       />
-      <NavItem
-        text={"Organizations"}
-        link={"/organizations"}
-        icon={<Group />}
-        onNav={props.onNav}
-      />
       {editPermission ? (
         <NavItem
           text={"Users"}
           link={"/users"}
-          icon={<Group />}
+          icon={<PersonIcon />}
           onNav={props.onNav}
         />
       ) : undefined}
+      <NavItem
+        text={"Organizations"}
+        link={"/organizations"}
+        icon={<GroupIcon />}
+        onNav={props.onNav}
+      />
       {editPermission ? (
         <NavItem
           text={"Config"}

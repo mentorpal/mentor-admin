@@ -46,6 +46,7 @@ import {
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
   Settings as SettingsIcon,
+  Person as PersonIcon,
 } from "@material-ui/icons";
 import { Autocomplete } from "@material-ui/lab";
 
@@ -62,6 +63,23 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Organization, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import { canEditOrganization, copyAndRemove, copyAndSet } from "../helpers";
+
+const reservedSubdomains = [
+  "newdev",
+  "api-dev",
+  "static-newdev",
+  "v2",
+  "api-qa",
+  "sbert-qa",
+  "static-v2",
+  "careerfair",
+  "api",
+  "sbert",
+  "static-careerfair",
+  "local",
+  "uscquestions",
+  "static-uscquestions",
+];
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -200,125 +218,6 @@ function TableFooter(props: {
   );
 }
 
-function OrganizationItem(props: {
-  org: Organization;
-  user: User;
-  i: number;
-  onEdit: (org: Organization) => void;
-}): JSX.Element {
-  const { org, user } = props;
-  const styles = useStyles();
-  const hasEditPermission = canEditOrganization(org, user);
-
-  return (
-    <TableRow data-cy={`org-${props.i}`} hover role="checkbox" tabIndex={-1}>
-      <TableCell data-cy="name" align="left">
-        {org.name}
-      </TableCell>
-      <TableCell data-cy="subdomain" align="left">
-        <a
-          href={`${location.protocol}//${org.subdomain}.${location.hostname}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {org.subdomain}
-        </a>
-      </TableCell>
-      <TableCell data-cy="actions" align="right">
-        <Tooltip style={{ margin: 10 }} title="Edit" arrow>
-          <IconButton
-            data-cy="edit"
-            onClick={() => props.onEdit(org)}
-            className={styles.normalButton}
-            disabled={!hasEditPermission}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Config" arrow>
-          <IconButton
-            data-cy="config"
-            onClick={() => navigate(`/config?org=${org._id}`)}
-            className={styles.normalButton}
-            disabled={!hasEditPermission}
-          >
-            <SettingsIcon />
-          </IconButton>
-        </Tooltip>
-      </TableCell>
-    </TableRow>
-  );
-}
-
-function OrganizationsTable(props: {
-  accessToken: string;
-  orgPagin: UseOrganizationData;
-  userPagin: UseUserData;
-  user: User;
-}): JSX.Element {
-  const styles = useStyles();
-  const [editOrg, setEditOrg] = useState<Partial<Organization>>();
-
-  function onCreateOrg(): void {
-    setEditOrg({
-      uuid: uuid(),
-      _id: "",
-      name: "",
-      subdomain: "",
-      isPrivate: false,
-      members: [],
-    });
-  }
-
-  function onSaveOrg(): void {
-    if (!editOrg) {
-      return;
-    }
-    props.orgPagin.saveOrganization(editOrg);
-    setEditOrg(undefined);
-  }
-
-  return (
-    <div className={styles.root}>
-      <Paper className={styles.container}>
-        <TableContainer style={{ height: "calc(100vh - 128px)" }}>
-          <Table stickyHeader aria-label="sticky table">
-            <ColumnHeader
-              columns={columns}
-              sortBy={props.orgPagin.pageSearchParams.sortBy}
-              sortAsc={props.orgPagin.pageSearchParams.sortAscending}
-              onSort={props.orgPagin.sortBy}
-            />
-            <TableBody data-cy="orgs">
-              {props.orgPagin.pageData?.edges.map((edge, i) => (
-                <OrganizationItem
-                  key={i}
-                  i={i}
-                  org={edge.node}
-                  user={props.user}
-                  onEdit={(org) => setEditOrg(org)}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <TableFooter
-        user={props.user}
-        pagin={props.orgPagin}
-        onCreateOrg={onCreateOrg}
-      />
-      <EditOrganization
-        org={editOrg}
-        orgPagin={props.orgPagin}
-        userPagin={props.userPagin}
-        edit={(org) => setEditOrg(org)}
-        save={onSaveOrg}
-      />
-    </div>
-  );
-}
-
 function EditOrganization(props: {
   org: Partial<Organization> | undefined;
   orgPagin: UseOrganizationData;
@@ -340,12 +239,7 @@ function EditOrganization(props: {
       setMsg("* must have name");
     } else if (!org.subdomain) {
       setMsg("* must have subdomain");
-    } else if (
-      org.subdomain === "newdev" ||
-      org.subdomain === "v2" ||
-      org.subdomain === "careerfair" ||
-      org.subdomain === "mentorpal"
-    ) {
+    } else if (reservedSubdomains.includes(org.subdomain)) {
       setMsg("* subdomain is reserved");
     } else if (!/^[a-z0-9]{3,20}$/.test(org.subdomain)) {
       setMsg(
@@ -551,6 +445,135 @@ function EditOrganization(props: {
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function OrganizationItem(props: {
+  org: Organization;
+  user: User;
+  i: number;
+  onEdit: (org: Organization) => void;
+}): JSX.Element {
+  const { org, user } = props;
+  const styles = useStyles();
+  const hasEditPermission = canEditOrganization(org, user);
+
+  return (
+    <TableRow data-cy={`org-${props.i}`} hover role="checkbox" tabIndex={-1}>
+      <TableCell data-cy="name" align="left">
+        {org.name}
+      </TableCell>
+      <TableCell data-cy="subdomain" align="left">
+        <a
+          href={`${location.protocol}//${org.subdomain}.${location.hostname}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {org.subdomain}
+        </a>
+      </TableCell>
+      <TableCell data-cy="actions" align="right">
+        <Tooltip style={{ margin: 10 }} title="Edit" arrow>
+          <IconButton
+            data-cy="edit"
+            onClick={() => props.onEdit(org)}
+            className={styles.normalButton}
+            disabled={!hasEditPermission}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Config" arrow>
+          <IconButton
+            data-cy="config"
+            onClick={() => navigate(`/config?org=${org._id}`)}
+            className={styles.normalButton}
+            disabled={!hasEditPermission}
+          >
+            <SettingsIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip style={{ margin: 10 }} title="Users" arrow>
+          <IconButton
+            data-cy="users"
+            onClick={() => navigate(`/users?org=${org._id}`)}
+            className={styles.normalButton}
+            disabled={!hasEditPermission}
+          >
+            <PersonIcon />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+function OrganizationsTable(props: {
+  accessToken: string;
+  orgPagin: UseOrganizationData;
+  userPagin: UseUserData;
+  user: User;
+}): JSX.Element {
+  const styles = useStyles();
+  const [editOrg, setEditOrg] = useState<Partial<Organization>>();
+
+  function onCreateOrg(): void {
+    setEditOrg({
+      _id: undefined,
+      uuid: uuid(),
+      name: "",
+      subdomain: "",
+      isPrivate: false,
+      members: [],
+    });
+  }
+
+  function onSaveOrg(): void {
+    if (!editOrg) {
+      return;
+    }
+    props.orgPagin.saveOrganization(editOrg);
+    setEditOrg(undefined);
+  }
+
+  return (
+    <div className={styles.root}>
+      <Paper className={styles.container}>
+        <TableContainer style={{ height: "calc(100vh - 128px)" }}>
+          <Table stickyHeader aria-label="sticky table">
+            <ColumnHeader
+              columns={columns}
+              sortBy={props.orgPagin.pageSearchParams.sortBy}
+              sortAsc={props.orgPagin.pageSearchParams.sortAscending}
+              onSort={props.orgPagin.sortBy}
+            />
+            <TableBody data-cy="orgs">
+              {props.orgPagin.pageData?.edges.map((edge, i) => (
+                <OrganizationItem
+                  key={i}
+                  i={i}
+                  org={edge.node}
+                  user={props.user}
+                  onEdit={(org) => setEditOrg(org)}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      <TableFooter
+        user={props.user}
+        pagin={props.orgPagin}
+        onCreateOrg={onCreateOrg}
+      />
+      <EditOrganization
+        org={editOrg}
+        orgPagin={props.orgPagin}
+        userPagin={props.userPagin}
+        edit={(org) => setEditOrg(org)}
+        save={onSaveOrg}
+      />
+    </div>
   );
 }
 

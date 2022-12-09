@@ -951,6 +951,7 @@ export async function fetchMentorById(
           lastTrainedAt
           lastPreviewedAt
           isDirty
+          isPrivate
           hasVirtualBackground
           virtualBackgroundUrl
           orgPermissions {
@@ -2017,7 +2018,7 @@ export async function importMentor(
 
 export async function fetchMentors(
   accessToken: string,
-  searchParams?: SearchParams
+  searchParams?: Partial<SearchParams>
 ): Promise<Connection<MentorGQL>> {
   const params = { ...defaultSearchParams, ...searchParams };
   const { filter, limit, cursor, sortBy, sortAscending } = params;
@@ -2031,6 +2032,11 @@ export async function fetchMentors(
                 _id
                 name
                 title
+                isPrivate
+                orgPermissions {
+                  orgId
+                  permission
+                }
               }
             }
             pageInfo {
@@ -2060,6 +2066,7 @@ export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
         query MentorPanel($id: ID!) {
           mentorPanel(id: $id) {
             _id
+            org
             subject
             mentors
             title
@@ -2074,7 +2081,7 @@ export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
 }
 
 export async function fetchMentorPanels(
-  searchParams?: SearchParams
+  searchParams?: Partial<SearchParams>
 ): Promise<Connection<MentorPanel>> {
   const params = { ...defaultSearchParams, ...searchParams };
   return await execGql<Connection<MentorPanel>>(
@@ -2092,6 +2099,7 @@ export async function fetchMentorPanels(
             cursor
             node {
               _id
+              org
               subject
               mentors
               title
@@ -2130,6 +2138,7 @@ export async function addOrUpdateMentorPanel(
         me {
           addOrUpdateMentorPanel(id: $id, mentorPanel: $mentorPanel) {
             _id
+            org
             subject
             mentors
             title
@@ -2140,7 +2149,8 @@ export async function addOrUpdateMentorPanel(
       variables: {
         id,
         mentorPanel: {
-          subject: mentorPanel.subject,
+          org: mentorPanel.org,
+          subject: mentorPanel.subject || undefined,
           mentors: mentorPanel.mentors,
           title: mentorPanel.title,
           subtitle: mentorPanel.subtitle,
@@ -2153,7 +2163,7 @@ export async function addOrUpdateMentorPanel(
 
 export async function fetchOrganizations(
   accessToken: string,
-  searchParams?: SearchParams
+  searchParams?: Partial<SearchParams>
 ): Promise<Connection<Organization>> {
   const params = { ...defaultSearchParams, ...searchParams };
   const { filter, limit, cursor, sortBy, sortAscending } = params;

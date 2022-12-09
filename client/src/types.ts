@@ -107,6 +107,7 @@ export interface Organization {
   members: OrgMember[];
   config: Config;
 }
+
 export interface OrgMember {
   user: User;
   role: string;
@@ -114,6 +115,7 @@ export interface OrgMember {
 
 export interface MentorPanel {
   _id: string;
+  org: string;
   subject: string;
   mentors: string[];
   title: string;
@@ -151,6 +153,7 @@ export enum OrgPermissionType {
   MANAGE = "MANAGE", // org can edit content
   ADMIN = "ADMIN", // org can edit content and edit sharing settings
 }
+
 export interface OrgPermission {
   orgId: string;
   orgName: string;
