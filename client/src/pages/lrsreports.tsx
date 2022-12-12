@@ -23,8 +23,10 @@ import { useWithMergeReport } from "hooks/lrs-reports/use-with-merge-report";
 import { useWithStatements } from "hooks/lrs-reports/use-with-statements";
 import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
+import { useWithLogin } from "store/slices/login/useWithLogin";
+import { canEditContent } from "helpers";
 
-function IndexPage(): JSX.Element {
+function LRSReportsPage(): JSX.Element {
   const [startDate, setStartDate] = React.useState<string>("");
   const [endDate, setEndDate] = React.useState<string>("");
   const [loadInProgress, setLoadInProgress] = React.useState<boolean>(false);
@@ -34,6 +36,8 @@ function IndexPage(): JSX.Element {
   const { getStatements, xApiLoaded } = useWithStatements();
   const { fetchUserQuestions } = useWithUserQuestions();
   const { handleMergeReport } = useWithMergeReport();
+  const { state } = useWithLogin();
+  const editPermission = canEditContent(state.user);
 
   const delay = (ms: number | undefined) =>
     new Promise((res) => setTimeout(res, ms));
@@ -61,6 +65,12 @@ function IndexPage(): JSX.Element {
       });
     }
   }, [errorMessage]);
+
+  if (!editPermission) {
+    return (
+      <div>You must be an admin or content manager to view this page.</div>
+    );
+  }
 
   if (!xApiLoaded) {
     return (
@@ -256,4 +266,4 @@ function IndexPage(): JSX.Element {
   );
 }
 
-export default withAuthorizationOnly(withLocation(IndexPage));
+export default withAuthorizationOnly(withLocation(LRSReportsPage));

@@ -44,6 +44,7 @@
     "@xapi/cmi5": "^1.1.4",
     "clsx": "^1.1.1",
     "danfojs": "^1.1.2",
+    "dayjs": "^1.11.7",
     "detect-browser": "^5.3.0",
     "device-detector-js": "^3.0.3",
     "draft-js": "^0.11.7",

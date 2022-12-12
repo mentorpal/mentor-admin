@@ -11,22 +11,19 @@ export interface UseWithXapi {
   xApi?: XAPI;
 }
 
+const LRS_ENDPOINT = process.env.LRS_ENDPOINT || "/lrs_endpoint";
+
 export function useWithXapi(): UseWithXapi {
   const [xApi, setXapi] = useState<XAPI>();
   useEffect(() => {
-    if (
-      !process.env.LRS_ENDPOINT ||
-      !process.env.LRS_USERNAME ||
-      !process.env.LRS_PASSWORD
-    ) {
-      throw new Error("Missing env variable for xApi auth");
+    if (!process.env.LRS_USERNAME || !process.env.LRS_PASSWORD) {
+      console.error("Missing env variable for xApi auth");
     }
-    const endpoint = process.env.LRS_ENDPOINT;
     const auth = XAPI.toBasicAuth(
       process.env.LRS_USERNAME || "",
       process.env.LRS_PASSWORD || ""
     );
-    const xapi = new XAPI(endpoint, auth);
+    const xapi = new XAPI(LRS_ENDPOINT, auth);
 
     setXapi(xapi);
   }, []);
