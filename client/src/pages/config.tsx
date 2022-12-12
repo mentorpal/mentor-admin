@@ -5,59 +5,36 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from "react-beautiful-dnd";
 import { PhotoshopPicker } from "react-color";
 import {
   Button,
-  Card,
-  CardActions,
-  CardContent,
   Checkbox,
   Chip,
   CircularProgress,
-  Dialog,
-  DialogContent,
-  DialogTitle,
   FormControlLabel,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  ListSubheader,
   makeStyles,
+  MenuItem,
+  Select,
   Tab,
   TextField,
   Typography,
 } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import LaunchIcon from "@material-ui/icons/Launch";
-import DragHandleIcon from "@material-ui/icons/DragHandle";
 import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
-import {
-  copyAndMove,
-  copyAndRemove,
-  launchMentor,
-  launchMentorPanel,
-} from "helpers";
-import { useWithConfig } from "hooks/graphql/use-with-config";
+import { MentorList } from "components/config/mentor-list";
+import { canEditContent } from "helpers";
+import { useWithConfigEdits } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, Keyword, MentorPanel, User, UserRole } from "types";
-import { MentorGQL, SubjectGQL } from "types-gql";
-import withLocation from "wrap-with-location";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { Config, Keyword, User } from "types";
+import { SubjectGQL } from "types-gql";
+import withLocation from "wrap-with-location";
+import { MentorPanelList } from "components/config/mentor-panel-list";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,530 +76,6 @@ const useStyles = makeStyles((theme) => ({
     padding: 5,
   },
 }));
-
-function MentorList(props: {
-  styles: Record<string, string>;
-  config: Config;
-  mentors: MentorGQL[];
-  move: (toMove: number, moveTo: number) => void;
-  toggleActive: (id: string) => void;
-  toggleFeatured: (id: string) => void;
-}): JSX.Element {
-  const { styles, mentors } = props;
-  const featuredMentors = props.config.featuredMentors || [];
-  const activeMentors = props.config.activeMentors || [];
-  const { height: windowHeight } = useWithWindowSize();
-
-  function onDragEnd(result: DropResult) {
-    if (!result.destination) {
-      return;
-    }
-    props.move(result.source.index, result.destination.index);
-  }
-
-  return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable-mentors">
-        {(provided) => (
-          <List
-            data-cy="mentors-list"
-            ref={provided.innerRef}
-            className={styles.list}
-            style={{ height: windowHeight - 300, overflow: "auto" }}
-            {...provided.droppableProps}
-          >
-            {mentors.map((m, i) => (
-              <Draggable
-                index={i}
-                key={`mentor-${i}`}
-                draggableId={`mentor-${i}`}
-                isDragDisabled={
-                  !props.config.activeMentors.includes(m._id) &&
-                  !props.config.featuredMentors.includes(m._id)
-                }
-              >
-                {(provided) => (
-                  <ListItem
-                    data-cy={`mentor-${i}`}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <Card style={{ width: "100%" }}>
-                      <CardContent
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <CardActions>
-                          <IconButton
-                            size="small"
-                            disabled={
-                              !props.config.activeMentors.includes(m._id) &&
-                              !props.config.featuredMentors.includes(m._id)
-                            }
-                          >
-                            <DragHandleIcon />
-                          </IconButton>
-                        </CardActions>
-                        <ListItemText
-                          data-cy="name"
-                          data-test={m.name}
-                          primary={m.name}
-                          secondary={m.title}
-                          style={{ flexGrow: 1 }}
-                        />
-                        <CardActions>
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                data-cy="toggle-featured"
-                                checked={featuredMentors.includes(m._id)}
-                                onChange={() => props.toggleFeatured(m._id)}
-                                color="primary"
-                                style={{ padding: 0 }}
-                              />
-                            }
-                            label="Featured"
-                            labelPlacement="top"
-                          />
-                          <FormControlLabel
-                            control={
-                              <Checkbox
-                                data-cy="toggle-active"
-                                checked={activeMentors.includes(m._id)}
-                                onChange={() => props.toggleActive(m._id)}
-                                color="secondary"
-                                style={{ padding: 0 }}
-                              />
-                            }
-                            label="Active"
-                            labelPlacement="top"
-                          />
-                          <FormControlLabel
-                            control={
-                              <IconButton
-                                data-cy="launch-mentor"
-                                size="small"
-                                onClick={() => launchMentor(m._id, true)}
-                              >
-                                <LaunchIcon />
-                              </IconButton>
-                            }
-                            label="Launch"
-                            labelPlacement="top"
-                          />
-                        </CardActions>
-                      </CardContent>
-                    </Card>
-                  </ListItem>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </List>
-        )}
-      </Droppable>
-    </DragDropContext>
-  );
-}
-
-function MentorPanelList(props: {
-  styles: Record<string, string>;
-  config: Config;
-  mentors: MentorGQL[];
-  mentorPanels: MentorPanel[];
-  subjects: SubjectGQL[];
-  move: (toMove: number, moveTo: number) => void;
-  toggleActive: (id: string) => void;
-  toggleFeatured: (id: string) => void;
-  saveMentorPanel: (panel: MentorPanel) => void;
-}): JSX.Element {
-  const { styles, mentors, mentorPanels, subjects } = props;
-  const featuredMentorPanels = props.config.featuredMentorPanels || [];
-  const activeMentorPanels = props.config.activeMentorPanels || [];
-  const { height: windowHeight } = useWithWindowSize();
-  const [editMentorPanel, setEditMentorPanel] = useState<MentorPanel>();
-
-  function onDragEnd(result: DropResult) {
-    if (!result.destination) {
-      return;
-    }
-    props.move(result.source.index, result.destination.index);
-  }
-
-  function onDragMentor(result: DropResult) {
-    if (!result.destination) {
-      return;
-    }
-    setEditMentorPanel({
-      ...editMentorPanel!,
-      mentors: copyAndMove(
-        editMentorPanel?.mentors || [],
-        result.source.index,
-        result.destination.index
-      ),
-    });
-  }
-
-  return (
-    <div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable-mentor-panels">
-          {(provided) => (
-            <List
-              data-cy="mentor-panels-list"
-              ref={provided.innerRef}
-              className={styles.list}
-              style={{ height: windowHeight - 350, overflow: "auto" }}
-              {...provided.droppableProps}
-            >
-              {mentorPanels.map((mp, i) => {
-                return (
-                  <Draggable
-                    index={i}
-                    key={`mentor-panel-${i}`}
-                    draggableId={`mentor-panel-${i}`}
-                    isDragDisabled={
-                      !props.config.activeMentorPanels.includes(mp._id) &&
-                      !props.config.featuredMentorPanels.includes(mp._id)
-                    }
-                  >
-                    {(provided) => (
-                      <ListItem
-                        data-cy={`mentor-panel-${i}`}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <Card style={{ width: "100%" }}>
-                          <CardContent
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              alignItems: "center",
-                            }}
-                          >
-                            <CardActions>
-                              <IconButton
-                                size="small"
-                                disabled={
-                                  !props.config.activeMentorPanels.includes(
-                                    mp._id
-                                  ) &&
-                                  !props.config.featuredMentorPanels.includes(
-                                    mp._id
-                                  )
-                                }
-                              >
-                                <DragHandleIcon />
-                              </IconButton>
-                            </CardActions>
-                            <ListItemText
-                              data-cy="name"
-                              data-test={mp?.title}
-                              primary={mp?.title}
-                              secondary={mp?.subtitle}
-                              style={{ flexGrow: 1 }}
-                            />
-                            <CardActions>
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    data-cy="toggle-featured"
-                                    checked={featuredMentorPanels.includes(
-                                      mp._id
-                                    )}
-                                    onChange={() =>
-                                      props.toggleFeatured(mp._id)
-                                    }
-                                    color="primary"
-                                    style={{ padding: 0 }}
-                                  />
-                                }
-                                label="Featured"
-                                labelPlacement="top"
-                              />
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    data-cy="toggle-active"
-                                    checked={activeMentorPanels.includes(
-                                      mp._id
-                                    )}
-                                    onChange={() => props.toggleActive(mp._id)}
-                                    color="secondary"
-                                    style={{ padding: 0 }}
-                                  />
-                                }
-                                label="Active"
-                                labelPlacement="top"
-                              />
-                              <FormControlLabel
-                                control={
-                                  <IconButton
-                                    data-cy="launch-mentor-panel"
-                                    size="small"
-                                    onClick={() =>
-                                      launchMentorPanel(mp.mentors, true)
-                                    }
-                                  >
-                                    <LaunchIcon />
-                                  </IconButton>
-                                }
-                                label="Launch"
-                                labelPlacement="top"
-                              />
-                              <FormControlLabel
-                                control={
-                                  <IconButton
-                                    data-cy="edit-mentor-panel"
-                                    size="small"
-                                    onClick={() => setEditMentorPanel(mp)}
-                                  >
-                                    <EditIcon />
-                                  </IconButton>
-                                }
-                                label="Edit"
-                                labelPlacement="top"
-                              />
-                            </CardActions>
-                          </CardContent>
-                        </Card>
-                      </ListItem>
-                    )}
-                  </Draggable>
-                );
-              })}
-              {provided.placeholder}
-            </List>
-          )}
-        </Droppable>
-      </DragDropContext>
-      <Button
-        data-cy="add-mentor-panel"
-        color="primary"
-        variant="outlined"
-        startIcon={<AddIcon />}
-        className={styles.button}
-        onClick={() =>
-          setEditMentorPanel({
-            _id: "",
-            title: "",
-            subtitle: "",
-            subject: "",
-            mentors: [],
-          })
-        }
-      >
-        Create Mentor Panel
-      </Button>
-      <Dialog
-        data-cy="edit-mentor-panel"
-        maxWidth="sm"
-        fullWidth={true}
-        open={Boolean(editMentorPanel)}
-      >
-        <DialogTitle>Edit Mentor Panel</DialogTitle>
-        <DialogContent>
-          <TextField
-            data-cy="panel-title"
-            data-test={editMentorPanel?.title}
-            label="Title"
-            variant="outlined"
-            value={editMentorPanel?.title}
-            onChange={(e) =>
-              setEditMentorPanel({ ...editMentorPanel!, title: e.target.value })
-            }
-            fullWidth
-            multiline
-          />
-          <TextField
-            data-cy="panel-subtitle"
-            data-test={editMentorPanel?.subtitle}
-            label="Subtitle"
-            variant="outlined"
-            value={editMentorPanel?.subtitle}
-            onChange={(e) =>
-              setEditMentorPanel({
-                ...editMentorPanel!,
-                subtitle: e.target.value,
-              })
-            }
-            style={{ marginTop: 10 }}
-            fullWidth
-            multiline
-          />
-          <Autocomplete
-            data-cy="panel-subject"
-            data-test={editMentorPanel?.subject}
-            options={subjects}
-            getOptionLabel={(option: SubjectGQL) => option.name}
-            value={subjects.find((s) => s._id === editMentorPanel?.subject)}
-            onChange={(e, v) =>
-              setEditMentorPanel({ ...editMentorPanel!, subject: v?._id || "" })
-            }
-            style={{ width: "100%", marginTop: 10 }}
-            renderOption={(option) => (
-              <Typography data-cy={`panel-subject-${option._id}`}>
-                {option.name}
-              </Typography>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder="Choose a subject"
-                label="Subject"
-              />
-            )}
-          />
-          <DragDropContext onDragEnd={onDragMentor}>
-            <Droppable droppableId="droppable-mentor-panel-mentors">
-              {(provided) => (
-                <List
-                  data-cy="mentor-panels-mentors"
-                  ref={provided.innerRef}
-                  className={styles.list}
-                  style={{ height: 300, overflow: "auto", marginTop: 10 }}
-                  subheader={<ListSubheader>Mentors</ListSubheader>}
-                  {...provided.droppableProps}
-                >
-                  {editMentorPanel?.mentors.map((mId, i) => {
-                    const mentor = mentors.find((m) => m._id === mId);
-                    return (
-                      <Draggable
-                        index={i}
-                        key={`mentor-panel-mentor-${i}`}
-                        draggableId={`mentor-panel-mentor-${i}`}
-                      >
-                        {(provided) => (
-                          <ListItem
-                            data-cy={`mentor-panel-mentor-${i}`}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <Card style={{ width: "100%" }}>
-                              <CardContent
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <CardActions>
-                                  <IconButton size="small">
-                                    <DragHandleIcon />
-                                  </IconButton>
-                                </CardActions>
-                                <ListItemText
-                                  data-cy="name"
-                                  data-test={mentor?.name}
-                                  primary={mentor?.name}
-                                  secondary={mentor?.title}
-                                  style={{ flexGrow: 1 }}
-                                />
-                                <CardActions>
-                                  <FormControlLabel
-                                    control={
-                                      <IconButton
-                                        data-cy="remove-mentor-panel-mentor"
-                                        size="small"
-                                        onClick={() =>
-                                          setEditMentorPanel({
-                                            ...editMentorPanel!,
-                                            mentors: copyAndRemove(
-                                              editMentorPanel?.mentors || [],
-                                              i
-                                            ),
-                                          })
-                                        }
-                                      >
-                                        <DeleteIcon />
-                                      </IconButton>
-                                    }
-                                    label="Remove"
-                                    labelPlacement="top"
-                                  />
-                                </CardActions>
-                              </CardContent>
-                            </Card>
-                          </ListItem>
-                        )}
-                      </Draggable>
-                    );
-                  })}
-                  {provided.placeholder}
-                </List>
-              )}
-            </Droppable>
-          </DragDropContext>
-          <Autocomplete
-            data-cy="panel-mentors"
-            options={mentors}
-            getOptionLabel={(option: MentorGQL) => option.name}
-            getOptionDisabled={(option: MentorGQL) =>
-              Boolean(editMentorPanel?.mentors.includes(option._id))
-            }
-            onChange={(e, v) => {
-              if (v)
-                setEditMentorPanel({
-                  ...editMentorPanel!,
-                  mentors: [...(editMentorPanel?.mentors || []), v._id],
-                });
-            }}
-            style={{ width: "100%" }}
-            renderOption={(option) => (
-              <Typography data-cy={`panel-mentor-${option._id}`}>
-                {option.name}
-              </Typography>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                variant="outlined"
-                placeholder="Choose a mentor"
-                label="Add Mentor"
-              />
-            )}
-          />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-            }}
-          >
-            <Button
-              data-cy="save-mentor-panel"
-              color="primary"
-              variant="outlined"
-              className={styles.button}
-              onClick={() => {
-                props.saveMentorPanel(editMentorPanel!);
-                setEditMentorPanel(undefined);
-              }}
-            >
-              Save
-            </Button>
-            <Button
-              data-cy="cancel-mentor-panel"
-              color="secondary"
-              variant="outlined"
-              className={styles.button}
-              onClick={() => setEditMentorPanel(undefined)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
 
 function HeaderStyle(props: {
   styles: Record<string, string>;
@@ -667,6 +120,19 @@ function HeaderStyle(props: {
         onChangeComplete={(color: { hex: string }) =>
           updateConfig({ styleHeaderColor: color.hex })
         }
+      />
+      <TextField
+        fullWidth
+        data-cy="styleHeaderText"
+        data-test={config.styleHeaderText}
+        variant="outlined"
+        label="Header Text"
+        value={config.styleHeaderText}
+        onChange={(e) => updateConfig({ styleHeaderText: e.target.value })}
+        style={{ marginTop: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <Typography
         variant="subtitle1"
@@ -859,56 +325,53 @@ function Settings(props: {
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
   const {
+    org,
+    orgs,
     config,
     mentors,
     mentorPanels,
     error,
-    isEdited,
     isLoading,
     isSaving,
     saveConfig,
-    updateConfig,
+    editConfig,
     moveMentor,
     moveMentorPanel,
     toggleActiveMentor,
     toggleFeaturedMentor,
     toggleFeaturedMentorPanel,
     toggleActiveMentorPanel,
+    setOrganization,
     saveMentorPanel,
-  } = useWithConfig(props.accessToken);
+  } = useWithConfigEdits(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
-  const { height } = useWithWindowSize();
   const { data: subjects } = useWithSubjects();
-
-  const permissionToView =
-    props.user.userRole === UserRole.ADMIN ||
-    props.user.userRole === UserRole.CONTENT_MANAGER;
+  const { height } = useWithWindowSize();
   const [tab, setTab] = useState<string>("featured-mentors");
 
   useEffect(() => {
     switchActiveMentor();
   }, []);
 
-  if (!permissionToView) {
-    return (
-      <div>You must be an admin or content manager to view this page.</div>
-    );
-  }
-
-  if (isLoading || !config) {
+  if (isLoading) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
       </div>
     );
   }
+  if (!config) {
+    return (
+      <div>You must be an admin or content manager to view this page.</div>
+    );
+  }
 
   return (
     <div className={styles.root}>
-      <NavBar title="Manage Config" />
+      <NavBar title={`Manage${org ? ` ${org.name} ` : " "}Config`} />
       <TabContext value={tab}>
-        <TabList onChange={(event, newValue) => setTab(newValue)}>
+        <TabList onChange={(_event, newValue) => setTab(newValue)}>
           <Tab
             label="Featured Mentors"
             value="featured-mentors"
@@ -937,7 +400,6 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="featured-mentors"
         >
           <MentorList
-            styles={styles}
             config={config}
             mentors={mentors}
             move={moveMentor}
@@ -951,10 +413,11 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="featured-mentor-panels"
         >
           <MentorPanelList
-            styles={styles}
             config={config}
+            org={org}
             mentors={mentors}
             mentorPanels={mentorPanels}
+            organizations={orgs}
             subjects={subjects?.edges.map((s) => s.node) || []}
             move={moveMentorPanel}
             toggleFeatured={toggleFeaturedMentorPanel}
@@ -970,7 +433,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           <HeaderStyle
             styles={styles}
             config={config}
-            updateConfig={updateConfig}
+            updateConfig={editConfig}
           />
         </TabPanel>
         <TabPanel
@@ -978,7 +441,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="disclaimer"
         >
-          <Disclaimer config={config} updateConfig={updateConfig} />
+          <Disclaimer config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
@@ -989,16 +452,49 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             config={config}
             subjects={subjects?.edges.map((s) => s.node) || []}
             keywords={keywords?.edges.map((k) => k.node) || []}
-            updateConfig={updateConfig}
+            updateConfig={editConfig}
           />
         </TabPanel>
       </TabContext>
+      {orgs.length > 0 ? (
+        <Select
+          data-cy="select-org"
+          label="Organization"
+          value={org?._id}
+          cy-value={org?._id}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) =>
+            setOrganization(
+              orgs.find((o) => (event.target.value as string) === o._id)
+            )
+          }
+          style={{ width: 270, position: "absolute", bottom: 25, right: 25 }}
+        >
+          <MenuItem
+            data-cy="org-none"
+            value={undefined}
+            disabled={!canEditContent(props.user)}
+          >
+            None
+          </MenuItem>
+          {orgs.map((o) => (
+            <MenuItem
+              data-cy={`org-${o._id}`}
+              key={`org-${o._id}`}
+              value={o._id}
+            >
+              {o.name}
+            </MenuItem>
+          ))}
+        </Select>
+      ) : undefined}
       <Button
         data-cy="save-button"
         variant="contained"
         color="primary"
         className={styles.button}
-        disabled={!isEdited || isSaving}
+        disabled={isSaving}
         onClick={saveConfig}
       >
         Save

@@ -4,14 +4,24 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { SubjectGQL } from "types-gql";
+import {
+  addOrUpdateOrganization,
+  fetchOrganizations,
+  updateOrgConfig,
+} from "api";
+import { Config, Connection, Organization } from "types";
 import {
   UseStaticDataConnection,
   useWithStaticDataConnection,
 } from "./use-with-static-data-connection";
 
-export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
+export interface UseOrganizationData
+  extends UseStaticDataConnection<Organization> {
+  saveOrganization: (org: Partial<Organization>) => void;
+  updateOrganizationConfig: (org: Organization, config: Config) => void;
+}
+
+export function useWithOrganizations(accessToken: string): UseOrganizationData {
   const {
     data,
     error,
@@ -24,10 +34,18 @@ export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
     nextPage,
     prevPage,
     reloadData,
-  } = useWithStaticDataConnection<SubjectGQL>(fetch);
+  } = useWithStaticDataConnection<Organization>(fetch);
 
-  function fetch() {
-    return fetchSubjects(searchParams);
+  function fetch(): Promise<Connection<Organization>> {
+    return fetchOrganizations(accessToken, searchParams);
+  }
+
+  function updateOrganizationConfig(org: Organization, config: Config): void {
+    updateOrgConfig(accessToken, org._id, config).then(() => reloadData());
+  }
+
+  function saveOrganization(org: Partial<Organization>): void {
+    addOrUpdateOrganization(accessToken, org, org._id).then(() => reloadData());
   }
 
   return {
@@ -42,5 +60,7 @@ export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
     nextPage,
     prevPage,
     reloadData,
+    updateOrganizationConfig,
+    saveOrganization,
   };
 }

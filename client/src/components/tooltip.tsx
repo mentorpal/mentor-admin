@@ -4,43 +4,27 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchSubjects } from "api";
-import { SubjectGQL } from "types-gql";
-import {
-  UseStaticDataConnection,
-  useWithStaticDataConnection,
-} from "./use-with-static-data-connection";
+import React from "react";
+import { Tooltip } from "@material-ui/core";
+import { HelpOutline as HelpOutlineIcon } from "@material-ui/icons";
 
-export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
-  const {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    pageData,
-    pageSearchParams,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-    reloadData,
-  } = useWithStaticDataConnection<SubjectGQL>(fetch);
-
-  function fetch() {
-    return fetchSubjects(searchParams);
-  }
-
-  return {
-    data,
-    error,
-    isLoading,
-    searchParams,
-    pageSearchParams,
-    pageData,
-    sortBy,
-    filter,
-    nextPage,
-    prevPage,
-    reloadData,
-  };
+export function WithTooltip(props: {
+  item: JSX.Element;
+  infoText: string;
+}): JSX.Element {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {props.item}
+      <Tooltip title={props.infoText} style={{ marginLeft: 5, color: "gray" }}>
+        <HelpOutlineIcon />
+      </Tooltip>
+    </div>
+  );
 }

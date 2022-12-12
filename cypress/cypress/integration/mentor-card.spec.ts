@@ -12,13 +12,7 @@ import {
   cyAttachInputFile,
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
-import {
-  Status,
-  QuestionType,
-  UtteranceName,
-  SubjectTypes,
-} from "../support/types";
-import questions from "../fixtures/questions";
+import { Status, QuestionType } from "../support/types";
 
 describe("My Mentor Page", () => {
   describe("Mentor Card", () => {
@@ -146,19 +140,6 @@ describe("My Mentor Page", () => {
         cy.get("[data-cy=uploaded-thumbnail]").trigger("mouseover");
         cy.get("[data-cy=upload-file]").should("exist");
         cy.get("[data-cy=recommended-action-button]").should("exist");
-
-        // fill out privacy and save
-        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
-        cy.get("[data-cy=select-privacy]").contains("Public");
-        cy.get("[data-cy=select-privacy]").trigger("mouseover").click();
-        cy.get("[data-cy=private]").trigger("mouseover").click();
-        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
-        cy.get("[data-cy=save-button]").should("not.be.disabled");
-        cy.get("[data-cy=save-button]").trigger("mouseover").click();
-        //  open modal
-        cy.get("[data-cy=edit-mentor-data]").trigger("mouseover").click();
-        cy.get("[data-cy=select-privacy]").contains("Private");
-        cy.get("[data-cy=close-modal]").trigger("mouseover").click();
       });
     });
 

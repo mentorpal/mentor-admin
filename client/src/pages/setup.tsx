@@ -18,6 +18,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { WelcomeSlide } from "components/setup/welcome-slide";
 import { MentorInfoSlide } from "components/setup/mentor-info-slide";
 import { MentorTypeSlide } from "components/setup/mentor-type-slide";
+import { MentorPrivacySlide } from "components/setup/mentor-privacy-slide";
 import { MentorGoalSlide } from "components/setup/mentor-goal-slide";
 import { IntroductionSlide } from "components/setup/introduction-slide";
 import { SelectKeywordsSlide } from "components/setup/select-keywords-slide";
@@ -28,9 +29,9 @@ import { FinalSetupSlide } from "components/setup/final-setup-slide";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { SetupStepType, useWithSetup } from "hooks/graphql/use-with-setup";
 import withLocation from "wrap-with-location";
-import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
+import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -107,7 +108,11 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
+function SetupPage(props: {
+  accessToken: string;
+  user: User;
+  search: { i?: string };
+}): JSX.Element {
   const classes = useStyles();
   const {
     setupStatus: status,
@@ -126,10 +131,10 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
     defaultVirtualBackground,
     onLeave,
   } = useWithSetup(props.search);
+  const accessToken = props.accessToken;
   const { data: keywords } = useWithKeywords();
-  const { state: loginState } = useWithLogin();
   const { state: configState } = useWithConfig();
-  const accessToken = loginState.accessToken || "";
+  const { data: orgs } = useWithOrganizations(accessToken);
   const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
 
   if (!readyToDisplay) {
@@ -179,6 +184,17 @@ function SetupPage(props: { user: User; search: { i?: string } }): JSX.Element {
             editMentor={editMentor}
             accessToken={accessToken}
             uploadLambdaEndpoint={uploadLambdaEndpoint}
+          />
+        );
+      case SetupStepType.MENTOR_PRIVACY:
+        return (
+          <MentorPrivacySlide
+            key="mentor-privacy"
+            classes={classes}
+            mentor={mentor}
+            orgs={orgs?.edges.map((e) => e.node) || []}
+            isMentorLoading={isLoading || isSaving}
+            editMentor={editMentor}
           />
         );
       case SetupStepType.MENTOR_GOAL:

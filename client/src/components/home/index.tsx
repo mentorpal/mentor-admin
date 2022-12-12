@@ -33,7 +33,7 @@ import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
-import { launchMentor } from "helpers";
+import { canEditContent, launchMentor } from "helpers";
 import {
   QuestionEdits,
   useWithReviewAnswerState,
@@ -43,7 +43,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, UserRole, Status } from "types";
+import { User, Subject, Status } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -400,7 +400,7 @@ function HomePage(props: {
         >
           {expandAllRecordingBlocks ? "Collapse" : "Expand"} All
         </Button>
-        {props.user.userRole === UserRole.ADMIN && (
+        {canEditContent(props.user) && (
           <Fab
             data-cy="default-mentor-button"
             variant="extended"
@@ -412,7 +412,6 @@ function HomePage(props: {
             Default Mentor
           </Fab>
         )}
-
         <ColorTooltip
           interactive={true}
           open={

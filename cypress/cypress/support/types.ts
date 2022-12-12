@@ -48,6 +48,8 @@ export enum UserRole {
   ADMIN = "ADMIN",
   CONTENT_MANAGER = "CONTENT_MANAGER",
   USER = "USER",
+  SUPER_CONTENT_MANAGER = "SUPER_CONTENT_MANAGER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export interface UserAccessToken {
@@ -96,6 +98,7 @@ export interface Subject {
   type: SubjectTypes;
   description: string;
   isRequired: boolean;
+  isArchived: false;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestion[];

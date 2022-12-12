@@ -37,6 +37,7 @@ import {
   TrendingUserQuestion,
   SbertEncodedSentence,
   Keyword,
+  Organization,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -242,6 +243,7 @@ export async function fetchConfig(): Promise<Config> {
           uploadLambdaEndpoint
           styleHeaderLogo
           styleHeaderColor
+          styleHeaderText
           styleHeaderTextColor
           disclaimerTitle
           disclaimerText
@@ -284,6 +286,10 @@ export async function fetchUsers(
                 _id
                 name
                 isPrivate
+                orgPermissions {
+                  orgId
+                  permission
+                }
               }
             }
           }
@@ -307,24 +313,6 @@ export async function fetchUsers(
   );
 }
 
-export async function updateMentorPrivacy(
-  mentorId: string,
-  isPrivate: boolean,
-  accessToken: string
-): Promise<boolean> {
-  return execGql<boolean>(
-    {
-      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!) {
-        me {
-          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate)
-        }
-      }`,
-      variables: { mentorId, isPrivate },
-    },
-    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
-  );
-}
-
 export async function updateUserPermissions(
   userId: string,
   permissionLevel: string,
@@ -342,58 +330,6 @@ export async function updateUserPermissions(
       variables: { userId, permissionLevel },
     },
     { dataPath: ["me", "updateUserPermissions"], accessToken }
-  );
-}
-
-export async function fetchSubject(id: string): Promise<SubjectGQL> {
-  return await execGql<SubjectGQL>(
-    {
-      query: `
-        query Subject($id: ID!) {
-          subject(id: $id) {
-            _id
-            name
-            type
-            description
-            isRequired
-            categories {
-              id
-              name
-              description
-            }
-            topics {
-              id
-              name
-              description
-            }
-            questions {
-              question {
-                _id
-                question
-                type
-                name
-                paraphrases
-                mentor
-                mentorType
-                minVideoLength
-              }
-              category {
-                id
-                name
-                description
-              }
-              topics {
-                id
-                name
-                description
-              }
-            }
-          }
-        }
-      `,
-      variables: { id },
-    },
-    { dataPath: "subject" }
   );
 }
 
@@ -441,6 +377,59 @@ export async function fetchKeywords(
   );
 }
 
+export async function fetchSubject(id: string): Promise<SubjectGQL> {
+  return await execGql<SubjectGQL>(
+    {
+      query: `
+        query Subject($id: ID!) {
+          subject(id: $id) {
+            _id
+            name
+            type
+            description
+            isRequired
+            isArchived
+            categories {
+              id
+              name
+              description
+            }
+            topics {
+              id
+              name
+              description
+            }
+            questions {
+              question {
+                _id
+                question
+                type
+                name
+                paraphrases
+                mentor
+                mentorType
+                minVideoLength
+              }
+              category {
+                id
+                name
+                description
+              }
+              topics {
+                id
+                name
+                description
+              }
+            }
+          }
+        }
+      `,
+      variables: { id },
+    },
+    { dataPath: "subject" }
+  );
+}
+
 export async function fetchSubjects(
   searchParams?: SearchParams
 ): Promise<Connection<SubjectGQL>> {
@@ -464,6 +453,7 @@ export async function fetchSubjects(
               type
               description
               isRequired
+              isArchived
               categories {
                 id
                 name
@@ -534,6 +524,7 @@ export async function updateSubject(
             type
             description
             isRequired
+            isArchived
             categories {
               id
               name
@@ -575,6 +566,8 @@ export async function updateSubject(
           _id: isValidObjectID(subject?._id || "") ? subject._id : undefined,
           name: subject?.name,
           type: subject?.type,
+          isRequired: subject?.isRequired,
+          isArchived: subject?.isArchived,
           description: subject?.description,
           categories: subject?.categories,
           topics: subject?.topics,
@@ -583,30 +576,6 @@ export async function updateSubject(
       },
     },
     { dataPath: ["me", "updateSubject"], accessToken }
-  );
-}
-
-export async function updateMyFirstTimeTracking(
-  updates: Partial<FirstTimeTracking>,
-  accessToken: string
-): Promise<FirstTimeTracking> {
-  return await execGql<FirstTimeTracking>(
-    {
-      query: `
-      mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
-        me{
-          firstTimeTrackingUpdate(updates: $updates){
-            myMentorSplash,
-            tooltips,
-          }
-        }
-      }
-    `,
-      variables: {
-        updates,
-      },
-    },
-    { dataPath: ["me", "firstTimeTrackingUpdate"], accessToken }
   );
 }
 
@@ -634,6 +603,30 @@ export async function addOrUpdateSubjectQuestions(
       },
     },
     { dataPath: ["me", "subjectAddOrUpdateQuestions"], accessToken }
+  );
+}
+
+export async function updateMyFirstTimeTracking(
+  updates: Partial<FirstTimeTracking>,
+  accessToken: string
+): Promise<FirstTimeTracking> {
+  return await execGql<FirstTimeTracking>(
+    {
+      query: `
+      mutation FirstTimeTrackingUpdate($updates: FirstTimeTrackingUpdateInputType!) {
+        me{
+          firstTimeTrackingUpdate(updates: $updates){
+            myMentorSplash,
+            tooltips,
+          }
+        }
+      }
+    `,
+      variables: {
+        updates,
+      },
+    },
+    { dataPath: ["me", "firstTimeTrackingUpdate"], accessToken }
   );
 }
 
@@ -749,44 +742,44 @@ export async function fetchUserQuestions(
       query UserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
         userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
            edges {
-                  cursor
-                  node {
-                    _id
-                    question
-                    confidence
-                    classifierAnswerType
-                    feedback
-                    updatedAt
-                    createdAt
-                    dismissed
-                    mentor {
-                      _id
-                      name
-                    }
-                    classifierAnswer {
-                      _id
-                      transcript
-                      question {
-                        _id
-                        question
-                      }
-                    }
-                    graderAnswer {
-                      _id
-                      transcript
-                      question {
-                        _id
-                        question
-                      }
-                    }
-                  }
+            cursor
+            node {
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              updatedAt
+              createdAt
+              dismissed
+              mentor {
+                _id
+                name
+              }
+              classifierAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
                 }
-                pageInfo {
-                  startCursor
-                  endCursor
-                  hasPreviousPage
-                  hasNextPage
+              }
+              graderAnswer {
+                _id
+                transcript
+                question {
+                  _id
+                  question
                 }
+              }
+            }
+          }
+          pageInfo {
+            startCursor
+            endCursor
+            hasPreviousPage
+            hasNextPage
+          }
         }
       }
     `,
@@ -813,18 +806,18 @@ export async function fetchTrendingFeedback(
       query TrendingUserQuestions($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
         userQuestions(filter: $filter, limit: $limit,cursor: $cursor,sortBy: $sortBy,sortAscending: $sortAscending){
            edges {
-                  cursor
-                  node {
-                    _id
-                    question
-                    confidence
-                    classifierAnswerType
-                    feedback
-                    updatedAt
-                    createdAt
-                    dismissed
-                  }
-              }
+            cursor
+            node {
+              _id
+              question
+              confidence
+              classifierAnswerType
+              feedback
+              updatedAt
+              createdAt
+              dismissed
+            }
+          }
         }
       }
     `,
@@ -958,8 +951,13 @@ export async function fetchMentorById(
           lastTrainedAt
           lastPreviewedAt
           isDirty
+          isPrivate
           hasVirtualBackground
           virtualBackgroundUrl
+          orgPermissions {
+            orgId
+            permission
+          }
           defaultSubject {
             _id
           }
@@ -974,6 +972,7 @@ export async function fetchMentorById(
             type
             description
             isRequired
+            isArchived
             categories {
               id
               name
@@ -1142,6 +1141,33 @@ export async function updateMentorSubjects(
       },
     },
     { accessToken, dataPath: ["me", "updateMentorSubjects"] }
+  );
+}
+
+export async function updateMentorPrivacy(
+  accessToken: string,
+  mentor: Partial<Mentor>,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, $orgPermissions: [OrgPermissionInputType]) {
+        me {
+          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate, orgPermissions: $orgPermissions)
+        }
+      }`,
+      variables: {
+        mentorId,
+        isPrivate: mentor.isPrivate === undefined ? false : mentor.isPrivate,
+        orgPermissions: mentor.orgPermissions
+          ? mentor.orgPermissions.map((op) => ({
+              org: op.orgId,
+              permission: op.permission,
+            }))
+          : [],
+      },
+    },
+    { dataPath: ["me", "updateMentorPrivacy"], accessToken }
   );
 }
 
@@ -1377,7 +1403,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
             _id
             name
             userRole
-            defaultMentor{
+            defaultMentor {
               _id
             }
             firstTimeTracking{
@@ -1392,7 +1418,7 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
       variables: { accessToken },
     },
     // login responds with set-cookie, w/o withCredentials it doesnt get stored
-    { dataPath: "login", axiosConfig: { withCredentials: true } }
+    { accessToken, dataPath: "login", axiosConfig: { withCredentials: true } }
   );
 }
 
@@ -1408,6 +1434,13 @@ export async function loginGoogle(
             _id
             name
             userRole
+            defaultMentor{
+              _id
+            }
+            firstTimeTracking{
+              myMentorSplash,
+              tooltips,
+            }
           }
           accessToken
         }
@@ -1623,6 +1656,7 @@ export async function exportMentor(
               type
               description
               isRequired
+              isArchived
               topics {
                 id
                 name
@@ -1755,6 +1789,7 @@ export async function importMentorPreview(
                 type
                 description
                 isRequired
+                isArchived
                 topics {
                   id
                   name
@@ -1794,6 +1829,7 @@ export async function importMentorPreview(
                 type
                 description
                 isRequired
+                isArchived
                 topics {
                   id
                   name
@@ -1982,7 +2018,7 @@ export async function importMentor(
 
 export async function fetchMentors(
   accessToken: string,
-  searchParams?: SearchParams
+  searchParams?: Partial<SearchParams>
 ): Promise<Connection<MentorGQL>> {
   const params = { ...defaultSearchParams, ...searchParams };
   const { filter, limit, cursor, sortBy, sortAscending } = params;
@@ -1996,6 +2032,11 @@ export async function fetchMentors(
                 _id
                 name
                 title
+                isPrivate
+                orgPermissions {
+                  orgId
+                  permission
+                }
               }
             }
             pageInfo {
@@ -2025,6 +2066,7 @@ export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
         query MentorPanel($id: ID!) {
           mentorPanel(id: $id) {
             _id
+            org
             subject
             mentors
             title
@@ -2039,7 +2081,7 @@ export async function fetchMentorPanel(id: string): Promise<MentorPanel> {
 }
 
 export async function fetchMentorPanels(
-  searchParams?: SearchParams
+  searchParams?: Partial<SearchParams>
 ): Promise<Connection<MentorPanel>> {
   const params = { ...defaultSearchParams, ...searchParams };
   return await execGql<Connection<MentorPanel>>(
@@ -2057,6 +2099,7 @@ export async function fetchMentorPanels(
             cursor
             node {
               _id
+              org
               subject
               mentors
               title
@@ -2095,6 +2138,7 @@ export async function addOrUpdateMentorPanel(
         me {
           addOrUpdateMentorPanel(id: $id, mentorPanel: $mentorPanel) {
             _id
+            org
             subject
             mentors
             title
@@ -2105,7 +2149,8 @@ export async function addOrUpdateMentorPanel(
       variables: {
         id,
         mentorPanel: {
-          subject: mentorPanel.subject,
+          org: mentorPanel.org,
+          subject: mentorPanel.subject || undefined,
           mentors: mentorPanel.mentors,
           title: mentorPanel.title,
           subtitle: mentorPanel.subtitle,
@@ -2113,6 +2158,224 @@ export async function addOrUpdateMentorPanel(
       },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
+  );
+}
+
+export async function fetchOrganizations(
+  accessToken: string,
+  searchParams?: Partial<SearchParams>
+): Promise<Connection<Organization>> {
+  const params = { ...defaultSearchParams, ...searchParams };
+  const { filter, limit, cursor, sortBy, sortAscending } = params;
+  return execGql<Connection<Organization>>(
+    {
+      query: `
+        query Organizations($filter: Object!, $limit: Int!, $cursor: String!, $sortBy: String!, $sortAscending: Boolean!){
+          organizations (filter: $filter, limit: $limit, cursor: $cursor, sortBy: $sortBy, sortAscending: $sortAscending){
+            edges {
+              node {
+                _id
+                uuid
+                name
+                subdomain
+                isPrivate
+                members {
+                  user {
+                    _id
+                    name
+                    email
+                  }
+                  role
+                }
+                config {
+                  mentorsDefault
+                  featuredMentors
+                  featuredMentorPanels
+                  activeMentors
+                  activeMentorPanels
+                  googleClientId
+                  urlDocSetup
+                  urlVideoIdleTips
+                  videoRecorderMaxLength
+                  classifierLambdaEndpoint
+                  uploadLambdaEndpoint
+                  styleHeaderLogo
+                  styleHeaderColor
+                  styleHeaderText
+                  styleHeaderTextColor
+                  disclaimerTitle
+                  disclaimerText
+                  disclaimerDisabled
+                  displayGuestPrompt
+                  videoRecorderMaxLength
+                  subjectRecordPriority
+                  virtualBackgroundUrls
+                  defaultVirtualBackground
+                  questionSortOrder
+                  featuredKeywordTypes
+                  featuredSubjects
+                  defaultSubject
+                }
+              }
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasPreviousPage
+              hasNextPage
+            }
+          }
+        }`,
+      variables: {
+        filter: JSON.stringify(filter),
+        limit,
+        cursor,
+        sortBy,
+        sortAscending,
+      },
+    },
+    { dataPath: "organizations", accessToken }
+  );
+}
+
+export async function addOrUpdateOrganization(
+  accessToken: string,
+  organization: Partial<Organization>,
+  id?: string
+): Promise<Organization> {
+  return execGql<Organization>(
+    {
+      query: `mutation AddOrUpdateOrganization($id: ID, $organization: AddOrUpdateOrganizationInputType!) {
+        me {
+          addOrUpdateOrganization(id: $id, organization: $organization) {
+            _id
+            uuid
+            name
+            subdomain
+            isPrivate
+            members {
+              user {
+                _id
+                name
+                email
+              }
+              role
+            }
+            config {
+              mentorsDefault
+              featuredMentors
+              featuredMentorPanels
+              activeMentors
+              activeMentorPanels
+              googleClientId
+              urlDocSetup
+              urlVideoIdleTips
+              videoRecorderMaxLength
+              classifierLambdaEndpoint
+              uploadLambdaEndpoint
+              styleHeaderLogo
+              styleHeaderColor
+              styleHeaderText
+              styleHeaderTextColor
+              disclaimerTitle
+              disclaimerText
+              disclaimerDisabled
+              displayGuestPrompt
+              videoRecorderMaxLength
+              subjectRecordPriority
+              virtualBackgroundUrls
+              defaultVirtualBackground
+              questionSortOrder
+              featuredKeywordTypes
+              featuredSubjects
+              defaultSubject
+            }
+          }
+        }
+      }`,
+      variables: {
+        id,
+        organization: {
+          name: organization.name,
+          subdomain: organization.subdomain,
+          isPrivate: organization.isPrivate,
+          members:
+            organization.members?.map((m) => ({
+              user: m.user._id,
+              role: m.role,
+            })) || [],
+        },
+      },
+    },
+    { dataPath: ["me", "addOrUpdateOrganization"], accessToken }
+  );
+}
+
+export async function updateOrgConfig(
+  accessToken: string,
+  id: string,
+  config: Config
+): Promise<Config> {
+  return execGql<Config>(
+    {
+      query: `mutation UpdateOrganizationConfig($id: ID!, $config: ConfigUpdateInputType!) {
+        me {
+          updateOrgConfig(id: $id, config: $config) {
+            mentorsDefault
+            featuredMentors
+            featuredMentorPanels
+            activeMentors
+            activeMentorPanels
+            googleClientId
+            urlDocSetup
+            urlVideoIdleTips
+            videoRecorderMaxLength
+            classifierLambdaEndpoint
+            uploadLambdaEndpoint
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderText
+            styleHeaderTextColor
+            disclaimerTitle
+            disclaimerText
+            disclaimerDisabled
+            displayGuestPrompt
+            videoRecorderMaxLength
+            subjectRecordPriority
+            virtualBackgroundUrls
+            defaultVirtualBackground
+            questionSortOrder
+            featuredKeywordTypes
+            featuredSubjects
+            defaultSubject
+          }
+        }
+      }`,
+      variables: {
+        id,
+        config: {
+          featuredMentors: config.featuredMentors,
+          featuredMentorPanels: config.featuredMentorPanels,
+          activeMentors: config.activeMentors,
+          activeMentorPanels: config.activeMentorPanels,
+          mentorsDefault: config.mentorsDefault,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderText: config.styleHeaderText,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          disclaimerDisabled: config.disclaimerDisabled,
+          displayGuestPrompt: config.displayGuestPrompt,
+          videoRecorderMaxLength: config.videoRecorderMaxLength,
+          questionSortOrder: config.questionSortOrder,
+          featuredKeywordTypes: config.featuredKeywordTypes,
+          featuredSubjects: config.featuredSubjects,
+          defaultSubject: config.defaultSubject,
+        },
+      },
+    },
+    { dataPath: ["me", "updateOrgConfig"], accessToken }
   );
 }
 
@@ -2138,6 +2401,7 @@ export async function updateConfig(
             uploadLambdaEndpoint
             styleHeaderLogo
             styleHeaderColor
+            styleHeaderText
             styleHeaderTextColor
             disclaimerTitle
             disclaimerText
@@ -2160,6 +2424,7 @@ export async function updateConfig(
           mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,
+          styleHeaderText: config.styleHeaderText,
           styleHeaderTextColor: config.styleHeaderTextColor,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,

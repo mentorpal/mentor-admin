@@ -24,6 +24,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: startState,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=recommended-action-reason]").contains(
       "It's important to establish the goal of your mentor."
@@ -67,6 +68,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: startState,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "It's important to establish the goal of your mentor."
     );
@@ -77,6 +79,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasGoal,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Adding keywords respective to your experiences and identities allows users to easily find mentors they can relate to."
     );
@@ -87,6 +90,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasKeywords,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Your mentor doesn't have any subject areas. Subjects give you sets of questions to record."
     );
@@ -97,6 +101,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasSubjects,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Users see your idle video while typing a question"
     );
@@ -108,6 +113,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasIdle,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Your mentor's introduction is what they say when a user starts."
     );
@@ -119,6 +125,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasIntroNoTranscript,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "Your mentor's introduction is what they say when a user starts."
     );
@@ -130,6 +137,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasIntroAndNoOffTopicVideo,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "The off topic response helps tell the user that the AI didn't understand their question."
     );
@@ -141,6 +149,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: missingOffTopicTranscript,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "The off topic response helps tell the user that the AI didn't understand their question."
     );
@@ -152,6 +161,7 @@ describe("Recommender Any Phase Recommendations", () => {
       mentor: hasOffTopicComplete,
     });
     cy.visit("/");
+    cy.wait("@train");
     cy.get("[data-cy=recommended-action-reason]").contains(
       "A thumbnail helps a user pick out your mentor from other mentors."
     );

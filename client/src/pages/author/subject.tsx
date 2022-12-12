@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import {
   Button,
   CircularProgress,
@@ -67,6 +67,7 @@ function SubjectPage(props: {
     isLoading: isSubjectLoading,
     isSaving: isSubjectSaving,
     editData: editSubject,
+    userCanArchiveSubjects,
     saveSubject,
     addCategory,
     updateCategory,
@@ -81,6 +82,10 @@ function SubjectPage(props: {
     moveQuestion,
   } = useWithSubject(props.search.id || "", props.accessToken);
   const { height: windowHeight } = useWithWindowSize();
+
+  const handleArchiveChange = (e: ChangeEvent<HTMLInputElement>) => {
+    editSubject({ isArchived: e.target.checked });
+  };
 
   if (!mentorId || !editedSubject) {
     return (
@@ -226,6 +231,17 @@ function SubjectPage(props: {
             : ""
         }
       />
+      {userCanArchiveSubjects ? (
+        <label style={{ position: "absolute", bottom: 20 }}>
+          Archived
+          <input
+            data-cy="archive-subject-checkbox"
+            defaultChecked={editedSubject.isArchived}
+            onChange={handleArchiveChange}
+            type="checkbox"
+          />
+        </label>
+      ) : undefined}
       <ErrorDialog error={subjectError} />
     </div>
   );

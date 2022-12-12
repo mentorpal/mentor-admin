@@ -11,8 +11,10 @@ import {
   MentorType,
   Status,
   QuestionType,
+  UserRole,
 } from "../support/types";
 import { completeSubjectQuestion } from "../support/helpers";
+import { login as loginDefault } from "../fixtures/login";
 
 const mentor = {
   _id: "clintanderson",
@@ -32,6 +34,7 @@ const mentor = {
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       isRequired: true,
+      isArchived: false,
       categories: [],
       topics: [],
       questions: [],
@@ -42,6 +45,7 @@ const mentor = {
       type: SubjectTypes.UTTERANCES,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       isRequired: true,
+      isArchived: false,
       categories: [],
       topics: [],
       questions: [],
@@ -166,6 +170,23 @@ const mentor = {
     }),
   ],
 };
+const singleArchivedSubject = {
+  ...allSubjects,
+  edges: allSubjects.edges.map((edge, i) => {
+    if (i == 0) {
+      return {
+        ...edge,
+        node: {
+          ...edge.node,
+          isArchived: true,
+        },
+      };
+    }
+    return {
+      ...edge,
+    };
+  }),
+};
 
 describe("Select Subjects", () => {
   it("lists subjects", () => {
@@ -242,6 +263,7 @@ describe("Select Subjects", () => {
             type: SubjectTypes.SUBJECT,
             description: "",
             isRequired: true,
+            isArchived: false,
             categories: [],
             topics: [],
             questions: [],
@@ -255,6 +277,7 @@ describe("Select Subjects", () => {
               description:
                 "These questions will ask about being in a leadership role.",
               isRequired: false,
+              isArchived: false,
               categories: [],
               topics: [],
               questions: [],
@@ -388,5 +411,104 @@ describe("Dropdown button list", () => {
       .invoke("mouseover")
       .click();
     cy.get("[data-cy=dropdown-button-list]").should("have.text", "Exit");
+  });
+});
+
+describe("archived subjects", () => {
+  it("Do not appear by default", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [{ ...mentor, subjects: [] }],
+      subjects: [singleArchivedSubject],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-0]").should("contain", "Leadership");
+    cy.get("[data-cy=subject-0]").should("not.contain", "Archived");
+    cy.get("[data-cy=subject-1]").should("not.exist");
+  });
+
+  it("Appears for mentors who previously had the subject grandfathered in", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [mentor],
+      subjects: [singleArchivedSubject],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-0]").should("contain", "Background");
+    cy.get("[data-cy=subject-0]").should("contain", "Archived");
+    cy.get("[data-cy=subject-1]").should("contain", "Leadership");
+    cy.get("[data-cy=subject-1]").should("not.contain", "Archived");
+  });
+
+  it("View Archived Subjects button not visible to USER's", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [{ ...mentor, subjects: [] }],
+      subjects: [singleArchivedSubject],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.USER },
+      },
+    });
+    cy.visit("/subjects");
+    cy.contains("Leadership");
+    cy.get("[data-cy=archived-subject-view-switch]").should("not.exist");
+  });
+
+  it("View Archived Subjects button visible to CONTENT_MANAGER's", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [{ ...mentor, subjects: [] }],
+      subjects: [singleArchivedSubject],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.CONTENT_MANAGER },
+      },
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=archived-subject-view-switch]").should("exist");
+    cy.get("[data-cy=archived-subject-view-switch]").should("be.visible");
+  });
+
+  it("View Archived Subjects button visible to ADMIN's", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [{ ...mentor, subjects: [] }],
+      subjects: [singleArchivedSubject],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=archived-subject-view-switch]").should("exist");
+    cy.get("[data-cy=archived-subject-view-switch]").should("be.visible");
+  });
+
+  it("Can be revealed using show archived subjects button", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: [{ ...mentor, subjects: [] }],
+      subjects: [singleArchivedSubject],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subject-0]").should("contain", "Leadership");
+    cy.get("[data-cy=subject-0]").should("not.contain", "Archived");
+    cy.get("[data-cy=subject-1]").should("not.exist");
+    cy.get("[data-cy=archived-subject-view-switch]").should("exist");
+    cy.get("[data-cy=archived-subject-view-switch]").should("be.visible");
+    cy.get("[data-cy=archived-subject-view-switch]").click();
+    cy.get("[data-cy=subject-0]").should("contain", "Background");
+    cy.get("[data-cy=subject-0]").should("contain", "Archived");
+    cy.get("[data-cy=subject-1]").should("contain", "Leadership");
+    cy.get("[data-cy=subject-1]").should("not.contain", "Archived");
+    cy.get("[data-cy=archived-subject-view-switch]").click();
+    cy.get("[data-cy=subject-0]").should("contain", "Leadership");
+    cy.get("[data-cy=subject-0]").should("not.contain", "Archived");
+    cy.get("[data-cy=subject-1]").should("not.exist");
   });
 });

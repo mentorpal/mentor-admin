@@ -7,7 +7,12 @@ The full terms of this copyright and license should always be found in the root 
 import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
-import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
+import {
+  copyAndSet,
+  copyAndRemove,
+  copyAndMove,
+  canEditContent,
+} from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
 import {
   Category,
@@ -20,6 +25,7 @@ import {
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
+import { useWithLogin } from "store/slices/login/useWithLogin";
 
 export interface NewQuestionArgs {
   question?: Question;
@@ -33,6 +39,7 @@ interface UseWithSubject {
   isLoading: boolean;
   isSaving: boolean;
   error: LoadingError | undefined;
+  userCanArchiveSubjects: boolean;
   editData: (d: Partial<SubjectGQL>) => void;
   saveSubject: () => void;
   addCategory: () => void;
@@ -62,7 +69,8 @@ export function useWithSubject(
     editData,
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
-
+  const { state } = useWithLogin();
+  const canArchiveSubjects = canEditContent(state.user);
   const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCES;
 
   function fetch() {
@@ -74,6 +82,7 @@ export function useWithSubject(
           type: SubjectTypes.SUBJECT,
           description: "",
           isRequired: false,
+          isArchived: false,
           categories: [],
           topics: [],
           questions: [],
@@ -276,6 +285,7 @@ export function useWithSubject(
     isLoading,
     isSaving,
     error,
+    userCanArchiveSubjects: canArchiveSubjects,
     editData,
     saveSubject,
     addCategory,

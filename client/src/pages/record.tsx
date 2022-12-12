@@ -47,6 +47,7 @@ import {
   UtteranceName,
   Status,
   Subject,
+  User,
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -155,6 +156,7 @@ export interface LeaveConfirmation {
 
 function RecordPage(props: {
   accessToken: string;
+  user: User;
   search: {
     videoId?: string[] | string;
     subject?: string;
@@ -421,6 +423,7 @@ function RecordPage(props: {
             <VideoPlayer
               classes={classes}
               recordState={recordState}
+              user={props.user}
               accessToken={props.accessToken}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}

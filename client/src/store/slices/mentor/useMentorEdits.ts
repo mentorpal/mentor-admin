@@ -15,6 +15,7 @@ export interface UseMentorEdits {
   saveMentorDetails: () => void;
   saveMentorSubjects: () => void;
   saveMentorKeywords: () => void;
+  saveMentorPrivacy: () => void;
 }
 
 export const useMentorEdits = (): UseMentorEdits => {
@@ -26,6 +27,7 @@ export const useMentorEdits = (): UseMentorEdits => {
     saveMentorDetails: saveDetails,
     saveMentorSubjects: saveSubjects,
     saveMentorKeywords: saveKeywords,
+    saveMentorPrivacy: savePrivacy,
   } = useActiveMentor();
   const isMentorEdited = !equals(mentor, editedMentor);
   const declineMentorSave =
@@ -49,8 +51,8 @@ export const useMentorEdits = (): UseMentorEdits => {
     [mentor, editedMentor, isMentorLoading, isMentorSaving]
   );
 
-  const _saveMentorDetails = useCallback(() => {
-    if (declineMentorSave) {
+  const saveMentorDetails = useCallback(() => {
+    if (declineMentorSave || !editedMentor) {
       return;
     }
     saveDetails(editedMentor);
@@ -82,12 +84,26 @@ export const useMentorEdits = (): UseMentorEdits => {
     saveKeywords(editedMentor);
   };
 
+  const saveMentorPrivacy = () => {
+    if (
+      !mentor ||
+      isMentorLoading ||
+      isMentorSaving ||
+      !isMentorEdited ||
+      !editedMentor
+    ) {
+      return;
+    }
+    savePrivacy(editedMentor);
+  };
+
   return {
     editedMentor,
     isMentorEdited,
     editMentor: _editMentor,
-    saveMentorDetails: _saveMentorDetails,
+    saveMentorDetails,
     saveMentorSubjects,
     saveMentorKeywords,
+    saveMentorPrivacy,
   };
 };
