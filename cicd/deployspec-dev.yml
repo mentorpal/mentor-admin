@@ -11,6 +11,9 @@ env:
     CDN_ID_NEWDEV: "/mentorpal/newdev/CLOUDFRONT_DISTRIBUTION_ID"
     S3_DEPLOY_BUCKET_DEV: "/devmentorpal/s3-websites/NAME"
     CDN_ID_DEV: "/devmentorpal/CLOUDFRONT_DISTRIBUTION_ID"
+    LRS_ENDPOINT: "/mentorpal/lrs/dev/LRS_ENDPOINT"
+    LRS_USERNAME: "/mentorpal/lrs/dev/LRS_USERNAME"
+    LRS_PASSWORD: "/mentorpal/lrs/dev/LRS_PASSWORD"
 
 phases:
   install:
