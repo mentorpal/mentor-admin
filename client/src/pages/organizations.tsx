@@ -62,7 +62,12 @@ import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Organization, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
-import { canEditOrganization, copyAndRemove, copyAndSet } from "../helpers";
+import {
+  canEditOrganization,
+  copyAndRemove,
+  copyAndSet,
+  getOrgHomeUrl,
+} from "../helpers";
 
 const reservedSubdomains = [
   "newdev",
@@ -464,11 +469,7 @@ function OrganizationItem(props: {
         {org.name}
       </TableCell>
       <TableCell data-cy="subdomain" align="left">
-        <a
-          href={`${location.protocol}//${org.subdomain}.${location.hostname}`}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a href={getOrgHomeUrl(org.subdomain)} target="_blank" rel="noreferrer">
           {org.subdomain}
         </a>
       </TableCell>
