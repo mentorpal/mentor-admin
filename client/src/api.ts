@@ -132,7 +132,7 @@ interface HttpRequestConfig {
   dataPath?: string | string[];
 }
 
-async function execGql<T>(
+export async function execGql<T>(
   query: GQLQuery,
   opts?: HttpRequestConfig
 ): Promise<T> {

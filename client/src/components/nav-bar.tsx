@@ -39,6 +39,7 @@ import {
   RateReview as RateReviewIcon,
   Settings as SettingsIcon,
   Subject as SubjectIcon,
+  Pageview as LRSIcon,
 } from "@material-ui/icons";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -267,6 +268,14 @@ function NavMenu(props: {
           text={"Config"}
           link={"/config"}
           icon={<SettingsIcon />}
+          onNav={props.onNav}
+        />
+      ) : undefined}
+      {editPermission ? (
+        <NavItem
+          text={"LRS Reports"}
+          link={"/lrsreports"}
+          icon={<LRSIcon />}
           onNav={props.onNav}
         />
       ) : undefined}
