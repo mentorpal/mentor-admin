@@ -22,7 +22,7 @@ module.exports = {
           "SBERT_ENDPOINT",
           "LRS_USERNAME",
           "LRS_PASSWORD",
-          "LRS_ENDPOINT"
+          "LRS_ENDPOINT",
         ],
       },
     },
