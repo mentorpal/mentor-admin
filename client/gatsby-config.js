@@ -20,6 +20,9 @@ module.exports = {
           "STAGE",
           "IS_SENTRY_ENABLED",
           "SBERT_ENDPOINT",
+          "LRS_USERNAME",
+          "LRS_PASSWORD",
+          "LRS_ENDPOINT"
         ],
       },
     },
