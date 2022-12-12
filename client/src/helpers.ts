@@ -115,6 +115,25 @@ export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
   else window.location.href = path;
 }
 
+export function getOrgHomeUrl(orgDomain: string): string {
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  const path = `${location.protocol}//${orgDomain}.${hostname}`;
+  return path;
+}
+
+export function launchOrg(orgDomain: string, newTab?: boolean): void {
+  const path = getOrgHomeUrl(orgDomain);
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
+}
+
 export function getValueIfKeyExists<T>(
   key: string,
   dict: Record<string, T>
