@@ -137,6 +137,8 @@ function TableFooter(props: {
   edges: Edge<User>[];
   hasNext: boolean;
   hasPrev: boolean;
+  user: User;
+  orgs: Organization[];
   onNext: () => void;
   onPrev: () => void;
   onFilter: (f: string) => void;
@@ -153,7 +155,11 @@ function TableFooter(props: {
           <Autocomplete
             data-cy="user-filter"
             freeSolo
-            options={props.edges.map((e) => e.node.name)}
+            options={props.edges
+              .filter((e) =>
+                canEditMentor(e.node.defaultMentor, props.user, props.orgs)
+              )
+              .map((e) => e.node.name)}
             onChange={(e, v) => props.onFilter(v || "")}
             style={{ width: 300 }}
             renderInput={(params) => (
@@ -386,6 +392,8 @@ function UsersTable(props: {
         </TableContainer>
       </Paper>
       <TableFooter
+        user={props.user}
+        orgs={props.orgs}
         edges={props.userPagin.data?.edges || []}
         hasNext={props.userPagin.pageData?.pageInfo.hasNextPage || false}
         hasPrev={props.userPagin.pageData?.pageInfo.hasPreviousPage || false}
@@ -416,6 +424,16 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   useEffect(() => {
     switchActiveMentor();
   }, []);
+
+  useEffect(() => {
+    if (orgsPagin.data) {
+      userPagin.setPreFilter({ filter: filterEditableUsers });
+    }
+  }, [location.search, orgsPagin.data]);
+
+  function filterEditableUsers(u: User): boolean {
+    return canEditMentor(u.defaultMentor, props.user, orgs);
+  }
 
   if (!userPagin.data) {
     return (
