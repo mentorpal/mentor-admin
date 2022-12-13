@@ -126,61 +126,6 @@ export function useWithConfigEdits(
     }
   }
 
-  // sort active and featured mentors first, only include mentors that can be viewed on home page
-  function visibleMentors(
-    config: Config,
-    org: Organization | undefined,
-    mentors: MentorGQL[] = allMentors
-  ): MentorGQL[] {
-    return mentors
-      .filter((m) => canViewMentorOnHome(m, org))
-      .sort((a, b) => {
-        let aFeatured =
-          config?.featuredMentors.findIndex((m) => m === a._id) || -1;
-        let bFeatured =
-          config?.featuredMentors.findIndex((m) => m === b._id) || -1;
-        aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-        bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-        if (aFeatured !== bFeatured) {
-          return aFeatured - bFeatured;
-        }
-        let aActive = config?.activeMentors.findIndex((m) => m === a._id) || -1;
-        let bActive = config?.activeMentors.findIndex((m) => m === b._id) || -1;
-        aActive = aActive === -1 ? 9999 : aActive;
-        bActive = bActive === -1 ? 9999 : bActive;
-        return aActive - bActive;
-      });
-  }
-
-  // sort active and featured mentor panels first, only include mentors that can be viewed on home page
-  function visibleMentorPanels(
-    config: Config,
-    org: Organization | undefined,
-    mentors: MentorGQL[] = allMentors,
-    mentorPanels: MentorPanel[] = allMentorPanels
-  ): MentorPanel[] {
-    return mentorPanels
-      .filter((m) => canViewMentorPanelOnHome(m, mentors, org))
-      .sort((a, b) => {
-        let aFeatured =
-          config?.featuredMentorPanels.findIndex((m) => m === a._id) || -1;
-        let bFeatured =
-          config?.featuredMentorPanels.findIndex((m) => m === b._id) || -1;
-        aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-        bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-        if (aFeatured !== bFeatured) {
-          return aFeatured - bFeatured;
-        }
-        let aActive =
-          config?.activeMentorPanels.findIndex((m) => m === a._id) || -1;
-        let bActive =
-          config?.activeMentorPanels.findIndex((m) => m === b._id) || -1;
-        aActive = aActive === -1 ? 9999 : aActive;
-        bActive = bActive === -1 ? 9999 : bActive;
-        return aActive - bActive;
-      });
-  }
-
   async function saveConfig(): Promise<void> {
     if (!config) {
       return;
@@ -237,6 +182,77 @@ export function useWithConfigEdits(
         message: extractErrorMessageFromError(err),
       });
     }
+  }
+
+  // sort active and featured mentors first, only include mentors that can be viewed on home page
+  function visibleMentors(
+    config: Config,
+    org: Organization | undefined,
+    mentors: MentorGQL[] = allMentors
+  ): MentorGQL[] {
+    // filter out mentors that cannot be viewed on home page
+    const vm = mentors.filter((m) => canViewMentorOnHome(m, org));
+    const afm: MentorGQL[] = [];
+    // sort featured first
+    for (const fm of config.featuredMentors) {
+      const mentor = vm.find((m) => fm === m._id);
+      if (mentor && !afm.find((m) => m._id === fm)) {
+        afm.push(mentor);
+      }
+    }
+    // sort active next
+    for (const am of config.activeMentors) {
+      const mentor = vm.find((m) => am === m._id);
+      if (mentor && !afm.find((m) => m._id === am)) {
+        afm.push(mentor);
+      }
+    }
+    // add the rest to the end
+    return [
+      ...afm,
+      ...vm.filter(
+        (m) =>
+          !config.activeMentors.includes(m._id) &&
+          !config.featuredMentors.includes(m._id)
+      ),
+    ];
+  }
+
+  // sort active and featured mentor panels first, only include mentors that can be viewed on home page
+  function visibleMentorPanels(
+    config: Config,
+    org: Organization | undefined,
+    mentors: MentorGQL[] = allMentors,
+    mentorPanels: MentorPanel[] = allMentorPanels
+  ): MentorPanel[] {
+    // filter out mentors that cannot be viewed on home page
+    const vm = mentorPanels.filter((m) =>
+      canViewMentorPanelOnHome(m, mentors, org)
+    );
+    const afm: MentorPanel[] = [];
+    // sort featured first
+    for (const fm of config.featuredMentorPanels) {
+      const mentor = vm.find((m) => fm === m._id);
+      if (mentor && !afm.find((m) => m._id === fm)) {
+        afm.push(mentor);
+      }
+    }
+    // sort active next
+    for (const am of config.activeMentorPanels) {
+      const mentor = vm.find((m) => am === m._id);
+      if (mentor && !afm.find((m) => m._id === am)) {
+        afm.push(mentor);
+      }
+    }
+    // add the rest to the end
+    return [
+      ...afm,
+      ...vm.filter(
+        (m) =>
+          !config.activeMentorPanels.includes(m._id) &&
+          !config.featuredMentorPanels.includes(m._id)
+      ),
+    ];
   }
 
   function editConfig(c: Partial<Config>): void {
