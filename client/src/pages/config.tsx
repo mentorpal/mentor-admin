@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { PhotoshopPicker } from "react-color";
+import { SketchPicker } from "react-color";
 import {
   Button,
   Checkbox,
@@ -107,19 +107,18 @@ function HeaderStyle(props: {
           }}
         />
       </div>
-      <Typography
-        variant="subtitle1"
-        data-cy="styleHeaderColor"
-        data-test={config.styleHeaderColor}
-        style={{ marginTop: 20, textAlign: "start" }}
-      >
-        Header Color: {config.styleHeaderColor}
-      </Typography>
-      <PhotoshopPicker
-        color={config.styleHeaderColor}
-        onChangeComplete={(color: { hex: string }) =>
-          updateConfig({ styleHeaderColor: color.hex })
-        }
+      <TextField
+        fullWidth
+        data-cy="styleHeaderTitle"
+        data-test={config.styleHeaderTitle}
+        variant="outlined"
+        label="Header Title"
+        value={config.styleHeaderTitle}
+        onChange={(e) => updateConfig({ styleHeaderTitle: e.target.value })}
+        style={{ marginTop: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
       <TextField
         fullWidth
@@ -142,10 +141,24 @@ function HeaderStyle(props: {
       >
         Header Text Color: {config.styleHeaderTextColor}
       </Typography>
-      <PhotoshopPicker
+      <SketchPicker
         color={config.styleHeaderTextColor}
         onChangeComplete={(color: { hex: string }) =>
           updateConfig({ styleHeaderTextColor: color.hex })
+        }
+      />
+      <Typography
+        variant="subtitle1"
+        data-cy="styleHeaderColor"
+        data-test={config.styleHeaderColor}
+        style={{ marginTop: 20, textAlign: "start" }}
+      >
+        Header Color: {config.styleHeaderColor}
+      </Typography>
+      <SketchPicker
+        color={config.styleHeaderColor}
+        onChangeComplete={(color: { hex: string }) =>
+          updateConfig({ styleHeaderColor: color.hex })
         }
       />
     </div>
@@ -202,6 +215,62 @@ function Disclaimer(props: {
           />
         }
         label="Disable Disclaimer Popup"
+        style={{ justifySelf: "center" }}
+      />
+    </div>
+  );
+}
+
+function GuestPrompt(props: {
+  config: Config;
+  updateConfig: (c: Partial<Config>) => void;
+}): JSX.Element {
+  const { config, updateConfig } = props;
+  return (
+    <div>
+      <TextField
+        fullWidth
+        data-cy="guestPromptTitle"
+        data-test={config.guestPromptTitle}
+        variant="outlined"
+        label="Guest Prompt Title"
+        multiline={true}
+        value={config.guestPromptTitle}
+        onChange={(e) => updateConfig({ guestPromptTitle: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        fullWidth
+        data-cy="guestPromptText"
+        data-test={config.guestPromptText}
+        variant="outlined"
+        label="Guest Prompt Text"
+        multiline={true}
+        value={config.guestPromptText}
+        onChange={(e) => updateConfig({ guestPromptText: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <FormControlLabel
+        data-cy="displayGuestPrompt"
+        data-test={config.displayGuestPrompt}
+        control={
+          <Checkbox
+            checked={config.displayGuestPrompt}
+            onChange={() =>
+              updateConfig({
+                displayGuestPrompt: !config.displayGuestPrompt,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Display Guest Prompt"
         style={{ justifySelf: "center" }}
       />
     </div>
@@ -383,16 +452,21 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             data-cy="toggle-featured-mentor-panels"
           />
           <Tab
-            label="Header Style"
+            label="Home Styles"
             value="header-style"
             data-cy="toggle-header-style"
           />
           <Tab
-            label="Disclaimer"
+            label="Home Disclaimer"
             value="disclaimer"
             data-cy="toggle-disclaimer"
           />
-          <Tab label="Settings" value="settings" data-cy="toggle-settings" />
+          <Tab
+            label="Home Guest Prompt"
+            value="guest-prompt"
+            data-cy="toggle-guest-prompt"
+          />
+          <Tab label="Other" value="settings" data-cy="toggle-settings" />
         </TabList>
         <TabPanel
           className={styles.tab}
@@ -442,6 +516,13 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="disclaimer"
         >
           <Disclaimer config={config} updateConfig={editConfig} />
+        </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="guest-prompt"
+        >
+          <GuestPrompt config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
