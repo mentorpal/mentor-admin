@@ -28,36 +28,57 @@ export enum QuestionSortOrder {
 }
 
 export interface Config {
-  featuredMentors: string[];
-  featuredMentorPanels: string[];
-  activeMentors: string[];
-  activeMentorPanels: string[];
-  styleHeaderLogo: string;
-  styleHeaderColor: string;
-  styleHeaderTitle: string;
-  styleHeaderText: string;
-  styleHeaderTextColor: string;
-  displayGuestPrompt: boolean;
-  guestPromptTitle: string;
-  guestPromptText: string;
+  cmi5Enabled: boolean;
+  cmi5Endpoint: string;
+  cmi5Fetch: string;
+  classifierLambdaEndpoint: string;
+  uploadLambdaEndpoint: string;
+  graphqlLambdaEndpoint: string;
+  subjectRecordPriority: string[];
+  filterEmailMentorAddress: string;
+  videoRecorderMaxLength: number;
+  googleClientId: string;
+  virtualBackgroundUrls: string[];
+  defaultVirtualBackground: string;
+  questionSortOrder: number;
+  urlGraphql: string;
+  urlVideo: string;
+  urlDocSetup: string;
+  urlVideoIdleTips: string;
+  mentorsDefault: string[];
+  // home style settings
+  homeHeaderTitle: string;
+  homeHeaderText: string;
+  homeHeaderColor: string;
+  homeHeaderTextColor: string;
+  homeHeaderLogo: string;
+  homeHeaderLogoUrl: string;
+  homeFooterColor: string;
+  homeFooterTextColor: string;
+  homeFooterImages: string[];
+  homeFooterLinks: string[];
+  homeBannerColor: string;
+  homeBannerButtonColor: string;
+  homeCarouselColor: string;
+  walkthroughDisabled: boolean;
+  walkthroughTitle: string;
+  walkthroughUrl: string;
   disclaimerDisabled: boolean;
   disclaimerTitle: string;
   disclaimerText: string;
+  termsOfServiceDisabled: boolean;
+  termsOfServiceText: string;
+  displayGuestPrompt: boolean;
+  guestPromptTitle: string;
+  guestPromptText: string;
+  guestPromptInputType: string;
+  activeMentors: string[];
+  activeMentorPanels: string[];
+  featuredMentors: string[];
+  featuredMentorPanels: string[];
   featuredSubjects: string[];
   featuredKeywordTypes: string[];
   defaultSubject: string;
-
-  mentorsDefault: string[];
-  subjectRecordPriority: string[];
-  googleClientId: string;
-  urlDocSetup: string;
-  urlVideoIdleTips: string;
-  videoRecorderMaxLength: number;
-  classifierLambdaEndpoint: string;
-  uploadLambdaEndpoint: string;
-  virtualBackgroundUrls: string[];
-  defaultVirtualBackground: string;
-  questionSortOrder: QuestionSortOrder;
 }
 
 export interface SbertEncodedSentence {

@@ -5,13 +5,10 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { SketchPicker } from "react-color";
 import {
   Button,
-  Checkbox,
   Chip,
   CircularProgress,
-  FormControlLabel,
   makeStyles,
   MenuItem,
   Select,
@@ -35,6 +32,11 @@ import { Config, Keyword, User } from "types";
 import { SubjectGQL } from "types-gql";
 import withLocation from "wrap-with-location";
 import { MentorPanelList } from "components/config/mentor-panel-list";
+import { HomeHeader } from "components/config/home-header";
+import { Disclaimer } from "components/config/disclaimer";
+import { GuestPrompt } from "components/config/guest-prompt";
+import { Walkthrough } from "components/config/walkthrough";
+import { FooterStyles } from "components/config/footer-styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -76,206 +78,6 @@ const useStyles = makeStyles((theme) => ({
     padding: 5,
   },
 }));
-
-function HeaderStyle(props: {
-  styles: Record<string, string>;
-  config: Config;
-  updateConfig: (c: Partial<Config>) => void;
-}): JSX.Element {
-  const { styles, config, updateConfig } = props;
-  return (
-    <div>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <TextField
-          fullWidth
-          data-cy="styleHeaderLogo"
-          data-test={config.styleHeaderLogo}
-          variant="outlined"
-          label="Header Logo"
-          value={config.styleHeaderLogo}
-          onChange={(e) => updateConfig({ styleHeaderLogo: e.target.value })}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-        <img
-          data-cy="image-thumbnail"
-          className={styles.thumbnail}
-          src={config.styleHeaderLogo}
-          onClick={() => {
-            window.open(config.styleHeaderLogo || "", "_blank");
-          }}
-        />
-      </div>
-      <TextField
-        fullWidth
-        data-cy="styleHeaderTitle"
-        data-test={config.styleHeaderTitle}
-        variant="outlined"
-        label="Header Title"
-        value={config.styleHeaderTitle}
-        onChange={(e) => updateConfig({ styleHeaderTitle: e.target.value })}
-        style={{ marginTop: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <TextField
-        fullWidth
-        data-cy="styleHeaderText"
-        data-test={config.styleHeaderText}
-        variant="outlined"
-        label="Header Text"
-        value={config.styleHeaderText}
-        onChange={(e) => updateConfig({ styleHeaderText: e.target.value })}
-        style={{ marginTop: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <Typography
-        variant="subtitle1"
-        data-cy="styleHeaderTextColor"
-        data-test={config.styleHeaderTextColor}
-        style={{ marginTop: 20, textAlign: "start" }}
-      >
-        Header Text Color: {config.styleHeaderTextColor}
-      </Typography>
-      <SketchPicker
-        color={config.styleHeaderTextColor}
-        onChangeComplete={(color: { hex: string }) =>
-          updateConfig({ styleHeaderTextColor: color.hex })
-        }
-      />
-      <Typography
-        variant="subtitle1"
-        data-cy="styleHeaderColor"
-        data-test={config.styleHeaderColor}
-        style={{ marginTop: 20, textAlign: "start" }}
-      >
-        Header Color: {config.styleHeaderColor}
-      </Typography>
-      <SketchPicker
-        color={config.styleHeaderColor}
-        onChangeComplete={(color: { hex: string }) =>
-          updateConfig({ styleHeaderColor: color.hex })
-        }
-      />
-    </div>
-  );
-}
-
-function Disclaimer(props: {
-  config: Config;
-  updateConfig: (c: Partial<Config>) => void;
-}): JSX.Element {
-  const { config, updateConfig } = props;
-  return (
-    <div>
-      <TextField
-        fullWidth
-        data-cy="disclaimerTitle"
-        data-test={config.disclaimerTitle}
-        variant="outlined"
-        label="Disclaimer Title"
-        multiline={true}
-        value={config.disclaimerTitle}
-        onChange={(e) => updateConfig({ disclaimerTitle: e.target.value })}
-        style={{ marginBottom: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <TextField
-        fullWidth
-        data-cy="disclaimerText"
-        data-test={config.disclaimerText}
-        variant="outlined"
-        label="Disclaimer Text"
-        multiline={true}
-        value={config.disclaimerText}
-        onChange={(e) => updateConfig({ disclaimerText: e.target.value })}
-        style={{ marginBottom: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <FormControlLabel
-        data-cy="disclaimerDisabled"
-        data-test={config.disclaimerDisabled}
-        control={
-          <Checkbox
-            checked={config.disclaimerDisabled}
-            onChange={() =>
-              updateConfig({
-                disclaimerDisabled: !config.disclaimerDisabled,
-              })
-            }
-            color="secondary"
-          />
-        }
-        label="Disable Disclaimer Popup"
-        style={{ justifySelf: "center" }}
-      />
-    </div>
-  );
-}
-
-function GuestPrompt(props: {
-  config: Config;
-  updateConfig: (c: Partial<Config>) => void;
-}): JSX.Element {
-  const { config, updateConfig } = props;
-  return (
-    <div>
-      <TextField
-        fullWidth
-        data-cy="guestPromptTitle"
-        data-test={config.guestPromptTitle}
-        variant="outlined"
-        label="Guest Prompt Title"
-        multiline={true}
-        value={config.guestPromptTitle}
-        onChange={(e) => updateConfig({ guestPromptTitle: e.target.value })}
-        style={{ marginBottom: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <TextField
-        fullWidth
-        data-cy="guestPromptText"
-        data-test={config.guestPromptText}
-        variant="outlined"
-        label="Guest Prompt Text"
-        multiline={true}
-        value={config.guestPromptText}
-        onChange={(e) => updateConfig({ guestPromptText: e.target.value })}
-        style={{ marginBottom: 20 }}
-        InputLabelProps={{
-          shrink: true,
-        }}
-      />
-      <FormControlLabel
-        data-cy="displayGuestPrompt"
-        data-test={config.displayGuestPrompt}
-        control={
-          <Checkbox
-            checked={config.displayGuestPrompt}
-            onChange={() =>
-              updateConfig({
-                displayGuestPrompt: !config.displayGuestPrompt,
-              })
-            }
-            color="secondary"
-          />
-        }
-        label="Display Guest Prompt"
-        style={{ justifySelf: "center" }}
-      />
-    </div>
-  );
-}
 
 function Settings(props: {
   config: Config;
@@ -452,19 +254,29 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             data-cy="toggle-featured-mentor-panels"
           />
           <Tab
-            label="Home Styles"
+            label="Header"
             value="header-style"
             data-cy="toggle-header-style"
           />
           <Tab
-            label="Home Disclaimer"
+            label="Footer"
+            value="footer-style"
+            data-cy="toggle-footer-style"
+          />
+          <Tab
+            label="Disclaimer"
             value="disclaimer"
             data-cy="toggle-disclaimer"
           />
           <Tab
-            label="Home Guest Prompt"
+            label="Guest Prompt"
             value="guest-prompt"
             data-cy="toggle-guest-prompt"
+          />
+          <Tab
+            label="Walkthrough"
+            value="walk-through"
+            data-cy="toggle-walk-through"
           />
           <Tab label="Other" value="settings" data-cy="toggle-settings" />
         </TabList>
@@ -504,7 +316,18 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: height - 250, overflow: "auto" }}
           value="header-style"
         >
-          <HeaderStyle
+          <HomeHeader
+            styles={styles}
+            config={config}
+            updateConfig={editConfig}
+          />
+        </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="footer-style"
+        >
+          <FooterStyles
             styles={styles}
             config={config}
             updateConfig={editConfig}
@@ -524,6 +347,14 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <GuestPrompt config={config} updateConfig={editConfig} />
         </TabPanel>
+        <TabPanel
+          className={styles.tab}
+          style={{ height: height - 250, overflow: "auto" }}
+          value="walk-through"
+        >
+          <Walkthrough config={config} updateConfig={editConfig} />
+        </TabPanel>
+
         <TabPanel
           className={styles.tab}
           style={{ height: height - 250, overflow: "auto" }}

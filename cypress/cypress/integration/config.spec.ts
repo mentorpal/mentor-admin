@@ -98,7 +98,7 @@ const organizations = {
   },
 };
 
-describe.skip("config screen", () => {
+describe.only("config screen", () => {
   it("users cannot view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
@@ -121,7 +121,7 @@ describe.skip("config screen", () => {
     cy.contains("You must be an admin or content manager to view this page.");
   });
 
-  it("admin can view config settings", () => {
+  it.only("admin can view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
       config: config,
@@ -638,8 +638,8 @@ describe.skip("config screen", () => {
       mentor: [newMentor],
       config: {
         ...config,
-        styleHeaderColor: "#ff0000",
-        styleHeaderTextColor: "#00ff00",
+        homeHeaderColor: "#ff0000",
+        homeHeaderTextColor: "#00ff00",
       },
       login: {
         ...loginDefault,
@@ -654,8 +654,8 @@ describe.skip("config screen", () => {
           me: {
             updateConfig: {
               ...config,
-              styleHeaderColor: "#ff0000",
-              styleHeaderTextColor: "#00ff00",
+              homeHeaderColor: "#ff0000",
+              homeHeaderTextColor: "#00ff00",
             },
           },
         }),
@@ -663,24 +663,24 @@ describe.skip("config screen", () => {
     });
     cy.visit("/config");
     cy.get("[data-cy=toggle-header-style]").trigger("mouseover").click();
-    cy.get("[data-cy=styleHeaderLogo]").should("have.attr", "data-test", "");
-    cy.get("[data-cy=styleHeaderColor]").should(
+    cy.get("[data-cy=homeHeaderLogo]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=homeHeaderColor]").should(
       "have.attr",
       "data-test",
       "#ff0000"
     );
-    cy.get("[data-cy=styleHeaderTextColor]").should(
+    cy.get("[data-cy=homeHeaderTextColor]").should(
       "have.attr",
       "data-test",
       "#00ff00"
     );
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=styleHeaderColor]").should(
+    cy.get("[data-cy=homeHeaderColor]").should(
       "have.attr",
       "data-test",
       "#ff0000"
     );
-    cy.get("[data-cy=styleHeaderTextColor]").should(
+    cy.get("[data-cy=homeHeaderTextColor]").should(
       "have.attr",
       "data-test",
       "#00ff00"

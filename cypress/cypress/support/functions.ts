@@ -100,10 +100,10 @@ export interface Config {
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
-  styleHeaderLogo: string;
-  styleHeaderColor: string;
-  styleHeaderText: string;
-  styleHeaderTextColor: string;
+  homeHeaderLogo: string;
+  homeHeaderColor: string;
+  homeHeaderText: string;
+  homeHeaderTextColor: string;
   displayGuestPrompt: boolean;
   disclaimerTitle: string;
   disclaimerText: string;
@@ -129,10 +129,10 @@ export const CONFIG_DEFAULT: Config = {
   videoRecorderMaxLength: 300,
   classifierLambdaEndpoint: "https://classifierendpoint.com/classifier",
   uploadLambdaEndpoint: "https://lambdaendpoint.com/upload",
-  styleHeaderLogo: "",
-  styleHeaderColor: "",
-  styleHeaderText: "",
-  styleHeaderTextColor: "",
+  homeHeaderLogo: "",
+  homeHeaderColor: "",
+  homeHeaderText: "",
+  homeHeaderTextColor: "",
   displayGuestPrompt: true,
   disclaimerTitle: "",
   disclaimerText: "",
