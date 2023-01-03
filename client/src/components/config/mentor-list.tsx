@@ -30,6 +30,7 @@ import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config } from "types";
 import { MentorGQL } from "types-gql";
+import { ImageTutorials } from "./image-tutorials";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -144,47 +145,50 @@ export function MentorList(props: {
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable-mentors">
-        {(provided) => (
-          <List
-            data-cy="mentors-list"
-            ref={provided.innerRef}
-            className={styles.list}
-            style={{ height: windowHeight - 300, overflow: "auto" }}
-            {...provided.droppableProps}
-          >
-            {mentors.map((m, i) => (
-              <Draggable
-                index={i}
-                key={`mentor-${i}`}
-                draggableId={`mentor-${i}`}
-                isDragDisabled={
-                  !props.config.activeMentors.includes(m._id) &&
-                  !props.config.featuredMentors.includes(m._id)
-                }
-              >
-                {(provided) => (
-                  <ListItem
-                    data-cy={`mentor-${i}`}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <MentorItem
-                      mentor={m}
-                      config={props.config}
-                      toggleActive={props.toggleActive}
-                      toggleFeatured={props.toggleFeatured}
-                    />
-                  </ListItem>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </List>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <div>
+      <ImageTutorials text="These settings will customize the mentors that appear on your home page. Featured Mentors appear on the banner at the top. Active Mentors appear in the list below." />
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable-mentors">
+          {(provided) => (
+            <List
+              data-cy="mentors-list"
+              ref={provided.innerRef}
+              className={styles.list}
+              style={{ height: windowHeight - 300, overflow: "auto" }}
+              {...provided.droppableProps}
+            >
+              {mentors.map((m, i) => (
+                <Draggable
+                  index={i}
+                  key={`mentor-${i}`}
+                  draggableId={`mentor-${i}`}
+                  isDragDisabled={
+                    !props.config.activeMentors.includes(m._id) &&
+                    !props.config.featuredMentors.includes(m._id)
+                  }
+                >
+                  {(provided) => (
+                    <ListItem
+                      data-cy={`mentor-${i}`}
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <MentorItem
+                        mentor={m}
+                        config={props.config}
+                        toggleActive={props.toggleActive}
+                        toggleFeatured={props.toggleFeatured}
+                      />
+                    </ListItem>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </div>
   );
 }

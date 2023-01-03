@@ -98,7 +98,7 @@ const organizations = {
   },
 };
 
-describe.only("config screen", () => {
+describe("config screen", () => {
   it("users cannot view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
@@ -121,7 +121,7 @@ describe.only("config screen", () => {
     cy.contains("You must be an admin or content manager to view this page.");
   });
 
-  it.only("admin can view config settings", () => {
+  it("admin can view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
       config: config,
@@ -638,8 +638,8 @@ describe.only("config screen", () => {
       mentor: [newMentor],
       config: {
         ...config,
-        homeHeaderColor: "#ff0000",
-        homeHeaderTextColor: "#00ff00",
+        styleHeaderColor: "#ff0000",
+        styleHeaderTextColor: "#00ff00",
       },
       login: {
         ...loginDefault,
@@ -654,33 +654,33 @@ describe.only("config screen", () => {
           me: {
             updateConfig: {
               ...config,
-              homeHeaderColor: "#ff0000",
-              homeHeaderTextColor: "#00ff00",
+              styleHeaderColor: "#ff0000",
+              styleHeaderTextColor: "#00ff00",
             },
           },
         }),
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=toggle-header-style]").trigger("mouseover").click();
-    cy.get("[data-cy=homeHeaderLogo]").should("have.attr", "data-test", "");
-    cy.get("[data-cy=homeHeaderColor]").should(
+    cy.get("[data-cy=toggle-home-styles]").trigger("mouseover").click();
+    cy.get("[data-cy=styleHeaderLogo]").should("have.attr", "data-test", "");
+    cy.get("[data-cy=styleHeaderColor]").should(
       "have.attr",
       "data-test",
       "#ff0000"
     );
-    cy.get("[data-cy=homeHeaderTextColor]").should(
+    cy.get("[data-cy=styleHeaderTextColor]").should(
       "have.attr",
       "data-test",
       "#00ff00"
     );
     cy.get("[data-cy=save-button").trigger("mouseover").click();
-    cy.get("[data-cy=homeHeaderColor]").should(
+    cy.get("[data-cy=styleHeaderColor]").should(
       "have.attr",
       "data-test",
       "#ff0000"
     );
-    cy.get("[data-cy=homeHeaderTextColor]").should(
+    cy.get("[data-cy=styleHeaderTextColor]").should(
       "have.attr",
       "data-test",
       "#00ff00"
@@ -713,7 +713,7 @@ describe.only("config screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=toggle-disclaimer]").trigger("mouseover").click();
+    cy.get("[data-cy=toggle-prompts]").trigger("mouseover").click();
     cy.get("[data-cy=disclaimerTitle]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerText]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerDisabled]").should(

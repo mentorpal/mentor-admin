@@ -15,15 +15,65 @@ import {
   TextField,
 } from "@material-ui/core";
 
-import { Config } from "types"
+import { Config } from "types";
+import { ImageTutorials } from "./image-tutorials";
 
-export function GuestPrompt(props: {
+export function Prompts(props: {
   config: Config;
   updateConfig: (c: Partial<Config>) => void;
 }): JSX.Element {
   const { config, updateConfig } = props;
   return (
     <div>
+      <ImageTutorials text="These settings will customize the various pop-ups and dialogues that show on the home and chat page." />
+      <TextField
+        fullWidth
+        data-cy="disclaimerTitle"
+        data-test={config.disclaimerTitle}
+        variant="outlined"
+        label="Disclaimer Title"
+        helperText="Shows at the top of your privacy policy dialogue"
+        multiline={true}
+        value={config.disclaimerTitle}
+        onChange={(e) => updateConfig({ disclaimerTitle: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        fullWidth
+        data-cy="disclaimerText"
+        data-test={config.disclaimerText}
+        variant="outlined"
+        label="Disclaimer Text"
+        helperText="Shows your privacy policy. Accepts Markup Text Language."
+        multiline={true}
+        value={config.disclaimerText}
+        onChange={(e) => updateConfig({ disclaimerText: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <FormControlLabel
+        data-cy="disclaimerDisabled"
+        data-test={config.disclaimerDisabled}
+        control={
+          <Checkbox
+            checked={config.disclaimerDisabled}
+            onChange={() =>
+              updateConfig({
+                disclaimerDisabled: !config.disclaimerDisabled,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Disable Disclaimer Popup"
+        style={{ justifySelf: "center" }}
+      />
+
       <TextField
         fullWidth
         data-cy="guestPromptTitle"
@@ -44,6 +94,7 @@ export function GuestPrompt(props: {
         data-test={config.guestPromptText}
         variant="outlined"
         label="Guest Prompt Text"
+        helperText="Shows the first time someone visits your home page."
         multiline={true}
         value={config.guestPromptText}
         onChange={(e) => updateConfig({ guestPromptText: e.target.value })}
@@ -69,10 +120,10 @@ export function GuestPrompt(props: {
         >
           <MenuItem data-cy="question-type" value="Email">
             Email
-              </MenuItem>
+          </MenuItem>
           <MenuItem data-cy="utterance-type" value="Text">
             Text
-              </MenuItem>
+          </MenuItem>
         </Select>
       </FormControl>
       <FormControlLabel
@@ -90,6 +141,54 @@ export function GuestPrompt(props: {
           />
         }
         label="Display Guest Prompt"
+        style={{ justifySelf: "center" }}
+      />
+
+      <TextField
+        fullWidth
+        data-cy="walkthroughTitle"
+        data-test={config.walkthroughTitle}
+        variant="outlined"
+        label="Walkthrough Title"
+        multiline={true}
+        value={config.walkthroughTitle}
+        onChange={(e) => updateConfig({ walkthroughTitle: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        fullWidth
+        data-cy="urlVideoMentorpalWalkthrough"
+        data-test={config.urlVideoMentorpalWalkthrough}
+        variant="outlined"
+        label="Walkthrough Video Url"
+        multiline={true}
+        value={config.urlVideoMentorpalWalkthrough}
+        onChange={(e) =>
+          updateConfig({ urlVideoMentorpalWalkthrough: e.target.value })
+        }
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <FormControlLabel
+        data-cy="walkthroughDisabled"
+        data-test={config.walkthroughDisabled}
+        control={
+          <Checkbox
+            checked={config.walkthroughDisabled}
+            onChange={() =>
+              updateConfig({
+                walkthroughDisabled: !config.walkthroughDisabled,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Disabled Walkthrough"
         style={{ justifySelf: "center" }}
       />
     </div>

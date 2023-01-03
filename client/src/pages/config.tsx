@@ -7,16 +7,13 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useEffect, useState } from "react";
 import {
   Button,
-  Chip,
   CircularProgress,
   makeStyles,
   MenuItem,
   Select,
   Tab,
-  TextField,
-  Typography,
 } from "@material-ui/core";
-import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
+import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
@@ -28,15 +25,12 @@ import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import { Config, Keyword, User } from "types";
-import { SubjectGQL } from "types-gql";
+import { User } from "types";
 import withLocation from "wrap-with-location";
 import { MentorPanelList } from "components/config/mentor-panel-list";
-import { HomeHeader } from "components/config/home-header";
-import { Disclaimer } from "components/config/disclaimer";
-import { GuestPrompt } from "components/config/guest-prompt";
-import { Walkthrough } from "components/config/walkthrough";
-import { FooterStyles } from "components/config/footer-styles";
+import { HomeStyles } from "components/config/home-styles";
+import { Prompts } from "components/config/prompts";
+import { Settings } from "components/config/other-settings";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,120 +72,6 @@ const useStyles = makeStyles((theme) => ({
     padding: 5,
   },
 }));
-
-function Settings(props: {
-  config: Config;
-  keywords: Keyword[];
-  subjects: SubjectGQL[];
-  updateConfig: (c: Partial<Config>) => void;
-}): JSX.Element {
-  const featuredSubjects = props.subjects.filter((s) =>
-    props.config.featuredSubjects?.includes(s._id)
-  );
-  const defaultSubject = props.subjects.find(
-    (s) => props.config.defaultSubject === s._id
-  );
-
-  return (
-    <div>
-      <Autocomplete
-        data-cy="keyword-input"
-        multiple
-        value={props.config.featuredKeywordTypes}
-        options={
-          props.keywords
-            ?.map((k) => k.type)
-            ?.filter((v, i, a) => a.indexOf(v) === i) || []
-        }
-        getOptionLabel={(option: string) => option}
-        onChange={(e, v) => props.updateConfig({ featuredKeywordTypes: v })}
-        renderTags={(value: readonly string[], getTagProps) =>
-          value.map((option: string, index: number) => (
-            <Chip
-              key={`keyword-${option}`}
-              data-cy={`keyword-${option}`}
-              variant="default"
-              label={option}
-              {...getTagProps({ index })}
-            />
-          ))
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            placeholder="Featured Keyword Types"
-          />
-        )}
-        renderOption={(option) => (
-          <Typography align="left" data-cy={`keyword-option-${option}`}>
-            {option}
-          </Typography>
-        )}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
-      <Autocomplete
-        data-cy="subject-input"
-        multiple
-        value={featuredSubjects}
-        options={props.subjects}
-        getOptionLabel={(option: SubjectGQL) => option.name}
-        onChange={(e, v) =>
-          props.updateConfig({ featuredSubjects: v.map((s) => s._id) })
-        }
-        renderTags={(value: readonly SubjectGQL[], getTagProps) =>
-          value.map((option: SubjectGQL, index: number) => (
-            <Chip
-              key={`subject-${option._id}`}
-              data-cy={`subject-${option._id}`}
-              variant="default"
-              label={option.name}
-              {...getTagProps({ index })}
-            />
-          ))
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            placeholder="Featured Subjects"
-          />
-        )}
-        renderOption={(option) => (
-          <Typography align="left" data-cy={`subject-option-${option._id}`}>
-            {option.name}
-          </Typography>
-        )}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
-      <Autocomplete
-        data-cy="default-subject-input"
-        value={defaultSubject}
-        options={featuredSubjects}
-        getOptionLabel={(option: SubjectGQL) => option.name}
-        onChange={(e, v) =>
-          props.updateConfig({ defaultSubject: v?._id || undefined })
-        }
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            placeholder="Default Subject"
-          />
-        )}
-        renderOption={(option) => (
-          <Typography
-            align="left"
-            data-cy={`default-subject-option-${option._id}`}
-          >
-            {option.name}
-          </Typography>
-        )}
-        style={{ width: "100%", marginBottom: 10 }}
-      />
-    </div>
-  );
-}
 
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
   const styles = useStyles();
@@ -254,30 +134,11 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             data-cy="toggle-featured-mentor-panels"
           />
           <Tab
-            label="Header"
-            value="header-style"
-            data-cy="toggle-header-style"
+            label="Home Styles"
+            value="home-styles"
+            data-cy="toggle-home-styles"
           />
-          <Tab
-            label="Footer"
-            value="footer-style"
-            data-cy="toggle-footer-style"
-          />
-          <Tab
-            label="Disclaimer"
-            value="disclaimer"
-            data-cy="toggle-disclaimer"
-          />
-          <Tab
-            label="Guest Prompt"
-            value="guest-prompt"
-            data-cy="toggle-guest-prompt"
-          />
-          <Tab
-            label="Walkthrough"
-            value="walk-through"
-            data-cy="toggle-walk-through"
-          />
+          <Tab label="Prompts" value="prompts" data-cy="toggle-prompts" />
           <Tab label="Other" value="settings" data-cy="toggle-settings" />
         </TabList>
         <TabPanel
@@ -314,47 +175,17 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         <TabPanel
           className={styles.tab}
           style={{ height: height - 250, overflow: "auto" }}
-          value="header-style"
+          value="home-styles"
         >
-          <HomeHeader
-            styles={styles}
-            config={config}
-            updateConfig={editConfig}
-          />
+          <HomeStyles config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
           style={{ height: height - 250, overflow: "auto" }}
-          value="footer-style"
+          value="prompts"
         >
-          <FooterStyles
-            styles={styles}
-            config={config}
-            updateConfig={editConfig}
-          />
+          <Prompts config={config} updateConfig={editConfig} />
         </TabPanel>
-        <TabPanel
-          className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
-          value="disclaimer"
-        >
-          <Disclaimer config={config} updateConfig={editConfig} />
-        </TabPanel>
-        <TabPanel
-          className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
-          value="guest-prompt"
-        >
-          <GuestPrompt config={config} updateConfig={editConfig} />
-        </TabPanel>
-        <TabPanel
-          className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
-          value="walk-through"
-        >
-          <Walkthrough config={config} updateConfig={editConfig} />
-        </TabPanel>
-
         <TabPanel
           className={styles.tab}
           style={{ height: height - 250, overflow: "auto" }}

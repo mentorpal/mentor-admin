@@ -47,12 +47,12 @@ export interface Config {
   urlVideoIdleTips: string;
   mentorsDefault: string[];
   // home style settings
-  homeHeaderTitle: string;
-  homeHeaderText: string;
-  homeHeaderColor: string;
-  homeHeaderTextColor: string;
-  homeHeaderLogo: string;
-  homeHeaderLogoUrl: string;
+  styleHeaderTitle: string;
+  styleHeaderText: string;
+  styleHeaderColor: string;
+  styleHeaderTextColor: string;
+  styleHeaderLogo: string;
+  styleHeaderLogoUrl: string;
   homeFooterColor: string;
   homeFooterTextColor: string;
   homeFooterImages: string[];
@@ -62,7 +62,7 @@ export interface Config {
   homeCarouselColor: string;
   walkthroughDisabled: boolean;
   walkthroughTitle: string;
-  walkthroughUrl: string;
+  urlVideoMentorpalWalkthrough: string;
   disclaimerDisabled: boolean;
   disclaimerTitle: string;
   disclaimerText: string;

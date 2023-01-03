@@ -41,6 +41,7 @@ import { copyAndMove, copyAndRemove, launchMentorPanel } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, MentorPanel, Organization } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
+import { ImageTutorials } from "./image-tutorials";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -411,6 +412,7 @@ export function MentorPanelList(props: {
 
   return (
     <div>
+      <ImageTutorials text="These settings will customize the mentor panels that appear on your home page. Featured Mentor Panels appear on the banner at the top. Active Mentor Panels appear in the list below." />
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable-mentor-panels">
           {(provided) => (

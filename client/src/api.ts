@@ -248,12 +248,12 @@ export async function fetchConfig(): Promise<Config> {
           urlDocSetup
           urlVideoIdleTips
           mentorsDefault
-          homeHeaderTitle
-          homeHeaderText
-          homeHeaderColor
-          homeHeaderTextColor
-          homeHeaderLogo
-          homeHeaderLogoUrl
+          styleHeaderTitle
+          styleHeaderText
+          styleHeaderColor
+          styleHeaderTextColor
+          styleHeaderLogo
+          styleHeaderLogoUrl
           homeFooterColor
           homeFooterTextColor
           homeFooterImages
@@ -263,7 +263,7 @@ export async function fetchConfig(): Promise<Config> {
           homeCarouselColor
           walkthroughDisabled
           walkthroughTitle
-          walkthroughUrl
+          urlVideoMentorpalWalkthrough
           disclaimerDisabled
           disclaimerTitle
           disclaimerText
@@ -2229,12 +2229,12 @@ export async function fetchOrganizations(
                   urlDocSetup
                   urlVideoIdleTips
                   mentorsDefault
-                  homeHeaderTitle
-                  homeHeaderText
-                  homeHeaderColor
-                  homeHeaderTextColor
-                  homeHeaderLogo
-                  homeHeaderLogoUrl
+                  styleHeaderTitle
+                  styleHeaderText
+                  styleHeaderColor
+                  styleHeaderTextColor
+                  styleHeaderLogo
+                  styleHeaderLogoUrl
                   homeFooterColor
                   homeFooterTextColor
                   homeFooterImages
@@ -2244,7 +2244,7 @@ export async function fetchOrganizations(
                   homeCarouselColor
                   walkthroughDisabled
                   walkthroughTitle
-                  walkthroughUrl
+                  urlVideoMentorpalWalkthrough
                   disclaimerDisabled
                   disclaimerTitle
                   disclaimerText
@@ -2326,12 +2326,12 @@ export async function addOrUpdateOrganization(
               urlDocSetup
               urlVideoIdleTips
               mentorsDefault
-              homeHeaderTitle
-              homeHeaderText
-              homeHeaderColor
-              homeHeaderTextColor
-              homeHeaderLogo
-              homeHeaderLogoUrl
+              styleHeaderTitle
+              styleHeaderText
+              styleHeaderColor
+              styleHeaderTextColor
+              styleHeaderLogo
+              styleHeaderLogoUrl
               homeFooterColor
               homeFooterTextColor
               homeFooterImages
@@ -2341,7 +2341,7 @@ export async function addOrUpdateOrganization(
               homeCarouselColor
               walkthroughDisabled
               walkthroughTitle
-              walkthroughUrl
+              urlVideoMentorpalWalkthrough
               disclaimerDisabled
               disclaimerTitle
               disclaimerText
@@ -2408,12 +2408,12 @@ export async function updateOrgConfig(
             urlDocSetup
             urlVideoIdleTips
             mentorsDefault
-            homeHeaderTitle
-            homeHeaderText
-            homeHeaderColor
-            homeHeaderTextColor
-            homeHeaderLogo
-            homeHeaderLogoUrl
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderColor
+            styleHeaderTextColor
+            styleHeaderLogo
+            styleHeaderLogoUrl
             homeFooterColor
             homeFooterTextColor
             homeFooterImages
@@ -2423,7 +2423,7 @@ export async function updateOrgConfig(
             homeCarouselColor
             walkthroughDisabled
             walkthroughTitle
-            walkthroughUrl
+            urlVideoMentorpalWalkthrough
             disclaimerDisabled
             disclaimerTitle
             disclaimerText
@@ -2446,12 +2446,12 @@ export async function updateOrgConfig(
       variables: {
         id,
         config: {
-          homeHeaderTitle: config.homeHeaderTitle,
-          homeHeaderText: config.homeHeaderText,
-          homeHeaderColor: config.homeHeaderColor,
-          homeHeaderTextColor: config.homeHeaderTextColor,
-          homeHeaderLogo: config.homeHeaderLogo,
-          homeHeaderLogoUrl: config.homeHeaderLogoUrl,
+          styleHeaderTitle: config.styleHeaderTitle,
+          styleHeaderText: config.styleHeaderText,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderLogoUrl: config.styleHeaderLogoUrl,
           homeFooterColor: config.homeFooterColor,
           homeFooterTextColor: config.homeFooterTextColor,
           homeFooterImages: config.homeFooterImages,
@@ -2461,7 +2461,7 @@ export async function updateOrgConfig(
           homeCarouselColor: config.homeCarouselColor,
           walkthroughDisabled: config.walkthroughDisabled,
           walkthroughTitle: config.walkthroughTitle,
-          walkthroughUrl: config.walkthroughUrl,
+          urlVideoMentorpalWalkthrough: config.urlVideoMentorpalWalkthrough,
           disclaimerDisabled: config.disclaimerDisabled,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,
@@ -2513,12 +2513,12 @@ export async function updateConfig(
             urlDocSetup
             urlVideoIdleTips
             mentorsDefault
-            homeHeaderTitle
-            homeHeaderText
-            homeHeaderColor
-            homeHeaderTextColor
-            homeHeaderLogo
-            homeHeaderLogoUrl
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderColor
+            styleHeaderTextColor
+            styleHeaderLogo
+            styleHeaderLogoUrl
             homeFooterColor
             homeFooterTextColor
             homeFooterImages
@@ -2528,7 +2528,7 @@ export async function updateConfig(
             homeCarouselColor
             walkthroughDisabled
             walkthroughTitle
-            walkthroughUrl
+            urlVideoMentorpalWalkthrough
             disclaimerDisabled
             disclaimerTitle
             disclaimerText
@@ -2550,12 +2550,12 @@ export async function updateConfig(
       }`,
       variables: {
         config: {
-          homeHeaderTitle: config.homeHeaderTitle,
-          homeHeaderText: config.homeHeaderText,
-          homeHeaderColor: config.homeHeaderColor,
-          homeHeaderTextColor: config.homeHeaderTextColor,
-          homeHeaderLogo: config.homeHeaderLogo,
-          homeHeaderLogoUrl: config.homeHeaderLogoUrl,
+          styleHeaderTitle: config.styleHeaderTitle,
+          styleHeaderText: config.styleHeaderText,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderLogoUrl: config.styleHeaderLogoUrl,
           homeFooterColor: config.homeFooterColor,
           homeFooterTextColor: config.homeFooterTextColor,
           homeFooterImages: config.homeFooterImages,
@@ -2565,7 +2565,7 @@ export async function updateConfig(
           homeCarouselColor: config.homeCarouselColor,
           walkthroughDisabled: config.walkthroughDisabled,
           walkthroughTitle: config.walkthroughTitle,
-          walkthroughUrl: config.walkthroughUrl,
+          urlVideoMentorpalWalkthrough: config.urlVideoMentorpalWalkthrough,
           disclaimerDisabled: config.disclaimerDisabled,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,
