@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
@@ -28,9 +28,33 @@ const theme = createTheme({
   },
 });
 
+const allowedAdminDomains = [
+  "newdev.mentorpal.org",
+  "v2.mentorpal.org",
+  "careerfair.mentorpal.org",
+  "devmentorpal.org",
+  "qamentorpal.org",
+  "mentorpal.org",
+];
+const App = ({ element }) => {
+  useEffect(() => {
+    const host = location.hostname;
+    if (!allowedAdminDomains.includes(host)) {
+      if (host.endsWith("devmentorpal.org")) {
+        window.location.hostname = `devmentorpal.org`;
+      } else if (host.endsWith("qamentorpal.org")) {
+        window.location.hostname = `qamentorpal.org`;
+      } else if (host.endsWith("mentorpal.org")) {
+        window.location.hostname = `mentorpal.org`;
+      }
+    }
+  }, []);
+  return (
+    <MuiThemeProvider theme={theme}>
+      <Provider store={store}>{element}</Provider>
+    </MuiThemeProvider>
+  );
+};
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const wrapRootElement = ({ element }) => (
-  <MuiThemeProvider theme={theme}>
-    <Provider store={store}>{element}</Provider>
-  </MuiThemeProvider>
-);
+export const wrapRootElement = ({ element }) => <App element={element} />;

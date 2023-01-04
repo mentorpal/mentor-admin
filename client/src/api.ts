@@ -230,33 +230,37 @@ export async function fetchConfig(): Promise<Config> {
       query: `
       query FetchConfig{
         config {
-          mentorsDefault
           featuredMentors
           featuredMentorPanels
           activeMentors
           activeMentorPanels
+          styleHeaderLogo
+          styleHeaderColor
+          styleHeaderTitle
+          styleHeaderText
+          styleHeaderTextColor
+          displayGuestPrompt
+          guestPromptTitle
+          guestPromptText
+          disclaimerDisabled
+          disclaimerTitle
+          disclaimerText
+          featuredSubjects
+          featuredKeywordTypes
+          defaultSubject
+
+          mentorsDefault
           googleClientId
           urlDocSetup
           urlVideoIdleTips
           videoRecorderMaxLength
           classifierLambdaEndpoint
           uploadLambdaEndpoint
-          styleHeaderLogo
-          styleHeaderColor
-          styleHeaderText
-          styleHeaderTextColor
-          disclaimerTitle
-          disclaimerText
-          disclaimerDisabled
-          displayGuestPrompt
           videoRecorderMaxLength
           subjectRecordPriority
           virtualBackgroundUrls
           defaultVirtualBackground
           questionSortOrder
-          featuredKeywordTypes
-          featuredSubjects
-          defaultSubject
         }
       }
   `,
@@ -2188,33 +2192,37 @@ export async function fetchOrganizations(
                   role
                 }
                 config {
-                  mentorsDefault
                   featuredMentors
                   featuredMentorPanels
                   activeMentors
                   activeMentorPanels
+                  styleHeaderLogo
+                  styleHeaderColor
+                  styleHeaderTitle
+                  styleHeaderText
+                  styleHeaderTextColor
+                  displayGuestPrompt
+                  guestPromptTitle
+                  guestPromptText
+                  disclaimerDisabled
+                  disclaimerTitle
+                  disclaimerText
+                  featuredSubjects
+                  featuredKeywordTypes
+                  defaultSubject
+        
+                  mentorsDefault
                   googleClientId
                   urlDocSetup
                   urlVideoIdleTips
                   videoRecorderMaxLength
                   classifierLambdaEndpoint
                   uploadLambdaEndpoint
-                  styleHeaderLogo
-                  styleHeaderColor
-                  styleHeaderText
-                  styleHeaderTextColor
-                  disclaimerTitle
-                  disclaimerText
-                  disclaimerDisabled
-                  displayGuestPrompt
                   videoRecorderMaxLength
                   subjectRecordPriority
                   virtualBackgroundUrls
                   defaultVirtualBackground
                   questionSortOrder
-                  featuredKeywordTypes
-                  featuredSubjects
-                  defaultSubject
                 }
               }
             }
@@ -2262,33 +2270,37 @@ export async function addOrUpdateOrganization(
               role
             }
             config {
-              mentorsDefault
               featuredMentors
               featuredMentorPanels
               activeMentors
               activeMentorPanels
+              styleHeaderLogo
+              styleHeaderColor
+              styleHeaderTitle
+              styleHeaderText
+              styleHeaderTextColor
+              displayGuestPrompt
+              guestPromptTitle
+              guestPromptText
+              disclaimerDisabled
+              disclaimerTitle
+              disclaimerText
+              featuredSubjects
+              featuredKeywordTypes
+              defaultSubject
+    
+              mentorsDefault
               googleClientId
               urlDocSetup
               urlVideoIdleTips
               videoRecorderMaxLength
               classifierLambdaEndpoint
               uploadLambdaEndpoint
-              styleHeaderLogo
-              styleHeaderColor
-              styleHeaderText
-              styleHeaderTextColor
-              disclaimerTitle
-              disclaimerText
-              disclaimerDisabled
-              displayGuestPrompt
               videoRecorderMaxLength
               subjectRecordPriority
               virtualBackgroundUrls
               defaultVirtualBackground
               questionSortOrder
-              featuredKeywordTypes
-              featuredSubjects
-              defaultSubject
             }
           }
         }
@@ -2321,33 +2333,37 @@ export async function updateOrgConfig(
       query: `mutation UpdateOrganizationConfig($id: ID!, $config: ConfigUpdateInputType!) {
         me {
           updateOrgConfig(id: $id, config: $config) {
-            mentorsDefault
             featuredMentors
             featuredMentorPanels
             activeMentors
             activeMentorPanels
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderTextColor
+            displayGuestPrompt
+            guestPromptTitle
+            guestPromptText
+            disclaimerDisabled
+            disclaimerTitle
+            disclaimerText
+            featuredSubjects
+            featuredKeywordTypes
+            defaultSubject
+  
+            mentorsDefault
             googleClientId
             urlDocSetup
             urlVideoIdleTips
             videoRecorderMaxLength
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            styleHeaderLogo
-            styleHeaderColor
-            styleHeaderText
-            styleHeaderTextColor
-            disclaimerTitle
-            disclaimerText
-            disclaimerDisabled
-            displayGuestPrompt
             videoRecorderMaxLength
             subjectRecordPriority
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
-            featuredKeywordTypes
-            featuredSubjects
-            defaultSubject
           }
         }
       }`,
@@ -2358,19 +2374,20 @@ export async function updateOrgConfig(
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
           activeMentorPanels: config.activeMentorPanels,
-          mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTitle: config.styleHeaderTitle,
           styleHeaderText: config.styleHeaderText,
           styleHeaderTextColor: config.styleHeaderTextColor,
+          displayGuestPrompt: config.displayGuestPrompt,
+          guestPromptTitle: config.guestPromptTitle,
+          guestPromptText: config.guestPromptText,
+          disclaimerDisabled: config.disclaimerDisabled,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,
-          disclaimerDisabled: config.disclaimerDisabled,
-          displayGuestPrompt: config.displayGuestPrompt,
-          videoRecorderMaxLength: config.videoRecorderMaxLength,
-          questionSortOrder: config.questionSortOrder,
-          featuredKeywordTypes: config.featuredKeywordTypes,
           featuredSubjects: config.featuredSubjects,
+          featuredKeywordTypes: config.featuredKeywordTypes,
+          questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
         },
       },
@@ -2388,30 +2405,37 @@ export async function updateConfig(
       query: `mutation UpdateConfig($config: ConfigUpdateInputType!) {
         me {
           updateConfig(config: $config) {
-            mentorsDefault
             featuredMentors
             featuredMentorPanels
             activeMentors
             activeMentorPanels
+            styleHeaderLogo
+            styleHeaderColor
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderTextColor
+            displayGuestPrompt
+            guestPromptTitle
+            guestPromptText
+            disclaimerDisabled
+            disclaimerTitle
+            disclaimerText
+            featuredSubjects
+            featuredKeywordTypes
+            defaultSubject
+  
+            mentorsDefault
             googleClientId
             urlDocSetup
             urlVideoIdleTips
             videoRecorderMaxLength
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            styleHeaderLogo
-            styleHeaderColor
-            styleHeaderText
-            styleHeaderTextColor
-            disclaimerTitle
-            disclaimerText
-            disclaimerDisabled
-            displayGuestPrompt
             videoRecorderMaxLength
+            subjectRecordPriority
+            virtualBackgroundUrls
+            defaultVirtualBackground
             questionSortOrder
-            featuredKeywordTypes
-            featuredSubjects
-            defaultSubject
           }
         }
       }`,
@@ -2421,19 +2445,20 @@ export async function updateConfig(
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
           activeMentorPanels: config.activeMentorPanels,
-          mentorsDefault: config.mentorsDefault,
           styleHeaderLogo: config.styleHeaderLogo,
           styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTitle: config.styleHeaderTitle,
           styleHeaderText: config.styleHeaderText,
           styleHeaderTextColor: config.styleHeaderTextColor,
+          displayGuestPrompt: config.displayGuestPrompt,
+          guestPromptTitle: config.guestPromptTitle,
+          guestPromptText: config.guestPromptText,
+          disclaimerDisabled: config.disclaimerDisabled,
           disclaimerTitle: config.disclaimerTitle,
           disclaimerText: config.disclaimerText,
-          disclaimerDisabled: config.disclaimerDisabled,
-          displayGuestPrompt: config.displayGuestPrompt,
-          videoRecorderMaxLength: config.videoRecorderMaxLength,
-          questionSortOrder: config.questionSortOrder,
-          featuredKeywordTypes: config.featuredKeywordTypes,
           featuredSubjects: config.featuredSubjects,
+          featuredKeywordTypes: config.featuredKeywordTypes,
+          questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
         },
       },

@@ -28,11 +28,26 @@ export enum QuestionSortOrder {
 }
 
 export interface Config {
-  mentorsDefault: string[];
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
   activeMentorPanels: string[];
+  styleHeaderLogo: string;
+  styleHeaderColor: string;
+  styleHeaderTitle: string;
+  styleHeaderText: string;
+  styleHeaderTextColor: string;
+  displayGuestPrompt: boolean;
+  guestPromptTitle: string;
+  guestPromptText: string;
+  disclaimerDisabled: boolean;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  featuredSubjects: string[];
+  featuredKeywordTypes: string[];
+  defaultSubject: string;
+
+  mentorsDefault: string[];
   subjectRecordPriority: string[];
   googleClientId: string;
   urlDocSetup: string;
@@ -40,20 +55,9 @@ export interface Config {
   videoRecorderMaxLength: number;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
-  styleHeaderLogo: string;
-  styleHeaderColor: string;
-  styleHeaderText: string;
-  styleHeaderTextColor: string;
-  displayGuestPrompt: boolean;
-  disclaimerTitle: string;
-  disclaimerText: string;
-  disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
   questionSortOrder: QuestionSortOrder;
-  featuredKeywordTypes: string[];
-  featuredSubjects: string[];
-  defaultSubject: string;
 }
 
 export interface SbertEncodedSentence {
