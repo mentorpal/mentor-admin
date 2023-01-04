@@ -45,6 +45,14 @@ export function SelectKeywordsSlide(props: {
       name: o,
       type: "Occupation",
     }));
+    keywords
+      .filter((kw) => kw.type === "Occupation")
+      .forEach((kw) => {
+        const f = kwbt["Occupation"].find((k) => k.name === kw.name);
+        if (!f) {
+          kwbt["Occupation"].push(kw);
+        }
+      });
     setKeywordsByType(kwbt);
   }, [keywords]);
 
@@ -105,10 +113,26 @@ export function SelectKeywordsSlide(props: {
                   {kv[1].length > 10 ? (
                     <Autocomplete
                       data-cy={`${kv[0]}-input`}
+                      freeSolo
                       options={kv[1]}
                       getOptionLabel={(option: Keyword) => option.name}
                       onChange={(e, v) => {
-                        if (v) toggleKeyword(v);
+                        if (typeof v === "string") {
+                          const kw = keywords.find((k) => k.name === v);
+                          if (kw) {
+                            toggleKeyword(kw);
+                          } else {
+                            editMentor({
+                              ...mentor,
+                              keywords: [
+                                ...mentor.keywords,
+                                { _id: "", name: v, type: kv[0] },
+                              ],
+                            });
+                          }
+                        } else if (v) {
+                          toggleKeyword(v);
+                        }
                       }}
                       renderInput={(params) => (
                         <TextField

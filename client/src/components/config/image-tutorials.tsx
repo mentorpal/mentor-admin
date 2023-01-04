@@ -5,13 +5,15 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogContent, Typography } from "@material-ui/core";
+import { Dialog, IconButton, Typography } from "@material-ui/core";
+import { ArrowBack, ArrowForward } from "@material-ui/icons";
 import img1 from "images/Home_Markup_1.png";
 import img2 from "images/Home_Markup_2.png";
 import img3 from "images/Home_Markup_3.png";
 import img4 from "images/Home_Markup_4.png";
 import img5 from "images/Home_Markup_5.png";
 import img6 from "images/Home_Markup_6.png";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 interface ImageTutorial {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,7 +22,8 @@ interface ImageTutorial {
 
 export function ImageTutorials(props: { text: string }): JSX.Element {
   const [tutorials, setTutorials] = useState<ImageTutorial[]>([]);
-  const [openImg, setOpenImg] = useState<ImageTutorial>();
+  const [openImg, setOpenImg] = useState<number>();
+  const { height } = useWithWindowSize();
 
   useEffect(() => {
     if (tutorials.length === 0) {
@@ -51,7 +54,7 @@ export function ImageTutorials(props: { text: string }): JSX.Element {
             <div
               key={`tutorial-${i}`}
               data-cy={`tutorial-${i}`}
-              onClick={() => setOpenImg(t)}
+              onClick={() => setOpenImg(i)}
               style={{
                 width: 50,
                 height: 50,
@@ -68,26 +71,25 @@ export function ImageTutorials(props: { text: string }): JSX.Element {
       <Typography variant="subtitle1">
         Click images to see more details.
       </Typography>
-      <Dialog
-        maxWidth="xl"
-        fullWidth={true}
-        open={Boolean(openImg)}
-        onClose={() => setOpenImg(undefined)}
-      >
-        <DialogContent>
-          <div
-            style={{
-              width: 1000,
-              height: 900,
-              backgroundImage: `url(${openImg?.image})`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              backgroundSize: "contain",
-              marginRight: 10,
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+      {openImg === undefined ? undefined : (
+        <Dialog maxWidth="xl" open={true} onClose={() => setOpenImg(undefined)}>
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <IconButton
+              onClick={() =>
+                setOpenImg(openImg === 0 ? tutorials.length - 1 : openImg - 1)
+              }
+            >
+              <ArrowBack />
+            </IconButton>
+            <img src={tutorials[openImg].image} height={height - 100} />
+            <IconButton
+              onClick={() => setOpenImg((openImg + 1) % tutorials.length)}
+            >
+              <ArrowForward />
+            </IconButton>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

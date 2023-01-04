@@ -32,7 +32,7 @@ import { HomeStyles } from "components/config/home-styles";
 import { Prompts } from "components/config/prompts";
 import { Settings } from "components/config/other-settings";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     height: "100%",
     display: "flex",
@@ -46,30 +46,13 @@ const useStyles = makeStyles((theme) => ({
     left: "50%",
   },
   button: {
+    position: "absolute",
+    bottom: 25,
     width: 200,
     padding: 5,
-    margin: theme.spacing(2),
   },
   tab: {
     width: "95%",
-  },
-  list: {
-    background: "#F5F5F5",
-  },
-  expand: {
-    transform: "rotate(0deg)",
-    marginLeft: "auto",
-    transition: theme.transitions.create("transform", {
-      duration: theme.transitions.duration.shortest,
-    }),
-  },
-  expandOpen: {
-    transform: "rotate(180deg)",
-  },
-  thumbnail: {
-    boxSizing: "border-box",
-    height: 56,
-    padding: 5,
   },
 }));
 
@@ -118,6 +101,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     );
   }
 
+  const tabHeight = height - 250;
   return (
     <div className={styles.root}>
       <NavBar title={`Manage${org ? ` ${org.name} ` : " "}Config`} />
@@ -143,7 +127,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         </TabList>
         <TabPanel
           className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
+          style={{ height: tabHeight, overflow: "auto" }}
           value="featured-mentors"
         >
           <MentorList
@@ -156,7 +140,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         </TabPanel>
         <TabPanel
           className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
+          style={{ height: tabHeight, overflow: "auto" }}
           value="featured-mentor-panels"
         >
           <MentorPanelList
@@ -174,21 +158,21 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         </TabPanel>
         <TabPanel
           className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
+          style={{ height: tabHeight, overflow: "auto" }}
           value="home-styles"
         >
           <HomeStyles config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
+          style={{ height: tabHeight, overflow: "auto" }}
           value="prompts"
         >
           <Prompts config={config} updateConfig={editConfig} />
         </TabPanel>
         <TabPanel
           className={styles.tab}
-          style={{ height: height - 250, overflow: "auto" }}
+          style={{ height: tabHeight, overflow: "auto" }}
           value="settings"
         >
           <Settings

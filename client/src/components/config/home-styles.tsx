@@ -185,7 +185,6 @@ export function HomeStyles(props: {
           >
             Footer Text Color: {config.homeFooterTextColor}
           </Typography>
-          <Typography variant="subtitle1">Text color on footer bar</Typography>
           <SketchPicker
             color={config.homeFooterTextColor}
             onChangeComplete={(color: { hex: string }) =>

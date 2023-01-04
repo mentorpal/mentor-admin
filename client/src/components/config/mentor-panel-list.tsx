@@ -45,7 +45,7 @@ import { ImageTutorials } from "./image-tutorials";
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    width: 200,
+    width: 300,
     padding: 5,
     margin: theme.spacing(2),
   },
@@ -420,7 +420,7 @@ export function MentorPanelList(props: {
               data-cy="mentor-panels-list"
               ref={provided.innerRef}
               className={styles.list}
-              style={{ height: windowHeight - 350, overflow: "auto" }}
+              style={{ height: windowHeight - 425, overflow: "auto" }}
               {...provided.droppableProps}
             >
               {mentorPanels.map((mp, i) => {
