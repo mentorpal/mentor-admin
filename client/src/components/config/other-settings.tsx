@@ -10,7 +10,6 @@ import { Autocomplete } from "@material-ui/lab";
 
 import { Config, Keyword } from "types";
 import { SubjectGQL } from "types-gql";
-import { ImageTutorials } from "./image-tutorials";
 
 export function Settings(props: {
   config: Config;
@@ -27,7 +26,6 @@ export function Settings(props: {
 
   return (
     <div>
-      <ImageTutorials text="" />
       <Autocomplete
         data-cy="keyword-input"
         multiple

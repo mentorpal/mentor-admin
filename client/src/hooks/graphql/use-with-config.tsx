@@ -39,6 +39,7 @@ interface UseWithConfigEdits {
   mentorPanels: MentorPanel[];
   saveConfig: () => void;
   editConfig: (c: Partial<Config>) => void;
+  resetToDefault: () => void;
   moveMentor: (from: number, to: number) => void;
   moveMentorPanel: (from: number, to: number) => void;
   toggleFeaturedMentor: (id: string) => void;
@@ -182,6 +183,46 @@ export function useWithConfigEdits(
         message: extractErrorMessageFromError(err),
       });
     }
+  }
+
+  function resetToDefault(): void {
+    const config = {
+      ...defaultConfig,
+      // home style settings
+      styleHeaderTitle: "",
+      styleHeaderText: "",
+      styleHeaderLogo: "",
+      styleHeaderLogoUrl: "",
+      styleHeaderColor: "#025a87",
+      styleHeaderTextColor: "#ffffff",
+      homeFooterColor: "#025a87",
+      homeFooterTextColor: "#ffffff",
+      homeFooterImages: [],
+      homeFooterLinks: [],
+      homeBannerColor: "#ffffff",
+      homeBannerButtonColor: "#007cba",
+      homeCarouselColor: "#398bb4",
+      walkthroughDisabled: false,
+      walkthroughTitle: "",
+      urlVideoMentorpalWalkthrough: "https://youtu.be/EGdSl4Q8NAY",
+      disclaimerDisabled: false,
+      disclaimerTitle: "",
+      disclaimerText: "",
+      termsOfServiceDisabled: false,
+      termsOfServiceText: "",
+      displayGuestPrompt: false,
+      guestPromptTitle: "",
+      guestPromptText: "",
+      guestPromptInputType: "email",
+      activeMentors: [],
+      activeMentorPanels: [],
+      featuredMentors: [],
+      featuredMentorPanels: [],
+      featuredSubjects: [],
+      featuredKeywordTypes: [],
+      defaultSubject: "",
+    };
+    editConfig(config);
   }
 
   // sort active and featured mentors first, only include mentors that can be viewed on home page
@@ -396,6 +437,7 @@ export function useWithConfigEdits(
     orgs,
     editConfig,
     saveConfig,
+    resetToDefault,
     moveMentor,
     moveMentorPanel,
     saveMentorPanel,

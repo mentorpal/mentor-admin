@@ -31,7 +31,6 @@ import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config } from "types";
 import { MentorGQL } from "types-gql";
-import { ImageTutorials } from "./image-tutorials";
 import { Autocomplete } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
@@ -149,7 +148,6 @@ export function MentorList(props: {
 
   return (
     <div>
-      <ImageTutorials text="These settings will customize the mentors that appear on your home page. Featured Mentors appear on the banner at the top. Active Mentors appear in the list below." />
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable-mentors">
           {(provided) => (
@@ -157,7 +155,7 @@ export function MentorList(props: {
               data-cy="mentors-list"
               ref={provided.innerRef}
               className={styles.list}
-              style={{ height: windowHeight - 425, overflow: "auto" }}
+              style={{ height: windowHeight - 350, overflow: "auto" }}
               {...provided.droppableProps}
             >
               {mentors

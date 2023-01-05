@@ -391,7 +391,7 @@ function EditOrganization(props: {
         <Autocomplete
           data-cy="member-search"
           options={userPagin.data?.edges.map((e) => e.node) || []}
-          getOptionLabel={(option: User) => option.name}
+          getOptionLabel={(option: User) => `${option.name} (${option.email})`}
           getOptionDisabled={(option: User) =>
             Boolean(org!.members?.find((m) => m.user._id === option._id))
           }
