@@ -230,37 +230,56 @@ export async function fetchConfig(): Promise<Config> {
       query: `
       query FetchConfig{
         config {
-          featuredMentors
-          featuredMentorPanels
-          activeMentors
-          activeMentorPanels
-          styleHeaderLogo
-          styleHeaderColor
-          styleHeaderTitle
-          styleHeaderText
-          styleHeaderTextColor
-          displayGuestPrompt
-          guestPromptTitle
-          guestPromptText
-          disclaimerDisabled
-          disclaimerTitle
-          disclaimerText
-          featuredSubjects
-          featuredKeywordTypes
-          defaultSubject
-
-          mentorsDefault
-          googleClientId
-          urlDocSetup
-          urlVideoIdleTips
-          videoRecorderMaxLength
+          cmi5Enabled
+          cmi5Endpoint
+          cmi5Fetch
           classifierLambdaEndpoint
           uploadLambdaEndpoint
-          videoRecorderMaxLength
+          graphqlLambdaEndpoint
           subjectRecordPriority
+          filterEmailMentorAddress
+          videoRecorderMaxLength
+          googleClientId
           virtualBackgroundUrls
           defaultVirtualBackground
           questionSortOrder
+          urlGraphql
+          urlVideo
+          urlDocSetup
+          urlVideoIdleTips
+          mentorsDefault
+          styleHeaderTitle
+          styleHeaderText
+          styleHeaderColor
+          styleHeaderTextColor
+          styleHeaderLogo
+          styleHeaderLogoUrl
+          homeFooterColor
+          homeFooterTextColor
+          homeFooterImages
+          homeFooterLinks
+          homeBannerColor
+          homeBannerButtonColor
+          homeCarouselColor
+          walkthroughDisabled
+          walkthroughTitle
+          urlVideoMentorpalWalkthrough
+          disclaimerDisabled
+          disclaimerTitle
+          disclaimerText
+          termsOfServiceDisabled
+          termsOfServiceText
+          displayGuestPrompt
+          guestPromptTitle
+          guestPromptText
+          guestPromptInputType
+          activeMentors
+          activeMentorPanels
+          featuredMentors
+          featuredMentorPanels
+          featuredSubjects
+          featuredKeywordTypes
+          defaultSubject
         }
       }
   `,
@@ -2192,37 +2211,56 @@ export async function fetchOrganizations(
                   role
                 }
                 config {
-                  featuredMentors
-                  featuredMentorPanels
-                  activeMentors
-                  activeMentorPanels
-                  styleHeaderLogo
-                  styleHeaderColor
-                  styleHeaderTitle
-                  styleHeaderText
-                  styleHeaderTextColor
-                  displayGuestPrompt
-                  guestPromptTitle
-                  guestPromptText
-                  disclaimerDisabled
-                  disclaimerTitle
-                  disclaimerText
-                  featuredSubjects
-                  featuredKeywordTypes
-                  defaultSubject
-        
-                  mentorsDefault
-                  googleClientId
-                  urlDocSetup
-                  urlVideoIdleTips
-                  videoRecorderMaxLength
+                  cmi5Enabled
+                  cmi5Endpoint
+                  cmi5Fetch
                   classifierLambdaEndpoint
                   uploadLambdaEndpoint
-                  videoRecorderMaxLength
+                  graphqlLambdaEndpoint
                   subjectRecordPriority
+                  filterEmailMentorAddress
+                  videoRecorderMaxLength
+                  googleClientId
                   virtualBackgroundUrls
                   defaultVirtualBackground
                   questionSortOrder
+                  urlGraphql
+                  urlVideo
+                  urlDocSetup
+                  urlVideoIdleTips
+                  mentorsDefault
+                  styleHeaderTitle
+                  styleHeaderText
+                  styleHeaderColor
+                  styleHeaderTextColor
+                  styleHeaderLogo
+                  styleHeaderLogoUrl
+                  homeFooterColor
+                  homeFooterTextColor
+                  homeFooterImages
+                  homeFooterLinks
+                  homeBannerColor
+                  homeBannerButtonColor
+                  homeCarouselColor
+                  walkthroughDisabled
+                  walkthroughTitle
+                  urlVideoMentorpalWalkthrough
+                  disclaimerDisabled
+                  disclaimerTitle
+                  disclaimerText
+                  termsOfServiceDisabled
+                  termsOfServiceText
+                  displayGuestPrompt
+                  guestPromptTitle
+                  guestPromptText
+                  guestPromptInputType
+                  activeMentors
+                  activeMentorPanels
+                  featuredMentors
+                  featuredMentorPanels
+                  featuredSubjects
+                  featuredKeywordTypes
+                  defaultSubject
                 }
               }
             }
@@ -2270,37 +2308,56 @@ export async function addOrUpdateOrganization(
               role
             }
             config {
-              featuredMentors
-              featuredMentorPanels
-              activeMentors
-              activeMentorPanels
-              styleHeaderLogo
-              styleHeaderColor
-              styleHeaderTitle
-              styleHeaderText
-              styleHeaderTextColor
-              displayGuestPrompt
-              guestPromptTitle
-              guestPromptText
-              disclaimerDisabled
-              disclaimerTitle
-              disclaimerText
-              featuredSubjects
-              featuredKeywordTypes
-              defaultSubject
-    
-              mentorsDefault
-              googleClientId
-              urlDocSetup
-              urlVideoIdleTips
-              videoRecorderMaxLength
+              cmi5Enabled
+              cmi5Endpoint
+              cmi5Fetch
               classifierLambdaEndpoint
               uploadLambdaEndpoint
-              videoRecorderMaxLength
+              graphqlLambdaEndpoint
               subjectRecordPriority
+              filterEmailMentorAddress
+              videoRecorderMaxLength
+              googleClientId
               virtualBackgroundUrls
               defaultVirtualBackground
               questionSortOrder
+              urlGraphql
+              urlVideo
+              urlDocSetup
+              urlVideoIdleTips
+              mentorsDefault
+              styleHeaderTitle
+              styleHeaderText
+              styleHeaderColor
+              styleHeaderTextColor
+              styleHeaderLogo
+              styleHeaderLogoUrl
+              homeFooterColor
+              homeFooterTextColor
+              homeFooterImages
+              homeFooterLinks
+              homeBannerColor
+              homeBannerButtonColor
+              homeCarouselColor
+              walkthroughDisabled
+              walkthroughTitle
+              urlVideoMentorpalWalkthrough
+              disclaimerDisabled
+              disclaimerTitle
+              disclaimerText
+              termsOfServiceDisabled
+              termsOfServiceText
+              displayGuestPrompt
+              guestPromptTitle
+              guestPromptText
+              guestPromptInputType
+              activeMentors
+              activeMentorPanels
+              featuredMentors
+              featuredMentorPanels
+              featuredSubjects
+              featuredKeywordTypes
+              defaultSubject
             }
           }
         }
@@ -2333,58 +2390,91 @@ export async function updateOrgConfig(
       query: `mutation UpdateOrganizationConfig($id: ID!, $config: ConfigUpdateInputType!) {
         me {
           updateOrgConfig(id: $id, config: $config) {
-            featuredMentors
-            featuredMentorPanels
-            activeMentors
-            activeMentorPanels
-            styleHeaderLogo
-            styleHeaderColor
-            styleHeaderTitle
-            styleHeaderText
-            styleHeaderTextColor
-            displayGuestPrompt
-            guestPromptTitle
-            guestPromptText
-            disclaimerDisabled
-            disclaimerTitle
-            disclaimerText
-            featuredSubjects
-            featuredKeywordTypes
-            defaultSubject
-  
-            mentorsDefault
-            googleClientId
-            urlDocSetup
-            urlVideoIdleTips
-            videoRecorderMaxLength
+            cmi5Enabled
+            cmi5Endpoint
+            cmi5Fetch
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            videoRecorderMaxLength
+            graphqlLambdaEndpoint
             subjectRecordPriority
+            filterEmailMentorAddress
+            videoRecorderMaxLength
+            googleClientId
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
+            urlGraphql
+            urlVideo
+            urlDocSetup
+            urlVideoIdleTips
+            mentorsDefault
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderColor
+            styleHeaderTextColor
+            styleHeaderLogo
+            styleHeaderLogoUrl
+            homeFooterColor
+            homeFooterTextColor
+            homeFooterImages
+            homeFooterLinks
+            homeBannerColor
+            homeBannerButtonColor
+            homeCarouselColor
+            walkthroughDisabled
+            walkthroughTitle
+            urlVideoMentorpalWalkthrough
+            disclaimerDisabled
+            disclaimerTitle
+            disclaimerText
+            termsOfServiceDisabled
+            termsOfServiceText
+            displayGuestPrompt
+            guestPromptTitle
+            guestPromptText
+            guestPromptInputType
+            activeMentors
+            activeMentorPanels
+            featuredMentors
+            featuredMentorPanels
+            featuredSubjects
+            featuredKeywordTypes
+            defaultSubject
           }
         }
       }`,
       variables: {
         id,
         config: {
+          styleHeaderTitle: config.styleHeaderTitle,
+          styleHeaderText: config.styleHeaderText,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderLogoUrl: config.styleHeaderLogoUrl,
+          homeFooterColor: config.homeFooterColor,
+          homeFooterTextColor: config.homeFooterTextColor,
+          homeFooterImages: config.homeFooterImages,
+          homeFooterLinks: config.homeFooterLinks,
+          homeBannerColor: config.homeBannerColor,
+          homeBannerButtonColor: config.homeBannerButtonColor,
+          homeCarouselColor: config.homeCarouselColor,
+          walkthroughDisabled: config.walkthroughDisabled,
+          walkthroughTitle: config.walkthroughTitle,
+          urlVideoMentorpalWalkthrough: config.urlVideoMentorpalWalkthrough,
+          disclaimerDisabled: config.disclaimerDisabled,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          termsOfServiceDisabled: config.termsOfServiceDisabled,
+          termsOfServiceText: config.termsOfServiceText,
+          displayGuestPrompt: config.displayGuestPrompt,
+          guestPromptTitle: config.guestPromptTitle,
+          guestPromptText: config.guestPromptText,
+          guestPromptInputType: config.guestPromptInputType,
           featuredMentors: config.featuredMentors,
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
           activeMentorPanels: config.activeMentorPanels,
-          styleHeaderLogo: config.styleHeaderLogo,
-          styleHeaderColor: config.styleHeaderColor,
-          styleHeaderTitle: config.styleHeaderTitle,
-          styleHeaderText: config.styleHeaderText,
-          styleHeaderTextColor: config.styleHeaderTextColor,
-          displayGuestPrompt: config.displayGuestPrompt,
-          guestPromptTitle: config.guestPromptTitle,
-          guestPromptText: config.guestPromptText,
-          disclaimerDisabled: config.disclaimerDisabled,
-          disclaimerTitle: config.disclaimerTitle,
-          disclaimerText: config.disclaimerText,
           featuredSubjects: config.featuredSubjects,
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,
@@ -2405,57 +2495,90 @@ export async function updateConfig(
       query: `mutation UpdateConfig($config: ConfigUpdateInputType!) {
         me {
           updateConfig(config: $config) {
-            featuredMentors
-            featuredMentorPanels
-            activeMentors
-            activeMentorPanels
-            styleHeaderLogo
-            styleHeaderColor
-            styleHeaderTitle
-            styleHeaderText
-            styleHeaderTextColor
-            displayGuestPrompt
-            guestPromptTitle
-            guestPromptText
-            disclaimerDisabled
-            disclaimerTitle
-            disclaimerText
-            featuredSubjects
-            featuredKeywordTypes
-            defaultSubject
-  
-            mentorsDefault
-            googleClientId
-            urlDocSetup
-            urlVideoIdleTips
-            videoRecorderMaxLength
+            cmi5Enabled
+            cmi5Endpoint
+            cmi5Fetch
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            videoRecorderMaxLength
+            graphqlLambdaEndpoint
             subjectRecordPriority
+            filterEmailMentorAddress
+            videoRecorderMaxLength
+            googleClientId
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
+            urlGraphql
+            urlVideo
+            urlDocSetup
+            urlVideoIdleTips
+            mentorsDefault
+            styleHeaderTitle
+            styleHeaderText
+            styleHeaderColor
+            styleHeaderTextColor
+            styleHeaderLogo
+            styleHeaderLogoUrl
+            homeFooterColor
+            homeFooterTextColor
+            homeFooterImages
+            homeFooterLinks
+            homeBannerColor
+            homeBannerButtonColor
+            homeCarouselColor
+            walkthroughDisabled
+            walkthroughTitle
+            urlVideoMentorpalWalkthrough
+            disclaimerDisabled
+            disclaimerTitle
+            disclaimerText
+            termsOfServiceDisabled
+            termsOfServiceText
+            displayGuestPrompt
+            guestPromptTitle
+            guestPromptText
+            guestPromptInputType
+            activeMentors
+            activeMentorPanels
+            featuredMentors
+            featuredMentorPanels
+            featuredSubjects
+            featuredKeywordTypes
+            defaultSubject
           }
         }
       }`,
       variables: {
         config: {
+          styleHeaderTitle: config.styleHeaderTitle,
+          styleHeaderText: config.styleHeaderText,
+          styleHeaderColor: config.styleHeaderColor,
+          styleHeaderTextColor: config.styleHeaderTextColor,
+          styleHeaderLogo: config.styleHeaderLogo,
+          styleHeaderLogoUrl: config.styleHeaderLogoUrl,
+          homeFooterColor: config.homeFooterColor,
+          homeFooterTextColor: config.homeFooterTextColor,
+          homeFooterImages: config.homeFooterImages,
+          homeFooterLinks: config.homeFooterLinks,
+          homeBannerColor: config.homeBannerColor,
+          homeBannerButtonColor: config.homeBannerButtonColor,
+          homeCarouselColor: config.homeCarouselColor,
+          walkthroughDisabled: config.walkthroughDisabled,
+          walkthroughTitle: config.walkthroughTitle,
+          urlVideoMentorpalWalkthrough: config.urlVideoMentorpalWalkthrough,
+          disclaimerDisabled: config.disclaimerDisabled,
+          disclaimerTitle: config.disclaimerTitle,
+          disclaimerText: config.disclaimerText,
+          termsOfServiceDisabled: config.termsOfServiceDisabled,
+          termsOfServiceText: config.termsOfServiceText,
+          displayGuestPrompt: config.displayGuestPrompt,
+          guestPromptTitle: config.guestPromptTitle,
+          guestPromptText: config.guestPromptText,
+          guestPromptInputType: config.guestPromptInputType,
           featuredMentors: config.featuredMentors,
           featuredMentorPanels: config.featuredMentorPanels,
           activeMentors: config.activeMentors,
           activeMentorPanels: config.activeMentorPanels,
-          styleHeaderLogo: config.styleHeaderLogo,
-          styleHeaderColor: config.styleHeaderColor,
-          styleHeaderTitle: config.styleHeaderTitle,
-          styleHeaderText: config.styleHeaderText,
-          styleHeaderTextColor: config.styleHeaderTextColor,
-          displayGuestPrompt: config.displayGuestPrompt,
-          guestPromptTitle: config.guestPromptTitle,
-          guestPromptText: config.guestPromptText,
-          disclaimerDisabled: config.disclaimerDisabled,
-          disclaimerTitle: config.disclaimerTitle,
-          disclaimerText: config.disclaimerText,
           featuredSubjects: config.featuredSubjects,
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,

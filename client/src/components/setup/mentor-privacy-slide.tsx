@@ -22,7 +22,7 @@ export function MentorPrivacySlide(props: {
   const [org, setOrg] = useState<Organization>();
 
   useEffect(() => {
-    if (orgs.length > 0) {
+    if (!org && orgs.length > 0) {
       setOrg(orgs[0]);
     }
   }, [orgs]);

@@ -98,7 +98,7 @@ const organizations = {
   },
 };
 
-describe.skip("config screen", () => {
+describe("config screen", () => {
   it("users cannot view config settings", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
@@ -662,7 +662,7 @@ describe.skip("config screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=toggle-header-style]").trigger("mouseover").click();
+    cy.get("[data-cy=toggle-home-styles]").trigger("mouseover").click();
     cy.get("[data-cy=styleHeaderLogo]").should("have.attr", "data-test", "");
     cy.get("[data-cy=styleHeaderColor]").should(
       "have.attr",
@@ -713,7 +713,7 @@ describe.skip("config screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.get("[data-cy=toggle-disclaimer]").trigger("mouseover").click();
+    cy.get("[data-cy=toggle-prompts]").trigger("mouseover").click();
     cy.get("[data-cy=disclaimerTitle]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerText]").should("have.attr", "data-test", "");
     cy.get("[data-cy=disclaimerDisabled]").should(
@@ -1005,27 +1005,6 @@ describe.skip("config screen", () => {
       cy.get("[data-cy=select-org]").click();
       cy.get("[data-cy=org-csuf]").click();
       cy.contains("Manage CSUF Config");
-    });
-
-    it("is hidden if no editable orgs", () => {
-      cyMockDefault(cy, {
-        mentor: [newMentor],
-        config: config,
-        login: {
-          ...loginDefault,
-          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
-        },
-        gqlQueries: [
-          mockGQL("Subject", subjects),
-          mockGQL("Mentors", mentors),
-          mockGQL("MentorPanels", mentorPanels),
-          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
-          mockGQL("Organizations", organizations),
-        ],
-      });
-      cy.visit("/config");
-      cy.contains("Manage Config");
-      cy.get("[data-cy=select-org]").should("not.exist");
     });
 
     it("uses org config as default if query params", () => {

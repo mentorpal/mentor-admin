@@ -44,7 +44,7 @@ import { MentorGQL, SubjectGQL } from "types-gql";
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    width: 200,
+    width: 300,
     padding: 5,
     margin: theme.spacing(2),
   },

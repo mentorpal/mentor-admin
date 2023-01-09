@@ -239,6 +239,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     if (isMentorEdited) {
       saveMentorDetails();
       saveMentorKeywords();
+      saveMentorPrivacy();
     }
     cb();
   }

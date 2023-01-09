@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useState } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -22,6 +22,7 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  TextField,
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import DragHandleIcon from "@material-ui/icons/DragHandle";
@@ -30,6 +31,7 @@ import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config } from "types";
 import { MentorGQL } from "types-gql";
+import { Autocomplete } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -135,6 +137,7 @@ export function MentorList(props: {
   const styles = useStyles();
   const { mentors } = props;
   const { height: windowHeight } = useWithWindowSize();
+  const [filter, setFilter] = useState<string>();
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
@@ -144,47 +147,70 @@ export function MentorList(props: {
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Droppable droppableId="droppable-mentors">
-        {(provided) => (
-          <List
-            data-cy="mentors-list"
-            ref={provided.innerRef}
-            className={styles.list}
-            style={{ height: windowHeight - 300, overflow: "auto" }}
-            {...provided.droppableProps}
-          >
-            {mentors.map((m, i) => (
-              <Draggable
-                index={i}
-                key={`mentor-${i}`}
-                draggableId={`mentor-${i}`}
-                isDragDisabled={
-                  !props.config.activeMentors.includes(m._id) &&
-                  !props.config.featuredMentors.includes(m._id)
-                }
-              >
-                {(provided) => (
-                  <ListItem
-                    data-cy={`mentor-${i}`}
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
+    <div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable-mentors">
+          {(provided) => (
+            <List
+              data-cy="mentors-list"
+              ref={provided.innerRef}
+              className={styles.list}
+              style={{ height: windowHeight - 350, overflow: "auto" }}
+              {...provided.droppableProps}
+            >
+              {mentors
+                .filter(
+                  (m) =>
+                    filter === undefined ||
+                    m.name.toLowerCase().includes(filter.toLowerCase())
+                )
+                .map((m, i) => (
+                  <Draggable
+                    index={i}
+                    key={`mentor-${i}`}
+                    draggableId={`mentor-${i}`}
+                    isDragDisabled={
+                      Boolean(filter) ||
+                      (!props.config.activeMentors.includes(m._id) &&
+                        !props.config.featuredMentors.includes(m._id))
+                    }
                   >
-                    <MentorItem
-                      mentor={m}
-                      config={props.config}
-                      toggleActive={props.toggleActive}
-                      toggleFeatured={props.toggleFeatured}
-                    />
-                  </ListItem>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </List>
+                    {(provided) => (
+                      <ListItem
+                        data-cy={`mentor-${i}`}
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <MentorItem
+                          mentor={m}
+                          config={props.config}
+                          toggleActive={props.toggleActive}
+                          toggleFeatured={props.toggleFeatured}
+                        />
+                      </ListItem>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </DragDropContext>
+      <Autocomplete
+        data-cy="mentor-filter"
+        freeSolo
+        options={mentors.map((e) => e.name)}
+        onChange={(e, v) => setFilter(v || "")}
+        style={{ width: "100%" }}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="outlined"
+            placeholder="Search mentors"
+          />
         )}
-      </Droppable>
-    </DragDropContext>
+      />
+    </div>
   );
 }
