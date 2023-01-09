@@ -124,8 +124,11 @@ export function getOrgHomeUrl(orgDomain: string): string {
   } else if (hostname === "careerfair.mentorpal.org") {
     hostname = "mentorpal.org";
   }
-  const path = `${location.protocol}//${orgDomain}.${hostname}`;
-  return path;
+  if (orgDomain) {
+    return `${location.protocol}//${orgDomain}.${hostname}`;
+  } else {
+    return `${location.protocol}//${hostname}`;
+  }
 }
 
 export function launchOrg(orgDomain: string, newTab?: boolean): void {

@@ -8,6 +8,8 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   CircularProgress,
+  FormControl,
+  InputLabel,
   makeStyles,
   MenuItem,
   Select,
@@ -16,9 +18,14 @@ import {
 import { TabContext, TabList, TabPanel } from "@material-ui/lab";
 
 import NavBar from "components/nav-bar";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { ErrorDialog } from "components/dialog";
 import { MentorList } from "components/config/mentor-list";
-import { canEditContent } from "helpers";
+import { MentorPanelList } from "components/config/mentor-panel-list";
+import { HomeStyles } from "components/config/home-styles";
+import { Prompts } from "components/config/prompts";
+import { Settings } from "components/config/other-settings";
+import { ImageTutorials } from "components/config/image-tutorials";
+import { canEditContent, launchOrg } from "helpers";
 import { useWithConfigEdits } from "hooks/graphql/use-with-config";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -27,10 +34,6 @@ import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { User } from "types";
 import withLocation from "wrap-with-location";
-import { MentorPanelList } from "components/config/mentor-panel-list";
-import { HomeStyles } from "components/config/home-styles";
-import { Prompts } from "components/config/prompts";
-import { Settings } from "components/config/other-settings";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -46,10 +49,9 @@ const useStyles = makeStyles(() => ({
     left: "50%",
   },
   button: {
-    position: "absolute",
-    bottom: 25,
     width: 200,
     padding: 5,
+    margin: 10,
   },
   tab: {
     width: "95%",
@@ -77,6 +79,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     toggleActiveMentorPanel,
     setOrganization,
     saveMentorPanel,
+    resetToDefault,
   } = useWithConfigEdits(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
   const { data: keywords } = useWithKeywords();
@@ -101,10 +104,53 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     );
   }
 
-  const tabHeight = height - 250;
+  const tabHeight = height - 275;
   return (
     <div className={styles.root}>
       <NavBar title={`Manage${org ? ` ${org.name} ` : " "}Config`} />
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <FormControl>
+          <InputLabel>Organization</InputLabel>
+          <Select
+            data-cy="select-org"
+            value={org?._id || "Default"}
+            cy-value={org?._id}
+            onChange={(
+              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) =>
+              setOrganization(
+                orgs.find((o) => (event.target.value as string) === o._id)
+              )
+            }
+            style={{ width: 200 }}
+          >
+            <MenuItem
+              data-cy="org-none"
+              value="Default"
+              disabled={!canEditContent(props.user)}
+            >
+              Default
+            </MenuItem>
+            {orgs.map((o) => (
+              <MenuItem
+                data-cy={`org-${o._id}`}
+                key={`org-${o._id}`}
+                value={o._id}
+              >
+                {o.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <ImageTutorials />
+      </div>
       <TabContext value={tab}>
         <TabList onChange={(_event, newValue) => setTab(newValue)}>
           <Tab
@@ -183,51 +229,36 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           />
         </TabPanel>
       </TabContext>
-      {orgs.length > 0 ? (
-        <Select
-          data-cy="select-org"
-          label="Organization"
-          value={org?._id}
-          cy-value={org?._id}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) =>
-            setOrganization(
-              orgs.find((o) => (event.target.value as string) === o._id)
-            )
-          }
-          style={{ width: 270, position: "absolute", bottom: 25, right: 25 }}
+      <div>
+        <Button
+          data-cy="save-button"
+          variant="contained"
+          color="primary"
+          className={styles.button}
+          disabled={isSaving}
+          onClick={saveConfig}
         >
-          <MenuItem
-            data-cy="org-none"
-            value={undefined}
-            disabled={!canEditContent(props.user)}
-          >
-            None
-          </MenuItem>
-          {orgs.map((o) => (
-            <MenuItem
-              data-cy={`org-${o._id}`}
-              key={`org-${o._id}`}
-              value={o._id}
-            >
-              {o.name}
-            </MenuItem>
-          ))}
-        </Select>
-      ) : undefined}
-      <Button
-        data-cy="save-button"
-        variant="contained"
-        color="primary"
-        className={styles.button}
-        disabled={isSaving}
-        onClick={saveConfig}
-      >
-        Save
-      </Button>
+          Save
+        </Button>
+        <Button
+          data-cy="view-button"
+          variant="contained"
+          className={styles.button}
+          onClick={() => launchOrg(org?.subdomain || "", true)}
+        >
+          View Home Page
+        </Button>
+        <Button
+          data-cy="view-button"
+          variant="contained"
+          color="secondary"
+          className={styles.button}
+          onClick={resetToDefault}
+        >
+          Reset to Default
+        </Button>
+      </div>
       <ErrorDialog error={error} />
-      <LoadingDialog title={isLoading ? "Loading..." : ""} />
     </div>
   );
 }

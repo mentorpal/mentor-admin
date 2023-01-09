@@ -5,11 +5,20 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { SketchPicker } from "react-color";
-import { makeStyles, TextField, Typography } from "@material-ui/core";
-
+import {
+  Button,
+  Grid,
+  IconButton,
+  List,
+  ListSubheader,
+  makeStyles,
+  TextField,
+  Typography,
+} from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
 import { Config } from "types";
-import { ImageTutorials } from "./image-tutorials";
+import { ColorPicker } from "./color-picker";
+import { copyAndRemove, copyAndSet } from "helpers";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,7 +70,6 @@ export function HomeStyles(props: {
 
   return (
     <div>
-      <ImageTutorials text="These settings will customize the look and feel of your home page." />
       <TextField
         fullWidth
         data-cy="styleHeaderTitle"
@@ -90,7 +98,6 @@ export function HomeStyles(props: {
           shrink: true,
         }}
       />
-
       <div style={{ display: "flex", flexDirection: "row", marginBottom: 20 }}>
         <TextField
           fullWidth
@@ -129,115 +136,187 @@ export function HomeStyles(props: {
         }}
       />
 
-      <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <div>
+      <Grid container spacing={5} justifyContent="center">
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="styleHeaderColor"
             data-test={config.styleHeaderColor}
           >
-            Header Color: {config.styleHeaderColor}
+            Header Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.styleHeaderColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ styleHeaderColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ styleHeaderColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="styleHeaderTextColor"
             data-test={config.styleHeaderTextColor}
           >
-            Header Text Color: {config.styleHeaderTextColor}
+            Header Text Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.styleHeaderTextColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ styleHeaderTextColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ styleHeaderTextColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="homeFooterColor"
             data-test={config.homeFooterColor}
           >
-            Footer Color: {config.homeFooterColor}
+            Footer Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.homeFooterColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ homeFooterColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ homeFooterColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="homeFooterTextColor"
             data-test={config.homeFooterTextColor}
           >
-            Footer Text Color: {config.homeFooterTextColor}
+            Footer Text Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.homeFooterTextColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ homeFooterTextColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ homeFooterTextColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="homeBannerColor"
             data-test={config.homeBannerColor}
           >
-            Banner Color: {config.homeBannerColor}
+            Banner Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.homeBannerColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ homeBannerColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ homeBannerColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="homeBannerButtonColor"
             data-test={config.homeBannerButtonColor}
           >
-            Banner Button Color: {config.homeBannerButtonColor}
+            Banner Button Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.homeBannerButtonColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ homeBannerButtonColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ homeBannerButtonColor: c })}
           />
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           <Typography
             variant="subtitle1"
             data-cy="homeCarouselColor"
             data-test={config.homeCarouselColor}
           >
-            Carousel Color: {config.homeCarouselColor}
+            Carousel Color
           </Typography>
-          <SketchPicker
+          <ColorPicker
             color={config.homeCarouselColor}
-            onChangeComplete={(color: { hex: string }) =>
-              updateConfig({ homeCarouselColor: color.hex })
-            }
+            onChange={(c) => updateConfig({ homeCarouselColor: c })}
           />
-        </div>
-      </div>
+        </Grid>
+      </Grid>
+
+      <List>
+        <ListSubheader>Footer Images</ListSubheader>
+        {(config.homeFooterImages || []).map((f, i) => (
+          <div
+            key={i}
+            style={{
+              marginBottom: 20,
+              display: "flex",
+              flexDirection: "row",
+              width: "100%",
+            }}
+          >
+            <div style={{ width: "100%" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  marginBottom: 20,
+                  width: "100%",
+                }}
+              >
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  label="Footer Image"
+                  value={f}
+                  onChange={(e) =>
+                    updateConfig({
+                      homeFooterImages: copyAndSet(
+                        config.homeFooterImages,
+                        i,
+                        e.target.value
+                      ),
+                    })
+                  }
+                  InputLabelProps={{ shrink: true }}
+                />
+                <img
+                  data-cy="image-thumbnail"
+                  className={styles.thumbnail}
+                  src={f}
+                  onClick={() => window.open(f || "", "_blank")}
+                />
+              </div>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Footer Image Link"
+                value={config.homeFooterLinks[i]}
+                onChange={(e) =>
+                  updateConfig({
+                    homeFooterLinks: copyAndSet(
+                      config.homeFooterLinks,
+                      i,
+                      e.target.value
+                    ),
+                  })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+            </div>
+            <IconButton
+              style={{ marginLeft: 5 }}
+              onClick={() =>
+                updateConfig({
+                  homeFooterImages: copyAndRemove(config.homeFooterImages, i),
+                  homeFooterLinks: copyAndRemove(config.homeFooterLinks, i),
+                })
+              }
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </div>
+        ))}
+        <Button
+          variant="outlined"
+          disabled={config.homeFooterImages?.length >= 4}
+          onClick={() =>
+            updateConfig({
+              homeFooterImages: [...(config.homeFooterImages || []), ""],
+              homeFooterLinks: [...(config.homeFooterLinks || []), ""],
+            })
+          }
+        >
+          Add Footer Image
+        </Button>
+      </List>
     </div>
   );
 }

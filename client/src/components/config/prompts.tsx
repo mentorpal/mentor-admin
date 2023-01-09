@@ -16,7 +16,6 @@ import {
 } from "@material-ui/core";
 
 import { Config } from "types";
-import { ImageTutorials } from "./image-tutorials";
 
 export function Prompts(props: {
   config: Config;
@@ -25,7 +24,6 @@ export function Prompts(props: {
   const { config, updateConfig } = props;
   return (
     <div>
-      <ImageTutorials text="These settings will customize the various pop-ups and dialogues that show on the home and chat page." />
       <TextField
         fullWidth
         data-cy="disclaimerTitle"

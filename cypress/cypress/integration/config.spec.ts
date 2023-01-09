@@ -1007,27 +1007,6 @@ describe("config screen", () => {
       cy.contains("Manage CSUF Config");
     });
 
-    it("is hidden if no editable orgs", () => {
-      cyMockDefault(cy, {
-        mentor: [newMentor],
-        config: config,
-        login: {
-          ...loginDefault,
-          user: { ...loginDefault.user, userRole: UserRole.ADMIN },
-        },
-        gqlQueries: [
-          mockGQL("Subject", subjects),
-          mockGQL("Mentors", mentors),
-          mockGQL("MentorPanels", mentorPanels),
-          mockGQL("UpdateConfig", { me: { updateConfig: config } }),
-          mockGQL("Organizations", organizations),
-        ],
-      });
-      cy.visit("/config");
-      cy.contains("Manage Config");
-      cy.get("[data-cy=select-org]").should("not.exist");
-    });
-
     it("uses org config as default if query params", () => {
       cyMockDefault(cy, {
         mentor: [newMentor],
