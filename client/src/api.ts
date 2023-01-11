@@ -2208,6 +2208,7 @@ export async function fetchOrganizations(
                     name
                     email
                     defaultMentor {
+                      _id
                       name
                     }
                   }
