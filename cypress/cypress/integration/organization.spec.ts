@@ -99,6 +99,9 @@ const orgUsc = {
         user: {
           _id: "admin",
           name: "Admin",
+          defaultMentor: {
+            name: "Admin",
+          },
         },
         role: UserRole.ADMIN,
       },
@@ -106,6 +109,9 @@ const orgUsc = {
         user: {
           _id: "contentmanager",
           name: "Content Manager",
+          defaultMentor: {
+            name: "Content Manager",
+          },
         },
         role: UserRole.CONTENT_MANAGER,
       },
@@ -113,6 +119,9 @@ const orgUsc = {
         user: {
           _id: "user2",
           name: "User2",
+          defaultMentor: {
+            name: "User2",
+          },
         },
         role: UserRole.USER,
       },

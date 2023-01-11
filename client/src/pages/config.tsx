@@ -178,6 +178,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         >
           <MentorList
             config={config}
+            org={org}
             mentors={mentors}
             move={moveMentor}
             toggleActive={toggleActiveMentor}
