@@ -306,6 +306,8 @@ export function useWithMergeReport(): UseWithMergeReport {
       Array.from(allAnswerIds)
     );
 
+    console.log("got answerToTopicMappings")
+
     // Remap reportEntries to contain the topic names
     reportEntries = reportEntries.map((entry) => {
       try {
@@ -322,6 +324,8 @@ export function useWithMergeReport(): UseWithMergeReport {
         return entry;
       }
     });
+
+    console.log("remapped reportEntries", reportEntries)
 
     if (!userQuestions.length) {
       console.log("no user questions to consider");

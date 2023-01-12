@@ -129,6 +129,7 @@ function LRSReportsPage(): JSX.Element {
       setNoReportAlert(true);
       return;
     }
+    console.log("finished getting report entries")
     setReportAlert(true);
     reportToCsv(reportEntries);
   };
@@ -186,6 +187,7 @@ function LRSReportsPage(): JSX.Element {
               setLoadInProgress(true);
               handleDownloadLrsReport()
                 .catch((err) => {
+                  console.error(err)
                   setErrorMessage(
                     `Error occured when downloading LRS report: ${JSON.stringify(
                       err
