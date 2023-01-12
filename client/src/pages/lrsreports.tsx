@@ -123,12 +123,15 @@ function LRSReportsPage(): JSX.Element {
     }
     const reportEntries = await handleMergeReport(startDate, endDate);
     if (!reportEntries) {
+      console.log("no report entries")
       return;
     }
     if (!reportEntries.length) {
+      console.log("no report entries length")
       setNoReportAlert(true);
       return;
     }
+    console.log("report entries")
     console.log("finished getting report entries")
     setReportAlert(true);
     reportToCsv(reportEntries);
