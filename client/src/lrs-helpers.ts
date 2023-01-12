@@ -28,6 +28,8 @@ export interface ReportEntry {
   dateObject: Date;
   dataSource: DataSource;
   allMentorsAsked: string[];
+  answerId: string;
+  topics: string[];
 }
 
 /**
@@ -66,6 +68,8 @@ const generateUserReport = (
         dateObject: new Date(),
         dataSource: "xapi",
         allMentorsAsked: [],
+        answerId: "",
+        topics: [],
       };
       const curStatement = statements[statement];
       const username = curStatement["actor"]["name"];
@@ -115,6 +119,10 @@ const generateUserReport = (
         reportEntry.date = date;
         reportEntry.dateObject = new Date(curStatement.timestamp);
       }
+
+      // Get answer id from extensions
+      reportEntry.answerId = getAnswerId(curStatement);
+
       allReportEntries.push(reportEntry);
     }
   });
@@ -188,6 +196,27 @@ const getAllMentorsAsked = (statement: Statement): string[] => {
   }
 
   return Object.keys(mentorsAsked);
+};
+
+const getAnswerId = (statement: Statement): string => {
+  try {
+    const extensions = statement.result?.extensions;
+
+    if (!extensions) {
+      return "";
+    }
+    const answeredExtension =
+      extensions["https://mentorpal.org/xapi/verb/answered"];
+
+    if (!answeredExtension) {
+      return "";
+    }
+
+    return answeredExtension["answerId"] || "";
+  } catch (err) {
+    console.error("failed to get answer id", err, statement);
+    return "";
+  }
 };
 
 /**
@@ -345,6 +374,7 @@ export interface Report {
   date: Array<string>;
   userId: Array<string>;
   dataSource: Array<string>;
+  topics: Array<string[]>;
 }
 
 /**
@@ -396,6 +426,7 @@ export const reportToCsv = (reportEntries: ReportEntry[]): any => {
     ),
     userId: effectiveEntries.map((entry) => entry.userId),
     dataSource: effectiveEntries.map((entry) => entry.dataSource),
+    topics: effectiveEntries.map((entry) => entry.topics),
   };
   const dfReport = new dfd.DataFrame(report);
 
