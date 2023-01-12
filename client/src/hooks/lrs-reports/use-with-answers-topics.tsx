@@ -54,7 +54,17 @@ export function useWithAnswersTopics(): UseWithAnswersTopics {
 
   async function fetchAnswerTopicMappings(answerIds: string[]) {
     try {
-      const answerQuestionIdsConnection = await fetchAnswersQuestionIds();
+      const answerQuestionIdsConnection = await fetchAnswersQuestionIds({
+        limit: 200,
+        sortBy: "",
+        sortAscending: false,
+        filter: {
+          _id: {
+            $in: answerIds,
+          },
+        },
+        cursor: "",
+      });
       let allAnswerQuestionObjects = answerQuestionIdsConnection.edges.map(
         (edge) => edge.node
       );
