@@ -86,11 +86,9 @@ export function useWithAnswersTopics(): UseWithAnswersTopics {
         );
 
       const questionToTopicMapping = await fetchQuestionTopicMappings();
-      console.log("Got questionToTopicMapping", questionToTopicMapping)
       const allAnswerIds = allAnswerQuestionObjects.map(
         (answerQuestionObject) => answerQuestionObject._id
       );
-      console.log("got all answer ids")
       return allAnswerIds.reduce(
         (record: Record<AnswerId, TopicNames>, answerId: string) => {
           try {

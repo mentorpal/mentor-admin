@@ -22,7 +22,6 @@ export function useWitSubjectQuestionTopics(): UseWitSubjectQuestionTopics {
   async function fetchQuestionTopicMappings(): Promise<SubjectQuestionTopicMappings> {
     const subjectQuestionsAndTopicsConnection =
       await fetchAllSubjectQuestionsAndTopics();
-    console.log("Finished subjectQuestionsAndTopicsConnection fetch")
     const subjectQuestionsAndTopics =
       subjectQuestionsAndTopicsConnection.edges.map((edge) => edge.node);
     const allSubjectQuestions = subjectQuestionsAndTopics.reduce(
@@ -31,7 +30,6 @@ export function useWitSubjectQuestionTopics(): UseWitSubjectQuestionTopics {
       },
       []
     );
-    console.log("Finished allSubjectQuestions reducer")
     const questionIdToTopicsMapping: SubjectQuestionTopicMappings =
       allSubjectQuestions.reduce(
         (
@@ -43,7 +41,6 @@ export function useWitSubjectQuestionTopics(): UseWitSubjectQuestionTopics {
         },
         {}
       );
-      console.log("Finished questionIdToTopicsMapping reducer")
     return questionIdToTopicsMapping;
   }
   return {

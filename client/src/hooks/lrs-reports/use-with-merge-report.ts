@@ -306,8 +306,6 @@ export function useWithMergeReport(): UseWithMergeReport {
       Array.from(allAnswerIds)
     );
 
-    console.log("got answerToTopicMappings")
-
     // Remap reportEntries to contain the topic names
     reportEntries = reportEntries.map((entry) => {
       try {
@@ -325,10 +323,7 @@ export function useWithMergeReport(): UseWithMergeReport {
       }
     });
 
-    console.log("remapped reportEntries", reportEntries)
-
     if (!userQuestions.length) {
-      console.log("no user questions to consider");
       return reportEntries;
     }
 
@@ -337,7 +332,6 @@ export function useWithMergeReport(): UseWithMergeReport {
     // XAPI chat sessions
     const chatSessions = reportEntriesIntoUserChatSessions(reportEntries);
 
-    console.log("generated chat sessisons")
     // Ignore empty chat sessions and ones with no mentor ids
     const effectiveChatSessions = chatSessions.filter(
       (chatSession) =>
@@ -349,53 +343,32 @@ export function useWithMergeReport(): UseWithMergeReport {
     const orphanedUserQuestions = userQuestions.filter(
       (userQuestion) => !isUserQuestionAccountedFor(userQuestion, statements)
     );
-    console.log("orphanes user questions collected")
 
     orphanedUserQuestions.forEach((orphanUserQuestion) => {
-      try{
-      const effectiveAnswerId =
-        orphanUserQuestion.graderAnswer?._id ||
-        orphanUserQuestion.classifierAnswer?._id || "";
-      const topics: string[] = answerToTopicMappings[effectiveAnswerId] || [];
-      const userQuestionEpoch = Date.parse(orphanUserQuestion.createdAt);
-      const relevantChatSessions = effectiveChatSessions.filter(
-        (chatSession) => {
-          const chatSessionStartEpoch = chatSession.startDate.getTime();
-          const chatSessionEndEpoch = chatSession.endDate.getTime();
-          return (
-            userQuestionEpoch >= chatSessionStartEpoch &&
-            userQuestionEpoch <= chatSessionEndEpoch &&
-            Boolean(
-              chatSession.mentorIds.find(
-                (mentorId) => mentorId == orphanUserQuestion.mentor._id
+      try {
+        const effectiveAnswerId =
+          orphanUserQuestion.graderAnswer?._id ||
+          orphanUserQuestion.classifierAnswer?._id ||
+          "";
+        const topics: string[] = answerToTopicMappings[effectiveAnswerId] || [];
+        const userQuestionEpoch = Date.parse(orphanUserQuestion.createdAt);
+        const relevantChatSessions = effectiveChatSessions.filter(
+          (chatSession) => {
+            const chatSessionStartEpoch = chatSession.startDate.getTime();
+            const chatSessionEndEpoch = chatSession.endDate.getTime();
+            return (
+              userQuestionEpoch >= chatSessionStartEpoch &&
+              userQuestionEpoch <= chatSessionEndEpoch &&
+              Boolean(
+                chatSession.mentorIds.find(
+                  (mentorId) => mentorId == orphanUserQuestion.mentor._id
+                )
               )
-            )
-          );
-        }
-      );
-      if (relevantChatSessions.length == 1) {
-        const relevantChatSession = relevantChatSessions[0];
-        reportEntries.push({
-          action: "asked",
-          referrer: relevantChatSession.referrer,
-          mentorSelected: orphanUserQuestion.mentor._id,
-          question: orphanUserQuestion.question,
-          typed:
-            orphanUserQuestion.classifierAnswerType == "EXACT"
-              ? "TOPIC_LIST"
-              : "TYPED",
-          answer: "-",
-          source: relevantChatSession.source,
-          date: new Date(orphanUserQuestion.createdAt).toDateString(),
-          dataSource: "RECOV_Certain",
-          userId: relevantChatSession.userId,
-          dateObject: new Date(orphanUserQuestion.createdAt),
-          allMentorsAsked: relevantChatSession.mentorIds,
-          answerId: effectiveAnswerId,
-          topics,
-        });
-      } else if (relevantChatSessions.length > 1) {
-        relevantChatSessions.forEach((relevantChatSession) => {
+            );
+          }
+        );
+        if (relevantChatSessions.length == 1) {
+          const relevantChatSession = relevantChatSessions[0];
           reportEntries.push({
             action: "asked",
             referrer: relevantChatSession.referrer,
@@ -408,41 +381,61 @@ export function useWithMergeReport(): UseWithMergeReport {
             answer: "-",
             source: relevantChatSession.source,
             date: new Date(orphanUserQuestion.createdAt).toDateString(),
-            dataSource: "REVOC_Maybe",
+            dataSource: "RECOV_Certain",
             userId: relevantChatSession.userId,
             dateObject: new Date(orphanUserQuestion.createdAt),
             allMentorsAsked: relevantChatSession.mentorIds,
             answerId: effectiveAnswerId,
             topics,
           });
-        });
-      } else if (relevantChatSessions.length == 0) {
-        // add entry as orphaned
-        reportEntries.push({
-          action: "asked",
-          referrer: "-",
-          mentorSelected: orphanUserQuestion.mentor._id,
-          question: orphanUserQuestion.question,
-          typed:
-            orphanUserQuestion.classifierAnswerType == "EXACT"
-              ? "TOPIC_LIST"
-              : "TYPED",
-          answer: "-",
-          source: "-",
-          date: new Date(orphanUserQuestion.createdAt).toDateString(),
-          dataSource: "orphaned_user_question",
-          userId: `orphaned-${uuid()}`,
-          dateObject: new Date(orphanUserQuestion.createdAt),
-          allMentorsAsked: [orphanUserQuestion.mentor._id],
-          answerId: effectiveAnswerId,
-          topics,
-        });
+        } else if (relevantChatSessions.length > 1) {
+          relevantChatSessions.forEach((relevantChatSession) => {
+            reportEntries.push({
+              action: "asked",
+              referrer: relevantChatSession.referrer,
+              mentorSelected: orphanUserQuestion.mentor._id,
+              question: orphanUserQuestion.question,
+              typed:
+                orphanUserQuestion.classifierAnswerType == "EXACT"
+                  ? "TOPIC_LIST"
+                  : "TYPED",
+              answer: "-",
+              source: relevantChatSession.source,
+              date: new Date(orphanUserQuestion.createdAt).toDateString(),
+              dataSource: "REVOC_Maybe",
+              userId: relevantChatSession.userId,
+              dateObject: new Date(orphanUserQuestion.createdAt),
+              allMentorsAsked: relevantChatSession.mentorIds,
+              answerId: effectiveAnswerId,
+              topics,
+            });
+          });
+        } else if (relevantChatSessions.length == 0) {
+          // add entry as orphaned
+          reportEntries.push({
+            action: "asked",
+            referrer: "-",
+            mentorSelected: orphanUserQuestion.mentor._id,
+            question: orphanUserQuestion.question,
+            typed:
+              orphanUserQuestion.classifierAnswerType == "EXACT"
+                ? "TOPIC_LIST"
+                : "TYPED",
+            answer: "-",
+            source: "-",
+            date: new Date(orphanUserQuestion.createdAt).toDateString(),
+            dataSource: "orphaned_user_question",
+            userId: `orphaned-${uuid()}`,
+            dateObject: new Date(orphanUserQuestion.createdAt),
+            allMentorsAsked: [orphanUserQuestion.mentor._id],
+            answerId: effectiveAnswerId,
+            topics,
+          });
+        }
+      } catch (err) {
+        console.error("orphan question error", err);
       }
-    }catch(err){
-      console.error("orphan question error", err)
-    }
     });
-    console.log("orphaned user questions good")
     return reportEntries;
   };
 

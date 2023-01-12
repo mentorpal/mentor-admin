@@ -384,7 +384,7 @@ export interface Report {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const reportToCsv = (reportEntries: ReportEntry[]): any => {
-  console.log("going to csv")
+  console.log("going to csv");
   // Sort by date
   reportEntries.sort((a, b) =>
     a.dateObject.getTime() < b.dateObject.getTime() ? -1 : 1

@@ -123,16 +123,12 @@ function LRSReportsPage(): JSX.Element {
     }
     const reportEntries = await handleMergeReport(startDate, endDate);
     if (!reportEntries) {
-      console.log("no report entries")
       return;
     }
     if (!reportEntries.length) {
-      console.log("no report entries length")
       setNoReportAlert(true);
       return;
     }
-    console.log("report entries")
-    console.log("finished getting report entries")
     setReportAlert(true);
     reportToCsv(reportEntries);
   };
@@ -190,7 +186,7 @@ function LRSReportsPage(): JSX.Element {
               setLoadInProgress(true);
               handleDownloadLrsReport()
                 .catch((err) => {
-                  console.error(err)
+                  console.error(err);
                   setErrorMessage(
                     `Error occured when downloading LRS report: ${JSON.stringify(
                       err
