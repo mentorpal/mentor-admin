@@ -29,7 +29,7 @@ import DragHandleIcon from "@material-ui/icons/DragHandle";
 
 import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
-import { Config } from "types";
+import { Config, Organization } from "types";
 import { MentorGQL } from "types-gql";
 import { Autocomplete } from "@material-ui/lab";
 
@@ -46,6 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 function MentorItem(props: {
   config: Config;
+  org: Organization | undefined;
   mentor: MentorGQL;
   toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
@@ -113,7 +114,14 @@ function MentorItem(props: {
               <IconButton
                 data-cy="launch-mentor"
                 size="small"
-                onClick={() => launchMentor(mentor._id, true)}
+                onClick={() =>
+                  launchMentor(
+                    mentor._id,
+                    true,
+                    undefined,
+                    props.org?.subdomain
+                  )
+                }
               >
                 <LaunchIcon />
               </IconButton>
@@ -129,6 +137,7 @@ function MentorItem(props: {
 
 export function MentorList(props: {
   config: Config;
+  org: Organization | undefined;
   mentors: MentorGQL[];
   move: (toMove: number, moveTo: number) => void;
   toggleActive: (id: string) => void;
@@ -184,6 +193,7 @@ export function MentorList(props: {
                       >
                         <MentorItem
                           mentor={m}
+                          org={props.org}
                           config={props.config}
                           toggleActive={props.toggleActive}
                           toggleFeatured={props.toggleFeatured}
