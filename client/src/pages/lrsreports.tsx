@@ -186,6 +186,7 @@ function LRSReportsPage(): JSX.Element {
               setLoadInProgress(true);
               handleDownloadLrsReport()
                 .catch((err) => {
+                  console.error(err);
                   setErrorMessage(
                     `Error occured when downloading LRS report: ${JSON.stringify(
                       err
