@@ -313,7 +313,7 @@ export function useWithMergeReport(): UseWithMergeReport {
       try {
         return {
           ...entry,
-          topics: answerToTopicMappings[entry.answerId],
+          topics: answerToTopicMappings[entry.answerId] || [],
         };
       } catch (err) {
         console.log(
@@ -337,6 +337,7 @@ export function useWithMergeReport(): UseWithMergeReport {
     // XAPI chat sessions
     const chatSessions = reportEntriesIntoUserChatSessions(reportEntries);
 
+    console.log("generated chat sessisons")
     // Ignore empty chat sessions and ones with no mentor ids
     const effectiveChatSessions = chatSessions.filter(
       (chatSession) =>
@@ -348,6 +349,7 @@ export function useWithMergeReport(): UseWithMergeReport {
     const orphanedUserQuestions = userQuestions.filter(
       (userQuestion) => !isUserQuestionAccountedFor(userQuestion, statements)
     );
+    console.log("orphanes user questions collected")
 
     orphanedUserQuestions.forEach((orphanUserQuestion) => {
       const effectiveAnswerId =
@@ -436,6 +438,7 @@ export function useWithMergeReport(): UseWithMergeReport {
         });
       }
     });
+    console.log("orphaned user questions good")
     return reportEntries;
   };
 
