@@ -352,9 +352,10 @@ export function useWithMergeReport(): UseWithMergeReport {
     console.log("orphanes user questions collected")
 
     orphanedUserQuestions.forEach((orphanUserQuestion) => {
+      try{
       const effectiveAnswerId =
         orphanUserQuestion.graderAnswer?._id ||
-        orphanUserQuestion.classifierAnswer._id;
+        orphanUserQuestion.classifierAnswer?._id || "";
       const topics: string[] = answerToTopicMappings[effectiveAnswerId] || [];
       const userQuestionEpoch = Date.parse(orphanUserQuestion.createdAt);
       const relevantChatSessions = effectiveChatSessions.filter(
@@ -437,6 +438,9 @@ export function useWithMergeReport(): UseWithMergeReport {
           topics,
         });
       }
+    }catch(err){
+      console.error("orphan question error", err)
+    }
     });
     console.log("orphaned user questions good")
     return reportEntries;
