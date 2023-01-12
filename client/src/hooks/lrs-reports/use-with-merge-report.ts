@@ -16,6 +16,7 @@ import { useWithStatements } from "./use-with-statements";
 import { useWithUserQuestions } from "./use-with-user-questions";
 import { v4 as uuid } from "uuid";
 import { UserQuestionGQL } from "lrs-api";
+import { useWithAnswersTopics } from "./use-with-answers-topics";
 
 type ChatStartType = "INIT_FOUND" | "FIRST_ASK_FOUND" | "NO_INIT_OR_ASK_FOUND";
 type ChatEndType =
@@ -47,6 +48,7 @@ export interface UseWithMergeReport {
 export function useWithMergeReport(): UseWithMergeReport {
   const { getStatements } = useWithStatements();
   const { fetchUserQuestions } = useWithUserQuestions();
+  const { fetchAnswerTopicMappings } = useWithAnswersTopics();
 
   // Statement timestamp format example: "2022-12-06T00:01:16.232Z",
   // User Question timestamp format example: "2022-10-24T17:09:33.321Z",
@@ -297,12 +299,36 @@ export function useWithMergeReport(): UseWithMergeReport {
     if (!userQuestions || !statements) {
       return;
     }
-    const reportEntries = generateReportForAllUsers(statements);
+    let reportEntries = generateReportForAllUsers(statements);
+
+    const allAnswerIds = new Set(reportEntries.map((entry) => entry.answerId));
+    const answerToTopicMappings = await fetchAnswerTopicMappings(
+      Array.from(allAnswerIds)
+    );
+
+    // Remap reportEntries to contain the topic names
+    reportEntries = reportEntries.map((entry) => {
+      try {
+        return {
+          ...entry,
+          topics: answerToTopicMappings[entry.answerId] || [],
+        };
+      } catch (err) {
+        console.log(
+          "unable to find topic mapping for answer",
+          entry.answerId,
+          err
+        );
+        return entry;
+      }
+    });
 
     if (!userQuestions.length) {
-      console.log("no user questions");
       return reportEntries;
     }
+
+    // START handling orphaned user questions by looking at faux chat sessions
+
     // XAPI chat sessions
     const chatSessions = reportEntriesIntoUserChatSessions(reportEntries);
 
@@ -319,43 +345,30 @@ export function useWithMergeReport(): UseWithMergeReport {
     );
 
     orphanedUserQuestions.forEach((orphanUserQuestion) => {
-      const userQuestionEpoch = Date.parse(orphanUserQuestion.createdAt);
-      const relevantChatSessions = effectiveChatSessions.filter(
-        (chatSession) => {
-          const chatSessionStartEpoch = chatSession.startDate.getTime();
-          const chatSessionEndEpoch = chatSession.endDate.getTime();
-          return (
-            userQuestionEpoch >= chatSessionStartEpoch &&
-            userQuestionEpoch <= chatSessionEndEpoch &&
-            Boolean(
-              chatSession.mentorIds.find(
-                (mentorId) => mentorId == orphanUserQuestion.mentor._id
+      try {
+        const effectiveAnswerId =
+          orphanUserQuestion.graderAnswer?._id ||
+          orphanUserQuestion.classifierAnswer?._id ||
+          "";
+        const topics: string[] = answerToTopicMappings[effectiveAnswerId] || [];
+        const userQuestionEpoch = Date.parse(orphanUserQuestion.createdAt);
+        const relevantChatSessions = effectiveChatSessions.filter(
+          (chatSession) => {
+            const chatSessionStartEpoch = chatSession.startDate.getTime();
+            const chatSessionEndEpoch = chatSession.endDate.getTime();
+            return (
+              userQuestionEpoch >= chatSessionStartEpoch &&
+              userQuestionEpoch <= chatSessionEndEpoch &&
+              Boolean(
+                chatSession.mentorIds.find(
+                  (mentorId) => mentorId == orphanUserQuestion.mentor._id
+                )
               )
-            )
-          );
-        }
-      );
-      if (relevantChatSessions.length == 1) {
-        const relevantChatSession = relevantChatSessions[0];
-        reportEntries.push({
-          action: "asked",
-          referrer: relevantChatSession.referrer,
-          mentorSelected: orphanUserQuestion.mentor._id,
-          question: orphanUserQuestion.question,
-          typed:
-            orphanUserQuestion.classifierAnswerType == "EXACT"
-              ? "TOPIC_LIST"
-              : "TYPED",
-          answer: "-",
-          source: relevantChatSession.source,
-          date: new Date(orphanUserQuestion.createdAt).toDateString(),
-          dataSource: "RECOV_Certain",
-          userId: relevantChatSession.userId,
-          dateObject: new Date(orphanUserQuestion.createdAt),
-          allMentorsAsked: relevantChatSession.mentorIds,
-        });
-      } else if (relevantChatSessions.length > 1) {
-        relevantChatSessions.forEach((relevantChatSession) => {
+            );
+          }
+        );
+        if (relevantChatSessions.length == 1) {
+          const relevantChatSession = relevantChatSessions[0];
           reportEntries.push({
             action: "asked",
             referrer: relevantChatSession.referrer,
@@ -368,31 +381,59 @@ export function useWithMergeReport(): UseWithMergeReport {
             answer: "-",
             source: relevantChatSession.source,
             date: new Date(orphanUserQuestion.createdAt).toDateString(),
-            dataSource: "REVOC_Maybe",
+            dataSource: "RECOV_Certain",
             userId: relevantChatSession.userId,
             dateObject: new Date(orphanUserQuestion.createdAt),
             allMentorsAsked: relevantChatSession.mentorIds,
+            answerId: effectiveAnswerId,
+            topics,
           });
-        });
-      } else if (relevantChatSessions.length == 0) {
-        // add entry as orphaned
-        reportEntries.push({
-          action: "asked",
-          referrer: "-",
-          mentorSelected: orphanUserQuestion.mentor._id,
-          question: orphanUserQuestion.question,
-          typed:
-            orphanUserQuestion.classifierAnswerType == "EXACT"
-              ? "TOPIC_LIST"
-              : "TYPED",
-          answer: "-",
-          source: "-",
-          date: new Date(orphanUserQuestion.createdAt).toDateString(),
-          dataSource: "orphaned_user_question",
-          userId: `orphaned-${uuid()}`,
-          dateObject: new Date(orphanUserQuestion.createdAt),
-          allMentorsAsked: [orphanUserQuestion.mentor._id],
-        });
+        } else if (relevantChatSessions.length > 1) {
+          relevantChatSessions.forEach((relevantChatSession) => {
+            reportEntries.push({
+              action: "asked",
+              referrer: relevantChatSession.referrer,
+              mentorSelected: orphanUserQuestion.mentor._id,
+              question: orphanUserQuestion.question,
+              typed:
+                orphanUserQuestion.classifierAnswerType == "EXACT"
+                  ? "TOPIC_LIST"
+                  : "TYPED",
+              answer: "-",
+              source: relevantChatSession.source,
+              date: new Date(orphanUserQuestion.createdAt).toDateString(),
+              dataSource: "REVOC_Maybe",
+              userId: relevantChatSession.userId,
+              dateObject: new Date(orphanUserQuestion.createdAt),
+              allMentorsAsked: relevantChatSession.mentorIds,
+              answerId: effectiveAnswerId,
+              topics,
+            });
+          });
+        } else if (relevantChatSessions.length == 0) {
+          // add entry as orphaned
+          reportEntries.push({
+            action: "asked",
+            referrer: "-",
+            mentorSelected: orphanUserQuestion.mentor._id,
+            question: orphanUserQuestion.question,
+            typed:
+              orphanUserQuestion.classifierAnswerType == "EXACT"
+                ? "TOPIC_LIST"
+                : "TYPED",
+            answer: "-",
+            source: "-",
+            date: new Date(orphanUserQuestion.createdAt).toDateString(),
+            dataSource: "orphaned_user_question",
+            userId: `orphaned-${uuid()}`,
+            dateObject: new Date(orphanUserQuestion.createdAt),
+            allMentorsAsked: [orphanUserQuestion.mentor._id],
+            answerId: effectiveAnswerId,
+            topics,
+          });
+        }
+      } catch (err) {
+        console.error("orphan question error", err);
       }
     });
     return reportEntries;
