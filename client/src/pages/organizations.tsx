@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
 import {
   AppBar,
@@ -233,6 +233,8 @@ function EditOrganization(props: {
   const styles = useStyles();
   const { org, orgPagin, userPagin, edit } = props;
   const [msg, setMsg] = useState<string>();
+  const [shouldScroll, setShouldScroll] = useState<boolean>(false);
+  const scrollRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     if (!org || !orgPagin.data) {
@@ -260,6 +262,13 @@ function EditOrganization(props: {
       setMsg(undefined);
     }
   }, [org]);
+
+  useEffect(() => {
+    if (shouldScroll && scrollRef && scrollRef.current) {
+      scrollRef.current.scrollIntoView();
+      setShouldScroll(false);
+    }
+  }, [org?.members?.length, shouldScroll]);
 
   return (
     <Dialog
@@ -326,7 +335,7 @@ function EditOrganization(props: {
                     <ListItemText
                       data-cy="member-name"
                       data-test={m.user.name}
-                      primary={m.user.name}
+                      primary={m.user.defaultMentor.name}
                       secondary={m.user.email}
                       style={{ flexGrow: 1 }}
                     />
@@ -387,16 +396,17 @@ function EditOrganization(props: {
               </ListItem>
             );
           })}
+          <li ref={scrollRef} />
         </List>
         <Autocomplete
           data-cy="member-search"
           options={userPagin.data?.edges.map((e) => e.node) || []}
-          getOptionLabel={(option: User) => `${option.name} (${option.email})`}
+          getOptionLabel={(option: User) => option.defaultMentor.name}
           getOptionDisabled={(option: User) =>
             Boolean(org!.members?.find((m) => m.user._id === option._id))
           }
           onChange={(e, v) => {
-            if (v)
+            if (v) {
               edit({
                 ...org!,
                 members: [
@@ -404,11 +414,13 @@ function EditOrganization(props: {
                   { user: v, role: UserRole.USER },
                 ],
               });
+              setShouldScroll(true);
+            }
           }}
           style={{ width: "100%" }}
           renderOption={(option) => (
             <Typography data-cy={`member-${option._id}`}>
-              {option.name}
+              {option.defaultMentor.name} ({option.email})
             </Typography>
           )}
           renderInput={(params) => (

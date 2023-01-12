@@ -39,7 +39,7 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { Edge, Organization, User, UserRole } from "types";
+import { Edge, Organization, OrgPermissionType, User, UserRole } from "types";
 import withLocation from "wrap-with-location";
 import {
   canEditMentor,
@@ -414,12 +414,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const orgsPagin = useWithOrganizations(props.accessToken);
   const styles = useStyles();
   const { switchActiveMentor } = useActiveMentor();
-
-  const mentors = userPagin.data?.edges.map((e) => e.node.defaultMentor) || [];
   const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
-  const mentorsCanEdit = mentors.filter((m) =>
-    canEditMentor(m, props.user, orgs)
-  );
 
   useEffect(() => {
     switchActiveMentor();
@@ -432,6 +427,27 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   }, [location.search, orgsPagin.data]);
 
   function filterEditableUsers(u: User): boolean {
+    const params = new URLSearchParams(location.search);
+    // filter users related to org only (member or gave permission to org)
+    if (params.get("org")) {
+      const org = orgs.find((o) => o._id === params.get("org"));
+      if (org) {
+        const isMember = org.members.find((m) => m.user._id === u._id);
+        if (isMember) {
+          return true;
+        }
+        const hasOrgPerms = u.defaultMentor.orgPermissions.find(
+          (op) => op.orgId === org._id
+        );
+        if (hasOrgPerms) {
+          return (
+            hasOrgPerms.permission === OrgPermissionType.ADMIN ||
+            hasOrgPerms.permission === OrgPermissionType.MANAGE
+          );
+        }
+        return false;
+      }
+    }
     return canEditMentor(u.defaultMentor, props.user, orgs);
   }
 
@@ -440,11 +456,6 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
       </div>
-    );
-  }
-  if (mentorsCanEdit.length === 0) {
-    return (
-      <div>You must be an admin or content manager to view this page.</div>
     );
   }
 

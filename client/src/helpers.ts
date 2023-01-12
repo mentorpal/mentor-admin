@@ -94,20 +94,48 @@ function appendKeyPairToQuery(
 export function launchMentor(
   mentorId: string,
   newTab?: boolean,
-  previewingOwnMentor?: boolean
+  previewingOwnMentor?: boolean,
+  orgDomain?: string
 ): void {
   if (previewingOwnMentor) {
     previewedMentor(mentorId);
   }
-  const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
-    mentor: mentorId,
-  });
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  const path = urlBuild(
+    `${location.protocol}//${
+      orgDomain ? `${orgDomain}.${hostname}` : hostname
+    }${CLIENT_ENDPOINT}`,
+    {
+      mentor: mentorId,
+    }
+  );
   if (newTab) window.open(path, "_blank");
   else window.location.href = path;
 }
 
-export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
-  let path = `${location.origin}${CLIENT_ENDPOINT}/?`;
+export function launchMentorPanel(
+  mentorIds: string[],
+  newTab?: boolean,
+  orgDomain?: string
+): void {
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  let path = `${location.protocol}//${
+    orgDomain ? `${orgDomain}.${hostname}` : hostname
+  }${CLIENT_ENDPOINT}/?`;
   for (const mentorId of mentorIds) {
     path += `&mentor=${mentorId}`;
   }

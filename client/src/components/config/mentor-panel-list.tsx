@@ -357,7 +357,13 @@ function MentorPanelItem(props: {
               <IconButton
                 data-cy="launch-mentor-panel"
                 size="small"
-                onClick={() => launchMentorPanel(mentorPanel.mentors, true)}
+                onClick={() =>
+                  launchMentorPanel(
+                    mentorPanel.mentors,
+                    true,
+                    props.org?.subdomain
+                  )
+                }
               >
                 <LaunchIcon />
               </IconButton>
