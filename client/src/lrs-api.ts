@@ -188,7 +188,7 @@ export async function fetchAnswersQuestionIds(
       }
     `,
       variables: {
-        filter: stringifyObject(params.filter),
+        filter: params.filter,
         limit: params.limit,
         cursor: params.cursor,
         sortBy: params.sortBy,
