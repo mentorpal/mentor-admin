@@ -301,8 +301,10 @@ export function useWithMergeReport(): UseWithMergeReport {
     }
     let reportEntries = generateReportForAllUsers(statements);
 
-    const allAnswerIds = reportEntries.map((entry) => entry.answerId);
-    const answerToTopicMappings = await fetchAnswerTopicMappings(allAnswerIds);
+    const allAnswerIds = new Set(reportEntries.map((entry) => entry.answerId));
+    const answerToTopicMappings = await fetchAnswerTopicMappings(
+      Array.from(allAnswerIds)
+    );
 
     // Remap reportEntries to contain the topic names
     reportEntries = reportEntries.map((entry) => {
