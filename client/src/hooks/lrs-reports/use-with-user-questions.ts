@@ -50,7 +50,7 @@ export function useWithUserQuestions(): UseWithUserQuestions {
     };
   };
 
-  const MAX_FETCHES = 50;
+  const MAX_FETCHES = 5000;
 
   async function recursivelyFetchMoreUserQuestions(
     userQuestionAcc: UserQuestionGQL[],

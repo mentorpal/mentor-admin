@@ -16,7 +16,7 @@ export interface UseWithStatements {
   xApiLoaded: boolean;
 }
 
-const MAX_FETCHES = 50;
+const MAX_FETCHES = 5000;
 
 export function useWithStatements(): UseWithStatements {
   const { xApi } = useWithXapi();
@@ -79,7 +79,9 @@ export function useWithStatements(): UseWithStatements {
       return statementsInState;
     }
     const startDateISO = new Date(startDate).toISOString();
-    const endDateISO = new Date(endDate).toISOString();
+    const endDateEoD = new Date(endDate);
+    endDateEoD.setUTCHours(23, 59, 59, 599); //set the end date to the end of the day
+    const endDateISO = endDateEoD.toISOString();
     try {
       const statementsResponse = await xApi.getStatements({
         since: startDateISO,
