@@ -17,7 +17,7 @@ export interface UseWithAnswersTopics {
 export function useWithAnswersTopics(): UseWithAnswersTopics {
   const { fetchQuestionTopicMappings } = useWitSubjectQuestionTopics();
 
-  const MAX_FETCHES = 50;
+  const MAX_FETCHES = 5000;
 
   async function recursivelyFetchMoreAnswers(
     answerAcc: AnswerQuestionIdsGQL[],

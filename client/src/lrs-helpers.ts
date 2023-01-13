@@ -80,7 +80,7 @@ const generateUserReport = (
       reportEntry.userId = userId;
 
       // 1. get verb
-      const verb = curStatement["verb"]["display"]["en-US"];
+      const verb = getVerb(curStatement);
       reportEntry.action = verb;
 
       // 2. get referrer
@@ -155,8 +155,13 @@ const generateUserReport = (
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getOrigin = (statement: any): string => {
-  const origin = new URL(statement["object"]["id"]);
-  return `${origin.origin}${origin.pathname}`;
+  try {
+    const origin = new URL(statement["object"]["id"]);
+    return `${origin.origin}${origin.pathname}`;
+  } catch (err) {
+    console.error("Failed to get origin from statement", statement, err);
+    return "";
+  }
 };
 
 /**
@@ -167,35 +172,49 @@ const getOrigin = (statement: any): string => {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getMentorAnswerId = (statement: any): string => {
-  const mentor =
-    statement["result"]["extensions"][
-      "https://mentorpal.org/xapi/verb/answer-playback-started"
-    ]["mentorCur"];
+  try {
+    const mentor =
+      statement["result"]["extensions"][
+        "https://mentorpal.org/xapi/verb/answer-playback-started"
+      ]["mentorCur"];
 
-  return mentor;
+    return mentor;
+  } catch (err) {
+    console.error("Failed top get mentor id from statement", statement, err);
+    return "";
+  }
 };
 
 const getAllMentorsAsked = (statement: Statement): string[] => {
-  const extensions = statement.result?.extensions;
+  try {
+    const extensions = statement.result?.extensions;
 
-  if (!extensions) {
+    if (!extensions) {
+      return [];
+    }
+
+    const foundExtention =
+      extensions["https://mentorpal.org/xapi/verb/answer-playback-started"];
+
+    if (!foundExtention) {
+      return [];
+    }
+
+    const mentorsAsked = foundExtention["answerStatusByMentor"];
+
+    if (!mentorsAsked) {
+      return [];
+    }
+
+    return Object.keys(mentorsAsked);
+  } catch (err) {
+    console.error(
+      "Failed to get all mentors asked from statement",
+      statement,
+      err
+    );
     return [];
   }
-
-  const foundExtention =
-    extensions["https://mentorpal.org/xapi/verb/answer-playback-started"];
-
-  if (!foundExtention) {
-    return [];
-  }
-
-  const mentorsAsked = foundExtention["answerStatusByMentor"];
-
-  if (!mentorsAsked) {
-    return [];
-  }
-
-  return Object.keys(mentorsAsked);
 };
 
 const getAnswerId = (statement: Statement): string => {
@@ -214,7 +233,7 @@ const getAnswerId = (statement: Statement): string => {
 
     return answeredExtension["answerId"] || "";
   } catch (err) {
-    console.error("failed to get answer id", err, statement);
+    console.error("failed to get answer id from statement", statement, err);
     return "";
   }
 };
@@ -227,22 +246,31 @@ const getAnswerId = (statement: Statement): string => {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getMentorSelected = (statement: any): string => {
-  const mentor =
-    statement["result"]["extensions"][
-      "https://mentorpal.org/xapi/verb/selected"
-    ]["mentorID"];
-  const isMentorPanel =
-    statement["result"]["extensions"][
-      "https://mentorpal.org/xapi/verb/selected"
-    ]["isPanel"];
-  if (!isMentorPanel) {
-    return mentor;
+  try {
+    const mentor =
+      statement["result"]["extensions"][
+        "https://mentorpal.org/xapi/verb/selected"
+      ]["mentorID"];
+    const isMentorPanel =
+      statement["result"]["extensions"][
+        "https://mentorpal.org/xapi/verb/selected"
+      ]["isPanel"];
+    if (!isMentorPanel) {
+      return mentor;
+    }
+    const mentorPanel =
+      statement["result"]["extensions"][
+        "https://mentorpal.org/xapi/verb/selected"
+      ]["mentorID"];
+    return mentorPanel;
+  } catch (err) {
+    console.error(
+      "Failed to get mentor selected from statement",
+      statement,
+      err
+    );
+    return "";
   }
-  const mentorPanel =
-    statement["result"]["extensions"][
-      "https://mentorpal.org/xapi/verb/selected"
-    ]["mentorID"];
-  return mentorPanel;
 };
 
 /**
@@ -253,11 +281,16 @@ const getMentorSelected = (statement: any): string => {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getQuestionType = (statement: any): string => {
-  const type =
-    statement["result"]["extensions"]["https://mentorpal.org/xapi/verb/asked"][
-      "source"
-    ];
-  return type;
+  try {
+    const type =
+      statement["result"]["extensions"][
+        "https://mentorpal.org/xapi/verb/asked"
+      ]["source"];
+    return type;
+  } catch (err) {
+    console.error("Failed to get question type from statement", statement, err);
+    return "";
+  }
 };
 
 /**
@@ -273,6 +306,17 @@ export const getQuestion = (statement: Statement): string => {
     }
     return extensions["https://mentorpal.org/xapi/verb/asked"]["text"];
   } catch (err) {
+    console.error("Failed to get question from statement", statement, err);
+    return "";
+  }
+};
+
+export const getVerb = (statement: Statement): string => {
+  try {
+    const verb = statement["verb"]["display"]["en-US"];
+    return verb;
+  } catch (err) {
+    console.log("Failed to get verb from statement", statement, err);
     return "";
   }
 };
@@ -289,7 +333,7 @@ const getReferrer = (statement: Statement): string => {
     const referrer = new URLSearchParams(url).get("referrer") || "-";
     return referrer;
   } catch (err) {
-    console.error("failed to get referrer", err);
+    console.error("failed to get referrer from statement", statement, err);
     return "";
   }
 };
