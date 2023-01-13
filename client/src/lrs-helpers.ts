@@ -159,7 +159,6 @@ const getOrigin = (statement: any): string => {
     const origin = new URL(statement["object"]["id"]);
     return `${origin.origin}${origin.pathname}`;
   } catch (err) {
-    console.error("Failed to get origin from statement", statement, err);
     return "";
   }
 };
@@ -180,7 +179,6 @@ const getMentorAnswerId = (statement: any): string => {
 
     return mentor;
   } catch (err) {
-    console.error("Failed top get mentor id from statement", statement, err);
     return "";
   }
 };
@@ -208,11 +206,6 @@ const getAllMentorsAsked = (statement: Statement): string[] => {
 
     return Object.keys(mentorsAsked);
   } catch (err) {
-    console.error(
-      "Failed to get all mentors asked from statement",
-      statement,
-      err
-    );
     return [];
   }
 };
@@ -233,7 +226,6 @@ const getAnswerId = (statement: Statement): string => {
 
     return answeredExtension["answerId"] || "";
   } catch (err) {
-    console.error("failed to get answer id from statement", statement, err);
     return "";
   }
 };
@@ -264,11 +256,6 @@ const getMentorSelected = (statement: any): string => {
       ]["mentorID"];
     return mentorPanel;
   } catch (err) {
-    console.error(
-      "Failed to get mentor selected from statement",
-      statement,
-      err
-    );
     return "";
   }
 };
@@ -288,7 +275,6 @@ const getQuestionType = (statement: any): string => {
       ]["source"];
     return type;
   } catch (err) {
-    console.error("Failed to get question type from statement", statement, err);
     return "";
   }
 };
@@ -306,7 +292,6 @@ export const getQuestion = (statement: Statement): string => {
     }
     return extensions["https://mentorpal.org/xapi/verb/asked"]["text"];
   } catch (err) {
-    console.error("Failed to get question from statement", statement, err);
     return "";
   }
 };
@@ -316,7 +301,6 @@ export const getVerb = (statement: Statement): string => {
     const verb = statement["verb"]["display"]["en-US"];
     return verb;
   } catch (err) {
-    console.log("Failed to get verb from statement", statement, err);
     return "";
   }
 };
@@ -333,7 +317,6 @@ const getReferrer = (statement: Statement): string => {
     const referrer = new URLSearchParams(url).get("referrer") || "-";
     return referrer;
   } catch (err) {
-    console.error("failed to get referrer from statement", statement, err);
     return "";
   }
 };
