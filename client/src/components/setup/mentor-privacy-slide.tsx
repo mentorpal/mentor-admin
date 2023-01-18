@@ -6,10 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useEffect, useState } from "react";
 import { Typography, Select, MenuItem, FormControl } from "@material-ui/core";
-import { Mentor, Organization, OrgPermissionType } from "types";
+import {
+  Mentor,
+  Organization,
+  OrgViewPermissionType,
+  OrgEditPermissionType,
+} from "types";
 import { Slide } from "./slide";
 import { copyAndSet } from "helpers";
-import { WithTooltip } from "components/tooltip";
 
 export function MentorPrivacySlide(props: {
   classes: Record<string, string>;
@@ -27,7 +31,10 @@ export function MentorPrivacySlide(props: {
     }
   }, [orgs]);
 
-  function setPermission(p: OrgPermissionType): void {
+  function setPermission(p: {
+    v?: OrgViewPermissionType;
+    e?: OrgEditPermissionType;
+  }): void {
     if (!org || !mentor) {
       return;
     }
@@ -38,7 +45,8 @@ export function MentorPrivacySlide(props: {
           orgPermissions: copyAndSet(orgPermissions, i, {
             orgId: org._id,
             orgName: org.name,
-            permission: p,
+            viewPermission: p.v || op.viewPermission,
+            editPermission: p.e || op.editPermission,
           }),
         });
         return;
@@ -46,7 +54,12 @@ export function MentorPrivacySlide(props: {
     }
     orgPermissions = [
       ...orgPermissions,
-      { orgId: org._id, orgName: org.name, permission: p },
+      {
+        orgId: org._id,
+        orgName: org.name,
+        viewPermission: p.v || OrgViewPermissionType.NONE,
+        editPermission: p.e || OrgEditPermissionType.NONE,
+      },
     ];
     editMentor({ orgPermissions });
   }
@@ -55,100 +68,110 @@ export function MentorPrivacySlide(props: {
     if (!org || !mentor) {
       return <div />;
     }
-    const orgPermission =
-      mentor.orgPermissions?.find((op) => op.orgId === org._id)?.permission ||
-      OrgPermissionType.NONE;
+    const orgViewPermission =
+      mentor.orgPermissions?.find((op) => op.orgId === org._id)
+        ?.viewPermission || OrgViewPermissionType.NONE;
+    const orgEditPermission =
+      mentor.orgPermissions?.find((op) => op.orgId === org._id)
+        ?.editPermission || OrgEditPermissionType.NONE;
     return (
-      <WithTooltip
-        item={
-          <div>
-            <FormControl style={{ width: 150, marginRight: 10 }}>
-              <Select
-                data-cy="select-org"
-                label="Org"
-                value={org._id}
-                cy-value={org._id}
-                onChange={(
-                  event: React.ChangeEvent<{
-                    value: unknown;
-                    name?: unknown;
-                  }>
-                ) =>
-                  setOrg(
-                    orgs.find((o) => o._id === (event.target.value as string))
-                  )
-                }
-              >
-                {orgs.map((o) => (
-                  <MenuItem
-                    data-cy={`org-${o._id}`}
-                    key={`org-${o._id}`}
-                    value={o._id}
-                  >
-                    {o.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl style={{ width: 150 }}>
-              <Select
-                data-cy="select-org-permission"
-                label="Org"
-                value={orgPermission}
-                cy-value={orgPermission}
-                onChange={(
-                  event: React.ChangeEvent<{
-                    value: unknown;
-                    name?: unknown;
-                  }>
-                ) => setPermission(event.target.value as OrgPermissionType)}
-              >
+      <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          <FormControl style={{ width: 150, marginRight: 10 }}>
+            <Select
+              data-cy="select-org"
+              label="Org"
+              value={org._id}
+              cy-value={org._id}
+              onChange={(
+                event: React.ChangeEvent<{
+                  value: unknown;
+                  name?: unknown;
+                }>
+              ) =>
+                setOrg(
+                  orgs.find((o) => o._id === (event.target.value as string))
+                )
+              }
+            >
+              {orgs.map((o) => (
                 <MenuItem
-                  data-cy="org-permission-none"
-                  value={OrgPermissionType.NONE}
+                  data-cy={`org-${o._id}`}
+                  key={`org-${o._id}`}
+                  value={o._id}
                 >
-                  None
+                  {o.name}
                 </MenuItem>
-                <MenuItem
-                  data-cy="org-permission-hidden"
-                  value={OrgPermissionType.HIDDEN}
-                >
-                  Hidden
-                </MenuItem>
-                <MenuItem
-                  data-cy="org-permission-share"
-                  value={OrgPermissionType.SHARE}
-                >
-                  Share
-                </MenuItem>
-                <MenuItem
-                  data-cy="org-permission-manage"
-                  value={OrgPermissionType.MANAGE}
-                >
-                  Manage
-                </MenuItem>
-                <MenuItem
-                  data-cy="org-permission-admin"
-                  value={OrgPermissionType.ADMIN}
-                >
-                  Admin
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-        }
-        infoText={`${org.name} will ${
-          orgPermission === OrgPermissionType.NONE
-            ? "have the same permissions as your default privacy settings."
-            : orgPermission === OrgPermissionType.HIDDEN
-            ? "not be able to view your mentor."
-            : orgPermission === OrgPermissionType.SHARE
-            ? "be able to view your mentor."
-            : orgPermission === OrgPermissionType.ADMIN
-            ? "be able to edit your mentor and permissions."
-            : "be able to edit your mentor."
-        }`}
-      />
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl style={{ width: 150, marginRight: 10 }}>
+            <Select
+              label="View Permissions"
+              value={orgViewPermission}
+              onChange={(
+                event: React.ChangeEvent<{
+                  value: unknown;
+                  name?: unknown;
+                }>
+              ) =>
+                setPermission({
+                  v: event.target.value as OrgViewPermissionType,
+                })
+              }
+            >
+              <MenuItem value={OrgViewPermissionType.NONE}>None</MenuItem>
+              <MenuItem value={OrgViewPermissionType.HIDDEN}>Hidden</MenuItem>
+              <MenuItem value={OrgViewPermissionType.SHARE}>Share</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl style={{ width: 150 }}>
+            <Select
+              label="Edit Permissions"
+              value={orgEditPermission}
+              onChange={(
+                event: React.ChangeEvent<{
+                  value: unknown;
+                  name?: unknown;
+                }>
+              ) =>
+                setPermission({
+                  e: event.target.value as OrgEditPermissionType,
+                })
+              }
+            >
+              <MenuItem value={OrgEditPermissionType.NONE}>None</MenuItem>
+              <MenuItem value={OrgEditPermissionType.MANAGE}>Manage</MenuItem>
+              <MenuItem value={OrgEditPermissionType.ADMIN}>Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        <Typography variant="subtitle1">
+          Your mentor{" "}
+          {orgViewPermission === OrgViewPermissionType.SHARE
+            ? "can"
+            : orgViewPermission === OrgViewPermissionType.HIDDEN
+            ? "cannot"
+            : mentor.isPrivate
+            ? "cannot"
+            : "can"}{" "}
+          be viewed on {org.name}&apos;s home page.
+        </Typography>
+        <Typography variant="subtitle1">
+          Your mentor&apos;s{" "}
+          {orgEditPermission === OrgEditPermissionType.ADMIN
+            ? "data and privacy"
+            : "data"}{" "}
+          {orgEditPermission === OrgEditPermissionType.NONE ? "cannot" : "can"}{" "}
+          be edited by {org.name}&apos;s members.
+        </Typography>
+      </div>
     );
   }
 
@@ -163,38 +186,29 @@ export function MentorPrivacySlide(props: {
       content={
         <div>
           <Typography>General Privacy Permissions:</Typography>
-          <WithTooltip
-            item={
-              <Select
-                data-cy="select-privacy"
-                label="Privacy"
-                value={mentor.isPrivate ? "private" : "public"}
-                style={{ width: 200 }}
-                onChange={(
-                  event: React.ChangeEvent<{
-                    name?: string | undefined;
-                    value: unknown;
-                  }>
-                ) => {
-                  editMentor({
-                    isPrivate: (event.target.value as string) === "private",
-                  });
-                }}
-              >
-                <MenuItem data-cy="public" value="public">
-                  Public
-                </MenuItem>
-                <MenuItem data-cy="private" value="private">
-                  Private
-                </MenuItem>
-              </Select>
-            }
-            infoText={
-              mentor.isPrivate
-                ? "Your mentor can only be viewed by admins or organizations you give share permission to."
-                : "Your mentor can be viewed by everyone except organizations you have hidden from."
-            }
-          />
+          <Select
+            data-cy="select-privacy"
+            label="Privacy"
+            value={mentor.isPrivate ? "private" : "public"}
+            style={{ width: 200 }}
+            onChange={(
+              event: React.ChangeEvent<{
+                name?: string | undefined;
+                value: unknown;
+              }>
+            ) => {
+              editMentor({
+                isPrivate: (event.target.value as string) === "private",
+              });
+            }}
+          >
+            <MenuItem data-cy="public" value="public">
+              Public
+            </MenuItem>
+            <MenuItem data-cy="private" value="private">
+              Private
+            </MenuItem>
+          </Select>
           <Typography style={{ marginTop: 20 }}>
             Organization Privacy Permissions:
           </Typography>

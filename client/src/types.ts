@@ -171,10 +171,13 @@ export interface Mentor {
   virtualBackgroundUrl: string;
 }
 
-export enum OrgPermissionType {
+export enum OrgViewPermissionType {
   NONE = "NONE", // no custom settings, use "isPrivate"
   HIDDEN = "HIDDEN", // org cannot see or use mentor
   SHARE = "SHARE", // org can use mentor as-is
+}
+export enum OrgEditPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
   MANAGE = "MANAGE", // org can edit content
   ADMIN = "ADMIN", // org can edit content and edit sharing settings
 }
@@ -182,7 +185,8 @@ export enum OrgPermissionType {
 export interface OrgPermission {
   orgId: string;
   orgName: string;
-  permission: OrgPermissionType;
+  viewPermission: OrgViewPermissionType;
+  editPermission: OrgEditPermissionType;
 }
 
 export interface Keyword {

@@ -208,7 +208,12 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           style={{ height: tabHeight, overflow: "auto" }}
           value="home-styles"
         >
-          <HomeStyles config={config} updateConfig={editConfig} />
+          <HomeStyles
+            org={org}
+            config={config}
+            accessToken={props.accessToken}
+            updateConfig={editConfig}
+          />
         </TabPanel>
         <TabPanel
           className={styles.tab}

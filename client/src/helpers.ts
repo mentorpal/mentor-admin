@@ -15,7 +15,8 @@ import {
   MentorPanel,
   MentorType,
   Organization,
-  OrgPermissionType,
+  OrgViewPermissionType,
+  OrgEditPermissionType,
   Status,
   User,
   UserRole,
@@ -297,10 +298,10 @@ export function canViewMentorOnHome(
     equals(op.orgId, org?._id)
   );
   if (mentor.isPrivate) {
-    return orgPerm?.permission === OrgPermissionType.SHARE;
+    return orgPerm?.viewPermission === OrgViewPermissionType.SHARE;
   }
   if (orgPerm) {
-    return orgPerm.permission !== OrgPermissionType.HIDDEN;
+    return orgPerm.viewPermission !== OrgViewPermissionType.HIDDEN;
   }
   return true;
 }
@@ -332,8 +333,8 @@ export function canEditMentor(
   }
   const ops = mentor.orgPermissions?.filter(
     (op) =>
-      op.permission === OrgPermissionType.MANAGE ||
-      op.permission === OrgPermissionType.ADMIN
+      op.editPermission === OrgEditPermissionType.MANAGE ||
+      op.editPermission === OrgEditPermissionType.ADMIN
   );
   if (ops) {
     const os = ops.map((op) => op.orgId);
@@ -368,7 +369,7 @@ export function canEditMentorPrivacy(
     return false;
   }
   const ops = mentor.orgPermissions?.filter(
-    (op) => op.permission === OrgPermissionType.ADMIN
+    (op) => op.editPermission === OrgEditPermissionType.ADMIN
   );
   if (ops) {
     const os = ops.map((op) => op.orgId);
