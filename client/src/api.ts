@@ -311,7 +311,8 @@ export async function fetchUsers(
                 isPrivate
                 orgPermissions {
                   orgId
-                  permission
+                  viewPermission
+                  editPermission
                 }
               }
             }
@@ -979,7 +980,8 @@ export async function fetchMentorById(
           virtualBackgroundUrl
           orgPermissions {
             orgId
-            permission
+            viewPermission
+            editPermission
           }
           defaultSubject {
             _id
@@ -1185,7 +1187,8 @@ export async function updateMentorPrivacy(
         orgPermissions: mentor.orgPermissions
           ? mentor.orgPermissions.map((op) => ({
               org: op.orgId,
-              permission: op.permission,
+              viewPermission: op.viewPermission,
+              editPermission: op.editPermission,
             }))
           : [],
       },
@@ -1305,6 +1308,49 @@ export async function uploadVbg(
     },
     accessToken,
     dataPath: ["data", "virtualBackground"],
+  });
+}
+
+export async function uploadHeaderImg(
+  img: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string,
+  org?: Organization
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ org: org }));
+  data.append("image", img);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/header"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "image"],
+  });
+}
+
+export async function uploadFooterImg(
+  img: File,
+  idx: number,
+  accessToken: string,
+  uploadLambdaEndpoint: string,
+  org?: Organization
+): Promise<string> {
+  const data = new FormData();
+  data.append("body", JSON.stringify({ org: org, idx: idx }));
+  data.append("image", img);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/footer"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "image"],
   });
 }
 
@@ -2058,7 +2104,8 @@ export async function fetchMentors(
                 isPrivate
                 orgPermissions {
                   orgId
-                  permission
+                  viewPermission
+                  editPermission
                 }
               }
             }
