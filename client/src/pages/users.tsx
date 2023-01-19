@@ -39,7 +39,13 @@ import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { UseUserData, useWithUsers } from "hooks/graphql/use-with-users";
 import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { Edge, Organization, OrgPermissionType, User, UserRole } from "types";
+import {
+  Edge,
+  Organization,
+  OrgEditPermissionType,
+  User,
+  UserRole,
+} from "types";
 import withLocation from "wrap-with-location";
 import {
   canEditMentor,
@@ -441,8 +447,8 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         );
         if (hasOrgPerms) {
           return (
-            hasOrgPerms.permission === OrgPermissionType.ADMIN ||
-            hasOrgPerms.permission === OrgPermissionType.MANAGE
+            hasOrgPerms.editPermission === OrgEditPermissionType.ADMIN ||
+            hasOrgPerms.editPermission === OrgEditPermissionType.MANAGE
           );
         }
         return false;

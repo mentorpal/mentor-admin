@@ -507,10 +507,10 @@ describe("My Mentor Page", () => {
       assert($el.replace("/admin", ""), "/record")
     );
     cy.location("search").should("equal", "?videoId=C_A1_1_1&back=%2F");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Who are you and what do you do?"
+    );
+    cy.get("[data-cy=question-edit]").should("not.exist");
   });
 
   it("can add a mentor question to a subject", () => {
@@ -623,10 +623,10 @@ describe("My Mentor Page", () => {
       "equal",
       "?videoId=C_A1_1_1&back=%2F%3Fsubject%3Dbackground"
     );
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should("have.text", "Who are you and what do you do?");
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Who are you and what do you do?"
+    );
+    cy.get("[data-cy=question-edit]").should("not.exist");
   });
 
   it("can add a mentor question to a category", () => {

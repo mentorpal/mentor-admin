@@ -1038,24 +1038,16 @@ describe("Setup", () => {
       "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D9"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+    );
     cy.get(".editor-class").should("not.exist");
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please give a short introduction of yourself, which includes your name, current job, and title."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Please give a short introduction of yourself, which includes your name, current job, and title."
+    );
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "");
       cy.get("[data-text]").should("not.have.attr", "disabled");

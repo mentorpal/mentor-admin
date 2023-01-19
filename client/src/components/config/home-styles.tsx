@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Grid,
@@ -16,9 +16,11 @@ import {
   Typography,
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
-import { Config } from "types";
+import { Config, Organization } from "types";
 import { ColorPicker } from "./color-picker";
 import { copyAndRemove, copyAndSet } from "helpers";
+import { uploadFooterImg, uploadHeaderImg } from "api";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,14 +64,62 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function HomeStyles(props: {
+  org: Organization | undefined;
   config: Config;
+  accessToken: string;
   updateConfig: (c: Partial<Config>) => void;
 }): JSX.Element {
   const styles = useStyles();
   const { config, updateConfig } = props;
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
+  const uploadLambdaEndpoint = config.uploadLambdaEndpoint || "";
+
+  const handleHeaderUpload = (file: File) => {
+    setErrorMessage("");
+    setUploadInProgress(true);
+    uploadHeaderImg(file, props.accessToken, uploadLambdaEndpoint, props.org)
+      .then((url) => {
+        setUploadInProgress(false);
+        updateConfig({ styleHeaderLogo: url });
+      })
+      .catch(() => {
+        setUploadInProgress(false);
+        setErrorMessage("Failed to upload image");
+      });
+  };
+
+  const handleFooterUpload = (file: File, idx: number) => {
+    setErrorMessage("");
+    setUploadInProgress(true);
+    uploadFooterImg(
+      file,
+      idx,
+      props.accessToken,
+      uploadLambdaEndpoint,
+      props.org
+    )
+      .then((url) => {
+        setUploadInProgress(false);
+        updateConfig({
+          homeFooterImages: copyAndSet(config.homeFooterImages, idx, url),
+        });
+      })
+      .catch(() => {
+        setUploadInProgress(false);
+        setErrorMessage("Failed to upload image");
+      });
+  };
 
   return (
     <div>
+      <LoadingDialog title={uploadInProgress ? "Uploading..." : ""} />
+      <ErrorDialog
+        error={
+          errorMessage ? { error: errorMessage, message: "Error" } : undefined
+        }
+        clearError={() => setErrorMessage(undefined)}
+      />
       <TextField
         fullWidth
         data-cy="styleHeaderTitle"
@@ -98,7 +148,17 @@ export function HomeStyles(props: {
           shrink: true,
         }}
       />
-      <div style={{ display: "flex", flexDirection: "row", marginBottom: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          justifyItems: "center",
+          alignContent: "center",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
         <TextField
           fullWidth
           data-cy="styleHeaderLogo"
@@ -118,6 +178,17 @@ export function HomeStyles(props: {
           src={config.styleHeaderLogo}
           onClick={() => {
             window.open(config.styleHeaderLogo || "", "_blank");
+          }}
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            if (!e.target.files?.length) {
+              return;
+            } else {
+              handleHeaderUpload(e.target.files[0]);
+            }
           }}
         />
       </div>
@@ -247,6 +318,10 @@ export function HomeStyles(props: {
                 style={{
                   display: "flex",
                   flexDirection: "row",
+                  justifyContent: "center",
+                  justifyItems: "center",
+                  alignContent: "center",
+                  alignItems: "center",
                   marginBottom: 20,
                   width: "100%",
                 }}
@@ -272,6 +347,17 @@ export function HomeStyles(props: {
                   className={styles.thumbnail}
                   src={f}
                   onClick={() => window.open(f || "", "_blank")}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (!e.target.files?.length) {
+                      return;
+                    } else {
+                      handleFooterUpload(e.target.files[0], i);
+                    }
+                  }}
                 />
               </div>
               <TextField
