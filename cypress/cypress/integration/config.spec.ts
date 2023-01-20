@@ -118,10 +118,6 @@ describe("config screen", () => {
       ],
     });
     cy.visit("/config");
-    cy.wait("@FetchConfig");
-    cy.wait("@Mentors");
-    cy.wait("@MentorPanels");
-    cy.wait("@Subjects");
     cy.contains("You must be an admin or content manager to view this page.");
   });
 
