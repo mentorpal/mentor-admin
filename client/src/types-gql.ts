@@ -62,6 +62,7 @@ export interface MentorGQL {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  isArchived: boolean;
   orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];

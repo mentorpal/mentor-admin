@@ -161,6 +161,7 @@ export interface Mentor {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  isArchived: boolean;
   orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
@@ -176,6 +177,7 @@ export enum OrgViewPermissionType {
   HIDDEN = "HIDDEN", // org cannot see or use mentor
   SHARE = "SHARE", // org can use mentor as-is
 }
+
 export enum OrgEditPermissionType {
   NONE = "NONE", // no custom settings, use "isPrivate"
   MANAGE = "MANAGE", // org can edit content
