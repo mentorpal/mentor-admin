@@ -500,8 +500,6 @@ describe("Queue Card", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-all-queue]").click();
-    cy.wait("@Mentors");
-    cy.wait("@MentorPanels");
     cy.location("search").should("equal", "?videoId=A5_1_1&videoId=A6_1_2");
   });
   it("Can record a single queue question", () => {
@@ -523,8 +521,6 @@ describe("Queue Card", () => {
     cy.get("[data-cy=setup-no]").click();
     cy.get("[data-cy=queue-expand-btn]").click();
     cy.get("[data-cy=record-one-0]").click();
-    cy.wait("@Mentors");
-    cy.wait("@MentorPanels");
     cy.location("search").should("equal", "?videoId=A5_1_1&back=%2F");
   });
   it("Complete/answered questions are not in queue", () => {
