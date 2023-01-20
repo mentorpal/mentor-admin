@@ -254,5 +254,24 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=my-mentor-card]").contains("Current Status: Life-Story");
       cy.get("[data-cy=stage-progress]").should("not.exist");
     });
+
+    it("archives mentor", () => {
+      cySetup(cy);
+      cyMockDefault(cy, {
+        mentor: [
+          { ...clint, isArchived: false },
+          { ...clint, isArchived: true },
+        ],
+        gqlQueries: [
+          mockGQL("UpdateMentorDetails", {
+            me: { updateMentorDetails: true },
+          }),
+        ],
+      });
+      cy.visit("/");
+      cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+      cy.get("[data-cy=archive-mentor]").trigger("mouseover").click();
+      cy.get("[data-cy=save-button]").trigger("mouseover").click();
+    });
   });
 });

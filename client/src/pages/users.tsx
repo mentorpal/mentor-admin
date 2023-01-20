@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { navigate } from "gatsby";
 import {
   AppBar,
@@ -14,6 +14,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -48,6 +49,7 @@ import {
 } from "types";
 import withLocation from "wrap-with-location";
 import {
+  canEditContent,
   canEditMentor,
   canEditMentorPrivacy,
   canEditUserRole,
@@ -140,33 +142,54 @@ const columns: ColumnDef[] = [
 ];
 
 function TableFooter(props: {
-  edges: Edge<User>[];
-  hasNext: boolean;
-  hasPrev: boolean;
+  userPagin: UseUserData;
   user: User;
   orgs: Organization[];
-  onNext: () => void;
-  onPrev: () => void;
-  onFilter: (f: string) => void;
+  viewArchivedMentors: boolean;
+  onToggleArchivedMentors: (v: boolean) => void;
 }): JSX.Element {
+  const { userPagin } = props;
   const styles = useStyles();
-  const { hasNext, hasPrev, onNext, onPrev } = props;
+  const canManageContent = canEditContent(props.user);
+  const edges = userPagin.searchData?.edges || [];
+  const hasNext = userPagin.pageData?.pageInfo.hasNextPage || false;
+  const hasPrev = userPagin.pageData?.pageInfo.hasPreviousPage || false;
+
   return (
     <AppBar position="sticky" color="default" className={styles.appBar}>
       <Toolbar>
         <div className={styles.paging}>
-          <IconButton data-cy="prev-page" disabled={!hasPrev} onClick={onPrev}>
+          <IconButton
+            data-cy="prev-page"
+            disabled={!hasPrev}
+            onClick={userPagin.prevPage}
+          >
             <KeyboardArrowLeftIcon />
+          </IconButton>
+          <IconButton
+            data-cy="next-page"
+            disabled={!hasNext}
+            onClick={userPagin.nextPage}
+          >
+            <KeyboardArrowRightIcon />
           </IconButton>
           <Autocomplete
             data-cy="user-filter"
             freeSolo
-            options={props.edges
-              .filter((e) =>
-                canEditMentor(e.node.defaultMentor, props.user, props.orgs)
-              )
-              .map((e) => e.node.name)}
-            onChange={(e, v) => props.onFilter(v || "")}
+            options={edges.map((e) => e.node.name)}
+            onChange={(e, v) => {
+              const value = v || "";
+              userPagin.filter(
+                value
+                  ? {
+                      $or: [
+                        { name: value },
+                        { defaultMentor: { name: value } },
+                      ],
+                    }
+                  : {}
+              );
+            }}
             style={{ width: 300 }}
             renderInput={(params) => (
               <TextField
@@ -176,9 +199,19 @@ function TableFooter(props: {
               />
             )}
           />
-          <IconButton data-cy="next-page" disabled={!hasNext} onClick={onNext}>
-            <KeyboardArrowRightIcon />
-          </IconButton>
+          {canManageContent ? (
+            <span style={{ margin: "15px" }}>
+              View Archived Mentors
+              <Switch
+                data-cy="archive-mentor-switch"
+                data-test={props.viewArchivedMentors}
+                checked={props.viewArchivedMentors}
+                onChange={(e) =>
+                  props.onToggleArchivedMentors(e.target.checked)
+                }
+              />
+            </span>
+          ) : undefined}
         </div>
       </Toolbar>
     </AppBar>
@@ -214,6 +247,11 @@ function UserItem(props: {
       </TableCell>
       <TableCell data-cy="defaultMentor" align="left">
         {mentor?.name || ""}
+        {mentor.isArchived ? (
+          <span style={{ color: "orangered" }}>
+            <i> Archived</i>
+          </span>
+        ) : undefined}
       </TableCell>
       <TableCell data-cy="email" align="left">
         {edge.node.email}
@@ -368,6 +406,8 @@ function UsersTable(props: {
   orgs: Organization[];
   userPagin: UseUserData;
   user: User;
+  viewArchivedMentors: boolean;
+  onToggleArchivedMentors: (v: boolean) => void;
 }): JSX.Element {
   const styles = useStyles();
   return (
@@ -400,16 +440,9 @@ function UsersTable(props: {
       <TableFooter
         user={props.user}
         orgs={props.orgs}
-        edges={props.userPagin.data?.edges || []}
-        hasNext={props.userPagin.pageData?.pageInfo.hasNextPage || false}
-        hasPrev={props.userPagin.pageData?.pageInfo.hasPreviousPage || false}
-        onNext={props.userPagin.nextPage}
-        onPrev={props.userPagin.prevPage}
-        onFilter={(f) =>
-          props.userPagin.filter(
-            f ? { $or: [{ name: f }, { defaultMentor: { name: f } }] } : {}
-          )
-        }
+        userPagin={props.userPagin}
+        viewArchivedMentors={props.viewArchivedMentors}
+        onToggleArchivedMentors={props.onToggleArchivedMentors}
       />
     </div>
   );
@@ -420,6 +453,8 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const orgsPagin = useWithOrganizations(props.accessToken);
   const styles = useStyles();
   const { switchActiveMentor } = useActiveMentor();
+  const [viewArchivedMentors, setViewArchivedMentors] =
+    useState<boolean>(false);
   const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
 
   useEffect(() => {
@@ -427,12 +462,25 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (orgsPagin.data) {
-      userPagin.setPreFilter({ filter: filterEditableUsers });
+    userPagin.setPreFilter({ filter: filterEditableUsers });
+  }, [location.search, orgsPagin.data, viewArchivedMentors]);
+
+  useEffect(() => {
+    if (viewArchivedMentors) {
+      userPagin.setPostSort({ sort: sortArchivedMentors });
+    } else {
+      userPagin.setPostSort();
     }
-  }, [location.search, orgsPagin.data]);
+  }, [viewArchivedMentors]);
+
+  function onToggleArchivedMentors(tf: boolean) {
+    setViewArchivedMentors(tf);
+  }
 
   function filterEditableUsers(u: User): boolean {
+    if (!viewArchivedMentors && u.defaultMentor.isArchived) {
+      return false;
+    }
     const params = new URLSearchParams(location.search);
     // filter users related to org only (member or gave permission to org)
     if (params.get("org")) {
@@ -457,6 +505,16 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     return canEditMentor(u.defaultMentor, props.user, orgs);
   }
 
+  function sortArchivedMentors(a: User, b: User): number {
+    if (a.defaultMentor.isArchived === b.defaultMentor.isArchived) {
+      return 0;
+    }
+    if (a.defaultMentor.isArchived) {
+      return 1;
+    }
+    return -1;
+  }
+
   if (!userPagin.data) {
     return (
       <div className={styles.root}>
@@ -473,6 +531,8 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         user={props.user}
         userPagin={userPagin}
         orgs={orgs}
+        viewArchivedMentors={viewArchivedMentors}
+        onToggleArchivedMentors={onToggleArchivedMentors}
       />
       <ErrorDialog error={userPagin.userDataError} />
       <LoadingDialog title={userPagin.isLoading ? "Loading..." : ""} />

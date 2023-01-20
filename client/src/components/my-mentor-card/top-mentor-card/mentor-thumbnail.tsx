@@ -10,10 +10,11 @@ import CreateIcon from "@material-ui/icons/Create";
 import CloseIcon from "@material-ui/icons/Close";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
+
+import { TooltipStep } from "components/home";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
-import { TooltipStep } from "components/home";
 
 const ColorTooltip = withStyles({
   tooltip: {
@@ -55,6 +56,7 @@ function MentorThumbnail(props: {
   } = props;
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
+  const isArchived = getData((ms) => ms.data?.isArchived);
   const classes = useStyles();
   const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
 
@@ -73,7 +75,6 @@ function MentorThumbnail(props: {
           className="mentorName"
         >
           <div style={{ display: "flex" }}>
-            {/* this is the pencil editing icon */}
             <div style={{ margin: "10px 0 0 0" }}>
               <IconButton
                 data-cy="edit-mentor-data"
@@ -142,7 +143,6 @@ function MentorThumbnail(props: {
                 </b>
               </ColorTooltip>
             </div>
-
             <EditMentorInfoModal
               handleClose={handleClose}
               editMentor={editMentor}
@@ -202,6 +202,25 @@ function MentorThumbnail(props: {
             }}
           />
         </div>
+      </Grid>
+      <Grid
+        container
+        alignItems="flex-start"
+        justify="flex-start"
+        style={{ marginTop: 5 }}
+        xs={10}
+      >
+        <Grid item>
+          <label>
+            Archived
+            <input
+              type="checkbox"
+              data-cy="archive-mentor"
+              defaultChecked={isArchived}
+              onChange={(e) => editMentor({ isArchived: e.target.checked })}
+            />
+          </label>
+        </Grid>
       </Grid>
     </Grid>
   );
