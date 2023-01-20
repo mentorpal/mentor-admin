@@ -22,6 +22,14 @@ const mentors = {
     edges: [
       {
         node: {
+          _id: "62aa503082f27ce347bdc7f8",
+          name: "Archived Mentor",
+          title: "Archived",
+          isArchived: true,
+        },
+      },
+      {
+        node: {
           _id: "62b4f62482f27ce347ba02e2",
           name: "Mentor 1",
           title: "Captain",
@@ -34,6 +42,20 @@ const mentors = {
           title: "Crewmate",
         },
       },
+      {
+        node: {
+          _id: "62aa503082f27ce347bdc7f6",
+          name: "Private Mentor",
+          title: "Private",
+          isPrivate: true,
+          orgPermissions: [
+            {
+              orgId: "csuf",
+              viewPermission: "SHARE",
+            },
+          ],
+        },
+      },
     ],
   },
 };
@@ -44,10 +66,27 @@ const mentorPanels = {
       {
         node: {
           _id: "6222512cf2cca4f228cd2e47",
-          mentors: ["62b4f62482f27ce347ba02e2", "62aa503082f27ce347bdc7f4"],
+          mentors: [
+            "62b4f62482f27ce347ba02e2",
+            "62aa503082f27ce347bdc7f4",
+            "62aa503082f27ce347bdc7f8",
+          ],
           subject: "background",
           title: "CSUF Alumni Panel",
           subtitle: "Ask questions directly to Alumni from CSUF",
+        },
+      },
+      {
+        node: {
+          _id: "6222512cf2cca4f228cd2e48",
+          mentors: [
+            "62b4f62482f27ce347ba02e2",
+            "62aa503082f27ce347bdc7f4",
+            "62aa503082f27ce347bdc7f6",
+          ],
+          subject: "background",
+          title: "Private Mentor Panel",
+          subtitle: "Private",
         },
       },
     ],
@@ -899,6 +938,45 @@ describe("config screen", () => {
     cy.get("[data-cy=save-button").trigger("mouseover").click();
   });
 
+  it("can toggle archived mentors", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: config,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Subject", subjects),
+        mockGQL("Mentors", mentors),
+        mockGQL("MentorPanels", mentorPanels),
+        mockGQL("Organizations", organizations),
+      ],
+    });
+    cy.visit("/config");
+    cy.get("[data-cy=mentor-0]").within(($mentor) => {
+      cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+    });
+    cy.get("[data-cy=mentor-1]").within(($mentor) => {
+      cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+    });
+    cy.get("[data-cy=mentor-2]").should("not.exist");
+    cy.get("[data-cy=archive-mentor-switch]").click();
+    cy.get("[data-cy=mentor-0]").within(($mentor) => {
+      cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+    });
+    cy.get("[data-cy=mentor-1]").within(($mentor) => {
+      cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+    });
+    cy.get("[data-cy=mentor-2]").within(($mentor) => {
+      cy.get("[data-cy=name]").should(
+        "have.attr",
+        "data-test",
+        "Archived Mentor"
+      );
+    });
+  });
+
   describe("edit config for an organization", () => {
     it("if super admin", () => {
       cyMockDefault(cy, {
@@ -1026,6 +1104,88 @@ describe("config screen", () => {
       cy.visit("/config?org=csuf");
       cy.contains("Manage CSUF Config");
       cy.get("[data-cy=select-org]").should("exist");
+    });
+
+    it("can view private mentors with SHARE", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+      });
+      cy.get("[data-cy=mentor-2]").should("not.exist");
+      cy.visit("/config?org=csuf");
+      cy.get("[data-cy=mentor-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 1");
+      });
+      cy.get("[data-cy=mentor-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should("have.attr", "data-test", "Mentor 2");
+      });
+      cy.get("[data-cy=mentor-2]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "Private Mentor"
+        );
+      });
+    });
+
+    it("can view private mentor panels with SHARE", () => {
+      cyMockDefault(cy, {
+        mentor: [newMentor],
+        config: config,
+        login: {
+          ...loginDefault,
+          user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+        },
+        gqlQueries: [
+          mockGQL("Subject", subjects),
+          mockGQL("Mentors", mentors),
+          mockGQL("MentorPanels", mentorPanels),
+          mockGQL("Organizations", organizations),
+        ],
+      });
+      cy.visit("/config");
+      cy.get("[data-cy=toggle-featured-mentor-panels]").click();
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+      });
+      cy.get("[data-cy=mentor-panel-1]").should("not.exist");
+      cy.visit("/config?org=csuf");
+      cy.get("[data-cy=toggle-featured-mentor-panels]").click();
+      cy.get("[data-cy=mentor-panel-0]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "CSUF Alumni Panel"
+        );
+      });
+      cy.get("[data-cy=mentor-panel-1]").within(($mentor) => {
+        cy.get("[data-cy=name]").should(
+          "have.attr",
+          "data-test",
+          "Private Mentor Panel"
+        );
+      });
     });
   });
 });

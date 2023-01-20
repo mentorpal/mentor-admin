@@ -14,9 +14,9 @@ import {
 } from "./use-with-static-data-connection";
 
 export interface UseUserData extends UseStaticDataConnection<User> {
+  userDataError?: LoadingError;
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
-  userDataError?: LoadingError;
 }
 
 export function useWithUsers(accessToken: string): UseUserData {
@@ -26,11 +26,13 @@ export function useWithUsers(accessToken: string): UseUserData {
     error,
     isLoading,
     searchParams,
+    searchData,
     pageData,
     pageSearchParams,
     sortBy,
     filter,
     setPreFilter,
+    setPostSort,
     nextPage,
     prevPage,
     reloadData,
@@ -75,11 +77,13 @@ export function useWithUsers(accessToken: string): UseUserData {
     isLoading,
     searchParams,
     pageSearchParams,
+    searchData,
     pageData,
     userDataError,
     sortBy,
     filter,
     setPreFilter,
+    setPostSort,
     nextPage,
     prevPage,
     reloadData,

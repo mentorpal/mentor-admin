@@ -128,28 +128,39 @@ function SubjectsPage(props: {
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
     filter: filterSubjects,
+    setPreFilter,
+    setPostSort,
   } = useWithSubjects();
 
   useEffect(() => {
+    filterSubjects({
+      type: viewUtteranceSubjects
+        ? SubjectTypes.UTTERANCES
+        : SubjectTypes.SUBJECT,
+    });
+  }, [viewUtteranceSubjects]);
+
+  useEffect(() => {
     if (viewArchivedSubjects) {
-      filterSubjects({
-        type: viewUtteranceSubjects
-          ? SubjectTypes.UTTERANCES
-          : SubjectTypes.SUBJECT,
+      setPreFilter();
+      setPostSort({
+        sort: (a, b) => {
+          if (a.isArchived === b.isArchived) {
+            return 0;
+          }
+          if (a.isArchived) {
+            return 1;
+          }
+          return -1;
+        },
       });
     } else {
-      filterSubjects({
-        $and: [
-          {
-            type: viewUtteranceSubjects
-              ? SubjectTypes.UTTERANCES
-              : SubjectTypes.SUBJECT,
-          },
-          { $or: [{ isArchived: false }, { _id: { $in: mentorSubjectIds } }] },
-        ],
+      setPreFilter({
+        filter: (s) => !s.isArchived || mentorSubjectIds.includes(s._id),
       });
+      setPostSort();
     }
-  }, [viewArchivedSubjects, viewUtteranceSubjects, mentorSubjectIds.length]);
+  }, [viewArchivedSubjects, mentorSubjectIds.length]);
 
   function toggleSubject(subject: Subject) {
     if (!editedMentor) {

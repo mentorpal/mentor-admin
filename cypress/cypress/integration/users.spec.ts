@@ -177,4 +177,79 @@ describe("users screen", () => {
       cy.get("[data-cy=select-privacy]").contains("Private");
     });
   });
+
+  it("can toggle archived mentors", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", {
+          users: {
+            edges: [
+              {
+                cursor: "cursor 3",
+                node: {
+                  _id: "archived",
+                  name: "Archived",
+                  email: "archived@mentor.com",
+                  userRole: UserRole.USER,
+                  defaultMentor: {
+                    _id: "clintanderson",
+                    name: "User",
+                    isPrivate: false,
+                    isArchived: true,
+                  },
+                },
+              },
+              ...users.edges,
+            ],
+          },
+        }),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-1]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Content Manager");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-2]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "User");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=archive-mentor-switch]").should(
+      "have.attr",
+      "data-test",
+      "false"
+    );
+    cy.get("[data-cy=archive-mentor-switch]").click();
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Admin User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Admin");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-1]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Content Manager");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "Content Manager");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-2]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "User");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "User");
+      cy.get("[data-cy=select-role]").should("exist");
+    });
+    cy.get("[data-cy=user-3]").within(($within) => {
+      cy.get("[data-cy=name]").should("have.text", "Archived");
+      cy.get("[data-cy=defaultMentor]").should("have.text", "User Archived");
+    });
+  });
 });
