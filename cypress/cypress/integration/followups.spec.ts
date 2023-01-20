@@ -126,7 +126,6 @@ describe("generating followups", () => {
       mentor: [chatMentor],
       gqlQueries: [
         mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
-        mockGQL("FetchUploadTasks", []),
         mockGQL("Subject", [{ subject: [] }]),
       ],
     });

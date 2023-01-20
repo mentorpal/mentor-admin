@@ -60,12 +60,12 @@ function ImportPage(): JSX.Element {
       />
       <div style={{ padding: 10 }}>
         <Typography data-cy="mentor-name">
-          <p>
+          <span>
             Mentor being replaced: {<br />}
             {mentorName ? `Name: ${mentorName}` : ""} {<br />}
             {mentorTitle ? `Title: ${mentorTitle}` : ""} {<br />}
             {mentorId ? `Mentor ID: ${mentorId}` : ""}
-          </p>
+          </span>
         </Typography>
         <Button
           data-cy="download-mentor"

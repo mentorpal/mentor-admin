@@ -115,11 +115,11 @@ export default function ImportView(props: {
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <DialogContent className={classes.root}>
         <Typography data-cy="mentor-name">
-          <p>
+          <span>
             Mentor being replaced: {<br />}
             {mentorName ? `Name: ${mentorName}` : ""} {<br />}
             {mentorId ? `Mentor ID: ${mentorId}` : ""}
-          </p>
+          </span>
         </Typography>
         <Button
           data-cy="remove-all-old-mentor-data"

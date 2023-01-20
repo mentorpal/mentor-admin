@@ -323,7 +323,8 @@ export function cyMockDefault(
     mockGQL("TrendingUserQuestions", { userQuestions: { edges: [] } }),
     mockGQL("Mentors", { edges: [] }),
     mockGQL("MentorPanels", { edges: [] }),
-    mockGQL("Keywords", { edges: [] }),
+    mockGQL("Keywords", { keywords: { edges: [] } }),
+    mockGQL("Organizations", { organizations: { edges: [] } }),
   ]);
 }
 
