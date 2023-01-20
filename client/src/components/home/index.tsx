@@ -458,11 +458,7 @@ function HomePage(props: {
         >
           <Select
             data-cy="select-subject"
-            value={
-              reviewAnswerState.selectedSubject
-                ? mentorSubjectNamesById[reviewAnswerState.selectedSubject]
-                : undefined
-            }
+            defaultValue={""}
             displayEmpty
             onMouseEnter={() => {
               hasSeenTooltips && setRecordSubjectTooltipOpen(true);
@@ -485,7 +481,7 @@ function HomePage(props: {
               reviewAnswerState.selectSubject(event.target.value as string);
             }}
           >
-            <MenuItem data-cy="all-subjects" value={undefined}>
+            <MenuItem data-cy="all-subjects" value={""}>
               Show All Subjects
             </MenuItem>
             {Object.entries(mentorSubjectNamesById).map(([id, name]) => (
@@ -493,14 +489,20 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
-            <Button
-              data-cy="add-a-subject"
-              onClick={() => {
-                navigate("/subjects");
-              }}
+            <MenuItem
+              key={"add-subject"}
+              data-cy={"add-subject"}
+              value={"add-subject"}
             >
-              + Add a subject
-            </Button>
+              <Button
+                data-cy="add-a-subject"
+                onClick={() => {
+                  navigate("/subjects");
+                }}
+              >
+                + Add a subject
+              </Button>
+            </MenuItem>
           </Select>
         </ColorTooltip>
       </div>

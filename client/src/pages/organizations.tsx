@@ -487,34 +487,40 @@ function OrganizationItem(props: {
       </TableCell>
       <TableCell data-cy="actions" align="right">
         <Tooltip style={{ margin: 10 }} title="Edit" arrow>
-          <IconButton
-            data-cy="edit"
-            onClick={() => props.onEdit(org)}
-            className={styles.normalButton}
-            disabled={!hasEditPermission}
-          >
-            <EditIcon />
-          </IconButton>
+          <span>
+            <IconButton
+              data-cy="edit"
+              onClick={() => props.onEdit(org)}
+              className={styles.normalButton}
+              disabled={!hasEditPermission}
+            >
+              <EditIcon />
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip style={{ margin: 10 }} title="Config" arrow>
-          <IconButton
-            data-cy="config"
-            onClick={() => navigate(`/config?org=${org._id}`)}
-            className={styles.normalButton}
-            disabled={!hasEditPermission}
-          >
-            <SettingsIcon />
-          </IconButton>
+          <span>
+            <IconButton
+              data-cy="config"
+              onClick={() => navigate(`/config?org=${org._id}`)}
+              className={styles.normalButton}
+              disabled={!hasEditPermission}
+            >
+              <SettingsIcon />
+            </IconButton>
+          </span>
         </Tooltip>
         <Tooltip style={{ margin: 10 }} title="Users" arrow>
-          <IconButton
-            data-cy="users"
-            onClick={() => navigate(`/users?org=${org._id}`)}
-            className={styles.normalButton}
-            disabled={!hasEditPermission}
-          >
-            <PersonIcon />
-          </IconButton>
+          <span>
+            <IconButton
+              data-cy="users"
+              onClick={() => navigate(`/users?org=${org._id}`)}
+              className={styles.normalButton}
+              disabled={!hasEditPermission}
+            >
+              <PersonIcon />
+            </IconButton>
+          </span>
         </Tooltip>
       </TableCell>
     </TableRow>

@@ -88,7 +88,6 @@ export function SelectKeywordsSlide(props: {
   if (!mentor) {
     return <div />;
   }
-
   return (
     <Slide
       classes={classes}
@@ -116,6 +115,9 @@ export function SelectKeywordsSlide(props: {
                       freeSolo
                       options={kv[1]}
                       getOptionLabel={(option: Keyword) => option.name}
+                      getOptionSelected={(option, value) =>
+                        option._id === value._id
+                      }
                       onChange={(e, v) => {
                         if (typeof v === "string") {
                           const kw = keywords.find((k) => k.name === v);

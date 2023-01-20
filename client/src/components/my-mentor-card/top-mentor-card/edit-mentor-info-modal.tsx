@@ -19,18 +19,6 @@ import React from "react";
 import { Mentor, MentorType } from "types";
 
 const useStyles = makeStyles((theme: Theme) => ({
-  homeThumbnail: {
-    position: "relative",
-    width: "78%",
-    height: 180,
-  },
-  siteThumbnail: {
-    width: 180,
-    height: 135,
-  },
-  title: {
-    fontWeight: "bold",
-  },
   inputField: {
     width: "100%",
     margin: 10,
@@ -77,7 +65,7 @@ function EditMentorInfoModal(props: {
           >
             <Fade in={open}>
               <div className={classes.paper}>
-                <Grid item alignItems="center" xs={12} md={12}>
+                <Grid item xs={12} md={12}>
                   <TextField
                     data-cy="mentor-name"
                     label="Full Name"
