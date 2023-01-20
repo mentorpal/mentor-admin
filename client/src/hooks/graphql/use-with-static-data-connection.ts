@@ -19,6 +19,7 @@ export interface UseStaticDataConnection<T> {
   error?: LoadingError;
   isLoading: boolean;
   searchParams: SearchParams;
+  searchData?: Connection<T>;
   pageData?: Connection<T>;
   pageSearchParams: SearchParams;
   reloadData: () => void;
@@ -28,13 +29,19 @@ export interface UseStaticDataConnection<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter: (f: Record<string, any>) => void;
   setPreFilter: (pf?: PreFilter<T>) => void;
+  setPostSort: (ps?: PostSort<T>) => void;
 }
 
 export interface StaticSearchParams extends SearchParams {
   sortBySub?: string[];
 }
+
 export interface PreFilter<T> {
   filter: (v: T) => boolean;
+}
+
+export interface PostSort<T> {
+  sort: (a: T, b: T) => number;
 }
 
 export function useWithStaticDataConnection<T>(
@@ -48,6 +55,9 @@ export function useWithStaticDataConnection<T>(
     ...initalSearchParams,
   });
   const [preFilter, setPreFilter] = useState<PreFilter<T>>();
+  const [postSort, setPostSort] = useState<PostSort<T>>();
+  const [searchData, setSearchData] = useState<Connection<T>>();
+
   const { data, searchParams, isLoading, error, reloadData } =
     useWithDataConnection<T>(fetch, {
       ...pageSearchParams,
@@ -68,7 +78,18 @@ export function useWithStaticDataConnection<T>(
       },
     };
     setPageData(pd);
-  }, [data, page, pageSearchParams, preFilter]);
+    setSearchData({
+      ...data,
+      edges: data.edges
+        .filter((e) => (preFilter ? preFilter.filter(e.node) : true))
+        .sort((a, b) => {
+          if (!postSort) {
+            return 0;
+          }
+          return postSort.sort(a.node, b.node);
+        }),
+    });
+  }, [data, page, pageSearchParams, preFilter, postSort]);
 
   function sortFilter(e: Edge<T>[]): Edge<T>[] {
     let edges = e.filter((edge) => !preFilter || preFilter.filter(edge.node));
@@ -83,6 +104,9 @@ export function useWithStaticDataConnection<T>(
           pageSearchParams.sortBySub || []
         )
       );
+    }
+    if (postSort) {
+      edges = edges.sort((a, b) => postSort.sort(a.node, b.node));
     }
     if (Object.keys(pageSearchParams.filter).length > 0) {
       edges = edges.filter((e) =>
@@ -219,6 +243,7 @@ export function useWithStaticDataConnection<T>(
 
   return {
     data,
+    searchData,
     error,
     isLoading,
     searchParams,
@@ -230,5 +255,6 @@ export function useWithStaticDataConnection<T>(
     nextPage,
     prevPage,
     setPreFilter,
+    setPostSort,
   };
 }

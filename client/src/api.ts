@@ -309,6 +309,7 @@ export async function fetchUsers(
                 _id
                 name
                 isPrivate
+                isArchived
                 orgPermissions {
                   orgId
                   viewPermission
@@ -779,6 +780,7 @@ export async function fetchUserQuestions(
               mentor {
                 _id
                 name
+                isArchived
               }
               classifierAnswer {
                 _id
@@ -976,6 +978,7 @@ export async function fetchMentorById(
           lastPreviewedAt
           isDirty
           isPrivate
+          isArchived
           hasVirtualBackground
           virtualBackgroundUrl
           orgPermissions {
@@ -1134,6 +1137,7 @@ export async function updateMentorDetails(
           allowContact: mentor.allowContact,
           mentorType: mentor.mentorType,
           isPrivate: mentor.isPrivate,
+          isArchived: mentor.isArchived,
           hasVirtualBackground: mentor.hasVirtualBackground,
           virtualBackgroundUrl: mentor.virtualBackgroundUrl,
         },
@@ -2102,6 +2106,7 @@ export async function fetchMentors(
                 name
                 title
                 isPrivate
+                isArchived
                 orgPermissions {
                   orgId
                   viewPermission

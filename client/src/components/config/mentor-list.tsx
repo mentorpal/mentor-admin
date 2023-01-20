@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   DragDropContext,
   Draggable,
@@ -22,16 +22,17 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  Switch,
   TextField,
 } from "@material-ui/core";
 import LaunchIcon from "@material-ui/icons/Launch";
 import DragHandleIcon from "@material-ui/icons/DragHandle";
+import { Autocomplete } from "@material-ui/lab";
 
 import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, Organization } from "types";
 import { MentorGQL } from "types-gql";
-import { Autocomplete } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -78,7 +79,9 @@ function MentorItem(props: {
         <ListItemText
           data-cy="name"
           data-test={mentor.name}
-          primary={mentor.name}
+          primary={
+            mentor.isArchived ? `${mentor.name} (Archived)` : mentor.name
+          }
           secondary={mentor.title}
           style={{ flexGrow: 1 }}
         />
@@ -146,7 +149,28 @@ export function MentorList(props: {
   const styles = useStyles();
   const { mentors } = props;
   const { height: windowHeight } = useWithWindowSize();
+  const [_mentors, setMentors] = useState<MentorGQL[]>(mentors);
   const [filter, setFilter] = useState<string>();
+  const [viewArchivedMentors, setViewArchivedMentors] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (viewArchivedMentors) {
+      setMentors(
+        [...mentors].sort((a, b) => {
+          if (a.isArchived === b.isArchived) {
+            return 0;
+          }
+          if (a.isArchived) {
+            return 1;
+          }
+          return -1;
+        })
+      );
+    } else {
+      setMentors(mentors.filter((m) => !m.isArchived));
+    }
+  }, [mentors, viewArchivedMentors]);
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
@@ -167,7 +191,7 @@ export function MentorList(props: {
               style={{ height: windowHeight - 350, overflow: "auto" }}
               {...provided.droppableProps}
             >
-              {mentors
+              {_mentors
                 .filter(
                   (m) =>
                     filter === undefined ||
@@ -210,7 +234,7 @@ export function MentorList(props: {
       <Autocomplete
         data-cy="mentor-filter"
         freeSolo
-        options={mentors.map((e) => e.name)}
+        options={_mentors.map((e) => e.name)}
         onChange={(e, v) => setFilter(v || "")}
         style={{ width: "100%" }}
         renderInput={(params) => (
@@ -221,6 +245,15 @@ export function MentorList(props: {
           />
         )}
       />
+      <span style={{ margin: "15px" }}>
+        View Archived Mentors
+        <Switch
+          data-cy="archive-mentor-switch"
+          data-test={viewArchivedMentors}
+          checked={viewArchivedMentors}
+          onChange={() => setViewArchivedMentors(!viewArchivedMentors)}
+        />
+      </span>
     </div>
   );
 }

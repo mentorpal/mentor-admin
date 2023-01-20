@@ -71,6 +71,7 @@ export interface Mentor {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  isArchived: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
   keywords: Keyword[];

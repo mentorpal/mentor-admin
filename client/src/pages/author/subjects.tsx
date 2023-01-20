@@ -130,7 +130,8 @@ function SubjectsPage(): JSX.Element {
     sortBy: subjectsSortBy,
     nextPage: subjectsNextPage,
     prevPage: subjectsPrevPage,
-    filter: filterSubjects,
+    setPreFilter,
+    setPostSort,
   } = useWithSubjects();
 
   useEffect(() => {
@@ -140,11 +141,23 @@ function SubjectsPage(): JSX.Element {
 
   useEffect(() => {
     if (viewArchivedSubjects) {
-      filterSubjects({});
-    } else {
-      filterSubjects({
-        $or: [{ isArchived: false }, { _id: { $in: mentorSubjectIds } }],
+      setPreFilter();
+      setPostSort({
+        sort: (a, b) => {
+          if (a.isArchived === b.isArchived) {
+            return 0;
+          }
+          if (a.isArchived) {
+            return 1;
+          }
+          return -1;
+        },
       });
+    } else {
+      setPreFilter({
+        filter: (s) => !s.isArchived || mentorSubjectIds.includes(s._id),
+      });
+      setPostSort();
     }
   }, [viewArchivedSubjects, mentorSubjectIds.length]);
 
