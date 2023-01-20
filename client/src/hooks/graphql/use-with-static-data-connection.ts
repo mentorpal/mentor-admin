@@ -27,10 +27,14 @@ export interface UseStaticDataConnection<T> {
   sortBy: (attribute: string, subAttribute?: string[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter: (f: Record<string, any>) => void;
+  setPreFilter: (pf?: PreFilter<T>) => void;
 }
 
 export interface StaticSearchParams extends SearchParams {
   sortBySub?: string[];
+}
+export interface PreFilter<T> {
+  filter: (v: T) => boolean;
 }
 
 export function useWithStaticDataConnection<T>(
@@ -43,6 +47,7 @@ export function useWithStaticDataConnection<T>(
     ...defaultSearchParams,
     ...initalSearchParams,
   });
+  const [preFilter, setPreFilter] = useState<PreFilter<T>>();
   const { data, searchParams, isLoading, error, reloadData } =
     useWithDataConnection<T>(fetch, {
       ...pageSearchParams,
@@ -63,10 +68,10 @@ export function useWithStaticDataConnection<T>(
       },
     };
     setPageData(pd);
-  }, [data, page, pageSearchParams]);
+  }, [data, page, pageSearchParams, preFilter]);
 
   function sortFilter(e: Edge<T>[]): Edge<T>[] {
-    let edges = [...e];
+    let edges = e.filter((edge) => !preFilter || preFilter.filter(edge.node));
     if (pageSearchParams.sortBy) {
       const sortAscending = pageSearchParams.sortAscending ? 1 : -1;
       edges = edges.sort((a, b) =>
@@ -224,5 +229,6 @@ export function useWithStaticDataConnection<T>(
     filter,
     nextPage,
     prevPage,
+    setPreFilter,
   };
 }

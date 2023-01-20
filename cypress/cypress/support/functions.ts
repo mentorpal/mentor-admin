@@ -102,6 +102,7 @@ export interface Config {
   uploadLambdaEndpoint: string;
   styleHeaderLogo: string;
   styleHeaderColor: string;
+  styleHeaderText: string;
   styleHeaderTextColor: string;
   displayGuestPrompt: boolean;
   disclaimerTitle: string;
@@ -130,6 +131,7 @@ export const CONFIG_DEFAULT: Config = {
   uploadLambdaEndpoint: "https://lambdaendpoint.com/upload",
   styleHeaderLogo: "",
   styleHeaderColor: "",
+  styleHeaderText: "",
   styleHeaderTextColor: "",
   displayGuestPrompt: true,
   disclaimerTitle: "",
@@ -234,6 +236,7 @@ export function cyMockDefault(
   cyMockEncodeSentences(cy);
   cyMockTrain(cy);
   cyMockGoogleLogin(cy);
+  cyMockXapiInit(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -371,6 +374,30 @@ export function cyMockTrain(
           data: {
             statusUrl: params.statusUrl || TRAIN_STATUS_URL,
           },
+          errors: null,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockXapiInit(
+  cy,
+  params: {
+    statusCode?: number;
+  } = {}
+): void {
+  params = params || {};
+  cy.intercept("/lrs_endpoint", (req) => {
+    req.alias = "lrs_endpoint";
+    req.reply(
+      staticResponse({
+        statusCode: params.statusCode || 200,
+        body: {
+          data: {},
           errors: null,
         },
         headers: {

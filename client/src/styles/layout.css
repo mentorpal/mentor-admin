@@ -238,3 +238,19 @@ div.jsoneditor {
 .toolbar-class {
   border: 1px solid rgb(204, 204, 204);
 }
+
+
+.app-container {
+  height: 95vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.form-wrapper {
+  width: 50%;
+  display: flex;
+  justify-content: space-between;
+}

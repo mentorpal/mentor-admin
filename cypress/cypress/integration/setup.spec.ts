@@ -110,6 +110,77 @@ const subjectData = [
   },
 ];
 
+const organizations = {
+  organizations: {
+    edges: [
+      {
+        node: {
+          _id: "csuf",
+          uuid: "csuf",
+          name: "CSUF",
+          subdomain: "careerfair",
+          isPrivate: false,
+          members: [
+            {
+              user: {
+                _id: "admin",
+                name: "Admin",
+              },
+              role: UserRole.ADMIN,
+            },
+            {
+              user: {
+                _id: "contentmanager",
+                name: "Content Manager",
+              },
+              role: UserRole.CONTENT_MANAGER,
+            },
+            {
+              user: {
+                _id: "user",
+                name: "User",
+              },
+              role: UserRole.USER,
+            },
+          ],
+        },
+      },
+      {
+        node: {
+          _id: "usc",
+          uuid: "usc",
+          name: "USC",
+          subdomain: "usc",
+          isPrivate: false,
+          members: [
+            {
+              user: {
+                _id: "admin",
+                name: "Admin",
+              },
+              role: UserRole.ADMIN,
+            },
+            {
+              user: {
+                _id: "contentmanager",
+                name: "Content Manager",
+              },
+              role: UserRole.CONTENT_MANAGER,
+            },
+            {
+              user: {
+                _id: "user",
+                name: "User",
+              },
+              role: UserRole.USER,
+            },
+          ],
+        },
+      },
+    ],
+  },
+};
+
 Cypress.on("uncaught:exception", (err, runnable) => {
   console.error(err);
   return false;
@@ -123,13 +194,14 @@ export enum SetupScreen {
   Welcome = 0,
   Tell_Us_About_Yourself = 1,
   Pick_Mentor_Type = 2,
-  My_Goal = 3,
-  Experiences_Identities = 4,
-  Select_Subjects = 5,
-  Start_Recordin = 6,
-  Idle_Video_Tips = 7,
-  Idle_And_Initial_Recordings = 8,
-  Build_Mentor = 9,
+  Mentor_Privacy = 3,
+  My_Goal = 4,
+  Experiences_Identities = 5,
+  Select_Subjects = 6,
+  Start_Recordin = 7,
+  Idle_Video_Tips = 8,
+  Idle_And_Initial_Recordings = 9,
+  Build_Mentor = 10,
 }
 
 export function cyVisitSetupScreen(cy, screen: SetupScreen) {
@@ -159,6 +231,11 @@ describe("Setup", () => {
       cy.get("[data-cy=slide-title]").should(
         "have.text",
         "Pick a mentor type."
+      );
+      cy.get("[data-cy=next-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
+        "Set privacy settings."
       );
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should("have.text", "My Goal");
@@ -225,6 +302,11 @@ describe("Setup", () => {
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
       cy.get("[data-cy=slide-title]").should(
         "have.text",
+        "Set privacy settings."
+      );
+      cy.get("[data-cy=back-btn]").trigger("mouseover").click();
+      cy.get("[data-cy=slide-title]").should(
+        "have.text",
         "Pick a mentor type."
       );
       cy.get("[data-cy=back-btn]").trigger("mouseover").click();
@@ -258,6 +340,11 @@ describe("Setup", () => {
         .trigger("mouseover")
         .click();
       cy.contains("Pick a mentor type.");
+      cy.get("[data-cy=radio]")
+        .eq(SetupScreen.Mentor_Privacy)
+        .trigger("mouseover")
+        .click();
+      cy.contains("Set privacy settings.");
       cy.get("[data-cy=radio]")
         .eq(SetupScreen.My_Goal)
         .trigger("mouseover")
@@ -308,6 +395,8 @@ describe("Setup", () => {
       cy.get("[data-cy=slide]").contains("Tell us a little about yourself.");
       cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
       cy.get("[data-cy=slide]").contains("Pick a mentor type.");
+      cyVisitSetupScreen(cy, SetupScreen.Mentor_Privacy);
+      cy.get("[data-cy=slide]").contains("Set privacy settings.");
       cyVisitSetupScreen(cy, SetupScreen.My_Goal);
       cy.contains("My Goal");
       cyVisitSetupScreen(cy, SetupScreen.Experiences_Identities);
@@ -394,11 +483,29 @@ describe("Setup", () => {
     cyMockDefault(cy, {
       ...baseMock,
       mentor: [
-        { ...setup0, name: "", title: "" },
-        setup1,
-        setup2,
-        setup3,
-        { ...setup3, email: "clint@anderson.com" },
+        { ...setup0, firstName: "", name: "", title: "", email: "" },
+        { ...setup0, firstName: "Clint", name: "", title: "", email: "" },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "",
+          email: "",
+        },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "Nuclear Electrician's Mate",
+          email: "",
+        },
+        {
+          ...setup0,
+          firstName: "Clint",
+          name: "Clinton Anderson",
+          title: "Nuclear Electrician's Mate",
+          email: "clint@anderson.com",
+        },
       ],
       gqlQueries: [
         mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
@@ -539,11 +646,11 @@ describe("Setup", () => {
     // save changes
     cy.matchImageSnapshot(snapname("type-slide-1"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("My Goal");
+    cy.contains("Set privacy settings.");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.matchImageSnapshot(snapname("type-slide-2"));
-    cy.get("[data-cy=radio]").should("have.length", 9);
+    cy.get("[data-cy=radio]").should("have.length", 10);
     // select video type
     cy.get("[data-cy=slide]").within(($slide) => {
       cy.getSettled("[data-cy=select-chat-type]", { retries: 4 })
@@ -560,17 +667,30 @@ describe("Setup", () => {
     // save changes
     cy.matchImageSnapshot(snapname("type-slide-3"));
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
-    cy.contains("My Goal");
+    cy.contains("Set privacy settings.");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
-      .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
+      .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
     cy.get("[data-cy=back-btn]").trigger("mouseover").click();
     cy.contains("Pick a mentor type");
     cy.get("[data-cy=next-btn]")
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(0, 128, 0)");
-    cy.get("[data-cy=radio]").should("have.length", 10);
+    cy.get("[data-cy=radio]").should("have.length", 11);
     cy.matchImageSnapshot(snapname("type-slide-4"));
+  });
+
+  it("Shows mentor privacy slide", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...setup0, mentorType: null, subjects: subjectData },
+      gqlQueries: [
+        mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+        mockGQL("Organizations", organizations),
+      ],
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Mentor_Privacy);
+    cy.contains("Set privacy settings.");
   });
 
   it("Shows select keywords slide", () => {
@@ -796,7 +916,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/subjects")
     );
-    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D5");
+    cy.location("search").should("contain", "?back=%2Fsetup%3Fi%3D6");
     cy.get("[data-cy=subjects]").children().should("have.length", 2);
     cy.get("[data-cy=subjects]").within(($subjects) => {
       cy.get("[data-cy=subject-0]").within(($subject) => {
@@ -849,7 +969,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=5");
+    cy.location("search").should("contain", "?i=6");
   });
 
   it("shows introduction slide", () => {
@@ -915,27 +1035,19 @@ describe("Setup", () => {
     );
     cy.location("search").should(
       "contain",
-      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D8"
+      "?subject=idle_and_initial_recordings&back=%2Fsetup%3Fi%3D9"
     );
     cy.get("[data-cy=progress]").contains("Questions 1 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Please look at the camera for 30 seconds without speaking. Try to remain in the same position."
+    );
     cy.get(".editor-class").should("not.exist");
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=next-btn]").trigger("mouseover").click();
     cy.get("[data-cy=progress]").contains("Questions 2 / 3");
-    cy.get("[data-cy=question-input]").within(($input) => {
-      cy.get("textarea").should(
-        "have.text",
-        "Please give a short introduction of yourself, which includes your name, current job, and title."
-      );
-      cy.get("textarea").should("have.attr", "disabled");
-    });
+    cy.get("[data-cy=question-text]").contains(
+      "Please give a short introduction of yourself, which includes your name, current job, and title."
+    );
     cy.get(".editor-class").within(($input) => {
       cy.get("[data-text]").should("have.text", "");
       cy.get("[data-text]").should("not.have.attr", "disabled");
@@ -948,7 +1060,7 @@ describe("Setup", () => {
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/setup")
     );
-    cy.location("search").should("contain", "?i=8");
+    cy.location("search").should("contain", "?i=9");
     cy.get("[data-cy=slide]").contains("3 / 3");
     cy.contains("Idle and Initial Recordings");
     cy.get("[data-cy=next-btn]")

@@ -7,8 +7,13 @@ env:
     STAGE: 'cf'
     IS_SENTRY_ENABLED: true
   parameter-store:
-    S3_DEPLOY_BUCKET: "/mentorpal/cf/s3-websites/NAME"
-    CDN_ID: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
+    S3_DEPLOY_BUCKET_CF: "/mentorpal/cf/s3-websites/NAME"
+    CDN_ID_CF: "/mentorpal/cf/CLOUDFRONT_DISTRIBUTION_ID"
+    S3_DEPLOY_BUCKET: "/mentorpal/s3-websites/NAME"
+    CDN_ID: "/mentorpal/CLOUDFRONT_DISTRIBUTION_ID"
+    LRS_ENDPOINT: "/mentorpal/lrs/prod/LRS_ENDPOINT"
+    LRS_USERNAME: "/mentorpal/lrs/prod/LRS_USERNAME"
+    LRS_PASSWORD: "/mentorpal/lrs/prod/LRS_PASSWORD"
 
 phases:
   install:
@@ -19,5 +24,7 @@ phases:
     commands:
       - echo need to rebuild for env change
       - cd client && npm run build
+      - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET_CF/admin
+      - aws cloudfront create-invalidation --distribution-id $CDN_ID_CF --paths "/admin*"
       - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET/admin
       - aws cloudfront create-invalidation --distribution-id $CDN_ID --paths "/admin*"

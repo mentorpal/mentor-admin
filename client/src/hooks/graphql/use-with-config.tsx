@@ -9,189 +9,315 @@ import {
   fetchConfig,
   fetchMentorPanels,
   fetchMentors,
+  fetchOrganizations,
   updateConfig,
+  updateOrgConfig,
 } from "api";
-import { copyAndRemove, copyAndMove } from "helpers";
-import { useWithData } from "hooks/graphql/use-with-data";
+import {
+  copyAndRemove,
+  copyAndMove,
+  canEditOrganization,
+  canEditContent,
+  extractErrorMessageFromError,
+  canViewMentorOnHome,
+  canViewMentorPanelOnHome,
+  removeQueryParamFromUrl,
+} from "helpers";
 import { useEffect, useState } from "react";
-import { Config, Connection, MentorPanel } from "types";
+import { Config, MentorPanel, Organization, User } from "types";
 import { MentorGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
-import { useWithDataConnection } from "./use-with-data-connection";
 
-interface UseWithConfig {
+interface UseWithConfigEdits {
+  isLoading: boolean;
+  isSaving: boolean;
+  error: LoadingError | undefined;
+  org: Organization | undefined;
+  orgs: Organization[];
   config: Config | undefined;
   mentors: MentorGQL[];
   mentorPanels: MentorPanel[];
-  error: LoadingError | undefined;
-  isLoading: boolean;
-  isSaving: boolean;
-  isEdited: boolean;
   saveConfig: () => void;
-  updateConfig: (c: Partial<Config>) => void;
+  editConfig: (c: Partial<Config>) => void;
+  resetToDefault: () => void;
   moveMentor: (from: number, to: number) => void;
   moveMentorPanel: (from: number, to: number) => void;
   toggleFeaturedMentor: (id: string) => void;
   toggleActiveMentor: (id: string) => void;
   toggleFeaturedMentorPanel: (id: string) => void;
   toggleActiveMentorPanel: (id: string) => void;
+  setOrganization: (org?: Organization) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
 }
 
-export function useWithConfig(accessToken: string): UseWithConfig {
-  const {
-    editedData: config,
-    error: configError,
-    isEdited: isConfigEdited,
-    isLoading: isConfigLoading,
-    isSaving: isConfigSaving,
-    editData: editConfig,
-    saveAndReturnData: saveAndReturnConfig,
-  } = useWithData<Config>(_fetchConfig);
-  const {
-    data: mentorsData,
-    error: mentorsError,
-    isLoading: isMentorsLoading,
-    searchParams: mentorsSearchParams,
-  } = useWithDataConnection<MentorGQL>(_fetchMentors, { limit: 9999 });
-  const {
-    data: mentorPanelsData,
-    error: mentorPanelsError,
-    isLoading: isMentorPanelsLoading,
-    searchParams: mentorPanelsSearchParams,
-    reloadData: reloadMentorPanels,
-  } = useWithDataConnection<MentorPanel>(_fetchMentorPanels, { limit: 9999 });
+export function useWithConfigEdits(
+  accessToken: string,
+  user: User
+): UseWithConfigEdits {
+  const params = new URLSearchParams(location.search);
+  const [error, setError] = useState<LoadingError>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [config, setConfig] = useState<Config>();
+  const [org, setOrg] = useState<Organization>();
+  const [orgs, setOrgs] = useState<Organization[]>([]);
   const [mentors, setMentors] = useState<MentorGQL[]>([]);
   const [mentorPanels, setMentorPanels] = useState<MentorPanel[]>([]);
+  const [defaultConfig, setDefaultConfig] = useState<Config>();
+  const [allMentors, setAllMentors] = useState<MentorGQL[]>([]);
+  const [allMentorPanels, setAllMentorPanels] = useState<MentorPanel[]>([]);
 
   useEffect(() => {
-    if (mentorsData && config) {
-      if (mentors.length > 0) {
-        setMentors([
-          ...mentors.filter(
-            (m) =>
-              config.activeMentors.includes(m._id) ||
-              config.featuredMentors.includes(m._id)
-          ),
-          ...mentors.filter(
-            (m) =>
-              !config.activeMentors.includes(m._id) &&
-              !config.featuredMentors.includes(m._id)
-          ),
-        ]);
-      } else {
-        setMentors(
-          mentorsData.edges
-            .map((e) => e.node)
-            .sort((a, b) => {
-              let aFeatured = config.featuredMentors.findIndex(
-                (m) => m === a._id
-              );
-              let bFeatured = config.featuredMentors.findIndex(
-                (m) => m === b._id
-              );
-              aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-              bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-              if (aFeatured !== bFeatured) {
-                return aFeatured - bFeatured;
-              }
-              let aActive = config.activeMentors.findIndex((m) => m === a._id);
-              let bActive = config.activeMentors.findIndex((m) => m === b._id);
-              aActive = aActive === -1 ? 9999 : aActive;
-              bActive = bActive === -1 ? 9999 : bActive;
-              return aActive - bActive;
-            })
-        );
+    loadData();
+  }, []);
+
+  async function loadData(): Promise<void> {
+    try {
+      setIsLoading(true);
+      // load organization data (only orgs the user can edit the config of)
+      const orgData = await fetchOrganizations(accessToken, { limit: 9999 });
+      const orgs = orgData.edges
+        .map((o) => o.node)
+        .filter((o) => canEditOrganization(o, user));
+      let org: Organization | undefined;
+      if (params.get("org")) {
+        org = orgs.find((o) => o._id === params.get("org"));
+        removeQueryParamFromUrl("org");
       }
-    }
-  }, [mentorsData, config?.activeMentors, config?.featuredMentors]);
-
-  useEffect(() => {
-    if (mentorPanelsData && config) {
-      if (mentorPanels.length > 0) {
-        setMentorPanels([
-          ...mentorPanels.filter(
-            (m) =>
-              config.activeMentorPanels.includes(m._id) ||
-              config.featuredMentorPanels.includes(m._id)
-          ),
-          ...mentorPanels.filter(
-            (m) =>
-              !config.activeMentorPanels.includes(m._id) &&
-              !config.featuredMentorPanels.includes(m._id)
-          ),
-        ]);
-      } else {
-        setMentorPanels(
-          mentorPanelsData.edges
-            .map((e) => e.node)
-            .sort((a, b) => {
-              let aFeatured = config.featuredMentorPanels.findIndex(
-                (m) => m === a._id
-              );
-              let bFeatured = config.featuredMentorPanels.findIndex(
-                (m) => m === b._id
-              );
-              aFeatured = aFeatured === -1 ? 9999 : aFeatured;
-              bFeatured = bFeatured === -1 ? 9999 : bFeatured;
-              if (aFeatured !== bFeatured) {
-                return aFeatured - bFeatured;
-              }
-              let aActive = config.activeMentorPanels.findIndex(
-                (m) => m === a._id
-              );
-              let bActive = config.activeMentorPanels.findIndex(
-                (m) => m === b._id
-              );
-              aActive = aActive === -1 ? 9999 : aActive;
-              bActive = bActive === -1 ? 9999 : bActive;
-              return aActive - bActive;
-            })
-        );
+      // load config data (only if the user can edit it)
+      const defaultConfig = await fetchConfig();
+      let config: Config | undefined;
+      if (org) {
+        config = org.config;
+      } else if (canEditContent(user)) {
+        config = defaultConfig;
       }
+      if (config === undefined) {
+        setIsLoading(false);
+        return;
+      }
+      // load mentor data (only mentors that can be viewed on home page)
+      const mentorsData = await fetchMentors(accessToken, { limit: 9999 });
+      const allMentors = mentorsData.edges.map((m) => m.node);
+      const mentors = visibleMentors(config, org, allMentors);
+      // load mentor panel data (only mentor panels where all mentors can be viewed on home page)
+      const mentorPanelsData = await fetchMentorPanels({ limit: 9999 });
+      const allMentorPanels = mentorPanelsData.edges.map((m) => m.node);
+      const mentorPanels = visibleMentorPanels(
+        config,
+        org,
+        allMentors,
+        allMentorPanels
+      );
+      setConfig(config);
+      setOrg(org);
+      setOrgs(orgs);
+      setMentors(mentors);
+      setMentorPanels(mentorPanels);
+      setAllMentors(allMentors);
+      setAllMentorPanels(allMentorPanels);
+      setDefaultConfig(defaultConfig);
+      setIsLoading(false);
+    } catch (err) {
+      setIsLoading(false);
+      setError({
+        error: "Failed to load data",
+        message: extractErrorMessageFromError(err),
+      });
     }
-  }, [
-    mentorPanelsData,
-    config?.activeMentorPanels,
-    config?.featuredMentorPanels,
-  ]);
-
-  function _fetchConfig(): Promise<Config> {
-    return fetchConfig();
   }
 
-  function _fetchMentors(): Promise<Connection<MentorGQL>> {
-    return fetchMentors(accessToken, mentorsSearchParams);
-  }
-
-  function _fetchMentorPanels() {
-    return fetchMentorPanels(mentorPanelsSearchParams);
-  }
-
-  function saveConfig(): void {
-    saveAndReturnConfig({
-      action: async (editedData: Config) => {
-        return await updateConfig(accessToken, editedData);
-      },
-    });
-  }
-
-  function edit(c: Partial<Config>): void {
+  async function saveConfig(): Promise<void> {
     if (!config) {
       return;
     }
-    editConfig({
+    try {
+      setIsSaving(true);
+      let updatedConfig: Config;
+      if (org) {
+        updatedConfig = await updateOrgConfig(accessToken, org._id, config);
+        const orgData = await fetchOrganizations(accessToken, { limit: 9999 });
+        const orgs = orgData.edges
+          .map((o) => o.node)
+          .filter((o) => canEditOrganization(o, user));
+        setOrgs(orgs);
+      } else {
+        updatedConfig = await updateConfig(accessToken, config);
+        setDefaultConfig(updatedConfig);
+      }
+      setConfig(updatedConfig);
+      setMentors(visibleMentors(updatedConfig, org));
+      setMentorPanels(visibleMentorPanels(updatedConfig, org));
+      setIsSaving(false);
+    } catch (err) {
+      setIsSaving(false);
+      setError({
+        error: "Failed to save config",
+        message: extractErrorMessageFromError(err),
+      });
+    }
+  }
+
+  async function saveMentorPanel(panel: MentorPanel): Promise<void> {
+    if (!config) {
+      return;
+    }
+    try {
+      setIsSaving(true);
+      await addOrUpdateMentorPanel(accessToken, panel, panel._id);
+      const mentorPanelsData = await fetchMentorPanels({ limit: 9999 });
+      const allMentorPanels = mentorPanelsData.edges.map((m) => m.node);
+      const mentorPanels = visibleMentorPanels(
+        config,
+        org,
+        allMentors,
+        allMentorPanels
+      );
+      setAllMentorPanels(allMentorPanels);
+      setMentorPanels(mentorPanels);
+      setIsSaving(false);
+    } catch (err) {
+      setIsSaving(false);
+      setError({
+        error: "Failed to save mentor panel",
+        message: extractErrorMessageFromError(err),
+      });
+    }
+  }
+
+  function resetToDefault(): void {
+    const config = {
+      ...defaultConfig,
+      // home style settings
+      styleHeaderTitle: "",
+      styleHeaderText: "",
+      styleHeaderLogo: "",
+      styleHeaderLogoUrl: "",
+      styleHeaderColor: "#025a87",
+      styleHeaderTextColor: "#ffffff",
+      homeFooterColor: "#025a87",
+      homeFooterTextColor: "#ffffff",
+      homeFooterImages: [],
+      homeFooterLinks: [],
+      homeBannerColor: "#ffffff",
+      homeBannerButtonColor: "#007cba",
+      homeCarouselColor: "#398bb4",
+      walkthroughDisabled: false,
+      walkthroughTitle: "",
+      urlVideoMentorpalWalkthrough: "https://youtu.be/EGdSl4Q8NAY",
+      disclaimerDisabled: false,
+      disclaimerTitle: "",
+      disclaimerText: "",
+      termsOfServiceDisabled: false,
+      termsOfServiceText: "",
+      displayGuestPrompt: false,
+      guestPromptTitle: "",
+      guestPromptText: "",
+      guestPromptInputType: "email",
+      activeMentors: [],
+      activeMentorPanels: [],
+      featuredMentors: [],
+      featuredMentorPanels: [],
+      featuredSubjects: [],
+      featuredKeywordTypes: [],
+      defaultSubject: "",
+    };
+    editConfig(config);
+  }
+
+  // sort active and featured mentors first, only include mentors that can be viewed on home page
+  function visibleMentors(
+    config: Config,
+    org: Organization | undefined,
+    mentors: MentorGQL[] = allMentors
+  ): MentorGQL[] {
+    // filter out mentors that cannot be viewed on home page
+    const vm = mentors.filter((m) => canViewMentorOnHome(m, org));
+    const afm: MentorGQL[] = [];
+    // sort featured first
+    for (const fm of config.featuredMentors) {
+      const mentor = vm.find((m) => fm === m._id);
+      if (mentor && !afm.find((m) => m._id === fm)) {
+        afm.push(mentor);
+      }
+    }
+    // sort active next
+    for (const am of config.activeMentors) {
+      const mentor = vm.find((m) => am === m._id);
+      if (mentor && !afm.find((m) => m._id === am)) {
+        afm.push(mentor);
+      }
+    }
+    // add the rest to the end
+    return [
+      ...afm,
+      ...vm.filter(
+        (m) =>
+          !config.activeMentors.includes(m._id) &&
+          !config.featuredMentors.includes(m._id)
+      ),
+    ];
+  }
+
+  // sort active and featured mentor panels first, only include mentors that can be viewed on home page
+  function visibleMentorPanels(
+    config: Config,
+    org: Organization | undefined,
+    mentors: MentorGQL[] = allMentors,
+    mentorPanels: MentorPanel[] = allMentorPanels
+  ): MentorPanel[] {
+    // filter out mentors that cannot be viewed on home page
+    const vm = mentorPanels.filter((m) =>
+      canViewMentorPanelOnHome(m, mentors, org)
+    );
+    const afm: MentorPanel[] = [];
+    // sort featured first
+    for (const fm of config.featuredMentorPanels) {
+      const mentor = vm.find((m) => fm === m._id);
+      if (mentor && !afm.find((m) => m._id === fm)) {
+        afm.push(mentor);
+      }
+    }
+    // sort active next
+    for (const am of config.activeMentorPanels) {
+      const mentor = vm.find((m) => am === m._id);
+      if (mentor && !afm.find((m) => m._id === am)) {
+        afm.push(mentor);
+      }
+    }
+    // add the rest to the end
+    return [
+      ...afm,
+      ...vm.filter(
+        (m) =>
+          !config.activeMentorPanels.includes(m._id) &&
+          !config.featuredMentorPanels.includes(m._id)
+      ),
+    ];
+  }
+
+  function editConfig(c: Partial<Config>): void {
+    if (!config) {
+      return;
+    }
+    const updatedConfig = {
       ...config,
       ...c,
-    });
+    };
+    setConfig(updatedConfig);
+    if (c.activeMentors || c.featuredMentors) {
+      setMentors(visibleMentors(updatedConfig, org));
+    }
+    if (c.activeMentorPanels || c.featuredMentorPanels) {
+      setMentorPanels(visibleMentorPanels(updatedConfig, org));
+    }
   }
 
   function moveMentor(from: number, to: number): void {
-    if (!config || !mentorsData) {
+    if (!config) {
       return;
     }
     const _mentors = copyAndMove(mentors, from, to);
-    setMentors(_mentors);
     editConfig({
       activeMentors: _mentors
         .filter((m) => config.activeMentors.includes(m._id))
@@ -203,11 +329,10 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function moveMentorPanel(from: number, to: number): void {
-    if (!config || !mentorsData || !mentorPanelsData) {
+    if (!config) {
       return;
     }
     const _mentorPanels = copyAndMove(mentorPanels, from, to);
-    setMentorPanels(_mentorPanels);
     editConfig({
       activeMentorPanels: _mentorPanels
         .filter((m) => config.activeMentorPanels.includes(m._id))
@@ -219,7 +344,7 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function toggleFeaturedMentor(id: string): void {
-    if (!config || !mentorsData) {
+    if (!config) {
       return;
     }
     const idx = config.featuredMentors.findIndex((i) => i === id);
@@ -235,7 +360,7 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function toggleActiveMentor(id: string): void {
-    if (!config || !mentorsData) {
+    if (!config) {
       return;
     }
     const idx = config.activeMentors.findIndex((i) => i === id);
@@ -251,7 +376,7 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function toggleFeaturedMentorPanel(id: string): void {
-    if (!config || !mentorsData || !mentorPanelsData) {
+    if (!config) {
       return;
     }
     const idx = config.featuredMentorPanels.findIndex((i) => i === id);
@@ -267,7 +392,7 @@ export function useWithConfig(accessToken: string): UseWithConfig {
   }
 
   function toggleActiveMentorPanel(id: string): void {
-    if (!config || !mentorsData || !mentorPanelsData) {
+    if (!config) {
       return;
     }
     const idx = config.activeMentorPanels.findIndex((i) => i === id);
@@ -282,28 +407,44 @@ export function useWithConfig(accessToken: string): UseWithConfig {
     });
   }
 
-  async function saveMentorPanel(panel: MentorPanel): Promise<void> {
-    await addOrUpdateMentorPanel(accessToken, panel, panel._id);
-    setMentorPanels([]);
-    reloadMentorPanels();
+  function setOrganization(org?: Organization): void {
+    if (!config) {
+      return;
+    }
+    setOrg(org);
+    let updatedConfig: Config;
+    if (org) {
+      updatedConfig = org.config;
+      setConfig(org.config);
+    } else if (defaultConfig) {
+      updatedConfig = defaultConfig;
+    } else {
+      return;
+    }
+    setConfig(updatedConfig);
+    setMentors(visibleMentors(updatedConfig, org));
+    setMentorPanels(visibleMentorPanels(updatedConfig, org));
   }
 
   return {
+    isLoading,
+    isSaving,
+    error,
     config,
     mentors,
     mentorPanels,
-    error: configError || mentorsError || mentorPanelsError,
-    isLoading: isConfigLoading || isMentorsLoading || isMentorPanelsLoading,
-    isEdited: isConfigEdited,
-    isSaving: isConfigSaving,
+    org,
+    orgs,
+    editConfig,
     saveConfig,
-    updateConfig: edit,
+    resetToDefault,
     moveMentor,
     moveMentorPanel,
+    saveMentorPanel,
     toggleFeaturedMentor,
     toggleActiveMentor,
     toggleFeaturedMentorPanel,
     toggleActiveMentorPanel,
-    saveMentorPanel,
+    setOrganization,
   };
 }

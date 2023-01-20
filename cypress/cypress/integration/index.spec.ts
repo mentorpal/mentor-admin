@@ -281,8 +281,7 @@ describe("Index page", () => {
       .should("contain.text", "0 of 3 Uploads Complete");
     cy.get("[data-cy=header-uploads-button]").trigger("mouseover").click();
     cy.get("[data-cy=active-upload-card-0]").trigger("mouseover").click();
-    cy.get("[data-cy=question-input]").should(
-      "contain.text",
+    cy.get("[data-cy=question-text]").contains(
       "Who are you and what do you do?"
     );
   });

@@ -4,7 +4,6 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-
 import { CancelTokenSource } from "axios";
 import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
 import { QuestionState } from "store/slices/questions";
@@ -29,30 +28,56 @@ export enum QuestionSortOrder {
 }
 
 export interface Config {
-  mentorsDefault: string[];
-  featuredMentors: string[];
-  featuredMentorPanels: string[];
-  activeMentors: string[];
-  activeMentorPanels: string[];
-  subjectRecordPriority: string[];
-  googleClientId: string;
-  urlDocSetup: string;
-  urlVideoIdleTips: string;
-  videoRecorderMaxLength: number;
+  cmi5Enabled: boolean;
+  cmi5Endpoint: string;
+  cmi5Fetch: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
-  styleHeaderLogo: string;
-  styleHeaderColor: string;
-  styleHeaderTextColor: string;
-  displayGuestPrompt: boolean;
-  disclaimerTitle: string;
-  disclaimerText: string;
-  disclaimerDisabled: boolean;
+  graphqlLambdaEndpoint: string;
+  subjectRecordPriority: string[];
+  filterEmailMentorAddress: string;
+  videoRecorderMaxLength: number;
+  googleClientId: string;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  questionSortOrder: QuestionSortOrder;
-  featuredKeywordTypes: string[];
+  questionSortOrder: number;
+  urlGraphql: string;
+  urlVideo: string;
+  urlDocSetup: string;
+  urlVideoIdleTips: string;
+  mentorsDefault: string[];
+  // home style settings
+  styleHeaderTitle: string;
+  styleHeaderText: string;
+  styleHeaderColor: string;
+  styleHeaderTextColor: string;
+  styleHeaderLogo: string;
+  styleHeaderLogoUrl: string;
+  homeFooterColor: string;
+  homeFooterTextColor: string;
+  homeFooterImages: string[];
+  homeFooterLinks: string[];
+  homeBannerColor: string;
+  homeBannerButtonColor: string;
+  homeCarouselColor: string;
+  walkthroughDisabled: boolean;
+  walkthroughTitle: string;
+  urlVideoMentorpalWalkthrough: string;
+  disclaimerDisabled: boolean;
+  disclaimerTitle: string;
+  disclaimerText: string;
+  termsOfServiceDisabled: boolean;
+  termsOfServiceText: string;
+  displayGuestPrompt: boolean;
+  guestPromptTitle: string;
+  guestPromptText: string;
+  guestPromptInputType: string;
+  activeMentors: string[];
+  activeMentorPanels: string[];
+  featuredMentors: string[];
+  featuredMentorPanels: string[];
   featuredSubjects: string[];
+  featuredKeywordTypes: string[];
   defaultSubject: string;
 }
 
@@ -98,8 +123,24 @@ export interface User {
   firstTimeTracking: FirstTimeTracking;
 }
 
+export interface Organization {
+  _id: string;
+  uuid: string;
+  name: string;
+  subdomain: string;
+  isPrivate: boolean;
+  members: OrgMember[];
+  config: Config;
+}
+
+export interface OrgMember {
+  user: User;
+  role: string;
+}
+
 export interface MentorPanel {
   _id: string;
+  org: string;
   subject: string;
   mentors: string[];
   title: string;
@@ -120,6 +161,7 @@ export interface Mentor {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
   keywords: Keyword[];
@@ -127,6 +169,24 @@ export interface Mentor {
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+}
+
+export enum OrgViewPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  HIDDEN = "HIDDEN", // org cannot see or use mentor
+  SHARE = "SHARE", // org can use mentor as-is
+}
+export enum OrgEditPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  MANAGE = "MANAGE", // org can edit content
+  ADMIN = "ADMIN", // org can edit content and edit sharing settings
+}
+
+export interface OrgPermission {
+  orgId: string;
+  orgName: string;
+  viewPermission: OrgViewPermissionType;
+  editPermission: OrgEditPermissionType;
 }
 
 export interface Keyword {
@@ -398,6 +458,8 @@ export enum UserRole {
   ADMIN = "ADMIN",
   CONTENT_MANAGER = "CONTENT_MANAGER",
   USER = "USER",
+  SUPER_CONTENT_MANAGER = "SUPER_CONTENT_MANAGER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 export enum MentorType {

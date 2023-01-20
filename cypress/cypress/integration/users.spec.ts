@@ -64,7 +64,7 @@ describe("users screen", () => {
     });
   });
 
-  it("content managers cannot edit admins, but can edit others", () => {
+  it("content managers cannot edit user roles", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
       login: {
@@ -80,11 +80,11 @@ describe("users screen", () => {
     });
     cy.get("[data-cy=user-1]").within(($within) => {
       cy.get("[data-cy=defaultMentor]").should("have.text", "Content Manager");
-      cy.get("[data-cy=select-role]").should("exist");
+      cy.get("[data-cy=select-role]").should("not.exist");
     });
     cy.get("[data-cy=user-2]").within(($within) => {
       cy.get("[data-cy=defaultMentor]").should("have.text", "User");
-      cy.get("[data-cy=select-role]").should("exist");
+      cy.get("[data-cy=select-role]").should("not.exist");
     });
   });
 

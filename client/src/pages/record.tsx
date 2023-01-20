@@ -26,6 +26,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
 import UndoIcon from "@material-ui/icons/Undo";
+import EditIcon from "@material-ui/icons/Edit";
+import CloseIcon from "@material-ui/icons/Close";
+
 import {
   LoadingDialog,
   ErrorDialog,
@@ -47,6 +50,7 @@ import {
   UtteranceName,
   Status,
   Subject,
+  User,
 } from "types";
 import withLocation from "wrap-with-location";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -155,6 +159,7 @@ export interface LeaveConfirmation {
 
 function RecordPage(props: {
   accessToken: string;
+  user: User;
   search: {
     videoId?: string[] | string;
     subject?: string;
@@ -166,9 +171,12 @@ function RecordPage(props: {
 }): JSX.Element {
   const classes = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
-
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
+  const [editorState, setEditorState] = useState<EditorState>(
+    EditorState.createWithContent(ContentState.createFromText(""))
+  );
+  const [isEditingQuestion, setIsEditingQuestion] = useState<boolean>(false);
 
   const recordState = useWithRecordState(props.accessToken, props.search);
   const { curAnswer, reloadMentorData, notifyDialogOpen, setNotifyDialogOpen } =
@@ -202,9 +210,22 @@ function RecordPage(props: {
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
-  const [editorState, setEditorState] = useState<EditorState>(
-    EditorState.createWithContent(ContentState.createFromText(""))
-  );
+  useEffect(() => {
+    if (!curAnswer) {
+      return;
+    }
+    let text = "";
+    if (curAnswer.answer.markdownTranscript) {
+      text = curAnswer.answer.markdownTranscript;
+    } else {
+      text = curAnswer.answer.transcript;
+    }
+    initializeEditorStateWithTranscript(text);
+  }, [curAnswer?.answer]);
+
+  useEffect(() => {
+    setIsEditingQuestion(false);
+  }, [recordState.answerIdx]);
 
   function initializeEditorStateWithTranscript(transcript: string): void {
     const rawData = mdToDraftjs(transcript);
@@ -233,19 +254,6 @@ function RecordPage(props: {
       }
     );
   }
-
-  useEffect(() => {
-    if (!curAnswer) {
-      return;
-    }
-    let text = "";
-    if (curAnswer.answer.markdownTranscript) {
-      text = curAnswer.answer.markdownTranscript;
-    } else {
-      text = curAnswer.answer.transcript;
-    }
-    initializeEditorStateWithTranscript(text);
-  }, [curAnswer?.answer]);
 
   function onBack() {
     reloadMentorData();
@@ -287,28 +295,6 @@ function RecordPage(props: {
       confirmLeave.callback();
       setConfirmLeave(undefined);
     }
-  }
-
-  if (!mentorId || !curAnswer || !isConfigLoaded() || isMentorLoading) {
-    return (
-      <div className={classes.root}>
-        <NavBar title="Recording: " mentorId={undefined} />
-        <LoadingDialog title={"Loading..."} />
-        <ErrorDialog error={recordState.error} />
-      </div>
-    );
-  }
-
-  if (!configState.config || configState.status === ConfigStatus.FAILED) {
-    return (
-      <div>
-        <NavBar title="Recording: " mentorId={undefined} />
-        <Typography>Failed to load config</Typography>
-        <Button color="primary" variant="contained" onClick={loadConfig}>
-          Retry
-        </Button>
-      </div>
-    );
   }
 
   function transcriptDisplay() {
@@ -357,6 +343,28 @@ function RecordPage(props: {
           }}
           editorState={editorState}
         />
+      </div>
+    );
+  }
+
+  if (!mentorId || !curAnswer || !isConfigLoaded() || isMentorLoading) {
+    return (
+      <div className={classes.root}>
+        <NavBar title="Recording: " mentorId={undefined} />
+        <LoadingDialog title={"Loading..."} />
+        <ErrorDialog error={recordState.error} />
+      </div>
+    );
+  }
+
+  if (!configState.config || configState.status === ConfigStatus.FAILED) {
+    return (
+      <div>
+        <NavBar title="Recording: " mentorId={undefined} />
+        <Typography>Failed to load config</Typography>
+        <Button color="primary" variant="contained" onClick={loadConfig}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -421,6 +429,7 @@ function RecordPage(props: {
             <VideoPlayer
               classes={classes}
               recordState={recordState}
+              user={props.user}
               accessToken={props.accessToken}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
@@ -429,52 +438,89 @@ function RecordPage(props: {
         ) : undefined}
         <div data-cy="question" className={classes.block}>
           <Typography className={classes.title}>Question:</Typography>
-          <FormControl className={classes.inputField} variant="outlined">
-            <OutlinedInput
-              data-cy="question-input"
-              multiline
-              value={curEditedQuestion?.question}
-              disabled={!curAnswerBelongsToMentor}
-              style={{ color: curAnswerBelongsToMentor ? "black" : "#474747" }}
-              onChange={(e) => {
-                if (curEditedQuestion) {
-                  const caret = e?.target.selectionStart;
-                  const element = e.target;
-                  window.requestAnimationFrame(() => {
-                    element.selectionStart = caret;
-                    element.selectionEnd = caret;
-                  });
-                  recordState.editQuestion({
-                    ...curEditedQuestion,
-                    question: e.target.value,
-                  });
-                }
+          {isEditingQuestion ? (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyItems: "center",
               }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    data-cy="undo-question-btn"
-                    style={{
-                      visibility: curAnswerBelongsToMentor
-                        ? "visible"
-                        : "hidden",
-                    }}
-                    disabled={
-                      curEditedQuestion?.question ===
-                      curQuestion?.question?.question
-                    }
-                    onClick={() =>
+            >
+              <FormControl className={classes.inputField} variant="outlined">
+                <OutlinedInput
+                  data-cy="question-input"
+                  multiline
+                  value={curEditedQuestion?.question}
+                  style={{
+                    color: curAnswerBelongsToMentor ? "black" : "#474747",
+                  }}
+                  onChange={(e) => {
+                    if (curEditedQuestion) {
+                      const caret = e?.target.selectionStart;
+                      const element = e.target;
+                      window.requestAnimationFrame(() => {
+                        element.selectionStart = caret;
+                        element.selectionEnd = caret;
+                      });
                       recordState.editQuestion({
-                        question: curQuestion?.question?.question,
-                      })
+                        ...curEditedQuestion,
+                        question: e.target.value,
+                      });
                     }
-                  >
-                    <UndoIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-          </FormControl>
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        data-cy="undo-question-btn"
+                        style={{
+                          visibility: curAnswerBelongsToMentor
+                            ? "visible"
+                            : "hidden",
+                        }}
+                        disabled={
+                          curEditedQuestion?.question ===
+                          curQuestion?.question?.question
+                        }
+                        onClick={() =>
+                          recordState.editQuestion({
+                            question: curQuestion?.question?.question,
+                          })
+                        }
+                      >
+                        <UndoIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              <IconButton
+                data-cy="question-edit"
+                onClick={() => setIsEditingQuestion(false)}
+              >
+                <CloseIcon />
+              </IconButton>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Typography data-cy="question-text">
+                {curEditedQuestion?.question}
+              </Typography>
+              {curAnswerBelongsToMentor ? (
+                <IconButton
+                  data-cy="question-edit"
+                  onClick={() => setIsEditingQuestion(true)}
+                >
+                  <EditIcon />
+                </IconButton>
+              ) : undefined}
+            </div>
+          )}
         </div>
         {curAnswer.minVideoLength &&
         curEditedQuestion?.name === UtteranceName.IDLE ? (

@@ -39,18 +39,6 @@ const initialState: LoginState = {
 
 /** Actions */
 
-export const googleLogin = createAsyncThunk(
-  "login/googleLogin",
-  async (accessToken: string) => {
-    try {
-      const googleToken = await api.loginGoogle(accessToken);
-      return await api.login(googleToken.accessToken);
-    } catch (err) {
-      throw new Error(extractErrorMessageFromError(err));
-    }
-  }
-);
-
 // This is the action that calls the api and sets the userSawSplashScreen action in motion
 export const userSawSplashScreen = createAsyncThunk(
   "login/userSawSplashScreen", //action
@@ -79,6 +67,20 @@ export const userSawTooltips = createAsyncThunk(
         { tooltips: true },
         accessToken
       );
+    } catch (err) {
+      throw new Error(extractErrorMessageFromError(err));
+    }
+  }
+);
+
+export const googleLogin = createAsyncThunk(
+  "login/googleLogin",
+  async (accessToken: string) => {
+    try {
+      const googleLogin = await api.loginGoogle(accessToken);
+      localStorageStore(ACCESS_TOKEN_KEY, googleLogin.accessToken);
+      sessionStorageClear(ACTIVE_MENTOR_KEY);
+      return await api.login(googleLogin.accessToken);
     } catch (err) {
       throw new Error(extractErrorMessageFromError(err));
     }
@@ -147,6 +149,12 @@ export const loginSlice = createSlice({
         state.user = action.payload?.user;
         state.accessToken = action.payload?.accessToken;
         state.loginStatus = LoginStatus.AUTHENTICATED;
+        if (action.payload.user) {
+          sessionStorageStore(
+            ACTIVE_MENTOR_KEY,
+            action.payload.user.defaultMentor._id
+          );
+        }
       })
       .addCase(googleLogin.rejected, (state) => {
         delete state.user;

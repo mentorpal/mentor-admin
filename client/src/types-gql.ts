@@ -31,6 +31,7 @@ import {
   TaskInfo,
   SubjectTypes,
   Keyword,
+  OrgPermission,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -61,6 +62,7 @@ export interface MentorGQL {
   lastPreviewedAt: string;
   isDirty: boolean;
   isPrivate: boolean;
+  orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
   keywords: Keyword[];
@@ -163,6 +165,7 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
   const gqlAnswers = [...answersWithoutMentor, ...answersWithMentor];
   return {
     ...gql,
+    orgPermissions: gql.orgPermissions,
     defaultSubject: gql.defaultSubject
       ? convertSubjectGQL(gql.defaultSubject)
       : undefined,

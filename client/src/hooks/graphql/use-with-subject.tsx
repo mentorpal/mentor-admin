@@ -7,7 +7,12 @@ The full terms of this copyright and license should always be found in the root 
 import { v4 as uuid } from "uuid";
 
 import { fetchSubject, updateSubject } from "api";
-import { copyAndSet, copyAndRemove, copyAndMove } from "helpers";
+import {
+  copyAndSet,
+  copyAndRemove,
+  copyAndMove,
+  canEditContent,
+} from "helpers";
 import { useWithData } from "hooks/graphql/use-with-data";
 import {
   Category,
@@ -16,7 +21,6 @@ import {
   UtteranceName,
   Question,
   SubjectTypes,
-  UserRole,
 } from "types";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
@@ -66,10 +70,7 @@ export function useWithSubject(
     saveAndReturnData,
   } = useWithData<SubjectGQL>(fetch);
   const { state } = useWithLogin();
-  const canArchiveSubjects =
-    state.user?.userRole === UserRole.ADMIN ||
-    state.user?.userRole === UserRole.CONTENT_MANAGER;
-
+  const canArchiveSubjects = canEditContent(state.user);
   const isUtteranceSubject = editedData?.type === SubjectTypes.UTTERANCES;
 
   function fetch() {

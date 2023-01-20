@@ -8,7 +8,21 @@ import { CLIENT_ENDPOINT, previewedMentor } from "api";
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
 import axios from "axios";
-import { Answer, MediaType, MentorType, Status, UtteranceName } from "types";
+import {
+  Answer,
+  MediaType,
+  Mentor,
+  MentorPanel,
+  MentorType,
+  Organization,
+  OrgViewPermissionType,
+  OrgEditPermissionType,
+  Status,
+  User,
+  UserRole,
+  UtteranceName,
+} from "types";
+import { MentorGQL } from "types-gql";
 
 interface UrlBuildOpts {
   includeEmptyParams?: boolean;
@@ -31,6 +45,7 @@ export function copyAndMove<T>(a: T[], moveFrom: number, moveTo: number): T[] {
   const removed = copyAndRemove(a, moveFrom);
   return [...removed.slice(0, moveTo), item, ...removed.slice(moveTo)];
 }
+
 export function toTitleCase(convert: string): string {
   return convert[0].toUpperCase() + convert.slice(1).toLowerCase();
 }
@@ -54,6 +69,12 @@ export function urlBuild(
   return qs ? `${base}?${qs}` : base; // don't put ? if no query string
 }
 
+export function removeQueryParamFromUrl(param: string): void {
+  const url = new URL(window.location.href);
+  url.searchParams.delete(param);
+  window.history.pushState({ path: url.href }, "", url.href);
+}
+
 /**
  * we have to distinguish between params where the value is `undefined` or `null`
  * (which we generally want to exclude) vs. params where the value is falsy but meaningful (e.g. `0`)
@@ -74,23 +95,73 @@ function appendKeyPairToQuery(
 export function launchMentor(
   mentorId: string,
   newTab?: boolean,
-  previewingOwnMentor?: boolean
+  previewingOwnMentor?: boolean,
+  orgDomain?: string
 ): void {
   if (previewingOwnMentor) {
     previewedMentor(mentorId);
   }
-  const path = urlBuild(`${location.origin}${CLIENT_ENDPOINT}`, {
-    mentor: mentorId,
-  });
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  const path = urlBuild(
+    `${location.protocol}//${
+      orgDomain ? `${orgDomain}.${hostname}` : hostname
+    }${CLIENT_ENDPOINT}`,
+    {
+      mentor: mentorId,
+    }
+  );
   if (newTab) window.open(path, "_blank");
   else window.location.href = path;
 }
 
-export function launchMentorPanel(mentorIds: string[], newTab?: boolean): void {
-  let path = `${location.origin}${CLIENT_ENDPOINT}/?`;
+export function launchMentorPanel(
+  mentorIds: string[],
+  newTab?: boolean,
+  orgDomain?: string
+): void {
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  let path = `${location.protocol}//${
+    orgDomain ? `${orgDomain}.${hostname}` : hostname
+  }${CLIENT_ENDPOINT}/?`;
   for (const mentorId of mentorIds) {
     path += `&mentor=${mentorId}`;
   }
+  if (newTab) window.open(path, "_blank");
+  else window.location.href = path;
+}
+
+export function getOrgHomeUrl(orgDomain: string): string {
+  let hostname = location.hostname;
+  if (hostname === "newdev.mentorpal.org") {
+    hostname = "devmentorpal.org";
+  } else if (hostname === "v2.mentorpal.org") {
+    hostname = "qamentorpal.org";
+  } else if (hostname === "careerfair.mentorpal.org") {
+    hostname = "mentorpal.org";
+  }
+  if (orgDomain) {
+    return `${location.protocol}//${orgDomain}.${hostname}`;
+  } else {
+    return `${location.protocol}//${hostname}`;
+  }
+}
+
+export function launchOrg(orgDomain: string, newTab?: boolean): void {
+  const path = getOrgHomeUrl(orgDomain);
   if (newTab) window.open(path, "_blank");
   else window.location.href = path;
 }
@@ -201,4 +272,192 @@ export function cosinesim(A: number[], B: number[]): number {
   mB = Math.sqrt(mB);
   const similarity = dotproduct / (mA * mB); // here you needed extra brackets
   return similarity;
+}
+
+export function canEditContent(user: User | undefined): boolean {
+  if (!user) {
+    return false;
+  }
+  const userRole = user.userRole;
+  return (
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canViewMentorOnHome(
+  mentor: MentorGQL,
+  org?: Organization
+): boolean {
+  if (!mentor) {
+    return false;
+  }
+  const orgPerm = mentor.orgPermissions?.find((op) =>
+    equals(op.orgId, org?._id)
+  );
+  if (mentor.isPrivate) {
+    return orgPerm?.viewPermission === OrgViewPermissionType.SHARE;
+  }
+  if (orgPerm) {
+    return orgPerm.viewPermission !== OrgViewPermissionType.HIDDEN;
+  }
+  return true;
+}
+
+export function canViewMentorPanelOnHome(
+  mentorPanel: MentorPanel,
+  mentors: MentorGQL[],
+  org?: Organization
+): boolean {
+  for (const mId of mentorPanel.mentors) {
+    const mentor = mentors.find((m) => equals(m._id, mId));
+    if (!mentor) {
+      return false;
+    }
+    if (!canViewMentorOnHome(mentor, org)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function canEditMentor(
+  mentor: Mentor,
+  user: User,
+  orgs: Organization[] = []
+): boolean {
+  if (!mentor || !user) {
+    return false;
+  }
+  const ops = mentor.orgPermissions?.filter(
+    (op) =>
+      op.editPermission === OrgEditPermissionType.MANAGE ||
+      op.editPermission === OrgEditPermissionType.ADMIN
+  );
+  if (ops) {
+    const os = ops.map((op) => op.orgId);
+    for (const org of orgs.filter((o) => os.includes(o._id))) {
+      if (
+        org.members.find(
+          (m) =>
+            m.user._id === user._id &&
+            (m.role === UserRole.ADMIN || m.role === UserRole.CONTENT_MANAGER)
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  const userRole = user.userRole;
+  return (
+    user.defaultMentor._id === mentor._id ||
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canEditMentorPrivacy(
+  mentor: Mentor,
+  myUser: User,
+  orgs: Organization[] = []
+): boolean {
+  if (!mentor || !myUser) {
+    return false;
+  }
+  const ops = mentor.orgPermissions?.filter(
+    (op) => op.editPermission === OrgEditPermissionType.ADMIN
+  );
+  if (ops) {
+    const os = ops.map((op) => op.orgId);
+    for (const org of orgs.filter((o) => os.includes(o._id))) {
+      if (
+        org.members.find(
+          (m) => m.user._id === myUser._id && m.role === UserRole.ADMIN
+        )
+      ) {
+        return true;
+      }
+    }
+  }
+  const userRole = myUser.userRole;
+  return (
+    myUser.defaultMentor._id === mentor._id ||
+    userRole === UserRole.CONTENT_MANAGER ||
+    userRole === UserRole.ADMIN ||
+    userRole === UserRole.SUPER_CONTENT_MANAGER ||
+    userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function canEditUserRole(
+  myUser: User,
+  toEdit: User,
+  role: UserRole
+): boolean {
+  // only admins and super-admins can edit user roles
+  if (
+    myUser.userRole !== UserRole.ADMIN &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
+  ) {
+    return false;
+  }
+  // only super admins can give super admin or super content manager permissions
+  if (
+    (role === UserRole.SUPER_ADMIN ||
+      role === UserRole.SUPER_CONTENT_MANAGER) &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
+  ) {
+    return false;
+  }
+  // only super admins can edit a super admin or super content manager's permissions
+  if (
+    (toEdit.userRole == UserRole.SUPER_ADMIN ||
+      toEdit.userRole == UserRole.SUPER_CONTENT_MANAGER) &&
+    myUser.userRole !== UserRole.SUPER_ADMIN
+  ) {
+    return false;
+  }
+  return true;
+}
+
+export function canViewOrganization(org: Organization, user: User): boolean {
+  if (!org) {
+    return false;
+  }
+  if (org.isPrivate) {
+    if (!user) {
+      return false;
+    }
+    if (
+      user.userRole === UserRole.SUPER_ADMIN ||
+      user.userRole === UserRole.SUPER_CONTENT_MANAGER
+    ) {
+      return true;
+    }
+    return Boolean(org.members?.find((m) => equals(m.user._id, user._id)));
+  }
+  return true;
+}
+
+export function canEditOrganization(org: Organization, user: User): boolean {
+  if (!org || !user) {
+    return false;
+  }
+  if (
+    user.userRole === UserRole.SUPER_ADMIN ||
+    user.userRole === UserRole.SUPER_CONTENT_MANAGER
+  ) {
+    return true;
+  }
+  return Boolean(
+    org.members?.find(
+      (m) =>
+        equals(m.user._id, user._id) &&
+        (m.role === UserRole.CONTENT_MANAGER || m.role === UserRole.ADMIN)
+    )
+  );
 }

@@ -30,6 +30,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     pageSearchParams,
     sortBy,
     filter,
+    setPreFilter,
     nextPage,
     prevPage,
     reloadData,
@@ -56,7 +57,7 @@ export function useWithUsers(accessToken: string): UseUserData {
   }
 
   function onUpdateMentorPrivacy(mentorId: string, isPrivate: boolean): void {
-    updateMentorPrivacy(mentorId, isPrivate, accessToken)
+    updateMentorPrivacy(accessToken, { isPrivate }, mentorId)
       .then(() => {
         reloadData();
       })
@@ -78,6 +79,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     userDataError,
     sortBy,
     filter,
+    setPreFilter,
     nextPage,
     prevPage,
     reloadData,

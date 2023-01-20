@@ -36,8 +36,11 @@ export interface UseData<T> {
   error?: LoadingError;
   reloadData: () => void;
   editData: (d: Partial<T>) => void;
-  saveData: (action: UpdateFunc<T>) => Promise<void>;
-  saveAndReturnData: (action: UpdateAndReturnFunc<T>) => Promise<T | undefined>;
+  saveData: (action: UpdateFunc<T>, e?: T) => Promise<void>;
+  saveAndReturnData: (
+    action: UpdateAndReturnFunc<T>,
+    e?: T
+  ) => Promise<T | undefined>;
 }
 
 export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
@@ -80,14 +83,17 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
     setEditedData({ ...data, ...(editedData || {}), ...edits });
   }
 
-  async function saveData(update: UpdateFunc<T>): Promise<void> {
-    if (actionInProgress || !editedData || !update) {
+  async function saveData(
+    update: UpdateFunc<T>,
+    e = editedData
+  ): Promise<void> {
+    if (actionInProgress || !e || !update) {
       return;
     }
 
     dispatch({ type: LoadingActionType.SAVING_STARTED });
     try {
-      await update.action(editedData);
+      await update.action(e);
     } catch (err) {
       dispatch({
         type: LoadingActionType.SAVING_FAILED,
@@ -107,14 +113,15 @@ export function useWithData<T>(fetch: () => Promise<T>): UseData<T> {
   }
 
   async function saveAndReturnData(
-    update: UpdateAndReturnFunc<T>
+    update: UpdateAndReturnFunc<T>,
+    e = editedData
   ): Promise<T | undefined> {
-    if (actionInProgress || !editedData || !update) {
+    if (actionInProgress || !e || !update) {
       return;
     }
     dispatch({ type: LoadingActionType.SAVING_STARTED });
     try {
-      const updated = await update.action(editedData);
+      const updated = await update.action(e);
       dispatch({ type: LoadingActionType.SAVING_SUCCEEDED });
       setData(updated);
       setEditedData(undefined);

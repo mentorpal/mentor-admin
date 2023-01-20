@@ -154,38 +154,6 @@ function EditMentorInfoModal(props: {
                       </Select>
                     </FormControl>
                   </div>
-                  <div
-                    className={classes.inputField}
-                    style={{ textAlign: "left" }}
-                  >
-                    <FormControl>
-                      <InputLabel>Mentor Privacy</InputLabel>
-                      <Select
-                        data-cy="select-privacy"
-                        label="Privacy"
-                        value={editedMentor.isPrivate ? "private" : "public"}
-                        style={{ width: 200 }}
-                        onChange={(
-                          event: React.ChangeEvent<{
-                            name?: string | undefined;
-                            value: unknown;
-                          }>
-                        ) => {
-                          editMentor({
-                            isPrivate:
-                              (event.target.value as string) === "private",
-                          });
-                        }}
-                      >
-                        <MenuItem data-cy="public" value="public">
-                          Public
-                        </MenuItem>
-                        <MenuItem data-cy="private" value="private">
-                          Private
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
                 </Grid>
                 <Button
                   onClick={handleClose}
