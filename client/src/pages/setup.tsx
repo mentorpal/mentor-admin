@@ -264,12 +264,10 @@ function SetupPage(props: {
         autoPlay={false}
         navButtonsAlwaysVisible={true}
         className={classes.carousel}
-        timeout={{
-          appear: 300,
-          enter: 300,
-          exit: 100,
+        duration={300}
+        onChange={(now: number | undefined) => {
+          if (now !== undefined) toStep(now);
         }}
-        onChange={(idx: number) => toStep(idx)}
         NavButton={({ onClick, style, next, prev }) => {
           if (idx == 0) {
             return (
