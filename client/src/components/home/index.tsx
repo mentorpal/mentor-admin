@@ -23,9 +23,12 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import CloseIcon from "@material-ui/icons/Close";
+  Theme,
+  SelectChangeEvent,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import withStyles from "@mui/styles/withStyles";
+import CloseIcon from "@mui/icons-material/Close";
 import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
 import MyMentorCard from "components/my-mentor-card";
@@ -60,7 +63,7 @@ const ColorTooltip = withStyles({
   },
 })(Tooltip);
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
     height: "100vh",
@@ -413,7 +416,6 @@ function HomePage(props: {
           </Fab>
         )}
         <ColorTooltip
-          interactive={true}
           open={
             !hasSeenTooltips
               ? idxTooltip == TooltipStep.CATEGORIES
@@ -475,9 +477,7 @@ function HomePage(props: {
                 {reviewAnswerState.progress.total})
               </Typography>
             )}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => {
+            onChange={(event: SelectChangeEvent<string>) => {
               reviewAnswerState.selectSubject(event.target.value as string);
             }}
           >
@@ -568,7 +568,6 @@ function HomePage(props: {
             </Fab>
             <ColorTooltip
               data-cy="build-tooltip"
-              interactive={true}
               open={
                 !hasSeenTooltips
                   ? idxTooltip == TooltipStep.BUILD
@@ -632,7 +631,6 @@ function HomePage(props: {
 
             <ColorTooltip
               data-cy="preview-tooltip"
-              interactive={true}
               open={
                 hasSeenTooltips
                   ? previewTooltipOpen

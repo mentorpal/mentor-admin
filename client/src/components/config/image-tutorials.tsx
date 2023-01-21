@@ -11,8 +11,8 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
-} from "@material-ui/core";
-import { HelpOutline } from "@material-ui/icons";
+} from "@mui/material";
+import { HelpOutline } from "@mui/icons-material";
 import img1 from "images/Home_Markup_1.png";
 import img2 from "images/Home_Markup_2.png";
 import img3 from "images/Home_Markup_3.png";
@@ -36,7 +36,7 @@ export function ImageTutorials(): JSX.Element {
 
   return (
     <div>
-      <IconButton onClick={() => setOpenImg(0)}>
+      <IconButton onClick={() => setOpenImg(0)} size="large">
         <HelpOutline />
       </IconButton>
       {openImg === undefined ? undefined : (

@@ -6,19 +6,14 @@ The full terms of this copyright and license should always be found in the root 
 */
 
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  makeStyles,
-  Typography,
-} from "@material-ui/core";
+import { Button, Dialog, DialogContent, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Autorenew,
   HourglassEmptyTwoTone,
   ErrorOutline,
   CheckBox,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import {
   ImportGraphQLUpdate,
   ImportS3VideoMigrate,

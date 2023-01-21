@@ -1,5 +1,5 @@
 import React from "react";
-import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import { createTheme, MuiThemeProvider } from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
 

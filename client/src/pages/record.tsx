@@ -21,13 +21,15 @@ import {
   Select,
   Toolbar,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
-import UndoIcon from "@material-ui/icons/Undo";
-import EditIcon from "@material-ui/icons/Edit";
-import CloseIcon from "@material-ui/icons/Close";
+  Theme,
+  SelectChangeEvent,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import UndoIcon from "@mui/icons-material/Undo";
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 
 import {
   LoadingDialog,
@@ -65,7 +67,7 @@ import {
 } from "draft-js";
 import { useWithBrowser } from "hooks/use-with-browser";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
     display: "flex",
@@ -486,6 +488,7 @@ function RecordPage(props: {
                             question: curQuestion?.question?.question,
                           })
                         }
+                        size="large"
                       >
                         <UndoIcon />
                       </IconButton>
@@ -496,6 +499,7 @@ function RecordPage(props: {
               <IconButton
                 data-cy="question-edit"
                 onClick={() => setIsEditingQuestion(false)}
+                size="large"
               >
                 <CloseIcon />
               </IconButton>
@@ -515,6 +519,7 @@ function RecordPage(props: {
                 <IconButton
                   data-cy="question-edit"
                   onClick={() => setIsEditingQuestion(true)}
+                  size="large"
                 >
                   <EditIcon />
                 </IconButton>
@@ -529,9 +534,9 @@ function RecordPage(props: {
             <Select
               data-cy="idle-duration"
               value={curAnswer?.minVideoLength}
-              onChange={(
-                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-              ) => recordState.setMinVideoLength(event.target.value as number)}
+              onChange={(event: SelectChangeEvent<number>) =>
+                recordState.setMinVideoLength(event.target.value as number)
+              }
               style={{ marginLeft: 10 }}
             >
               <MenuItem data-cy="10" value={10}>
@@ -557,9 +562,7 @@ function RecordPage(props: {
           <Select
             data-cy="select-status"
             value={curAnswer?.editedAnswer.status || Status.NONE}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) =>
+            onChange={(event: SelectChangeEvent<Status>) =>
               recordState.editAnswer({ status: event.target.value as Status })
             }
             style={{ marginLeft: 10 }}
@@ -589,6 +592,7 @@ function RecordPage(props: {
             className={classes.backBtn}
             disabled={recordState.answerIdx === 0}
             onClick={() => switchAnswer(recordState.prevAnswer)}
+            size="large"
           >
             <ArrowBackIcon fontSize="large" />
           </IconButton>
@@ -600,6 +604,7 @@ function RecordPage(props: {
                 recordState.answerIdx === recordState.answers.length - 1
               }
               onClick={() => switchAnswer(recordState.nextAnswer)}
+              size="large"
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>

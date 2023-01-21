@@ -15,10 +15,10 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Toolbar,
-} from "@material-ui/core";
-import { Card, Button, Checkbox } from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { Card, Button, Checkbox } from "@mui/material";
 import { useWithFollowups } from "hooks/graphql/use-with-followups";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";

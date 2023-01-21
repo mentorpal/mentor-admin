@@ -13,11 +13,11 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
-import ThumbUpIcon from "@material-ui/icons/ThumbUp";
-import ThumbDownIcon from "@material-ui/icons/ThumbDown";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import ThumbDownIcon from "@mui/icons-material/ThumbDown";
+import { Autocomplete } from "@mui/material";
 
 //IMPORT FUNCTIONS
 import { updateDismissUserQuestion, updateUserQuestion } from "api";
@@ -318,7 +318,7 @@ function FeedbackItem(props: {
                 background: currentGraderAnswer ? "#eee" : "",
                 flexGrow: 1,
               }}
-              renderOption={(option) => (
+              renderOption={(props, option) => (
                 <Typography
                   style={{
                     color: option.status === Status.COMPLETE ? "black" : "grey",
@@ -339,6 +339,7 @@ function FeedbackItem(props: {
               onClick={() => {
                 onUpdateAnswer(undefined);
               }}
+              size="large"
             >
               <CloseIcon />
             </IconButton>

@@ -11,18 +11,19 @@ import {
   IconButton,
   List,
   ListSubheader,
-  makeStyles,
   TextField,
+  Theme,
   Typography,
-} from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Config, Organization } from "types";
 import { ColorPicker } from "./color-picker";
 import { copyAndRemove, copyAndSet } from "helpers";
 import { uploadFooterImg, uploadHeaderImg } from "api";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -385,6 +386,7 @@ export function HomeStyles(props: {
                   homeFooterLinks: copyAndRemove(config.homeFooterLinks, i),
                 })
               }
+              size="large"
             >
               <DeleteIcon fontSize="small" />
             </IconButton>

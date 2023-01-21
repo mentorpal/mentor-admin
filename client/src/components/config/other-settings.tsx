@@ -5,8 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Chip, TextField, Typography } from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
+import { Chip, TextField, Typography } from "@mui/material";
+import { Autocomplete } from "@mui/material";
 
 import { Config, Keyword } from "types";
 import { SubjectGQL } from "types-gql";
@@ -40,11 +40,10 @@ export function Settings(props: {
         renderTags={(value: readonly string[], getTagProps) =>
           value.map((option: string, index: number) => (
             <Chip
-              key={`keyword-${option}`}
               data-cy={`keyword-${option}`}
-              variant="default"
               label={option}
               {...getTagProps({ index })}
+              key={`keyword-${option}`}
             />
           ))
         }
@@ -55,7 +54,7 @@ export function Settings(props: {
             placeholder="Featured Keyword Types"
           />
         )}
-        renderOption={(option) => (
+        renderOption={(props, option) => (
           <Typography align="left" data-cy={`keyword-option-${option}`}>
             {option}
           </Typography>
@@ -74,11 +73,10 @@ export function Settings(props: {
         renderTags={(value: readonly SubjectGQL[], getTagProps) =>
           value.map((option: SubjectGQL, index: number) => (
             <Chip
-              key={`subject-${option._id}`}
               data-cy={`subject-${option._id}`}
-              variant="default"
               label={option.name}
               {...getTagProps({ index })}
+              key={`subject-${option._id}`}
             />
           ))
         }
@@ -89,7 +87,7 @@ export function Settings(props: {
             placeholder="Featured Subjects"
           />
         )}
-        renderOption={(option) => (
+        renderOption={(props, option) => (
           <Typography align="left" data-cy={`subject-option-${option._id}`}>
             {option.name}
           </Typography>
@@ -111,7 +109,7 @@ export function Settings(props: {
             placeholder="Default Subject"
           />
         )}
-        renderOption={(option) => (
+        renderOption={(props, option) => (
           <Typography
             align="left"
             data-cy={`default-subject-option-${option._id}`}

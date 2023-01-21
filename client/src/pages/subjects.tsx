@@ -17,10 +17,11 @@ import {
   TableContainer,
   TableRow,
   Toolbar,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
+  Theme,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 import { Subject, SubjectTypes } from "types";
 import { ColumnDef, ColumnHeader } from "components/column-header";
@@ -37,7 +38,7 @@ import ButtonGroupDropdown from "components/ButtonGroupDropdown";
 import { convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -282,6 +283,7 @@ function SubjectsPage(props: {
               data-cy="prev-page"
               disabled={!subjects?.pageInfo.hasPreviousPage}
               onClick={subjectsPrevPage}
+              size="large"
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
@@ -289,6 +291,7 @@ function SubjectsPage(props: {
               data-cy="next-page"
               disabled={!subjects?.pageInfo.hasNextPage}
               onClick={subjectsNextPage}
+              size="large"
             >
               <KeyboardArrowRightIcon />
             </IconButton>

@@ -9,11 +9,11 @@ import {
   Button,
   Card,
   ListItemText,
-  makeStyles,
   TextField,
   Typography,
-} from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { Autocomplete } from "@mui/material";
 import {
   Question,
   ImportPreview,
@@ -129,7 +129,7 @@ export default function QuestionImport(props: {
                     placeholder={"Map to a subject?"}
                   />
                 )}
-                renderOption={(option) => (
+                renderOption={(props, option) => (
                   <ListItemText primary={option.name} />
                 )}
               />
@@ -148,7 +148,9 @@ export default function QuestionImport(props: {
                     placeholder={question?.type || "Map to a question type?"}
                   />
                 )}
-                renderOption={(option) => <ListItemText primary={option} />}
+                renderOption={(props, option) => (
+                  <ListItemText primary={option} />
+                )}
               />
             </>
           ) : undefined}
@@ -172,7 +174,7 @@ export default function QuestionImport(props: {
                       }
                     />
                   )}
-                  renderOption={(option) => (
+                  renderOption={(props, option) => (
                     <ListItemText primary={option.name} />
                   )}
                 />
@@ -197,7 +199,7 @@ export default function QuestionImport(props: {
                       }
                     />
                   )}
-                  renderOption={(option) => (
+                  renderOption={(props, option) => (
                     <ListItemText primary={option.name} />
                   )}
                 />
@@ -218,7 +220,7 @@ export default function QuestionImport(props: {
                     placeholder="Map to existing question?"
                   />
                 )}
-                renderOption={(option) => (
+                renderOption={(props, option) => (
                   <ListItemText primary={option.question} />
                 )}
               />

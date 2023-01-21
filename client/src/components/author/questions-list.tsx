@@ -18,9 +18,9 @@ import {
   Grid,
   Typography,
   TextField,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { Autocomplete } from "@mui/material";
 
 import { Category, Question, SubjectTypes, Topic } from "types";
 import CategoryListItem from "./category-list-item";
@@ -212,7 +212,7 @@ export function QuestionsList(props: {
           }
         }}
         style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
-        renderOption={(option) => (
+        renderOption={(props, option) => (
           <Typography align="left">{option.question}</Typography>
         )}
         renderInput={(params) =>

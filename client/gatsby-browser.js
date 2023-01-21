@@ -1,5 +1,9 @@
 import React, { useEffect } from "react";
-import { createTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import {
+  createTheme,
+  MuiThemeProvider,
+  StyledEngineProvider,
+} from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
 
@@ -26,6 +30,7 @@ const theme = createTheme({
       main: "#1b6a9c",
     },
   },
+  spacing: 8,
 });
 
 const allowedAdminDomains = [
@@ -50,9 +55,11 @@ const App = ({ element }) => {
     }
   }, []);
   return (
-    <MuiThemeProvider theme={theme}>
-      <Provider store={store}>{element}</Provider>
-    </MuiThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <MuiThemeProvider theme={theme}>
+        <Provider store={store}>{element}</Provider>
+      </MuiThemeProvider>
+    </StyledEngineProvider>
   );
 };
 

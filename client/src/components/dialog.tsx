@@ -12,7 +12,7 @@ import {
   CircularProgress,
   DialogContentText,
   Button,
-} from "@material-ui/core";
+} from "@mui/material";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
 export function ErrorDialog(props: {

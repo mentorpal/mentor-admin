@@ -17,16 +17,16 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
-  makeStyles,
   Paper,
   TextField,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   ExpandMore as ExpandMoreIcon,
   FindReplace as FindReplaceIcon,
   Save as SaveIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import {
   Category,
   EditType,
@@ -36,7 +36,7 @@ import {
   SubjectTypes,
   Topic,
 } from "types";
-import { Autocomplete } from "@material-ui/lab";
+import { Autocomplete } from "@mui/material";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL } from "types-gql";
 import QuestionImport from "./import-question";
@@ -279,7 +279,7 @@ export default function SubjectImport(props: {
                     placeholder="Map to existing subject?"
                   />
                 )}
-                renderOption={(option) => (
+                renderOption={(props, option) => (
                   <ListItemText
                     primary={option.name}
                     secondary={option.description}
@@ -301,7 +301,9 @@ export default function SubjectImport(props: {
                     placeholder={subject?.type || SubjectTypes.SUBJECT}
                   />
                 )}
-                renderOption={(option) => <ListItemText primary={option} />}
+                renderOption={(props, option) => (
+                  <ListItemText primary={option} />
+                )}
               />
             </>
           ) : undefined}

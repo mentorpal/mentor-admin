@@ -6,11 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import Carousel from "react-material-ui-carousel";
-import { Avatar, IconButton } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import ArrowForwardIcon from "@material-ui/icons/ArrowForward";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
+import { Avatar, IconButton } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 
 import { User } from "types";
 import NavBar from "components/nav-bar";
@@ -306,6 +306,7 @@ function SetupPage(props: {
                 }}
                 onClick={() => onClick()}
                 className={classes.navButton}
+                size="large"
               >
                 <Avatar
                   data-cy="nav-btn-avatar"
@@ -329,6 +330,7 @@ function SetupPage(props: {
                 left: prev ? "-35px" : "",
               }}
               className={classes.navButton}
+              size="large"
             >
               <Avatar
                 data-cy="nav-btn-avatar"

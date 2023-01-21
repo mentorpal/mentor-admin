@@ -15,13 +15,13 @@ import {
   ListItemIcon,
   ListItemText,
   ListSubheader,
-  makeStyles,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   ExpandMore as ExpandMoreIcon,
   ErrorOutline as ErrorOutlineIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { EditType, ImportPreview, Media } from "types";
 import { ChangeIcon } from "./icons";
 import { AnswerGQL, getAnswerGQLMediaList } from "types-gql";

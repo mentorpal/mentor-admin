@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { Checkbox, FormControlLabel, TextField } from "@material-ui/core";
+import { Checkbox, FormControlLabel, TextField } from "@mui/material";
 import { Mentor } from "types";
 import { Slide } from "./slide";
 import { onTextInputChanged } from "helpers";

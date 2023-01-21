@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { Typography, Button } from "@material-ui/core";
+import { Typography, Button } from "@mui/material";
 import { Subject, Answer, MentorType } from "types";
 import { Slide } from "./slide";
 import { isAnswerComplete, urlBuild } from "helpers";

@@ -21,20 +21,21 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Switch,
   TextField,
-} from "@material-ui/core";
-import LaunchIcon from "@material-ui/icons/Launch";
-import DragHandleIcon from "@material-ui/icons/DragHandle";
-import { Autocomplete } from "@material-ui/lab";
+  Theme,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import LaunchIcon from "@mui/icons-material/Launch";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
+import { Autocomplete } from "@mui/material";
 
 import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, Organization } from "types";
 import { MentorGQL } from "types-gql";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   button: {
     width: 200,
     padding: 5,

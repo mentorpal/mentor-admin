@@ -16,9 +16,9 @@ import {
   IconButton,
   Collapse,
   ListSubheader,
-} from "@material-ui/core";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Category } from "types";
 import QuestionListItem from "./question-list-item";
 import { SubjectQuestionGQL } from "types-gql";

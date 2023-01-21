@@ -12,8 +12,9 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
-} from "@material-ui/core";
+} from "@mui/material";
 
 import { Config } from "types";
 
@@ -108,9 +109,7 @@ export function Prompts(props: {
           label="Guest Prompt Input Type"
           value={config.guestPromptInputType || "Email"}
           style={{ width: 300, marginRight: 20 }}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) =>
+          onChange={(event: SelectChangeEvent<string>) =>
             updateConfig({
               guestPromptInputType: event.target.value as string,
             })

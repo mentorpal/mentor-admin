@@ -13,7 +13,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-} from "@material-ui/core";
+  SelectChangeEvent,
+} from "@mui/material";
 import { Mentor, MentorType } from "types";
 import { Slide } from "./slide";
 import { getFileSizeInMb } from "helpers";
@@ -95,12 +96,7 @@ export function MentorTypeSlide(props: {
             data-cy="select-chat-type"
             value={mentor.mentorType || MentorType.VIDEO}
             style={{ width: 100, marginRight: 20 }}
-            onChange={(
-              event: React.ChangeEvent<{
-                name?: string;
-                value: unknown;
-              }>
-            ) => {
+            onChange={(event: SelectChangeEvent<MentorType>) => {
               editMentor({ mentorType: event.target.value as MentorType });
             }}
           >

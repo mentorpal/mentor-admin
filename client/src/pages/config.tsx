@@ -10,12 +10,13 @@ import {
   CircularProgress,
   FormControl,
   InputLabel,
-  makeStyles,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Tab,
-} from "@material-ui/core";
-import { TabContext, TabList, TabPanel } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import NavBar from "components/nav-bar";
 import { ErrorDialog } from "components/dialog";
@@ -122,9 +123,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             data-cy="select-org"
             value={org?._id || "Default"}
             cy-value={org?._id}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) =>
+            onChange={(event: SelectChangeEvent<string>) =>
               setOrganization(
                 orgs.find((o) => (event.target.value as string) === o._id)
               )
