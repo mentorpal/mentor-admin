@@ -235,6 +235,7 @@ export function cyMockDefault(
   cyMockCancelUpload(cy);
   cyMockEncodeSentences(cy);
   cyMockTrain(cy);
+  cyMockGoogleLogin(cy);
   cyMockXapiInit(cy);
 
   const mentors = [];
@@ -301,8 +302,12 @@ export function cyMockDefault(
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
     ...[mockGQL("MentorFindOne", mentors)],
-    ...(args.subject ? [mockGQL("Subject", subjectList)] : []),
-    ...(args.subjects ? [mockGQL("Subjects", subjectsList)] : []),
+    ...(args.subject
+      ? [mockGQL("Subject", subjectList)]
+      : [mockGQL("Subject", {})]),
+    ...(args.subjects
+      ? [mockGQL("Subjects", subjectsList)]
+      : [mockGQL("Subjects", { edges: [] })]),
     ...(args.questions
       ? [mockGQL("QuestionsById", questionsResList)]
       : [mockGQL("QuestionsById", { questionsById: questions })]),
@@ -316,6 +321,10 @@ export function cyMockDefault(
     mockGQL("SetRecordQueue", { me: { setRecordQueue: [] } }),
     mockGQL("FetchMentorRecordQueue", { me: { fetchMentorRecordQueue: [] } }),
     mockGQL("TrendingUserQuestions", { userQuestions: { edges: [] } }),
+    mockGQL("Mentors", { edges: [] }),
+    mockGQL("MentorPanels", { edges: [] }),
+    mockGQL("Keywords", { keywords: { edges: [] } }),
+    mockGQL("Organizations", { organizations: { edges: [] } }),
   ]);
 }
 
@@ -602,6 +611,23 @@ export function cyMockFollowUpQuestions(
         body: {
           errors: params.errors,
           data: params.data || {},
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
+export function cyMockGoogleLogin(cy): void {
+  cy.intercept("GET", "https://accounts.google.com/**", (req) => {
+    req.alias = "googleLogin";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {},
         },
         headers: {
           "Content-Type": "application/json",

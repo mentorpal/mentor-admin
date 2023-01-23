@@ -37,7 +37,7 @@ export function MentorGoalSlide(props: {
             data-cy="goal-input"
             variant="outlined"
             multiline
-            rows={6}
+            minRows={6}
             value={mentor.goal || ""}
             onChange={(e) =>
               onTextInputChanged(e, () => {

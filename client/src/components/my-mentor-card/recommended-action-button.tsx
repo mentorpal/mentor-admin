@@ -111,9 +111,9 @@ export default function RecommendedActionButton(props: {
         color="textSecondary"
         data-cy="recommended-action-reason"
       >
-        <div className="helpbox">
-          <p>{curRec.reason}</p>
-        </div>
+        <span className="helpbox">
+          <span>{curRec.reason}</span>
+        </span>
       </Typography>
       <div
         className="recommended-action-btns"

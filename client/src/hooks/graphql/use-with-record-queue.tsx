@@ -102,7 +102,6 @@ export function useWithRecordQueue(accessToken: string): useWithRecordQueue {
             error: JSON.stringify(err),
           },
         });
-        console.error("failed to fetch record queue", err);
       });
   }, [questionsLoading, mentorIsLoading, mentorQuestions]);
 

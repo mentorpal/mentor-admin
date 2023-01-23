@@ -71,6 +71,7 @@ export interface MentorGQL {
   answers: AnswerGQL[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+  updatedAt: string;
 }
 
 export interface SubjectGQL {

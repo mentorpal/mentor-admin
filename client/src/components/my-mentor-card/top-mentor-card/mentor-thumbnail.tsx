@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import CreateIcon from "@material-ui/icons/Create";
 import CloseIcon from "@material-ui/icons/Close";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import { withStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import { withStyles, makeStyles } from "@material-ui/core/styles";
 
 import { TooltipStep } from "components/home";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -22,34 +22,11 @@ const ColorTooltip = withStyles({
   },
 })(Tooltip);
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles(() => ({
   homeThumbnail: {
     position: "relative",
     width: "60%",
     height: 180,
-  },
-  siteThumbnail: {
-    width: 180,
-    height: 135,
-  },
-  title: {
-    fontWeight: "bold",
-  },
-  inputField: {
-    width: "100%",
-    margin: 10,
-  },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    maxWidth: "50%",
   },
 }));
 
@@ -88,15 +65,9 @@ function MentorThumbnail(props: {
   }
 
   return (
-    <Grid item container alignItems="center" justify="center" xs={3} md={12}>
+    <Grid container alignItems="center" justifyContent="center">
       {/* Mentor info / left column */}
-      <Grid
-        alignItems="center"
-        data-cy="thumbnail-wrapper"
-        thumbnail-src={thumbnail}
-        item
-        xs={10}
-      >
+      <Grid data-cy="thumbnail-wrapper" thumbnail-src={thumbnail} item xs={10}>
         <Typography
           gutterBottom
           variant="h5"
@@ -192,83 +163,45 @@ function MentorThumbnail(props: {
       </Grid>
       {/* Thumbnail */}
       <Grid
-        justify="center"
-        alignItems="center"
         data-cy="thumbnail-wrapper"
         thumbnail-src={thumbnail}
         item
         xs={10}
         className="thumbnail-wrapper"
       >
-        <div className="upload-thumbnail"></div>
-        {thumbnail ? (
-          <div style={{ display: "flex" }}>
-            <Avatar
-              data-cy="uploaded-thumbnail"
-              variant="rounded"
-              className={classes.homeThumbnail}
-              src={thumbnail}
-            />
-            <label
-              htmlFor="icon-button-file"
-              style={{
-                position: "absolute",
-                zIndex: 2,
-                bottom: -2,
-                right: 73,
-              }}
-            >
-              <IconButton color="primary" component="span">
-                <CloudUploadIcon />
-              </IconButton>
-            </label>
-            <input
-              id="icon-button-file"
-              data-cy="upload-file"
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={(e) => {
-                e.target.files instanceof FileList && e.target.files[0]
-                  ? updateThumbnail(e.target.files[0])
-                  : undefined;
-              }}
-            />
-          </div>
-        ) : (
-          <div style={{ display: "flex" }}>
-            <Avatar
-              data-cy="placeholder-thumbnail"
-              variant="square"
-              className={classes.homeThumbnail}
-            />
-            <label
-              htmlFor="icon-button-file"
-              style={{
-                position: "absolute",
-                zIndex: 2,
-                bottom: -2,
-                right: 73,
-              }}
-            >
-              <IconButton color="primary" component="span">
-                <CloudUploadIcon />
-              </IconButton>
-            </label>
-            <input
-              id="icon-button-file"
-              data-cy="upload-file"
-              type="file"
-              hidden
-              accept="image/*"
-              onChange={(e) => {
-                e.target.files instanceof FileList && e.target.files[0]
-                  ? updateThumbnail(e.target.files[0])
-                  : undefined;
-              }}
-            />
-          </div>
-        )}
+        <div style={{ display: "flex" }}>
+          <Avatar
+            data-cy={thumbnail ? "uploaded-thumbnail" : "placeholder-thumbnail"}
+            variant={thumbnail ? "rounded" : "square"}
+            className={classes.homeThumbnail}
+            src={thumbnail || ""}
+          />
+          <label
+            htmlFor="icon-button-file"
+            style={{
+              position: "absolute",
+              zIndex: 2,
+              bottom: -2,
+              right: 73,
+            }}
+          >
+            <IconButton color="primary" component="span">
+              <CloudUploadIcon />
+            </IconButton>
+          </label>
+          <input
+            id="icon-button-file"
+            data-cy="upload-file"
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => {
+              e.target.files instanceof FileList && e.target.files[0]
+                ? updateThumbnail(e.target.files[0])
+                : undefined;
+            }}
+          />
+        </div>
       </Grid>
       <Grid
         container

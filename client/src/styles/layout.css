@@ -143,11 +143,11 @@ div.jsoneditor {
   display: inline-block;
   background-color: #99999930;
   border-radius: 10px;
-  margin: 10px 0 10px 0;
+  padding: 10px;
 }
 
-.helpbox > p {
-  margin: 15px;
+.helpbox > span {
+  padding: 15px;
   text-align: left;
   line-height: 1.5rem;
 }
