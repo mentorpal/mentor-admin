@@ -133,6 +133,14 @@ const columns: ColumnDef[] = [
     sortable: true,
   },
   {
+    id: "defaultMentor",
+    subField: ["updatedAt"],
+    label: "Last Updated",
+    minWidth: 0,
+    align: "left",
+    sortable: true,
+  },
+  {
     id: "actions",
     label: "",
     minWidth: 0,
@@ -347,6 +355,9 @@ function UserItem(props: {
         ) : (
           <div>{mentor.isPrivate ? "Private" : "Public"}</div>
         )}
+      </TableCell>
+      <TableCell data-cy="updatedAt" align="left">
+        {mentor.updatedAt ? new Date(mentor.updatedAt).toLocaleString() : "N/A"}
       </TableCell>
       <TableCell data-cy="actions" align="right">
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
