@@ -170,6 +170,7 @@ export interface Mentor {
   answers: Answer[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+  updatedAt: string;
 }
 
 export enum OrgViewPermissionType {
