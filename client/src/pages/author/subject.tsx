@@ -8,10 +8,10 @@ import React, { ChangeEvent, useState } from "react";
 import {
   Button,
   CircularProgress,
-  ListItemText,
   Tab,
   TextField,
   Theme,
+  Typography,
 } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Autocomplete } from "@mui/material";
@@ -180,7 +180,9 @@ function SubjectPage(props: {
                 placeholder={editedSubject.type || SubjectTypes.SUBJECT}
               />
             )}
-            renderOption={(props, option) => <ListItemText primary={option} />}
+            renderOption={(props, option) => (
+              <Typography {...props}>{option}</Typography>
+            )}
           />
         </TabPanel>
         <TabPanel className={classes.tab} value="2">

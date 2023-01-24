@@ -411,7 +411,7 @@ function FeedbackPage(): JSX.Element {
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(props, option) => (
-                        <Typography align="left">
+                        <Typography {...props} align="left">
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>
@@ -437,7 +437,7 @@ function FeedbackPage(): JSX.Element {
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(props, option) => (
-                        <Typography align="left">
+                        <Typography {...props} align="left">
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>

@@ -418,7 +418,7 @@ function EditOrganization(props: {
           }}
           style={{ width: "100%" }}
           renderOption={(props, option) => (
-            <Typography data-cy={`member-${option._id}`}>
+            <Typography {...props} data-cy={`member-${option._id}`}>
               {option.defaultMentor.name} ({option.email})
             </Typography>
           )}

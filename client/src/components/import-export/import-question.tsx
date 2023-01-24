@@ -5,13 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import {
-  Button,
-  Card,
-  ListItemText,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Card, TextField, Typography } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import { Autocomplete } from "@mui/material";
 import {
@@ -130,7 +124,7 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <ListItemText primary={option.name} />
+                  <Typography {...props}>{option.name}</Typography>
                 )}
               />
               <Autocomplete
@@ -149,7 +143,7 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <ListItemText primary={option} />
+                  <Typography {...props}>{option}</Typography>
                 )}
               />
             </>
@@ -175,7 +169,7 @@ export default function QuestionImport(props: {
                     />
                   )}
                   renderOption={(props, option) => (
-                    <ListItemText primary={option.name} />
+                    <Typography {...props}>{option.name}</Typography>
                   )}
                 />
               ) : undefined}
@@ -200,7 +194,7 @@ export default function QuestionImport(props: {
                     />
                   )}
                   renderOption={(props, option) => (
-                    <ListItemText primary={option.name} />
+                    <Typography {...props}>{option.name}</Typography>
                   )}
                 />
               ) : undefined}
@@ -221,7 +215,7 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <ListItemText primary={option.question} />
+                  <Typography {...props}>{option.question}</Typography>
                 )}
               />
             </>

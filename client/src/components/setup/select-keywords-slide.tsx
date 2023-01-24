@@ -147,6 +147,7 @@ export function SelectKeywordsSlide(props: {
                       )}
                       renderOption={(props, option) => (
                         <Typography
+                          {...props}
                           align="left"
                           data-cy={`${kv[0]}-option-${option.name}`}
                         >
@@ -219,6 +220,7 @@ export function SelectKeywordsSlide(props: {
                 )}
                 renderOption={(props, option) => (
                   <Typography
+                    {...props}
                     align="left"
                     data-cy={`keyword-option-${option.name}`}
                   >

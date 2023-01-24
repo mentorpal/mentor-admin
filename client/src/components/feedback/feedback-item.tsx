@@ -320,6 +320,7 @@ function FeedbackItem(props: {
               }}
               renderOption={(props, option) => (
                 <Typography
+                  {...props}
                   style={{
                     color: option.status === Status.COMPLETE ? "black" : "grey",
                   }}

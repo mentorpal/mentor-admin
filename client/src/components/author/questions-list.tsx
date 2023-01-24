@@ -213,7 +213,9 @@ export function QuestionsList(props: {
         }}
         style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
         renderOption={(props, option) => (
-          <Typography align="left">{option.question}</Typography>
+          <Typography {...props} align="left">
+            {option.question}
+          </Typography>
         )}
         renderInput={(params) =>
           isLoading ? (

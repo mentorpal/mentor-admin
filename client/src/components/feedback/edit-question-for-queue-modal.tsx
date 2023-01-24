@@ -246,6 +246,7 @@ function EditQuestionForQueueModal(props: {
                         style={{ minWidth: 300 }}
                         renderOption={(props, option) => (
                           <Typography
+                            {...props}
                             align="left"
                             data-cy={`Topic-option-${option.id}`}
                           >

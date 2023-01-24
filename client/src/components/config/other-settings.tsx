@@ -55,7 +55,11 @@ export function Settings(props: {
           />
         )}
         renderOption={(props, option) => (
-          <Typography align="left" data-cy={`keyword-option-${option}`}>
+          <Typography
+            {...props}
+            align="left"
+            data-cy={`keyword-option-${option}`}
+          >
             {option}
           </Typography>
         )}
@@ -88,7 +92,11 @@ export function Settings(props: {
           />
         )}
         renderOption={(props, option) => (
-          <Typography align="left" data-cy={`subject-option-${option._id}`}>
+          <Typography
+            {...props}
+            align="left"
+            data-cy={`subject-option-${option._id}`}
+          >
             {option.name}
           </Typography>
         )}
@@ -111,6 +119,7 @@ export function Settings(props: {
         )}
         renderOption={(props, option) => (
           <Typography
+            {...props}
             align="left"
             data-cy={`default-subject-option-${option._id}`}
           >

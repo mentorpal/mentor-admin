@@ -280,10 +280,9 @@ export default function SubjectImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <ListItemText
-                    primary={option.name}
-                    secondary={option.description}
-                  />
+                  <Typography {...props} align="center">
+                    {option.name}
+                  </Typography>
                 )}
               />
               <Autocomplete
@@ -302,7 +301,7 @@ export default function SubjectImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <ListItemText primary={option} />
+                  <Typography {...props}>{option}</Typography>
                 )}
               />
             </>
