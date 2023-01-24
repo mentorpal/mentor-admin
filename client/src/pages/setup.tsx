@@ -65,7 +65,7 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     alignContent: "center",
     height: "100%",
-    width: "fit-content",
+    width: "100%",
     overflow: "visible",
   },
   card: {
@@ -90,8 +90,6 @@ const useStyles = makeStyles(() => ({
   },
   navButton: {
     top: "calc(50% - 20px) !important",
-    width: 100,
-    height: 100,
   },
   avatar: {
     width: "50px",
@@ -276,7 +274,6 @@ function SetupPage(props: {
                 onClick={() => onClick()}
                 style={{
                   display: prev ? "none" : "block",
-                  right: next ? "-35px" : "",
                 }}
                 size="medium"
                 className={classes.navButton}
@@ -302,7 +299,6 @@ function SetupPage(props: {
                 data-cy={next ? "next-btn" : "back-btn"}
                 style={{
                   display: next ? "none" : "block",
-                  left: prev ? "-35px" : "",
                 }}
                 onClick={() => onClick()}
                 className={classes.navButton}
@@ -326,8 +322,6 @@ function SetupPage(props: {
               onClick={() => onClick()}
               style={{
                 display: "block",
-                right: next ? "-35px" : "",
-                left: prev ? "-35px" : "",
               }}
               className={classes.navButton}
               size="large"

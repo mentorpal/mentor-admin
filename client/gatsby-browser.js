@@ -1,9 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  createTheme,
-  ThemeProvider,
-  StyledEngineProvider,
-} from "@mui/material/styles";
+import { createTheme, ThemeProvider, StyledEngineProvider} from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
 

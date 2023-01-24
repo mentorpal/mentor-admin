@@ -36,6 +36,7 @@ const subjectData = [
     name: "Idle and Initial Recordings",
     type: SubjectTypes.UTTERANCES,
     isRequired: true,
+    isArchived: false,
     description: "These are miscellaneous phrases you'll be asked to repeat.",
     categories: [
       {
