@@ -25,6 +25,7 @@ export interface UseStaticDataConnection<T> {
   reloadData: () => void;
   nextPage: () => void;
   prevPage: () => void;
+  setPageSize: (n: number) => void;
   sortBy: (attribute: string, subAttribute?: string[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filter: (f: Record<string, any>) => void;
@@ -49,6 +50,7 @@ export function useWithStaticDataConnection<T>(
   initalSearchParams?: Partial<SearchParams>
 ): UseStaticDataConnection<T> {
   const [page, setPage] = useState<number>(PAGE_LIMIT);
+  const [pageLimit, setPageLimit] = useState<number>(PAGE_LIMIT);
   const [pageData, setPageData] = useState<Connection<T>>();
   const [pageSearchParams, setPageSearchParams] = useState<StaticSearchParams>({
     ...defaultSearchParams,
@@ -70,11 +72,11 @@ export function useWithStaticDataConnection<T>(
     }
     const edges = sortFilter(data.edges);
     const pd: Connection<T> = {
-      edges: edges.slice(page - PAGE_LIMIT, page),
+      edges: edges.slice(page - pageLimit, page),
       pageInfo: {
         ...data.pageInfo,
         hasNextPage: edges.length > page,
-        hasPreviousPage: page !== PAGE_LIMIT,
+        hasPreviousPage: page !== pageLimit,
       },
     };
     setPageData(pd);
@@ -203,7 +205,7 @@ export function useWithStaticDataConnection<T>(
   }
 
   function sortBy(attribute: string, subAttribute?: string[]) {
-    setPage(PAGE_LIMIT);
+    setPage(pageLimit);
     setPageSearchParams({
       ...pageSearchParams,
       sortBy: attribute,
@@ -217,19 +219,19 @@ export function useWithStaticDataConnection<T>(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function filter(f: Record<string, any>) {
-    setPage(PAGE_LIMIT);
+    setPage(pageLimit);
     setPageSearchParams({ ...pageSearchParams, filter: f });
   }
 
   function nextPage(): void {
     if (hasNextPage()) {
-      setPage(page + PAGE_LIMIT);
+      setPage(page + pageLimit);
     }
   }
 
   function prevPage(): void {
     if (hasPrevPage()) {
-      setPage(page - PAGE_LIMIT);
+      setPage(page - pageLimit);
     }
   }
 
@@ -238,7 +240,12 @@ export function useWithStaticDataConnection<T>(
   }
 
   function hasPrevPage(): boolean {
-    return page !== PAGE_LIMIT;
+    return page !== pageLimit;
+  }
+
+  function setPageSize(num: number): void {
+    setPageLimit(num);
+    setPage(num);
   }
 
   return {
@@ -254,6 +261,7 @@ export function useWithStaticDataConnection<T>(
     filter,
     nextPage,
     prevPage,
+    setPageSize,
     setPreFilter,
     setPostSort,
   };

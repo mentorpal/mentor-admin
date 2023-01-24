@@ -17,11 +17,12 @@ export function Settings(props: {
   subjects: SubjectGQL[];
   updateConfig: (c: Partial<Config>) => void;
 }): JSX.Element {
+  const { config, updateConfig } = props;
   const featuredSubjects = props.subjects.filter((s) =>
-    props.config.featuredSubjects?.includes(s._id)
+    config.featuredSubjects?.includes(s._id)
   );
   const defaultSubject = props.subjects.find(
-    (s) => props.config.defaultSubject === s._id
+    (s) => config.defaultSubject === s._id
   );
 
   return (
@@ -29,14 +30,14 @@ export function Settings(props: {
       <Autocomplete
         data-cy="keyword-input"
         multiple
-        value={props.config.featuredKeywordTypes}
+        value={config.featuredKeywordTypes}
         options={
           props.keywords
             ?.map((k) => k.type)
             ?.filter((v, i, a) => a.indexOf(v) === i) || []
         }
         getOptionLabel={(option: string) => option}
-        onChange={(e, v) => props.updateConfig({ featuredKeywordTypes: v })}
+        onChange={(e, v) => updateConfig({ featuredKeywordTypes: v })}
         renderTags={(value: readonly string[], getTagProps) =>
           value.map((option: string, index: number) => (
             <Chip
@@ -69,7 +70,7 @@ export function Settings(props: {
         options={props.subjects}
         getOptionLabel={(option: SubjectGQL) => option.name}
         onChange={(e, v) =>
-          props.updateConfig({ featuredSubjects: v.map((s) => s._id) })
+          updateConfig({ featuredSubjects: v.map((s) => s._id) })
         }
         renderTags={(value: readonly SubjectGQL[], getTagProps) =>
           value.map((option: SubjectGQL, index: number) => (
@@ -102,7 +103,7 @@ export function Settings(props: {
         options={featuredSubjects}
         getOptionLabel={(option: SubjectGQL) => option.name}
         onChange={(e, v) =>
-          props.updateConfig({ defaultSubject: v?._id || undefined })
+          updateConfig({ defaultSubject: v?._id || undefined })
         }
         renderInput={(params) => (
           <TextField
@@ -120,6 +121,22 @@ export function Settings(props: {
           </Typography>
         )}
         style={{ width: "100%", marginBottom: 10 }}
+      />
+      <TextField
+        fullWidth
+        data-cy="minTopicQuestionSize"
+        data-test={config.minTopicQuestionSize}
+        variant="outlined"
+        label="Minimum Question Topic Size"
+        value={config.minTopicQuestionSize}
+        onChange={(e) =>
+          updateConfig({ minTopicQuestionSize: Number(e.target.value) || 0 })
+        }
+        style={{ marginBottom: 20 }}
+        inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
     </div>
   );

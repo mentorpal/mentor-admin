@@ -71,7 +71,6 @@ export function Prompts(props: {
         label="Disable Disclaimer Popup"
         style={{ justifySelf: "center" }}
       />
-
       <TextField
         fullWidth
         data-cy="guestPromptTitle"
@@ -141,7 +140,6 @@ export function Prompts(props: {
         label="Display Guest Prompt"
         style={{ justifySelf: "center" }}
       />
-
       <TextField
         fullWidth
         data-cy="walkthroughTitle"
@@ -188,6 +186,36 @@ export function Prompts(props: {
         }
         label="Disabled Walkthrough"
         style={{ justifySelf: "center" }}
+      />
+      <TextField
+        fullWidth
+        data-cy="postSurveyLink"
+        data-test={config.postSurveyLink}
+        variant="outlined"
+        label="Post Survey Link"
+        multiline={true}
+        value={config.postSurveyLink}
+        onChange={(e) => updateConfig({ postSurveyLink: e.target.value })}
+        style={{ marginBottom: 20 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <TextField
+        fullWidth
+        data-cy="postSurveyTimer"
+        data-test={config.postSurveyTimer}
+        variant="outlined"
+        label="Post Survey Timer (seconds)"
+        value={config.postSurveyTimer}
+        onChange={(e) =>
+          updateConfig({ postSurveyTimer: Number(e.target.value) || 0 })
+        }
+        style={{ marginBottom: 20 }}
+        inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+        InputLabelProps={{
+          shrink: true,
+        }}
       />
     </div>
   );

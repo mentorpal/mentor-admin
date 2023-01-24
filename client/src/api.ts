@@ -243,6 +243,9 @@ export async function fetchConfig(): Promise<Config> {
           virtualBackgroundUrls
           defaultVirtualBackground
           questionSortOrder
+          postSurveyLink
+          postSurveyTimer
+          minTopicQuestionSize          
           urlGraphql
           urlVideo
           urlDocSetup
@@ -2281,6 +2284,9 @@ export async function fetchOrganizations(
                   virtualBackgroundUrls
                   defaultVirtualBackground
                   questionSortOrder
+                  postSurveyLink
+                  postSurveyTimer
+                  minTopicQuestionSize          
                   urlGraphql
                   urlVideo
                   urlDocSetup
@@ -2378,6 +2384,9 @@ export async function addOrUpdateOrganization(
               virtualBackgroundUrls
               defaultVirtualBackground
               questionSortOrder
+              postSurveyLink
+              postSurveyTimer
+              minTopicQuestionSize          
               urlGraphql
               urlVideo
               urlDocSetup
@@ -2460,6 +2469,9 @@ export async function updateOrgConfig(
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
+            postSurveyLink
+            postSurveyTimer
+            minTopicQuestionSize          
             urlGraphql
             urlVideo
             urlDocSetup
@@ -2536,6 +2548,9 @@ export async function updateOrgConfig(
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
+          postSurveyLink: config.postSurveyLink,
+          postSurveyTimer: config.postSurveyTimer,
+          minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
     },
@@ -2565,6 +2580,9 @@ export async function updateConfig(
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
+            postSurveyLink
+            postSurveyTimer
+            minTopicQuestionSize          
             urlGraphql
             urlVideo
             urlDocSetup
@@ -2640,6 +2658,9 @@ export async function updateConfig(
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
+          postSurveyLink: config.postSurveyLink,
+          postSurveyTimer: config.postSurveyTimer,
+          minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
     },

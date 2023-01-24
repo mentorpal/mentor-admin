@@ -35,6 +35,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
   } = useWithStaticDataConnection<User>(fetch);
 
@@ -86,6 +87,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
     onUpdateUserPermissions,
     onUpdateMentorPrivacy,

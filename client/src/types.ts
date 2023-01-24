@@ -40,13 +40,17 @@ export interface Config {
   googleClientId: string;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  questionSortOrder: number;
   urlGraphql: string;
   urlVideo: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
+  // client settings
+  questionSortOrder: boolean;
   mentorsDefault: string[];
-  // home style settings
+  postSurveyLink: string;
+  postSurveyTimer: number;
+  minTopicQuestionSize: number;
+  // home settings
   styleHeaderTitle: string;
   styleHeaderText: string;
   styleHeaderColor: string;
