@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import {
   createTheme,
-  MuiThemeProvider,
+  ThemeProvider,
   StyledEngineProvider,
 } from "@mui/material/styles";
 import { Provider } from "react-redux";
@@ -56,9 +56,9 @@ const App = ({ element }) => {
   }, []);
   return (
     <StyledEngineProvider injectFirst>
-      <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <Provider store={store}>{element}</Provider>
-      </MuiThemeProvider>
+      </ThemeProvider>
     </StyledEngineProvider>
   );
 };

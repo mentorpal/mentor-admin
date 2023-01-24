@@ -1,5 +1,5 @@
 import React from "react";
-import { createTheme, MuiThemeProvider } from "@mui/material/styles";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Provider } from "react-redux";
 import { store } from "store/store";
 
@@ -13,7 +13,7 @@ const theme = createTheme({
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const wrapRootElement = ({ element }) => (
-  <MuiThemeProvider theme={theme}>
+  <ThemeProvider theme={theme}>
     <Provider store={store}>{element}</Provider>
-  </MuiThemeProvider>
+  </ThemeProvider>
 );
