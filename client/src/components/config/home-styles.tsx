@@ -197,7 +197,7 @@ export function HomeStyles(props: {
         data-cy="styleHeaderLogoUrl"
         data-test={config.styleHeaderLogoUrl}
         variant="outlined"
-        label="Header Logo Link Url"
+        label="Header Logo Image Link URL"
         helperText="Link that will open upon clicking your logo. Leave empty for no link."
         value={config.styleHeaderLogoUrl}
         onChange={(e) => updateConfig({ styleHeaderLogoUrl: e.target.value })}
@@ -206,7 +206,54 @@ export function HomeStyles(props: {
           shrink: true,
         }}
       />
-
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 20,
+        }}
+      >
+        <TextField
+          data-cy="styleHeaderLogoOffset"
+          data-test={config.styleHeaderLogoOffset}
+          variant="outlined"
+          label="Header Logo Image Offset"
+          value={config.styleHeaderLogoOffset}
+          onChange={(e) =>
+            updateConfig({ styleHeaderLogoOffset: Number(e.target.value) || 0 })
+          }
+          style={{ width: "30%" }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          data-cy="styleHeaderLogoHeight"
+          data-test={config.styleHeaderLogoOffset}
+          variant="outlined"
+          label="Header Logo Image Height"
+          value={config.styleHeaderLogoHeight}
+          onChange={(e) =>
+            updateConfig({ styleHeaderLogoHeight: Number(e.target.value) || 0 })
+          }
+          style={{ width: "30%" }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+          InputLabelProps={{ shrink: true }}
+        />
+        <TextField
+          data-cy="styleHeaderLogoWidth"
+          data-test={config.styleHeaderLogoWidth}
+          variant="outlined"
+          label="Header Logo Image Width"
+          value={config.styleHeaderLogoWidth}
+          onChange={(e) =>
+            updateConfig({ styleHeaderLogoWidth: Number(e.target.value) || 0 })
+          }
+          style={{ width: "30%" }}
+          inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+          InputLabelProps={{ shrink: true }}
+        />
+      </div>
       <Grid container spacing={5} justifyContent="center">
         <Grid item>
           <Typography
@@ -300,7 +347,6 @@ export function HomeStyles(props: {
           />
         </Grid>
       </Grid>
-
       <List>
         <ListSubheader>Footer Images</ListSubheader>
         {(config.homeFooterImages || []).map((f, i) => (

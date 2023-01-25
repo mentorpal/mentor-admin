@@ -82,13 +82,7 @@ export function cySetup(cy) {
   cy.clearLocalStorage();
 }
 
-export enum QuestionSortOrder {
-  Alphabetical = 0,
-  ReverseAlphabetical = 1,
-}
-
 export interface Config {
-  mentorsDefault: string[];
   featuredMentors: string[];
   featuredMentorPanels: string[];
   activeMentors: string[];
@@ -110,14 +104,13 @@ export interface Config {
   disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  questionSortOrder: QuestionSortOrder;
+  questionSortOrder: string;
   featuredKeywordTypes: string[];
   featuredSubjects: string[];
   defaultSubject: string;
 }
 
 export const CONFIG_DEFAULT: Config = {
-  mentorsDefault: [],
   featuredMentors: [],
   featuredMentorPanels: [],
   activeMentors: [],
@@ -139,7 +132,7 @@ export const CONFIG_DEFAULT: Config = {
   disclaimerDisabled: false,
   virtualBackgroundUrls: [],
   defaultVirtualBackground: "https://default.image.url.com/",
-  questionSortOrder: 0,
+  questionSortOrder: "",
   featuredKeywordTypes: [
     "Gender",
     "Ethnicity",

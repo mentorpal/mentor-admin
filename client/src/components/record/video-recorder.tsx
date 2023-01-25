@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useRef, useState } from "react";
 import RecordRTC, { MediaStreamRecorder } from "recordrtc";
-import { Button, IconButton, Typography } from "@material-ui/core";
+import { Button, Typography } from "@material-ui/core";
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
 import StopIcon from "@material-ui/icons/Stop";
 import useInterval from "hooks/task/use-interval";
@@ -483,28 +483,40 @@ function VideoRecorder(props: {
       <div
         data-cy="controls"
         className={classes.row}
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          visibility: cameraIsOn ? "visible" : "hidden",
-        }}
+        style={{ justifyContent: "center", marginTop: 10 }}
       >
-        <IconButton
-          onClick={
-            recordState.isRecording
-              ? beginStopRecordingCountdown
-              : beginStartRecordingCountdown
+        <Button
+          variant="outlined"
+          disableElevation
+          endIcon={
+            recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />
           }
-          style={{ color: "red" }}
+          onClick={() => {
+            if (cameraIsOn) {
+              if (recordState.isRecording) {
+                beginStopRecordingCountdown();
+              } else {
+                beginStartRecordingCountdown();
+              }
+            } else {
+              if (!videoRef.current || !canvasRef.current) {
+                return;
+              }
+              if (!videoRecorder) {
+                setupVideoStream(videoRef.current, canvasRef.current);
+              } else {
+                setCameraIsOn(true);
+              }
+            }
+          }}
+          className={classes.button}
+          style={{
+            color: recordState.isRecording ? "gray" : "red",
+            marginRight: 15,
+          }}
         >
-          {recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />}
-        </IconButton>
-      </div>
-      <div
-        className={classes.row}
-        style={{ justifyContent: "center", marginTop: 20 }}
-      >
+          {recordState.isRecording ? "Stop" : "Record"}
+        </Button>
         <input
           data-cy="upload-file"
           type="file"
