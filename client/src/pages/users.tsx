@@ -49,7 +49,6 @@ import {
 } from "types";
 import withLocation from "wrap-with-location";
 import {
-  canEditContent,
   canEditMentor,
   canEditMentorPrivacy,
   canEditUserRole,
@@ -158,15 +157,27 @@ function TableFooter(props: {
 }): JSX.Element {
   const { userPagin } = props;
   const styles = useStyles();
-  const canManageContent = canEditContent(props.user);
   const edges = userPagin.searchData?.edges || [];
   const hasNext = userPagin.pageData?.pageInfo.hasNextPage || false;
   const hasPrev = userPagin.pageData?.pageInfo.hasPreviousPage || false;
+  const pageSizes = [10, 20, 50, 100];
 
   return (
     <AppBar position="sticky" color="default" className={styles.appBar}>
       <Toolbar>
         <div className={styles.paging}>
+          <Select
+            value={userPagin.pageSize || 0}
+            onChange={(
+              e: React.ChangeEvent<{ value: unknown; name?: unknown }>
+            ) => userPagin.setPageSize(e.target.value as number)}
+          >
+            {pageSizes.map((p) => (
+              <MenuItem key={p} value={p}>
+                {p}
+              </MenuItem>
+            ))}
+          </Select>
           <IconButton
             data-cy="prev-page"
             disabled={!hasPrev}
@@ -207,19 +218,15 @@ function TableFooter(props: {
               />
             )}
           />
-          {canManageContent ? (
-            <span style={{ margin: "15px" }}>
-              View Archived Mentors
-              <Switch
-                data-cy="archive-mentor-switch"
-                data-test={props.viewArchivedMentors}
-                checked={props.viewArchivedMentors}
-                onChange={(e) =>
-                  props.onToggleArchivedMentors(e.target.checked)
-                }
-              />
-            </span>
-          ) : undefined}
+          <span style={{ margin: "15px" }}>
+            View Archived Mentors
+            <Switch
+              data-cy="archive-mentor-switch"
+              data-test={props.viewArchivedMentors}
+              checked={props.viewArchivedMentors}
+              onChange={(e) => props.onToggleArchivedMentors(e.target.checked)}
+            />
+          </span>
         </div>
       </Toolbar>
     </AppBar>

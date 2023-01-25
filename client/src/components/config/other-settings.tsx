@@ -5,7 +5,16 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Chip, TextField, Typography } from "@material-ui/core";
+import {
+  Chip,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Switch,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 
 import { Config, Keyword } from "types";
@@ -54,6 +63,7 @@ export function Settings(props: {
             {...params}
             variant="outlined"
             placeholder="Featured Keyword Types"
+            label="Featured Keyword Types"
           />
         )}
         renderOption={(option) => (
@@ -88,6 +98,7 @@ export function Settings(props: {
             {...params}
             variant="outlined"
             placeholder="Featured Subjects"
+            label="Featured Subjects"
           />
         )}
         renderOption={(option) => (
@@ -110,6 +121,7 @@ export function Settings(props: {
             {...params}
             variant="outlined"
             placeholder="Default Subject"
+            label="Default Subject"
           />
         )}
         renderOption={(option) => (
@@ -138,6 +150,24 @@ export function Settings(props: {
           shrink: true,
         }}
       />
+      <FormControl component="fieldset">
+        <FormLabel>Client Question Sort Order</FormLabel>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={config.questionSortOrder}
+                onChange={() =>
+                  updateConfig({ questionSortOrder: !config.questionSortOrder })
+                }
+              />
+            }
+            label={
+              config.questionSortOrder ? "Alphabetical" : "Reverse-Alphabetical"
+            }
+          />
+        </FormGroup>
+      </FormControl>
     </div>
   );
 }

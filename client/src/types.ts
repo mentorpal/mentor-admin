@@ -28,35 +28,25 @@ export enum QuestionSortOrder {
 }
 
 export interface Config {
-  cmi5Enabled: boolean;
-  cmi5Endpoint: string;
-  cmi5Fetch: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
-  graphqlLambdaEndpoint: string;
   subjectRecordPriority: string[];
-  filterEmailMentorAddress: string;
   videoRecorderMaxLength: number;
   googleClientId: string;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  urlGraphql: string;
-  urlVideo: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
-  // client settings
-  questionSortOrder: boolean;
-  mentorsDefault: string[];
-  postSurveyLink: string;
-  postSurveyTimer: number;
-  minTopicQuestionSize: number;
-  // home settings
+  // style settings
   styleHeaderTitle: string;
   styleHeaderText: string;
   styleHeaderColor: string;
   styleHeaderTextColor: string;
   styleHeaderLogo: string;
   styleHeaderLogoUrl: string;
+  styleHeaderLogoOffset: number;
+  styleHeaderLogoHeight: number;
+  styleHeaderLogoWidth: number;
   homeFooterColor: string;
   homeFooterTextColor: string;
   homeFooterImages: string[];
@@ -64,6 +54,7 @@ export interface Config {
   homeBannerColor: string;
   homeBannerButtonColor: string;
   homeCarouselColor: string;
+  // popup settings
   walkthroughDisabled: boolean;
   walkthroughTitle: string;
   urlVideoMentorpalWalkthrough: string;
@@ -76,6 +67,12 @@ export interface Config {
   guestPromptTitle: string;
   guestPromptText: string;
   guestPromptInputType: string;
+  // client settings
+  questionSortOrder: boolean;
+  postSurveyLink: string;
+  postSurveyTimer: number;
+  minTopicQuestionSize: number;
+  // home settings
   activeMentors: string[];
   activeMentorPanels: string[];
   featuredMentors: string[];

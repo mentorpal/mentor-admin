@@ -22,6 +22,7 @@ export interface UseStaticDataConnection<T> {
   searchData?: Connection<T>;
   pageData?: Connection<T>;
   pageSearchParams: SearchParams;
+  pageSize?: number;
   reloadData: () => void;
   nextPage: () => void;
   prevPage: () => void;
@@ -256,6 +257,7 @@ export function useWithStaticDataConnection<T>(
     searchParams,
     pageData,
     pageSearchParams,
+    pageSize: pageLimit,
     reloadData,
     sortBy,
     filter,
