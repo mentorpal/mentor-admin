@@ -95,6 +95,7 @@ export default function ButtonGroupDropdown(props: {
         role={undefined}
         transition
         disablePortal
+        nonce=""
         onResize={undefined}
         onResizeCapture={undefined}
       >
