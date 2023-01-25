@@ -104,7 +104,7 @@ export interface Config {
   disclaimerDisabled: boolean;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  questionSortOrder: boolean;
+  questionSortOrder: string;
   featuredKeywordTypes: string[];
   featuredSubjects: string[];
   defaultSubject: string;
@@ -132,7 +132,7 @@ export const CONFIG_DEFAULT: Config = {
   disclaimerDisabled: false,
   virtualBackgroundUrls: [],
   defaultVirtualBackground: "https://default.image.url.com/",
-  questionSortOrder: true,
+  questionSortOrder: "",
   featuredKeywordTypes: [
     "Gender",
     "Ethnicity",

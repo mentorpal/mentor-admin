@@ -8,16 +8,15 @@ import React from "react";
 import {
   Chip,
   FormControl,
-  FormControlLabel,
-  FormGroup,
-  FormLabel,
-  Switch,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 
-import { Config, Keyword } from "types";
+import { Config, Keyword, QuestionSortOrder } from "types";
 import { SubjectGQL } from "types-gql";
 
 export function Settings(props: {
@@ -150,23 +149,27 @@ export function Settings(props: {
           shrink: true,
         }}
       />
-      <FormControl component="fieldset">
-        <FormLabel>Client Question Sort Order</FormLabel>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={config.questionSortOrder}
-                onChange={() =>
-                  updateConfig({ questionSortOrder: !config.questionSortOrder })
-                }
-              />
-            }
-            label={
-              config.questionSortOrder ? "Alphabetical" : "Reverse-Alphabetical"
-            }
-          />
-        </FormGroup>
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel>Question Sort Order</InputLabel>
+        <Select
+          label="Question Sort Order"
+          value={config.questionSortOrder || QuestionSortOrder.Default}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) =>
+            updateConfig({
+              questionSortOrder: event.target.value as QuestionSortOrder,
+            })
+          }
+        >
+          <MenuItem value={QuestionSortOrder.Default}>Default</MenuItem>
+          <MenuItem value={QuestionSortOrder.Alphabetical}>
+            {QuestionSortOrder.Alphabetical}
+          </MenuItem>
+          <MenuItem value={QuestionSortOrder.ReverseAlphabetical}>
+            {QuestionSortOrder.ReverseAlphabetical}
+          </MenuItem>
+        </Select>
       </FormControl>
     </div>
   );

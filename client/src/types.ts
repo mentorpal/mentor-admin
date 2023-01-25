@@ -23,8 +23,9 @@ export enum SetupScreen {
 }
 
 export enum QuestionSortOrder {
-  Alphabetical = 0,
-  ReverseAlphabetical = 1,
+  Default = "",
+  Alphabetical = "Alphabetical",
+  ReverseAlphabetical = "Reverse-Alphabetical",
 }
 
 export interface Config {
@@ -68,7 +69,7 @@ export interface Config {
   guestPromptText: string;
   guestPromptInputType: string;
   // client settings
-  questionSortOrder: boolean;
+  questionSortOrder: QuestionSortOrder;
   postSurveyLink: string;
   postSurveyTimer: number;
   minTopicQuestionSize: number;
