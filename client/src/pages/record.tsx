@@ -85,6 +85,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    padding: 0,
   },
   title: {
     fontWeight: "bold",
@@ -597,7 +598,8 @@ function RecordPage(props: {
             backgroundColor: "#eee",
             height: "fit-content",
             width: "100%",
-            opacity: 0.8,
+            padding: 0,
+            margin: 0,
           }}
           className={classes.row}
         >

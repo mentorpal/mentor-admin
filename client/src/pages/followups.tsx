@@ -40,13 +40,16 @@ const useStyles = makeStyles(() => ({
   footer: {
     top: "auto",
     bottom: 0,
+    position: "fixed",
     backgroundColor: "#eee",
+    height: "fit-content",
     opacity: 0.8,
   },
   row: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   nextBtn: {
     position: "absolute",
@@ -178,8 +181,17 @@ function FollowupsPage(props: {
           </Button>
         ) : undefined}
       </Card>
-      <AppBar position="fixed" className={classes.footer}>
-        <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
+      <AppBar className={classes.footer}>
+        <Toolbar
+          style={{
+            position: "fixed",
+            bottom: 0,
+            backgroundColor: "#eee",
+            height: "fit-content",
+            width: "100%",
+          }}
+          className={classes.row}
+        >
           <Button
             data-cy="done-btn"
             variant="contained"
@@ -187,6 +199,7 @@ function FollowupsPage(props: {
             disableElevation
             onClick={handleDoneButton}
             className={classes.nextBtn}
+            style={{ position: "absolute", right: 50 }}
           >
             {toRecordFollowUpQs.length ? "Record" : "Done"}
           </Button>

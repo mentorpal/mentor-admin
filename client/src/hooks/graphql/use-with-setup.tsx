@@ -109,10 +109,12 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       isMentorSaving ||
       isMentorLoading ||
       questionsLoading ||
-      !isConfigLoaded()
+      !isConfigLoaded() ||
+      Object.keys(mentorQuestions).length === 0
     ) {
       return;
     }
+
     const isMentorInfoDone = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
@@ -200,7 +202,13 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       complete: isSetupComplete,
     });
     setSteps(status);
-  }, [mentor, questionsLoading, configState.config]);
+  }, [
+    mentor,
+    questionsLoading,
+    configState.config,
+    isMentorLoading,
+    mentorQuestions,
+  ]);
 
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js

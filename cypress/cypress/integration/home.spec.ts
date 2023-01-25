@@ -17,6 +17,7 @@ import { JobState, QuestionType, Status } from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
+import { SetupScreen } from "./setup.spec";
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
@@ -793,10 +794,9 @@ describe("My Mentor Page", () => {
       cy.location("pathname").then(($el) => {
         assert($el.replace("/admin", ""), "/setup");
       });
-      cy.get("[data-cy=slide-title]").should(
-        "have.text",
-        "Idle and Initial Recordings"
-      );
+      cy.get(
+        `[data-cy=slide-${SetupScreen.Idle_And_Initial_Recordings}]`
+      ).should("be.visible");
     });
 
     // TODO: This one ONLY fails in GHA
