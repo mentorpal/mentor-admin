@@ -25,10 +25,9 @@ export function MentorPrivacySlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
   orgs: Organization[];
-  isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
-  const { classes, mentor, orgs, isMentorLoading, editMentor } = props;
+  const { classes, mentor, orgs, editMentor } = props;
   const [org, setOrg] = useState<Organization>();
 
   useEffect(() => {
@@ -164,10 +163,6 @@ export function MentorPrivacySlide(props: {
         </Typography>
       </div>
     );
-  }
-
-  if (!mentor || isMentorLoading) {
-    return <div />;
   }
 
   return (

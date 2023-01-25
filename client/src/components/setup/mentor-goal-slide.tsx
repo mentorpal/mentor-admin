@@ -12,15 +12,10 @@ import { onTextInputChanged } from "helpers";
 
 export function MentorGoalSlide(props: {
   classes: Record<string, string>;
-  mentor?: Mentor;
-  isMentorLoading: boolean;
+  mentor: Mentor;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
-  const { classes, mentor, isMentorLoading, editMentor } = props;
-
-  if (!mentor || isMentorLoading) {
-    return <div />;
-  }
+  const { classes, mentor, editMentor } = props;
 
   return (
     <Slide

@@ -37,7 +37,7 @@ export function IdleTipsSlide(props: {
             data-cy="video-player"
             url={idleTipsVideoUrl}
             controls={true}
-            playing={true}
+            playing={false}
             height={height}
             style={{ marginLeft: "auto", marginRight: "auto" }}
             width={width}

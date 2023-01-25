@@ -12,7 +12,7 @@ import { onTextInputChanged } from "helpers";
 
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
-  mentor?: Mentor;
+  mentor: Mentor;
   isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
   userName: string;
@@ -31,10 +31,6 @@ export function MentorInfoSlide(props: {
     });
     setDefaultsSet(true);
   }, [mentor, isMentorLoading]);
-
-  if (!mentor || isMentorLoading || !defaultsSet) {
-    return <div />;
-  }
 
   return (
     <Slide

@@ -84,6 +84,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   title: {
     fontWeight: "bold",
@@ -93,8 +94,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   footer: {
     top: "auto",
+    position: "fixed",
     bottom: 0,
     backgroundColor: "#eee",
+    height: "fit-content",
     opacity: 0.8,
   },
   button: {
@@ -585,8 +588,19 @@ function RecordPage(props: {
       </div>
 
       <div className={classes.toolbar} />
-      <AppBar position="fixed" className={classes.footer}>
-        <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
+      <AppBar data-cy="app-bar-wrapper" className={classes.footer}>
+        <Toolbar
+          data-cy="tool-bar-wrapper"
+          style={{
+            position: "fixed",
+            bottom: 0,
+            backgroundColor: "#eee",
+            height: "fit-content",
+            width: "100%",
+            opacity: 0.8,
+          }}
+          className={classes.row}
+        >
           <IconButton
             data-cy="back-btn"
             className={classes.backBtn}

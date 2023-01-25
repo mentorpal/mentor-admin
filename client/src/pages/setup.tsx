@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Avatar, IconButton } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
@@ -114,7 +114,8 @@ function SetupPage(props: {
   const classes = useStyles();
   const {
     setupStatus: status,
-    setupStep: idx,
+    initialSetupStep,
+    curSetupStep,
     setupSteps: steps,
     docSetupUrl,
     idleTipsVideoUrl,
@@ -134,14 +135,17 @@ function SetupPage(props: {
   const { state: configState } = useWithConfig();
   const { data: orgs } = useWithOrganizations(accessToken);
   const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  if (!readyToDisplay) {
+  if (!readyToDisplay && !initialLoadComplete) {
     return (
       <div className={classes.root}>
         <LoadingDialog title="Loading..." />
         <NavBar title="Mentor Setup" mentorId={mentor?._id} />
       </div>
     );
+  } else {
+    !initialLoadComplete && setInitialLoadComplete(true);
   }
 
   function renderSlide(idx: number): JSX.Element {
@@ -178,7 +182,6 @@ function SetupPage(props: {
             mentor={mentor}
             virtualBackgroundUrls={virtualBackgroundUrls}
             defaultVirtualBackground={defaultVirtualBackground}
-            isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
             accessToken={accessToken}
             uploadLambdaEndpoint={uploadLambdaEndpoint}
@@ -191,7 +194,6 @@ function SetupPage(props: {
             classes={classes}
             mentor={mentor}
             orgs={orgs?.edges.map((e) => e.node) || []}
-            isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
           />
         );
@@ -201,7 +203,6 @@ function SetupPage(props: {
             key="mentor-goal"
             classes={classes}
             mentor={mentor}
-            isMentorLoading={isLoading || isSaving}
             editMentor={editMentor}
           />
         );
@@ -257,17 +258,22 @@ function SetupPage(props: {
     <div className={classes.root}>
       <NavBar onNav={onLeave} title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
+        // key={steps.length} // ensure carousel re-renders if # steps change
         animation="slide"
-        index={idx}
+        index={initialSetupStep}
         autoPlay={false}
+        swipe={false}
         navButtonsAlwaysVisible={true}
+        changeOnFirstRender={false}
         className={classes.carousel}
         duration={300}
         onChange={(now: number | undefined) => {
-          if (now !== undefined) toStep(now);
+          if (now !== undefined) {
+            toStep(now);
+          }
         }}
         NavButton={({ onClick, style, next, prev }) => {
-          if (idx == 0) {
+          if (curSetupStep == 0) {
             return (
               <IconButton
                 data-cy={next ? "next-btn" : "back-btn"}
@@ -282,7 +288,9 @@ function SetupPage(props: {
                   data-cy="nav-btn-avatar"
                   className={classes.avatar}
                   style={{
-                    backgroundColor: steps[idx]?.complete ? "green" : "red",
+                    backgroundColor: steps[curSetupStep]?.complete
+                      ? "green"
+                      : "red",
                     padding: "10px",
                   }}
                 >
@@ -293,7 +301,7 @@ function SetupPage(props: {
               </IconButton>
             );
           }
-          if (idx == steps.length - 1) {
+          if (curSetupStep == steps.length - 1) {
             return (
               <IconButton
                 data-cy={next ? "next-btn" : "back-btn"}
@@ -302,7 +310,7 @@ function SetupPage(props: {
                 }}
                 onClick={() => onClick()}
                 className={classes.navButton}
-                size="large"
+                size="medium"
               >
                 <Avatar
                   data-cy="nav-btn-avatar"
@@ -324,14 +332,14 @@ function SetupPage(props: {
                 display: "block",
               }}
               className={classes.navButton}
-              size="large"
+              size="medium"
             >
               <Avatar
                 data-cy="nav-btn-avatar"
                 className={classes.avatar}
                 style={{
                   backgroundColor: next
-                    ? steps[idx]?.complete
+                    ? steps[curSetupStep]?.complete
                       ? "green"
                       : "red"
                     : prev
@@ -356,13 +364,13 @@ function SetupPage(props: {
         activeIndicatorIconButtonProps={{
           className: "",
           style: {
-            color: steps[idx]?.complete ? "green" : "red",
+            color: steps[curSetupStep]?.complete ? "green" : "red",
           },
         }}
       >
         {steps.map((s, i) => (
           <div
-            data-cy="slide"
+            data-cy={`slide-${i}`}
             key={`slide-${i}`}
             style={{
               display: "flex",
@@ -372,7 +380,7 @@ function SetupPage(props: {
               alignContent: "center",
             }}
           >
-            {renderSlide(idx)}
+            {renderSlide(i)}
           </div>
         ))}
       </Carousel>

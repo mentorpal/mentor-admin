@@ -95,6 +95,8 @@ export default function ButtonGroupDropdown(props: {
         role={undefined}
         transition
         disablePortal
+        onResize={undefined}
+        onResizeCapture={undefined}
       >
         {({ TransitionProps, placement }) => (
           <Grow

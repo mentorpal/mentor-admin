@@ -45,7 +45,8 @@ interface SetupStep {
 
 interface UseWithSetup {
   setupStatus?: SetupStatus;
-  setupStep: number;
+  curSetupStep: number;
+  initialSetupStep: number;
   setupSteps: SetupStep[];
   docSetupUrl: string;
   idleTipsVideoUrl: string;
@@ -70,6 +71,9 @@ interface UseWithSetup {
 }
 
 export function useWithSetup(search?: { i?: string }): UseWithSetup {
+  const [initialSetupStep] = useState<number>(
+    search?.i ? parseInt(search.i) : 0
+  );
   const [idx, setIdx] = useState<number>(search?.i ? parseInt(search.i) : 0);
   const [steps, setSteps] = useState<SetupStep[]>([]);
   const [status, setStatus] = useState<SetupStatus>();
@@ -288,7 +292,8 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
 
   return {
     setupStatus: status,
-    setupStep: idx,
+    curSetupStep: idx,
+    initialSetupStep,
     setupSteps: steps,
     docSetupUrl: configState.config?.urlDocSetup || "",
     idleTipsVideoUrl: configState.config?.urlVideoIdleTips || "",
@@ -303,7 +308,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
     readyToDisplay:
-      isConfigLoaded() && !isMentorLoading && mentor && !questionsLoading,
+      isConfigLoaded() &&
+      !isMentorLoading &&
+      mentor &&
+      !questionsLoading &&
+      Boolean(steps.length),
     error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,
