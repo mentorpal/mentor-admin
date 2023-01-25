@@ -35,6 +35,7 @@ export function useWithOrganizations(accessToken: string): UseOrganizationData {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
   } = useWithStaticDataConnection<Organization>(fetch);
 
@@ -63,6 +64,7 @@ export function useWithOrganizations(accessToken: string): UseOrganizationData {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
     updateOrganizationConfig,
     saveOrganization,

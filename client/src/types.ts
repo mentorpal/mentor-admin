@@ -23,36 +23,31 @@ export enum SetupScreen {
 }
 
 export enum QuestionSortOrder {
-  Alphabetical = 0,
-  ReverseAlphabetical = 1,
+  Default = "",
+  Alphabetical = "Alphabetical",
+  ReverseAlphabetical = "Reverse-Alphabetical",
 }
 
 export interface Config {
-  cmi5Enabled: boolean;
-  cmi5Endpoint: string;
-  cmi5Fetch: string;
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
-  graphqlLambdaEndpoint: string;
   subjectRecordPriority: string[];
-  filterEmailMentorAddress: string;
   videoRecorderMaxLength: number;
   googleClientId: string;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
-  questionSortOrder: number;
-  urlGraphql: string;
-  urlVideo: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
-  mentorsDefault: string[];
-  // home style settings
+  // style settings
   styleHeaderTitle: string;
   styleHeaderText: string;
   styleHeaderColor: string;
   styleHeaderTextColor: string;
   styleHeaderLogo: string;
   styleHeaderLogoUrl: string;
+  styleHeaderLogoOffset: number;
+  styleHeaderLogoHeight: number;
+  styleHeaderLogoWidth: number;
   homeFooterColor: string;
   homeFooterTextColor: string;
   homeFooterImages: string[];
@@ -60,6 +55,7 @@ export interface Config {
   homeBannerColor: string;
   homeBannerButtonColor: string;
   homeCarouselColor: string;
+  // popup settings
   walkthroughDisabled: boolean;
   walkthroughTitle: string;
   urlVideoMentorpalWalkthrough: string;
@@ -72,6 +68,12 @@ export interface Config {
   guestPromptTitle: string;
   guestPromptText: string;
   guestPromptInputType: string;
+  // client settings
+  questionSortOrder: QuestionSortOrder;
+  postSurveyLink: string;
+  postSurveyTimer: number;
+  minTopicQuestionSize: number;
+  // home settings
   activeMentors: string[];
   activeMentorPanels: string[];
   featuredMentors: string[];

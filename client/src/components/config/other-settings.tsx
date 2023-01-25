@@ -5,10 +5,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Chip, TextField, Typography } from "@material-ui/core";
+import {
+  Chip,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 
-import { Config, Keyword } from "types";
+import { Config, Keyword, QuestionSortOrder } from "types";
 import { SubjectGQL } from "types-gql";
 
 export function Settings(props: {
@@ -17,11 +25,12 @@ export function Settings(props: {
   subjects: SubjectGQL[];
   updateConfig: (c: Partial<Config>) => void;
 }): JSX.Element {
+  const { config, updateConfig } = props;
   const featuredSubjects = props.subjects.filter((s) =>
-    props.config.featuredSubjects?.includes(s._id)
+    config.featuredSubjects?.includes(s._id)
   );
   const defaultSubject = props.subjects.find(
-    (s) => props.config.defaultSubject === s._id
+    (s) => config.defaultSubject === s._id
   );
 
   return (
@@ -29,14 +38,14 @@ export function Settings(props: {
       <Autocomplete
         data-cy="keyword-input"
         multiple
-        value={props.config.featuredKeywordTypes}
+        value={config.featuredKeywordTypes}
         options={
           props.keywords
             ?.map((k) => k.type)
             ?.filter((v, i, a) => a.indexOf(v) === i) || []
         }
         getOptionLabel={(option: string) => option}
-        onChange={(e, v) => props.updateConfig({ featuredKeywordTypes: v })}
+        onChange={(e, v) => updateConfig({ featuredKeywordTypes: v })}
         renderTags={(value: readonly string[], getTagProps) =>
           value.map((option: string, index: number) => (
             <Chip
@@ -53,6 +62,7 @@ export function Settings(props: {
             {...params}
             variant="outlined"
             placeholder="Featured Keyword Types"
+            label="Featured Keyword Types"
           />
         )}
         renderOption={(option) => (
@@ -69,7 +79,7 @@ export function Settings(props: {
         options={props.subjects}
         getOptionLabel={(option: SubjectGQL) => option.name}
         onChange={(e, v) =>
-          props.updateConfig({ featuredSubjects: v.map((s) => s._id) })
+          updateConfig({ featuredSubjects: v.map((s) => s._id) })
         }
         renderTags={(value: readonly SubjectGQL[], getTagProps) =>
           value.map((option: SubjectGQL, index: number) => (
@@ -87,6 +97,7 @@ export function Settings(props: {
             {...params}
             variant="outlined"
             placeholder="Featured Subjects"
+            label="Featured Subjects"
           />
         )}
         renderOption={(option) => (
@@ -102,13 +113,14 @@ export function Settings(props: {
         options={featuredSubjects}
         getOptionLabel={(option: SubjectGQL) => option.name}
         onChange={(e, v) =>
-          props.updateConfig({ defaultSubject: v?._id || undefined })
+          updateConfig({ defaultSubject: v?._id || undefined })
         }
         renderInput={(params) => (
           <TextField
             {...params}
             variant="outlined"
             placeholder="Default Subject"
+            label="Default Subject"
           />
         )}
         renderOption={(option) => (
@@ -121,6 +133,44 @@ export function Settings(props: {
         )}
         style={{ width: "100%", marginBottom: 10 }}
       />
+      <TextField
+        fullWidth
+        data-cy="minTopicQuestionSize"
+        data-test={config.minTopicQuestionSize}
+        variant="outlined"
+        label="Minimum Question Topic Size"
+        value={config.minTopicQuestionSize}
+        onChange={(e) =>
+          updateConfig({ minTopicQuestionSize: Number(e.target.value) || 0 })
+        }
+        style={{ marginBottom: 20 }}
+        inputProps={{ inputMode: "numeric", pattern: "[0-9]+" }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
+      <FormControl variant="outlined" fullWidth>
+        <InputLabel>Question Sort Order</InputLabel>
+        <Select
+          label="Question Sort Order"
+          value={config.questionSortOrder || QuestionSortOrder.Default}
+          onChange={(
+            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
+          ) =>
+            updateConfig({
+              questionSortOrder: event.target.value as QuestionSortOrder,
+            })
+          }
+        >
+          <MenuItem value={QuestionSortOrder.Default}>Default</MenuItem>
+          <MenuItem value={QuestionSortOrder.Alphabetical}>
+            {QuestionSortOrder.Alphabetical}
+          </MenuItem>
+          <MenuItem value={QuestionSortOrder.ReverseAlphabetical}>
+            {QuestionSortOrder.ReverseAlphabetical}
+          </MenuItem>
+        </Select>
+      </FormControl>
     </div>
   );
 }
