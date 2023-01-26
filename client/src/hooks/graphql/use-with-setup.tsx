@@ -19,9 +19,9 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
-import useQuestions, {
-  isQuestionsLoading,
-} from "store/slices/questions/useQuestions";
+import useQuestions from "store/slices/questions/useQuestions";
+import { LoadingStatus } from "./generic-loading-reducer";
+import { useAppSelector } from "store/hooks";
 
 //order of the slides
 export enum SetupStepType {
@@ -86,13 +86,17 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
   } = useActiveMentor();
 
   const mentor: Mentor = getData((state) => state.data);
-  const mentorQuestions = useQuestions(
+  useQuestions(
     (state) => state.questions,
     mentor?.answers?.map((a: Answer) => a.question)
   );
-  const questionsLoading = isQuestionsLoading(
-    mentor?.answers?.map((a: Answer) => a.question)
+  const questionsLoadingStatus = useAppSelector(
+    (state) => state.questions.batchLoadStatus
   );
+  const questionsFinishedLoading =
+    questionsLoadingStatus === LoadingStatus.SUCCEEDED ||
+    questionsLoadingStatus === LoadingStatus.FAILED;
+  const mentorQuestions = useAppSelector((state) => state.questions.questions);
   const {
     editedMentor,
     isMentorEdited,
@@ -108,13 +112,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       !mentor ||
       isMentorSaving ||
       isMentorLoading ||
-      questionsLoading ||
       !isConfigLoaded() ||
-      (Object.keys(mentorQuestions).length === 0 && questionsLoading)
+      (!questionsFinishedLoading && mentor.answers.length > 0)
     ) {
       return;
     }
-
     const isMentorInfoDone = Boolean(
       mentor.name && mentor.firstName && mentor.title
     );
@@ -202,13 +204,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       complete: isSetupComplete,
     });
     setSteps(status);
-  }, [
-    mentor,
-    questionsLoading,
-    configState.config,
-    isMentorLoading,
-    mentorQuestions,
-  ]);
+  }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
 
   function addToIdx(delta = 1): void {
     // we have to add steps.length below because stupid js
@@ -319,7 +315,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       isConfigLoaded() &&
       !isMentorLoading &&
       mentor &&
-      !questionsLoading &&
+      questionsFinishedLoading &&
       Boolean(steps.length),
     error: mentorError,
     editMentor,
