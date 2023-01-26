@@ -203,7 +203,6 @@ function MentorThumbnail(props: {
         alignItems="flex-start"
         justifyContent="flex-start"
         style={{ marginTop: 5 }}
-        xs={10}
       >
         <Grid item>
           <label>

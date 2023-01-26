@@ -110,7 +110,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       isMentorLoading ||
       questionsLoading ||
       !isConfigLoaded() ||
-      Object.keys(mentorQuestions).length === 0
+      (Object.keys(mentorQuestions).length === 0 && !questionsLoading)
     ) {
       return;
     }

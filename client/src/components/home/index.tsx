@@ -85,6 +85,8 @@ const useStyles = makeStyles((theme: Theme) => ({
     top: "auto",
     bottom: 0,
     flexShrink: 0,
+    position: "fixed",
+    height: "fit-content",
   },
   expand: {
     transform: "rotate(0deg)",
@@ -291,7 +293,6 @@ function HomePage(props: {
     },
     [reviewAnswerState.unsavedChanges()]
   );
-
   if (
     !initialLoadComplete &&
     (!mentorId ||
@@ -533,12 +534,17 @@ function HomePage(props: {
       </List>
 
       <div className={classes.toolbar} />
-      <AppBar position="fixed" color="default" className={classes.appBar}>
+      <AppBar color="default" className={classes.appBar}>
         <Toolbar
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "center",
+            justifyContent: "space-between",
+            position: "fixed",
+            bottom: 0,
+            width: "100%",
+            padding: 0,
+            margin: 0,
           }}
         >
           <div className="training-stage-info">
