@@ -10,8 +10,8 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   TextField,
-} from "@material-ui/core";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+} from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { Answer } from "types";
 import { onTextInputChanged } from "helpers";
 import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";

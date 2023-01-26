@@ -14,16 +14,17 @@ import {
   AppBar,
   Button,
   CircularProgress,
+  Theme,
   Toolbar,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
     display: "flex",

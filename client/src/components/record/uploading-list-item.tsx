@@ -5,13 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import {
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Button,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   PublishRounded,
   CancelRounded,
@@ -20,8 +15,8 @@ import {
   AccessTimeRounded,
   Clear,
   CloudUpload,
-} from "@material-ui/icons";
-import CloseIcon from "@material-ui/icons/Close";
+} from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
 
 function UploadingListItem(props: {

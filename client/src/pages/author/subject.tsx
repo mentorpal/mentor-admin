@@ -8,12 +8,14 @@ import React, { ChangeEvent, useState } from "react";
 import {
   Button,
   CircularProgress,
-  ListItemText,
   Tab,
   TextField,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { Autocomplete, TabContext, TabList, TabPanel } from "@material-ui/lab";
+  Theme,
+  Typography,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { Autocomplete } from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import NavBar from "components/nav-bar";
 import QuestionsList from "components/author/questions-list";
@@ -27,7 +29,7 @@ import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SubjectTypes } from "types";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -178,7 +180,9 @@ function SubjectPage(props: {
                 placeholder={editedSubject.type || SubjectTypes.SUBJECT}
               />
             )}
-            renderOption={(option) => <ListItemText primary={option} />}
+            renderOption={(props, option) => (
+              <Typography {...props}>{option}</Typography>
+            )}
           />
         </TabPanel>
         <TabPanel className={classes.tab} value="2">

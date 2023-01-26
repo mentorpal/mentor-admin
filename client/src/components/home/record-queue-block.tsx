@@ -18,11 +18,11 @@ import {
   ListItemText,
   Paper,
   Typography,
-} from "@material-ui/core";
-import PlayArrowIcon from "@material-ui/icons/PlayArrow";
+} from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import clsx from "clsx";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import CloseIcon from "@material-ui/icons/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloseIcon from "@mui/icons-material/Close";
 import { navigate } from "gatsby-link";
 import { urlBuild } from "helpers";
 import { Answer } from "types";

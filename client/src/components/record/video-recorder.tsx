@@ -7,13 +7,13 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useRef, useState } from "react";
 import RecordRTC, { MediaStreamRecorder } from "recordrtc";
-import { Button, Typography } from "@material-ui/core";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
-import StopIcon from "@material-ui/icons/Stop";
+import { Button, Typography } from "@mui/material";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import StopIcon from "@mui/icons-material/Stop";
 import useInterval from "hooks/task/use-interval";
 import overlay from "images/face-position-white.png";
 import { UseWithRecordState } from "types";
-import PermCameraMicIcon from "@material-ui/icons/PermCameraMic";
+import PermCameraMicIcon from "@mui/icons-material/PermCameraMic";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import { useWithImage } from "hooks/graphql/use-with-image";
 
@@ -491,6 +491,7 @@ function VideoRecorder(props: {
           endIcon={
             recordState.isRecording ? <StopIcon /> : <FiberManualRecordIcon />
           }
+          size="large"
           onClick={() => {
             if (cameraIsOn) {
               if (recordState.isRecording) {

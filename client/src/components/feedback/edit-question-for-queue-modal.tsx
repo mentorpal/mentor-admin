@@ -11,14 +11,15 @@ import {
   FormControl,
   Grid,
   InputLabel,
-  makeStyles,
   MenuItem,
   Modal,
   Select,
+  SelectChangeEvent,
   TextField,
   Theme,
   Typography,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import React, { useEffect, useState } from "react";
 import {
   Category,
@@ -31,7 +32,7 @@ import {
 } from "types";
 import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
-import { Autocomplete } from "@material-ui/lab";
+import { Autocomplete } from "@mui/material";
 import { addOrUpdateSubjectQuestions } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
@@ -176,9 +177,7 @@ function EditQuestionForQueueModal(props: {
                         data-cy="subject-drop-down"
                         style={{ width: 200 }}
                         defaultValue={""}
-                        onChange={(
-                          event: React.ChangeEvent<{ value: unknown }>
-                        ) => {
+                        onChange={(event: SelectChangeEvent<string>) => {
                           setSelectedSubject(
                             mentor.subjects.find((a) => {
                               return a._id === event.target.value;
@@ -208,9 +207,7 @@ function EditQuestionForQueueModal(props: {
                           style={{ width: 200 }}
                           required={true}
                           defaultValue={""}
-                          onChange={(
-                            event: React.ChangeEvent<{ value: unknown }>
-                          ) => {
+                          onChange={(event: SelectChangeEvent<string>) => {
                             const category = selectedSubject.categories.find(
                               ({ id }) => id === event.target.value
                             );
@@ -247,8 +244,9 @@ function EditQuestionForQueueModal(props: {
                           setSelectedTopics(v);
                         }}
                         style={{ minWidth: 300 }}
-                        renderOption={(option) => (
+                        renderOption={(props, option) => (
                           <Typography
+                            {...props}
                             align="left"
                             data-cy={`Topic-option-${option.id}`}
                           >

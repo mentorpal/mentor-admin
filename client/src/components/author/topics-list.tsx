@@ -22,10 +22,10 @@ import {
   IconButton,
   TextField,
   CardActions,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Topic } from "types";
 import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";

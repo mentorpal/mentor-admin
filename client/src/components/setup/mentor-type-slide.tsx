@@ -13,7 +13,8 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-} from "@material-ui/core";
+  SelectChangeEvent,
+} from "@mui/material";
 import { Mentor, MentorType } from "types";
 import { Slide } from "./slide";
 import { getFileSizeInMb } from "helpers";
@@ -23,8 +24,7 @@ import { useWithBrowser } from "hooks/use-with-browser";
 
 export function MentorTypeSlide(props: {
   classes: Record<string, string>;
-  mentor?: Mentor;
-  isMentorLoading: boolean;
+  mentor: Mentor;
   virtualBackgroundUrls: string[];
   defaultVirtualBackground: string;
   accessToken: string;
@@ -34,7 +34,6 @@ export function MentorTypeSlide(props: {
   const {
     classes,
     mentor,
-    isMentorLoading,
     editMentor,
     virtualBackgroundUrls,
     defaultVirtualBackground,
@@ -46,10 +45,6 @@ export function MentorTypeSlide(props: {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
   const { browserSupportsVbg } = useWithBrowser();
-
-  if (!mentor || isMentorLoading) {
-    return <div />;
-  }
 
   const handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
     editMentor({ hasVirtualBackground: e.target.checked });
@@ -95,12 +90,7 @@ export function MentorTypeSlide(props: {
             data-cy="select-chat-type"
             value={mentor.mentorType || MentorType.VIDEO}
             style={{ width: 100, marginRight: 20 }}
-            onChange={(
-              event: React.ChangeEvent<{
-                name?: string;
-                value: unknown;
-              }>
-            ) => {
+            onChange={(event: SelectChangeEvent<MentorType>) => {
               editMentor({ mentorType: event.target.value as MentorType });
             }}
           >

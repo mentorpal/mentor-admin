@@ -1,16 +1,11 @@
 import React, { useState } from "react";
-import {
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-  withStyles,
-} from "@material-ui/core";
+import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import withStyles from "@mui/styles/withStyles";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 import { TooltipStep } from "components/home";
 
 const ColorTooltip = withStyles({
@@ -91,7 +86,6 @@ function MentorStatus(props: {
         <Grid item xs={12} md={11} className="status-title-wrapper">
           <ColorTooltip
             data-cy="status-tooltip"
-            interactive={true}
             open={
               hasSeenTooltips
                 ? statusTooltipOpen

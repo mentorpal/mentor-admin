@@ -11,10 +11,11 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   TextField,
   Typography,
-} from "@material-ui/core";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import { Autocomplete } from "@mui/material";
 
 import { Config, Keyword, QuestionSortOrder } from "types";
 import { SubjectGQL } from "types-gql";
@@ -49,11 +50,10 @@ export function Settings(props: {
         renderTags={(value: readonly string[], getTagProps) =>
           value.map((option: string, index: number) => (
             <Chip
-              key={`keyword-${option}`}
               data-cy={`keyword-${option}`}
-              variant="default"
               label={option}
               {...getTagProps({ index })}
+              key={`keyword-${option}`}
             />
           ))
         }
@@ -65,8 +65,12 @@ export function Settings(props: {
             label="Featured Keyword Types"
           />
         )}
-        renderOption={(option) => (
-          <Typography align="left" data-cy={`keyword-option-${option}`}>
+        renderOption={(props, option) => (
+          <Typography
+            {...props}
+            align="left"
+            data-cy={`keyword-option-${option}`}
+          >
             {option}
           </Typography>
         )}
@@ -84,11 +88,10 @@ export function Settings(props: {
         renderTags={(value: readonly SubjectGQL[], getTagProps) =>
           value.map((option: SubjectGQL, index: number) => (
             <Chip
-              key={`subject-${option._id}`}
               data-cy={`subject-${option._id}`}
-              variant="default"
               label={option.name}
               {...getTagProps({ index })}
+              key={`subject-${option._id}`}
             />
           ))
         }
@@ -100,8 +103,12 @@ export function Settings(props: {
             label="Featured Subjects"
           />
         )}
-        renderOption={(option) => (
-          <Typography align="left" data-cy={`subject-option-${option._id}`}>
+        renderOption={(props, option) => (
+          <Typography
+            {...props}
+            align="left"
+            data-cy={`subject-option-${option._id}`}
+          >
             {option.name}
           </Typography>
         )}
@@ -123,8 +130,9 @@ export function Settings(props: {
             label="Default Subject"
           />
         )}
-        renderOption={(option) => (
+        renderOption={(props, option) => (
           <Typography
+            {...props}
             align="left"
             data-cy={`default-subject-option-${option._id}`}
           >
@@ -154,9 +162,7 @@ export function Settings(props: {
         <Select
           label="Question Sort Order"
           value={config.questionSortOrder || QuestionSortOrder.Default}
-          onChange={(
-            event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-          ) =>
+          onChange={(event: SelectChangeEvent<QuestionSortOrder>) =>
             updateConfig({
               questionSortOrder: event.target.value as QuestionSortOrder,
             })

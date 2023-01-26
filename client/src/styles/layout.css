@@ -90,8 +90,8 @@ div.jsoneditor {
 
 .training-stage-info {
   display: flex;
-  justify-content: left;
   width: 100%;
+  padding-left: 10px;
 }
 
 .page-buttons {
@@ -99,6 +99,7 @@ div.jsoneditor {
   flex-direction: row;
   justify-content: flex-end;
   width: 100%;
+  padding-right: 10px;
 }
 
 .secondary-btn:hover {

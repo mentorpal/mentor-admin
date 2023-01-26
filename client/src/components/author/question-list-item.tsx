@@ -11,9 +11,9 @@ import {
   TextField,
   CardActions,
   IconButton,
-} from "@material-ui/core";
-import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { SubjectQuestionGQL } from "types-gql";
 import { onTextInputChanged } from "helpers";
 

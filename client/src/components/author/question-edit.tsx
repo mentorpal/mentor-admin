@@ -14,8 +14,9 @@ import {
   FormControl,
   InputLabel,
   Grid,
-} from "@material-ui/core";
-import ClearOutlinedIcon from "@material-ui/icons/ClearOutlined";
+  SelectChangeEvent,
+} from "@mui/material";
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import {
   QuestionType,
   Topic,
@@ -62,9 +63,7 @@ export function QuestionEditCard(props: {
               label="Question Type"
               value={question.question.type || ""}
               cy-value={question.question.type}
-              onChange={(
-                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-              ) =>
+              onChange={(event: SelectChangeEvent<QuestionType>) =>
                 props.updateQuestion({
                   ...question,
                   question: {
@@ -92,9 +91,7 @@ export function QuestionEditCard(props: {
                 label="Utterance Type"
                 value={question.question.name || ""}
                 cy-value={question.question.name}
-                onChange={(
-                  event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-                ) =>
+                onChange={(event: SelectChangeEvent<UtteranceName>) =>
                   props.updateQuestion({
                     ...question,
                     question: {
@@ -129,9 +126,7 @@ export function QuestionEditCard(props: {
               label="Mentor Type"
               value={question.question.mentorType || ""}
               cy-value={question.question.mentorType}
-              onChange={(
-                event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-              ) =>
+              onChange={(event: SelectChangeEvent<string>) =>
                 props.updateQuestion({
                   ...question,
                   question: {

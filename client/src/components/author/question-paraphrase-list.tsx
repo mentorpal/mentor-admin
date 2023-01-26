@@ -16,9 +16,9 @@ import {
   ListSubheader,
   Paper,
   TextField,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { onTextInputChanged } from "helpers";
 
 export function ParaphraseList(props: {

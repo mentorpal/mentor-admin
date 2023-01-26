@@ -23,7 +23,7 @@ export function useWithXapi(): UseWithXapi {
       process.env.LRS_USERNAME || "",
       process.env.LRS_PASSWORD || ""
     );
-    const xapi = new XAPI(LRS_ENDPOINT, auth);
+    const xapi = new XAPI({ endpoint: LRS_ENDPOINT, auth });
 
     setXapi(xapi);
   }, []);

@@ -4,8 +4,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Button, Chip, TextField, Typography } from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
+import { Button, Chip, TextField, Typography } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 import React, { useEffect, useState } from "react";
 
 import { occupations } from "data/occupations";
@@ -113,9 +113,11 @@ export function SelectKeywordsSlide(props: {
                     <Autocomplete
                       data-cy={`${kv[0]}-input`}
                       freeSolo
-                      options={kv[1]}
-                      getOptionLabel={(option: Keyword) => option.name}
-                      getOptionSelected={(option, value) =>
+                      options={kv[1] as Keyword[]}
+                      getOptionLabel={(option: Keyword | string) =>
+                        typeof option === "string" ? option : option.name
+                      }
+                      isOptionEqualToValue={(option, value) =>
                         option._id === value._id
                       }
                       onChange={(e, v) => {
@@ -143,8 +145,9 @@ export function SelectKeywordsSlide(props: {
                           placeholder={`Choose ${kv[0].toLowerCase()}`}
                         />
                       )}
-                      renderOption={(option) => (
+                      renderOption={(props, option) => (
                         <Typography
+                          {...props}
                           align="left"
                           data-cy={`${kv[0]}-option-${option.name}`}
                         >
@@ -161,7 +164,7 @@ export function SelectKeywordsSlide(props: {
                           data-cy={`keyword-name-${k.name}`}
                           data-test={hasKeyword(k)}
                           variant="contained"
-                          color={hasKeyword(k) ? "primary" : "default"}
+                          color={hasKeyword(k) ? "primary" : "secondary"}
                           onClick={() => toggleKeyword(k)}
                           style={{
                             marginRight: 10,
@@ -183,7 +186,9 @@ export function SelectKeywordsSlide(props: {
                 freeSolo
                 value={mentor.keywords}
                 options={keywords}
-                getOptionLabel={(option: Keyword) => option.name}
+                getOptionLabel={(option: Keyword | string) =>
+                  typeof option === "string" ? option : option.name
+                }
                 onChange={(e, v) =>
                   editMentor({
                     ...mentor,
@@ -199,11 +204,10 @@ export function SelectKeywordsSlide(props: {
                 renderTags={(value: readonly Keyword[], getTagProps) =>
                   value.map((option: Keyword, index: number) => (
                     <Chip
-                      key={`keyword-${option.name}`}
                       data-cy={`keyword-${option.name}`}
-                      variant="default"
                       label={option.name}
                       {...getTagProps({ index })}
+                      key={`keyword-${option.name}`}
                     />
                   ))
                 }
@@ -214,8 +218,9 @@ export function SelectKeywordsSlide(props: {
                     placeholder="Enter your own keyword"
                   />
                 )}
-                renderOption={(option) => (
+                renderOption={(props, option) => (
                   <Typography
+                    {...props}
                     align="left"
                     data-cy={`keyword-option-${option.name}`}
                   >

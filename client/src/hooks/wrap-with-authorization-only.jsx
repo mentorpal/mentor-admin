@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress } from "@mui/material";
 
 import NavBar from "components/nav-bar";
 import { useWithLogin } from "store/slices/login/useWithLogin";

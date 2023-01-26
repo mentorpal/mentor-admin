@@ -49,7 +49,9 @@ export function useWithStatements(): UseWithStatements {
       console.error("too many page fetches, try a smaller date range");
       return statements;
     }
-    const fetchMoreResponse = await xApi.getMoreStatements(relativeUrl);
+    const fetchMoreResponse = await xApi.getMoreStatements({
+      more: relativeUrl,
+    });
     const moreFetchedData = fetchMoreResponse.data;
     if (hasMore(moreFetchedData) && moreFetchedData.more) {
       return recursivelyFetchMoreStatements(

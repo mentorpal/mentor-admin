@@ -14,6 +14,8 @@ import { Question } from "types";
 
 export interface QuestionsState {
   questions: Record<string, QuestionState>;
+  batchLoadStatus: LoadingStatus;
+  batchLoadError?: LoadingError;
 }
 
 export interface QuestionState {
@@ -24,6 +26,7 @@ export interface QuestionState {
 
 const initialState: QuestionsState = {
   questions: {},
+  batchLoadStatus: LoadingStatus.NONE,
 };
 
 interface CancellabeResult<T> {
@@ -130,10 +133,12 @@ export const questionsSlice = createSlice({
             error: undefined,
           };
         }
+        stateCopy["batchLoadStatus"] = LoadingStatus.SUCCEEDED;
         return stateCopy;
       })
       .addCase(loadQuestionsById.rejected, (state, action) => {
         for (const id of action.meta.arg.ids) {
+          state.batchLoadStatus = LoadingStatus.FAILED;
           state.questions[id] = {
             ...state.questions[id],
             status: LoadingStatus.FAILED,

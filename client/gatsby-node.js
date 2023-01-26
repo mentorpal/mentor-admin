@@ -17,6 +17,14 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
           test: /react-draft-wysiwyg/,
           use: loaders.null(),
         },
+        {
+          test: /danfojs/,
+          use: loaders.null(),
+        },
+        {
+          test: /xapi/,
+          use: loaders.null(),
+        },
       ],
     };
   }

@@ -4,19 +4,14 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import {
-  IconButton,
-  Button,
-  Tooltip,
-  Typography,
-  withStyles,
-} from "@material-ui/core";
-import { HelpOutline } from "@material-ui/icons";
+import { IconButton, Button, Tooltip, Typography } from "@mui/material";
+import withStyles from "@mui/styles/withStyles";
+import { HelpOutline } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import "styles/layout.css";
 import parseMentor, { defaultMentorInfo } from "./mentor-info";
-import CloseIcon from "@material-ui/icons/Close";
+import CloseIcon from "@mui/icons-material/Close";
 import { TooltipStep } from "components/home";
 import {
   RecommendationName,
@@ -169,7 +164,6 @@ export default function RecommendedActionButton(props: {
                   </Typography>
 
                   <ColorTooltip
-                    interactive={true}
                     open={
                       hasSeenTooltips
                         ? undefined
@@ -247,7 +241,6 @@ export default function RecommendedActionButton(props: {
 
               <ColorTooltip
                 data-cy="recommender-tooltip"
-                interactive={true}
                 open={
                   hasSeenTooltips
                     ? undefined
