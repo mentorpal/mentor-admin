@@ -25,6 +25,7 @@ export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
   } = useWithStaticDataConnection<SubjectGQL>(fetch);
 
@@ -45,6 +46,7 @@ export function useWithSubjects(): UseStaticDataConnection<SubjectGQL> {
     setPostSort,
     nextPage,
     prevPage,
+    setPageSize,
     reloadData,
   };
 }

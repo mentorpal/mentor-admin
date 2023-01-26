@@ -236,24 +236,19 @@ export async function fetchConfig(): Promise<Config> {
       query: `
       query FetchConfig{
         config {
-          cmi5Enabled
-          cmi5Endpoint
-          cmi5Fetch
           classifierLambdaEndpoint
           uploadLambdaEndpoint
-          graphqlLambdaEndpoint
           subjectRecordPriority
-          filterEmailMentorAddress
           videoRecorderMaxLength
           googleClientId
           virtualBackgroundUrls
           defaultVirtualBackground
           questionSortOrder
-          urlGraphql
-          urlVideo
+          postSurveyLink
+          postSurveyTimer
+          minTopicQuestionSize          
           urlDocSetup
           urlVideoIdleTips
-          mentorsDefault
           styleHeaderTitle
           styleHeaderText
           styleHeaderColor
@@ -263,6 +258,9 @@ export async function fetchConfig(): Promise<Config> {
           homeFooterColor
           homeFooterTextColor
           homeFooterImages
+          styleHeaderLogoOffset
+          styleHeaderLogoHeight
+          styleHeaderLogoWidth
           homeFooterLinks
           homeBannerColor
           homeBannerButtonColor
@@ -321,6 +319,7 @@ export async function fetchUsers(
                   viewPermission
                   editPermission
                 }
+                updatedAt
               }
             }
           }
@@ -2273,24 +2272,19 @@ export async function fetchOrganizations(
                   role
                 }
                 config {
-                  cmi5Enabled
-                  cmi5Endpoint
-                  cmi5Fetch
                   classifierLambdaEndpoint
                   uploadLambdaEndpoint
-                  graphqlLambdaEndpoint
                   subjectRecordPriority
-                  filterEmailMentorAddress
                   videoRecorderMaxLength
                   googleClientId
                   virtualBackgroundUrls
                   defaultVirtualBackground
                   questionSortOrder
-                  urlGraphql
-                  urlVideo
+                  postSurveyLink
+                  postSurveyTimer
+                  minTopicQuestionSize          
                   urlDocSetup
                   urlVideoIdleTips
-                  mentorsDefault
                   styleHeaderTitle
                   styleHeaderText
                   styleHeaderColor
@@ -2300,6 +2294,9 @@ export async function fetchOrganizations(
                   homeFooterColor
                   homeFooterTextColor
                   homeFooterImages
+                  styleHeaderLogoOffset
+                  styleHeaderLogoHeight
+                  styleHeaderLogoWidth
                   homeFooterLinks
                   homeBannerColor
                   homeBannerButtonColor
@@ -2370,24 +2367,19 @@ export async function addOrUpdateOrganization(
               role
             }
             config {
-              cmi5Enabled
-              cmi5Endpoint
-              cmi5Fetch
               classifierLambdaEndpoint
               uploadLambdaEndpoint
-              graphqlLambdaEndpoint
               subjectRecordPriority
-              filterEmailMentorAddress
               videoRecorderMaxLength
               googleClientId
               virtualBackgroundUrls
               defaultVirtualBackground
               questionSortOrder
-              urlGraphql
-              urlVideo
+              postSurveyLink
+              postSurveyTimer
+              minTopicQuestionSize          
               urlDocSetup
               urlVideoIdleTips
-              mentorsDefault
               styleHeaderTitle
               styleHeaderText
               styleHeaderColor
@@ -2397,6 +2389,9 @@ export async function addOrUpdateOrganization(
               homeFooterColor
               homeFooterTextColor
               homeFooterImages
+              styleHeaderLogoOffset
+              styleHeaderLogoHeight
+              styleHeaderLogoWidth
               homeFooterLinks
               homeBannerColor
               homeBannerButtonColor
@@ -2452,24 +2447,19 @@ export async function updateOrgConfig(
       query: `mutation UpdateOrganizationConfig($id: ID!, $config: ConfigUpdateInputType!) {
         me {
           updateOrgConfig(id: $id, config: $config) {
-            cmi5Enabled
-            cmi5Endpoint
-            cmi5Fetch
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            graphqlLambdaEndpoint
             subjectRecordPriority
-            filterEmailMentorAddress
             videoRecorderMaxLength
             googleClientId
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
-            urlGraphql
-            urlVideo
+            postSurveyLink
+            postSurveyTimer
+            minTopicQuestionSize          
             urlDocSetup
             urlVideoIdleTips
-            mentorsDefault
             styleHeaderTitle
             styleHeaderText
             styleHeaderColor
@@ -2479,6 +2469,9 @@ export async function updateOrgConfig(
             homeFooterColor
             homeFooterTextColor
             homeFooterImages
+            styleHeaderLogoOffset
+            styleHeaderLogoHeight
+            styleHeaderLogoWidth
             homeFooterLinks
             homeBannerColor
             homeBannerButtonColor
@@ -2517,6 +2510,9 @@ export async function updateOrgConfig(
           homeFooterColor: config.homeFooterColor,
           homeFooterTextColor: config.homeFooterTextColor,
           homeFooterImages: config.homeFooterImages,
+          styleHeaderLogoOffset: config.styleHeaderLogoOffset,
+          styleHeaderLogoHeight: config.styleHeaderLogoHeight,
+          styleHeaderLogoWidth: config.styleHeaderLogoWidth,
           homeFooterLinks: config.homeFooterLinks,
           homeBannerColor: config.homeBannerColor,
           homeBannerButtonColor: config.homeBannerButtonColor,
@@ -2541,6 +2537,9 @@ export async function updateOrgConfig(
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
+          postSurveyLink: config.postSurveyLink,
+          postSurveyTimer: config.postSurveyTimer,
+          minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
     },
@@ -2557,24 +2556,19 @@ export async function updateConfig(
       query: `mutation UpdateConfig($config: ConfigUpdateInputType!) {
         me {
           updateConfig(config: $config) {
-            cmi5Enabled
-            cmi5Endpoint
-            cmi5Fetch
             classifierLambdaEndpoint
             uploadLambdaEndpoint
-            graphqlLambdaEndpoint
             subjectRecordPriority
-            filterEmailMentorAddress
             videoRecorderMaxLength
             googleClientId
             virtualBackgroundUrls
             defaultVirtualBackground
             questionSortOrder
-            urlGraphql
-            urlVideo
+            postSurveyLink
+            postSurveyTimer
+            minTopicQuestionSize          
             urlDocSetup
             urlVideoIdleTips
-            mentorsDefault
             styleHeaderTitle
             styleHeaderText
             styleHeaderColor
@@ -2584,6 +2578,9 @@ export async function updateConfig(
             homeFooterColor
             homeFooterTextColor
             homeFooterImages
+            styleHeaderLogoOffset
+            styleHeaderLogoHeight
+            styleHeaderLogoWidth
             homeFooterLinks
             homeBannerColor
             homeBannerButtonColor
@@ -2621,6 +2618,9 @@ export async function updateConfig(
           homeFooterColor: config.homeFooterColor,
           homeFooterTextColor: config.homeFooterTextColor,
           homeFooterImages: config.homeFooterImages,
+          styleHeaderLogoOffset: config.styleHeaderLogoOffset,
+          styleHeaderLogoHeight: config.styleHeaderLogoHeight,
+          styleHeaderLogoWidth: config.styleHeaderLogoWidth,
           homeFooterLinks: config.homeFooterLinks,
           homeBannerColor: config.homeBannerColor,
           homeBannerButtonColor: config.homeBannerButtonColor,
@@ -2645,6 +2645,9 @@ export async function updateConfig(
           featuredKeywordTypes: config.featuredKeywordTypes,
           questionSortOrder: config.questionSortOrder,
           defaultSubject: config.defaultSubject,
+          postSurveyLink: config.postSurveyLink,
+          postSurveyTimer: config.postSurveyTimer,
+          minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
     },
