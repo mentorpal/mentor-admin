@@ -6,11 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import {
-  GoogleLogin,
-  GoogleLoginResponse,
-  GoogleLoginResponseOffline,
-} from "react-google-login";
-import {
   AppBar,
   Button,
   CircularProgress,
@@ -23,6 +18,7 @@ import makeStyles from "@mui/styles/makeStyles";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
+import { OverridableTokenClientConfig } from "@react-oauth/google";
 
 const useStyles = makeStyles((theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
@@ -42,19 +38,14 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-function LoginPage(): JSX.Element {
+function LoginPage(props: {
+  onGoogleLogin: (
+    overrideConfig?: OverridableTokenClientConfig | undefined
+  ) => void;
+}): JSX.Element {
   const classes = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
-  const { loginWithGoogle, login } = useWithLogin();
-  function onGoogleLogin(
-    response: GoogleLoginResponse | GoogleLoginResponseOffline
-  ): void {
-    if ((response as GoogleLoginResponseOffline).code !== undefined) {
-      return;
-    }
-    const loginResponse = response as GoogleLoginResponse;
-    loginWithGoogle(loginResponse.accessToken);
-  }
+  const { login } = useWithLogin();
 
   if (
     configState.status === ConfigStatus.NONE ||
@@ -101,22 +92,15 @@ function LoginPage(): JSX.Element {
           Test Login
         </Button>
       ) : (
-        <GoogleLogin
-          clientId={configState.config.googleClientId}
-          onSuccess={onGoogleLogin}
-          render={(renderProps) => (
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={renderProps.onClick}
-              className={classes.button}
-              disabled={renderProps.disabled}
-              data-cy="login-btn"
-            >
-              Sign in with Google
-            </Button>
-          )}
-        />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => props.onGoogleLogin()}
+          className={classes.button}
+          data-cy="login-btn"
+        >
+          Sign in with Google
+        </Button>
       )}
     </div>
   );

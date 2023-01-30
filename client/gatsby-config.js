@@ -23,6 +23,7 @@ module.exports = {
           "LRS_USERNAME",
           "LRS_PASSWORD",
           "LRS_ENDPOINT",
+          "GOOGLE_CLIENT_ID",
         ],
       },
     },
