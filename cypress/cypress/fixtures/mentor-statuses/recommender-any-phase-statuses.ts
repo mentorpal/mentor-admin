@@ -25,13 +25,7 @@ export const hasGoal: Mentor = {
 };
 export const hasKeywords: Mentor = {
   ...hasGoal,
-  keywords: [
-    {
-      _id: "12",
-      name: "White",
-      type: "Ethnicity",
-    },
-  ],
+  keywords: ["White"],
 };
 
 export const hasSubjects: Mentor = {

@@ -382,8 +382,8 @@ export async function fetchKeywords(
             cursor
             node {
               _id
-              name
               type
+              keywords
             }
           }
           pageInfo {
@@ -994,11 +994,7 @@ export async function fetchMentorById(
           defaultSubject {
             _id
           }
-          keywords {
-            _id
-            name
-            type
-          }
+          keywords
           subjects {
             _id
             name
@@ -1102,14 +1098,14 @@ export async function updateMentorKeywords(
   return execGql<boolean>(
     {
       query: `
-        mutation UpdateMentorKeywords($keywords: [UpdateKeywordType], $mentorId: ID) {
+        mutation UpdateMentorKeywords($keywords: [String], $mentorId: ID) {
           me {
             updateMentorKeywords(keywords: $keywords, mentorId: $mentorId)
           }
         }
       `,
       variables: {
-        keywords: mentor.keywords.map((k) => ({ name: k.name, type: k.type })),
+        keywords: mentor.keywords,
         mentorId,
       },
     },

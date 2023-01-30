@@ -928,7 +928,7 @@ describe("Setup", () => {
         setup0,
         {
           ...setup0,
-          keywords: [{ _id: "", name: "Actors", type: "Occupation" }],
+          keywords: ["Actors"],
         },
       ],
       gqlQueries: [

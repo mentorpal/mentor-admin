@@ -74,7 +74,7 @@ export interface Mentor {
   isArchived: boolean;
   defaultSubject?: Subject;
   subjects: Subject[];
-  keywords: Keyword[];
+  keywords: string[];
   topics: Topic[];
   answers: Answer[];
   questions: SubjectQuestion[];
