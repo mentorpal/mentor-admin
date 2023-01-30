@@ -9,135 +9,30 @@ export const keywords = {
     edges: [
       {
         node: {
-          _id: "man",
-          name: "Man",
+          _id: "gender",
           type: "Gender",
+          keywords: ["Man", "Woman", "Nonbinary", "Transgender"],
         },
       },
       {
         node: {
-          _id: "woman",
-          name: "Woman",
-          type: "Gender",
-        },
-      },
-      {
-        node: {
-          _id: "nonbinary",
-          name: "Nonbinary",
-          type: "Gender",
-        },
-      },
-      {
-        node: {
-          _id: "transgender",
-          name: "Transgender",
-          type: "Gender",
-        },
-      },
-      {
-        node: {
-          _id: "asian",
-          name: "Asian",
+          _id: "ethnicity",
           type: "Ethnicity",
+          keywords: ["Asian", "White", "Black", "Latinx", "Pacific Islander"],
         },
       },
       {
         node: {
-          _id: "white",
-          name: "White",
-          type: "Ethnicity",
-        },
-      },
-      {
-        node: {
-          _id: "black",
-          name: "Black",
-          type: "Ethnicity",
-        },
-      },
-      {
-        node: {
-          _id: "latinx",
-          name: "Latinx",
-          type: "Ethnicity",
-        },
-      },
-      {
-        node: {
-          _id: "pacific_islander",
-          name: "Pacific Islander",
-          type: "Ethnicity",
-        },
-      },
-      {
-        node: {
-          _id: "associate",
-          name: "Associate",
+          _id: "education",
           type: "Education",
+          keywords: ["Associate", "Bachelors", "Masters", "Doctorate"],
         },
       },
       {
         node: {
-          _id: "bachelors",
-          name: "Bachelors",
-          type: "Education",
-        },
-      },
-      {
-        node: {
-          _id: "masters",
-          name: "Masters",
-          type: "Education",
-        },
-      },
-      {
-        node: {
-          _id: "doctorate",
-          name: "Doctorate",
-          type: "Education",
-        },
-      },
-      {
-        node: {
-          _id: "1950",
-          name: "1950",
+          _id: "age",
           type: "Age",
-        },
-      },
-      {
-        node: {
-          _id: "1960",
-          name: "1960",
-          type: "Age",
-        },
-      },
-      {
-        node: {
-          _id: "1970",
-          name: "1970",
-          type: "Age",
-        },
-      },
-      {
-        node: {
-          _id: "1980",
-          name: "1980",
-          type: "Age",
-        },
-      },
-      {
-        node: {
-          _id: "1990",
-          name: "1990",
-          type: "Age",
-        },
-      },
-      {
-        node: {
-          _id: "2000",
-          name: "2000",
-          type: "Age",
+          keywords: ["1950", "1960", "1970", "1980", "1990", "2000"],
         },
       },
     ],

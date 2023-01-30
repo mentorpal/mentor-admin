@@ -20,64 +20,59 @@ export function SelectKeywordsSlide(props: {
   keywords: Keyword[];
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
-  const { classes, mentor, keywords, editMentor } = props;
-  const [keywordsByType, setKeywordsByType] = useState<
-    Record<string, Keyword[]>
-  >({});
+  const { classes, mentor, editMentor } = props;
+  const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [allKeywords, setAllKeywords] = useState<string[]>([]);
   const { width: windowWidth } = useWithWindowSize();
   const { state: configState } = useWithConfig();
 
   useEffect(() => {
-    if (!keywords || keywords.length === 0) {
+    if (
+      !props.keywords ||
+      props.keywords.length === 0 ||
+      !configState.config?.featuredKeywordTypes
+    ) {
       return;
     }
-    const kwbt: Record<string, Keyword[]> = {};
-    for (const type of configState.config?.featuredKeywordTypes || []) {
-      const kws = keywords.filter(
-        (kw) => kw.type.toLowerCase() === type.toLowerCase()
-      );
-      if (kws.length > 0) {
-        kwbt[type] = kws;
-      }
+    const keywords = props.keywords.filter((k) =>
+      configState.config!.featuredKeywordTypes.includes(k.type)
+    );
+    const kwO = keywords.findIndex((k) => k.type === "Occupation");
+    if (kwO === -1) {
+      keywords.push({ _id: "", type: "Occupation", keywords: occupations });
+    } else {
+      keywords[kwO].keywords = [
+        ...new Set([...keywords[kwO].keywords, ...occupations]),
+      ];
     }
-    kwbt["Occupation"] = occupations.map((o) => ({
-      _id: "",
-      name: o,
-      type: "Occupation",
-    }));
-    keywords
-      .filter((kw) => kw.type === "Occupation")
-      .forEach((kw) => {
-        const f = kwbt["Occupation"].find((k) => k.name === kw.name);
-        if (!f) {
-          kwbt["Occupation"].push(kw);
-        }
-      });
-    setKeywordsByType(kwbt);
-  }, [keywords]);
+    setKeywords(keywords);
+    const allKeyWords: string[] = [];
+    for (const k of keywords) {
+      allKeyWords.push(...k.keywords);
+    }
+    setAllKeywords(allKeyWords);
+  }, [props.keywords, configState.config]);
 
-  function hasKeyword(k: Keyword): boolean {
+  function hasKeyword(k: string): boolean {
     return Boolean(
-      mentor.keywords.find(
-        (mk) => mk.name.toLowerCase() === k.name.toLowerCase()
-      )
+      mentor.keywords.find((mk) => mk.toLowerCase() === k.toLowerCase())
     );
   }
 
-  function addKeyword(add: Keyword): void {
+  function addKeyword(add: string): void {
     editMentor({ ...mentor, keywords: [...mentor.keywords, add] });
   }
 
-  function removeKeyword(remove: Keyword): void {
+  function removeKeyword(remove: string): void {
     editMentor({
       ...mentor,
       keywords: mentor.keywords.filter(
-        (k) => k.name.toLowerCase() !== remove.name.toLowerCase()
+        (k) => k.toLowerCase() !== remove.toLowerCase()
       ),
     });
   }
 
-  function toggleKeyword(k: Keyword): void {
+  function toggleKeyword(k: string): void {
     if (hasKeyword(k)) {
       removeKeyword(k);
     } else {
@@ -96,10 +91,10 @@ export function SelectKeywordsSlide(props: {
         <div>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <div style={{ width: windowWidth * 0.85, margin: 10 }}>
-              {Object.entries(keywordsByType).map((kv) => (
+              {keywords.map((kw) => (
                 <div
-                  key={`keyword-type-${kv[0]}`}
-                  data-cy={`keyword-type-${kv[0]}`}
+                  key={`keyword-type-${kw.type}`}
+                  data-cy={`keyword-type-${kw.type}`}
                   style={{
                     display: "flex",
                     flexDirection: "row",
@@ -107,34 +102,15 @@ export function SelectKeywordsSlide(props: {
                   }}
                 >
                   <Typography style={{ width: 100, textAlign: "left" }}>
-                    {kv[0]}
+                    {kw.type}
                   </Typography>
-                  {kv[1].length > 10 ? (
+                  {kw.keywords.length > 10 ? (
                     <Autocomplete
-                      data-cy={`${kv[0]}-input`}
+                      data-cy={`${kw.type}-input`}
                       freeSolo
-                      options={kv[1] as Keyword[]}
-                      getOptionLabel={(option: Keyword | string) =>
-                        typeof option === "string" ? option : option.name
-                      }
-                      isOptionEqualToValue={(option, value) =>
-                        option._id === value._id
-                      }
+                      options={kw.keywords}
                       onChange={(e, v) => {
                         if (typeof v === "string") {
-                          const kw = keywords.find((k) => k.name === v);
-                          if (kw) {
-                            toggleKeyword(kw);
-                          } else {
-                            editMentor({
-                              ...mentor,
-                              keywords: [
-                                ...mentor.keywords,
-                                { _id: "", name: v, type: kv[0] },
-                              ],
-                            });
-                          }
-                        } else if (v) {
                           toggleKeyword(v);
                         }
                       }}
@@ -142,26 +118,26 @@ export function SelectKeywordsSlide(props: {
                         <TextField
                           {...params}
                           variant="outlined"
-                          placeholder={`Choose ${kv[0].toLowerCase()}`}
+                          placeholder={`Choose ${kw.type.toLowerCase()}`}
                         />
                       )}
                       renderOption={(props, option) => (
                         <Typography
                           {...props}
                           align="left"
-                          data-cy={`${kv[0]}-option-${option.name}`}
+                          data-cy={`${kw.type}-option-${option}`}
                         >
-                          {option.name}
+                          {option}
                         </Typography>
                       )}
                       style={{ width: "100%", marginTop: 10, marginBottom: 10 }}
                     />
                   ) : (
                     <div>
-                      {kv[1].map((k) => (
+                      {kw.keywords.map((k) => (
                         <Button
-                          key={`keyword-name-${k.name}`}
-                          data-cy={`keyword-name-${k.name}`}
+                          key={`keyword-name-${k}`}
+                          data-cy={`keyword-name-${k}`}
                           data-test={hasKeyword(k)}
                           variant="contained"
                           color={hasKeyword(k) ? "primary" : "secondary"}
@@ -173,7 +149,7 @@ export function SelectKeywordsSlide(props: {
                             textTransform: "none",
                           }}
                         >
-                          {k.name}
+                          {k}
                         </Button>
                       ))}
                     </div>
@@ -185,29 +161,20 @@ export function SelectKeywordsSlide(props: {
                 multiple
                 freeSolo
                 value={mentor.keywords}
-                options={keywords}
-                getOptionLabel={(option: Keyword | string) =>
-                  typeof option === "string" ? option : option.name
-                }
+                options={allKeywords}
                 onChange={(e, v) =>
                   editMentor({
                     ...mentor,
-                    keywords: v.map((k) => {
-                      if (typeof k === "string") {
-                        return { _id: "", name: k, type: "" };
-                      } else {
-                        return k;
-                      }
-                    }),
+                    keywords: v,
                   })
                 }
-                renderTags={(value: readonly Keyword[], getTagProps) =>
-                  value.map((option: Keyword, index: number) => (
+                renderTags={(value: readonly string[], getTagProps) =>
+                  value.map((option: string, index: number) => (
                     <Chip
-                      data-cy={`keyword-${option.name}`}
-                      label={option.name}
+                      data-cy={`keyword-${option}`}
+                      label={option}
                       {...getTagProps({ index })}
-                      key={`keyword-${option.name}`}
+                      key={`keyword-${option}`}
                     />
                   ))
                 }
@@ -222,9 +189,9 @@ export function SelectKeywordsSlide(props: {
                   <Typography
                     {...props}
                     align="left"
-                    data-cy={`keyword-option-${option.name}`}
+                    data-cy={`keyword-option-${option}`}
                   >
-                    {option.name}
+                    {option}
                   </Typography>
                 )}
                 style={{ width: "100%", marginTop: 10 }}
