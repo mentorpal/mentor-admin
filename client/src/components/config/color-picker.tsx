@@ -8,7 +8,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useRef, useState } from "react";
 import reactCSS from "reactcss";
 import { SketchPicker } from "react-color";
-import { Popover } from "@material-ui/core";
+import { Popover } from "@mui/material";
 
 export function ColorPicker(props: {
   color: string;

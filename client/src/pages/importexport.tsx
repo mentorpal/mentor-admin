@@ -5,8 +5,8 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Button, CircularProgress, Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Button, CircularProgress, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 import NavBar from "components/nav-bar";
 import ImportView from "components/import-export/import-view";

@@ -167,7 +167,7 @@ export interface Mentor {
   orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
-  keywords: Keyword[];
+  keywords: string[];
   topics: Topic[];
   answers: Answer[];
   hasVirtualBackground: boolean;
@@ -196,8 +196,8 @@ export interface OrgPermission {
 
 export interface Keyword {
   _id: string;
-  name: string;
   type: string;
+  keywords: string[];
 }
 
 export enum SubjectTypes {

@@ -5,8 +5,9 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Box, LinearProgress, Typography } from "@material-ui/core";
-import { createStyles, withStyles } from "@material-ui/core/styles";
+import { Box, LinearProgress, Typography } from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import withStyles from "@mui/styles/withStyles";
 
 const LinearProgressBar = withStyles((theme) =>
   createStyles({
@@ -16,7 +17,7 @@ const LinearProgressBar = withStyles((theme) =>
     },
     colorPrimary: {
       backgroundColor:
-        theme.palette.grey[theme.palette.type === "light" ? 200 : 700],
+        theme.palette.grey[theme.palette.mode === "light" ? 200 : 700],
     },
     bar: {
       borderRadius: 5,

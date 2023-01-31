@@ -25,7 +25,6 @@ import {
   ListItem,
   ListItemText,
   ListSubheader,
-  makeStyles,
   MenuItem,
   Paper,
   Select,
@@ -38,7 +37,10 @@ import {
   Toolbar,
   Tooltip,
   Typography,
-} from "@material-ui/core";
+  Theme,
+  SelectChangeEvent,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -47,8 +49,8 @@ import {
   KeyboardArrowRight as KeyboardArrowRightIcon,
   Settings as SettingsIcon,
   Person as PersonIcon,
-} from "@material-ui/icons";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/icons-material";
+import { Autocomplete } from "@mui/material";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
@@ -86,7 +88,7 @@ const reservedSubdomains = [
   "static-uscquestions",
 ];
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -181,6 +183,7 @@ function TableFooter(props: {
             data-cy="prev-page"
             disabled={!hasPreviousPage}
             onClick={pagin.prevPage}
+            size="large"
           >
             <KeyboardArrowLeftIcon />
           </IconButton>
@@ -202,6 +205,7 @@ function TableFooter(props: {
             data-cy="next-page"
             disabled={!hasNextPage}
             onClick={pagin.nextPage}
+            size="large"
           >
             <KeyboardArrowRightIcon />
           </IconButton>
@@ -342,12 +346,7 @@ function EditOrganization(props: {
                     <Select
                       data-cy="member-select-role"
                       value={m.role}
-                      onChange={(
-                        event: React.ChangeEvent<{
-                          value: unknown;
-                          name?: unknown;
-                        }>
-                      ) =>
+                      onChange={(event: SelectChangeEvent<string>) =>
                         edit({
                           ...org!,
                           members: copyAndSet(org.members || [], i, {
@@ -418,8 +417,8 @@ function EditOrganization(props: {
             }
           }}
           style={{ width: "100%" }}
-          renderOption={(option) => (
-            <Typography data-cy={`member-${option._id}`}>
+          renderOption={(props, option) => (
+            <Typography {...props} data-cy={`member-${option._id}`}>
               {option.defaultMentor.name} ({option.email})
             </Typography>
           )}
@@ -493,6 +492,7 @@ function OrganizationItem(props: {
               onClick={() => props.onEdit(org)}
               className={styles.normalButton}
               disabled={!hasEditPermission}
+              size="large"
             >
               <EditIcon />
             </IconButton>
@@ -505,6 +505,7 @@ function OrganizationItem(props: {
               onClick={() => navigate(`/config?org=${org._id}`)}
               className={styles.normalButton}
               disabled={!hasEditPermission}
+              size="large"
             >
               <SettingsIcon />
             </IconButton>
@@ -517,6 +518,7 @@ function OrganizationItem(props: {
               onClick={() => navigate(`/users?org=${org._id}`)}
               className={styles.normalButton}
               disabled={!hasEditPermission}
+              size="large"
             >
               <PersonIcon />
             </IconButton>

@@ -12,6 +12,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  SelectChangeEvent,
   Switch,
   Table,
   TableBody,
@@ -20,13 +21,14 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Theme,
   Toolbar,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import KeyboardArrowLeftIcon from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@material-ui/icons/KeyboardArrowRight";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { Autocomplete } from "@mui/material";
 
 //IMPORT FUNCTIONS
 import { Answer, ClassifierAnswerType, Feedback } from "types";
@@ -47,7 +49,7 @@ import FeedbackItem from "components/feedback/feedback-item";
 import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
 import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -326,12 +328,8 @@ function FeedbackPage(): JSX.Element {
                       data-cy="filter-feedback"
                       value={feedbackSearchParams.filter.feedback}
                       style={{ flexGrow: 1, marginLeft: 10 }}
-                      onChange={(
-                        event: React.ChangeEvent<{
-                          value: unknown;
-                          name?: unknown;
-                        }>
-                      ) =>
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      onChange={(event: SelectChangeEvent<any>) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           feedback: event.target.value as Feedback,
@@ -357,12 +355,8 @@ function FeedbackPage(): JSX.Element {
                       data-cy="filter-confidence"
                       value={feedbackSearchParams.filter.ClassifierAnswerType}
                       style={{ flexGrow: 1, marginLeft: 10 }}
-                      onChange={(
-                        event: React.ChangeEvent<{
-                          value: unknown;
-                          name?: unknown;
-                        }>
-                      ) =>
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      onChange={(event: SelectChangeEvent<any>) =>
                         filterFeedback({
                           ...feedbackSearchParams.filter,
                           classifierAnswerType: event.target
@@ -416,8 +410,8 @@ function FeedbackPage(): JSX.Element {
                         })
                       }
                       style={{ minWidth: 300 }}
-                      renderOption={(option) => (
-                        <Typography align="left">
+                      renderOption={(props, option) => (
+                        <Typography {...props} align="left">
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>
@@ -442,8 +436,8 @@ function FeedbackPage(): JSX.Element {
                         })
                       }
                       style={{ minWidth: 300 }}
-                      renderOption={(option) => (
-                        <Typography align="left">
+                      renderOption={(props, option) => (
+                        <Typography {...props} align="left">
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>
@@ -467,6 +461,7 @@ function FeedbackPage(): JSX.Element {
               data-cy="prev-page"
               disabled={!feedback?.pageInfo.hasPreviousPage}
               onClick={feedbackPrevPage}
+              size="large"
             >
               <KeyboardArrowLeftIcon />
             </IconButton>
@@ -474,6 +469,7 @@ function FeedbackPage(): JSX.Element {
               data-cy="next-page"
               disabled={!feedback?.pageInfo.hasNextPage}
               onClick={feedbackNextPage}
+              size="large"
             >
               <KeyboardArrowRightIcon />
             </IconButton>

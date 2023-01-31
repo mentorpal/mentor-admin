@@ -7,13 +7,14 @@ import {
   FormControlLabel,
   Grid,
   InputLabel,
-  makeStyles,
   MenuItem,
   Modal,
   Select,
+  SelectChangeEvent,
   TextField,
   Theme,
-} from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import { onTextInputChanged } from "helpers";
 import React from "react";
 import { Mentor, MentorType } from "types";
@@ -134,12 +135,7 @@ function EditMentorInfoModal(props: {
                         label="Mentor Type"
                         value={editedMentor.mentorType}
                         style={{ width: 200 }}
-                        onChange={(
-                          event: React.ChangeEvent<{
-                            name?: string | undefined;
-                            value: unknown;
-                          }>
-                        ) => {
+                        onChange={(event: SelectChangeEvent<MentorType>) => {
                           editMentor({
                             mentorType: event.target.value as MentorType,
                           });

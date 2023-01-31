@@ -16,9 +16,9 @@ import {
   List,
   ListItem,
   Typography,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Answer } from "types";
 import AnswerItem from "./answer-item";
 import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";

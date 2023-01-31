@@ -5,13 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Add as AddIcon,
   ChangeHistory as ChangeHistoryIcon,
   NewReleases as NewReleasesIcon,
   Remove as RemoveIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import { EditType, ImportPreview } from "types";
 import { equals } from "helpers";
 

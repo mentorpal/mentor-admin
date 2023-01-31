@@ -15,10 +15,10 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   ListSubheader,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
+} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { Topic } from "types";
 
 export function TopicsList(props: {

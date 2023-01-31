@@ -14,6 +14,7 @@ env:
     LRS_ENDPOINT: "/mentorpal/lrs/qa/LRS_ENDPOINT"
     LRS_USERNAME: "/mentorpal/lrs/qa/LRS_USERNAME"
     LRS_PASSWORD: "/mentorpal/lrs/qa/LRS_PASSWORD"
+    GOOGLE_CLIENT_ID: "/mentorpal/qa/shared/GOOGLE_CLIENT_ID"
 
 phases:
   install:

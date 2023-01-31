@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React from "react";
-import { Card, CardContent, Grid } from "@material-ui/core";
+import { Card, CardContent, Grid } from "@mui/material";
 import StageToast from "./stage-toast";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";

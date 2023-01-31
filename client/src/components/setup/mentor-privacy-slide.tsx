@@ -5,7 +5,13 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { Typography, Select, MenuItem, FormControl } from "@material-ui/core";
+import {
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
+} from "@mui/material";
 import {
   Mentor,
   Organization,
@@ -19,10 +25,9 @@ export function MentorPrivacySlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
   orgs: Organization[];
-  isMentorLoading: boolean;
   editMentor: (edits: Partial<Mentor>) => void;
 }): JSX.Element {
-  const { classes, mentor, orgs, isMentorLoading, editMentor } = props;
+  const { classes, mentor, orgs, editMentor } = props;
   const [org, setOrg] = useState<Organization>();
 
   useEffect(() => {
@@ -89,12 +94,7 @@ export function MentorPrivacySlide(props: {
               label="Org"
               value={org._id}
               cy-value={org._id}
-              onChange={(
-                event: React.ChangeEvent<{
-                  value: unknown;
-                  name?: unknown;
-                }>
-              ) =>
+              onChange={(event: SelectChangeEvent<string>) =>
                 setOrg(
                   orgs.find((o) => o._id === (event.target.value as string))
                 )
@@ -115,12 +115,7 @@ export function MentorPrivacySlide(props: {
             <Select
               label="View Permissions"
               value={orgViewPermission}
-              onChange={(
-                event: React.ChangeEvent<{
-                  value: unknown;
-                  name?: unknown;
-                }>
-              ) =>
+              onChange={(event: SelectChangeEvent<OrgViewPermissionType>) =>
                 setPermission({
                   v: event.target.value as OrgViewPermissionType,
                 })
@@ -135,12 +130,7 @@ export function MentorPrivacySlide(props: {
             <Select
               label="Edit Permissions"
               value={orgEditPermission}
-              onChange={(
-                event: React.ChangeEvent<{
-                  value: unknown;
-                  name?: unknown;
-                }>
-              ) =>
+              onChange={(event: SelectChangeEvent<OrgEditPermissionType>) =>
                 setPermission({
                   e: event.target.value as OrgEditPermissionType,
                 })
@@ -175,10 +165,6 @@ export function MentorPrivacySlide(props: {
     );
   }
 
-  if (!mentor || isMentorLoading) {
-    return <div />;
-  }
-
   return (
     <Slide
       classes={classes}
@@ -191,12 +177,7 @@ export function MentorPrivacySlide(props: {
             label="Privacy"
             value={mentor.isPrivate ? "private" : "public"}
             style={{ width: 200 }}
-            onChange={(
-              event: React.ChangeEvent<{
-                name?: string | undefined;
-                value: unknown;
-              }>
-            ) => {
+            onChange={(event: SelectChangeEvent<"private" | "public">) => {
               editMentor({
                 isPrivate: (event.target.value as string) === "private",
               });

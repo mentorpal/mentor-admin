@@ -30,7 +30,6 @@ import {
   UserQuestion,
   TaskInfo,
   SubjectTypes,
-  Keyword,
   OrgPermission,
 } from "types";
 
@@ -66,7 +65,7 @@ export interface MentorGQL {
   orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
-  keywords: Keyword[];
+  keywords: string[];
   topics: Topic[];
   answers: AnswerGQL[];
   hasVirtualBackground: boolean;

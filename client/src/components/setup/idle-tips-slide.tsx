@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Typography } from "@material-ui/core";
+import { Typography } from "@mui/material";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import React from "react";
 import ReactPlayer from "react-player";
@@ -37,7 +37,7 @@ export function IdleTipsSlide(props: {
             data-cy="video-player"
             url={idleTipsVideoUrl}
             controls={true}
-            playing={true}
+            playing={false}
             height={height}
             style={{ marginLeft: "auto", marginRight: "auto" }}
             width={width}

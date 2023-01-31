@@ -461,3 +461,17 @@ export function canEditOrganization(org: Organization, user: User): boolean {
     )
   );
 }
+
+/**
+ * Checks that both arrays have the exact same elements in the same positions (and therefore are the same length).
+ * T must be the element type contain in the array.
+ */
+export function arraysEqual<T>(a: T[], b: T[]): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}

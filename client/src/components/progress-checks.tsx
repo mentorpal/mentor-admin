@@ -6,15 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 
-import {
-  Box,
-  createStyles,
-  makeStyles,
-  Radio,
-  Typography,
-} from "@material-ui/core";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
-import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
+import { Box, Radio, Typography } from "@mui/material";
+import createStyles from "@mui/styles/createStyles";
+import makeStyles from "@mui/styles/makeStyles";
+import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
 const useStyles = makeStyles(() =>
   createStyles({

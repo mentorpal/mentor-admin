@@ -15,10 +15,10 @@ import {
   List,
   ListItem,
   ListItemText,
-  makeStyles,
   Toolbar,
-} from "@material-ui/core";
-import { Card, Button, Checkbox } from "@material-ui/core";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import { Card, Button, Checkbox } from "@mui/material";
 import { useWithFollowups } from "hooks/graphql/use-with-followups";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
@@ -40,13 +40,16 @@ const useStyles = makeStyles(() => ({
   footer: {
     top: "auto",
     bottom: 0,
+    position: "fixed",
     backgroundColor: "#eee",
+    height: "fit-content",
     opacity: 0.8,
   },
   row: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
   nextBtn: {
     position: "absolute",
@@ -178,8 +181,17 @@ function FollowupsPage(props: {
           </Button>
         ) : undefined}
       </Card>
-      <AppBar position="fixed" className={classes.footer}>
-        <Toolbar className={classes.row} style={{ justifyContent: "center" }}>
+      <AppBar className={classes.footer}>
+        <Toolbar
+          style={{
+            position: "fixed",
+            bottom: 0,
+            backgroundColor: "#eee",
+            height: "fit-content",
+            width: "100%",
+          }}
+          className={classes.row}
+        >
           <Button
             data-cy="done-btn"
             variant="contained"
@@ -187,6 +199,7 @@ function FollowupsPage(props: {
             disableElevation
             onClick={handleDoneButton}
             className={classes.nextBtn}
+            style={{ position: "absolute", right: 50 }}
           >
             {toRecordFollowUpQs.length ? "Record" : "Done"}
           </Button>

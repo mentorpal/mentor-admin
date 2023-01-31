@@ -1,15 +1,10 @@
-import {
-  Avatar,
-  Grid,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@material-ui/core";
+import { Avatar, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
-import CreateIcon from "@material-ui/icons/Create";
-import CloseIcon from "@material-ui/icons/Close";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
+import CreateIcon from "@mui/icons-material/Create";
+import CloseIcon from "@mui/icons-material/Close";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import withStyles from "@mui/styles/withStyles";
+import makeStyles from "@mui/styles/makeStyles";
 
 import { TooltipStep } from "components/home";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -83,13 +78,13 @@ function MentorThumbnail(props: {
                 component="span"
                 className="edit-pencil-icon"
                 onClick={handleOpen}
+                size="large"
               >
                 <CreateIcon />
               </IconButton>
 
               <ColorTooltip
                 data-cy="profile-tooltip"
-                interactive={true}
                 open={
                   hasSeenTooltips
                     ? profileTooltipOpen
@@ -185,7 +180,7 @@ function MentorThumbnail(props: {
               right: 73,
             }}
           >
-            <IconButton color="primary" component="span">
+            <IconButton color="primary" component="span" size="large">
               <CloudUploadIcon />
             </IconButton>
           </label>
@@ -206,9 +201,8 @@ function MentorThumbnail(props: {
       <Grid
         container
         alignItems="flex-start"
-        justify="flex-start"
+        justifyContent="flex-start"
         style={{ marginTop: 5 }}
-        xs={10}
       >
         <Grid item>
           <label>

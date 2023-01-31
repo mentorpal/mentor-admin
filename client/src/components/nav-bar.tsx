@@ -19,10 +19,11 @@ import {
   Menu,
   MenuItem,
   SwipeableDrawer,
+  Theme,
   Toolbar,
   Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   AccountCircle,
   Build as BuildIcon,
@@ -40,7 +41,7 @@ import {
   Settings as SettingsIcon,
   Subject as SubjectIcon,
   Pageview as LRSIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -54,7 +55,7 @@ import {
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   toolbar: theme.mixins.toolbar,
   root: {
     flexGrow: 1,
@@ -347,6 +348,7 @@ export function NavBar(props: {
                 toggleDrawer(true);
               }
             }}
+            size="large"
           >
             {onBack ? <CloseIcon /> : <MenuIcon />}
           </IconButton>

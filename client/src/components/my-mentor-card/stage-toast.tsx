@@ -6,8 +6,8 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import PropTypes from "prop-types";
-import { Typography, Snackbar } from "@material-ui/core";
-import MuiAlert from "@material-ui/lab/Alert";
+import { Typography, Snackbar } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 
 export default function StageToast(props: {
   value: number;

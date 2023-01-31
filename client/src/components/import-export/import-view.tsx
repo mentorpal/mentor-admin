@@ -13,11 +13,12 @@ import {
   IconButton,
   List,
   ListSubheader,
-  makeStyles,
   Toolbar,
   Typography,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
+  Theme,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import CloseIcon from "@mui/icons-material/Close";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
 import SubjectImport from "./import-subject";
@@ -25,7 +26,7 @@ import AnswerImport from "./import-answer";
 import { LoadingDialog } from "components/dialog";
 import { EditType } from "types";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     height: "100%",
     width: "100%",
@@ -96,6 +97,7 @@ export default function ImportView(props: {
             color="inherit"
             aria-label="close"
             onClick={cancelImport}
+            size="large"
           >
             <CloseIcon />
           </IconButton>

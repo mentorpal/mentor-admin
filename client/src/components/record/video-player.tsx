@@ -6,12 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
-import {
-  Button,
-  Slider,
-  CircularProgress,
-  Typography,
-} from "@material-ui/core";
+import { Button, Slider, CircularProgress, Typography } from "@mui/material";
 import overlay from "images/face-position-white.png";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";

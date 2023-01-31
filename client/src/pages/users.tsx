@@ -10,7 +10,6 @@ import {
   AppBar,
   CircularProgress,
   IconButton,
-  makeStyles,
   MenuItem,
   Paper,
   Select,
@@ -23,7 +22,10 @@ import {
   TextField,
   Toolbar,
   Tooltip,
-} from "@material-ui/core";
+  Theme,
+  SelectChangeEvent,
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Edit as EditIcon,
   GetApp as GetAppIcon,
@@ -31,8 +33,8 @@ import {
   KeyboardArrowRight as KeyboardArrowRightIcon,
   Launch as LaunchIcon,
   ImportExport,
-} from "@material-ui/icons";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/icons-material";
+import { Autocomplete } from "@mui/material";
 
 import { ColumnDef, ColumnHeader } from "components/column-header";
 import NavBar from "components/nav-bar";
@@ -57,7 +59,7 @@ import {
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -168,9 +170,9 @@ function TableFooter(props: {
         <div className={styles.paging}>
           <Select
             value={userPagin.pageSize || 0}
-            onChange={(
-              e: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => userPagin.setPageSize(e.target.value as number)}
+            onChange={(e: SelectChangeEvent<number>) =>
+              userPagin.setPageSize(e.target.value as number)
+            }
           >
             {pageSizes.map((p) => (
               <MenuItem key={p} value={p}>
@@ -182,6 +184,7 @@ function TableFooter(props: {
             data-cy="prev-page"
             disabled={!hasPrev}
             onClick={userPagin.prevPage}
+            size="large"
           >
             <KeyboardArrowLeftIcon />
           </IconButton>
@@ -189,6 +192,7 @@ function TableFooter(props: {
             data-cy="next-page"
             disabled={!hasNext}
             onClick={userPagin.nextPage}
+            size="large"
           >
             <KeyboardArrowRightIcon />
           </IconButton>
@@ -276,9 +280,7 @@ function UserItem(props: {
           <Select
             data-cy="select-role"
             value={edge.node.userRole || UserRole.USER}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => {
+            onChange={(event: SelectChangeEvent<UserRole>) => {
               handleRoleChange(edge.node._id, event.target.value as string);
             }}
             className={styles.dropdown}
@@ -342,9 +344,7 @@ function UserItem(props: {
           <Select
             data-cy="select-privacy"
             value={mentor.isPrivate ? "true" : "false"}
-            onChange={(
-              event: React.ChangeEvent<{ value: unknown; name?: unknown }>
-            ) => {
+            onChange={(event: SelectChangeEvent<"false" | "true">) => {
               handlePrivacyChange(
                 mentor._id,
                 (event.target.value as string) === "true"
@@ -374,6 +374,7 @@ function UserItem(props: {
               if (mentor._id) launchMentor(mentor._id, true);
             }}
             className={styles.normalButton}
+            size="large"
           >
             <LaunchIcon />
           </IconButton>
@@ -387,6 +388,7 @@ function UserItem(props: {
             }}
             disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
+            size="large"
           >
             <ImportExport />
           </IconButton>
@@ -397,6 +399,7 @@ function UserItem(props: {
             onClick={() => exportMentor(mentor._id, props.accessToken)}
             disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
+            size="large"
           >
             <GetAppIcon />
           </IconButton>
@@ -410,6 +413,7 @@ function UserItem(props: {
             }}
             disabled={!canEditMentor(mentor, user, orgs)}
             className={styles.normalButton}
+            size="large"
           >
             <EditIcon />
           </IconButton>

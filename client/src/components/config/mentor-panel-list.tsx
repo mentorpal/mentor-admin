@@ -26,23 +26,24 @@ import {
   ListItem,
   ListItemText,
   ListSubheader,
-  makeStyles,
   TextField,
+  Theme,
   Typography,
-} from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import LaunchIcon from "@material-ui/icons/Launch";
-import DragHandleIcon from "@material-ui/icons/DragHandle";
-import { Autocomplete } from "@material-ui/lab";
+} from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import LaunchIcon from "@mui/icons-material/Launch";
+import DragHandleIcon from "@mui/icons-material/DragHandle";
+import { Autocomplete } from "@mui/material";
 
 import { copyAndMove, copyAndRemove, launchMentorPanel } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, MentorPanel, Organization } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
   button: {
     width: 300,
     padding: 5,
@@ -120,8 +121,8 @@ function EditMentorPanelDialog(props: {
           data-test={mentorPanel.subject}
           onChange={(e, v) => edit({ subject: v?._id || "" })}
           style={{ width: "100%", marginTop: 10 }}
-          renderOption={(option) => (
-            <Typography data-cy={`panel-subject-${option._id}`}>
+          renderOption={(props, option) => (
+            <Typography {...props} data-cy={`panel-subject-${option._id}`}>
               {option.name}
             </Typography>
           )}
@@ -233,8 +234,8 @@ function EditMentorPanelDialog(props: {
               });
           }}
           style={{ width: "100%" }}
-          renderOption={(option) => (
-            <Typography data-cy={`panel-mentor-${option._id}`}>
+          renderOption={(props, option) => (
+            <Typography {...props} data-cy={`panel-mentor-${option._id}`}>
               {option.name}
             </Typography>
           )}

@@ -69,6 +69,12 @@ const defaultSearchParams = {
   sortAscending: true,
 };
 
+// https://github.com/axios/axios/issues/4193#issuecomment-1158137489
+interface MyAxiosRequestConfig extends Omit<AxiosRequestConfig, "headers"> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  headers?: any; // this was "any" at v0.21.1 but now broken between 0.21.4 >= 0.27.2
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stringifyObject(value: any) {
   return JSON.stringify(value).replace(/"([^"]+)":/g, "$1:");
@@ -119,7 +125,7 @@ interface GQLQuery {
 
 interface HttpRequestConfig {
   accessToken?: string; // bearer-token http auth
-  axiosConfig?: AxiosRequestConfig; // any axios config for the request
+  axiosConfig?: MyAxiosRequestConfig; // any axios config for the request
   axiosMiddleware?: AxiosMiddleware; // used (for example) to extract accessToken from response headers
   /**
    * When set, will use this prop (or array of props) to extract return data from a json response, e.g.
@@ -376,8 +382,8 @@ export async function fetchKeywords(
             cursor
             node {
               _id
-              name
               type
+              keywords
             }
           }
           pageInfo {
@@ -988,11 +994,7 @@ export async function fetchMentorById(
           defaultSubject {
             _id
           }
-          keywords {
-            _id
-            name
-            type
-          }
+          keywords
           subjects {
             _id
             name
@@ -1096,14 +1098,14 @@ export async function updateMentorKeywords(
   return execGql<boolean>(
     {
       query: `
-        mutation UpdateMentorKeywords($keywords: [UpdateKeywordType], $mentorId: ID) {
+        mutation UpdateMentorKeywords($keywords: [String], $mentorId: ID) {
           me {
             updateMentorKeywords(keywords: $keywords, mentorId: $mentorId)
           }
         }
       `,
       variables: {
-        keywords: mentor.keywords.map((k) => ({ name: k.name, type: k.type })),
+        keywords: mentor.keywords,
         mentorId,
       },
     },
