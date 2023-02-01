@@ -73,6 +73,7 @@ function VideoRecorder(props: {
     const videoStream = await navigator.mediaDevices.getUserMedia({
       video: true,
     });
+    console.log("NEW VIDEO STUFF");
     videoEle.muted = true;
     videoEle.volume = 0;
     videoEle.srcObject = videoStream;
@@ -100,7 +101,6 @@ function VideoRecorder(props: {
         setRecordDurationCounter((prevState) => prevState + 1);
       },
       checkForInactiveTracks: true,
-      videoBitsPerSecond: 256000,
     });
     setVideoRecorder(recorder);
     setCameraIsOn(true);
