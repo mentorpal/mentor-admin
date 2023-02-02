@@ -11,7 +11,7 @@ RUN apt-get update && \
 WORKDIR /build
 COPY client ./client
 RUN cd client && \
-    npm ci && \
+    npm ci --legacy-peer-deps && \
     npm run build
 FROM nginx:1-alpine 
 EXPOSE 80

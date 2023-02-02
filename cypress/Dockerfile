@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json .
 COPY package-lock.json .
 COPY tsconfig.json .
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 COPY cypress ./cypress
 COPY cypress.json .
 ENTRYPOINT ["tail", "-f", "/dev/null"]
