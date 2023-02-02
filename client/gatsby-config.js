@@ -10,7 +10,7 @@ module.exports = {
     `gatsby-plugin-sitemap`,
     `gatsby-plugin-typescript`,
     {
-      resolve: "gatsby-plugin-material-ui",
+      resolve: "@iostindex/gatsby-plugin-material-ui",
     },
     {
       resolve: `gatsby-plugin-env-variables`,
