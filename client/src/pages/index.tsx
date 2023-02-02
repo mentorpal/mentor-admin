@@ -11,7 +11,7 @@ import HomePage from "components/home";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { LoginStatus } from "store/slices/login";
 
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 
 /**
  * Separate functional component in order for useGoogleLogin to be nested under GoogleOAuthProvider (This provider did not want to work in gatsby-browser, bug reported by others)
@@ -31,7 +31,11 @@ function PrimaryDisplayHolder(): JSX.Element {
 }
 
 function IndexPage(): JSX.Element {
-  return <PrimaryDisplayHolder />;
+  return (
+    <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || "test"}>
+      <PrimaryDisplayHolder />;
+    </GoogleOAuthProvider>
+  );
 }
 
 export default IndexPage;
