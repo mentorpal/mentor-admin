@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { IconButton, Button, Tooltip, Typography } from "@mui/material";
-import withStyles from "@mui/styles/withStyles";
+import { withStyles } from "tss-react/mui";
 import { HelpOutline } from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -54,11 +54,11 @@ export default function RecommendedActionButton(props: {
     setCurRec(currentRecommendations[curRecIndex]);
   }, [curRecIndex, currentRecommendations]);
 
-  const ColorTooltip = withStyles({
+  const ColorTooltip = withStyles(Tooltip, {
     tooltip: {
       backgroundColor: "secondary",
     },
-  })(Tooltip);
+  });
 
   if (!curRec) {
     return <></>;
