@@ -24,6 +24,7 @@ import {
   Tooltip,
   Theme,
   SelectChangeEvent,
+  Checkbox,
 } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import {
@@ -244,6 +245,7 @@ function UserItem(props: {
   userPagin: UseUserData;
   user: User;
   orgs: Organization[];
+  viewArchivedMentors: boolean;
 }): JSX.Element {
   const { edge, i, user, orgs } = props;
   const styles = useStyles();
@@ -257,6 +259,10 @@ function UserItem(props: {
 
   function handlePrivacyChange(mentor: string, isPrivate: boolean): void {
     props.userPagin.onUpdateMentorPrivacy(mentor, isPrivate);
+  }
+
+  function handleArchiveChange(mentor: string, isArchived: boolean): void {
+    props.userPagin.onArchiveMentor(mentor, isArchived);
   }
 
   return (
@@ -419,6 +425,16 @@ function UserItem(props: {
           </IconButton>
         </Tooltip>
       </TableCell>
+      {props.viewArchivedMentors ? (
+        <TableCell data-cy="archived" align="left">
+          <Checkbox
+            checked={mentor.isArchived}
+            disabled={!canEditMentorPrivacy(mentor, props.user, orgs)}
+            color="secondary"
+            onClick={() => handleArchiveChange(mentor._id, !mentor.isArchived)}
+          />
+        </TableCell>
+      ) : undefined}
     </TableRow>
   );
 }
@@ -438,7 +454,20 @@ function UsersTable(props: {
         <TableContainer style={{ height: "calc(100vh - 128px)" }}>
           <Table stickyHeader aria-label="sticky table">
             <ColumnHeader
-              columns={columns}
+              columns={
+                props.viewArchivedMentors
+                  ? [
+                      ...columns,
+                      {
+                        id: "isArchived",
+                        label: "Archived",
+                        minWidth: 0,
+                        align: "left",
+                        sortable: true,
+                      },
+                    ]
+                  : columns
+              }
               sortBy={props.userPagin.pageSearchParams.sortBy}
               sortAsc={props.userPagin.pageSearchParams.sortAscending}
               onSort={props.userPagin.sortBy}
@@ -453,6 +482,7 @@ function UsersTable(props: {
                   orgs={props.orgs}
                   userPagin={props.userPagin}
                   user={props.user}
+                  viewArchivedMentors={props.viewArchivedMentors}
                 />
               ))}
             </TableBody>

@@ -1148,6 +1148,31 @@ export async function updateMentorDetails(
   );
 }
 
+export async function archiveMentorDetails(
+  isArchived: boolean,
+  accessToken: string,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!, $mentorId: ID) {
+        me {
+          updateMentorDetails(mentor: $mentor, mentorId: $mentorId)
+        }
+      }
+    `,
+      variables: {
+        mentorId,
+        mentor: {
+          isArchived: isArchived,
+        },
+      },
+    },
+    { dataPath: ["me", "updateMentorDetails"], accessToken }
+  );
+}
+
 export async function updateMentorSubjects(
   mentor: Mentor,
   accessToken: string,
@@ -2234,6 +2259,25 @@ export async function addOrUpdateMentorPanel(
       },
     },
     { dataPath: ["me", "addOrUpdateMentorPanel"], accessToken }
+  );
+}
+
+export async function deleteMentorPanel(
+  accessToken: string,
+  id: string
+): Promise<MentorPanel> {
+  return execGql<MentorPanel>(
+    {
+      query: `mutation DeleteMentorPanel($id: ID!) {
+        me {
+          deleteMentorPanel(id: $id) {
+            _id
+          }
+        }
+      }`,
+      variables: { id },
+    },
+    { dataPath: ["me", "deleteMentorPanel"], accessToken }
   );
 }
 
