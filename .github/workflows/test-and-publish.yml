@@ -9,13 +9,13 @@ jobs:
         with:
           node-version: "18.13"
       - name: Install
-        run:  npm ci --legacy-peer-deps
+        run:  npm ci 
       - name: Run format test
         run: npm run test:format
       - name: Run license test
         run: npm run test:license
       - name: Client - Install
-        run: cd client && npm ci --legacy-peer-deps
+        run: cd client && npm ci 
       # - name: Client - audit
       #   run: cd client && npm run test:audit
       - name: Client - Run lint test

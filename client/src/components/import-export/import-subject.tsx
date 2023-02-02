@@ -21,7 +21,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   ExpandMore as ExpandMoreIcon,
   FindReplace as FindReplaceIcon,
@@ -43,7 +43,7 @@ import QuestionImport from "./import-question";
 import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { SubjectImport } })(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -87,7 +87,7 @@ export default function SubjectImport(props: {
 }): JSX.Element {
   const { getData } = useActiveMentor();
   const mentorId = getData((m) => m.data?._id || "");
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState<SubjectGQL>();
   const {

@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 
 import React, { useEffect, useState } from "react";
 import { Button, Dialog, DialogContent, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   Autorenew,
   HourglassEmptyTwoTone,
@@ -25,7 +25,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { isImportComplete } from "hooks/graphql/use-with-import-status";
 import { navigate } from "@gatsbyjs/reach-router";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { ImportInProgressDialog } })(() => ({
   progressIcon: {
     animation: "$spin 3000ms",
     // animationName: "spin",
@@ -47,7 +47,7 @@ export default function ImportInProgressDialog(props: {
   importTask: ImportTask;
 }): JSX.Element {
   const { logout } = useWithLogin();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { loadMentor } = useActiveMentor();
   const { importTask } = props;
   const [open, setOpen] = useState<boolean>(true);

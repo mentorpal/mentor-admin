@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Button, CircularProgress, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 
 import NavBar from "components/nav-bar";
 import ImportView from "components/import-export/import-view";
@@ -16,7 +16,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Answer } from "types";
 import ImportInProgressDialog from "components/import-export/import-in-progress";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { ImportPage } })(() => ({
   root: {
     width: "100%",
     height: "100%",
@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function ImportPage(): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const useImportExport = useWithImportExport();
   const { importTask } = useImportExport;
   const { getData, isLoading } = useActiveMentor();

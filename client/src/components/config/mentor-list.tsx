@@ -25,7 +25,7 @@ import {
   TextField,
   Theme,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import LaunchIcon from "@mui/icons-material/Launch";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import { Autocomplete } from "@mui/material";
@@ -35,7 +35,7 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, Organization } from "types";
 import { MentorGQL } from "types-gql";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { MentorItem } })((theme: Theme) => ({
   button: {
     width: 200,
     padding: 5,
@@ -147,7 +147,7 @@ export function MentorList(props: {
   toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { mentors } = props;
   const { height: windowHeight } = useWithWindowSize();
   const [_mentors, setMentors] = useState<MentorGQL[]>(mentors);

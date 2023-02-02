@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Button, Card, TextField, Typography } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import { Autocomplete } from "@mui/material";
 import {
   Question,
@@ -19,7 +19,7 @@ import {
 import { ChangeIcon } from "./icons";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { QuestionImport } })(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -57,7 +57,7 @@ export default function QuestionImport(props: {
     targetSubject: SubjectGQL
   ) => void;
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     preview,
     questions,

@@ -29,7 +29,7 @@ node_modules/typescript:
 
 PHONY: install
 install:
-	npm ci --legacy-peer-deps
+	npm ci 
 
 .PHONY: test
 test:

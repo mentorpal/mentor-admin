@@ -23,7 +23,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   AccountCircle,
   Build as BuildIcon,
@@ -55,8 +55,10 @@ import {
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  toolbar: theme.mixins.toolbar,
+const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
+  toolbar: {
+    minHeight: 56,
+  },
   root: {
     flexGrow: 1,
   },
@@ -303,7 +305,7 @@ export function NavBar(props: {
   onBack?: () => void;
   checkForImportTask?: boolean;
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     uploads,
     uploadsButtonVisible,

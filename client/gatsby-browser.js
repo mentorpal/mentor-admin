@@ -18,6 +18,7 @@ import "videojs-record/dist/css/videojs.record.css";
 import Record from "videojs-record/dist/videojs.record.js";
 import "styles/layout.css";
 import { loadSentry } from "./src/helpers";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 if (process.env.IS_SENTRY_ENABLED === "true") {
   console.log("Loading sentry");
@@ -55,11 +56,13 @@ const App = ({ element }) => {
     }
   }, []);
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>{element}</Provider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || "test"}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>{element}</Provider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </GoogleOAuthProvider>
   );
 };
 

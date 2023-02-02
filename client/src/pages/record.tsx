@@ -21,10 +21,9 @@ import {
   Select,
   Toolbar,
   Typography,
-  Theme,
   SelectChangeEvent,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import UndoIcon from "@mui/icons-material/Undo";
@@ -67,8 +66,10 @@ import {
 } from "draft-js";
 import { useWithBrowser } from "hooks/use-with-browser";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  toolbar: theme.mixins.toolbar,
+const useStyles = makeStyles({ name: { RecordPage } })(() => ({
+  toolbar: {
+    minHeight: 56,
+  },
   root: {
     display: "flex",
     flexDirection: "column",
@@ -175,7 +176,7 @@ function RecordPage(props: {
     poll?: string;
   };
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);

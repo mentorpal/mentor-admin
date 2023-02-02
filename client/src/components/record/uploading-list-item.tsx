@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   PublishRounded,
   CancelRounded,
@@ -18,6 +18,15 @@ import {
 } from "@mui/icons-material";
 import CloseIcon from "@mui/icons-material/Close";
 import { UseWithUploadListItem } from "hooks/graphql/use-with-upload-list-item";
+
+const useStyles = makeStyles({ name: { UploadingListItem } })(() => ({
+  primaryListItemText: {
+    fontSize: "0.9em",
+  },
+  secondaryListItemText: {
+    fontSize: "0.7em",
+  },
+}));
 
 function UploadingListItem(props: {
   useWithUploadListItem: UseWithUploadListItem;
@@ -38,15 +47,8 @@ function UploadingListItem(props: {
     needsAttention,
   } = props.useWithUploadListItem;
   const jumpToAnswer = props.jumpToAnswer;
-  const useStyles = makeStyles(() => ({
-    primaryListItemText: {
-      fontSize: "0.9em",
-    },
-    secondaryListItemText: {
-      fontSize: "0.7em",
-    },
-  }));
-  const classes = useStyles();
+
+  const { classes } = useStyles();
   const progressTitle = cancelling
     ? "Cancelling"
     : isJobFailed()
