@@ -9,8 +9,8 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      # to use node 16:
-      # - n 16 # workaround https://github.com/aws/aws-codebuild-docker-images/issues/490
+      # to use node 18:
+      - n 18 # workaround https://github.com/aws/aws-codebuild-docker-images/issues/490
       - NODE_ENV=dev npm ci
       - (cd client && npm ci)
   pre_build:

@@ -56,7 +56,7 @@ make test-e2e
 - Install git on the native windows side.
 - Clone https://github.com/mentorpal/mentor-admin to your machine.
 - Install nvm for windows: https://dev.to/skaytech/how-to-install-node-version-manager-nvm-for-windows-10-4nbi
-- Install node v14.x (latest LTS version) for the mentorpal admin project.
+- Install node v18.x (latest LTS version) for the mentorpal admin project.
 - Go to the client directory of the admin project and run npm install then npm develop.
 - Go to the cypress directory of the admin project and run npm install then npm run cy:open
 
