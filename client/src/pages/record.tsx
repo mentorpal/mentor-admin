@@ -183,6 +183,8 @@ function RecordPage(props: {
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(ContentState.createFromText(""))
   );
+  const [editorInitializedAnswer, setEditorInitializedAnswer] =
+    useState<string>("");
   const [isEditingQuestion, setIsEditingQuestion] = useState<boolean>(false);
 
   const recordState = useWithRecordState(props.accessToken, props.search);
@@ -218,7 +220,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   useEffect(() => {
-    if (!curAnswer) {
+    if (!curAnswer || curAnswer.answer._id == editorInitializedAnswer) {
       return;
     }
     let text = "";
@@ -227,6 +229,7 @@ function RecordPage(props: {
     } else {
       text = curAnswer.answer.transcript;
     }
+    setEditorInitializedAnswer(curAnswer.answer._id);
     initializeEditorStateWithTranscript(text);
   }, [curAnswer?.answer]);
 
@@ -247,7 +250,6 @@ function RecordPage(props: {
     });
     return markdown;
   }
-
   function updateTranscriptWithMarkdown(markdown: string): void {
     recordState.editAnswer(
       {
