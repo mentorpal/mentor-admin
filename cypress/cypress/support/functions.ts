@@ -619,12 +619,6 @@ export function cyMockGoogleLogin(cy): void {
     req.reply(
       staticResponse({
         statusCode: 200,
-        body: {
-          data: {},
-        },
-        headers: {
-          "Content-Type": "application/json",
-        },
       })
     );
   });

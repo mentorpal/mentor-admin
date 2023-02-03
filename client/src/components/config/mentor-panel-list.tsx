@@ -275,15 +275,17 @@ function EditMentorPanelDialog(props: {
           >
             Cancel
           </Button>
-          <Button
-            data-cy="delete-mentor-panel"
-            color="error"
-            variant="outlined"
-            className={styles.button}
-            onClick={() => setConfirmDelete(true)}
-          >
-            Delete
-          </Button>
+          {mentorPanel._id ? (
+            <Button
+              data-cy="delete-mentor-panel"
+              color="error"
+              variant="outlined"
+              className={styles.button}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete
+            </Button>
+          ) : undefined}
         </div>
 
         <Dialog
