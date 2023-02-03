@@ -4,7 +4,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { fetchUsers, updateMentorPrivacy, updateUserPermissions } from "api";
+import {
+  archiveMentorDetails,
+  fetchUsers,
+  updateMentorPrivacy,
+  updateUserPermissions,
+} from "api";
 import { useState } from "react";
 import { Connection, User } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -17,6 +22,7 @@ export interface UseUserData extends UseStaticDataConnection<User> {
   userDataError?: LoadingError;
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
+  onArchiveMentor: (mentorId: string, isArchived: boolean) => void;
 }
 
 export function useWithUsers(accessToken: string): UseUserData {
@@ -73,6 +79,19 @@ export function useWithUsers(accessToken: string): UseUserData {
       });
   }
 
+  function onArchiveMentor(mentorId: string, isArchived: boolean): void {
+    archiveMentorDetails(isArchived, accessToken, mentorId)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update mentor archive",
+          error: `${err}`,
+        });
+      });
+  }
+
   return {
     data,
     error,
@@ -93,5 +112,6 @@ export function useWithUsers(accessToken: string): UseUserData {
     reloadData,
     onUpdateUserPermissions,
     onUpdateMentorPrivacy,
+    onArchiveMentor,
   };
 }

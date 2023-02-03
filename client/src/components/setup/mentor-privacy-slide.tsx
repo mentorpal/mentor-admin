@@ -11,6 +11,7 @@ import {
   MenuItem,
   FormControl,
   SelectChangeEvent,
+  InputLabel,
 } from "@mui/material";
 import {
   Mentor,
@@ -89,6 +90,7 @@ export function MentorPrivacySlide(props: {
           }}
         >
           <FormControl style={{ width: 150, marginRight: 10 }}>
+            <InputLabel>Org</InputLabel>
             <Select
               data-cy="select-org"
               label="Org"
@@ -112,6 +114,7 @@ export function MentorPrivacySlide(props: {
             </Select>
           </FormControl>
           <FormControl style={{ width: 150, marginRight: 10 }}>
+            <InputLabel>View</InputLabel>
             <Select
               label="View Permissions"
               value={orgViewPermission}
@@ -121,12 +124,13 @@ export function MentorPrivacySlide(props: {
                 })
               }
             >
-              <MenuItem value={OrgViewPermissionType.NONE}>None</MenuItem>
+              <MenuItem value={OrgViewPermissionType.NONE}>Default</MenuItem>
               <MenuItem value={OrgViewPermissionType.HIDDEN}>Hidden</MenuItem>
               <MenuItem value={OrgViewPermissionType.SHARE}>Share</MenuItem>
             </Select>
           </FormControl>
           <FormControl style={{ width: 150 }}>
+            <InputLabel>Edit</InputLabel>
             <Select
               label="Edit Permissions"
               value={orgEditPermission}
@@ -136,7 +140,7 @@ export function MentorPrivacySlide(props: {
                 })
               }
             >
-              <MenuItem value={OrgEditPermissionType.NONE}>None</MenuItem>
+              <MenuItem value={OrgEditPermissionType.NONE}>No Editing</MenuItem>
               <MenuItem value={OrgEditPermissionType.MANAGE}>Manage</MenuItem>
               <MenuItem value={OrgEditPermissionType.ADMIN}>Admin</MenuItem>
             </Select>
@@ -171,7 +175,7 @@ export function MentorPrivacySlide(props: {
       title="Set privacy settings."
       content={
         <div>
-          <Typography>General Privacy Permissions:</Typography>
+          <Typography>Default Privacy Permissions:</Typography>
           <Select
             data-cy="select-privacy"
             label="Privacy"
@@ -190,7 +194,7 @@ export function MentorPrivacySlide(props: {
               Private
             </MenuItem>
           </Select>
-          <Typography style={{ marginTop: 20 }}>
+          <Typography style={{ marginTop: 20, marginBottom: 5 }}>
             Organization Privacy Permissions:
           </Typography>
           {renderOrgPermission()}

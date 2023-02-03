@@ -246,6 +246,8 @@ export async function fetchConfig(): Promise<Config> {
           questionSortOrder
           postSurveyLink
           postSurveyTimer
+          postSurveyUserIdEnabled
+          postSurveyReferrerEnabled
           minTopicQuestionSize          
           urlDocSetup
           urlVideoIdleTips
@@ -1141,6 +1143,31 @@ export async function updateMentorDetails(
           isArchived: mentor.isArchived,
           hasVirtualBackground: mentor.hasVirtualBackground,
           virtualBackgroundUrl: mentor.virtualBackgroundUrl,
+        },
+      },
+    },
+    { dataPath: ["me", "updateMentorDetails"], accessToken }
+  );
+}
+
+export async function archiveMentorDetails(
+  isArchived: boolean,
+  accessToken: string,
+  mentorId: string
+): Promise<boolean> {
+  return execGql<boolean>(
+    {
+      query: `
+      mutation UpdateMentorDetails($mentor: UpdateMentorDetailsType!, $mentorId: ID) {
+        me {
+          updateMentorDetails(mentor: $mentor, mentorId: $mentorId)
+        }
+      }
+    `,
+      variables: {
+        mentorId,
+        mentor: {
+          isArchived: isArchived,
         },
       },
     },
@@ -2237,6 +2264,25 @@ export async function addOrUpdateMentorPanel(
   );
 }
 
+export async function deleteMentorPanel(
+  accessToken: string,
+  id: string
+): Promise<MentorPanel> {
+  return execGql<MentorPanel>(
+    {
+      query: `mutation DeleteMentorPanel($id: ID!) {
+        me {
+          deleteMentorPanel(id: $id) {
+            _id
+          }
+        }
+      }`,
+      variables: { id },
+    },
+    { dataPath: ["me", "deleteMentorPanel"], accessToken }
+  );
+}
+
 export async function fetchOrganizations(
   accessToken: string,
   searchParams?: Partial<SearchParams>
@@ -2278,6 +2324,8 @@ export async function fetchOrganizations(
                   questionSortOrder
                   postSurveyLink
                   postSurveyTimer
+                  postSurveyUserIdEnabled
+                  postSurveyReferrerEnabled        
                   minTopicQuestionSize          
                   urlDocSetup
                   urlVideoIdleTips
@@ -2373,6 +2421,8 @@ export async function addOrUpdateOrganization(
               questionSortOrder
               postSurveyLink
               postSurveyTimer
+              postSurveyUserIdEnabled
+              postSurveyReferrerEnabled    
               minTopicQuestionSize          
               urlDocSetup
               urlVideoIdleTips
@@ -2453,7 +2503,9 @@ export async function updateOrgConfig(
             questionSortOrder
             postSurveyLink
             postSurveyTimer
-            minTopicQuestionSize          
+            postSurveyUserIdEnabled
+            postSurveyReferrerEnabled
+            minTopicQuestionSize
             urlDocSetup
             urlVideoIdleTips
             styleHeaderTitle
@@ -2535,6 +2587,8 @@ export async function updateOrgConfig(
           defaultSubject: config.defaultSubject,
           postSurveyLink: config.postSurveyLink,
           postSurveyTimer: config.postSurveyTimer,
+          postSurveyUserIdEnabled: config.postSurveyUserIdEnabled,
+          postSurveyReferrerEnabled: config.postSurveyReferrerEnabled,
           minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
@@ -2562,6 +2616,8 @@ export async function updateConfig(
             questionSortOrder
             postSurveyLink
             postSurveyTimer
+            postSurveyUserIdEnabled
+            postSurveyReferrerEnabled  
             minTopicQuestionSize          
             urlDocSetup
             urlVideoIdleTips
@@ -2643,6 +2699,8 @@ export async function updateConfig(
           defaultSubject: config.defaultSubject,
           postSurveyLink: config.postSurveyLink,
           postSurveyTimer: config.postSurveyTimer,
+          postSurveyUserIdEnabled: config.postSurveyUserIdEnabled,
+          postSurveyReferrerEnabled: config.postSurveyReferrerEnabled,
           minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
