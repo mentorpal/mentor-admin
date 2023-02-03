@@ -346,6 +346,7 @@ function RecordPage(props: {
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
             updateTranscriptWithMarkdown(sanitizeWysywigString(markdown));
+            editorState = EditorState.moveSelectionToEnd(editorState);
             setEditorState(editorState);
           }}
           editorState={editorState}
