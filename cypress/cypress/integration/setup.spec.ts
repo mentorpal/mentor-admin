@@ -5,15 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { cyMockDefault, mockGQL } from "../support/functions";
-import {
-  setup0,
-  setup1,
-  setup2,
-  setup3,
-  setup6,
-  setup7,
-  setup8,
-} from "../fixtures/mentor";
+import { setup0, setup3, setup6, setup7, setup8 } from "../fixtures/mentor";
 import { keywords } from "../fixtures/keywords";
 import repeatAfterMe from "../fixtures/subjects/repeat_after_me";
 import allSubjects from "../fixtures/subjects/all-subjects";
@@ -23,6 +15,7 @@ import {
   QuestionType,
   UtteranceName,
   UserRole,
+  SetupScreen,
 } from "../support/types";
 import { login as loginDefault } from "../fixtures/login";
 
@@ -189,20 +182,6 @@ Cypress.on("uncaught:exception", (err, runnable) => {
 
 function snapname(n) {
   return `screenshots-setup-${n}`;
-}
-
-export enum SetupScreen {
-  Welcome = 0,
-  Tell_Us_About_Yourself = 1,
-  Pick_Mentor_Type = 2,
-  Mentor_Privacy = 3,
-  My_Goal = 4,
-  Experiences_Identities = 5,
-  Select_Subjects = 6,
-  Start_Recordin = 7,
-  Idle_Video_Tips = 8,
-  Idle_And_Initial_Recordings = 9,
-  Build_Mentor = 10,
 }
 
 export function cyVisitSetupScreen(cy, screen: SetupScreen) {

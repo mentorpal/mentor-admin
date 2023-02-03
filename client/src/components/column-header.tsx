@@ -21,37 +21,40 @@ export interface ColumnDef {
 export const ColumnHeader = (props: {
   columns: ColumnDef[];
   sortBy: string;
+  sortSub?: string[];
   sortAsc: boolean;
   onSort: (id: string, subField?: string[]) => void;
 }): JSX.Element => {
-  const { columns, sortBy, sortAsc, onSort } = props;
+  const { columns, sortBy, sortSub, sortAsc, onSort } = props;
 
   return (
     <TableHead data-cy="column-header">
       <TableRow>
-        {columns.map((column) => (
-          <TableCell
-            data-cy={column.id}
-            key={column.id}
-            align={column.align}
-            style={{ minWidth: column.minWidth }}
-          >
-            {!column.sortable ? (
-              column.label
-            ) : (
-              <TableSortLabel
-                data-cy="sort"
-                active={sortBy === column.id}
-                direction={sortAsc ? "asc" : "desc"}
-                onClick={() => {
-                  onSort(column.id, column.subField);
-                }}
-              >
-                {column.label}
-              </TableSortLabel>
-            )}
-          </TableCell>
-        ))}
+        {columns.map((column) => {
+          return (
+            <TableCell
+              data-cy={column.id}
+              key={`${column.id}${column.subField?.toString() || ""}`}
+              align={column.align}
+              style={{ minWidth: column.minWidth }}
+            >
+              {!column.sortable ? (
+                column.label
+              ) : (
+                <TableSortLabel
+                  data-cy="sort"
+                  active={sortBy === column.id && sortSub === column.subField}
+                  direction={sortAsc ? "asc" : "desc"}
+                  onClick={() => {
+                    onSort(column.id, column.subField);
+                  }}
+                >
+                  {column.label}
+                </TableSortLabel>
+              )}
+            </TableCell>
+          );
+        })}
       </TableRow>
     </TableHead>
   );

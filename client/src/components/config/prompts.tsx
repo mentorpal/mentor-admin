@@ -216,6 +216,40 @@ export function Prompts(props: {
           shrink: true,
         }}
       />
+      <FormControlLabel
+        data-cy="postSurveyUserIdEnabled"
+        data-test={config.postSurveyUserIdEnabled}
+        control={
+          <Checkbox
+            checked={config.postSurveyUserIdEnabled}
+            onChange={() =>
+              updateConfig({
+                postSurveyUserIdEnabled: !config.postSurveyUserIdEnabled,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Post Survey Send User ID"
+        style={{ justifySelf: "center" }}
+      />
+      <FormControlLabel
+        data-cy="postSurveyReferrerEnabled"
+        data-test={config.postSurveyReferrerEnabled}
+        control={
+          <Checkbox
+            checked={config.postSurveyReferrerEnabled}
+            onChange={() =>
+              updateConfig({
+                postSurveyReferrerEnabled: !config.postSurveyReferrerEnabled,
+              })
+            }
+            color="secondary"
+          />
+        }
+        label="Post Survey Send Referrer"
+        style={{ justifySelf: "center" }}
+      />
     </div>
   );
 }
