@@ -246,6 +246,8 @@ export async function fetchConfig(): Promise<Config> {
           questionSortOrder
           postSurveyLink
           postSurveyTimer
+          postSurveyUserIdEnabled
+          postSurveyReferrerEnabled
           minTopicQuestionSize          
           urlDocSetup
           urlVideoIdleTips
@@ -2322,6 +2324,8 @@ export async function fetchOrganizations(
                   questionSortOrder
                   postSurveyLink
                   postSurveyTimer
+                  postSurveyUserIdEnabled
+                  postSurveyReferrerEnabled        
                   minTopicQuestionSize          
                   urlDocSetup
                   urlVideoIdleTips
@@ -2417,6 +2421,8 @@ export async function addOrUpdateOrganization(
               questionSortOrder
               postSurveyLink
               postSurveyTimer
+              postSurveyUserIdEnabled
+              postSurveyReferrerEnabled    
               minTopicQuestionSize          
               urlDocSetup
               urlVideoIdleTips
@@ -2497,7 +2503,9 @@ export async function updateOrgConfig(
             questionSortOrder
             postSurveyLink
             postSurveyTimer
-            minTopicQuestionSize          
+            postSurveyUserIdEnabled
+            postSurveyReferrerEnabled
+            minTopicQuestionSize
             urlDocSetup
             urlVideoIdleTips
             styleHeaderTitle
@@ -2579,6 +2587,8 @@ export async function updateOrgConfig(
           defaultSubject: config.defaultSubject,
           postSurveyLink: config.postSurveyLink,
           postSurveyTimer: config.postSurveyTimer,
+          postSurveyUserIdEnabled: config.postSurveyUserIdEnabled,
+          postSurveyReferrerEnabled: config.postSurveyReferrerEnabled,
           minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },
@@ -2606,6 +2616,8 @@ export async function updateConfig(
             questionSortOrder
             postSurveyLink
             postSurveyTimer
+            postSurveyUserIdEnabled
+            postSurveyReferrerEnabled  
             minTopicQuestionSize          
             urlDocSetup
             urlVideoIdleTips
@@ -2687,6 +2699,8 @@ export async function updateConfig(
           defaultSubject: config.defaultSubject,
           postSurveyLink: config.postSurveyLink,
           postSurveyTimer: config.postSurveyTimer,
+          postSurveyUserIdEnabled: config.postSurveyUserIdEnabled,
+          postSurveyReferrerEnabled: config.postSurveyReferrerEnabled,
           minTopicQuestionSize: config.minTopicQuestionSize,
         },
       },

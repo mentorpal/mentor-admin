@@ -21,7 +21,7 @@ export interface UseStaticDataConnection<T> {
   searchParams: SearchParams;
   searchData?: Connection<T>;
   pageData?: Connection<T>;
-  pageSearchParams: SearchParams;
+  pageSearchParams: StaticSearchParams;
   pageSize?: number;
   reloadData: () => void;
   nextPage: () => void;
