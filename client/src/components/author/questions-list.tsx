@@ -213,7 +213,7 @@ export function QuestionsList(props: {
         }}
         style={{ minWidth: 300, flexGrow: 1, marginTop: 10 }}
         renderOption={(props, option) => (
-          <Typography {...props} align="left">
+          <Typography {...props} align="left" key={`${option._id}`}>
             {option.question}
           </Typography>
         )}

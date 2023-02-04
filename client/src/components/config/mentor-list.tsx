@@ -24,6 +24,7 @@ import {
   Switch,
   TextField,
   Theme,
+  Typography,
 } from "@mui/material";
 import makeStyles from "@mui/styles/makeStyles";
 import LaunchIcon from "@mui/icons-material/Launch";
@@ -34,6 +35,7 @@ import { launchMentor } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, Organization } from "types";
 import { MentorGQL } from "types-gql";
+import { uuid4 } from "@sentry/utils";
 
 const useStyles = makeStyles((theme: Theme) => ({
   button: {
@@ -244,6 +246,15 @@ export function MentorList(props: {
             variant="outlined"
             placeholder="Search mentors"
           />
+        )}
+        renderOption={(props, option) => (
+          <Typography
+            {...props}
+            data-cy={`panel-subject-${option}`}
+            key={`${option}${uuid4()}`}
+          >
+            {option}
+          </Typography>
         )}
       />
       <span style={{ margin: "15px" }}>

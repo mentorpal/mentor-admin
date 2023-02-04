@@ -48,6 +48,7 @@ import { useWithLogin } from "store/slices/login/useWithLogin";
 import FeedbackItem from "components/feedback/feedback-item";
 import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
 import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
+import { uuid4 } from "@sentry/utils";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -411,7 +412,11 @@ function FeedbackPage(): JSX.Element {
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(props, option) => (
-                        <Typography {...props} align="left">
+                        <Typography
+                          {...props}
+                          align="left"
+                          key={`${option._id}${uuid4()}`}
+                        >
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>
@@ -437,7 +442,11 @@ function FeedbackPage(): JSX.Element {
                       }
                       style={{ minWidth: 300 }}
                       renderOption={(props, option) => (
-                        <Typography {...props} align="left">
+                        <Typography
+                          {...props}
+                          align="left"
+                          key={`${option._id}${uuid4()}`}
+                        >
                           {getValueIfKeyExists(option.question, mentorQuestions)
                             ?.question?.question || ""}
                         </Typography>

@@ -19,6 +19,7 @@ import { Autocomplete } from "@mui/material";
 
 import { Config, Keyword, QuestionSortOrder } from "types";
 import { SubjectGQL } from "types-gql";
+import { uuid4 } from "@sentry/utils";
 
 export function Settings(props: {
   config: Config;
@@ -70,6 +71,7 @@ export function Settings(props: {
             {...props}
             align="left"
             data-cy={`keyword-option-${option}`}
+            key={`${option}${uuid4()}`}
           >
             {option}
           </Typography>
@@ -108,6 +110,7 @@ export function Settings(props: {
             {...props}
             align="left"
             data-cy={`subject-option-${option._id}`}
+            key={`${option._id}`}
           >
             {option.name}
           </Typography>
@@ -135,6 +138,7 @@ export function Settings(props: {
             {...props}
             align="left"
             data-cy={`default-subject-option-${option._id}`}
+            key={`${option._id}`}
           >
             {option.name}
           </Typography>

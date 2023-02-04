@@ -18,6 +18,7 @@ import {
 } from "types";
 import { ChangeIcon } from "./icons";
 import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { uuid4 } from "@sentry/utils";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -124,7 +125,10 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <Typography {...props}>{option.name}</Typography>
+                  <Typography {...props} key={option._id}>
+                    {" "}
+                    {option.name}
+                  </Typography>
                 )}
               />
               <Autocomplete
@@ -143,7 +147,9 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <Typography {...props}>{option}</Typography>
+                  <Typography {...props} key={uuid4()}>
+                    {option}
+                  </Typography>
                 )}
               />
             </>
@@ -169,7 +175,9 @@ export default function QuestionImport(props: {
                     />
                   )}
                   renderOption={(props, option) => (
-                    <Typography {...props}>{option.name}</Typography>
+                    <Typography {...props} key={option.id}>
+                      {option.name}
+                    </Typography>
                   )}
                 />
               ) : undefined}
@@ -194,7 +202,9 @@ export default function QuestionImport(props: {
                     />
                   )}
                   renderOption={(props, option) => (
-                    <Typography {...props}>{option.name}</Typography>
+                    <Typography {...props} key={option.id}>
+                      {option.name}
+                    </Typography>
                   )}
                 />
               ) : undefined}
@@ -215,7 +225,9 @@ export default function QuestionImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <Typography {...props}>{option.question}</Typography>
+                  <Typography {...props} key={option._id}>
+                    {option.question}
+                  </Typography>
                 )}
               />
             </>

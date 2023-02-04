@@ -124,7 +124,11 @@ function EditMentorPanelDialog(props: {
           onChange={(e, v) => edit({ subject: v?._id || "" })}
           style={{ width: "100%", marginTop: 10 }}
           renderOption={(props, option) => (
-            <Typography {...props} data-cy={`panel-subject-${option._id}`}>
+            <Typography
+              {...props}
+              data-cy={`panel-subject-${option._id}`}
+              key={`${option._id}`}
+            >
               {option.name}
             </Typography>
           )}

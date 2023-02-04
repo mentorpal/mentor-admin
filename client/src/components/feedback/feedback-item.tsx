@@ -17,7 +17,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from "@mui/icons-material/ThumbDown";
-import { Autocomplete } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import { uuid4 } from "@sentry/utils";
 
 //IMPORT FUNCTIONS
 import { updateDismissUserQuestion, updateUserQuestion } from "api";
@@ -26,7 +27,6 @@ import {
   ClassifierAnswerType,
   Feedback,
   Mentor,
-  Status,
   MentorType,
   UserQuestion,
 } from "types";
@@ -322,8 +322,15 @@ function FeedbackItem(props: {
                 <Typography
                   {...props}
                   style={{
-                    color: option.status === Status.COMPLETE ? "black" : "grey",
+                    color: isAnswerComplete(
+                      option,
+                      undefined,
+                      mentor.mentorType
+                    )
+                      ? "black"
+                      : "grey",
                   }}
+                  key={`${option}${uuid4()}`}
                   data-cy={`Drop-down-qu-${option._id}`}
                   align="left"
                 >
