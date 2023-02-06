@@ -220,7 +220,7 @@ function RecordPage(props: {
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
 
   useEffect(() => {
-    if (!curAnswer || curAnswer.answer._id == editorInitializedAnswer) {
+    if (!curAnswer) {
       return;
     }
     let text = "";
@@ -229,8 +229,13 @@ function RecordPage(props: {
     } else {
       text = curAnswer.answer.transcript;
     }
+    if (curAnswer.answer._id === editorInitializedAnswer) {
+      updateEditorStateWithTranscript(editorState, text);
+    } else {
+      // new answer id, initialize
+      initializeEditorStateWithTranscript(text);
+    }
     setEditorInitializedAnswer(curAnswer.answer._id);
-    initializeEditorStateWithTranscript(text);
   }, [curAnswer?.answer]);
 
   useEffect(() => {
@@ -241,7 +246,30 @@ function RecordPage(props: {
     const rawData = mdToDraftjs(transcript);
     const contentState = convertFromRaw(rawData);
     const newEditorState = EditorState.createWithContent(contentState);
-    setEditorState(newEditorState);
+    const newEditorStateWithSelection =
+      EditorState.moveSelectionToEnd(newEditorState);
+    setEditorState(newEditorStateWithSelection);
+  }
+
+  function updateEditorStateWithTranscript(
+    prevState: EditorState,
+    transcript: string
+  ): void {
+    const rawData = mdToDraftjs(transcript);
+    const contentState = convertFromRaw(rawData);
+    const newEditorState = EditorState.createWithContent(contentState);
+
+    // update cursor position base on old selection state
+    const updatedSelection = newEditorState.getSelection().merge({
+      anchorOffset: prevState.getSelection().getAnchorOffset(),
+      focusOffset: prevState.getSelection().getFocusOffset(),
+      isBackward: false,
+    });
+    const newEditorStateWithSelection = EditorState.forceSelection(
+      newEditorState,
+      updatedSelection
+    );
+    setEditorState(newEditorStateWithSelection);
   }
 
   function getMarkdownFromEditor(contentState: ContentState): string {
@@ -348,7 +376,6 @@ function RecordPage(props: {
             const contentState = editorState.getCurrentContent();
             const markdown = getMarkdownFromEditor(contentState);
             updateTranscriptWithMarkdown(sanitizeWysywigString(markdown));
-            editorState = EditorState.moveSelectionToEnd(editorState);
             setEditorState(editorState);
           }}
           editorState={editorState}
