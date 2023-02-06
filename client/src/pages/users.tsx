@@ -59,6 +59,7 @@ import {
 } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
+import { uuid4 } from "@sentry/utils";
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -235,6 +236,11 @@ function TableFooter(props: {
                 variant="outlined"
                 placeholder="Search users"
               />
+            )}
+            renderOption={(props, option) => (
+              <li {...props} key={`${option}${uuid4()}`}>
+                {option}
+              </li>
             )}
           />
           <span style={{ margin: "15px" }}>

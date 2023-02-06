@@ -249,6 +249,7 @@ function EditQuestionForQueueModal(props: {
                             {...props}
                             align="left"
                             data-cy={`Topic-option-${option.id}`}
+                            key={option.id}
                           >
                             {option.name}
                           </Typography>
