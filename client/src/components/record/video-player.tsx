@@ -111,8 +111,10 @@ function VideoPlayer(props: {
       style={{
         marginLeft: "auto",
         marginRight: "auto",
-        height: height + 50,
+        height: "100%",
         width: width,
+        paddingBottom: 0,
+        paddingTop: 0,
       }}
     >
       <VideoRecorder

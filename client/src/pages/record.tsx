@@ -461,7 +461,12 @@ function RecordPage(props: {
           <div
             data-cy="videoplayer-container"
             className={classes.block}
-            style={{ height: "100%", position: "relative" }}
+            style={{
+              height: "100%",
+              position: "relative",
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
           >
             <VideoPlayer
               classes={classes}
