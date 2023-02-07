@@ -8,6 +8,7 @@ import { logger } from "redux-logger";
 import { configureStore } from "@reduxjs/toolkit";
 import loginReducer from "./slices/login";
 import configReducer from "./slices/config";
+import uploadInitReducer from "./slices/upload-init-status"
 import mentorReducer from "./slices/mentor";
 import questionsReducer from "./slices/questions";
 import * as Sentry from "@sentry/react";
@@ -28,6 +29,7 @@ export const store = configureStore({
     config: configReducer,
     mentor: mentorReducer,
     questions: questionsReducer,
+    uploads: uploadInitReducer
   },
   enhancers: (defaultEhancers) => defaultEhancers.concat(sentryEnhancer),
 });

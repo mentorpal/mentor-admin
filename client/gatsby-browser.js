@@ -7,6 +7,7 @@ import {
 import { Provider } from "react-redux";
 import { store } from "store/store";
 
+
 import "video.js/dist/video-js.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import videojs from "video.js";
@@ -18,6 +19,7 @@ import "videojs-record/dist/css/videojs.record.css";
 import Record from "videojs-record/dist/videojs.record.js";
 import "styles/layout.css";
 import { loadSentry } from "./src/helpers";
+import { useAppSelector } from "store/hooks";
 
 if (process.env.IS_SENTRY_ENABLED === "true") {
   console.log("Loading sentry");
@@ -41,7 +43,22 @@ const allowedAdminDomains = [
   "qamentorpal.org",
   "mentorpal.org",
 ];
+
+const WarnExitPageDuringUpload = ({ children }) => {
+  const uploadsInitializing = useAppSelector(
+    (state) => state.uploads.uploadsInitializing
+  );
+  console.log(uploadsInitializing)
+  return(
+    <>
+      {children}
+    </>
+  )
+}
+
+
 const App = ({ element }) => {
+
   useEffect(() => {
     const host = location.hostname;
     if (!allowedAdminDomains.includes(host)) {
@@ -57,7 +74,11 @@ const App = ({ element }) => {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
-        <Provider store={store}>{element}</Provider>
+        <Provider store={store}>
+          <WarnExitPageDuringUpload>
+            {element}
+          </WarnExitPageDuringUpload>
+        </Provider>
       </ThemeProvider>
     </StyledEngineProvider>
   );
