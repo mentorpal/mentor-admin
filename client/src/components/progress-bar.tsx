@@ -6,25 +6,22 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Box, LinearProgress, Typography } from "@mui/material";
-import createStyles from "@mui/styles/createStyles";
-import withStyles from "@mui/styles/withStyles";
+import { withStyles } from "tss-react/mui";
 
-const LinearProgressBar = withStyles((theme) =>
-  createStyles({
-    root: {
-      height: 10,
-      borderRadius: 5,
-    },
-    colorPrimary: {
-      backgroundColor:
-        theme.palette.grey[theme.palette.mode === "light" ? 200 : 700],
-    },
-    bar: {
-      borderRadius: 5,
-      backgroundColor: "#1a90ff",
-    },
-  })
-)(LinearProgress);
+const LinearProgressBar = withStyles(LinearProgress, (theme) => ({
+  root: {
+    height: 10,
+    borderRadius: 5,
+  },
+  colorPrimary: {
+    backgroundColor:
+      theme.palette.grey[theme.palette.mode === "light" ? 200 : 700],
+  },
+  bar: {
+    borderRadius: 5,
+    backgroundColor: "#1a90ff",
+  },
+}));
 
 export default function ProgressBar(props: {
   value: number;

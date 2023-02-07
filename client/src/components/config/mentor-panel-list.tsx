@@ -30,7 +30,7 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -43,16 +43,18 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, MentorPanel, Organization } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  button: {
-    width: 300,
-    padding: 5,
-    margin: theme.spacing(2),
-  },
-  list: {
-    background: "#F5F5F5",
-  },
-}));
+const useStyles = makeStyles({ name: { EditMentorPanelDialog } })(
+  (theme: Theme) => ({
+    button: {
+      width: 300,
+      padding: 5,
+      margin: theme.spacing(2),
+    },
+    list: {
+      background: "#F5F5F5",
+    },
+  })
+);
 
 function EditMentorPanelDialog(props: {
   mentorPanel: MentorPanel | undefined;
@@ -64,7 +66,7 @@ function EditMentorPanelDialog(props: {
   cancel: () => void;
   delete: () => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { mentorPanel, mentors, subjects, edit } = props;
   const org = props.organizations.find((o) => o._id === mentorPanel?.org);
   const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
@@ -462,7 +464,7 @@ export function MentorPanelList(props: {
   saveMentorPanel: (panel: MentorPanel) => void;
   deleteMentorPanel: (id: string) => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { mentorPanels } = props;
   const { height: windowHeight } = useWithWindowSize();
   const [editMentorPanel, setEditMentorPanel] = useState<MentorPanel>();

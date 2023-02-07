@@ -17,7 +17,7 @@ import {
   ListItemText,
   Toolbar,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import { Card, Button, Checkbox } from "@mui/material";
 import { useWithFollowups } from "hooks/graphql/use-with-followups";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
@@ -32,7 +32,7 @@ interface followupListItem {
   checked: boolean;
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { FollowupsPage } })(() => ({
   root: {
     width: "100%",
     height: "100%",
@@ -79,7 +79,7 @@ function FollowupsPage(props: {
     navigateToMyMentorPage,
     fetchFollowups,
   } = useWithFollowups({ categoryId: category, subjectId: subject });
-  const classes = useStyles();
+  const { classes } = useStyles();
   const subjectTitle = curSubject?.name || "";
   const categoryTitle = curCategory?.name || "";
   if (!subject || !category) {

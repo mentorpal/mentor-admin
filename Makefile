@@ -23,10 +23,10 @@ docker-build:
 	.
 
 node_modules/license-check-and-add:
-	npm ci
+	npm ci 
 
 node_modules/prettier:
-	npm ci
+	npm ci 
 
 .PHONY: pretty
 pretty: node_modules/prettier

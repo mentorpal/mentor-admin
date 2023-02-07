@@ -15,7 +15,7 @@ import {
   SelectChangeEvent,
   Tab,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import NavBar from "components/nav-bar";
@@ -36,7 +36,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { User } from "types";
 import withLocation from "wrap-with-location";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { ConfigPage } })(() => ({
   root: {
     height: "100%",
     display: "flex",
@@ -60,7 +60,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const {
     org,
     orgs,

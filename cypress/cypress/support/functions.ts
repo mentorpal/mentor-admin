@@ -230,6 +230,7 @@ export function cyMockDefault(
   cyMockTrain(cy);
   cyMockGoogleLogin(cy);
   cyMockXapiInit(cy);
+  cyMockThumbnailImage(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -318,6 +319,9 @@ export function cyMockDefault(
     mockGQL("MentorPanels", { edges: [] }),
     mockGQL("Keywords", { keywords: { edges: [] } }),
     mockGQL("Organizations", { organizations: { edges: [] } }),
+    mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
+    mockGQL("UpdateMentorKeywords", { me: { updateMentorKeywords: true } }),
+    mockGQL("UpdateMentorPrivacy", { me: { updateMentorPrivacy: true } }),
   ]);
 }
 
@@ -619,6 +623,23 @@ export function cyMockGoogleLogin(cy): void {
     req.reply(
       staticResponse({
         statusCode: 200,
+      })
+    );
+  });
+}
+
+export function cyMockThumbnailImage(cy): void {
+  cy.intercept("GET", "https://new.url/test.png", (req) => {
+    req.alias = "thumbnail";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {},
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
     );
   });

@@ -20,7 +20,7 @@ import {
   Toolbar,
   Theme,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -36,7 +36,7 @@ import { convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { canEditContent } from "helpers";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { SubjectsPage } })((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -106,7 +106,7 @@ function SubjectItem(props: { subject: Subject }): JSX.Element {
 }
 
 function SubjectsPage(): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     getData,
     switchActiveMentor,

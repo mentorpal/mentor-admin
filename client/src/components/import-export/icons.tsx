@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useState } from "react";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   Add as AddIcon,
   ChangeHistory as ChangeHistoryIcon,
@@ -15,7 +15,7 @@ import {
 import { EditType, ImportPreview } from "types";
 import { equals } from "helpers";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { ChangeIcon } })(() => ({
   icon: {
     marginLeft: 10,
     marginRight: 20,
@@ -26,7 +26,7 @@ export function ChangeIcon<T>(props: {
   preview: ImportPreview<T>;
 }): JSX.Element {
   const [preview] = useState<ImportPreview<T>>(props.preview);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const editType = preview.editType;
 
   if (editType === EditType.CREATED) {

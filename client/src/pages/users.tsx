@@ -26,7 +26,7 @@ import {
   SelectChangeEvent,
   Checkbox,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   Edit as EditIcon,
   GetApp as GetAppIcon,
@@ -61,7 +61,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 import { uuid4 } from "@sentry/utils";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -174,7 +174,7 @@ function TableFooter(props: {
   onToggleArchivedMentors: (v: boolean) => void;
 }): JSX.Element {
   const { userPagin } = props;
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const edges = userPagin.searchData?.edges || [];
   const hasNext = userPagin.pageData?.pageInfo.hasNextPage || false;
   const hasPrev = userPagin.pageData?.pageInfo.hasPreviousPage || false;
@@ -268,7 +268,7 @@ function UserItem(props: {
   viewArchivedMentors: boolean;
 }): JSX.Element {
   const { edge, i, user, orgs } = props;
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();
   const userRole = user.userRole;
   const mentor = edge.node.defaultMentor;
@@ -467,7 +467,7 @@ function UsersTable(props: {
   viewArchivedMentors: boolean;
   onToggleArchivedMentors: (v: boolean) => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const [columns, setColumns] = useState<ColumnDef[]>([]);
 
   useEffect(() => {
@@ -517,7 +517,7 @@ function UsersTable(props: {
 function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const orgsPagin = useWithOrganizations(props.accessToken);
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();
   const [viewArchivedMentors, setViewArchivedMentors] =
     useState<boolean>(false);

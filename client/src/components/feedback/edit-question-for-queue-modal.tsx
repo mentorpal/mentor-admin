@@ -19,7 +19,7 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import React, { useEffect, useState } from "react";
 import {
   Category,
@@ -37,36 +37,38 @@ import { addOrUpdateSubjectQuestions } from "api";
 import { SubjectQuestionGQL } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  homeThumbnail: {
-    position: "relative",
-    width: "78%",
-    height: 180,
-  },
-  siteThumbnail: {
-    width: 180,
-    height: 135,
-  },
-  title: {
-    fontWeight: "bold",
-  },
-  inputField: {
-    width: "100%",
-    margin: 10,
-  },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    maxWidth: "50%",
-  },
-}));
+const useStyles = makeStyles({ name: { EditQuestionForQueueModal } })(
+  (theme: Theme) => ({
+    homeThumbnail: {
+      position: "relative",
+      width: "78%",
+      height: 180,
+    },
+    siteThumbnail: {
+      width: 180,
+      height: 135,
+    },
+    title: {
+      fontWeight: "bold",
+    },
+    inputField: {
+      width: "100%",
+      margin: 10,
+    },
+    modal: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    paper: {
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+      maxWidth: "50%",
+    },
+  })
+);
 
 function EditQuestionForQueueModal(props: {
   handleClose: () => void;
@@ -86,7 +88,7 @@ function EditQuestionForQueueModal(props: {
     addQuestionToQueue,
     setFeedbackQuestionDocId,
   } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [selectedSubject, setSelectedSubject] = useState<Subject>();
   const [selectedCategory, setSelectedCategory] = useState<Category>();
   const [customQuestion, setCustomQuestion] = useState<string>(userQuestion);

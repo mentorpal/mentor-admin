@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Avatar, IconButton } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -33,7 +33,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { SetupPage } })(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -111,7 +111,7 @@ function SetupPage(props: {
   user: User;
   search: { i?: string };
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     setupStatus: status,
     initialSetupStep,

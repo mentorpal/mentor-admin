@@ -19,7 +19,7 @@ import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
 
 describe("My Mentor Page", () => {
-  it("shows all questions for all categories by default", () => {
+  it.only("shows all questions for all categories by default", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: clint,

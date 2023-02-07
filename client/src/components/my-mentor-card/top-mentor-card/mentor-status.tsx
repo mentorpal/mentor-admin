@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
-import withStyles from "@mui/styles/withStyles";
+import { withStyles } from "tss-react/mui";
 import StageProgress from "../stage-progress";
 import RecommendedActionButton from "../recommended-action-button";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -8,11 +8,11 @@ import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@mui/icons-material/Close";
 import { TooltipStep } from "components/home";
 
-const ColorTooltip = withStyles({
+const ColorTooltip = withStyles(Tooltip, {
   tooltip: {
     backgroundColor: "secondary",
   },
-})(Tooltip);
+});
 
 function MentorStatus(props: {
   trainMentor: () => void;

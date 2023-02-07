@@ -8,7 +8,7 @@ import React from "react";
 import { Typography, Button } from "@mui/material";
 import { Mentor } from "types";
 import { Slide } from "./slide";
-import { navigate } from "@reach/router";
+import { navigate } from "@gatsbyjs/reach-router";
 
 export function FinalSetupSlide(props: {
   classes: Record<string, string>;
