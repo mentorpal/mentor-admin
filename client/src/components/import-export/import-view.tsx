@@ -39,7 +39,7 @@ const useStyles = makeStyles({ name: { ImportView } })(() => ({
     background: "#F5F5F5",
   },
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
 }));
 

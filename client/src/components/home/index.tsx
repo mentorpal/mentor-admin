@@ -58,7 +58,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     height: "100vh",

@@ -35,8 +35,8 @@ export function useWithUploadStatus(
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
   const { getData } = useActiveMentor();
   const { state: configState } = useWithConfig();
-  const {    newUploadInitCompleted,
-    newUploadInitStarted} = useWithUploadInitStatusActions();
+  const { newUploadInitCompleted, newUploadInitStarted } =
+    useWithUploadInitStatusActions();
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
@@ -243,9 +243,9 @@ export function useWithUploadStatus(
           uploadProgress: 0,
         });
       })
-      .finally(()=>{
+      .finally(() => {
         newUploadInitCompleted(uploadId);
-      })
+      });
   }
 
   return {

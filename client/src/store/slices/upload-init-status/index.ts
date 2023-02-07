@@ -4,34 +4,33 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import * as api from "api";
-import {PayloadAction} from "@reduxjs/toolkit"
-
+import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
 
 export interface UploadInitState {
-  uploadsInitializing: string[]
+  uploadsInitializing: string[];
 }
 
 const initialState: UploadInitState = {
-  uploadsInitializing: []
+  uploadsInitializing: [],
 };
-
 
 export const uploadStatusSlice = createSlice({
   name: "uploadStatus",
   initialState,
   reducers: {
-    uploadInitStarted: (state, action: PayloadAction<string>) =>{
-      state.uploadsInitializing.push(action.payload)
+    uploadInitStarted: (state, action: PayloadAction<string>) => {
+      state.uploadsInitializing.push(action.payload);
     },
-    uploadInitCompleted: (state, action: PayloadAction<string>) =>{
-      state.uploadsInitializing = state.uploadsInitializing.filter((uploadId)=>uploadId != action.payload)
-    }
-  }
+    uploadInitCompleted: (state, action: PayloadAction<string>) => {
+      state.uploadsInitializing = state.uploadsInitializing.filter(
+        (uploadId) => uploadId != action.payload
+      );
+    },
+  },
 });
 
-export const { uploadInitStarted, uploadInitCompleted } = uploadStatusSlice.actions
-
+export const { uploadInitStarted, uploadInitCompleted } =
+  uploadStatusSlice.actions;
 
 export default uploadStatusSlice.reducer;

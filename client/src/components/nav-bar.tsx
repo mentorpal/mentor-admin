@@ -57,7 +57,7 @@ import ImportInProgressDialog from "./import-export/import-in-progress";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     flexGrow: 1,

@@ -7,7 +7,6 @@ import {
 import { Provider } from "react-redux";
 import { store } from "store/store";
 
-
 import "video.js/dist/video-js.css";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import videojs from "video.js";
@@ -48,17 +47,11 @@ const WarnExitPageDuringUpload = ({ children }) => {
   const uploadsInitializing = useAppSelector(
     (state) => state.uploads.uploadsInitializing
   );
-  console.log(uploadsInitializing)
-  return(
-    <>
-      {children}
-    </>
-  )
-}
-
+  console.log(uploadsInitializing);
+  return <>{children}</>;
+};
 
 const App = ({ element }) => {
-
   useEffect(() => {
     const host = location.hostname;
     if (!allowedAdminDomains.includes(host)) {
@@ -75,9 +68,7 @@ const App = ({ element }) => {
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <WarnExitPageDuringUpload>
-            {element}
-          </WarnExitPageDuringUpload>
+          <WarnExitPageDuringUpload>{element}</WarnExitPageDuringUpload>
         </Provider>
       </ThemeProvider>
     </StyledEngineProvider>
@@ -85,4 +76,6 @@ const App = ({ element }) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const wrapRootElement = ({ element }) => <App element={element} />;
+export const wrapRootElement = ({ element }) => {
+  return <App element={element} />;
+};

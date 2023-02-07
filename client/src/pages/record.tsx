@@ -69,7 +69,7 @@ import { useWithBrowser } from "hooks/use-with-browser";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     display: "flex",

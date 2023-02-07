@@ -33,7 +33,7 @@ function PrimaryDisplayHolder(): JSX.Element {
 function IndexPage(): JSX.Element {
   return (
     <GoogleOAuthProvider clientId={process.env.GOOGLE_CLIENT_ID || "test"}>
-      <PrimaryDisplayHolder />;
+      <PrimaryDisplayHolder />
     </GoogleOAuthProvider>
   );
 }
