@@ -28,18 +28,6 @@ module.exports = {
       },
     },
     {
-      resolve: "gatsby-plugin-eslint",
-      options: {
-        test: /\.js$|\.jsx$|\.ts$|\.tsx$/,
-        exclude: /(node_modules|.cache|public|static)/,
-        stages: ["develop"],
-        options: {
-          emitWarning: true,
-          failOnError: false,
-        },
-      },
-    },
-    {
       resolve: "gatsby-plugin-manifest",
       options: {
         icon: "src/images/favicon.png",
