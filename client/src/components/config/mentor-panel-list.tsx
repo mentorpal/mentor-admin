@@ -64,10 +64,12 @@ function EditMentorPanelDialog(props: {
   edit: (mentorPanel: Partial<MentorPanel>) => void;
   save: () => void;
   cancel: () => void;
+  delete: () => void;
 }): JSX.Element {
   const { classes: styles } = useStyles();
   const { mentorPanel, mentors, subjects, edit } = props;
   const org = props.organizations.find((o) => o._id === mentorPanel?.org);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
 
   function onDragMentor(result: DropResult) {
     if (!result.destination || !mentorPanel) {
@@ -124,7 +126,11 @@ function EditMentorPanelDialog(props: {
           onChange={(e, v) => edit({ subject: v?._id || "" })}
           style={{ width: "100%", marginTop: 10 }}
           renderOption={(props, option) => (
-            <Typography {...props} data-cy={`panel-subject-${option._id}`}>
+            <Typography
+              {...props}
+              data-cy={`panel-subject-${option._id}`}
+              key={`${option._id}`}
+            >
               {option.name}
             </Typography>
           )}
@@ -275,7 +281,58 @@ function EditMentorPanelDialog(props: {
           >
             Cancel
           </Button>
+          {mentorPanel._id ? (
+            <Button
+              data-cy="delete-mentor-panel"
+              color="error"
+              variant="outlined"
+              className={styles.button}
+              onClick={() => setConfirmDelete(true)}
+            >
+              Delete
+            </Button>
+          ) : undefined}
         </div>
+
+        <Dialog
+          data-cy="delete-mentor-panel-confirmation"
+          maxWidth="sm"
+          open={Boolean(confirmDelete)}
+        >
+          <DialogTitle>Delete Mentor Panel?</DialogTitle>
+          <DialogContent>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+            >
+              <Button
+                data-cy="confirm-delete"
+                color="primary"
+                variant="outlined"
+                className={styles.button}
+                onClick={() => {
+                  props.delete();
+                  setConfirmDelete(false);
+                  props.cancel();
+                }}
+              >
+                Confirm
+              </Button>
+              <Button
+                data-cy="cancel-delete"
+                color="secondary"
+                variant="outlined"
+                className={styles.button}
+                onClick={() => setConfirmDelete(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );
@@ -405,6 +462,7 @@ export function MentorPanelList(props: {
   toggleActive: (id: string) => void;
   toggleFeatured: (id: string) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
+  deleteMentorPanel: (id: string) => void;
 }): JSX.Element {
   const { classes: styles } = useStyles();
   const { mentorPanels } = props;
@@ -496,6 +554,10 @@ export function MentorPanelList(props: {
           setEditMentorPanel(undefined);
         }}
         cancel={() => setEditMentorPanel(undefined)}
+        delete={() => {
+          if (editMentorPanel?._id)
+            props.deleteMentorPanel(editMentorPanel._id);
+        }}
       />
     </div>
   );

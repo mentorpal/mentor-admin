@@ -80,6 +80,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     toggleActiveMentorPanel,
     setOrganization,
     saveMentorPanel,
+    deleteMentorPanel,
     resetToDefault,
   } = useWithConfigEdits(props.accessToken, props.user);
   const { switchActiveMentor } = useActiveMentor();
@@ -200,6 +201,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
             toggleFeatured={toggleFeaturedMentorPanel}
             toggleActive={toggleActiveMentorPanel}
             saveMentorPanel={saveMentorPanel}
+            deleteMentorPanel={deleteMentorPanel}
           />
         </TabPanel>
         <TabPanel

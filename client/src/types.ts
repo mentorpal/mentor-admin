@@ -72,6 +72,8 @@ export interface Config {
   questionSortOrder: QuestionSortOrder;
   postSurveyLink: string;
   postSurveyTimer: number;
+  postSurveyUserIdEnabled: boolean;
+  postSurveyReferrerEnabled: boolean;
   minTopicQuestionSize: number;
   // home settings
   activeMentors: string[];

@@ -13,11 +13,10 @@ import {
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import clintNewAnswers from "../fixtures/mentor/clint_home_new_questions";
-import { JobState, QuestionType, Status } from "../support/types";
+import { JobState, QuestionType, SetupScreen, Status } from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
-import { SetupScreen } from "./setup.spec";
 
 describe("My Mentor Page", () => {
   it.only("shows all questions for all categories by default", () => {

@@ -70,6 +70,7 @@ import {
   copyAndSet,
   getOrgHomeUrl,
 } from "../helpers";
+import { uuid4 } from "@sentry/utils";
 
 const reservedSubdomains = [
   "newdev",
@@ -200,6 +201,11 @@ function TableFooter(props: {
                 placeholder="Search organizations"
               />
             )}
+            renderOption={(params, option) => {
+              <Typography {...params} key={`${option}${uuid4()}`}>
+                {option}
+              </Typography>;
+            }}
           />
           <IconButton
             data-cy="next-page"
@@ -418,7 +424,11 @@ function EditOrganization(props: {
           }}
           style={{ width: "100%" }}
           renderOption={(props, option) => (
-            <Typography {...props} data-cy={`member-${option._id}`}>
+            <Typography
+              {...props}
+              data-cy={`member-${option._id}`}
+              key={option._id}
+            >
               {option.defaultMentor.name} ({option.email})
             </Typography>
           )}

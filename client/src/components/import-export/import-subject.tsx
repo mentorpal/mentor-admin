@@ -280,7 +280,7 @@ export default function SubjectImport(props: {
                   />
                 )}
                 renderOption={(props, option) => (
-                  <Typography {...props} align="center">
+                  <Typography {...props} align="center" key={option._id}>
                     {option.name}
                   </Typography>
                 )}

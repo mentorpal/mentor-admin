@@ -24,6 +24,7 @@ import {
   Tooltip,
   Theme,
   SelectChangeEvent,
+  Checkbox,
 } from "@mui/material";
 import { makeStyles } from "tss-react/mui";
 import {
@@ -58,6 +59,7 @@ import {
 } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
+import { uuid4 } from "@sentry/utils";
 
 const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   root: {
@@ -96,59 +98,73 @@ const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   },
 }));
 
-const columns: ColumnDef[] = [
-  {
-    id: "name",
-    label: "Name",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "defaultMentor",
-    subField: ["name"],
-    label: "Mentor",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "email",
-    label: "Email",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "userRole",
-    label: "Role",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "isPrivate",
-    label: "Privacy",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "defaultMentor",
-    subField: ["updatedAt"],
-    label: "Last Updated",
-    minWidth: 0,
-    align: "left",
-    sortable: true,
-  },
-  {
-    id: "actions",
-    label: "",
-    minWidth: 0,
-    align: "left",
-    sortable: false,
-  },
-];
+function getTableColumns(viewArchivedMentors: boolean): ColumnDef[] {
+  const columns: ColumnDef[] = [
+    {
+      id: "name",
+      label: "Name",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "defaultMentor",
+      subField: ["name"],
+      label: "Mentor",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "email",
+      label: "Email",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "userRole",
+      label: "Role",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "isPrivate",
+      label: "Privacy",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "defaultMentor",
+      subField: ["isArchived"],
+      label: "Archived",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "defaultMentor",
+      subField: ["updatedAt"],
+      label: "Last Updated",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "actions",
+      label: "",
+      minWidth: 0,
+      align: "left",
+      sortable: false,
+    },
+  ];
+  if (!viewArchivedMentors) {
+    return columns.filter((c) => c.id !== "isArchived");
+  }
+  return columns;
+}
 
 function TableFooter(props: {
   userPagin: UseUserData;
@@ -221,6 +237,11 @@ function TableFooter(props: {
                 placeholder="Search users"
               />
             )}
+            renderOption={(props, option) => (
+              <li {...props} key={`${option}${uuid4()}`}>
+                {option}
+              </li>
+            )}
           />
           <span style={{ margin: "15px" }}>
             View Archived Mentors
@@ -244,6 +265,7 @@ function UserItem(props: {
   userPagin: UseUserData;
   user: User;
   orgs: Organization[];
+  viewArchivedMentors: boolean;
 }): JSX.Element {
   const { edge, i, user, orgs } = props;
   const { classes: styles } = useStyles();
@@ -257,6 +279,10 @@ function UserItem(props: {
 
   function handlePrivacyChange(mentor: string, isPrivate: boolean): void {
     props.userPagin.onUpdateMentorPrivacy(mentor, isPrivate);
+  }
+
+  function handleArchiveChange(mentor: string, isArchived: boolean): void {
+    props.userPagin.onArchiveMentor(mentor, isArchived);
   }
 
   return (
@@ -363,6 +389,16 @@ function UserItem(props: {
           <div>{mentor.isPrivate ? "Private" : "Public"}</div>
         )}
       </TableCell>
+      {props.viewArchivedMentors ? (
+        <TableCell data-cy="archived" align="left">
+          <Checkbox
+            checked={mentor.isArchived}
+            disabled={!canEditMentorPrivacy(mentor, props.user, orgs)}
+            color="secondary"
+            onClick={() => handleArchiveChange(mentor._id, !mentor.isArchived)}
+          />
+        </TableCell>
+      ) : undefined}
       <TableCell data-cy="updatedAt" align="left">
         {mentor.updatedAt ? new Date(mentor.updatedAt).toLocaleString() : "N/A"}
       </TableCell>
@@ -432,6 +468,12 @@ function UsersTable(props: {
   onToggleArchivedMentors: (v: boolean) => void;
 }): JSX.Element {
   const { classes: styles } = useStyles();
+  const [columns, setColumns] = useState<ColumnDef[]>([]);
+
+  useEffect(() => {
+    setColumns(getTableColumns(props.viewArchivedMentors));
+  }, [props.viewArchivedMentors]);
+
   return (
     <div className={styles.root}>
       <Paper className={styles.container}>
@@ -440,6 +482,7 @@ function UsersTable(props: {
             <ColumnHeader
               columns={columns}
               sortBy={props.userPagin.pageSearchParams.sortBy}
+              sortSub={props.userPagin.pageSearchParams.sortBySub}
               sortAsc={props.userPagin.pageSearchParams.sortAscending}
               onSort={props.userPagin.sortBy}
             />
@@ -453,6 +496,7 @@ function UsersTable(props: {
                   orgs={props.orgs}
                   userPagin={props.userPagin}
                   user={props.user}
+                  viewArchivedMentors={props.viewArchivedMentors}
                 />
               ))}
             </TableBody>
@@ -493,7 +537,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     } else {
       userPagin.setPostSort();
     }
-  }, [viewArchivedMentors]);
+  }, [viewArchivedMentors, userPagin.pageSearchParams]);
 
   function onToggleArchivedMentors(tf: boolean) {
     setViewArchivedMentors(tf);
@@ -531,10 +575,23 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     if (a.defaultMentor.isArchived === b.defaultMentor.isArchived) {
       return 0;
     }
+    const sortByArchived =
+      userPagin.pageSearchParams.sortBySub?.includes("isArchived");
+    const sortAscending = userPagin.pageSearchParams.sortAscending;
+    console.error(
+      `sortByArchived=${sortByArchived} sortAscending=${sortAscending}`
+    );
     if (a.defaultMentor.isArchived) {
+      if (sortByArchived) {
+        return sortAscending ? -1 : 1;
+      }
       return 1;
+    } else {
+      if (sortByArchived) {
+        return sortAscending ? 1 : -1;
+      }
+      return -1;
     }
-    return -1;
   }
 
   if (!userPagin.data) {

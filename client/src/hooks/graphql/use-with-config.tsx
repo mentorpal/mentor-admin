@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import {
   addOrUpdateMentorPanel,
+  deleteMentorPanel,
   fetchConfig,
   fetchMentorPanels,
   fetchMentors,
@@ -48,6 +49,7 @@ interface UseWithConfigEdits {
   toggleActiveMentorPanel: (id: string) => void;
   setOrganization: (org?: Organization) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
+  deleteMentorPanel: (id: string) => void;
 }
 
 export function useWithConfigEdits(
@@ -180,6 +182,33 @@ export function useWithConfigEdits(
       setIsSaving(false);
       setError({
         error: "Failed to save mentor panel",
+        message: extractErrorMessageFromError(err),
+      });
+    }
+  }
+
+  async function _deleteMentorPanel(id: string): Promise<void> {
+    if (!config) {
+      return;
+    }
+    try {
+      setIsSaving(true);
+      await deleteMentorPanel(accessToken, id);
+      const mentorPanelsData = await fetchMentorPanels({ limit: 9999 });
+      const allMentorPanels = mentorPanelsData.edges.map((m) => m.node);
+      const mentorPanels = visibleMentorPanels(
+        config,
+        org,
+        allMentors,
+        allMentorPanels
+      );
+      setAllMentorPanels(allMentorPanels);
+      setMentorPanels(mentorPanels);
+      setIsSaving(false);
+    } catch (err) {
+      setIsSaving(false);
+      setError({
+        error: "Failed to delete mentor panel",
         message: extractErrorMessageFromError(err),
       });
     }
@@ -441,6 +470,7 @@ export function useWithConfigEdits(
     moveMentor,
     moveMentorPanel,
     saveMentorPanel,
+    deleteMentorPanel: _deleteMentorPanel,
     toggleFeaturedMentor,
     toggleActiveMentor,
     toggleFeaturedMentorPanel,
