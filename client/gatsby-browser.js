@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   createTheme,
   ThemeProvider,
@@ -19,6 +19,7 @@ import Record from "videojs-record/dist/videojs.record.js";
 import "styles/layout.css";
 import { loadSentry } from "./src/helpers";
 import { useAppSelector } from "store/hooks";
+import { NotificationDialog } from "components/dialog";
 
 if (process.env.IS_SENTRY_ENABLED === "true") {
   console.log("Loading sentry");
@@ -44,11 +45,50 @@ const allowedAdminDomains = [
 ];
 
 const WarnExitPageDuringUpload = ({ children }) => {
+  const [displayLeavingDialog, setDisplayLeavingDialog] = useState(false);
   const uploadsInitializing = useAppSelector(
     (state) => state.uploads.uploadsInitializing
   );
-  console.log(uploadsInitializing);
-  return <>{children}</>;
+  window.onload = function () {
+    initBeforeUnLoad(uploadsInitializing.length > 0);
+  };
+
+  useEffect(() => {
+    initBeforeUnLoad(uploadsInitializing.length > 0);
+  }, [uploadsInitializing]);
+
+  const initBeforeUnLoad = (showExitPrompt) => {
+    console.log("on before unload set");
+    window.onbeforeunload = (event) => {
+      // Show prompt based on state
+      if (showExitPrompt) {
+        setDisplayLeavingDialog(true);
+        const e = event || window.event;
+        e.preventDefault();
+        if (e) {
+          e.returnValue = "";
+        }
+        return "";
+      }
+    };
+  };
+
+  return (
+    <>
+      {children}
+      <NotificationDialog
+        title={
+          uploadsInitializing.length > 0
+            ? `You have ${uploadsInitializing.length} uploads initializing, please wait for their intializations to complete before closing this browser...`
+            : "You may now safely close this browser."
+        }
+        open={displayLeavingDialog}
+        closeDialog={() => {
+          setDisplayLeavingDialog(false);
+        }}
+      />
+    </>
+  );
 };
 
 const App = ({ element }) => {
