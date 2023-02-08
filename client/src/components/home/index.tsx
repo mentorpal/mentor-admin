@@ -58,7 +58,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     height: "100vh",
@@ -77,11 +77,11 @@ const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
     padding: 25,
   },
   appBar: {
+    height: "7%",
     top: "auto",
     bottom: 0,
     flexShrink: 0,
     position: "fixed",
-    height: "fit-content",
   },
   expand: {
     transform: "rotate(0deg)",

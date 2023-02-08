@@ -10,6 +10,7 @@ import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
 import { UploadTask, UploadTaskStatuses } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
+import { v4 as uuid } from "uuid";
 import {
   areAllTasksDone,
   compareTaskStatusesToValue,
@@ -21,6 +22,7 @@ import {
 } from "./upload-status-helpers";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useWithUploadInitStatusActions } from "store/slices/upload-init-status/upload-init-status-actions";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -33,6 +35,8 @@ export function useWithUploadStatus(
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
   const { getData } = useActiveMentor();
   const { state: configState } = useWithConfig();
+  const { newUploadInitCompleted, newUploadInitStarted } =
+    useWithUploadInitStatusActions();
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
@@ -206,6 +210,8 @@ export function useWithUploadStatus(
       uploadProgress: 0,
       tokenSource: tokenSource,
     });
+    const uploadId = uuid();
+    newUploadInitStarted(uploadId);
     uploadVideo(
       mentorId,
       video,
@@ -236,6 +242,9 @@ export function useWithUploadStatus(
           errorMessage: `Failed to upload file: Error ${err?.response?.status}: ${err?.response?.statusText}`,
           uploadProgress: 0,
         });
+      })
+      .finally(() => {
+        newUploadInitCompleted(uploadId);
       });
   }
 

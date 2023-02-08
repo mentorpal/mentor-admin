@@ -22,7 +22,7 @@ import { OverridableTokenClientConfig } from "@react-oauth/google";
 
 const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     display: "flex",

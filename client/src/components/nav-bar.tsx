@@ -54,10 +54,11 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
+import { useAppSelector } from "store/hooks";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     flexGrow: 1,
@@ -305,6 +306,9 @@ export function NavBar(props: {
   onBack?: () => void;
   checkForImportTask?: boolean;
 }): JSX.Element {
+  const uploadsInitializing = useAppSelector(
+    (state) => state.uploads.uploadsInitializing
+  );
   const { classes } = useStyles();
   const {
     uploads,
@@ -383,6 +387,22 @@ export function NavBar(props: {
             </Button>
           ) : undefined}
 
+          {uploadsInitializing.length > 0 ? (
+            <Typography
+              style={{
+                color: "red",
+                fontWeight: "bolder",
+                fontSize: "14px",
+                position: "absolute",
+                bottom: 0,
+                right: 30,
+              }}
+            >
+              You have {uploadsInitializing.length} upload
+              {uploadsInitializing.length > 1 ? "s" : ""} initializing, please
+              do not close the browser.
+            </Typography>
+          ) : undefined}
           <Login classes={classes} />
         </Toolbar>
       </AppBar>

@@ -45,6 +45,7 @@ import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
+
 import {
   AnswerAttentionNeeded,
   MentorType,
@@ -68,7 +69,7 @@ import { useWithBrowser } from "hooks/use-with-browser";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
-    minHeight: 56,
+    minHeight: 64,
   },
   root: {
     display: "flex",
