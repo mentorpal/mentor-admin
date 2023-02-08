@@ -295,12 +295,14 @@ function HomePage(props: {
     [reviewAnswerState.unsavedChanges()]
   );
   if (
-    !initialLoadComplete &&
-    (!mentorId ||
-      mentorLoading ||
-      !setupStatus ||
-      !recordingItemBlocks ||
-      reviewAnswerState.questionsLoading)
+    (!initialLoadComplete &&
+      (!mentorId ||
+        mentorLoading ||
+        !setupStatus ||
+        !recordingItemBlocks ||
+        reviewAnswerState.questionsLoading)) ||
+    !recordingItemBlocks ||
+    recordingItemBlocks.length == 0
   ) {
     return (
       <div>

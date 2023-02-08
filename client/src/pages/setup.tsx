@@ -137,7 +137,7 @@ function SetupPage(props: {
   const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  if (!readyToDisplay && !initialLoadComplete) {
+  if ((!readyToDisplay && !initialLoadComplete) || steps.length == 0) {
     return (
       <div className={classes.root}>
         <LoadingDialog title="Loading..." />

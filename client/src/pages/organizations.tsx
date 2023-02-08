@@ -201,11 +201,11 @@ function TableFooter(props: {
                 placeholder="Search organizations"
               />
             )}
-            renderOption={(params, option) => {
+            renderOption={(params, option) => (
               <Typography {...params} key={`${option}${uuid4()}`}>
                 {option}
-              </Typography>;
-            }}
+              </Typography>
+            )}
           />
           <IconButton
             data-cy="next-page"
