@@ -395,7 +395,7 @@ export function NavBar(props: {
                 fontSize: "14px",
                 position: "absolute",
                 bottom: 0,
-                right: 2,
+                right: 30,
               }}
             >
               You have {uploadsInitializing.length} upload
