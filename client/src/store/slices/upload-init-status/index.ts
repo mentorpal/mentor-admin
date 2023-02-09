@@ -7,12 +7,26 @@ The full terms of this copyright and license should always be found in the root 
 import { createSlice } from "@reduxjs/toolkit";
 import { PayloadAction } from "@reduxjs/toolkit";
 
+export interface UploadedFile {
+  questionId: string;
+  fileUrl: string;
+}
+
+type QuestionId = string;
+type FileUrl = string;
+
+type UploadingFiles = Record<QuestionId, FileUrl>;
+
 export interface UploadInitState {
   uploadsInitializing: string[];
+  uploadingFiles: UploadingFiles;
+  warnFailedUpload: boolean;
 }
 
 const initialState: UploadInitState = {
   uploadsInitializing: [],
+  uploadingFiles: {},
+  warnFailedUpload: false,
 };
 
 export const uploadStatusSlice = createSlice({
@@ -27,10 +41,24 @@ export const uploadStatusSlice = createSlice({
         (uploadId) => uploadId != action.payload
       );
     },
+    newFileUploadStarted: (state, action: PayloadAction<UploadedFile>) => {
+      state.uploadingFiles[action.payload.questionId] = action.payload.fileUrl;
+    },
+    fileFinishedUploading: (state, action: PayloadAction<QuestionId>) => {
+      delete state.uploadingFiles[action.payload];
+    },
+    uploadFailed: (state) => {
+      state.warnFailedUpload = true;
+    },
   },
 });
 
-export const { uploadInitStarted, uploadInitCompleted } =
-  uploadStatusSlice.actions;
+export const {
+  uploadInitStarted,
+  uploadInitCompleted,
+  newFileUploadStarted,
+  fileFinishedUploading,
+  uploadFailed,
+} = uploadStatusSlice.actions;
 
 export default uploadStatusSlice.reducer;
