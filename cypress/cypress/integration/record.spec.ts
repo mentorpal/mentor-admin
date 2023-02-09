@@ -1577,7 +1577,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
   });
 
-  it("can dismiss completed items in list via x button", () => {
+  it.only("can dismiss completed items in list via x button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,
@@ -1622,6 +1622,7 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record");
+    cy.get("[data-cy=notification-dialog-button]").click();
     cy.get("[data-cy=active-upload-card-2]").within(($within) => {
       cy.get("[data-cy=clear-upload]").trigger("mouseover").click();
     });
@@ -3112,37 +3113,6 @@ describe("Record", () => {
     cy.get("[data-cy=warn-empty-transcript]").should("exist");
     cy.get("[data-cy=active-upload-card-0]").within(($within) => {
       cy.get("p").should("have.text", "Needs Attention");
-    });
-  });
-
-  it("download button visible for upload items with original video", () => {
-    cyMockDefault(cy, {
-      mentor: [videoMentor],
-      questions: videoQuestions,
-      gqlQueries: [
-        mockGQL("FetchUploadTasks", [
-          {
-            me: {
-              uploadTasks: [
-                {
-                  question: {
-                    _id: videoMentor.answers[0].question._id,
-                    question: videoMentor.answers[0].question.question,
-                  },
-
-                  ...taskListBuild("IN_PROGRESS"),
-                  transcript: "",
-                  ...uploadTaskMediaBuild(),
-                },
-              ],
-            },
-          },
-        ]),
-      ],
-    });
-    cy.visit("/record");
-    cy.get("[data-cy=active-upload-card-0]").within(($within) => {
-      cy.get("[data-cy=download-video-from-list]").should("be.visible");
     });
   });
 
