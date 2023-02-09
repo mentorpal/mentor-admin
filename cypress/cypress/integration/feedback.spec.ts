@@ -125,6 +125,7 @@ describe("Feedback", () => {
       cy.get("[data-cy=menu-button]", { timeout: 3000 }).click();
       cy.get("[data-cy=Setup-menu-button]", { timeout: 3000 }).click();
       cy.getSettled("[data-cy=menu-button]");
+      cy.wait(3000);
       cy.get("[data-cy=menu-button]", { timeout: 3000 }).click();
       cy.get("[data-cy=Review-User-Feedback-menu-button]", { timeout: 3000 })
         .click()

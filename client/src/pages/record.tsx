@@ -66,6 +66,7 @@ import {
   convertFromRaw,
 } from "draft-js";
 import { useWithBrowser } from "hooks/use-with-browser";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
@@ -193,6 +194,8 @@ function RecordPage(props: {
     recordState;
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
+
   const { browserSupportsVbg } = useWithBrowser();
 
   const mentorId = getData((state) => state.data?._id);
@@ -219,7 +222,6 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
-
   useEffect(() => {
     if (!curAnswer) {
       return;
@@ -406,7 +408,6 @@ function RecordPage(props: {
       </div>
     );
   }
-
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -476,6 +477,8 @@ function RecordPage(props: {
               accessToken={props.accessToken}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
+              windowHeight={windowHeight}
+              windowWidth={windowWidth}
             />
           </div>
         ) : undefined}

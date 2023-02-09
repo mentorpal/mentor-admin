@@ -8,7 +8,6 @@ import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import { Button, Slider, CircularProgress, Typography } from "@mui/material";
 import overlay from "images/face-position-white.png";
-import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";
 import { equals } from "helpers";
 import { User, UseWithRecordState } from "types";
@@ -23,6 +22,8 @@ function VideoPlayer(props: {
   stopRequests: number;
   accessToken: string;
   user: User;
+  windowWidth: number;
+  windowHeight: number;
 }): JSX.Element {
   const { getData } = useActiveMentor();
   const isVirtualBgMentor: boolean = getData(
@@ -38,8 +39,9 @@ function VideoPlayer(props: {
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
+
+  const { classes, recordState, windowHeight, windowWidth } = props;
   const height =
     windowHeight > windowWidth
       ? windowWidth * (9 / 16)
@@ -48,8 +50,6 @@ function VideoPlayer(props: {
     windowHeight > windowWidth
       ? windowWidth
       : Math.max(windowHeight - 600, 300) * (16 / 9);
-
-  const { classes, recordState } = props;
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
   );

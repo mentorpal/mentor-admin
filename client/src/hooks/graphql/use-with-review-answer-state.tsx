@@ -62,6 +62,7 @@ interface UseWithReviewAnswerState {
   recordAnswer: (question: string) => void;
   addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: QuestionEdits) => void;
+  readyToDisplay: boolean;
 }
 
 export interface QuestionEdits {
@@ -121,7 +122,12 @@ export function useWithReviewAnswerState(
   }, [mentorQuestions, questionsLoading]);
 
   useEffect(() => {
-    if (!mentorSubjects || !mentorAnswers || !configState.config) {
+    if (
+      !mentorSubjects ||
+      !mentorAnswers ||
+      !configState.config ||
+      isMentorLoading
+    ) {
       return;
     }
     let _blocks: RecordingBlock[] = [];
@@ -229,7 +235,13 @@ export function useWithReviewAnswerState(
       });
     }
     setBlocks(_blocks);
-  }, [mentorSubjects, mentorAnswers, selectedSubject, configState]);
+  }, [
+    mentorSubjects,
+    mentorAnswers,
+    selectedSubject,
+    configState,
+    isMentorLoading,
+  ]);
 
   function clearError() {
     setError(undefined);
@@ -455,5 +467,10 @@ export function useWithReviewAnswerState(
     recordAnswer,
     addNewQuestion,
     editQuestion,
+    readyToDisplay:
+      !questionsLoading &&
+      !isMentorLoading &&
+      Boolean(answers) &&
+      Boolean(questions),
   };
 }

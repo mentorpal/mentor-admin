@@ -300,7 +300,9 @@ function HomePage(props: {
       mentorLoading ||
       !setupStatus ||
       !recordingItemBlocks ||
-      reviewAnswerState.questionsLoading)
+      !reviewAnswerState.readyToDisplay ||
+      (reviewAnswerState.getBlocks().length > 0 &&
+        recordingItemBlocks.length == 0))
   ) {
     return (
       <div>
