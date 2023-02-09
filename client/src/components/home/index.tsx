@@ -295,14 +295,14 @@ function HomePage(props: {
     [reviewAnswerState.unsavedChanges()]
   );
   if (
-    (!initialLoadComplete &&
-      (!mentorId ||
-        mentorLoading ||
-        !setupStatus ||
-        !recordingItemBlocks ||
-        reviewAnswerState.questionsLoading)) ||
-    !recordingItemBlocks ||
-    recordingItemBlocks.length == 0
+    !initialLoadComplete &&
+    (!mentorId ||
+      mentorLoading ||
+      !setupStatus ||
+      !recordingItemBlocks ||
+      !reviewAnswerState.readyToDisplay ||
+      (reviewAnswerState.getBlocks().length > 0 &&
+        recordingItemBlocks.length == 0))
   ) {
     return (
       <div>
