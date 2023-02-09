@@ -43,6 +43,7 @@ import { useWithUploadStatus } from "./use-with-upload-status";
 import { navigate } from "gatsby";
 import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { useAppSelector } from "store/hooks";
 
 export function useWithRecordState(
   accessToken: string,
@@ -90,6 +91,10 @@ export function useWithRecordState(
   const questionsSaving = isQuestionsSaving(
     mentorAnswers?.map((a) => a.question)
   );
+  const filesUploading = useAppSelector(
+    (state) => state.uploads.uploadingFiles
+  );
+  console.log(filesUploading);
   const { saveQuestion } = useQuestionActions();
 
   const {
@@ -427,7 +432,7 @@ export function useWithRecordState(
       }
     }
   }
-
+  console.log(uploads);
   async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
     if (!mentorId || !answer.answer.question) {
@@ -487,6 +492,17 @@ export function useWithRecordState(
         trim
       );
     }
+  }
+
+  function downloadVideoBlobUrl(blobUrl: string, questionId: string): boolean {
+    const link = document.createElement("a");
+    link.setAttribute("href", blobUrl);
+    link.setAttribute(
+      "download",
+      `${questionId}.${hasVirtualBackground ? "webm" : "mp4"}`
+    );
+    link.click();
+    return true;
   }
 
   function downloadVideoBlob(
@@ -557,7 +573,6 @@ export function useWithRecordState(
     }
     return false;
   }
-
   function downloadVideoForQuestion(question: string) {
     if (!mentorId) return;
     setIsDownloadingVideo(true);
@@ -571,11 +586,16 @@ export function useWithRecordState(
           document
         );
       } else if (isAnswerUploading(answer.answer)) {
-        const upload = uploads.find((u) => u.question === question);
-        if (upload) {
-          downloaded = downloadVideoFromUpload(upload);
+        const qsUploading = Object.keys(filesUploading);
+        const uploadingFileFound = qsUploading.find((qId) => qId == question);
+        if (uploadingFileFound) {
+          downloaded = downloadVideoBlobUrl(
+            filesUploading[uploadingFileFound],
+            question
+          );
         }
       } else {
+        console.log("here3");
         const videoSrc = getVideoSrc(answer);
         if (videoSrc) {
           downloaded = downloadVideoFromAnswer(answer);
@@ -637,5 +657,7 @@ export function useWithRecordState(
     downloadVideoFromUpload,
     setMinVideoLength,
     clearError,
+    downloadVideoBlobUrl,
+    filesUploading,
   };
 }

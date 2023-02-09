@@ -44,6 +44,26 @@ const allowedAdminDomains = [
   "mentorpal.org",
 ];
 
+const WarnFailedUpload = ({ children }) => {
+  const [userClosed, setUserClosed] = useState(false);
+  const fileFailed = useAppSelector((state) => state.uploads.warnFailedUpload);
+
+  return (
+    <>
+      {children}
+      <NotificationDialog
+        title={
+          "One or more of your uploads have failed to upload, please review the upload queue and download your failed videos for safekeeping."
+        }
+        open={fileFailed && !userClosed}
+        closeDialog={() => {
+          setUserClosed(true);
+        }}
+      />
+    </>
+  );
+};
+
 const WarnExitPageDuringUpload = ({ children }) => {
   const [displayLeavingDialog, setDisplayLeavingDialog] = useState(false);
   const uploadsInitializing = useAppSelector(
@@ -107,7 +127,9 @@ const App = ({ element }) => {
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <Provider store={store}>
-          <WarnExitPageDuringUpload>{element}</WarnExitPageDuringUpload>
+          <WarnExitPageDuringUpload>
+            <WarnFailedUpload>{element}</WarnFailedUpload>
+          </WarnExitPageDuringUpload>
         </Provider>
       </ThemeProvider>
     </StyledEngineProvider>

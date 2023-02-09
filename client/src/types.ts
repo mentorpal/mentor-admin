@@ -599,6 +599,8 @@ export interface UseWithRecordState {
   downloadVideoFromUpload: (upload: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
+  downloadVideoBlobUrl: (url: string, qid: string) => void;
+  filesUploading: Record<string, string>;
 }
 
 export interface AnswerState {

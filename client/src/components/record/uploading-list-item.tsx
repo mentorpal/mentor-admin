@@ -40,7 +40,7 @@ function UploadingListItem(props: {
     isJobFailed,
     isJobDone,
     isJobQueued,
-    hasOriginalUrl,
+    hasVideoFileUrl,
     downloadVideo,
     isDownloadingVideo,
     onClose,
@@ -69,7 +69,7 @@ function UploadingListItem(props: {
         style={{
           minWidth: 0,
           visibility:
-            !hasOriginalUrl() || isJobDone() || cancelling
+            !hasVideoFileUrl() || isJobDone() || cancelling
               ? "hidden"
               : "visible",
         }}
@@ -143,7 +143,7 @@ function UploadingListItem(props: {
         }
         secondary={progressTitle}
       />
-      {hasOriginalUrl() && !isJobDone() && downloadButton()}
+      {(!isJobDone() || isJobFailed()) && downloadButton()}
       {(isJobDone() || isJobFailed()) && clearButton()}
     </ListItem>
   );

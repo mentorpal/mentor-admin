@@ -2958,6 +2958,41 @@ describe("Record", () => {
     });
   });
 
+  it("failed uploads display the download button:", () => {
+    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockUpload(cy, { statusCode: 400 });
+    cy.visit("/record");
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.get("[data-cy=uploading-widget]").should("be.visible");
+
+      cy.get("[data-cy=active-upload-card-0]").should("exist");
+      cy.get("[data-cy=active-upload-card-0]").within(($within) => {
+        cy.get("[data-cy=download-video-from-list]").should("be.visible");
+        cy.get("[data-cy=card-answer-title]")
+          .get("p")
+          .should("contain.text", "Failed to upload file");
+      });
+    });
+  });
+
+  it("user is warned to download video when an upload fails", () => {
+    cyMockDefault(cy, { mentor: [videoMentor] });
+    cyMockUpload(cy, { statusCode: 400 });
+    cy.visit("/record");
+    cyAttachUpload(cy).then(() => {
+      cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+      cy.get("[data-cy=uploading-widget]").should("be.visible");
+
+      cy.get("[data-cy=notification-dialog]")
+        .should("exist")
+        .should(
+          "contain.text",
+          "One or more of your uploads have failed to upload"
+        );
+    });
+  });
+
   it("failed gql process displays error message in upload widget", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],

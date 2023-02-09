@@ -23,6 +23,12 @@ import {
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithUploadInitStatusActions } from "store/slices/upload-init-status/upload-init-status-actions";
+import { useAppDispatch } from "store/hooks";
+import {
+  fileFinishedUploading,
+  newFileUploadStarted,
+  uploadFailed,
+} from "store/slices/upload-init-status";
 
 export function useWithUploadStatus(
   accessToken: string,
@@ -37,6 +43,7 @@ export function useWithUploadStatus(
   const { state: configState } = useWithConfig();
   const { newUploadInitCompleted, newUploadInitStarted } =
     useWithUploadInitStatusActions();
+  const dispatch = useAppDispatch();
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
@@ -66,10 +73,16 @@ export function useWithUploadStatus(
       return;
     }
     uploads.forEach((u) => {
-      if (areAllTasksDone(u) || isATaskFailed(u) || isATaskCancelled(u)) {
+      if (areAllTasksDone(u) || isATaskCancelled(u)) {
         deleteUploadTask(u.question, accessToken, mentorId).catch((error) => {
           console.error(error);
         });
+      }
+      if (isATaskFailed(u)) {
+        dispatch(uploadFailed());
+      }
+      if (areAllTasksDone(u)) {
+        dispatch(fileFinishedUploading(u.question));
       }
     });
     setIsUploading(uploads.some((u) => !areAllTasksDoneOrOneFailed(u)));
@@ -198,6 +211,12 @@ export function useWithUploadStatus(
     trim?: { start: number; end: number },
     hasEditedTranscript?: boolean
   ) {
+    dispatch(
+      newFileUploadStarted({
+        questionId: question,
+        fileUrl: URL.createObjectURL(video),
+      })
+    );
     const tokenSource = CancelToken.source();
     addOrEditTask({
       question,
