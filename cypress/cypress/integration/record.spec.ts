@@ -1577,7 +1577,7 @@ describe("Record", () => {
     cy.get("[data-cy=upload-in-progress-notifier]").should("be.visible");
   });
 
-  it.only("can dismiss completed items in list via x button", () => {
+  it("can dismiss completed items in list via x button", () => {
     cyMockDefault(cy, {
       mentor: [videoMentor],
       questions: videoQuestions,

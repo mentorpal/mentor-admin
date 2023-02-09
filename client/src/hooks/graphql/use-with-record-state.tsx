@@ -94,7 +94,6 @@ export function useWithRecordState(
   const filesUploading = useAppSelector(
     (state) => state.uploads.uploadingFiles
   );
-  console.log(filesUploading);
   const { saveQuestion } = useQuestionActions();
 
   const {
@@ -432,7 +431,6 @@ export function useWithRecordState(
       }
     }
   }
-  console.log(uploads);
   async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
     if (!mentorId || !answer.answer.question) {
@@ -595,7 +593,6 @@ export function useWithRecordState(
           );
         }
       } else {
-        console.log("here3");
         const videoSrc = getVideoSrc(answer);
         if (videoSrc) {
           downloaded = downloadVideoFromAnswer(answer);
