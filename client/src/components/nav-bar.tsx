@@ -338,7 +338,7 @@ export function NavBar(props: {
   }
 
   return (
-    <div data-cy="nav-bar" className={classes.root}>
+    <div data-cy="nav-bar">
       <AppBar position="fixed">
         <Toolbar>
           <IconButton

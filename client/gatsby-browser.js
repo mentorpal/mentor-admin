@@ -58,7 +58,6 @@ const WarnExitPageDuringUpload = ({ children }) => {
   }, [uploadsInitializing]);
 
   const initBeforeUnLoad = (showExitPrompt) => {
-    console.log("on before unload set");
     window.onbeforeunload = (event) => {
       // Show prompt based on state
       if (showExitPrompt) {
