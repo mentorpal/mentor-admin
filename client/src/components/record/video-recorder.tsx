@@ -51,6 +51,30 @@ function VideoRecorder(props: {
     : "video/mp4";
   const videoSaveMimeType = isVirtualBgMentor ? "video/webm" : "video/mp4";
   const videoSaveName = isVirtualBgMentor ? "video.webm" : "video.mp4";
+  const [canvasDimensions, setCanvasDimensions] = useState({ width, height });
+  const [canvasDisplayDimensions, setCanvasDisplayDimensions] = useState({
+    width,
+    height,
+  });
+
+  useEffect(() => {
+    let heightShrinkMultiple = 1;
+    let widthShrinkMultiple = 1;
+    if (canvasDimensions.height > height) {
+      heightShrinkMultiple = height / canvasDimensions.height;
+    }
+    const dimensionsAfterHeightShrink = {
+      height: canvasDimensions.height * heightShrinkMultiple,
+      width: canvasDimensions.width * heightShrinkMultiple,
+    };
+    if (dimensionsAfterHeightShrink.width > width) {
+      widthShrinkMultiple = width / dimensionsAfterHeightShrink.width;
+    }
+    setCanvasDisplayDimensions({
+      height: dimensionsAfterHeightShrink.height * widthShrinkMultiple,
+      width: dimensionsAfterHeightShrink.width * widthShrinkMultiple,
+    });
+  }, [width, height, canvasDimensions]);
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -73,6 +97,14 @@ function VideoRecorder(props: {
     const videoStream = await navigator.mediaDevices.getUserMedia({
       video: true,
     });
+
+    videoStream.getVideoTracks().forEach((track) => {
+      const videoCameraSettings = track.getSettings();
+      const newWidth = videoCameraSettings.width || width;
+      const newHeight = videoCameraSettings.height || height;
+      setCanvasDimensions({ width: newWidth, height: newHeight });
+    });
+
     videoEle.muted = true;
     videoEle.volume = 0;
     videoEle.srcObject = videoStream;
@@ -300,7 +332,6 @@ function VideoRecorder(props: {
         backgroundPosition: "center",
       }
     : {};
-
   return (
     <div
       data-cy="video-recorder"
@@ -356,9 +387,11 @@ function VideoRecorder(props: {
             bottom: 0,
             left: 0,
             right: 0,
+            width: canvasDisplayDimensions.width,
+            height: canvasDisplayDimensions.height,
           }}
-          width={width}
-          height={height}
+          width={canvasDimensions.width}
+          height={canvasDimensions.height}
         />
         <Button
           style={{

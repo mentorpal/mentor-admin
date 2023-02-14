@@ -44,12 +44,12 @@ function VideoPlayer(props: {
   const { classes, recordState, windowHeight, windowWidth } = props;
   const height =
     windowHeight > windowWidth
-      ? windowWidth * (9 / 16)
-      : Math.max(windowHeight - 600, 300);
+      ? windowWidth * (3 / 4)
+      : Math.max(windowHeight - 470, 300);
   const width =
     windowHeight > windowWidth
       ? windowWidth
-      : Math.max(windowHeight - 600, 300) * (16 / 9);
+      : Math.max(windowHeight - 470, 300) * (4 / 3);
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
   );
@@ -204,7 +204,7 @@ function VideoPlayer(props: {
                 ? {
                     backgroundImage: `url(${virtualBackgroundUrl})`,
                     backgroundSize:
-                      vbgAspectRatio >= 1.77 ? "auto 100%" : "100% auto",
+                      vbgAspectRatio >= 1.33333 ? "auto 100%" : "100% auto",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
                     visibility: isUploading ? "hidden" : "inherit",
