@@ -2774,7 +2774,8 @@ describe("Record", () => {
       ],
     });
     cy.visit("/record?videoId=A1_1_1");
-    cy.get(".editor-class").within(() => {
+    cy.get("[data-cy=question-text]").should("be.visible");
+    cy.getSettled(".editor-class").within(() => {
       cy.get("[data-text]").eq(0).type("{selectall}");
     });
 

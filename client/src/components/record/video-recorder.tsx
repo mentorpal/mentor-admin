@@ -300,7 +300,6 @@ function VideoRecorder(props: {
         backgroundPosition: "center",
       }
     : {};
-
   return (
     <div
       data-cy="video-recorder"
