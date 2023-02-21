@@ -82,6 +82,13 @@ export function cySetup(cy) {
   cy.clearLocalStorage();
 }
 
+export enum DisplaySurveyPopupCondition {
+  ALWAYS = "ALWAYS",
+  USER_ID = "USER_ID",
+  USER_ID_AND_EMAIL = "USER_ID_AND_EMAIL",
+  NEVER = "NEVER",
+}
+
 export interface Config {
   featuredMentors: string[];
   featuredMentorPanels: string[];
@@ -99,6 +106,7 @@ export interface Config {
   styleHeaderText: string;
   styleHeaderTextColor: string;
   displayGuestPrompt: boolean;
+  displaySurveyPopupCondition: DisplaySurveyPopupCondition;
   disclaimerTitle: string;
   disclaimerText: string;
   disclaimerDisabled: boolean;
@@ -127,6 +135,7 @@ export const CONFIG_DEFAULT: Config = {
   styleHeaderText: "",
   styleHeaderTextColor: "",
   displayGuestPrompt: true,
+  displaySurveyPopupCondition: DisplaySurveyPopupCondition.USER_ID,
   disclaimerTitle: "",
   disclaimerText: "",
   disclaimerDisabled: false,

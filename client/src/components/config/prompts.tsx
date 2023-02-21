@@ -16,7 +16,8 @@ import {
   TextField,
 } from "@mui/material";
 
-import { Config } from "types";
+import { Config, DisplaySurveyPopupCondition } from "types";
+import { getEnumValues } from "helpers";
 
 export function Prompts(props: {
   config: Config;
@@ -120,6 +121,33 @@ export function Prompts(props: {
           <MenuItem data-cy="utterance-type" value="Text">
             Text
           </MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth>
+        <InputLabel>Display Survey Popup Condition</InputLabel>
+        <Select
+          data-cy="display-survey-condition"
+          label="Display Survey Popup Condition"
+          value={
+            config.displaySurveyPopupCondition ||
+            DisplaySurveyPopupCondition.USER_ID
+          }
+          style={{ width: 300, marginRight: 20 }}
+          onChange={(event: SelectChangeEvent<string>) => {
+            console.log();
+            updateConfig({
+              displaySurveyPopupCondition: event.target
+                .value as DisplaySurveyPopupCondition,
+            });
+          }}
+        >
+          {getEnumValues(DisplaySurveyPopupCondition).map((condition) => {
+            return (
+              <MenuItem key={condition} value={condition}>
+                {condition}
+              </MenuItem>
+            );
+          })}
         </Select>
       </FormControl>
       <FormControlLabel

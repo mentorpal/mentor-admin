@@ -25,7 +25,13 @@ import {
   removeQueryParamFromUrl,
 } from "helpers";
 import { useEffect, useState } from "react";
-import { Config, MentorPanel, Organization, User } from "types";
+import {
+  Config,
+  DisplaySurveyPopupCondition,
+  MentorPanel,
+  Organization,
+  User,
+} from "types";
 import { MentorGQL } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 
@@ -240,6 +246,7 @@ export function useWithConfigEdits(
       termsOfServiceDisabled: false,
       termsOfServiceText: "",
       displayGuestPrompt: false,
+      displaySurveyPopupCondition: DisplaySurveyPopupCondition.USER_ID,
       guestPromptTitle: "",
       guestPromptText: "",
       guestPromptInputType: "email",

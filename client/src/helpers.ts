@@ -475,3 +475,11 @@ export function arraysEqual<T>(a: T[], b: T[]): boolean {
   }
   return true;
 }
+
+interface EnumObject {
+  [enumValue: string]: string;
+}
+
+export function getEnumValues(e: EnumObject): string[] {
+  return Object.keys(e).map((i) => e[i]);
+}

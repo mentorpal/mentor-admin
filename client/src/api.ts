@@ -276,6 +276,7 @@ export async function fetchConfig(): Promise<Config> {
           termsOfServiceDisabled
           termsOfServiceText
           displayGuestPrompt
+          displaySurveyPopupCondition
           guestPromptTitle
           guestPromptText
           guestPromptInputType
@@ -2354,6 +2355,7 @@ export async function fetchOrganizations(
                   termsOfServiceDisabled
                   termsOfServiceText
                   displayGuestPrompt
+                  displaySurveyPopupCondition
                   guestPromptTitle
                   guestPromptText
                   guestPromptInputType
@@ -2451,6 +2453,7 @@ export async function addOrUpdateOrganization(
               termsOfServiceDisabled
               termsOfServiceText
               displayGuestPrompt
+              displaySurveyPopupCondition
               guestPromptTitle
               guestPromptText
               guestPromptInputType
@@ -2533,6 +2536,7 @@ export async function updateOrgConfig(
             termsOfServiceDisabled
             termsOfServiceText
             displayGuestPrompt
+            displaySurveyPopupCondition
             guestPromptTitle
             guestPromptText
             guestPromptInputType
@@ -2574,6 +2578,7 @@ export async function updateOrgConfig(
           termsOfServiceDisabled: config.termsOfServiceDisabled,
           termsOfServiceText: config.termsOfServiceText,
           displayGuestPrompt: config.displayGuestPrompt,
+          displaySurveyPopupCondition: config.displaySurveyPopupCondition,
           guestPromptTitle: config.guestPromptTitle,
           guestPromptText: config.guestPromptText,
           guestPromptInputType: config.guestPromptInputType,
@@ -2646,6 +2651,7 @@ export async function updateConfig(
             termsOfServiceDisabled
             termsOfServiceText
             displayGuestPrompt
+            displaySurveyPopupCondition
             guestPromptTitle
             guestPromptText
             guestPromptInputType
@@ -2686,6 +2692,7 @@ export async function updateConfig(
           termsOfServiceDisabled: config.termsOfServiceDisabled,
           termsOfServiceText: config.termsOfServiceText,
           displayGuestPrompt: config.displayGuestPrompt,
+          displaySurveyPopupCondition: config.displaySurveyPopupCondition,
           guestPromptTitle: config.guestPromptTitle,
           guestPromptText: config.guestPromptText,
           guestPromptInputType: config.guestPromptInputType,
