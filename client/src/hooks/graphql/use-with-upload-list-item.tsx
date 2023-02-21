@@ -20,6 +20,12 @@ export function useWithUploadListItem(
   const answer = recordState.answers.find(
     (a) => a.answer.question === upload.question
   );
+  const filesUploading = recordState.filesUploading;
+  const fileUrl = Object.keys(filesUploading).find(
+    (qId) => qId === upload.question
+  )
+    ? filesUploading[upload.question]
+    : "";
 
   function isJobQueued(): boolean {
     return compareTaskStatusesToValue(upload, UploadTaskStatuses.QUEUED, true);
@@ -34,15 +40,11 @@ export function useWithUploadListItem(
   }
 
   function downloadVideo(): void {
-    recordState.downloadVideoFromUpload(upload);
+    recordState.downloadVideoBlobUrl(fileUrl, upload.question);
   }
 
-  function hasOriginalUrl(): boolean {
-    return Boolean(
-      upload.media?.find(
-        (u) => u.url.length > 15 && u.url.slice(-12) == "original.mp4"
-      )?.url
-    );
+  function hasVideoFileUrl(): boolean {
+    return Boolean(fileUrl);
   }
 
   const needsAttention = Boolean(answer?.attentionNeeded);
@@ -58,7 +60,7 @@ export function useWithUploadListItem(
     isJobFailed,
     isJobQueued,
     downloadVideo,
-    hasOriginalUrl,
+    hasVideoFileUrl,
     isDownloadingVideo: recordState.isDownloadingVideo,
     cancelling,
     needsAttention,
@@ -76,7 +78,7 @@ export interface UseWithUploadListItem {
   isJobFailed: () => boolean;
   isJobQueued: () => boolean;
   downloadVideo: () => void;
-  hasOriginalUrl: () => boolean;
+  hasVideoFileUrl: () => boolean;
   isDownloadingVideo: boolean;
   cancelling: boolean;
   needsAttention: boolean;

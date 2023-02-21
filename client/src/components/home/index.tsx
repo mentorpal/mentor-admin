@@ -26,8 +26,7 @@ import {
   Theme,
   SelectChangeEvent,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
-import withStyles from "@mui/styles/withStyles";
+import { makeStyles, withStyles } from "tss-react/mui";
 import CloseIcon from "@mui/icons-material/Close";
 import { NotificationDialog } from "components/dialog";
 import { LoadingDialog, ErrorDialog, TwoOptionDialog } from "components/dialog";
@@ -57,14 +56,10 @@ import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 
-const ColorTooltip = withStyles({
-  tooltip: {
-    backgroundColor: "secondary",
+const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
+  toolbar: {
+    minHeight: 64,
   },
-})(Tooltip);
-
-const useStyles = makeStyles((theme: Theme) => ({
-  toolbar: theme.mixins.toolbar,
   root: {
     height: "100vh",
     display: "flex",
@@ -82,11 +77,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     padding: 25,
   },
   appBar: {
+    height: "7%",
     top: "auto",
     bottom: 0,
     flexShrink: 0,
     position: "fixed",
-    height: "fit-content",
   },
   expand: {
     transform: "rotate(0deg)",
@@ -103,6 +98,12 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: 10,
   },
 }));
+
+const ColorTooltip = withStyles(Tooltip, {
+  tooltip: {
+    backgroundColor: "secondary",
+  },
+});
 
 //order of the tooltips
 export enum TooltipStep {
@@ -148,7 +149,7 @@ function HomePage(props: {
   const mentorId = getData((m) => m.data?._id || "");
   const mentorType = getData((m) => m.data?.mentorType);
   const defaultMentor = props.user.defaultMentor._id;
-  const [classes] = useState(useStyles());
+  const { classes } = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
 
   const [idxTooltip, setIdxTooltip] = useState<number>(0);
@@ -299,7 +300,9 @@ function HomePage(props: {
       mentorLoading ||
       !setupStatus ||
       !recordingItemBlocks ||
-      reviewAnswerState.questionsLoading)
+      !reviewAnswerState.readyToDisplay ||
+      (reviewAnswerState.getBlocks().length > 0 &&
+        recordingItemBlocks.length == 0))
   ) {
     return (
       <div>

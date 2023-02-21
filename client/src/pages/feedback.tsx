@@ -25,7 +25,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Autocomplete } from "@mui/material";
@@ -50,7 +50,7 @@ import { useWithTrendingFeedback } from "hooks/use-with-trending-feedback";
 import { LoadingStatusType } from "hooks/graphql/generic-loading-reducer";
 import { uuid4 } from "@sentry/utils";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { FeedbackPage } })((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -135,7 +135,7 @@ const columnHeaders: ColumnDef[] = [
 ];
 
 function FeedbackPage(): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     getData,
     isLoading: isMentorLoading,

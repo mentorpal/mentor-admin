@@ -73,7 +73,6 @@ function VideoRecorder(props: {
     const videoStream = await navigator.mediaDevices.getUserMedia({
       video: true,
     });
-    console.log("NEW VIDEO STUFF");
     videoEle.muted = true;
     videoEle.volume = 0;
     videoEle.srcObject = videoStream;
@@ -301,7 +300,6 @@ function VideoRecorder(props: {
         backgroundPosition: "center",
       }
     : {};
-
   return (
     <div
       data-cy="video-recorder"

@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import React, { useState } from "react";
 import Carousel from "react-material-ui-carousel";
 import { Avatar, IconButton } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
@@ -33,7 +33,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithKeywords } from "hooks/graphql/use-with-keywords";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { SetupPage } })(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -41,6 +41,8 @@ const useStyles = makeStyles(() => ({
     height: "100vh",
     backgroundColor: "#eee",
     overflow: "visible",
+    minHeight: "100%",
+    justifyContent: "center",
   },
   row: {
     display: "flex",
@@ -64,7 +66,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     alignItems: "center",
     alignContent: "center",
-    height: "100%",
+    height: "500px",
     width: "100%",
     overflow: "visible",
   },
@@ -111,7 +113,7 @@ function SetupPage(props: {
   user: User;
   search: { i?: string };
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     setupStatus: status,
     initialSetupStep,
@@ -131,13 +133,21 @@ function SetupPage(props: {
     onLeave,
   } = useWithSetup(props.search);
   const accessToken = props.accessToken;
-  const { data: keywords } = useWithKeywords();
-  const { state: configState } = useWithConfig();
-  const { data: orgs } = useWithOrganizations(accessToken);
+  const { data: keywords, isLoading: keywordsLoading } = useWithKeywords();
+  const { state: configState, isConfigLoaded } = useWithConfig();
+  const { data: orgs, isLoading: orgsLoading } =
+    useWithOrganizations(accessToken);
   const uploadLambdaEndpoint = configState.config?.uploadLambdaEndpoint || "";
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  if (!readyToDisplay && !initialLoadComplete) {
+  if (
+    (!readyToDisplay && !initialLoadComplete) ||
+    steps.length == 0 ||
+    !isConfigLoaded() ||
+    keywordsLoading ||
+    orgsLoading ||
+    isLoading
+  ) {
     return (
       <div className={classes.root}>
         <LoadingDialog title="Loading..." />

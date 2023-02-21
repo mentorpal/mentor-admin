@@ -222,7 +222,7 @@ export function extractErrorMessageFromError(err: any | unknown): string {
 
 export function sanitizeWysywigString(str: string): string {
   // When exporting markdown from WYSYWIG editor, it automatically adds a ZERO WIDTH SPACE char and a newline char
-  return str.replace(/\u200B/g, "").trimRight();
+  return str.replace(/\u200B/g, "").trimEnd();
 }
 
 export function isAnswerValid(
@@ -474,4 +474,12 @@ export function arraysEqual<T>(a: T[], b: T[]): boolean {
     if (a[i] !== b[i]) return false;
   }
   return true;
+}
+
+interface EnumObject {
+  [enumValue: string]: string;
+}
+
+export function getEnumValues(e: EnumObject): string[] {
+  return Object.keys(e).map((i) => e[i]);
 }

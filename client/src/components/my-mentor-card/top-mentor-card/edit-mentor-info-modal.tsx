@@ -14,29 +14,31 @@ import {
   TextField,
   Theme,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import { onTextInputChanged } from "helpers";
 import React from "react";
 import { Mentor, MentorType } from "types";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  inputField: {
-    width: "100%",
-    margin: 10,
-  },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-    maxWidth: "50%",
-  },
-}));
+const useStyles = makeStyles({ name: { EditMentorInfoModal } })(
+  (theme: Theme) => ({
+    inputField: {
+      width: "100%",
+      margin: 10,
+    },
+    modal: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    paper: {
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+      maxWidth: "50%",
+    },
+  })
+);
 
 function EditMentorInfoModal(props: {
   handleClose: () => void;
@@ -45,7 +47,7 @@ function EditMentorInfoModal(props: {
   open: boolean;
 }): JSX.Element {
   const { handleClose, editMentor, editedMentor, open } = props;
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <div>

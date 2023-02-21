@@ -13,15 +13,17 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { OverridableTokenClientConfig } from "@react-oauth/google";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  toolbar: theme.mixins.toolbar,
+const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
+  toolbar: {
+    minHeight: 64,
+  },
   root: {
     display: "flex",
     flexFlow: "column",
@@ -43,7 +45,7 @@ function LoginPage(props: {
     overrideConfig?: OverridableTokenClientConfig | undefined
   ) => void;
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
   const { login } = useWithLogin();
 

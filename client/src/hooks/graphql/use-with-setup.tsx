@@ -38,7 +38,7 @@ export enum SetupStepType {
   FINISH_SETUP = 10,
 }
 
-interface SetupStep {
+export interface SetupStep {
   type: SetupStepType;
   complete: boolean;
 }

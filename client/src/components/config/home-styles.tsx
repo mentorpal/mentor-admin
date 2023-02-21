@@ -15,7 +15,7 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Config, Organization } from "types";
 import { ColorPicker } from "./color-picker";
@@ -23,7 +23,7 @@ import { copyAndRemove, copyAndSet } from "helpers";
 import { uploadFooterImg, uploadHeaderImg } from "api";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { HomeStyles } })((theme: Theme) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -70,7 +70,7 @@ export function HomeStyles(props: {
   accessToken: string;
   updateConfig: (c: Partial<Config>) => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes } = useStyles();
   const { config, updateConfig } = props;
   const [errorMessage, setErrorMessage] = useState<string>();
   const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
@@ -175,7 +175,7 @@ export function HomeStyles(props: {
         />
         <img
           data-cy="image-thumbnail"
-          className={styles.thumbnail}
+          className={classes.thumbnail}
           src={config.styleHeaderLogo}
           onClick={() => {
             window.open(config.styleHeaderLogo || "", "_blank");
@@ -391,7 +391,7 @@ export function HomeStyles(props: {
                 />
                 <img
                   data-cy="image-thumbnail"
-                  className={styles.thumbnail}
+                  className={classes.thumbnail}
                   src={f}
                   onClick={() => window.open(f || "", "_blank")}
                 />

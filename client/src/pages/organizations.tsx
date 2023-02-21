@@ -40,7 +40,7 @@ import {
   Theme,
   SelectChangeEvent,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
@@ -89,7 +89,7 @@ const reservedSubdomains = [
   "static-uscquestions",
 ];
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   root: {
     display: "flex",
     flexFlow: "column",
@@ -168,7 +168,7 @@ function TableFooter(props: {
   pagin: UseOrganizationData;
   onCreateOrg: () => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { user, pagin } = props;
   const hasPreviousPage = pagin.pageData?.pageInfo.hasPreviousPage || false;
   const hasNextPage = pagin.pageData?.pageInfo.hasNextPage || false;
@@ -201,11 +201,11 @@ function TableFooter(props: {
                 placeholder="Search organizations"
               />
             )}
-            renderOption={(params, option) => {
+            renderOption={(params, option) => (
               <Typography {...params} key={`${option}${uuid4()}`}>
                 {option}
-              </Typography>;
-            }}
+              </Typography>
+            )}
           />
           <IconButton
             data-cy="next-page"
@@ -240,7 +240,7 @@ function EditOrganization(props: {
   edit: (org: Partial<Organization> | undefined) => void;
   save: () => void;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { org, orgPagin, userPagin, edit } = props;
   const [msg, setMsg] = useState<string>();
   const [shouldScroll, setShouldScroll] = useState<boolean>(false);
@@ -481,7 +481,7 @@ function OrganizationItem(props: {
   onEdit: (org: Organization) => void;
 }): JSX.Element {
   const { org, user } = props;
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const hasEditPermission = canEditOrganization(org, user);
 
   return (
@@ -545,7 +545,7 @@ function OrganizationsTable(props: {
   userPagin: UseUserData;
   user: User;
 }): JSX.Element {
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const [editOrg, setEditOrg] = useState<Partial<Organization>>();
 
   function onCreateOrg(): void {
@@ -614,7 +614,7 @@ function OrganizationsPage(props: {
 }): JSX.Element {
   const userPagin = useWithUsers(props.accessToken);
   const orgsPagin = useWithOrganizations(props.accessToken);
-  const styles = useStyles();
+  const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();
 
   useEffect(() => {

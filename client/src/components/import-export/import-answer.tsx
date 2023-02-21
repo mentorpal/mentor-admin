@@ -17,7 +17,7 @@ import {
   ListSubheader,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import {
   ExpandMore as ExpandMoreIcon,
   ErrorOutline as ErrorOutlineIcon,
@@ -26,7 +26,7 @@ import { EditType, ImportPreview, Media } from "types";
 import { ChangeIcon } from "./icons";
 import { AnswerGQL, getAnswerGQLMediaList } from "types-gql";
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { AnswerImport } })(() => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -51,7 +51,7 @@ export default function AnswerImport(props: {
   toggleRemoveOldAnswer: (a: AnswerGQL) => void;
   replaceNewAnswer: (a: AnswerGQL) => void;
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [isExpanded, setIsExpanded] = useState(false);
   const {
     preview,

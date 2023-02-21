@@ -3,21 +3,20 @@ import React, { useState } from "react";
 import CreateIcon from "@mui/icons-material/Create";
 import CloseIcon from "@mui/icons-material/Close";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import withStyles from "@mui/styles/withStyles";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles, withStyles } from "tss-react/mui";
 
 import { TooltipStep } from "components/home";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Mentor } from "types";
 import EditMentorInfoModal from "./edit-mentor-info-modal";
 
-const ColorTooltip = withStyles({
+const ColorTooltip = withStyles(Tooltip, {
   tooltip: {
     backgroundColor: "secondary",
   },
-})(Tooltip);
+});
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({ name: { MentorThumbnail } })(() => ({
   homeThumbnail: {
     position: "relative",
     width: "60%",
@@ -52,7 +51,7 @@ function MentorThumbnail(props: {
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
   const isArchived = getData((ms) => ms.data?.isArchived);
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [profileTooltipOpen, setProfileTooltipOpen] = useState<boolean>(false);
 
   if (!mentorId || !editedMentor) {

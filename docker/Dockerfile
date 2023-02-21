@@ -1,4 +1,4 @@
-FROM node:14.16 as builder
+FROM node:18.13 as builder
 RUN apt-get update && \
     apt-get install -y \
         libgif-dev \
@@ -11,7 +11,7 @@ RUN apt-get update && \
 WORKDIR /build
 COPY client ./client
 RUN cd client && \
-    npm ci && \
+    npm ci  && \
     npm run build
 FROM nginx:1-alpine 
 EXPOSE 80

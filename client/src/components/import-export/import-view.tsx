@@ -15,9 +15,8 @@ import {
   ListSubheader,
   Toolbar,
   Typography,
-  Theme,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import CloseIcon from "@mui/icons-material/Close";
 import { useWithSubjects } from "hooks/graphql/use-with-subjects";
 import { UseWithImportExport } from "hooks/graphql/use-with-import-export";
@@ -26,7 +25,7 @@ import AnswerImport from "./import-answer";
 import { LoadingDialog } from "components/dialog";
 import { EditType } from "types";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { ImportView } })(() => ({
   root: {
     height: "100%",
     width: "100%",
@@ -39,7 +38,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     width: "90%",
     background: "#F5F5F5",
   },
-  toolbar: theme.mixins.toolbar,
+  toolbar: {
+    minHeight: 64,
+  },
 }));
 
 export default function ImportView(props: {
@@ -47,7 +48,7 @@ export default function ImportView(props: {
   mentorName: string;
   mentorId: string;
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const {
     importedJson,
     importPreview,

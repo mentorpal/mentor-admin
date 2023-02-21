@@ -21,10 +21,9 @@ import {
   Select,
   Toolbar,
   Typography,
-  Theme,
   SelectChangeEvent,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import UndoIcon from "@mui/icons-material/Undo";
@@ -46,6 +45,7 @@ import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
+
 import {
   AnswerAttentionNeeded,
   MentorType,
@@ -66,9 +66,12 @@ import {
   convertFromRaw,
 } from "draft-js";
 import { useWithBrowser } from "hooks/use-with-browser";
+import { useWithWindowSize } from "hooks/use-with-window-size";
 
-const useStyles = makeStyles((theme: Theme) => ({
-  toolbar: theme.mixins.toolbar,
+const useStyles = makeStyles({ name: { RecordPage } })(() => ({
+  toolbar: {
+    minHeight: 64,
+  },
   root: {
     display: "flex",
     flexDirection: "column",
@@ -175,13 +178,15 @@ function RecordPage(props: {
     poll?: string;
   };
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [confirmLeave, setConfirmLeave] = useState<LeaveConfirmation>();
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(true);
   const [stopRequests, setStopRequests] = useState<number>(0);
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(ContentState.createFromText(""))
   );
+  const [editorInitializedAnswer, setEditorInitializedAnswer] =
+    useState<string>("");
   const [isEditingQuestion, setIsEditingQuestion] = useState<boolean>(false);
 
   const recordState = useWithRecordState(props.accessToken, props.search);
@@ -189,6 +194,8 @@ function RecordPage(props: {
     recordState;
   const { state: configState, isConfigLoaded, loadConfig } = useWithConfig();
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
+  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
+
   const { browserSupportsVbg } = useWithBrowser();
 
   const mentorId = getData((state) => state.data?._id);
@@ -215,7 +222,6 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
-
   useEffect(() => {
     if (!curAnswer) {
       return;
@@ -226,7 +232,13 @@ function RecordPage(props: {
     } else {
       text = curAnswer.answer.transcript;
     }
-    initializeEditorStateWithTranscript(text);
+    if (curAnswer.answer._id === editorInitializedAnswer) {
+      updateEditorStateWithTranscript(editorState, text);
+    } else {
+      // new answer id, initialize
+      initializeEditorStateWithTranscript(text);
+    }
+    setEditorInitializedAnswer(curAnswer.answer._id);
   }, [curAnswer?.answer]);
 
   useEffect(() => {
@@ -237,7 +249,30 @@ function RecordPage(props: {
     const rawData = mdToDraftjs(transcript);
     const contentState = convertFromRaw(rawData);
     const newEditorState = EditorState.createWithContent(contentState);
-    setEditorState(newEditorState);
+    const newEditorStateWithSelection =
+      EditorState.moveSelectionToEnd(newEditorState);
+    setEditorState(newEditorStateWithSelection);
+  }
+
+  function updateEditorStateWithTranscript(
+    prevState: EditorState,
+    transcript: string
+  ): void {
+    const rawData = mdToDraftjs(transcript);
+    const contentState = convertFromRaw(rawData);
+    const newEditorState = EditorState.createWithContent(contentState);
+
+    // update cursor position base on old selection state
+    const updatedSelection = newEditorState.getSelection().merge({
+      anchorOffset: prevState.getSelection().getAnchorOffset(),
+      focusOffset: prevState.getSelection().getFocusOffset(),
+      isBackward: false,
+    });
+    const newEditorStateWithSelection = EditorState.forceSelection(
+      newEditorState,
+      updatedSelection
+    );
+    setEditorState(newEditorStateWithSelection);
   }
 
   function getMarkdownFromEditor(contentState: ContentState): string {
@@ -246,7 +281,6 @@ function RecordPage(props: {
     });
     return markdown;
   }
-
   function updateTranscriptWithMarkdown(markdown: string): void {
     recordState.editAnswer(
       {
@@ -374,7 +408,6 @@ function RecordPage(props: {
       </div>
     );
   }
-
   return (
     <div className={classes.root}>
       {curAnswer ? (
@@ -430,7 +463,12 @@ function RecordPage(props: {
           <div
             data-cy="videoplayer-container"
             className={classes.block}
-            style={{ height: "100%", position: "relative" }}
+            style={{
+              height: "100%",
+              position: "relative",
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
           >
             <VideoPlayer
               classes={classes}
@@ -439,6 +477,8 @@ function RecordPage(props: {
               accessToken={props.accessToken}
               videoRecorderMaxLength={configState.config.videoRecorderMaxLength}
               stopRequests={stopRequests}
+              windowHeight={windowHeight}
+              windowWidth={windowWidth}
             />
           </div>
         ) : undefined}

@@ -8,7 +8,6 @@ import React, { useState, useRef } from "react";
 import ReactPlayer from "react-player";
 import { Button, Slider, CircularProgress, Typography } from "@mui/material";
 import overlay from "images/face-position-white.png";
-import { useWithWindowSize } from "hooks/use-with-window-size";
 import VideoRecorder from "./video-recorder";
 import { equals } from "helpers";
 import { User, UseWithRecordState } from "types";
@@ -23,6 +22,8 @@ function VideoPlayer(props: {
   stopRequests: number;
   accessToken: string;
   user: User;
+  windowWidth: number;
+  windowHeight: number;
 }): JSX.Element {
   const { getData } = useActiveMentor();
   const isVirtualBgMentor: boolean = getData(
@@ -38,18 +39,17 @@ function VideoPlayer(props: {
   const [trim, setTrim] = useState([0, 100]);
   const [trimInProgress, setTrimInProgress] = useState<boolean>(false);
   const [videoLength, setVideoLength] = useState<number>(0);
-  const { width: windowWidth, height: windowHeight } = useWithWindowSize();
   const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
+
+  const { classes, recordState, windowHeight, windowWidth } = props;
   const height =
     windowHeight > windowWidth
-      ? windowWidth * (9 / 16)
-      : Math.max(windowHeight - 600, 300);
+      ? windowWidth * (3 / 4)
+      : Math.max(windowHeight - 470, 300);
   const width =
     windowHeight > windowWidth
       ? windowWidth
-      : Math.max(windowHeight - 600, 300) * (16 / 9);
-
-  const { classes, recordState } = props;
+      : Math.max(windowHeight - 470, 300) * (4 / 3);
   const upload = recordState.uploads.find(
     (u) => u.question === recordState.curAnswer?.answer.question
   );
@@ -111,8 +111,10 @@ function VideoPlayer(props: {
       style={{
         marginLeft: "auto",
         marginRight: "auto",
-        height: height + 50,
+        height: "100%",
         width: width,
+        paddingBottom: 0,
+        paddingTop: 0,
       }}
     >
       <VideoRecorder
@@ -202,7 +204,7 @@ function VideoPlayer(props: {
                 ? {
                     backgroundImage: `url(${virtualBackgroundUrl})`,
                     backgroundSize:
-                      vbgAspectRatio >= 1.77 ? "auto 100%" : "100% auto",
+                      vbgAspectRatio >= 1.33333 ? "auto 100%" : "100% auto",
                     backgroundRepeat: "no-repeat",
                     backgroundPosition: "center",
                     visibility: isUploading ? "hidden" : "inherit",

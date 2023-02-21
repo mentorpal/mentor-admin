@@ -7,27 +7,24 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 
 import { Box, Radio, Typography } from "@mui/material";
-import createStyles from "@mui/styles/createStyles";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
-const useStyles = makeStyles(() =>
-  createStyles({
-    smallRadioButton: {
-      "& svg": {
-        width: "0.7em",
-        height: "0.7em",
-      },
+const useStyles = makeStyles({ name: { ProgressChecks } })(() => ({
+  smallRadioButton: {
+    "& svg": {
+      width: "0.7em",
+      height: "0.7em",
     },
-    smallRadioButtonProgess: {
-      "& svg": {
-        width: "0.9em",
-        height: "0.9em",
-      },
+  },
+  smallRadioButtonProgess: {
+    "& svg": {
+      width: "0.9em",
+      height: "0.9em",
     },
-  })
-);
+  },
+}));
 
 export default function ProgressChecks(props: {
   value: number;
@@ -42,7 +39,7 @@ export default function ProgressChecks(props: {
       }),
   ];
 
-  const classes = useStyles();
+  const { classes } = useStyles();
   const progressColor = "#FFE194";
   const completeColor = "#57CC99 ";
 

@@ -28,6 +28,13 @@ export enum QuestionSortOrder {
   ReverseAlphabetical = "Reverse-Alphabetical",
 }
 
+export enum DisplaySurveyPopupCondition {
+  ALWAYS = "ALWAYS",
+  USER_ID = "USER_ID",
+  USER_ID_AND_EMAIL = "USER_ID_AND_EMAIL",
+  NEVER = "NEVER",
+}
+
 export interface Config {
   classifierLambdaEndpoint: string;
   uploadLambdaEndpoint: string;
@@ -65,6 +72,7 @@ export interface Config {
   termsOfServiceDisabled: boolean;
   termsOfServiceText: string;
   displayGuestPrompt: boolean;
+  displaySurveyPopupCondition: DisplaySurveyPopupCondition;
   guestPromptTitle: string;
   guestPromptText: string;
   guestPromptInputType: string;
@@ -599,6 +607,8 @@ export interface UseWithRecordState {
   downloadVideoFromUpload: (upload: UploadTask) => void;
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
+  downloadVideoBlobUrl: (url: string, qid: string) => void;
+  filesUploading: Record<string, string>;
 }
 
 export interface AnswerState {

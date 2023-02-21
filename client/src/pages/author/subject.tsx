@@ -13,7 +13,7 @@ import {
   Theme,
   Typography,
 } from "@mui/material";
-import makeStyles from "@mui/styles/makeStyles";
+import { makeStyles } from "tss-react/mui";
 import { Autocomplete } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
@@ -29,7 +29,7 @@ import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SubjectTypes } from "types";
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles({ name: { SubjectPage } })((theme: Theme) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -58,7 +58,7 @@ function SubjectPage(props: {
   accessToken: string;
   search: { id?: string };
 }): JSX.Element {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [tab, setTab] = useState<string>("1");
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
