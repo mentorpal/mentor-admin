@@ -132,12 +132,13 @@ function VideoRecorder(props: {
       return;
     }
     if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
-      setCameraIsOn(false);
       videoRecorder?.stopRecording(() => {
+        setCameraIsOn(false);
         const blob = videoRecorder.getBlob();
-        setRecordedVideo(
-          new File([blob], videoSaveName, { type: videoSaveMimeType })
-        );
+        const newVideoFile = new File([blob], videoSaveName, {
+          type: videoSaveMimeType,
+        });
+        recordStateStopRecording(newVideoFile);
       });
     }
   }, [recordDurationCounter]);
