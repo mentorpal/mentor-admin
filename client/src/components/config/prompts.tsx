@@ -134,7 +134,6 @@ export function Prompts(props: {
           }
           style={{ width: 300, marginRight: 20 }}
           onChange={(event: SelectChangeEvent<string>) => {
-            console.log();
             updateConfig({
               displaySurveyPopupCondition: event.target
                 .value as DisplaySurveyPopupCondition,
