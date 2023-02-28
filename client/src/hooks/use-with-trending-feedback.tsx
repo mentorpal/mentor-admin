@@ -217,7 +217,6 @@ export function useWithTrendingFeedback(
     weightedQuestion: WeightedTrendingUserQuestion,
     bin: UserQuestionBin
   ): UserQuestionBin {
-    // TODO: need to also calculate binAverageEmbedding here
     bin.userQuestions.push(weightedQuestion);
     bin.binWeight = calculateBinWeight(bin.userQuestions);
     return bin;

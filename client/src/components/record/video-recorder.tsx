@@ -41,6 +41,7 @@ function VideoRecorder(props: {
   const [recordStartCountdown, setRecordStartCountdown] = useState(0);
   const [recordStopCountdown, _setRecordStopCountdown] = useState(0);
   const [recordDurationCounter, setRecordDurationCounter] = useState(0);
+  const [autoStoppingIdle, setAutoStoppingIdle] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState<File>();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -96,9 +97,6 @@ function VideoRecorder(props: {
       mimeType: videoRecordMimeType, //;codecs=vp9
       recorderType: MediaStreamRecorder,
       timeSlice: 1000,
-      ondataavailable: function () {
-        setRecordDurationCounter((prevState) => prevState + 1);
-      },
       checkForInactiveTracks: true,
     });
     setVideoRecorder(recorder);
@@ -128,18 +126,16 @@ function VideoRecorder(props: {
 
   // Making sure we don't record over minVideoLength
   useEffect(() => {
-    if (!recordState.isRecording || !recordState?.curAnswer?.minVideoLength) {
+    if (
+      !recordState.isRecording ||
+      !recordState?.curAnswer?.minVideoLength ||
+      autoStoppingIdle
+    ) {
       return;
     }
     if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
-      videoRecorder?.stopRecording(() => {
-        setCameraIsOn(false);
-        const blob = videoRecorder.getBlob();
-        const newVideoFile = new File([blob], videoSaveName, {
-          type: videoSaveMimeType,
-        });
-        recordStateStopRecording(newVideoFile);
-      });
+      setAutoStoppingIdle(true);
+      beginStopRecordingCountdown();
     }
   }, [recordDurationCounter]);
 
@@ -190,6 +186,16 @@ function VideoRecorder(props: {
     recordStopCountdown > 0 ? 1000 : null
   );
 
+  useInterval(
+    (isCancelled) => {
+      if (isCancelled()) {
+        return;
+      }
+      setRecordDurationCounter((prevState) => prevState + 1);
+    },
+    recordState.isRecording ? 1000 : null
+  );
+
   const countdownInProgress =
     recordStartCountdown > 0 ||
     (recordStopCountdown > 0 && recordState.isRecording);
@@ -224,6 +230,7 @@ function VideoRecorder(props: {
     setRecordStartCountdown(0);
     setRecordStopCountdown(0);
     setRecordDurationCounter(0);
+    setAutoStoppingIdle(false);
     if (canvasRef.current) {
       clearCanvas(canvasRef.current);
     }
