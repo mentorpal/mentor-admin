@@ -80,7 +80,6 @@ const reservedSubdomains = [
   "api-qa",
   "sbert-qa",
   "static-v2",
-  "careerfair",
   "api",
   "sbert",
   "static-careerfair",
