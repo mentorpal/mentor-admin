@@ -83,7 +83,6 @@ function FeedbackItem(props: {
     }
   }, [feedback.graderAnswer, feedback.dismissed]);
 
-  // language-specific alphabetic sort ordering, ignoring cases or diacritics
   function formatMentorQuestions(
     mentorAnswers: Answer[],
     mentorQuestions: Record<string, QuestionState>
