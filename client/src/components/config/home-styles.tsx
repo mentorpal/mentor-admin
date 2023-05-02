@@ -440,7 +440,6 @@ export function HomeStyles(props: {
         ))}
         <Button
           variant="outlined"
-          disabled={config.homeFooterImages?.length >= 4}
           onClick={() =>
             updateConfig({
               homeFooterImages: [...(config.homeFooterImages || []), ""],
