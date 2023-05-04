@@ -82,7 +82,7 @@ export function useWithStatements(): UseWithStatements {
     }
     const startDateISO = new Date(startDate).toISOString();
     const endDateEoD = new Date(endDate);
-    endDateEoD.setUTCHours(23, 59, 59, 599); //set the end date to the end of the day
+    endDateEoD.setHours(23, 59, 59, 999); //set the end date to the end of the day
     const endDateISO = endDateEoD.toISOString();
     try {
       const statementsResponse = await xApi.getStatements({
