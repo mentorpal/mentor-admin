@@ -2302,6 +2302,7 @@ export async function fetchOrganizations(
                 name
                 subdomain
                 isPrivate
+                accessCodes
                 members {
                   user {
                     _id
@@ -2404,6 +2405,7 @@ export async function addOrUpdateOrganization(
             name
             subdomain
             isPrivate
+            accessCodes
             members {
               user {
                 _id
@@ -2474,6 +2476,7 @@ export async function addOrUpdateOrganization(
           name: organization.name,
           subdomain: organization.subdomain,
           isPrivate: organization.isPrivate,
+          accessCodes: organization.accessCodes,
           members:
             organization.members?.map((m) => ({
               user: m.user._id,

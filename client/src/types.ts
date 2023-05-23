@@ -141,6 +141,7 @@ export interface Organization {
   name: string;
   subdomain: string;
   isPrivate: boolean;
+  accessCodes: string[];
   members: OrgMember[];
   config: Config;
 }
