@@ -9,6 +9,7 @@ import {
   fetchVideoBlobFromUrl,
   regenerateVTTForQuestion,
   updateAnswer,
+  updateAnswerUrl,
 } from "api";
 import {
   Answer,
@@ -61,6 +62,7 @@ export function useWithRecordState(
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [curAnswer, setCurAnswer] = useState<CurAnswerState>();
   const [isDownloadingVideo, setIsDownloadingVideo] = useState<boolean>(false);
+  const [isUpdatingUrl, setIsUpdatingUrl] = useState<boolean>(false);
   const [notifyDialogOpen, setNotifyDialogOpen] = useState<boolean>(false);
   const [error, setError] = useState<RecordStateError>();
 
@@ -180,10 +182,16 @@ export function useWithRecordState(
     });
   }, [curAnswer?.answer.media]);
 
-  function getUniqueCurAnswerUrl() {
-    if (!curAnswer) return;
-    const videoSrc = getVideoSrc(curAnswer);
-    return videoSrc ? `${videoSrc}?v=${Math.random()}` : "";
+  function getUniqueCurAnswerUrl(answer?: Answer) {
+    let videoSrc;
+    if (answer) {
+      videoSrc = getVideoSrcAnswer(answer);
+    } else if (curAnswer) {
+      videoSrc = getVideoSrc(curAnswer);
+    }
+    if (videoSrc) {
+      return videoSrc ? `${videoSrc}?v=${Math.random()}` : "";
+    }
   }
 
   useEffect(() => {
@@ -295,7 +303,11 @@ export function useWithRecordState(
     if (answer.recordedVideo) {
       return URL.createObjectURL(answer.recordedVideo);
     }
-    const media = answer.editedAnswer?.media?.find(
+    return getVideoSrcAnswer(answer.editedAnswer);
+  }
+
+  function getVideoSrcAnswer(answer: Answer) {
+    const media = answer?.media?.find(
       (m) => m.type === MediaType.VIDEO && m.tag === MediaTag.WEB
     );
     return hasVirtualBackground && media?.transparentVideoUrl
@@ -431,6 +443,7 @@ export function useWithRecordState(
       }
     }
   }
+
   async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
     if (!mentorId || !answer.answer.question) {
@@ -490,6 +503,52 @@ export function useWithRecordState(
         trim
       );
     }
+  }
+
+  function updateUrl(
+    webUrl: string | undefined,
+    mobileUrl: string | undefined,
+    webTransUrl: string | undefined,
+    mobileTransUrl: string | undefined
+  ): void {
+    const { answer } = answers[answerIdx];
+    setIsUpdatingUrl(true);
+    updateAnswerUrl(
+      accessToken,
+      mentorId,
+      answer,
+      webUrl,
+      mobileUrl,
+      webTransUrl,
+      mobileTransUrl
+    )
+      .then((res) => {
+        if (res) {
+          setIsUpdatingUrl(false);
+          const ca = {
+            ...curAnswer!,
+            answer: {
+              ...curAnswer!.answer,
+              media: res.media,
+            },
+            editedAnswer: {
+              ...curAnswer!.editedAnswer,
+              media: res.media,
+            },
+            videoSrc: getUniqueCurAnswerUrl(res),
+            recordedVideo: undefined,
+          };
+          setCurAnswer(ca);
+          setAnswers(copyAndSet(answers, answerIdx, ca));
+        }
+      })
+      .catch((error) => {
+        setIsUpdatingUrl(false);
+        setError({
+          message: `Failed to update answer video url`,
+          error: String(error),
+        });
+      });
   }
 
   function downloadVideoBlobUrl(blobUrl: string, questionId: string): boolean {
@@ -571,6 +630,7 @@ export function useWithRecordState(
     }
     return false;
   }
+
   function downloadVideoForQuestion(question: string) {
     if (!mentorId) return;
     setIsDownloadingVideo(true);
@@ -637,6 +697,7 @@ export function useWithRecordState(
     error: mentorError || error,
     isDownloadingVideo,
     notifyDialogOpen,
+    isUpdatingUrl,
     setNotifyDialogOpen,
     prevAnswer,
     nextAnswer,
@@ -655,6 +716,7 @@ export function useWithRecordState(
     setMinVideoLength,
     clearError,
     downloadVideoBlobUrl,
+    updateUrl,
     filesUploading,
   };
 }

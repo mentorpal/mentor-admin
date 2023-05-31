@@ -385,7 +385,7 @@ describe("organization screen", () => {
     cy.get("[data-cy=save]").should("not.be.disabled");
   });
 
-  it.only("can add, delete, and edit access codes for private orgs", () => {
+  it("can add, delete, and edit access codes for private orgs", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
       config: CONFIG_DEFAULT,
