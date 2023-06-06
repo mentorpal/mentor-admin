@@ -7,7 +7,9 @@ The full terms of this copyright and license should always be found in the root 
 import {
   archiveMentorDetails,
   fetchUsers,
+  updateMentorAdvanced,
   updateMentorPrivacy,
+  updateUserDisabled,
   updateUserPermissions,
 } from "api";
 import { useState } from "react";
@@ -21,7 +23,9 @@ import {
 export interface UseUserData extends UseStaticDataConnection<User> {
   userDataError?: LoadingError;
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+  onUpdateUserDisabled: (userId: string, isDisabled: boolean) => void;
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
+  onUpdateMentorAdvanced: (mentorId: string, isAdvanced: boolean) => void;
   onArchiveMentor: (mentorId: string, isArchived: boolean) => void;
 }
 
@@ -66,6 +70,19 @@ export function useWithUsers(accessToken: string): UseUserData {
       });
   }
 
+  function onUpdateUserDisabled(userId: string, isDisabled: boolean): void {
+    updateUserDisabled(isDisabled, accessToken, userId)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update user",
+          error: `${err}`,
+        });
+      });
+  }
+
   function onUpdateMentorPrivacy(mentorId: string, isPrivate: boolean): void {
     updateMentorPrivacy(accessToken, { isPrivate }, mentorId)
       .then(() => {
@@ -74,6 +91,19 @@ export function useWithUsers(accessToken: string): UseUserData {
       .catch((err) => {
         setUserDataError({
           message: "Failed to update mentor privacy",
+          error: `${err}`,
+        });
+      });
+  }
+
+  function onUpdateMentorAdvanced(mentorId: string, isAdvanced: boolean): void {
+    updateMentorAdvanced(isAdvanced, accessToken, mentorId)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update mentor",
           error: `${err}`,
         });
       });
@@ -112,6 +142,8 @@ export function useWithUsers(accessToken: string): UseUserData {
     reloadData,
     onUpdateUserPermissions,
     onUpdateMentorPrivacy,
+    onUpdateMentorAdvanced,
+    onUpdateUserDisabled,
     onArchiveMentor,
   };
 }

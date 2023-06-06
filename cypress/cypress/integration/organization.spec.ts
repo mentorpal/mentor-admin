@@ -384,4 +384,22 @@ describe("organization screen", () => {
     });
     cy.get("[data-cy=save]").should("not.be.disabled");
   });
+
+  it("can add, delete, and edit access codes for private orgs", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      config: CONFIG_DEFAULT,
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Organizations", {
+          organizations: { edges: [orgUsc, orgCsuf] },
+        }),
+        mockGQL("Users", { users }),
+      ],
+    });
+    cy.visit("/organizations");
+  });
 });

@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { navigate } from "gatsby";
 import React from "react";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 
 import NavBar from "components/nav-bar";
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -15,7 +15,20 @@ import { LoginStatus } from "store/slices/login";
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const withAuthorizationOnly = (Component) => (props) => {
   const { state: loginState } = useWithLogin();
-
+  if (loginState.isDisabled) {
+    return (
+      <div>
+        <Typography>
+          Your account has been disabled by an administrator. You may no longer
+          login to use this system.
+        </Typography>
+        <Typography>
+          If you believe this has been a mistake, please contact support at
+          ictlearningsciencesacts+mentorpal@gmail.com
+        </Typography>
+      </div>
+    );
+  }
   if (
     loginState.loginStatus === LoginStatus.NONE ||
     loginState.loginStatus === LoginStatus.IN_PROGRESS

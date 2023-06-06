@@ -133,6 +133,7 @@ export interface User {
   userRole: UserRole;
   defaultMentor: Mentor;
   firstTimeTracking: FirstTimeTracking;
+  isDisabled: boolean;
 }
 
 export interface Organization {
@@ -141,6 +142,7 @@ export interface Organization {
   name: string;
   subdomain: string;
   isPrivate: boolean;
+  accessCodes: string[];
   members: OrgMember[];
   config: Config;
 }
@@ -174,6 +176,7 @@ export interface Mentor {
   isDirty: boolean;
   isPrivate: boolean;
   isArchived: boolean;
+  isAdvanced: boolean;
   orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
@@ -586,6 +589,7 @@ export interface UseWithRecordState {
   isSaving: boolean;
   error?: LoadingError;
   isDownloadingVideo: boolean;
+  isUpdatingUrl: boolean;
   notifyDialogOpen: boolean;
   setNotifyDialogOpen: (open: boolean) => void;
   prevAnswer: () => void;
@@ -608,6 +612,12 @@ export interface UseWithRecordState {
   setMinVideoLength: (length: number) => void;
   clearError: () => void;
   downloadVideoBlobUrl: (url: string, qid: string) => void;
+  updateUrl: (
+    webUrl: string | undefined,
+    mobileUrl: string | undefined,
+    webTransUrl: string | undefined,
+    mobileTransUrl: string | undefined
+  ) => void;
   filesUploading: Record<string, string>;
 }
 

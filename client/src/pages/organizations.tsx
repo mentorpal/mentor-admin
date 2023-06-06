@@ -267,6 +267,8 @@ function EditOrganization(props: {
       )
     ) {
       setMsg("* subdomain is already in use by another organization");
+    } else if ((org.accessCodes || []).find((c) => c.length < 4)) {
+      setMsg("* access codes must be at least 4 characters");
     } else {
       setMsg(undefined);
     }
@@ -321,9 +323,59 @@ function EditOrganization(props: {
               color="secondary"
             />
           }
-          label="Is Private (can only be viewed by members)"
+          label="Is Private (can only be viewed by members or via access codes)"
           style={{ width: "100%", alignSelf: "left" }}
         />
+        {org?.isPrivate ? (
+          <List>
+            {(org?.accessCodes || []).map((c, i) => {
+              return (
+                <ListItem key={`accesscode-${i}`} data-cy={`accesscode-${i}`}>
+                  <TextField
+                    data-cy="edit"
+                    data-test={c}
+                    value={c}
+                    onChange={(e) =>
+                      edit({
+                        ...org!,
+                        accessCodes: copyAndSet(
+                          org!.accessCodes || [],
+                          i,
+                          e.target.value
+                        ),
+                      })
+                    }
+                    fullWidth
+                    multiline
+                    required
+                  />
+                  <IconButton
+                    data-cy="remove"
+                    size="small"
+                    onClick={() =>
+                      edit({
+                        ...org!,
+                        accessCodes: copyAndRemove(org.accessCodes || [], i),
+                      })
+                    }
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItem>
+              );
+            })}
+            <Button
+              onClick={() => {
+                edit({
+                  ...org!,
+                  accessCodes: [...(org!.accessCodes || []), uuid()],
+                });
+              }}
+            >
+              + Access Code
+            </Button>
+          </List>
+        ) : undefined}
         <List
           data-cy="edit-members"
           className={styles.list}

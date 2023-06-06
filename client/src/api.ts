@@ -42,6 +42,8 @@ import {
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
   AddOrUpdateQuestionGQL,
+  AnswerGQL,
+  convertAnswerGQL,
   convertConnectionGQL,
   convertMentorGQL,
   convertUploadTaskGQL,
@@ -312,11 +314,13 @@ export async function fetchUsers(
               name
               email
               userRole
+              isDisabled
               defaultMentor {
                 _id
                 name
                 isPrivate
                 isArchived
+                isAdvanced
                 orgPermissions {
                   orgId
                   viewPermission
@@ -987,6 +991,7 @@ export async function fetchMentorById(
           isDirty
           isPrivate
           isArchived
+          isAdvanced
           hasVirtualBackground
           virtualBackgroundUrl
           orgPermissions {
@@ -1176,6 +1181,121 @@ export async function archiveMentorDetails(
   );
 }
 
+export async function updateMentorAdvanced(
+  isAdvanced: boolean,
+  accessToken: string,
+  mentorId: string
+): Promise<Mentor> {
+  const gql = await execGql<MentorGQL>(
+    {
+      query: `
+      mutation SetMentorAdvanced($mentorId: ID!, $isAdvanced: Boolean) {
+        me {
+          setMentorAdvanced(mentorId: $mentorId, isAdvanced: $isAdvanced) {
+            isAdvanced
+          }
+        }
+      }
+    `,
+      variables: {
+        mentorId,
+        isAdvanced,
+      },
+    },
+    { dataPath: ["me", "setMentorAdvanced"], accessToken }
+  );
+  return convertMentorGQL(gql);
+}
+
+export async function updateUserDisabled(
+  isDisabled: boolean,
+  accessToken: string,
+  userId: string
+): Promise<User> {
+  return execGql<User>(
+    {
+      query: `
+      mutation DisableUser($userId: ID!, $isDisabled: Boolean) {
+        me {
+          disableUser(userId: $userId, isDisabled: $isDisabled) {
+            isDisabled
+          }
+        }
+      }
+    `,
+      variables: {
+        userId,
+        isDisabled,
+      },
+    },
+    { dataPath: ["me", "disableUser"], accessToken }
+  );
+}
+
+export async function updateAnswerUrl(
+  accessToken: string,
+  mentorId: string,
+  answer: Answer,
+  webUrl: string | undefined,
+  mobileUrl: string | undefined,
+  webTransUrl: string | undefined,
+  mobileTransUrl: string | undefined
+): Promise<Answer> {
+  const gql = await execGql<AnswerGQL>(
+    {
+      query: `
+      mutation UpdateAnswerUrl($mentorId: ID!, $questionId: ID!, $webUrl: String, $webTransUrl: String, $mobileUrl: String, $mobileTransUrl: String) {
+        me {
+          updateAnswerUrl(mentorId: $mentorId, questionId: $questionId, webUrl: $webUrl, webTransUrl: $webTransUrl, mobileUrl: $mobileUrl, mobileTransUrl: $mobileTransUrl) {
+            _id
+            question {
+              _id
+              clientId
+              mentor
+            }
+            hasEditedTranscript
+            markdownTranscript
+            transcript
+            status
+            hasUntransferredMedia
+            webMedia {
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+            }
+            mobileMedia{
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+            }
+            vttMedia{
+              type
+              tag
+              url
+              needsTransfer
+            }
+          }
+        }
+      }
+    `,
+      variables: {
+        mentorId,
+        questionId: answer.question,
+        webUrl,
+        mobileUrl,
+        webTransUrl,
+        mobileTransUrl,
+      },
+    },
+    { accessToken, dataPath: ["me", "updateAnswerUrl"] }
+  );
+  return convertAnswerGQL(gql);
+}
+
 export async function updateMentorSubjects(
   mentor: Mentor,
   accessToken: string,
@@ -1186,7 +1306,7 @@ export async function updateMentorSubjects(
       query: `
       mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!, $mentorId: ID) {
         me {
-          updateMentorSubjects(mentor: $mentor, mentorId: $mentorId)
+          updateAnswerUrl(mentor: $mentor, mentorId: $mentorId)
         }
       }
     `,
@@ -1198,7 +1318,7 @@ export async function updateMentorSubjects(
         },
       },
     },
-    { accessToken, dataPath: ["me", "updateMentorSubjects"] }
+    { accessToken, dataPath: ["me", "updateAnswerUrl"] }
   );
 }
 
@@ -1807,6 +1927,9 @@ export async function exportMentor(
               transcript
               status
               hasUntransferredMedia
+              externalVideoIds{
+                wistiaId
+              }
               webMedia {
                 type
                 tag
@@ -1996,6 +2119,9 @@ export async function importMentorPreview(
                 transcript
                 status
                 hasUntransferredMedia
+                externalVideoIds{
+                  wistiaId
+                }
                 webMedia {
                   type
                   tag
@@ -2030,6 +2156,9 @@ export async function importMentorPreview(
                 status
                 hasEditedTranscript
                 hasUntransferredMedia
+                externalVideoIds{
+                  wistiaId
+                }
                 webMedia {
                   type
                   tag
@@ -2136,6 +2265,7 @@ export async function fetchMentors(
                 title
                 isPrivate
                 isArchived
+                isAdvanced
                 orgPermissions {
                   orgId
                   viewPermission
@@ -2302,6 +2432,7 @@ export async function fetchOrganizations(
                 name
                 subdomain
                 isPrivate
+                accessCodes
                 members {
                   user {
                     _id
@@ -2404,6 +2535,7 @@ export async function addOrUpdateOrganization(
             name
             subdomain
             isPrivate
+            accessCodes
             members {
               user {
                 _id
@@ -2474,6 +2606,7 @@ export async function addOrUpdateOrganization(
           name: organization.name,
           subdomain: organization.subdomain,
           isPrivate: organization.isPrivate,
+          accessCodes: organization.accessCodes,
           members:
             organization.members?.map((m) => ({
               user: m.user._id,

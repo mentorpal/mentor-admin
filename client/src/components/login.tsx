@@ -47,7 +47,7 @@ function LoginPage(props: {
 }): JSX.Element {
   const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
-  const { login } = useWithLogin();
+  const { state: loginState, login } = useWithLogin();
 
   if (
     configState.status === ConfigStatus.NONE ||
@@ -69,6 +69,20 @@ function LoginPage(props: {
         <Button color="primary" variant="contained" onClick={loadConfig}>
           Retry
         </Button>
+      </div>
+    );
+  }
+  if (loginState.isDisabled) {
+    return (
+      <div className={classes.root}>
+        <Typography>
+          Your account has been disabled by an administrator. You may no longer
+          login to use this system.
+        </Typography>
+        <Typography>
+          If you believe this has been a mistake, please contact support at
+          ictlearningsciencesacts+mentorpal@gmail.com
+        </Typography>
       </div>
     );
   }

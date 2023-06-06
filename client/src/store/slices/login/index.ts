@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
 import {
   ACCESS_TOKEN_KEY,
@@ -31,6 +31,7 @@ export interface LoginState {
   accessToken?: string;
   loginStatus: LoginStatus;
   user?: User;
+  isDisabled?: boolean;
 }
 
 const initialState: LoginState = {
@@ -75,13 +76,19 @@ export const userSawTooltips = createAsyncThunk(
 
 export const googleLogin = createAsyncThunk(
   "login/googleLogin",
-  async (accessToken: string) => {
+  async (accessToken: string, thunkAPI) => {
     try {
       const googleLogin = await api.loginGoogle(accessToken);
       localStorageStore(ACCESS_TOKEN_KEY, googleLogin.accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(googleLogin.accessToken);
-    } catch (err) {
+    } catch (err: unknown) {
+      if (
+        err instanceof Error &&
+        err.message.includes("Your account has been disabled")
+      ) {
+        thunkAPI.dispatch(loginSlice.actions.setIsDisabled(true));
+      }
       throw new Error(extractErrorMessageFromError(err));
     }
   }
@@ -89,12 +96,18 @@ export const googleLogin = createAsyncThunk(
 
 export const login = createAsyncThunk(
   "login/login",
-  async (accessToken: string) => {
+  async (accessToken: string, thunkAPI) => {
     try {
       localStorageStore(ACCESS_TOKEN_KEY, accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(accessToken);
-    } catch (err) {
+    } catch (err: unknown) {
+      if (
+        err instanceof Error &&
+        err.message.includes("Your account has been disabled")
+      ) {
+        thunkAPI.dispatch(loginSlice.actions.setIsDisabled(true));
+      }
       throw new Error(extractErrorMessageFromError(err));
     }
   }
@@ -113,7 +126,11 @@ export const logout = createAsyncThunk(
 export const loginSlice = createSlice({
   name: "login",
   initialState,
-  reducers: {},
+  reducers: {
+    setIsDisabled: (state: LoginState, action: PayloadAction<boolean>) => {
+      state.isDisabled = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(logout.fulfilled, (state) => {
@@ -174,5 +191,7 @@ export const loginSlice = createSlice({
       });
   },
 });
+
+export const { setIsDisabled } = loginSlice.actions;
 
 export default loginSlice.reducer;

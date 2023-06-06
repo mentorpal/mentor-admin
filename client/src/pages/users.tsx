@@ -98,8 +98,11 @@ const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   },
 }));
 
-function getTableColumns(viewArchivedMentors: boolean): ColumnDef[] {
-  const columns: ColumnDef[] = [
+function getTableColumns(
+  viewArchivedMentors: boolean,
+  isAdmin: boolean
+): ColumnDef[] {
+  let columns: ColumnDef[] = [
     {
       id: "name",
       label: "Name",
@@ -130,8 +133,24 @@ function getTableColumns(viewArchivedMentors: boolean): ColumnDef[] {
       sortable: true,
     },
     {
-      id: "isPrivate",
+      id: "defaultMentor",
+      subField: ["isPrivate"],
       label: "Privacy",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "isDisabled",
+      label: "Disabled",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "defaultMentor",
+      subField: ["isAdvanced"],
+      label: "Advanced",
       minWidth: 0,
       align: "left",
       sortable: true,
@@ -161,7 +180,12 @@ function getTableColumns(viewArchivedMentors: boolean): ColumnDef[] {
     },
   ];
   if (!viewArchivedMentors) {
-    return columns.filter((c) => c.id !== "isArchived");
+    columns = columns.filter((c) => c.label !== "Archived");
+  }
+  if (!isAdmin) {
+    columns = columns.filter(
+      (c) => c.label !== "Disabled" && c.label !== "Disabled"
+    );
   }
   return columns;
 }
@@ -272,13 +296,23 @@ function UserItem(props: {
   const { switchActiveMentor } = useActiveMentor();
   const userRole = user.userRole;
   const mentor = edge.node.defaultMentor;
+  const isAdmin =
+    userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
 
   function handleRoleChange(user: string, permission: string): void {
     props.userPagin.onUpdateUserPermissions(user, permission);
   }
 
+  function handleDisabledChange(user: string, isDisabled: boolean): void {
+    props.userPagin.onUpdateUserDisabled(user, isDisabled);
+  }
+
   function handlePrivacyChange(mentor: string, isPrivate: boolean): void {
     props.userPagin.onUpdateMentorPrivacy(mentor, isPrivate);
+  }
+
+  function handleAdvancedChange(mentor: string, isAdvanced: boolean): void {
+    props.userPagin.onUpdateMentorAdvanced(mentor, isAdvanced);
   }
 
   function handleArchiveChange(mentor: string, isArchived: boolean): void {
@@ -389,6 +423,34 @@ function UserItem(props: {
           <div>{mentor.isPrivate ? "Private" : "Public"}</div>
         )}
       </TableCell>
+      {isAdmin ? (
+        <TableCell data-cy="disabled" align="left">
+          <Checkbox
+            checked={edge.node.isDisabled}
+            disabled={
+              props.user.userRole !== UserRole.ADMIN &&
+              props.user.userRole !== UserRole.SUPER_ADMIN
+            }
+            color="secondary"
+            onClick={() =>
+              handleDisabledChange(edge.node._id, !edge.node.isDisabled)
+            }
+          />
+        </TableCell>
+      ) : undefined}
+      {isAdmin ? (
+        <TableCell data-cy="advanced" align="left">
+          <Checkbox
+            checked={mentor.isAdvanced}
+            disabled={
+              props.user.userRole !== UserRole.ADMIN &&
+              props.user.userRole !== UserRole.SUPER_ADMIN
+            }
+            color="secondary"
+            onClick={() => handleAdvancedChange(mentor._id, !mentor.isAdvanced)}
+          />
+        </TableCell>
+      ) : undefined}
       {props.viewArchivedMentors ? (
         <TableCell data-cy="archived" align="left">
           <Checkbox
@@ -471,8 +533,11 @@ function UsersTable(props: {
   const [columns, setColumns] = useState<ColumnDef[]>([]);
 
   useEffect(() => {
-    setColumns(getTableColumns(props.viewArchivedMentors));
-  }, [props.viewArchivedMentors]);
+    const isAdmin =
+      props.user.userRole === UserRole.ADMIN ||
+      props.user.userRole === UserRole.SUPER_ADMIN;
+    setColumns([...getTableColumns(props.viewArchivedMentors, isAdmin)]);
+  }, [props.user, props.viewArchivedMentors]);
 
   return (
     <div className={styles.root}>
@@ -578,9 +643,6 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     const sortByArchived =
       userPagin.pageSearchParams.sortBySub?.includes("isArchived");
     const sortAscending = userPagin.pageSearchParams.sortAscending;
-    console.error(
-      `sortByArchived=${sortByArchived} sortAscending=${sortAscending}`
-    );
     if (a.defaultMentor.isArchived) {
       if (sortByArchived) {
         return sortAscending ? -1 : 1;
