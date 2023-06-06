@@ -94,6 +94,10 @@ export interface AddOrUpdateQuestionGQL {
   topics: string[];
 }
 
+export interface ExternalVideoIdsGQL {
+  wistiaId: string;
+}
+
 export interface AnswerGQL {
   _id: string;
   question: Question;
@@ -105,6 +109,7 @@ export interface AnswerGQL {
   mobileMedia?: Media;
   vttMedia?: Media;
   hasUntransferredMedia: boolean;
+  externalVideoIds: ExternalVideoIdsGQL;
 }
 
 export interface UserQuestionGQL {

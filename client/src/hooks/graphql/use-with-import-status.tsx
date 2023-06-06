@@ -21,10 +21,10 @@ export function isImportComplete(task: ImportTask): boolean {
   const gqlUpdateStatus = task.graphQLUpdate.status;
   const mediaTransferStatus = task.s3VideoMigrate.status;
   return (
-    (gqlUpdateStatus === ImportTaskStatus.DONE ||
-      gqlUpdateStatus === ImportTaskStatus.FAILED) &&
-    (mediaTransferStatus === ImportTaskStatus.DONE ||
-      mediaTransferStatus === ImportTaskStatus.FAILED)
+    (gqlUpdateStatus === ImportTaskStatus.DONE &&
+      mediaTransferStatus === ImportTaskStatus.DONE) ||
+    mediaTransferStatus === ImportTaskStatus.FAILED ||
+    gqlUpdateStatus === ImportTaskStatus.FAILED
   );
 }
 
