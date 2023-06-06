@@ -1927,6 +1927,9 @@ export async function exportMentor(
               transcript
               status
               hasUntransferredMedia
+              externalVideoIds{
+                wistiaId
+              }
               webMedia {
                 type
                 tag
@@ -2116,6 +2119,9 @@ export async function importMentorPreview(
                 transcript
                 status
                 hasUntransferredMedia
+                externalVideoIds{
+                  wistiaId
+                }
                 webMedia {
                   type
                   tag
@@ -2150,6 +2156,9 @@ export async function importMentorPreview(
                 status
                 hasEditedTranscript
                 hasUntransferredMedia
+                externalVideoIds{
+                  wistiaId
+                }
                 webMedia {
                   type
                   tag
