@@ -1306,7 +1306,7 @@ export async function updateMentorSubjects(
       query: `
       mutation UpdateMentorSubjects($mentor: UpdateMentorSubjectsType!, $mentorId: ID) {
         me {
-          updateAnswerUrl(mentor: $mentor, mentorId: $mentorId)
+          updateMentorSubjects(mentor: $mentor, mentorId: $mentorId)
         }
       }
     `,
@@ -1318,7 +1318,7 @@ export async function updateMentorSubjects(
         },
       },
     },
-    { accessToken, dataPath: ["me", "updateAnswerUrl"] }
+    { accessToken, dataPath: ["me", "updateMentorSubjects"] }
   );
 }
 
