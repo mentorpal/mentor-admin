@@ -115,7 +115,10 @@ function MentorStatus(props: {
                 >
                   Mentor Status
                 </Typography>
-                <p style={{ textAlign: "center" }}>
+                <p
+                  data-cy="status-tooltip-body"
+                  style={{ textAlign: "center" }}
+                >
                   The Mentor Status area shows how many questions you have
                   recorded, and how ready your mentor is to use. If you are
                   building a mentor just to click on a few questions, that is
@@ -130,6 +133,7 @@ function MentorStatus(props: {
           >
             <Typography variant="h5">
               <b
+                data-cy="mentor-status-display"
                 onMouseEnter={() => {
                   hasSeenTooltips && setStatusTooltipOpen(true);
                 }}

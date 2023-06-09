@@ -166,6 +166,86 @@ describe("My Mentor Page", () => {
     cy.get("[data-cy=preview-tooltip-title").should("not.exist");
   });
 
+  it("mentors can hover to see tooltips after first time view", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: { ...clint },
+      login: {
+        ...loginUserNotSeenSplash,
+        user: {
+          ...loginUserNotSeenSplash.user,
+          firstTimeTracking: {
+            ...loginUserNotSeenSplash.user.firstTimeTracking,
+            myMentorSplash: true,
+            tooltips: true,
+          },
+        },
+      },
+    });
+
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=train-button]").trigger("mouseover");
+    cy.get("[data-cy=build-tooltip-body]")
+      .should("be.visible")
+      .should("contain.text", "Build every time you change an answer");
+
+    cy.get("[data-cy=preview-button]").trigger("mouseover");
+    cy.get("[data-cy=preview-tooltip-body]")
+      .should("be.visible")
+      .should("contain.text", "Preview the mentor to ask it questions");
+
+    cy.get("[data-cy=select-subject]").trigger("mouseover");
+    cy.get("[data-cy=categories-tooltip-body]")
+      .should("be.visible")
+      .should(
+        "contain.text",
+        "The Subjects dropdown lets you review and add Subjects."
+      );
+
+    cy.get("[data-cy=recommended-action-button]").trigger("mouseover");
+    cy.get("[data-cy=recommender-tooltip-body]")
+      .should("be.visible")
+      .should(
+        "contain.text",
+        "To help you improve your mentor, a good next-step is"
+      );
+
+    cy.get("[data-cy=mentor-status-display]").trigger("mouseover");
+    cy.get("[data-cy=status-tooltip-body]")
+      .should("be.visible")
+      .should(
+        "contain.text",
+        "The Mentor Status area shows how many questions"
+      );
+  });
+
+  it("build tooltip notifies user to build mentor if mentor is dirty", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: { ...clint, isDirty: true },
+      login: {
+        ...loginUserNotSeenSplash,
+        user: {
+          ...loginUserNotSeenSplash.user,
+          firstTimeTracking: {
+            ...loginUserNotSeenSplash.user.firstTimeTracking,
+            myMentorSplash: true,
+            tooltips: true,
+          },
+        },
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=build-tooltip-body]")
+      .should("be.visible")
+      .should(
+        "contain.text",
+        "Your mentor is out of date. Once you are done recording, please re-train your mentor."
+      );
+  });
+
   it("shows subjects in priority order", () => {
     cySetup(cy);
     cyMockDefault(cy, {

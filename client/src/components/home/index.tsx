@@ -55,6 +55,7 @@ import { useWithLogin } from "store/slices/login/useWithLogin";
 import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
+import { BuildMentorTooltip } from "./build-mentor-tooltip";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
@@ -99,7 +100,7 @@ const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   },
 }));
 
-const ColorTooltip = withStyles(Tooltip, {
+export const ColorTooltip = withStyles(Tooltip, {
   tooltip: {
     backgroundColor: "secondary",
   },
@@ -175,7 +176,8 @@ function HomePage(props: {
   const { state: configState } = useWithConfig();
   const [recordSubjectTooltipOpen, setRecordSubjectTooltipOpen] =
     useState<boolean>(false);
-  const [buildTooltipOpen, setBuildTooltipOpen] = useState<boolean>(false);
+  const [buildTooltipHovered, setBuildTooltipHovered] =
+    useState<boolean>(false);
   const [previewTooltipOpen, setPreviewTooltipOpen] = useState<boolean>(false);
   const [uploadingWidgetVisible, setUploadingWidgetVisible] = useState(false);
   const [confirmSaveBeforeCallback, setConfirmSaveBeforeCallback] =
@@ -451,7 +453,10 @@ function HomePage(props: {
               >
                 Recording Subjects
               </Typography>
-              <p style={{ textAlign: "center" }}>
+              <p
+                data-cy="categories-tooltip-body"
+                style={{ textAlign: "center" }}
+              >
                 The Subjects dropdown lets you review and add Subjects.
                 Categories in a Subject help you record similar questions. You
                 can add your own custom questions to a category.
@@ -575,45 +580,12 @@ function HomePage(props: {
             >
               Save Changes
             </Fab>
-            <ColorTooltip
-              data-cy="build-tooltip"
-              open={
-                !hasSeenTooltips
-                  ? idxTooltip == TooltipStep.BUILD
-                  : buildTooltipOpen
-              }
-              onClose={incrementTooltip}
-              disableHoverListener={!hasSeenTooltips}
-              enterDelay={1500}
-              arrow
-              title={
-                <React.Fragment>
-                  <IconButton
-                    data-cy="build-tooltip-close-btn"
-                    color="inherit"
-                    size="small"
-                    text-align="right"
-                    align-content="right"
-                    onClick={incrementTooltip}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                  <Typography
-                    color="inherit"
-                    align="center"
-                    data-cy="build-tooltip-title"
-                  >
-                    Build
-                  </Typography>
-                  <p style={{ textAlign: "center" }}>
-                    Build every time you change an answer so it is correct and
-                    build after you add a batch of questions.
-                  </p>
-                </React.Fragment>
-              }
-              PopperProps={{
-                style: { maxWidth: 250, textAlign: "right" },
-              }}
+
+            <BuildMentorTooltip
+              hasSeenTooltips={hasSeenTooltips}
+              idxTooltip={idxTooltip}
+              buildTooltipHovered={buildTooltipHovered}
+              incrementTooltip={incrementTooltip}
             >
               <Fab
                 data-cy="train-button"
@@ -628,15 +600,15 @@ function HomePage(props: {
                 onClick={startTrainingMentor}
                 className={classes.fab}
                 onMouseEnter={() => {
-                  hasSeenTooltips && setBuildTooltipOpen(true);
+                  setBuildTooltipHovered(true);
                 }}
                 onMouseLeave={() => {
-                  hasSeenTooltips && setBuildTooltipOpen(false);
+                  setBuildTooltipHovered(false);
                 }}
               >
                 Build Mentor
               </Fab>
-            </ColorTooltip>
+            </BuildMentorTooltip>
 
             <ColorTooltip
               data-cy="preview-tooltip"
@@ -668,7 +640,10 @@ function HomePage(props: {
                   >
                     Preview
                   </Typography>
-                  <p style={{ textAlign: "center" }}>
+                  <p
+                    data-cy="preview-tooltip-body"
+                    style={{ textAlign: "center" }}
+                  >
                     Preview the mentor to ask it questions and see how it
                     responds. You can improve it later using the User Feedback,
                     in the upper-left menu.
