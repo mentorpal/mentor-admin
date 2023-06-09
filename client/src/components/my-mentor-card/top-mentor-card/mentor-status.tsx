@@ -131,7 +131,7 @@ function MentorStatus(props: {
               style: { maxWidth: 250, textAlign: "right" },
             }}
           >
-            <Typography variant="h5">
+            <Typography variant="h5" height={"45px"}>
               <b
                 data-cy="mentor-status-display"
                 onMouseEnter={() => {
