@@ -187,7 +187,10 @@ export default function RecommendedActionButton(props: {
                         <Typography color="inherit" align="center">
                           Recommender
                         </Typography>
-                        <p style={{ textAlign: "center" }}>
+                        <p
+                          data-cy="recommend-tooltip-body"
+                          style={{ textAlign: "center" }}
+                        >
                           To help you improve your mentor, a good next-step is
                           always recommended. At first this will be mostly
                           recording answers, but later you will Preview your
@@ -268,7 +271,10 @@ export default function RecommendedActionButton(props: {
                     >
                       Recommender
                     </Typography>
-                    <p style={{ textAlign: "center" }}>
+                    <p
+                      data-cy="recommender-tooltip-body"
+                      style={{ textAlign: "center" }}
+                    >
                       To help you improve your mentor, a good next-step is
                       always recommended. At first this will be mostly recording
                       answers, but later you will Preview your mentor and
