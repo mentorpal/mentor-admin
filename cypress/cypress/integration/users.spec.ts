@@ -254,7 +254,6 @@ describe("users screen", () => {
   });
 
   it("dirty mentors display build icon", () => {
-    cy.viewport("macbook-16");
     cyMockDefault(cy, {
       mentor: [newMentor],
       login: {
