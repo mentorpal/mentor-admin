@@ -26,6 +26,7 @@ import {
   TaskInfo,
   SubjectTypes,
   OrgPermission,
+  MentorDirtyReason,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -56,6 +57,7 @@ export interface MentorGQL {
   lastTrainedAt: string;
   lastPreviewedAt: string;
   isDirty: boolean;
+  dirtyReason: MentorDirtyReason;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;

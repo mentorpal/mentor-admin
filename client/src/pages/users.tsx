@@ -60,6 +60,7 @@ import {
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 import { uuid4 } from "@sentry/utils";
+import { TrainDirtyMentorButton } from "components/users/train-dirty-mentor-button";
 
 const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   root: {
@@ -464,7 +465,12 @@ function UserItem(props: {
       <TableCell data-cy="updatedAt" align="left">
         {mentor.updatedAt ? new Date(mentor.updatedAt).toLocaleString() : "N/A"}
       </TableCell>
-      <TableCell data-cy="actions" align="right">
+      <TableCell data-cy="actions" align="center">
+        <TrainDirtyMentorButton
+          mentor={mentor}
+          accessToken={props.accessToken}
+        />
+
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
           <IconButton
             data-cy="launch-default-mentor"

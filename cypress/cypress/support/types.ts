@@ -58,6 +58,12 @@ export interface User {
   firstTimeTracking: FirstTimeTracking;
 }
 
+export enum MentorDirtyReason {
+  ANSWERS_REMOVED = "ANSWERS_REMOVED",
+  ANSWERS_ADDED = "ANSWERS_ADDED",
+  NONE = "NONE",
+}
+
 export enum UserRole {
   ADMIN = "ADMIN",
   CONTENT_MANAGER = "CONTENT_MANAGER",

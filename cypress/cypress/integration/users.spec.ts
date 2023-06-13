@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { cyMockDefault, mockGQL } from "../support/functions";
 import newMentor from "../fixtures/mentor/clint_new";
 import { login as loginDefault } from "../fixtures/login";
-import { UserRole } from "../support/types";
+import { MentorDirtyReason, UserRole } from "../support/types";
 import { users } from "../fixtures/users";
 
 describe("users screen", () => {
@@ -250,6 +250,54 @@ describe("users screen", () => {
     cy.get("[data-cy=user-3]").within(($within) => {
       cy.get("[data-cy=name]").should("have.text", "Archived");
       cy.get("[data-cy=defaultMentor]").should("have.text", "User Archived");
+    });
+  });
+
+  it("dirty mentors display build icon", () => {
+    cy.viewport("macbook-16");
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", {
+          users: {
+            edges: [
+              ...users.edges.map((user, i) => {
+                if (i === 0) {
+                  return {
+                    ...user,
+                    node: {
+                      ...user.node,
+                      defaultMentor: {
+                        ...user.node.defaultMentor,
+                        isDirty: true,
+                        dirtyReason: MentorDirtyReason.ANSWERS_ADDED,
+                      },
+                    },
+                  };
+                }
+                return user;
+              }),
+            ],
+          },
+        }),
+      ],
+    });
+    cy.visit("/users");
+    cy.wait(2000);
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=train-mentor-clintanderson]")
+        .should("exist")
+        .should("be.visible");
+      cy.get("[data-cy=train-mentor-clintanderson]").invoke("click");
+      cy.get("[data-cy=train-mentor-clintanderson]").should("not.exist");
+      cy.get("[data-cy=success-icon]").should("exist");
+    });
+    cy.get("[data-cy=user-1]").within(($within) => {
+      cy.get("[data-cy=train-mentor-clintanderson]").should("not.exist");
     });
   });
 });

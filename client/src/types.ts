@@ -161,6 +161,12 @@ export interface MentorPanel {
   subtitle: string;
 }
 
+export enum MentorDirtyReason {
+  ANSWERS_REMOVED = "ANSWERS_REMOVED",
+  ANSWERS_ADDED = "ANSWERS_ADDED",
+  NONE = "NONE",
+}
+
 export interface Mentor {
   _id: string;
   name: string;
@@ -174,6 +180,7 @@ export interface Mentor {
   lastTrainedAt: string;
   lastPreviewedAt: string;
   isDirty: boolean;
+  dirtyReason: MentorDirtyReason;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;

@@ -318,6 +318,8 @@ export async function fetchUsers(
               defaultMentor {
                 _id
                 name
+                isDirty
+                dirtyReason
                 isPrivate
                 isArchived
                 isAdvanced
@@ -989,6 +991,7 @@ export async function fetchMentorById(
           lastTrainedAt
           lastPreviewedAt
           isDirty
+          dirtyReason
           isPrivate
           isArchived
           isAdvanced
