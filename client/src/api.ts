@@ -38,6 +38,7 @@ import {
   SbertEncodedSentence,
   Keyword,
   Organization,
+  MentorTrainStatusById,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -323,6 +324,7 @@ export async function fetchUsers(
                 isPrivate
                 isArchived
                 isAdvanced
+                lastTrainStatus
                 orgPermissions {
                   orgId
                   viewPermission
@@ -669,6 +671,27 @@ export async function updateMyFirstTimeTracking(
   );
 }
 
+export async function mentorTrainStatusById(
+  mentorIds: string[]
+): Promise<MentorTrainStatusById[]> {
+  return await execGql<MentorTrainStatusById[]>(
+    {
+      query: `
+      query MentorsById($ids: [ID]!){
+        mentorsById(ids: $ids){
+          _id
+          lastTrainStatus
+        }
+      }
+    `,
+      variables: {
+        ids: mentorIds,
+      },
+    },
+    { dataPath: ["mentorsById"] }
+  );
+}
+
 export async function fetchQuestions(
   searchParams?: SearchParams
 ): Promise<Connection<Question>> {
@@ -997,6 +1020,7 @@ export async function fetchMentorById(
           isAdvanced
           hasVirtualBackground
           virtualBackgroundUrl
+          lastTrainStatus
           orgPermissions {
             orgId
             viewPermission

@@ -126,6 +126,11 @@ export interface FirstTimeTracking {
   tooltips: boolean;
 }
 
+export interface MentorTrainStatusById {
+  _id: string;
+  lastTrainStatus: JobState;
+}
+
 export interface User {
   _id: string;
   name: string;
@@ -180,6 +185,7 @@ export interface Mentor {
   lastTrainedAt: string;
   lastPreviewedAt: string;
   isDirty: boolean;
+  lastTrainStatus: JobState;
   dirtyReason: MentorDirtyReason;
   isPrivate: boolean;
   isArchived: boolean;

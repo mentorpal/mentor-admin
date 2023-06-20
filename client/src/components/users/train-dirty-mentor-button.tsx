@@ -9,7 +9,7 @@ import { Icon, IconButton, Theme, Tooltip } from "@mui/material";
 import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { makeStyles } from "tss-react/mui";
-import { Mentor, MentorDirtyReason } from "types";
+import { JobState, Mentor, MentorDirtyReason } from "types";
 import {
   Construction as RepairIcon,
   VideoSettings as NewVideosIcon,
@@ -17,7 +17,6 @@ import {
   Check as SuccessIcon,
   PublishedWithChanges as ProgressIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
 
 const useStyles = makeStyles({ name: { TrainDirtyMentorButton } })(
   (theme: Theme) => ({
@@ -32,31 +31,27 @@ const useStyles = makeStyles({ name: { TrainDirtyMentorButton } })(
 export function TrainDirtyMentorButton(props: {
   mentor: Mentor;
   accessToken: string;
+  mentorTrainStatusDict: Record<string, JobState>;
+  addMentorToPoll: (m: Mentor) => void;
 }): JSX.Element {
-  enum RequestState {
-    IDLE = "IDLE",
-    IN_PROGRESS = "IN_PROGRESS",
-    SUCCESS = "SUCCESS",
-    ERROR = "ERROR",
-  }
-
-  const { mentor, accessToken } = props;
+  const { mentor, accessToken, mentorTrainStatusDict, addMentorToPoll } = props;
   const { state: configState } = useWithConfig();
   const { classes: styles } = useStyles();
   const { isDirty, dirtyReason } = mentor;
-  const [requestState, setRequestState] = useState<RequestState>(
-    RequestState.IDLE
-  );
-
+  const trainStatus: JobState = Object.keys(mentorTrainStatusDict).find(
+    (key) => key === mentor._id
+  )
+    ? mentorTrainStatusDict[mentor._id]
+    : JobState.NONE;
   return (
     <span>
       {isDirty ? (
         <span>
-          {requestState === RequestState.IN_PROGRESS ? (
-            <Icon data-cy="success-icon" className={styles.normalButton}>
+          {trainStatus === JobState.PENDING ? (
+            <Icon data-cy="progress-icon" className={styles.normalButton}>
               <ProgressIcon className={styles.normalButton} />
             </Icon>
-          ) : requestState === RequestState.SUCCESS ? (
+          ) : trainStatus === JobState.SUCCESS ? (
             <Tooltip title="Request Sent" arrow>
               <Icon data-cy="success-icon" className={styles.normalButton}>
                 <SuccessIcon style={{ color: "green" }} />
@@ -67,18 +62,13 @@ export function TrainDirtyMentorButton(props: {
               <IconButton
                 data-cy={`train-mentor-${mentor._id}`}
                 onClick={() => {
-                  setRequestState(RequestState.IN_PROGRESS);
                   trainMentor(
                     mentor._id,
                     accessToken,
                     configState.config?.classifierLambdaEndpoint || ""
-                  )
-                    .then(() => {
-                      setRequestState(RequestState.SUCCESS);
-                    })
-                    .catch(() => {
-                      setRequestState(RequestState.ERROR);
-                    });
+                  ).then(() => {
+                    addMentorToPoll(mentor);
+                  });
                 }}
                 className={styles.normalButton}
                 size="large"

@@ -45,6 +45,8 @@ import { exportMentor } from "hooks/graphql/use-with-import-export";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import {
   Edge,
+  JobState,
+  Mentor,
   Organization,
   OrgEditPermissionType,
   User,
@@ -61,6 +63,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 import { uuid4 } from "@sentry/utils";
 import { TrainDirtyMentorButton } from "components/users/train-dirty-mentor-button";
+import { useWithMentorTrainStatus } from "hooks/users/mentor-train-status";
 
 const useStyles = makeStyles({ name: { TableFooter } })((theme: Theme) => ({
   root: {
@@ -291,8 +294,10 @@ function UserItem(props: {
   user: User;
   orgs: Organization[];
   viewArchivedMentors: boolean;
+  mentorTrainStatusDict: Record<string, JobState>;
+  addMentorToPoll: (m: Mentor) => void;
 }): JSX.Element {
-  const { edge, i, user, orgs } = props;
+  const { edge, i, user, orgs, mentorTrainStatusDict, addMentorToPoll } = props;
   const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();
   const userRole = user.userRole;
@@ -469,6 +474,8 @@ function UserItem(props: {
         <TrainDirtyMentorButton
           mentor={mentor}
           accessToken={props.accessToken}
+          mentorTrainStatusDict={mentorTrainStatusDict}
+          addMentorToPoll={addMentorToPoll}
         />
 
         <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
@@ -537,6 +544,9 @@ function UsersTable(props: {
 }): JSX.Element {
   const { classes: styles } = useStyles();
   const [columns, setColumns] = useState<ColumnDef[]>([]);
+  const { addMentorToPoll, mentorTrainStatusDict } = useWithMentorTrainStatus({
+    mentors: props.userPagin.data?.edges.map((edge) => edge.node.defaultMentor),
+  });
 
   useEffect(() => {
     const isAdmin =
@@ -564,6 +574,8 @@ function UsersTable(props: {
                   edge={edge}
                   i={i}
                   accessToken={props.accessToken}
+                  mentorTrainStatusDict={mentorTrainStatusDict}
+                  addMentorToPoll={addMentorToPoll}
                   orgs={props.orgs}
                   userPagin={props.userPagin}
                   user={props.user}
