@@ -22,10 +22,13 @@ export function useWithMentorTrainStatus(props: {
     Record<string, JobState>
   >({});
   const [mentorsToPoll, setMentorsToPoll] = useState<string[]>([]);
+  const [mentorsInitialSet, setMentorsInitialSet] = useState(false);
+
   useEffect(() => {
-    if (!mentors) {
+    if (!mentors || mentorsInitialSet) {
       return;
     }
+    setMentorsInitialSet(true);
     mentors.forEach((mentor) => {
       setMentorTrainStatusDict((prev) => {
         return {
@@ -40,7 +43,7 @@ export function useWithMentorTrainStatus(props: {
     });
 
     setMentorsToPoll(_mentorsToPoll.map((mentor) => mentor._id));
-  }, [mentors]);
+  }, [mentors, mentorsInitialSet]);
 
   useInterval(
     (isCancelled) => {
@@ -58,6 +61,20 @@ export function useWithMentorTrainStatus(props: {
             ...newTrainStatusDict,
           };
         });
+
+        const completeMentors = mentorTrainStatuses.filter(
+          (trainStatus) =>
+            trainStatus.lastTrainStatus === JobState.FAILURE ||
+            trainStatus.lastTrainStatus === JobState.SUCCESS
+        );
+        setMentorsToPoll((prevValue) => {
+          return prevValue.filter(
+            (mentorId) =>
+              !completeMentors.find(
+                (completeMentor) => completeMentor._id === mentorId
+              )
+          );
+        });
       });
     },
     mentorsToPoll.length ? 3000 : null
@@ -66,6 +83,12 @@ export function useWithMentorTrainStatus(props: {
   function addMentorToPoll(mentor: Mentor) {
     setMentorsToPoll((prev) => {
       return [...prev, mentor._id];
+    });
+    setMentorTrainStatusDict((prevValue) => {
+      return {
+        ...prevValue,
+        [mentor._id]: JobState.PENDING,
+      };
     });
   }
 
