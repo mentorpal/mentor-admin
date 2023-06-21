@@ -241,6 +241,7 @@ export enum JobState {
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
   PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
   STARTED = "STARTED",
 }
 

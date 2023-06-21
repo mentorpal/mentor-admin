@@ -369,6 +369,7 @@ describe("users screen", () => {
                       ...user.node,
                       defaultMentor: {
                         ...user.node.defaultMentor,
+                        _id: "clintanderson1",
                         isDirty: true,
                         dirtyReason: MentorDirtyReason.ANSWERS_ADDED,
                       },
@@ -384,7 +385,7 @@ describe("users screen", () => {
         mockGQL("MentorsById", {
           mentorsById: [
             {
-              _id: "clintanderson",
+              _id: "clintanderson1",
               lastTrainStatus: JobState.FAILURE,
             },
           ],
@@ -394,14 +395,14 @@ describe("users screen", () => {
     cy.visit("/users");
     cy.wait(2000);
     cy.get("[data-cy=user-0]").within(($within) => {
-      cy.get("[data-cy=train-mentor-clintanderson]")
+      cy.get("[data-cy=train-mentor-clintanderson1]")
         .should("exist")
         .should("be.visible");
-      cy.get("[data-cy=train-mentor-clintanderson]").invoke("click");
-      cy.get("[data-cy=train-mentor-clintanderson]").should("not.exist");
+      cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
+      cy.get("[data-cy=train-mentor-clintanderson1]").should("not.exist");
       cy.get("[data-cy=progress-icon]").should("exist");
       // after failure
-      cy.get("[data-cy=train-mentor-clintanderson]").should("exist");
+      cy.get("[data-cy=train-mentor-clintanderson1]").should("exist");
     });
     cy.get("[data-cy=user-1]").within(($within) => {
       cy.get("[data-cy=train-mentor-clintanderson]").should("not.exist");
@@ -449,7 +450,7 @@ describe("users screen", () => {
               },
               {
                 _id: "clintanderson1",
-                lastTrainStatus: JobState.PENDING,
+                lastTrainStatus: JobState.IN_PROGRESS,
               },
             ],
           },
@@ -496,6 +497,117 @@ describe("users screen", () => {
 
     cy.get("[data-cy=user-1]").within(($within) => {
       cy.get("[data-cy=success-icon]").should("exist");
+    });
+  });
+
+  it("automatically polls for mentors with training in progress", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", {
+          users: {
+            edges: [
+              ...users.edges.map((user, i) => {
+                if (i === 0) {
+                  return {
+                    ...user,
+                    node: {
+                      ...user.node,
+                      defaultMentor: {
+                        ...user.node.defaultMentor,
+                        _id: "clintanderson1",
+                        isDirty: true,
+                        dirtyReason: MentorDirtyReason.ANSWERS_ADDED,
+                        lastTrainStatus: JobState.IN_PROGRESS,
+                      },
+                    },
+                  };
+                }
+                return user;
+              }),
+            ],
+          },
+        }),
+
+        mockGQL("MentorsById", [
+          {
+            mentorsById: [
+              {
+                _id: "clintanderson1",
+                lastTrainStatus: JobState.SUCCESS,
+              },
+            ],
+          },
+        ]),
+      ],
+    });
+    cy.visit("/users");
+    cy.wait(2000);
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=progress-icon]").should("exist");
+      cy.wait(3000);
+      cy.get("[data-cy=success-icon]").should("exist");
+    });
+  });
+
+  it("dirty mentors with a last train status of SUCCESS still need training", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", {
+          users: {
+            edges: [
+              ...users.edges.map((user, i) => {
+                if (i === 0) {
+                  return {
+                    ...user,
+                    node: {
+                      ...user.node,
+                      defaultMentor: {
+                        ...user.node.defaultMentor,
+                        _id: "clintanderson1",
+                        isDirty: true,
+                        dirtyReason: MentorDirtyReason.ANSWERS_ADDED,
+                        lastTrainStatus: JobState.SUCCESS,
+                      },
+                    },
+                  };
+                }
+                return user;
+              }),
+            ],
+          },
+        }),
+
+        mockGQL("MentorsById", [
+          {
+            mentorsById: [
+              {
+                _id: "clintanderson1",
+                lastTrainStatus: JobState.IN_PROGRESS,
+              },
+            ],
+          },
+        ]),
+      ],
+    });
+    cy.visit("/users");
+    cy.wait(2000);
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=train-mentor-clintanderson1]")
+        .should("exist")
+        .should("be.visible");
+      cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
+      cy.get("[data-cy=train-mentor-clintanderson1]").should("not.exist");
+      cy.get("[data-cy=progress-icon]").should("exist");
     });
   });
 });

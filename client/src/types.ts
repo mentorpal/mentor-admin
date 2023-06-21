@@ -481,6 +481,7 @@ export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
+  IN_PROGRESS = "IN_PROGRESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
 }

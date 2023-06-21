@@ -39,9 +39,8 @@ export function useWithMentorTrainStatus(props: {
     });
 
     const _mentorsToPoll = mentors.filter((mentor) => {
-      mentor.lastTrainStatus === JobState.PENDING;
+      return mentor.lastTrainStatus == JobState.IN_PROGRESS;
     });
-
     setMentorsToPoll(_mentorsToPoll.map((mentor) => mentor._id));
   }, [mentors, mentorsInitialSet]);
 
@@ -87,7 +86,7 @@ export function useWithMentorTrainStatus(props: {
     setMentorTrainStatusDict((prevValue) => {
       return {
         ...prevValue,
-        [mentor._id]: JobState.PENDING,
+        [mentor._id]: JobState.IN_PROGRESS,
       };
     });
   }
