@@ -126,6 +126,11 @@ export interface FirstTimeTracking {
   tooltips: boolean;
 }
 
+export interface MentorTrainStatusById {
+  _id: string;
+  lastTrainStatus: JobState;
+}
+
 export interface User {
   _id: string;
   name: string;
@@ -161,6 +166,12 @@ export interface MentorPanel {
   subtitle: string;
 }
 
+export enum MentorDirtyReason {
+  ANSWERS_REMOVED = "ANSWERS_REMOVED",
+  ANSWERS_ADDED = "ANSWERS_ADDED",
+  NONE = "NONE",
+}
+
 export interface Mentor {
   _id: string;
   name: string;
@@ -174,6 +185,8 @@ export interface Mentor {
   lastTrainedAt: string;
   lastPreviewedAt: string;
   isDirty: boolean;
+  lastTrainStatus: JobState;
+  dirtyReason: MentorDirtyReason;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
@@ -186,6 +199,7 @@ export interface Mentor {
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
   updatedAt: string;
+  numAnswersComplete: number;
 }
 
 export enum OrgViewPermissionType {
@@ -468,6 +482,7 @@ export enum JobState {
   NONE = "NONE",
   FAILURE = "FAILURE",
   SUCCESS = "SUCCESS",
+  IN_PROGRESS = "IN_PROGRESS",
   PENDING = "PENDING",
   STARTED = "STARTED",
 }
