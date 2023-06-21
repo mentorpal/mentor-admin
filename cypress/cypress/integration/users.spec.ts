@@ -253,7 +253,7 @@ describe("users screen", () => {
     });
   });
 
-  describe.only("training mentors via users page", () => {
+  describe("training mentors via users page", () => {
     it("dirty mentors display build icon", () => {
       cyMockDefault(cy, {
         mentor: [newMentor],
