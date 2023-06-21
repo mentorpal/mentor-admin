@@ -57,6 +57,7 @@ export interface MentorGQL {
   mentorType: MentorType;
   lastTrainedAt: string;
   lastPreviewedAt: string;
+  numAnswersComplete: number;
   isDirty: boolean;
   lastTrainStatus: JobState;
   dirtyReason: MentorDirtyReason;

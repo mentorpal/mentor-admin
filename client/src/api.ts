@@ -321,6 +321,7 @@ export async function fetchUsers(
                 name
                 isDirty
                 dirtyReason
+                numAnswersComplete
                 isPrivate
                 isArchived
                 isAdvanced

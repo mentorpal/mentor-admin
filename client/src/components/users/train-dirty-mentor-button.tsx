@@ -37,7 +37,7 @@ export function TrainDirtyMentorButton(props: {
   const { mentor, accessToken, mentorTrainStatusDict, addMentorToPoll } = props;
   const { state: configState } = useWithConfig();
   const { classes: styles } = useStyles();
-  const { isDirty, dirtyReason } = mentor;
+  const { isDirty, dirtyReason, numAnswersComplete } = mentor;
   const trainStatus: JobState = Object.keys(mentorTrainStatusDict).find(
     (key) => key === mentor._id
   )
@@ -51,6 +51,17 @@ export function TrainDirtyMentorButton(props: {
     trainInProgressFound && trainStatus === JobState.SUCCESS
   );
   const [localDirty, setLocalDirty] = useState(isDirty);
+
+  useEffect(() => {
+    const newTainStatus: JobState = Object.keys(mentorTrainStatusDict).find(
+      (key) => key === mentor._id
+    )
+      ? mentorTrainStatusDict[mentor._id]
+      : JobState.NONE;
+    setLocalDirty(mentor.isDirty);
+    setTrainInProgressFound(newTainStatus === JobState.IN_PROGRESS);
+    setTrainSuccessFound(false);
+  }, [mentor._id]);
 
   useEffect(() => {
     // Determine if a train was successflly completed here
@@ -68,54 +79,59 @@ export function TrainDirtyMentorButton(props: {
 
   return (
     <span>
-      {trainStatus === JobState.IN_PROGRESS && localDirty ? (
-        <Tooltip title="Training In Progress" arrow>
-          <Icon data-cy="progress-icon" className={styles.normalButton}>
-            <ProgressIcon className={styles.normalButton} />
-          </Icon>
-        </Tooltip>
-      ) : (trainStatus === JobState.SUCCESS && !localDirty) || !localDirty ? (
-        <Tooltip title="Up To Date" arrow>
-          <Icon data-cy="success-icon" className={styles.normalButton}>
-            <SuccessIcon style={{ color: "green" }} />
-          </Icon>
-        </Tooltip>
-      ) : (
-        <Tooltip
-          style={{ margin: 10 }}
-          title={`Train Mentor (${
-            dirtyReason === MentorDirtyReason.ANSWERS_ADDED
-              ? "Answers Added"
-              : dirtyReason === MentorDirtyReason.ANSWERS_REMOVED
-              ? "Answers Removed"
-              : "Edited Content"
-          })`}
-          arrow
-        >
-          <IconButton
-            data-cy={`train-mentor-${mentor._id}`}
-            onClick={() => {
-              trainMentor(
-                mentor._id,
-                accessToken,
-                configState.config?.classifierLambdaEndpoint || ""
-              ).then(() => {
-                addMentorToPoll(mentor);
-              });
-            }}
-            className={styles.normalButton}
-            size="large"
-          >
-            {dirtyReason === MentorDirtyReason.ANSWERS_ADDED ? (
-              <NewVideosIcon />
-            ) : dirtyReason === MentorDirtyReason.ANSWERS_REMOVED ? (
-              <RepairIcon />
-            ) : (
-              <BuildIcon />
-            )}
-          </IconButton>
-        </Tooltip>
-      )}
+      {numAnswersComplete >= 5 ? (
+        <span>
+          {trainStatus === JobState.IN_PROGRESS && localDirty ? (
+            <Tooltip title="Training In Progress" arrow>
+              <Icon data-cy="progress-icon" className={styles.normalButton}>
+                <ProgressIcon className={styles.normalButton} />
+              </Icon>
+            </Tooltip>
+          ) : (trainStatus === JobState.SUCCESS && !localDirty) ||
+            !localDirty ? (
+            <Tooltip title="Up To Date" arrow>
+              <Icon data-cy="success-icon" className={styles.normalButton}>
+                <SuccessIcon style={{ color: "green" }} />
+              </Icon>
+            </Tooltip>
+          ) : (
+            <Tooltip
+              style={{ margin: 10 }}
+              title={`Train Mentor (${
+                dirtyReason === MentorDirtyReason.ANSWERS_ADDED
+                  ? "Answers Added"
+                  : dirtyReason === MentorDirtyReason.ANSWERS_REMOVED
+                  ? "Answers Removed"
+                  : "Edited Content"
+              })`}
+              arrow
+            >
+              <IconButton
+                data-cy={`train-mentor-${mentor._id}`}
+                onClick={() => {
+                  trainMentor(
+                    mentor._id,
+                    accessToken,
+                    configState.config?.classifierLambdaEndpoint || ""
+                  ).then(() => {
+                    addMentorToPoll(mentor);
+                  });
+                }}
+                className={styles.normalButton}
+                size="large"
+              >
+                {dirtyReason === MentorDirtyReason.ANSWERS_ADDED ? (
+                  <NewVideosIcon />
+                ) : dirtyReason === MentorDirtyReason.ANSWERS_REMOVED ? (
+                  <RepairIcon />
+                ) : (
+                  <BuildIcon />
+                )}
+              </IconButton>
+            </Tooltip>
+          )}
+        </span>
+      ) : undefined}
     </span>
   );
 }

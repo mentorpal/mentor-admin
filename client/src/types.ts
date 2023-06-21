@@ -199,6 +199,7 @@ export interface Mentor {
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
   updatedAt: string;
+  numAnswersComplete: number;
 }
 
 export enum OrgViewPermissionType {
