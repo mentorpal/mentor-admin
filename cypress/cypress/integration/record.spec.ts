@@ -1912,7 +1912,7 @@ describe("Record", () => {
     });
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
-    cy.get("[data-cy=incomplete]").trigger("mouseover").click();
+    cy.get("[data-cy=skip]").trigger("mouseover").click();
     cy.get("[data-cy=status]").contains("Skip");
   });
 

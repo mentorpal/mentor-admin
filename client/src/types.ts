@@ -504,6 +504,7 @@ export enum Status {
   NONE = "NONE",
   INCOMPLETE = "INCOMPLETE",
   COMPLETE = "COMPLETE",
+  SKIP = "SKIP",
 }
 
 export enum Feedback {
