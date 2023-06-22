@@ -220,10 +220,10 @@ describe("My Mentor Page", () => {
       );
   });
 
-  it("build tooltip notifies user to build mentor if mentor is dirty", () => {
+  it("build tooltip notifies user to build mentor if mentor is dirty and has more than 5 answers", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: { ...clint, isDirty: true },
+      mentor: { ...clint, isDirty: true, numAnswersComplete: 5 },
       login: {
         ...loginUserNotSeenSplash,
         user: {
@@ -244,6 +244,27 @@ describe("My Mentor Page", () => {
         "contain.text",
         "Your mentor is out of date. Once you are done recording, please re-train your mentor."
       );
+  });
+
+  it("does not notify to build if mentor is dirty and does not have 5 answers completed", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: { ...clint, isDirty: true, numAnswersComplete: 4 },
+      login: {
+        ...loginUserNotSeenSplash,
+        user: {
+          ...loginUserNotSeenSplash.user,
+          firstTimeTracking: {
+            ...loginUserNotSeenSplash.user.firstTimeTracking,
+            myMentorSplash: true,
+            tooltips: true,
+          },
+        },
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=build-tooltip-body]").should("not.exist");
   });
 
   it("shows subjects in priority order", () => {

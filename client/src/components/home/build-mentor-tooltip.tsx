@@ -31,6 +31,9 @@ export function BuildMentorTooltip(props: {
     VIEWING_TOOLTIP_ON_HOVER = "VIEWING_TOOLTIP_ON_HOVER",
   }
   const mentorIsDirty = getData((m) => m.data?.isDirty || false);
+  const mentorNumAnswersComplete = getData(
+    (m) => m.data?.numAnswersComplete || false
+  );
   const [curPhase, setCurPhase] = useState<BuildMentorTooltipPhases>(
     BuildMentorTooltipPhases.VIEWING_TOOLTIP_ON_HOVER
   );
@@ -41,7 +44,11 @@ export function BuildMentorTooltip(props: {
   useEffect(() => {
     if (!hasSeenTooltips) {
       setCurPhase(BuildMentorTooltipPhases.VIEWING_INITIAL_TOOLTIPS);
-    } else if (mentorIsDirty && !warnedMentorIsDirty) {
+    } else if (
+      mentorIsDirty &&
+      !warnedMentorIsDirty &&
+      mentorNumAnswersComplete >= 5
+    ) {
       setCurPhase(BuildMentorTooltipPhases.VIEWING_DIRTY_MENTOR_WARNING);
     } else {
       setCurPhase(BuildMentorTooltipPhases.VIEWING_TOOLTIP_ON_HOVER);
