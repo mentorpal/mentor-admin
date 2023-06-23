@@ -373,7 +373,7 @@ export function cyMockTrain(
   } = {}
 ): void {
   params = params || {};
-  cy.intercept("/classifier/train", (req) => {
+  cy.intercept("**/train", (req) => {
     req.alias = "train";
     req.reply(
       staticResponse({
