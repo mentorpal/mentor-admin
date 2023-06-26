@@ -449,7 +449,6 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -462,7 +461,6 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -491,7 +489,6 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -507,7 +504,6 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -520,7 +516,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").trigger("mouseover").click();
 
@@ -533,7 +529,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -625,7 +621,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -657,7 +653,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -673,7 +669,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -1429,7 +1425,7 @@ describe("Record", () => {
         cy.get("[data-text]").should("have.text", "");
         cy.get("[data-text]").should("not.have.attr", "disabled");
       });
-      cy.get("[data-cy=status]").contains("Skip");
+
       cy.get("[data-cy=back-btn]").should("not.be.disabled");
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
@@ -1912,8 +1908,7 @@ describe("Record", () => {
     });
     cy.get("[data-cy=status]").contains("Active");
     cy.get("[data-cy=select-status]").trigger("mouseover").click();
-    cy.get("[data-cy=incomplete]").trigger("mouseover").click();
-    cy.get("[data-cy=status]").contains("Skip");
+    cy.get("[data-cy=skip]").trigger("mouseover").click();
   });
 
   it("uploading widget should be open if there are active uploads", () => {

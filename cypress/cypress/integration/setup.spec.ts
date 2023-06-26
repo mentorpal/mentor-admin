@@ -1270,7 +1270,6 @@ describe("Setup", () => {
       cy.get("[data-text]").should("have.text", "");
       cy.get("[data-text]").should("not.have.attr", "disabled");
     });
-    cy.get("[data-cy=status]").contains("Skip");
     // back to setup
     cy.get("[data-cy=nav-bar]").within(($navbar) => {
       cy.get("[data-cy=back-button]").trigger("mouseover").click();

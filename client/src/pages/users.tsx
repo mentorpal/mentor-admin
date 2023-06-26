@@ -338,7 +338,7 @@ function UserItem(props: {
           </span>
         ) : undefined}
       </TableCell>
-      <TableCell data-cy="email" align="left">
+      <TableCell data-cy="email" align="left" size="small" padding="none">
         {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
