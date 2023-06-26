@@ -615,7 +615,7 @@ function RecordPage(props: {
             <MenuItem data-cy="none" value={Status.NONE}>
               None
             </MenuItem>
-            <MenuItem data-cy="incomplete" value={Status.INCOMPLETE}>
+            <MenuItem data-cy="skip" value={Status.SKIP}>
               Skip
             </MenuItem>
             <MenuItem

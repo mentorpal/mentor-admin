@@ -248,8 +248,8 @@ export function isAnswerComplete(
   mentorType: MentorType
 ): boolean {
   return (
-    answer.status === Status.COMPLETE ||
-    (answer.status === Status.NONE &&
+    answer.status !== Status.INCOMPLETE &&
+    (answer.status === Status.COMPLETE ||
       isAnswerValid(answer, questionType, mentorType))
   );
 }
