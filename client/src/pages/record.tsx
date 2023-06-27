@@ -67,6 +67,7 @@ import {
 } from "draft-js";
 import { useWithBrowser } from "hooks/use-with-browser";
 import { useWithWindowSize } from "hooks/use-with-window-size";
+import { UploadVtt } from "components/record/upload-vtt";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
@@ -598,6 +599,11 @@ function RecordPage(props: {
         ) : (
           transcriptDisplay()
         )}
+        <UploadVtt
+          curAnswer={curAnswer.answer}
+          accessToken={props.accessToken}
+          editAnswer={recordState.editAnswer}
+        />
         <div
           data-cy="status"
           className={classes.block}
