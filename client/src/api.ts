@@ -181,7 +181,7 @@ async function execHttp<T>(
   return getDataFromAxiosResponse(result, optsEffective.dataPath || []);
 }
 
-function throwErrorsInAxiosResponse(res: AxiosResponse) {
+export function throwErrorsInAxiosResponse(res: AxiosResponse): void {
   if (!(res.status >= 200 && res.status <= 299)) {
     throw new Error(`http request failed: ${res.data}`);
   }
@@ -231,6 +231,12 @@ export async function fetchFollowUpQuestions(
     ),
     { accessToken, dataPath: "followups" }
   );
+}
+
+export async function fetchVttFileFromUrl(url: string): Promise<string> {
+  const result = await axios.get(url, { responseType: "text" });
+  throwErrorsInAxiosResponse(result);
+  return result.data;
 }
 
 export async function fetchConfig(): Promise<Config> {
@@ -1468,6 +1474,29 @@ export async function uploadThumbnail(
     },
     accessToken,
     dataPath: ["data", "thumbnail"],
+  });
+}
+
+export async function uploadVtt(
+  mentorId: string,
+  questionId: string,
+  vtt: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<string> {
+  const data = new FormData();
+  data.append("question", questionId);
+  data.append("mentor", mentorId);
+  data.append("vtt_file", vtt);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vtt"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data", "vtt_path"],
   });
 }
 
