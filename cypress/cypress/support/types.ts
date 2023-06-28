@@ -92,6 +92,7 @@ export interface Mentor {
   isDirty: boolean;
   isPrivate: boolean;
   isArchived: boolean;
+  isAdvanced: boolean;
   defaultSubject?: Subject;
   numAnswersComplete: number;
   subjects: Subject[];

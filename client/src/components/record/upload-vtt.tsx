@@ -143,58 +143,74 @@ export function UploadVtt(props: {
   }
 
   return (
-    <div
-      className={classes.block}
-      style={{ display: "flex", flexDirection: "column" }}
-    >
-      <Typography fontWeight="bold" align="left">
-        VTT (Transcript) File
-      </Typography>
-      <span style={{ margin: "5px" }}>Upload New Vtt File</span>
-      <span style={{ color: "red", margin: "5px" }}>{errorMessage}</span>
-      <input
-        style={{ margin: 5 }}
-        data-cy="upload-vtt-file"
-        type="file"
-        accept=".vtt"
-        onChange={(e) => {
-          if (!e.target.files?.length) {
-            return;
-          } else {
-            handleVttUpload(e.target.files[0]);
-          }
-        }}
-      />
-      {vttMedia && vttMedia.url ? (
-        <>
-          {downloadInProgress ? (
-            <CircularProgress />
-          ) : (
-            <Button
-              style={{ width: "fit-content", margin: 5 }}
-              onClick={() => handleDownloadVttFile(vttMedia)}
-            >
-              Download Vtt File
-            </Button>
-          )}
-        </>
-      ) : undefined}
-      {vttText ? (
-        <Button
-          style={{ width: "fit-content", margin: 5 }}
-          onClick={handlePreviewVttFile}
+    <>
+      {mentor.isAdvanced ? (
+        <div
+          className={classes.block}
+          style={{ display: "flex", flexDirection: "column" }}
         >
-          Preview Vtt File
-        </Button>
+          <Typography fontWeight="bold" align="left">
+            VTT (Transcript) File:
+          </Typography>
+          <div
+            style={{
+              width: "100%",
+              height: "fit-content",
+              display: "flex",
+              flexDirection: "column",
+              border: "1px solid rgba(0,0,0,.2)",
+            }}
+          >
+            <span style={{ margin: "5px" }}>Upload New Vtt File</span>
+            <span style={{ color: "red", margin: "5px" }}>{errorMessage}</span>
+            <input
+              style={{ margin: 5 }}
+              data-cy="upload-vtt-file"
+              type="file"
+              accept=".vtt"
+              onChange={(e) => {
+                if (!e.target.files?.length) {
+                  return;
+                } else {
+                  handleVttUpload(e.target.files[0]);
+                }
+              }}
+            />
+            {vttMedia && vttMedia.url ? (
+              <>
+                {downloadInProgress ? (
+                  <CircularProgress />
+                ) : (
+                  <Button
+                    style={{ width: "fit-content", margin: 5 }}
+                    onClick={() => handleDownloadVttFile(vttMedia)}
+                  >
+                    Download Vtt File
+                  </Button>
+                )}
+              </>
+            ) : undefined}
+            {vttText ? (
+              <Button
+                style={{ width: "fit-content", margin: 5 }}
+                onClick={handlePreviewVttFile}
+              >
+                Preview Vtt File
+              </Button>
+            ) : undefined}
+            <LoadingDialog
+              title={
+                uploadStatus === JobState.IN_PROGRESS ? "Uploading..." : ""
+              }
+            />
+            <LongTextDisplayDialog
+              text={vttText}
+              open={showVttPreview}
+              closeDialog={() => setShowVttPreview(false)}
+            />
+          </div>
+        </div>
       ) : undefined}
-      <LoadingDialog
-        title={uploadStatus === JobState.IN_PROGRESS ? "Uploading..." : ""}
-      />
-      <LongTextDisplayDialog
-        text={vttText}
-        open={showVttPreview}
-        closeDialog={() => setShowVttPreview(false)}
-      />
-    </div>
+    </>
   );
 }

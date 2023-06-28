@@ -2973,6 +2973,20 @@ describe("Record", () => {
     });
   });
 
+  it("non-advanced mentors cannot see vtt file info block", () => {
+    cyMockDefault(cy, { mentor: [{ ...videoMentor, isAdvanced: false }] });
+    cy.visit("/record");
+    cy.get("[data-cy=transcript]").should("exist").should("be.visible");
+    cy.get("[data-cy=upload-vtt-file]").should("not.exist");
+  });
+
+  it("advanced mentors can see vtt file info block", () => {
+    cyMockDefault(cy, { mentor: [{ ...videoMentor, isAdvanced: true }] });
+    cy.visit("/record");
+    cy.get("[data-cy=transcript]").should("exist").should("be.visible");
+    cy.get("[data-cy=upload-vtt-file]").should("exist").should("be.visible");
+  });
+
   it("user is warned to download video when an upload fails", () => {
     cyMockDefault(cy, { mentor: [videoMentor] });
     cyMockUpload(cy, { statusCode: 400 });
