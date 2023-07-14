@@ -38,6 +38,7 @@ export function ErrorDialog(props: {
       </DialogContent>
       <DialogContent>
         <Button
+          data-cy="close-error-dialog"
           onClick={() => {
             setOpen(false);
           }}

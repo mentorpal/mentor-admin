@@ -167,6 +167,14 @@ export enum MediaType {
   VIDEO = "video",
 }
 
+export interface PreviousAnswerVersion {
+  transcript: string;
+  webVideoHash: string;
+  vttText: string;
+  videoDuration: number;
+  dateVersioned: string;
+}
+
 export interface Answer {
   _id: string;
   question: Question;
@@ -178,6 +186,7 @@ export interface Answer {
   webMedia?: Media;
   mobileMedia?: Media;
   vttMedia?: Media;
+  previousVersions: PreviousAnswerVersion[];
 }
 
 export interface UserQuestion {

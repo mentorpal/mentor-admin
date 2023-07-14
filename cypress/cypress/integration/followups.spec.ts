@@ -76,6 +76,7 @@ const chatMentor: Mentor = completeMentor({
   ],
   answers: [
     {
+      previousVersions: [],
       _id: "A1_1_1",
       question: completeQuestion({
         _id: "A1_1_1",
@@ -85,6 +86,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A2_1_1",
       question: completeQuestion({
         _id: "A2_1_1",
@@ -93,6 +95,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A3_1_1",
       question: completeQuestion({
         _id: "A3_1_1",
@@ -101,6 +104,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A4_1_1",
       question: completeQuestion({
         _id: "A4_1_1",
@@ -110,6 +114,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A5_1_1",
       question: completeQuestion({
         _id: "A5_1_1",

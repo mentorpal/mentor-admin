@@ -208,8 +208,10 @@ export const mentor: Mentor = {
       },
       transcript: "",
       status: Status.INCOMPLETE,
+      previousVersions: [],
     },
     {
+      previousVersions: [],
       _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
@@ -223,6 +225,7 @@ export const mentor: Mentor = {
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
@@ -239,6 +242,7 @@ export const mentor: Mentor = {
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
@@ -253,6 +257,7 @@ export const mentor: Mentor = {
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
@@ -267,6 +272,7 @@ export const mentor: Mentor = {
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A6_1_1",
       question: {
         _id: "A6_1_1",

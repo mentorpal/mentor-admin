@@ -108,3 +108,49 @@ export function updateSubjectQuestion(
     }),
   };
 }
+
+export function taskListBuild(progressForAllTasks: string) {
+  return {
+    trimUploadTask: {
+      task_name: "trim_upload",
+      status: progressForAllTasks,
+    },
+    transcodeWebTask: {
+      task_name: "transcode-web",
+      status: progressForAllTasks,
+    },
+    tanscodeMobileTask: {
+      task_name: "transcode-mobile",
+      status: progressForAllTasks,
+    },
+    transcribeTask: {
+      task_name: "transcribe",
+      status: progressForAllTasks,
+    },
+  };
+}
+
+export function uploadTaskMediaBuild() {
+  return {
+    originalMedia: {
+      type: "video",
+      tag: "original",
+      url: "http://google.mp4/original.mp4",
+    },
+    webMedia: {
+      type: "video",
+      tag: "web",
+      url: "http://google.mp4",
+    },
+    mobileMedia: {
+      type: "video",
+      tag: "mobile",
+      url: "http://google.mp4",
+    },
+    vttMedia: {
+      type: "vtt",
+      tag: "en",
+      url: "http://google.mp4",
+    },
+  };
+}

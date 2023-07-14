@@ -1114,6 +1114,9 @@ export async function fetchMentorById(
             previousVersions{
               transcript
               dateVersioned
+              vttText
+              webVideoHash
+              videoDuration
             }
           }
         }  

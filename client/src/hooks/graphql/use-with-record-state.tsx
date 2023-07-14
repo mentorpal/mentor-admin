@@ -495,6 +495,10 @@ export function useWithRecordState(
     answer: Answer,
     editedAnswer: Answer
   ): PreviousAnswerVersion[] {
+    const firstUpload = !answer.previousVersions.length && !answer.transcript;
+    if (firstUpload) {
+      return [];
+    }
     const oldWebMedia = answer.media?.find((m) => m.tag === MediaTag.WEB);
     const oldVttMedia = answer.media?.find((m) => m.tag === MediaTag.VTT);
     return [
@@ -526,10 +530,8 @@ export function useWithRecordState(
       (editedAnswer.hasEditedTranscript || answer.answer.hasEditedTranscript);
     if (existingVideoWithEditedTranscript) {
       setNotifyDialogOpen(true);
-      if (editedAnswer.hasEditedTranscript) {
-        updateAnswerState({ answer: editedAnswer });
-      }
     }
+    updateAnswerState({ answer: editedAnswer, editedAnswer: editedAnswer });
     try {
       await updateAnswer(editedAnswer, accessToken, mentorId);
     } catch (err) {

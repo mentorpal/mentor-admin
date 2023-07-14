@@ -68,6 +68,7 @@ import {
 import { useWithBrowser } from "hooks/use-with-browser";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UploadVtt } from "components/record/upload-vtt";
+import { AnswerVersionsHandler } from "components/record/answer-versioning/answer-versions";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
@@ -361,7 +362,7 @@ function RecordPage(props: {
           </div>
         ) : undefined}
         <Typography className={classes.title}>
-          Answer Transcript:{" "}
+          Answer Transcript: <AnswerVersionsHandler answer={curAnswer.answer} />
           {warnEmptyTranscript ? (
             <text
               data-cy="warn-empty-transcript"
@@ -372,6 +373,7 @@ function RecordPage(props: {
             </text>
           ) : undefined}
         </Typography>
+
         <Editor
           wrapperClassName="wrapper-class"
           editorClassName="editor-class"
