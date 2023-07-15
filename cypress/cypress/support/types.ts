@@ -161,6 +161,7 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  vttText: string;
 }
 
 export enum MediaType {

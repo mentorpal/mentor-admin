@@ -133,7 +133,6 @@ export function PreviousAnswerDisplay(props: {
       setLocalSelectedRadio(PreviousVersionSelectionType.NONE);
     }
   }, [curSelectedAnswerVersion]);
-  console.log(localSelectedRadio);
   return (
     <div
       data-cy={`previous-version-${index}`}
@@ -158,7 +157,9 @@ export function PreviousAnswerDisplay(props: {
         }}
       >
         <TranscriptDisplay transcript={previousAnswer.transcript} />
-        <VttDisplay vttText={previousAnswer.vttText} />
+        {previousAnswer.vttText !== undefined && (
+          <VttDisplay vttText={previousAnswer.vttText} />
+        )}
       </div>
       <FormControl style={{ alignSelf: "center" }}>
         <FormLabel>Replace:</FormLabel>
@@ -173,24 +174,28 @@ export function PreviousAnswerDisplay(props: {
             setSelectedAnswerVersion(previousAnswer);
           }}
         >
-          <FormControlLabel
-            data-cy="both-radio-button"
-            value={PreviousVersionSelectionType.BOTH}
-            control={<Radio />}
-            label="BOTH"
-          />
+          {previousAnswer.vttText && (
+            <FormControlLabel
+              data-cy="both-radio-button"
+              value={PreviousVersionSelectionType.BOTH}
+              control={<Radio />}
+              label="BOTH"
+            />
+          )}
           <FormControlLabel
             data-cy="transcript-radio-button"
             value={PreviousVersionSelectionType.TRANSCRIPT_ONLY}
             control={<Radio />}
             label="Transcript Only"
           />
-          <FormControlLabel
-            data-cy="vtt-radio-button"
-            value={PreviousVersionSelectionType.VTT_ONLY}
-            control={<Radio />}
-            label="VTT Only"
-          />
+          {previousAnswer.vttText && (
+            <FormControlLabel
+              data-cy="vtt-radio-button"
+              value={PreviousVersionSelectionType.VTT_ONLY}
+              control={<Radio />}
+              label="VTT Only"
+            />
+          )}
         </RadioGroup>
       </FormControl>
     </div>

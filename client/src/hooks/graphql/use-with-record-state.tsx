@@ -394,8 +394,13 @@ export function useWithRecordState(
     });
   }
 
-  async function saveAnswer() {
-    const { answer, editedAnswer, localTranscriptChanges } = answers[answerIdx];
+  async function saveAnswer(customEditedAnswer?: Answer) {
+    const {
+      answer,
+      editedAnswer: _editedAnswer,
+      localTranscriptChanges,
+    } = answers[answerIdx];
+    const editedAnswer = customEditedAnswer || _editedAnswer;
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -413,7 +418,9 @@ export function useWithRecordState(
       setIsSaving(true);
       let didUpdate = false;
       try {
-        if (localTranscriptChanges) {
+        const shouldVersionTranscript =
+          localTranscriptChanges || customEditedAnswer;
+        if (shouldVersionTranscript) {
           editedAnswer.previousVersions = getUpdatedAnswerVersions(
             answer,
             editedAnswer

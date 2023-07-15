@@ -47,7 +47,6 @@ export function UploadVtt(props: {
   const [downloadInProgress, setDownloadInProgress] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<JobState>(JobState.NONE);
   const vttMedia = (curAnswer.media || []).find((m) => m.type === "subtitles");
-
   const [vttText, setVttText] = useState(vttMedia?.vttText || "");
   const [showVttPreview, setShowVttPreview] = useState(false);
 
@@ -178,6 +177,7 @@ export function UploadVtt(props: {
             ) : undefined}
             {vttText ? (
               <Button
+                data-cy="preview-vtt-file"
                 style={{ width: "fit-content", margin: 5 }}
                 onClick={handlePreviewVttFile}
               >

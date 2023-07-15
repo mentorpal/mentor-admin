@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogContent } from "@mui/material";
-import React, { useState } from "react";
+import React from "react";
 import { PreviousAnswerVersion } from "types-gql";
 import { PreviousAnswerDisplay } from "./single-previous-answer-display";
 import { PreviousVersionSelectionType } from "./answer-versions";
@@ -12,12 +12,20 @@ export function AnswerVersionsDialog(props: {
     selectionType: PreviousVersionSelectionType
   ) => void;
   previousAnswers: PreviousAnswerVersion[];
+  selectedAnswerVersion?: PreviousAnswerVersion;
+  selectionType?: PreviousVersionSelectionType;
+  setSelectedAnswerVersion: (version?: PreviousAnswerVersion) => void;
+  setSelectionType: (selectionType: PreviousVersionSelectionType) => void;
 }): JSX.Element {
-  const { open, previousAnswers, handleReplace } = props;
-  const [selectedAnswerVersion, setSelectedAnswerVersion] =
-    useState<PreviousAnswerVersion>();
-  const [selectionType, setSelectionType] =
-    useState<PreviousVersionSelectionType>(PreviousVersionSelectionType.NONE);
+  const {
+    open,
+    previousAnswers,
+    handleReplace,
+    setSelectedAnswerVersion,
+    setSelectionType,
+    selectedAnswerVersion,
+    selectionType,
+  } = props;
 
   function closeDialog() {
     setSelectedAnswerVersion(undefined);

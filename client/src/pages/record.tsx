@@ -362,7 +362,12 @@ function RecordPage(props: {
           </div>
         ) : undefined}
         <Typography className={classes.title}>
-          Answer Transcript: <AnswerVersionsHandler answer={curAnswer.answer} />
+          Answer Transcript:{" "}
+          <AnswerVersionsHandler
+            editedAnswer={curAnswer.editedAnswer}
+            saveAnswer={recordState.saveAnswer}
+            accessToken={props.accessToken}
+          />
           {warnEmptyTranscript ? (
             <text
               data-cy="warn-empty-transcript"

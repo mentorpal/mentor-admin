@@ -8,7 +8,12 @@ import {
   videoMentor,
   videoQuestions,
 } from "../fixtures/recording/video_mentors";
-import { cyAttachUpload, cyMockDefault, mockGQL } from "../support/functions";
+import {
+  cyAttachUpload,
+  cyMockDefault,
+  cyMockVttUpload,
+  mockGQL,
+} from "../support/functions";
 import { taskListBuild, uploadTaskMediaBuild } from "../support/helpers";
 import { Mentor } from "../support/types";
 
@@ -16,6 +21,13 @@ const singlePreviousVersionsMentor: Mentor = {
   ...videoMentor,
   answers: videoMentor.answers.map((a) => ({
     ...a,
+    vttMedia: {
+      ...a.vttMedia,
+      vttText: "vtt test text",
+      type: "subtitles",
+      tag: "en",
+      url: "old-vtt-url",
+    },
     previousVersions: [
       {
         transcript: "previous transcript 1",
@@ -82,7 +94,7 @@ describe("answer versioning", () => {
       );
       cy.get("[data-cy=previous-version-0]").should(
         "contain.text",
-        "Date Versioned: 7/14/2023, 12:30:24 PM"
+        "Date Versioned: 7/14/2023"
       );
 
       cy.get("[data-cy=previous-version-1]").should("be.visible");
@@ -96,7 +108,7 @@ describe("answer versioning", () => {
       );
       cy.get("[data-cy=previous-version-1]").should(
         "contain.text",
-        "Date Versioned: 7/14/2023, 12:30:24 PM"
+        "Date Versioned: 7/14/2023"
       );
 
       cy.get("[data-cy=previous-version-2]").scrollIntoView();
@@ -111,7 +123,7 @@ describe("answer versioning", () => {
       );
       cy.get("[data-cy=previous-version-2]").should(
         "contain.text",
-        "Date Versioned: 7/14/2023, 12:30:24 PM"
+        "Date Versioned: 7/14/2023"
       );
     });
 
@@ -167,6 +179,8 @@ describe("answer versioning", () => {
           .should("not.be.checked");
       });
     });
+
+    it("only shows transcript replacement if vtt not available", () => {});
   });
 
   describe("answsers are versioned when:", () => {
@@ -188,6 +202,10 @@ describe("answer versioning", () => {
 
       cy.get(".editor-class").type(". Edited Transcript");
       cy.get("[data-cy=next-btn]").click();
+      cy.get("[data-cy=transcript]").should(
+        "contain.text",
+        "In Howard City, Michigan"
+      );
       cy.get("[data-cy=back-btn]").click();
 
       // check that previous version was stored
@@ -325,11 +343,13 @@ describe("answer versioning", () => {
 
       cy.get(".editor-class").type(". Edited Transcript");
       cy.get("[data-cy=next-btn]").click();
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
       cy.get("[data-cy=back-btn]").click();
       cy.get("[data-cy=versions-icon]").should("not.be.enabled");
 
       cy.get(".editor-class").type(". Edited Transcript. Second Time");
       cy.get("[data-cy=next-btn]").click();
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
       cy.get("[data-cy=back-btn]").click();
       cy.get("[data-cy=versions-icon]").should("be.enabled");
 
@@ -397,20 +417,138 @@ describe("answer versioning", () => {
 
       cy.get(".editor-class").type(". Edited Transcript");
       cy.get("[data-cy=next-btn]").click();
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
       cy.get("[data-cy=back-btn]").click();
       cy.get("[data-cy=versions-icon]").should("not.be.enabled");
     });
   });
 
   describe("changing versions", () => {
-    it("can change vtt only", () => {});
+    it("can change vtt only", () => {
+      cyMockDefault(cy, {
+        mentor: [{ ...singlePreviousVersionsMentor, isAdvanced: true }],
+        questions: videoQuestions,
+      });
+      cyMockVttUpload(cy, "new vtt text", "new vtt path");
+      cy.visit("/record?videoId=A2_1_1");
 
-    it("can change transcript only", () => {});
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
 
-    it("can change both", () => {});
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-    it("selecting a version removes it from the list", () => {});
+      cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=vtt-radio-button]").click();
+      });
+      cy.get("[data-cy=replace-dialog-button]").click();
+      // verify
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
+      cy.get("[data-cy=preview-vtt-file]").click();
+      cy.get("[data-cy=long-text-display-dialog]")
+        .should("be.visible")
+        .should("contain.text", "new vtt text");
+    });
 
-    it("selecting a version adds the replaced version to the list", () => {});
+    it("can change transcript only", () => {
+      cyMockDefault(cy, {
+        mentor: [{ ...singlePreviousVersionsMentor, isAdvanced: true }],
+        questions: videoQuestions,
+      });
+      cyMockVttUpload(cy, "new vtt text", "new vtt path");
+      cy.visit("/record?videoId=A2_1_1");
+
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
+
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+
+      cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=transcript-radio-button]").click();
+      });
+      cy.get("[data-cy=replace-dialog-button]").click();
+      // verify
+      cy.get("[data-cy=transcript]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+      cy.get("[data-cy=preview-vtt-file]").click();
+      cy.get("[data-cy=long-text-display-dialog]")
+        .should("be.visible")
+        .should("contain.text", "vtt test text");
+    });
+
+    it("can change both", () => {
+      cyMockDefault(cy, {
+        mentor: [{ ...singlePreviousVersionsMentor, isAdvanced: true }],
+        questions: videoQuestions,
+      });
+      cyMockVttUpload(cy, "new vtt text", "new vtt path");
+      cy.visit("/record?videoId=A2_1_1");
+
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
+
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+
+      cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=both-radio-button]").click();
+      });
+      cy.get("[data-cy=replace-dialog-button]").click();
+      // verify
+      cy.get("[data-cy=transcript]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+      cy.get("[data-cy=preview-vtt-file]").click();
+      cy.get("[data-cy=long-text-display-dialog]")
+        .should("be.visible")
+        .should("contain.text", "new vtt text");
+    });
+
+    it("selecting a version removes it from the list and adds replaced to list", () => {
+      cyMockDefault(cy, {
+        mentor: [{ ...singlePreviousVersionsMentor, isAdvanced: true }],
+        questions: videoQuestions,
+      });
+      cyMockVttUpload(cy, "new vtt text", "new vtt path");
+      cy.visit("/record?videoId=A2_1_1");
+
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+      cy.get("[data-cy=previous-version-0]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+      cy.get("[data-cy=previous-version-1]").should(
+        "contain.text",
+        "previous transcript 2"
+      );
+      cy.get("[data-cy=versions-close-dialog-button]").click();
+
+      cy.get("[data-cy=transcript]").should("contain.text", "I'm 37 years old");
+
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+
+      cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=both-radio-button]").click();
+      });
+      cy.get("[data-cy=replace-dialog-button]").click();
+      cy.get("[data-cy=transcript]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+      cy.get("[data-cy=previous-version-0]").should(
+        "contain.text",
+        "I'm 37 years old"
+      );
+      cy.get("[data-cy=previous-version-1]").should(
+        "contain.text",
+        "previous transcript 2"
+      );
+    });
   });
 });

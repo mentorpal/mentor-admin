@@ -100,7 +100,7 @@ export function LongTextDisplayDialog(props: {
   ));
   return (
     <Dialog
-      data-cy="notification-dialog"
+      data-cy="long-text-display-dialog"
       maxWidth="sm"
       fullWidth={true}
       open={open}
