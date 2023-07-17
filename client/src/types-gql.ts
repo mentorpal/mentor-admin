@@ -103,6 +103,14 @@ export interface ExternalVideoIdsGQL {
   wistiaId: string;
 }
 
+export interface PreviousAnswerVersion {
+  transcript: string;
+  webVideoHash: string;
+  vttText: string;
+  videoDuration: number;
+  dateVersioned: string;
+}
+
 export interface AnswerGQL {
   _id: string;
   question: Question;
@@ -115,6 +123,8 @@ export interface AnswerGQL {
   vttMedia?: Media;
   hasUntransferredMedia: boolean;
   externalVideoIds: ExternalVideoIdsGQL;
+
+  previousVersions: PreviousAnswerVersion[];
 }
 
 export interface UserQuestionGQL {

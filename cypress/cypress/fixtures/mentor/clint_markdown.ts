@@ -140,6 +140,7 @@ export const mentor: Mentor = {
     {
       _id: "A1_1_1",
       question: {
+        clientId: "",
         _id: "A1_1_1",
         question: "Who are you and what do you do?",
         type: QuestionType.QUESTION,
@@ -150,12 +151,14 @@ export const mentor: Mentor = {
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       markdownTranscript:
         "My *name* is **Clint Anderson** and I'm a Nuclear Electrician's Mate",
+      previousVersions: [],
       status: Status.INCOMPLETE,
     },
     {
       _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
+        clientId: "",
         question: "How old are you now?",
         type: QuestionType.QUESTION,
         name: null,
@@ -164,12 +167,14 @@ export const mentor: Mentor = {
       transcript: "I'm 37 years old",
       markdownTranscript:
         "- I'm [37](https://en.wikipedia.org/wiki/37_%28number%29) years old",
+      previousVersions: [],
       status: Status.INCOMPLETE,
     },
     {
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
+        clientId: "",
         question:
           "Please look at the camera for 30 seconds without speaking. Try to remain in the same position.",
         type: QuestionType.UTTERANCE,
@@ -179,6 +184,7 @@ export const mentor: Mentor = {
         minVideoLength: 10,
       },
       transcript: "",
+      previousVersions: [],
       markdownTranscript: "",
       status: Status.INCOMPLETE,
     },
@@ -186,6 +192,7 @@ export const mentor: Mentor = {
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
+        clientId: "",
         question:
           "Please give a short introduction of yourself, which includes your name, current job, and title.",
         type: QuestionType.UTTERANCE,
@@ -196,12 +203,14 @@ export const mentor: Mentor = {
         "My name is Clint Anderson. I am a Navy Nuclear Electrician's Mate.",
       markdownTranscript:
         "- My _name_ is **Clint Anderson**. I am a ++Navy_ Nuclear Electrician's ++Mate++.",
+      previousVersions: [],
       status: Status.INCOMPLETE,
     },
     {
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
+        clientId: "",
         question:
           "Please repeat the following: 'I couldn't understand the question. Try asking me something else.'",
         type: QuestionType.UTTERANCE,
@@ -210,6 +219,7 @@ export const mentor: Mentor = {
       },
       transcript:
         "I couldn't understand the question. Try asking me something else.",
+      previousVersions: [],
       markdownTranscript:
         "- 1. I couldn't understand the [question](https://www.merriam-webster.com/dictionary/question). Try asking me something else.",
       status: Status.INCOMPLETE,
@@ -217,12 +227,14 @@ export const mentor: Mentor = {
     {
       _id: "A6_1_1",
       question: {
+        clientId: "",
         _id: "A6_1_1",
         question: "Complete answer",
         type: QuestionType.QUESTION,
         name: null,
         paraphrases: [],
       },
+      previousVersions: [],
       transcript: "Complete answer",
       markdownTranscript: "Complete answer",
       status: Status.COMPLETE,

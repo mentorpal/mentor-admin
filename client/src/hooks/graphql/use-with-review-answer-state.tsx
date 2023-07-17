@@ -304,6 +304,7 @@ export function useWithReviewAnswerState(
       status: Status.NONE,
       media: undefined,
       hasUntransferredMedia: false,
+      previousVersions: [],
     };
     let _blocks = blocks;
     const idx = _blocks.findIndex(

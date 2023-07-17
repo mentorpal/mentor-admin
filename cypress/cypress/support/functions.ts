@@ -655,6 +655,28 @@ export function cyMockThumbnailImage(cy): void {
   });
 }
 
+export function cyMockVttUpload(cy, vttText?: string, vttPath?: string): void {
+  cy.intercept("POST", "**/upload/vtt", (req) => {
+    req.alias = "upload_vtt";
+    req.reply(
+      staticResponse({
+        statusCode: 200,
+        body: {
+          data: {
+            data: {
+              vtt_path: vttPath || "fake_vtt_path",
+              vtt_text: vttText || "fake_vtt_text",
+            },
+          },
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    );
+  });
+}
+
 export function testIndexedDbData(
   assertionFunc: (data: any) => Chai.Assertion
 ) {
@@ -708,6 +730,7 @@ export function getUniqueQuestionAndAnswer(
         name: null,
         paraphrases: [],
       },
+      previousVersions: [],
       transcript: `Transcript for new answer ${i}`,
       status: answerComplete ? Status.COMPLETE : Status.INCOMPLETE,
     });

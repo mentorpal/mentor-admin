@@ -135,6 +135,7 @@ export const mentor: Mentor = {
   topics: [],
   answers: [
     {
+      previousVersions: [],
       _id: "A1_1_1",
       question: {
         _id: "A1_1_1",
@@ -149,6 +150,7 @@ export const mentor: Mentor = {
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
@@ -162,6 +164,7 @@ export const mentor: Mentor = {
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
@@ -177,6 +180,7 @@ export const mentor: Mentor = {
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
@@ -191,6 +195,7 @@ export const mentor: Mentor = {
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",

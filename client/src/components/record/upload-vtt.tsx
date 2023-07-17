@@ -47,28 +47,11 @@ export function UploadVtt(props: {
   const [downloadInProgress, setDownloadInProgress] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<JobState>(JobState.NONE);
   const vttMedia = (curAnswer.media || []).find((m) => m.type === "subtitles");
-
-  const [vttText, setVttText] = useState("");
+  const [vttText, setVttText] = useState(vttMedia?.vttText || "");
   const [showVttPreview, setShowVttPreview] = useState(false);
 
   useEffect(() => {
-    if (!vttMedia || !vttMedia.url) {
-      setVttText("");
-      return;
-    }
-    fetch(vttMedia.url)
-      .then((response) => {
-        response.text().then((text) => {
-          setVttText(text);
-        });
-      })
-      .catch((err) => {
-        console.error(
-          `Failed to fetch vtt for preview: ${extractErrorMessageFromError(
-            err
-          )}`
-        );
-      });
+    setVttText(vttMedia?.vttText || "");
   }, [vttMedia]);
 
   const handleVttUpload = (file: File) => {
@@ -95,19 +78,21 @@ export function UploadVtt(props: {
         accessToken,
         configState.config.uploadLambdaEndpoint
       )
-        .then((vttUrl) => {
+        .then((res) => {
           setUploadStatus(JobState.SUCCESS);
           editAnswer({
             media: curAnswer.media?.map((m) => {
               if (m.type === "subtitles") {
                 return {
                   ...m,
-                  url: vttUrl,
+                  url: res.vtt_path,
+                  vttText: res.vtt_text,
                 };
               }
               return m;
             }),
           });
+          setVttText(res.vtt_text);
         })
         .catch((err) => {
           setUploadStatus(JobState.FAILURE);
@@ -192,6 +177,7 @@ export function UploadVtt(props: {
             ) : undefined}
             {vttText ? (
               <Button
+                data-cy="preview-vtt-file"
                 style={{ width: "fit-content", margin: 5 }}
                 onClick={handlePreviewVttFile}
               >

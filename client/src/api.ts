@@ -39,6 +39,7 @@ import {
   Keyword,
   Organization,
   MentorTrainStatusById,
+  RegenVttResponse,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -1089,6 +1090,8 @@ export async function fetchMentorById(
               url
               transparentVideoUrl
               needsTransfer
+              hash
+              duration
             }
             mobileMedia{
               type
@@ -1096,12 +1099,24 @@ export async function fetchMentorById(
               url
               transparentVideoUrl
               needsTransfer
+              hash
+              duration
             }
             vttMedia{
               type
               tag
               url
               needsTransfer
+              hash
+              duration
+              vttText
+            }
+            previousVersions{
+              transcript
+              dateVersioned
+              vttText
+              webVideoHash
+              videoDuration
             }
           }
         }  
@@ -1404,6 +1419,7 @@ export async function updateAnswer(
         answer: {
           transcript: answer.transcript,
           status: answer.status,
+          previousVersions: answer.previousVersions,
         },
       },
     },
@@ -1477,13 +1493,18 @@ export async function uploadThumbnail(
   });
 }
 
+export interface UploadVttResponse {
+  vtt_path: string;
+  vtt_text: string;
+}
+
 export async function uploadVtt(
   mentorId: string,
   questionId: string,
   vtt: File,
   accessToken: string,
   uploadLambdaEndpoint: string
-): Promise<string> {
+): Promise<UploadVttResponse> {
   const data = new FormData();
   data.append("question", questionId);
   data.append("mentor", mentorId);
@@ -1496,7 +1517,7 @@ export async function uploadVtt(
       },
     },
     accessToken,
-    dataPath: ["data", "vtt_path"],
+    dataPath: ["data"],
   });
 }
 
@@ -1569,8 +1590,8 @@ export async function regenerateVTTForQuestion(
   mentorId: string,
   accessToken: string,
   uploadLambdaEndpoint: string
-): Promise<boolean> {
-  return execHttp<boolean>(
+): Promise<RegenVttResponse> {
+  return execHttp<RegenVttResponse>(
     "POST",
     urljoin(uploadLambdaEndpoint, "/regen_vtt"),
     {
@@ -1581,7 +1602,6 @@ export async function regenerateVTTForQuestion(
         }),
       },
       accessToken,
-      dataPath: "regen_vtt",
     }
   );
 }

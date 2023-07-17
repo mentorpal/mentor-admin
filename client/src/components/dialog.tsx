@@ -38,6 +38,7 @@ export function ErrorDialog(props: {
       </DialogContent>
       <DialogContent>
         <Button
+          data-cy="close-error-dialog"
           onClick={() => {
             setOpen(false);
           }}
@@ -99,7 +100,7 @@ export function LongTextDisplayDialog(props: {
   ));
   return (
     <Dialog
-      data-cy="notification-dialog"
+      data-cy="long-text-display-dialog"
       maxWidth="sm"
       fullWidth={true}
       open={open}

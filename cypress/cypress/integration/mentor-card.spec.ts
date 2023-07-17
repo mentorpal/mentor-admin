@@ -245,6 +245,7 @@ describe("My Mentor Page", () => {
                 },
                 transcript:
                   "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
+                previousVersions: [],
                 status: Status.COMPLETE,
               })),
           ],
