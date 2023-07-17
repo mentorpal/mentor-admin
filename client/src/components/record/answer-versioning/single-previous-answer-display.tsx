@@ -105,37 +105,24 @@ function DateDisplay(props: { dateVersioned: string }): JSX.Element {
 
 export function PreviousAnswerDisplay(props: {
   previousAnswer: PreviousAnswerVersion;
-  setSelectedAnswerVersion: (previousAnswer: PreviousAnswerVersion) => void;
+  setSelectedAnswerVersion: (previousAnswer?: PreviousAnswerVersion) => void;
   setSelectionType: (selectionType: PreviousVersionSelectionType) => void;
-  curSelectedAnswerVersion?: PreviousAnswerVersion;
-  index: number;
 }): JSX.Element {
-  const {
-    index,
-    previousAnswer,
-    setSelectedAnswerVersion,
-    setSelectionType,
-    curSelectedAnswerVersion,
-  } = props;
+  const { previousAnswer, setSelectedAnswerVersion, setSelectionType } = props;
   const [localSelectedRadio, setLocalSelectedRadio] = useState<string>(
     PreviousVersionSelectionType.NONE
   );
 
   useEffect(() => {
-    if (!curSelectedAnswerVersion) {
+    if (!previousAnswer) {
       return;
     }
-    if (
-      curSelectedAnswerVersion.dateVersioned !== previousAnswer.dateVersioned ||
-      curSelectedAnswerVersion.transcript !== previousAnswer.transcript ||
-      curSelectedAnswerVersion.vttText !== previousAnswer.vttText
-    ) {
-      setLocalSelectedRadio(PreviousVersionSelectionType.NONE);
-    }
-  }, [curSelectedAnswerVersion]);
+    setLocalSelectedRadio(PreviousVersionSelectionType.NONE);
+    setSelectedAnswerVersion(undefined);
+  }, [previousAnswer.transcript, previousAnswer.vttText]);
   return (
     <div
-      data-cy={`previous-version-${index}`}
+      data-cy={"previous-version"}
       style={{
         display: "flex",
         flexDirection: "column",

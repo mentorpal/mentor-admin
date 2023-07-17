@@ -83,45 +83,52 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").should("be.enabled");
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
-      cy.get("[data-cy=previous-version-0]").should("be.visible");
-      cy.get("[data-cy=previous-version-0]").should(
+      cy.get("[data-cy=previous-version]").should("be.visible");
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 1"
       );
-      cy.get("[data-cy=previous-version-0]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous vtt 1"
       );
-      cy.get("[data-cy=previous-version-0]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "Date Versioned: 7/14/2023"
       );
 
-      cy.get("[data-cy=previous-version-1]").should("be.visible");
-      cy.get("[data-cy=previous-version-1]").should(
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+
+      cy.get("[data-cy=previous-version]").should("be.visible");
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 2"
       );
-      cy.get("[data-cy=previous-version-1]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous vtt 2"
       );
-      cy.get("[data-cy=previous-version-1]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "Date Versioned: 7/14/2023"
       );
 
-      cy.get("[data-cy=previous-version-2]").scrollIntoView();
-      cy.get("[data-cy=previous-version-2]").should("be.visible");
-      cy.get("[data-cy=previous-version-2]").should(
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+
+      cy.get("[data-cy=previous-version]").should("be.visible");
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 3"
       );
-      cy.get("[data-cy=previous-version-2]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous vtt 3"
       );
-      cy.get("[data-cy=previous-version-2]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "Date Versioned: 7/14/2023"
       );
@@ -137,7 +144,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=both-radio-button]").click();
         cy.get("[data-cy=both-radio-button]").get("input").should("be.checked");
 
@@ -163,7 +170,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=both-radio-button]").click();
         cy.get("[data-cy=both-radio-button]").get("input").should("be.checked");
       });
@@ -173,14 +180,111 @@ describe("answer versioning", () => {
       cy.wait(1000);
       cy.get("[data-cy=versions-icon]").click();
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=both-radio-button]")
           .get("input")
           .should("not.be.checked");
       });
     });
 
-    it("only shows transcript replacement if vtt not available", () => {});
+    it("can use arrows to navigate versions", () => {
+      cyMockDefault(cy, {
+        mentor: [singlePreviousVersionsMentor],
+        questions: videoQuestions,
+      });
+      cy.visit("/record");
+      cy.get("[data-cy=versions-icon]").should("be.enabled");
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 2"
+      );
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 3"
+      );
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-left]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 2"
+      );
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-left]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=double-right]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 3"
+      );
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=double-left]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+    });
+
+    it("only shows transcript replacement if vtt not available", () => {
+      cyMockDefault(cy, {
+        mentor: [
+          {
+            ...singlePreviousVersionsMentor,
+            answers: singlePreviousVersionsMentor.answers.map((a) => ({
+              ...a,
+              previousVersions: [
+                {
+                  transcript: "previous transcript 1",
+                  vttText: "",
+                  webVideoHash: "previous hash 1",
+                  videoDuration: 100,
+                  dateVersioned: "1689363024446",
+                },
+              ],
+            })),
+          },
+        ],
+        questions: videoQuestions,
+      });
+      cy.visit("/record");
+      cy.get("[data-cy=versions-icon]").should("be.enabled");
+      cy.get("[data-cy=versions-icon]").click();
+      cy.get("[data-cy=versions-dialog]").should("be.visible");
+
+      cy.get("[data-cy=previous-version]").should(
+        "contain.text",
+        "previous transcript 1"
+      );
+      cy.get("[data-cy=previous-version]").should("not.contain.text", "vtt");
+      cy.get("[data-cy=previous-version]").within(() => {
+        cy.get("[data-cy=transcript-radio-button]")
+          .should("exist")
+          .should("be.visible");
+        cy.get("[data-cy=both-radio-button]").should("not.exist");
+        cy.get("[data-cy=vtt-radio-button]").should("not.exist");
+      });
+    });
   });
 
   describe("answsers are versioned when:", () => {
@@ -192,7 +296,7 @@ describe("answer versioning", () => {
       cy.visit("/record?videoId=A2_1_1&videoId=A3_1_1");
 
       cy.get("[data-cy=versions-icon]").click();
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=transcript]").should(
           "have.text",
           "previous transcript 1"
@@ -212,11 +316,15 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=transcript]").should("have.text", "I'm 37 years old");
       });
 
-      cy.get("[data-cy=previous-version-1]").within(() => {
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=transcript]").should(
           "have.text",
           "previous transcript 1"
@@ -261,14 +369,18 @@ describe("answer versioning", () => {
         cy.get("[data-cy=versions-icon]").click();
         cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-        cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=previous-version]").within(() => {
           cy.get("[data-cy=transcript]").should(
             "have.text",
             "I'm 37 years old"
           );
         });
 
-        cy.get("[data-cy=previous-version-1]").within(() => {
+        cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+          cy.get("[data-cy=single-right]").click();
+        });
+
+        cy.get("[data-cy=previous-version]").within(() => {
           cy.get("[data-cy=transcript]").should(
             "have.text",
             "previous transcript 1"
@@ -321,11 +433,15 @@ describe("answer versioning", () => {
         cy.get("[data-cy=versions-icon]").click();
         cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-        cy.get("[data-cy=previous-version-0]").within(() => {
+        cy.get("[data-cy=previous-version]").within(() => {
           cy.get("[data-cy=transcript]").should("have.text", "i am aaron");
         });
 
-        cy.get("[data-cy=previous-version-1]").within(() => {
+        cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+          cy.get("[data-cy=single-right]").click();
+        });
+
+        cy.get("[data-cy=previous-version]").within(() => {
           cy.get("[data-cy=transcript]").should(
             "have.text",
             "I'm 37 years old"
@@ -357,16 +473,12 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=transcript]").should(
           "have.text",
           ". Edited Transcript"
         );
       });
-    });
-
-    it("vtt is edited", () => {
-      // TODO
     });
   });
 
@@ -437,7 +549,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=vtt-radio-button]").click();
       });
       cy.get("[data-cy=replace-dialog-button]").click();
@@ -462,7 +574,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=transcript-radio-button]").click();
       });
       cy.get("[data-cy=replace-dialog-button]").click();
@@ -490,7 +602,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=both-radio-button]").click();
       });
       cy.get("[data-cy=replace-dialog-button]").click();
@@ -515,11 +627,16 @@ describe("answer versioning", () => {
 
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
-      cy.get("[data-cy=previous-version-0]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 1"
       );
-      cy.get("[data-cy=previous-version-1]").should(
+
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 2"
       );
@@ -530,7 +647,7 @@ describe("answer versioning", () => {
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
 
-      cy.get("[data-cy=previous-version-0]").within(() => {
+      cy.get("[data-cy=previous-version]").within(() => {
         cy.get("[data-cy=both-radio-button]").click();
       });
       cy.get("[data-cy=replace-dialog-button]").click();
@@ -541,11 +658,14 @@ describe("answer versioning", () => {
 
       cy.get("[data-cy=versions-icon]").click();
       cy.get("[data-cy=versions-dialog]").should("be.visible");
-      cy.get("[data-cy=previous-version-0]").should(
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "I'm 37 years old"
       );
-      cy.get("[data-cy=previous-version-1]").should(
+      cy.get("[data-cy=versions-dialog-pagination]").within(() => {
+        cy.get("[data-cy=single-right]").click();
+      });
+      cy.get("[data-cy=previous-version]").should(
         "contain.text",
         "previous transcript 2"
       );
