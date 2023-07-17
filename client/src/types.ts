@@ -5,7 +5,12 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { CancelTokenSource } from "axios";
-import { AnswerGQL, SubjectGQL, UserQuestionGQL } from "types-gql";
+import {
+  AnswerGQL,
+  PreviousAnswerVersion,
+  SubjectGQL,
+  UserQuestionGQL,
+} from "types-gql";
 import { QuestionState } from "store/slices/questions";
 import { LoadingError } from "hooks/graphql/loading-reducer";
 
@@ -280,6 +285,9 @@ export interface Media {
   url: string;
   transparentVideoUrl: string;
   needsTransfer: boolean;
+  hash: string;
+  duration: number;
+  vttText: string;
 }
 
 export interface Answer {
@@ -292,6 +300,7 @@ export interface Answer {
   status: Status;
   hasUntransferredMedia: boolean;
   media?: Media[];
+  previousVersions: PreviousAnswerVersion[];
 }
 
 export interface UserQuestion {
@@ -544,11 +553,13 @@ export enum AnswerAttentionNeeded {
 
 export enum MediaType {
   VIDEO = "video",
+  VTT = "subtitles",
 }
 
 export enum MediaTag {
   WEB = "web",
   MOBILE = "mobile",
+  VTT = "en",
 }
 
 export enum ImportTaskStatus {
@@ -556,6 +567,12 @@ export enum ImportTaskStatus {
   IN_PROGRESS = "IN_PROGRESS",
   FAILED = "FAILED",
   DONE = "DONE",
+}
+
+export interface RegenVttResponse {
+  regen_vtt: boolean;
+  new_vtt_text: string;
+  new_vtt_url: string;
 }
 
 export interface ImportGraphQLUpdate {
@@ -617,7 +634,7 @@ export interface UseWithRecordState {
     answerStateEdits?: Partial<AnswerState>
   ) => void;
   editQuestion: (edits: Partial<Question>) => void;
-  saveAnswer: () => Promise<void>;
+  saveAnswer: (customEditedAnswer?: Answer) => Promise<void>;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   rerecord: () => void;
   startRecording: () => void;

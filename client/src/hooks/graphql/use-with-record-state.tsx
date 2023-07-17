@@ -26,6 +26,7 @@ import {
   UtteranceName,
   RecordStateError,
   Status,
+  Media,
 } from "types";
 import {
   copyAndSet,
@@ -45,6 +46,7 @@ import { navigate } from "gatsby";
 import { areAllTasksDoneOrOneFailed } from "./upload-status-helpers";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useAppSelector } from "store/hooks";
+import { PreviousAnswerVersion } from "types-gql";
 
 export function useWithRecordState(
   accessToken: string,
@@ -392,8 +394,13 @@ export function useWithRecordState(
     });
   }
 
-  async function saveAnswer() {
-    const { answer, editedAnswer, localTranscriptChanges } = answers[answerIdx];
+  async function saveAnswer(customEditedAnswer?: Answer) {
+    const {
+      answer,
+      editedAnswer: _editedAnswer,
+      localTranscriptChanges,
+    } = answers[answerIdx];
+    const editedAnswer = customEditedAnswer || _editedAnswer;
     const question = getValueIfKeyExists(
       answer.question,
       mentorQuestions
@@ -411,6 +418,14 @@ export function useWithRecordState(
       setIsSaving(true);
       let didUpdate = false;
       try {
+        const shouldVersionTranscript =
+          localTranscriptChanges || customEditedAnswer;
+        if (shouldVersionTranscript) {
+          editedAnswer.previousVersions = getUpdatedAnswerVersions(
+            answer,
+            editedAnswer
+          );
+        }
         didUpdate = await updateAnswer(editedAnswer, accessToken, mentorId);
       } catch (e) {
         const errorMessage = extractErrorMessageFromError(e);
@@ -421,27 +436,88 @@ export function useWithRecordState(
         });
         return;
       }
-      setIsSaving(false);
       if (!didUpdate) {
+        setIsSaving(false);
         return;
       }
-      updateAnswerState({
+      let answerUpdateEdits: Partial<AnswerState> = {
         answer: { ...editedAnswer },
+        editedAnswer: { ...editedAnswer },
         localTranscriptChanges: false,
-      });
+      };
       if (
-        editedAnswer.hasEditedTranscript &&
+        localTranscriptChanges &&
         mentorType === MentorType.VIDEO &&
         configState.config?.uploadLambdaEndpoint
       ) {
-        regenerateVTTForQuestion(
-          editedAnswer.question,
-          mentorId,
-          accessToken,
-          configState.config.uploadLambdaEndpoint
-        );
+        try {
+          const newVttInfo = await regenerateVTTForQuestion(
+            editedAnswer.question,
+            mentorId,
+            accessToken,
+            configState.config.uploadLambdaEndpoint
+          );
+          const existingVttMedia = answer.media?.find(
+            (m) => m.tag === MediaTag.VTT
+          );
+          if (!newVttInfo.regen_vtt) {
+            return;
+          }
+          const newVttMedia: Media = {
+            type: MediaType.VTT,
+            tag: MediaTag.VTT,
+            transparentVideoUrl: "",
+            needsTransfer: false,
+            hash: "",
+            duration: 0,
+            ...(existingVttMedia || []),
+            url: newVttInfo.new_vtt_url,
+            vttText: newVttInfo.new_vtt_text,
+          };
+          const newMedia = editedAnswer.media
+            ?.filter((m) => m.tag !== MediaTag.VTT)
+            .concat(newVttMedia);
+          answerUpdateEdits = {
+            ...answerUpdateEdits,
+            answer: {
+              ...answerUpdateEdits.answer!,
+              media: newMedia,
+            },
+            editedAnswer: {
+              ...answerUpdateEdits.editedAnswer!,
+              media: newMedia,
+            },
+          };
+        } catch (err) {
+          console.error("failed to regenerate vtt");
+          console.error(err);
+        }
       }
+      updateAnswerState(answerUpdateEdits, answerIdx);
+      setIsSaving(false);
     }
+  }
+
+  function getUpdatedAnswerVersions(
+    answer: Answer,
+    editedAnswer: Answer
+  ): PreviousAnswerVersion[] {
+    const firstUpload = !answer.previousVersions.length && !answer.transcript;
+    if (firstUpload) {
+      return [];
+    }
+    const oldWebMedia = answer.media?.find((m) => m.tag === MediaTag.WEB);
+    const oldVttMedia = answer.media?.find((m) => m.tag === MediaTag.VTT);
+    return [
+      ...(editedAnswer.previousVersions || []),
+      {
+        transcript: answer.transcript,
+        dateVersioned: Date.now().toString(),
+        webVideoHash: oldWebMedia?.hash || "",
+        vttText: oldVttMedia?.vttText || "",
+        videoDuration: oldWebMedia?.duration || 0,
+      },
+    ];
   }
 
   async function uploadVideo(trim?: { start: number; end: number }) {
@@ -449,24 +525,29 @@ export function useWithRecordState(
     if (!mentorId || !answer.answer.question) {
       return;
     }
-    if (
+    const editedAnswer: Answer = {
+      ...answer.editedAnswer,
+      previousVersions: getUpdatedAnswerVersions(
+        answer.answer,
+        answer.editedAnswer
+      ),
+    };
+    const existingVideoWithEditedTranscript =
       trim &&
-      (answer.editedAnswer.hasEditedTranscript ||
-        answer.answer.hasEditedTranscript)
-    ) {
+      (editedAnswer.hasEditedTranscript || answer.answer.hasEditedTranscript);
+    if (existingVideoWithEditedTranscript) {
       setNotifyDialogOpen(true);
-      if (answer.editedAnswer.hasEditedTranscript) {
-        try {
-          await updateAnswer(answer.editedAnswer, accessToken, mentorId);
-          updateAnswerState({ answer: answer.editedAnswer });
-        } catch (err) {
-          setError({
-            message: "Failed to update answer with edited transcript",
-            error: String(err),
-          });
-        }
-      }
     }
+    updateAnswerState({ answer: editedAnswer, editedAnswer: editedAnswer });
+    try {
+      await updateAnswer(editedAnswer, accessToken, mentorId);
+    } catch (err) {
+      setError({
+        message: "Failed to update answer with edited transcript",
+        error: String(err),
+      });
+    }
+
     if (!answer.recordedVideo) {
       const url = curAnswer?.videoSrc;
       if (url) {
@@ -481,7 +562,7 @@ export function useWithRecordState(
               videoFile,
               Boolean(hasVirtualBackground),
               trim,
-              answer.editedAnswer.hasEditedTranscript ||
+              editedAnswer.hasEditedTranscript ||
                 answer.answer.hasEditedTranscript
             );
           })

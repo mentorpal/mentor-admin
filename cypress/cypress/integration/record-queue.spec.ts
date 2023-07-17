@@ -44,6 +44,7 @@ describe("Feedback Page add/remove from record queue", () => {
                 clientId: "",
                 paraphrases: [],
               },
+              previousVersions: [],
               transcript: "",
               status: Status.INCOMPLETE,
             },
@@ -230,6 +231,7 @@ describe("Feedback Page add/remove from record queue", () => {
               ...clint.answers,
               {
                 _id: "A1_1_2",
+                previousVersions: [],
                 question: {
                   _id: "A1_1_2",
                   question: "hey",
@@ -460,6 +462,7 @@ describe("Queue Card", () => {
           ...clint.answers,
           {
             _id: "A6_1_2",
+            previousVersions: [],
             question: {
               _id: "A6_1_2",
               clientId: "C_A6_1_2",

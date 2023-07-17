@@ -35,6 +35,7 @@ export const hasSubjects: Mentor = {
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
+      isArchived: false,
       isRequired: true,
       description: "These are miscellaneous phrases you'll be asked to repeat.",
       categories: [
@@ -95,6 +96,7 @@ export const hasIdle: Mentor = {
     ...hasSubjects.answers,
     {
       _id: "A3_1_1",
+      previousVersions: [],
       question: {
         _id: "A3_1_1",
         clientId: "C3_1_1",
@@ -117,6 +119,7 @@ export const hasIntroNoTranscript: Mentor = {
     ...hasIdle.answers,
     {
       _id: "A4_1_1",
+      previousVersions: [],
       question: {
         _id: "A4_1_1",
         clientId: "C4_1_1",

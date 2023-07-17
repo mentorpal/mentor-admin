@@ -22,6 +22,7 @@ export const hasSubjectQuestionsOver5: Mentor = {
       name: "Background",
       type: SubjectTypes.SUBJECT,
       isRequired: true,
+      isArchived: false,
       description:
         "These questions will ask general questions about your background that might be relevant to how people understand your career.",
       categories: [
@@ -83,6 +84,7 @@ export const hasSubjectQuestionsOver5: Mentor = {
     ...hasThumbnail.answers,
     {
       _id: "A1_1_1",
+      previousVersions: [],
       question: {
         _id: "A1_1_1",
         clientId: "C1_1_1",
@@ -97,6 +99,7 @@ export const hasSubjectQuestionsOver5: Mentor = {
     },
     {
       _id: "A2_1_1",
+      previousVersions: [],
       question: {
         _id: "A2_1_1",
         clientId: "C2_1_1",

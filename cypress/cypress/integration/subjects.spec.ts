@@ -12,11 +12,12 @@ import {
   Status,
   QuestionType,
   UserRole,
+  Mentor,
 } from "../support/types";
 import { completeSubjectQuestion } from "../support/helpers";
 import { login as loginDefault } from "../fixtures/login";
 
-const mentor = {
+const mentor: Mentor = {
   _id: "clintanderson",
   name: "Clint Anderson",
   firstName: "Clint",
@@ -61,6 +62,7 @@ const mentor = {
   answers: [
     {
       _id: "A1_1_1",
+      previousVersions: [],
       question: {
         _id: "A1_1_1",
         clientId: "C1_1_1",
@@ -75,6 +77,7 @@ const mentor = {
     },
     {
       _id: "A2_1_1",
+      previousVersions: [],
       question: {
         _id: "A2_1_1",
         clientId: "C2_1_1",
@@ -88,6 +91,7 @@ const mentor = {
     },
     {
       _id: "A3_1_1",
+      previousVersions: [],
       question: {
         _id: "A3_1_1",
         clientId: "C3_1_1",
@@ -101,6 +105,7 @@ const mentor = {
     },
     {
       _id: "A4_1_1",
+      previousVersions: [],
       question: {
         _id: "A4_1_1",
         clientId: "C4_1_1",
@@ -115,6 +120,7 @@ const mentor = {
     },
     {
       _id: "A5_1_1",
+      previousVersions: [],
       question: {
         _id: "A5_1_1",
         clientId: "C5_1_1",

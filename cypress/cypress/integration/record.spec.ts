@@ -26,52 +26,11 @@ import {
   updateMentorAnswer,
 } from "../support/helpers";
 import clintMarkdown from "../fixtures/mentor/clint_markdown";
-
-export function taskListBuild(progressForAllTasks) {
-  return {
-    trimUploadTask: {
-      task_name: "trim_upload",
-      status: progressForAllTasks,
-    },
-    transcodeWebTask: {
-      task_name: "transcode-web",
-      status: progressForAllTasks,
-    },
-    tanscodeMobileTask: {
-      task_name: "transcode-mobile",
-      status: progressForAllTasks,
-    },
-    transcribeTask: {
-      task_name: "transcribe",
-      status: progressForAllTasks,
-    },
-  };
-}
-
-export function uploadTaskMediaBuild() {
-  return {
-    originalMedia: {
-      type: "video",
-      tag: "original",
-      url: "http://google.mp4/original.mp4",
-    },
-    webMedia: {
-      type: "video",
-      tag: "web",
-      url: "http://google.mp4",
-    },
-    mobileMedia: {
-      type: "video",
-      tag: "mobile",
-      url: "http://google.mp4",
-    },
-    vttMedia: {
-      type: "vtt",
-      tag: "en",
-      url: "http://google.mp4",
-    },
-  };
-}
+import {
+  videoMentor,
+  videoQuestions,
+} from "../fixtures/recording/video_mentors";
+import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -168,8 +127,10 @@ const chatMentor: Mentor = completeMentor({
       transcript:
         "My name is Clint Anderson and I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
+      previousVersions: [],
     },
     {
+      previousVersions: [],
       _id: "A2_1_1",
       question: {
         _id: "A2_1_1",
@@ -183,6 +144,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A3_1_1",
       question: {
         _id: "A3_1_1",
@@ -196,6 +158,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.INCOMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A4_1_1",
       question: {
         _id: "A4_1_1",
@@ -210,6 +173,7 @@ const chatMentor: Mentor = completeMentor({
       status: Status.COMPLETE,
     },
     {
+      previousVersions: [],
       _id: "A5_1_1",
       question: {
         _id: "A5_1_1",
@@ -255,166 +219,6 @@ const chatQuestions = [
   completeQuestion({
     _id: "A6_1_1",
     question: "",
-  }),
-];
-const videoMentor: Mentor = completeMentor({
-  _id: "clintanderson",
-  mentorType: MentorType.VIDEO,
-  lastTrainedAt: null,
-  answers: [
-    {
-      _id: "A1_1_1",
-      question: {
-        _id: "A1_1_1",
-        clientId: "C1_1_1",
-        name: "A1_1_1",
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-        question: "Who are you and what do you do?",
-      },
-      transcript: "",
-      markdownTranscript: "",
-      status: Status.INCOMPLETE,
-    },
-    {
-      _id: "A2_1_1",
-      question: {
-        _id: "A2_1_1",
-        clientId: "C2_1_1",
-        name: "A2_1_1",
-        type: QuestionType.QUESTION,
-        paraphrases: [],
-        question: "How old are you now?",
-      },
-      transcript: "I'm 37 years old",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A2_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
-    },
-    {
-      _id: "A3_1_1",
-      question: {
-        _id: "A3_1_1",
-        clientId: "C3_1_1",
-        name: "A3_1_1",
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-        question: "Where do you live?",
-      },
-      transcript: "In Howard City, Michigan",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A3_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
-    },
-    {
-      _id: "A4_1_1",
-      question: {
-        _id: "A4_1_1",
-        clientId: "C4_1_1",
-        name: "A4_1_1",
-        type: QuestionType.UTTERANCE,
-        paraphrases: [],
-        question: "How old are you now?",
-      },
-      transcript: "",
-      media: [
-        {
-          type: MediaType.VIDEO,
-          tag: "web",
-          url: "A4_1_1.mp4",
-        },
-      ],
-      status: Status.COMPLETE,
-    },
-  ],
-  subjects: [
-    completeSubject({
-      _id: "subject_1",
-      name: "Subject 1",
-      questions: [
-        completeSubjectQuestion({
-          question: {
-            _id: "A1_1_1",
-            clientId: "C1_1_1",
-            question: "Question 1",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
-          category: { id: "cat", name: "cat", description: "cat" },
-        }),
-        completeSubjectQuestion({
-          question: {
-            _id: "A2_1_1",
-            clientId: "C2_1_1",
-            question: "Question 2",
-            name: null,
-            type: QuestionType.QUESTION,
-            paraphrases: [],
-          },
-          category: { id: "cat", name: "cat", description: "cat" },
-        }),
-      ],
-      categories: [{ id: "cat", name: "cat", description: "cat" }],
-    }),
-    completeSubject({
-      _id: "subject_2",
-      name: "Subject 2",
-      questions: [
-        completeSubjectQuestion({
-          question: {
-            _id: "A3_1_1",
-            clientId: "C3_1_1",
-            question: "Question 3",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
-        }),
-        completeSubjectQuestion({
-          question: {
-            _id: "A4_1_1",
-            clientId: "C4_1_1",
-            question: "Question 4",
-            name: null,
-            type: QuestionType.UTTERANCE,
-            paraphrases: [],
-          },
-        }),
-      ],
-    }),
-  ],
-});
-const videoQuestions = [
-  completeQuestion({
-    _id: "A1_1_1",
-    question: "Who are you and what do you do?",
-  }),
-  completeQuestion({
-    _id: "A2_1_1",
-    question: "How old are you now?",
-    mentor: "clintanderson",
-  }),
-  completeQuestion({
-    _id: "A3_1_1",
-    question: "Where do you live?",
-    mentor: "clintanderson",
-  }),
-  completeQuestion({
-    _id: "A4_1_1",
-    question: "Record an idle video",
-    mentor: "clintanderson",
-    name: "_IDLE_",
   }),
 ];
 
@@ -801,6 +605,7 @@ describe("Record", () => {
           ],
           answers: [
             {
+              previousVersions: [],
               _id: "A1_1_1",
               question: {
                 _id: "A1_1_1",
@@ -816,6 +621,7 @@ describe("Record", () => {
             },
             {
               _id: "A2_1_1",
+              previousVersions: [],
               question: {
                 _id: "A2_1_1",
                 clientId: "C2_1_1",
@@ -828,6 +634,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A3_1_1",
               question: {
                 _id: "A3_1_1",
@@ -841,6 +648,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A4_1_1",
               question: {
                 _id: "A4_1_1",
@@ -855,6 +663,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A5_1_1",
               question: {
                 _id: "A5_1_1",
@@ -995,6 +804,7 @@ describe("Record", () => {
           ],
           answers: [
             {
+              previousVersions: [],
               _id: "A1_1_1",
               question: {
                 _id: "A1_1_1",
@@ -1009,6 +819,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A2_1_1",
               question: {
                 _id: "A2_1_1",
@@ -1022,6 +833,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A3_1_1",
               question: {
                 _id: "A3_1_1",
@@ -1035,6 +847,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A4_1_1",
               question: {
                 _id: "A4_1_1",
@@ -1049,6 +862,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A5_1_1",
               question: {
                 _id: "A5_1_1",
@@ -1108,6 +922,7 @@ describe("Record", () => {
           lastTrainedAt: null,
           answers: [
             {
+              previousVersions: [],
               _id: "A1_1_1",
               question: {
                 _id: "A1_1_1",
@@ -1126,6 +941,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A2_1_1",
               question: {
                 _id: "A2_1_1",
@@ -1139,6 +955,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A3_1_1",
               question: {
                 _id: "A3_1_1",
@@ -1157,6 +974,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A4_1_1",
               question: {
                 _id: "A4_1_1",
@@ -1258,6 +1076,7 @@ describe("Record", () => {
           lastTrainedAt: null,
           answers: [
             {
+              previousVersions: [],
               _id: "A1_1_1",
               question: {
                 _id: "A1_1_1",
@@ -1276,6 +1095,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A2_1_1",
               question: {
                 _id: "A2_1_1",
@@ -1289,6 +1109,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A3_1_1",
               question: {
                 _id: "A3_1_1",
@@ -1307,6 +1128,7 @@ describe("Record", () => {
               status: Status.NONE,
             },
             {
+              previousVersions: [],
               _id: "A4_1_1",
               question: {
                 _id: "A4_1_1",
@@ -2971,6 +2793,20 @@ describe("Record", () => {
           .should("contain.text", "Failed to upload file");
       });
     });
+  });
+
+  it("non-advanced mentors cannot see vtt file info block", () => {
+    cyMockDefault(cy, { mentor: [{ ...videoMentor, isAdvanced: false }] });
+    cy.visit("/record");
+    cy.get("[data-cy=transcript]").should("exist").should("be.visible");
+    cy.get("[data-cy=upload-vtt-file]").should("not.exist");
+  });
+
+  it("advanced mentors can see vtt file info block", () => {
+    cyMockDefault(cy, { mentor: [{ ...videoMentor, isAdvanced: true }] });
+    cy.visit("/record");
+    cy.get("[data-cy=transcript]").should("exist").should("be.visible");
+    cy.get("[data-cy=upload-vtt-file]").should("exist").should("be.visible");
   });
 
   it("user is warned to download video when an upload fails", () => {

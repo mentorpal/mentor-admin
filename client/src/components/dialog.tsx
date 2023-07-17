@@ -38,6 +38,7 @@ export function ErrorDialog(props: {
       </DialogContent>
       <DialogContent>
         <Button
+          data-cy="close-error-dialog"
           onClick={() => {
             setOpen(false);
           }}
@@ -81,6 +82,57 @@ export function NotificationDialog(props: {
           Close
         </Button>
       </DialogContent>
+    </Dialog>
+  );
+}
+
+export function LongTextDisplayDialog(props: {
+  text: string;
+  open: boolean;
+  closeDialog: () => void;
+}): JSX.Element {
+  const { text, open, closeDialog } = props;
+  const formattedText = text.split("\n").map((line, index) => (
+    <React.Fragment key={index}>
+      {line}
+      <br />
+    </React.Fragment>
+  ));
+  return (
+    <Dialog
+      data-cy="long-text-display-dialog"
+      maxWidth="sm"
+      fullWidth={true}
+      open={open}
+      PaperProps={{
+        style: {
+          borderRadius: "20px",
+          borderWidth: "3px",
+          borderColor: "#1c6a9c",
+          borderStyle: "solid",
+        },
+      }}
+    >
+      <DialogContent style={{ maxHeight: "80%", overflow: "scroll" }}>
+        <span
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "start",
+            textAlign: "left",
+          }}
+        >
+          {formattedText}
+        </span>
+      </DialogContent>
+      <Button
+        data-cy="notification-dialog-button"
+        onClick={() => {
+          closeDialog();
+        }}
+      >
+        Close
+      </Button>
     </Dialog>
   );
 }

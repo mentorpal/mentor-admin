@@ -39,6 +39,7 @@ import {
   Keyword,
   Organization,
   MentorTrainStatusById,
+  RegenVttResponse,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -181,7 +182,7 @@ async function execHttp<T>(
   return getDataFromAxiosResponse(result, optsEffective.dataPath || []);
 }
 
-function throwErrorsInAxiosResponse(res: AxiosResponse) {
+export function throwErrorsInAxiosResponse(res: AxiosResponse): void {
   if (!(res.status >= 200 && res.status <= 299)) {
     throw new Error(`http request failed: ${res.data}`);
   }
@@ -231,6 +232,12 @@ export async function fetchFollowUpQuestions(
     ),
     { accessToken, dataPath: "followups" }
   );
+}
+
+export async function fetchVttFileFromUrl(url: string): Promise<string> {
+  const result = await axios.get(url, { responseType: "text" });
+  throwErrorsInAxiosResponse(result);
+  return result.data;
 }
 
 export async function fetchConfig(): Promise<Config> {
@@ -1083,6 +1090,8 @@ export async function fetchMentorById(
               url
               transparentVideoUrl
               needsTransfer
+              hash
+              duration
             }
             mobileMedia{
               type
@@ -1090,12 +1099,24 @@ export async function fetchMentorById(
               url
               transparentVideoUrl
               needsTransfer
+              hash
+              duration
             }
             vttMedia{
               type
               tag
               url
               needsTransfer
+              hash
+              duration
+              vttText
+            }
+            previousVersions{
+              transcript
+              dateVersioned
+              vttText
+              webVideoHash
+              videoDuration
             }
           }
         }  
@@ -1398,6 +1419,7 @@ export async function updateAnswer(
         answer: {
           transcript: answer.transcript,
           status: answer.status,
+          previousVersions: answer.previousVersions,
         },
       },
     },
@@ -1471,6 +1493,34 @@ export async function uploadThumbnail(
   });
 }
 
+export interface UploadVttResponse {
+  vtt_path: string;
+  vtt_text: string;
+}
+
+export async function uploadVtt(
+  mentorId: string,
+  questionId: string,
+  vtt: File,
+  accessToken: string,
+  uploadLambdaEndpoint: string
+): Promise<UploadVttResponse> {
+  const data = new FormData();
+  data.append("question", questionId);
+  data.append("mentor", mentorId);
+  data.append("vtt_file", vtt);
+  return execHttp("POST", urljoin(uploadLambdaEndpoint, "/vtt"), {
+    axiosConfig: {
+      data: data,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    },
+    accessToken,
+    dataPath: ["data"],
+  });
+}
+
 export async function uploadVbg(
   mentorId: string,
   vbg: File,
@@ -1540,8 +1590,8 @@ export async function regenerateVTTForQuestion(
   mentorId: string,
   accessToken: string,
   uploadLambdaEndpoint: string
-): Promise<boolean> {
-  return execHttp<boolean>(
+): Promise<RegenVttResponse> {
+  return execHttp<RegenVttResponse>(
     "POST",
     urljoin(uploadLambdaEndpoint, "/regen_vtt"),
     {
@@ -1552,7 +1602,6 @@ export async function regenerateVTTForQuestion(
         }),
       },
       accessToken,
-      dataPath: "regen_vtt",
     }
   );
 }

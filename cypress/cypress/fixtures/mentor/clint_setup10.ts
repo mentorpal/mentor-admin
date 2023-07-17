@@ -43,6 +43,7 @@ export const mentor: Mentor = {
   answers: [
     ...clint_prev.answers,
     {
+      previousVersions: [],
       _id: "A7_1_1",
       question: {
         _id: "A7_1_1",

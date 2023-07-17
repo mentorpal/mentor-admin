@@ -92,6 +92,7 @@ export interface Mentor {
   isDirty: boolean;
   isPrivate: boolean;
   isArchived: boolean;
+  isAdvanced: boolean;
   defaultSubject?: Subject;
   numAnswersComplete: number;
   subjects: Subject[];
@@ -160,10 +161,19 @@ export interface Media {
   type: string;
   tag: string;
   url: string;
+  vttText: string;
 }
 
 export enum MediaType {
   VIDEO = "video",
+}
+
+export interface PreviousAnswerVersion {
+  transcript: string;
+  webVideoHash: string;
+  vttText: string;
+  videoDuration: number;
+  dateVersioned: string;
 }
 
 export interface Answer {
@@ -177,6 +187,7 @@ export interface Answer {
   webMedia?: Media;
   mobileMedia?: Media;
   vttMedia?: Media;
+  previousVersions: PreviousAnswerVersion[];
 }
 
 export interface UserQuestion {
