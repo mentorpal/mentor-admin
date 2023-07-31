@@ -235,9 +235,14 @@ export async function fetchFollowUpQuestions(
 }
 
 export async function fetchVttFileFromUrl(url: string): Promise<string> {
-  const result = await axios.get(url, { responseType: "text" });
-  throwErrorsInAxiosResponse(result);
-  return result.data;
+  try {
+    const result = await axios.get(url, { responseType: "text" });
+    throwErrorsInAxiosResponse(result);
+    return result.data;
+  } catch (err) {
+    console.log(err);
+    return "";
+  }
 }
 
 export async function fetchConfig(): Promise<Config> {

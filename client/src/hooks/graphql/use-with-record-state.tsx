@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { useEffect, useState } from "react";
 import {
   fetchVideoBlobFromUrl,
+  fetchVttFileFromUrl,
   regenerateVTTForQuestion,
   updateAnswer,
   updateAnswerUrl,
@@ -421,7 +422,7 @@ export function useWithRecordState(
         const shouldVersionTranscript =
           localTranscriptChanges || customEditedAnswer;
         if (shouldVersionTranscript) {
-          editedAnswer.previousVersions = getUpdatedAnswerVersions(
+          editedAnswer.previousVersions = await getUpdatedAnswerVersions(
             answer,
             editedAnswer
           );
@@ -498,23 +499,29 @@ export function useWithRecordState(
     }
   }
 
-  function getUpdatedAnswerVersions(
+  async function getUpdatedAnswerVersions(
     answer: Answer,
     editedAnswer: Answer
-  ): PreviousAnswerVersion[] {
+  ): Promise<PreviousAnswerVersion[]> {
     const firstUpload = !answer.previousVersions.length && !answer.transcript;
     if (firstUpload) {
       return [];
     }
     const oldWebMedia = answer.media?.find((m) => m.tag === MediaTag.WEB);
     const oldVttMedia = answer.media?.find((m) => m.tag === MediaTag.VTT);
+    let newVttText = oldVttMedia?.vttText || "";
+
+    if (!newVttText && oldVttMedia?.url) {
+      newVttText = await fetchVttFileFromUrl(oldVttMedia.url);
+    }
+
     return [
       ...(editedAnswer.previousVersions || []),
       {
         transcript: answer.transcript,
         dateVersioned: Date.now().toString(),
         webVideoHash: oldWebMedia?.hash || "",
-        vttText: oldVttMedia?.vttText || "",
+        vttText: newVttText,
         videoDuration: oldWebMedia?.duration || 0,
       },
     ];
@@ -527,7 +534,7 @@ export function useWithRecordState(
     }
     const editedAnswer: Answer = {
       ...answer.editedAnswer,
-      previousVersions: getUpdatedAnswerVersions(
+      previousVersions: await getUpdatedAnswerVersions(
         answer.answer,
         answer.editedAnswer
       ),
