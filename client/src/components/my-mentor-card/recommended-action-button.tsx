@@ -194,8 +194,8 @@ export default function RecommendedActionButton(props: {
                           To help you improve your mentor, a good next-step is
                           always recommended. At first this will be mostly
                           recording answers, but later you will Preview your
-                          mentor and address User Feedback. Hit &quotSkip&quot
-                          to see the next-best recommendation.
+                          mentor and address User Feedback. Hit Skip to see the
+                          next-best recommendation.
                         </p>
                       </React.Fragment>
                     }
@@ -278,8 +278,8 @@ export default function RecommendedActionButton(props: {
                       To help you improve your mentor, a good next-step is
                       always recommended. At first this will be mostly recording
                       answers, but later you will Preview your mentor and
-                      address User Feedback. Hit &quotSkip&quot to see the
-                      next-best recommendation.
+                      address User Feedback. Hit Skip to see the next-best
+                      recommendation.
                     </p>
                   </React.Fragment>
                 }
