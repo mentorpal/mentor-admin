@@ -470,7 +470,7 @@ function UserItem(props: {
       <TableCell data-cy="updatedAt" align="left">
         {mentor.updatedAt ? new Date(mentor.updatedAt).toLocaleString() : "N/A"}
       </TableCell>
-      <TableCell data-cy="actions" align="center">
+      <TableCell data-cy="actions" align="right">
         <TrainDirtyMentorButton
           mentor={mentor}
           accessToken={props.accessToken}
