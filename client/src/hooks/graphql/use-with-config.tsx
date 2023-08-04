@@ -55,7 +55,7 @@ interface UseWithConfigEdits {
   toggleActiveMentorPanel: (id: string) => void;
   setOrganization: (org?: Organization) => void;
   saveMentorPanel: (panel: MentorPanel) => void;
-  deleteMentorPanel: (id: string) => void;
+  deleteMentorPanel: (id: string) => Promise<void>;
 }
 
 export function useWithConfigEdits(

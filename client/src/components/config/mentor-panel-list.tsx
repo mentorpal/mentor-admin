@@ -16,7 +16,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -33,15 +32,15 @@ import {
 import { makeStyles } from "tss-react/mui";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import LaunchIcon from "@mui/icons-material/Launch";
 import DragHandleIcon from "@mui/icons-material/DragHandle";
 import { Autocomplete } from "@mui/material";
 
-import { copyAndMove, copyAndRemove, launchMentorPanel } from "helpers";
+import { copyAndMove, copyAndRemove } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { Config, MentorPanel, Organization } from "types";
 import { MentorGQL, SubjectGQL } from "types-gql";
+import { MentorPanelItem } from "./mentor-panel-item";
+import { DeletePanelDialog } from "./delete-panel-dialog";
 
 const useStyles = makeStyles({ name: { EditMentorPanelDialog } })(
   (theme: Theme) => ({
@@ -338,120 +337,8 @@ function EditMentorPanelDialog(props: {
   );
 }
 
-function MentorPanelItem(props: {
-  config: Config;
-  mentorPanel: MentorPanel;
-  org: Organization | undefined;
-  toggleActive: (id: string) => void;
-  toggleFeatured: (id: string) => void;
-  onEdit: (mp: MentorPanel) => void;
-}): JSX.Element {
-  const { config, mentorPanel, org } = props;
-  const featuredMentorPanels = config.featuredMentorPanels || [];
-  const activeMentorPanels = config.activeMentorPanels || [];
-
-  function canEditMentorPanel(): boolean {
-    if (mentorPanel.org) {
-      return org?._id === mentorPanel.org;
-    } else {
-      return !org;
-    }
-  }
-
-  return (
-    <Card style={{ width: "100%" }}>
-      <CardContent
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <CardActions>
-          <IconButton
-            size="small"
-            disabled={
-              !config.activeMentorPanels.includes(mentorPanel._id) &&
-              !config.featuredMentorPanels.includes(mentorPanel._id)
-            }
-          >
-            <DragHandleIcon />
-          </IconButton>
-        </CardActions>
-        <ListItemText
-          data-cy="name"
-          data-test={mentorPanel.title}
-          primary={mentorPanel.title}
-          secondary={mentorPanel.subtitle}
-          style={{ flexGrow: 1 }}
-        />
-        <CardActions>
-          <FormControlLabel
-            control={
-              <Checkbox
-                data-cy="toggle-featured"
-                checked={featuredMentorPanels.includes(mentorPanel._id)}
-                onChange={() => props.toggleFeatured(mentorPanel._id)}
-                color="primary"
-                style={{ padding: 0 }}
-              />
-            }
-            label="Featured"
-            labelPlacement="top"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                data-cy="toggle-active"
-                checked={activeMentorPanels.includes(mentorPanel._id)}
-                onChange={() => props.toggleActive(mentorPanel._id)}
-                color="secondary"
-                style={{ padding: 0 }}
-              />
-            }
-            label="Active"
-            labelPlacement="top"
-          />
-          <FormControlLabel
-            control={
-              <IconButton
-                data-cy="launch-mentor-panel"
-                size="small"
-                onClick={() =>
-                  launchMentorPanel(
-                    mentorPanel.mentors,
-                    true,
-                    props.org?.subdomain
-                  )
-                }
-              >
-                <LaunchIcon />
-              </IconButton>
-            }
-            label="Launch"
-            labelPlacement="top"
-          />
-          <FormControlLabel
-            control={
-              <IconButton
-                data-cy="edit-mentor-panel"
-                size="small"
-                onClick={() => props.onEdit(mentorPanel)}
-              >
-                <EditIcon />
-              </IconButton>
-            }
-            disabled={!canEditMentorPanel()}
-            label="Edit"
-            labelPlacement="top"
-          />
-        </CardActions>
-      </CardContent>
-    </Card>
-  );
-}
-
 export function MentorPanelList(props: {
+  accessToken: string;
   config: Config;
   org: Organization | undefined;
   mentors: MentorGQL[];
@@ -465,15 +352,29 @@ export function MentorPanelList(props: {
   deleteMentorPanel: (id: string) => void;
 }): JSX.Element {
   const { classes: styles } = useStyles();
-  const { mentorPanels } = props;
+  const { mentorPanels, organizations, saveMentorPanel } = props;
   const { height: windowHeight } = useWithWindowSize();
   const [editMentorPanel, setEditMentorPanel] = useState<MentorPanel>();
+  const [mpToDelete, setMpToDelete] = useState<MentorPanel>();
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {
       return;
     }
     props.move(result.source.index, result.destination.index);
+  }
+
+  function onCopyMentorPanel(mp: MentorPanel) {
+    const copiedMp = {
+      ...mp,
+      _id: "",
+      org: props.org?._id || "",
+    };
+    saveMentorPanel(copiedMp);
+  }
+
+  function onDeleteMentorPanel(mp: MentorPanel) {
+    setMpToDelete(mp);
   }
 
   return (
@@ -510,9 +411,12 @@ export function MentorPanelList(props: {
                           config={props.config}
                           mentorPanel={mp}
                           org={props.org}
+                          ownerOrg={organizations.find((o) => o._id === mp.org)}
                           toggleActive={props.toggleActive}
                           toggleFeatured={props.toggleFeatured}
                           onEdit={setEditMentorPanel}
+                          onCopy={onCopyMentorPanel}
+                          onDelete={onDeleteMentorPanel}
                         />
                       </ListItem>
                     )}
@@ -557,6 +461,20 @@ export function MentorPanelList(props: {
         delete={() => {
           if (editMentorPanel?._id)
             props.deleteMentorPanel(editMentorPanel._id);
+        }}
+      />
+      <DeletePanelDialog
+        closeDialog={() => setMpToDelete(undefined)}
+        mpToDelete={mpToDelete}
+        organizationsUsing={organizations.filter(
+          (o) =>
+            mpToDelete &&
+            (o.config.featuredMentorPanels.includes(mpToDelete._id) ||
+              o.config.activeMentorPanels.includes(mpToDelete._id))
+        )}
+        deleteMentorPanel={(id: string) => {
+          props.deleteMentorPanel(id);
+          setMpToDelete(undefined);
         }}
       />
     </div>
