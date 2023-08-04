@@ -19,7 +19,7 @@ import { makeStyles } from "tss-react/mui";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 import NavBar from "components/nav-bar";
-import { ErrorDialog } from "components/dialog";
+import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { MentorList } from "components/config/mentor-list";
 import { MentorPanelList } from "components/config/mentor-panel-list";
 import { HomeStyles } from "components/config/home-styles";
@@ -68,7 +68,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     mentors,
     mentorPanels,
     error,
-    isLoading,
+    isLoading: configEditsLoading,
     isSaving,
     saveConfig,
     editConfig,
@@ -93,7 +93,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
     switchActiveMentor();
   }, []);
 
-  if (isLoading) {
+  if (configEditsLoading) {
     return (
       <div className={styles.root}>
         <CircularProgress className={styles.progress} />
@@ -105,7 +105,6 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
       <div>You must be an admin or content manager to view this page.</div>
     );
   }
-
   const tabHeight = height - 275;
   return (
     <div className={styles.root}>
@@ -191,6 +190,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
           value="featured-mentor-panels"
         >
           <MentorPanelList
+            accessToken={props.accessToken}
             config={config}
             org={org}
             mentors={mentors}
@@ -266,6 +266,7 @@ function ConfigPage(props: { accessToken: string; user: User }): JSX.Element {
         </Button>
       </div>
       <ErrorDialog error={error} />
+      <LoadingDialog title={isSaving ? "Saving" : ""} />
     </div>
   );
 }

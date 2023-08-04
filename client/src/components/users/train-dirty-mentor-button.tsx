@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { Icon, IconButton, Theme, Tooltip } from "@mui/material";
+import { IconButton, Theme, Tooltip } from "@mui/material";
 import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { makeStyles } from "tss-react/mui";
@@ -83,16 +83,24 @@ export function TrainDirtyMentorButton(props: {
         <span>
           {trainStatus === JobState.IN_PROGRESS && localDirty ? (
             <Tooltip title="Training In Progress" arrow>
-              <Icon data-cy="progress-icon" className={styles.normalButton}>
+              <IconButton
+                data-cy="progress-icon"
+                className={styles.normalButton}
+                style={{ cursor: "default" }}
+              >
                 <ProgressIcon className={styles.normalButton} />
-              </Icon>
+              </IconButton>
             </Tooltip>
           ) : (trainStatus === JobState.SUCCESS && !localDirty) ||
             !localDirty ? (
             <Tooltip title="Up To Date" arrow>
-              <Icon data-cy="success-icon" className={styles.normalButton}>
+              <IconButton
+                data-cy="success-icon"
+                className={styles.normalButton}
+                style={{ cursor: "default" }}
+              >
                 <SuccessIcon style={{ color: "green" }} />
-              </Icon>
+              </IconButton>
             </Tooltip>
           ) : (
             <Tooltip
@@ -118,7 +126,7 @@ export function TrainDirtyMentorButton(props: {
                   });
                 }}
                 className={styles.normalButton}
-                size="large"
+                style={{ marginRight: 0 }}
               >
                 {dirtyReason === MentorDirtyReason.ANSWERS_ADDED ? (
                   <NewVideosIcon />
