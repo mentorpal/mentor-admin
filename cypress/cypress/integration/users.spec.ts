@@ -425,6 +425,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
       });
@@ -476,6 +477,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson]").invoke("click");
@@ -534,6 +536,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
@@ -612,6 +615,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson0]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson0]").invoke("click");
@@ -621,6 +625,7 @@ describe("users screen", () => {
 
       cy.get("[data-cy=user-1]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
@@ -744,6 +749,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
