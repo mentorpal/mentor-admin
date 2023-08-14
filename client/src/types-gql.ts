@@ -73,6 +73,7 @@ export interface MentorGQL {
   answers: AnswerGQL[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
+  createdAt: string;
   updatedAt: string;
 }
 

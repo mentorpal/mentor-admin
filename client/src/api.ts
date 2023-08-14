@@ -345,6 +345,7 @@ export async function fetchUsers(
                   editPermission
                 }
                 updatedAt
+                createdAt
               }
             }
           }

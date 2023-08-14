@@ -205,6 +205,7 @@ export interface Mentor {
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
   updatedAt: string;
+  createdAt: string;
   numAnswersComplete: number;
 }
 
