@@ -61,6 +61,7 @@ export interface MentorGQL {
   isDirty: boolean;
   lastTrainStatus: JobState;
   dirtyReason: MentorDirtyReason;
+  isPublicApproved: boolean;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;

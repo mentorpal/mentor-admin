@@ -337,6 +337,7 @@ export async function fetchUsers(
                 isPrivate
                 isArchived
                 isAdvanced
+                isPublicApproved
                 lastTrainStatus
                 orgPermissions {
                   orgId
@@ -1030,6 +1031,7 @@ export async function fetchMentorById(
           dirtyReason
           isPrivate
           isArchived
+          isPublicApproved
           isAdvanced
           hasVirtualBackground
           virtualBackgroundUrl
@@ -1283,6 +1285,31 @@ export async function updateUserDisabled(
       },
     },
     { dataPath: ["me", "disableUser"], accessToken }
+  );
+}
+
+export async function updateMentorPublicApproval(
+  isPublicApproved: boolean,
+  accessToken: string,
+  mentorId: string
+): Promise<Mentor> {
+  return execGql<Mentor>(
+    {
+      query: `
+      mutation UpdateMentorPublicApproval($mentorId: ID!, $isPublicApproved: Boolean) {
+        me {
+          updateMentorPublicApproval(mentorId: $mentorId, isPublicApproved: $isPublicApproved) {
+            isPublicApproved
+          }
+        }
+      }
+    `,
+      variables: {
+        mentorId,
+        isPublicApproved,
+      },
+    },
+    { dataPath: ["me", "updateMentorPublicApproval"], accessToken }
   );
 }
 
@@ -2347,6 +2374,7 @@ export async function fetchMentors(
                 title
                 isPrivate
                 isArchived
+                isPublicApproved
                 isAdvanced
                 orgPermissions {
                   orgId
