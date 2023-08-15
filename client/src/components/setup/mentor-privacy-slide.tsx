@@ -198,6 +198,12 @@ export function MentorPrivacySlide(props: {
             Organization Privacy Permissions:
           </Typography>
           {renderOrgPermission()}
+          {!mentor.isPublicApproved ? (
+            <Typography variant="subtitle1" style={{ color: "red" }}>
+              Your mentor is not yet approved to be public. They will not be
+              visible to anyone until they are approved.
+            </Typography>
+          ) : undefined}
         </div>
       }
     />

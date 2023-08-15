@@ -71,7 +71,7 @@ export function useWithStaticDataConnection<T>(
     if (!data) {
       return;
     }
-    const edges = sortFilter(data.edges);
+    const edges = sortFilter(data.edges, pageSearchParams);
     const pd: Connection<T> = {
       edges: edges.slice(page - pageLimit, page),
       pageInfo: {
@@ -94,7 +94,10 @@ export function useWithStaticDataConnection<T>(
     });
   }, [data, page, pageSearchParams, preFilter, postSort]);
 
-  function sortFilter(e: Edge<T>[]): Edge<T>[] {
+  function sortFilter(
+    e: Edge<T>[],
+    pageSearchParams: StaticSearchParams
+  ): Edge<T>[] {
     let edges = e.filter((edge) => !preFilter || preFilter.filter(edge.node));
     if (pageSearchParams.sortBy) {
       const sortAscending = pageSearchParams.sortAscending ? 1 : -1;
@@ -148,6 +151,9 @@ export function useWithStaticDataConnection<T>(
       } else {
         return 0;
       }
+    }
+    if (typeof aVal === "boolean" && typeof bVal === "boolean") {
+      return (aVal ? 1 : 0 - (bVal ? 1 : 0)) * ascending;
     }
     if (typeof aVal !== typeof bVal) {
       if (aVal === null || aVal === undefined) {
@@ -237,7 +243,7 @@ export function useWithStaticDataConnection<T>(
   }
 
   function hasNextPage(): boolean {
-    return sortFilter(data?.edges || []).length > page;
+    return sortFilter(data?.edges || [], pageSearchParams).length > page;
   }
 
   function hasPrevPage(): boolean {

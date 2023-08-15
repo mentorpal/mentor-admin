@@ -368,12 +368,12 @@ export function canEditMentorPrivacy(
   if (!mentor || !myUser) {
     return false;
   }
-  const ops = mentor.orgPermissions?.filter(
-    (op) => op.editPermission === OrgEditPermissionType.ADMIN
+  const orgPerms = mentor.orgPermissions?.filter(
+    (perm) => perm.editPermission === OrgEditPermissionType.ADMIN
   );
-  if (ops) {
-    const os = ops.map((op) => op.orgId);
-    for (const org of orgs.filter((o) => os.includes(o._id))) {
+  if (orgPerms) {
+    const orgIds = orgPerms.map((op) => op.orgId);
+    for (const org of orgs.filter((o) => orgIds.includes(o._id))) {
       if (
         org.members.find(
           (m) => m.user._id === myUser._id && m.role === UserRole.ADMIN
@@ -482,4 +482,12 @@ interface EnumObject {
 
 export function getEnumValues(e: EnumObject): string[] {
   return Object.keys(e).map((i) => e[i]);
+}
+
+export function isDateWithinLastMonth(date: string): boolean {
+  const now = new Date();
+  const then = new Date(date);
+  const diff = now.getTime() - then.getTime();
+  const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+  return diffDays < 30;
 }

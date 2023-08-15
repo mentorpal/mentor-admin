@@ -25,6 +25,8 @@ import {
   Theme,
   SelectChangeEvent,
   Checkbox,
+  Button,
+  Typography,
 } from "@mui/material";
 import { makeStyles } from "tss-react/mui";
 import {
@@ -57,6 +59,7 @@ import {
   canEditMentor,
   canEditMentorPrivacy,
   canEditUserRole,
+  isDateWithinLastMonth,
   launchMentor,
 } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
@@ -107,6 +110,14 @@ function getTableColumns(
   isAdmin: boolean
 ): ColumnDef[] {
   let columns: ColumnDef[] = [
+    {
+      id: "defaultMentor",
+      subField: ["isPublicApproved"],
+      label: "Approval",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
     {
       id: "name",
       label: "Name",
@@ -302,11 +313,30 @@ function UserItem(props: {
   const { switchActiveMentor } = useActiveMentor();
   const userRole = user.userRole;
   const mentor = edge.node.defaultMentor;
+  const [approvalText, setApprovalText] = useState<string>(
+    mentor.isPublicApproved ? "Approved" : "Not Approved"
+  );
+  const [approvalTextColor, setApprovalTextColor] = useState<string>(
+    mentor.isPublicApproved ? "green" : "red"
+  );
+
+  useEffect(() => {
+    setApprovalText(mentor.isPublicApproved ? "Approved" : "Not Approved");
+    setApprovalTextColor(mentor.isPublicApproved ? "green" : "red");
+  }, [mentor.isPublicApproved]);
+
   const isAdmin =
     userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN;
 
   function handleRoleChange(user: string, permission: string): void {
     props.userPagin.onUpdateUserPermissions(user, permission);
+  }
+
+  function handlePublicApprovalChange(
+    mentor: string,
+    isPublicApproved: boolean
+  ): void {
+    props.userPagin.onUpdateMentorPublicApproved(mentor, isPublicApproved);
   }
 
   function handleDisabledChange(user: string, isDisabled: boolean): void {
@@ -324,9 +354,57 @@ function UserItem(props: {
   function handleArchiveChange(mentor: string, isArchived: boolean): void {
     props.userPagin.onArchiveMentor(mentor, isArchived);
   }
-
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
+      <TableCell data-cy="publicApproved" align="center" key={mentor._id}>
+        <>
+          {isDateWithinLastMonth(mentor.createdAt) &&
+          !mentor.isPublicApproved ? (
+            <Typography
+              data-cy="new-mentor-indicator"
+              style={{
+                color: "lightgreen",
+                fontStyle: "italic",
+                textDecoration: "underline",
+              }}
+            >
+              New Mentor
+            </Typography>
+          ) : undefined}
+          <Button
+            data-cy="publicApprovalButton"
+            style={{
+              color: approvalTextColor,
+              cursor: "pointer",
+              width: "95px",
+              height: "50px",
+            }}
+            onMouseEnter={() => {
+              if (mentor.isPublicApproved) {
+                setApprovalText("Unapprove?");
+                setApprovalTextColor("red");
+              } else {
+                setApprovalText("Approve?");
+                setApprovalTextColor("green");
+              }
+            }}
+            onMouseLeave={() => {
+              if (mentor.isPublicApproved) {
+                setApprovalText("Approved");
+                setApprovalTextColor("green");
+              } else {
+                setApprovalText("Not Approved");
+                setApprovalTextColor("red");
+              }
+            }}
+            onClick={() => {
+              handlePublicApprovalChange(mentor._id, !mentor.isPublicApproved);
+            }}
+          >
+            <i>{approvalText}</i>
+          </Button>
+        </>
+      </TableCell>
       <TableCell data-cy="name" align="left">
         {edge.node.name}
       </TableCell>
@@ -430,19 +508,21 @@ function UserItem(props: {
         )}
       </TableCell>
       {isAdmin ? (
-        <TableCell data-cy="disabled" align="left">
-          <Checkbox
-            checked={edge.node.isDisabled}
-            disabled={
-              props.user.userRole !== UserRole.ADMIN &&
-              props.user.userRole !== UserRole.SUPER_ADMIN
-            }
-            color="secondary"
-            onClick={() =>
-              handleDisabledChange(edge.node._id, !edge.node.isDisabled)
-            }
-          />
-        </TableCell>
+        <>
+          <TableCell data-cy="disabled" align="left">
+            <Checkbox
+              checked={edge.node.isDisabled}
+              disabled={
+                props.user.userRole !== UserRole.ADMIN &&
+                props.user.userRole !== UserRole.SUPER_ADMIN
+              }
+              color="secondary"
+              onClick={() =>
+                handleDisabledChange(edge.node._id, !edge.node.isDisabled)
+              }
+            />
+          </TableCell>
+        </>
       ) : undefined}
       {isAdmin ? (
         <TableCell data-cy="advanced" align="left">

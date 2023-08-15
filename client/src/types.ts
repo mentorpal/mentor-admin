@@ -192,6 +192,7 @@ export interface Mentor {
   isDirty: boolean;
   lastTrainStatus: JobState;
   dirtyReason: MentorDirtyReason;
+  isPublicApproved: boolean;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
@@ -204,6 +205,7 @@ export interface Mentor {
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
   updatedAt: string;
+  createdAt: string;
   numAnswersComplete: number;
 }
 

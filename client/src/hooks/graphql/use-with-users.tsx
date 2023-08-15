@@ -9,6 +9,7 @@ import {
   fetchUsers,
   updateMentorAdvanced,
   updateMentorPrivacy,
+  updateMentorPublicApproval,
   updateUserDisabled,
   updateUserPermissions,
 } from "api";
@@ -23,6 +24,7 @@ import {
 export interface UseUserData extends UseStaticDataConnection<User> {
   userDataError?: LoadingError;
   onUpdateUserPermissions: (userId: string, permissionLevel: string) => void;
+  onUpdateMentorPublicApproved: (userId: string, isDisabled: boolean) => void;
   onUpdateUserDisabled: (userId: string, isDisabled: boolean) => void;
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
   onUpdateMentorAdvanced: (mentorId: string, isAdvanced: boolean) => void;
@@ -78,6 +80,22 @@ export function useWithUsers(accessToken: string): UseUserData {
       .catch((err) => {
         setUserDataError({
           message: "Failed to update user",
+          error: `${err}`,
+        });
+      });
+  }
+
+  function onUpdateMentorPublicApproved(
+    mentorId: string,
+    isPublicApproved: boolean
+  ): void {
+    updateMentorPublicApproval(isPublicApproved, accessToken, mentorId)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to update mentor for public approval",
           error: `${err}`,
         });
       });
@@ -144,6 +162,7 @@ export function useWithUsers(accessToken: string): UseUserData {
     onUpdateMentorPrivacy,
     onUpdateMentorAdvanced,
     onUpdateUserDisabled,
+    onUpdateMentorPublicApproved,
     onArchiveMentor,
   };
 }
