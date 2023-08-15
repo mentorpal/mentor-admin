@@ -88,6 +88,140 @@ describe("users screen", () => {
     });
   });
 
+  it("Mentors approved for public viewing show APPROVED", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", [
+          {
+            users: {
+              edges: [
+                {
+                  cursor: "cursor 1",
+                  node: {
+                    _id: "admin",
+                    name: "Admin",
+                    email: "admin@opentutor.org",
+                    userRole: UserRole.ADMIN,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "Admin",
+                      isPrivate: true,
+                      isPublicApproved: true,
+                    },
+                  },
+                },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                endCursor: "cursor 2",
+              },
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=publicApprovalButton]")
+        .should("exist")
+        .should("have.text", "Approved");
+    });
+  });
+
+  it("Mentors not approved for public viewing show NOT APPROVED", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", [
+          {
+            users: {
+              edges: [
+                {
+                  cursor: "cursor 1",
+                  node: {
+                    _id: "admin",
+                    name: "Admin",
+                    email: "admin@opentutor.org",
+                    userRole: UserRole.ADMIN,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "Admin",
+                      isPrivate: true,
+                      isPublicApproved: false,
+                    },
+                  },
+                },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                endCursor: "cursor 2",
+              },
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.get("[data-cy=publicApprovalButton]")
+        .should("exist")
+        .should("have.text", "Not Approved");
+    });
+  });
+
+  it("New mentors (created within last month) should indicate that it is a new mentor", () => {
+    cyMockDefault(cy, {
+      mentor: [newMentor],
+      login: {
+        ...loginDefault,
+        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+      },
+      gqlQueries: [
+        mockGQL("Users", [
+          {
+            users: {
+              edges: [
+                {
+                  cursor: "cursor 1",
+                  node: {
+                    _id: "admin",
+                    name: "Admin",
+                    email: "admin@opentutor.org",
+                    userRole: UserRole.ADMIN,
+                    defaultMentor: {
+                      _id: "clintanderson",
+                      name: "Admin",
+                      isPrivate: true,
+                      isPublicApproved: false,
+                      createdAt: new Date(),
+                    },
+                  },
+                },
+              ],
+              pageInfo: {
+                hasNextPage: false,
+                endCursor: "cursor 2",
+              },
+            },
+          },
+        ]),
+      ],
+    });
+    cy.visit("/users");
+    cy.get("[data-cy=user-0]").within(($within) => {
+      cy.contains("New Mentor");
+    });
+  });
+
   it("admin can edit mentor privacy", () => {
     cyMockDefault(cy, {
       mentor: [newMentor],
@@ -291,6 +425,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
       });
@@ -342,6 +477,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson]").invoke("click");
@@ -400,6 +536,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
@@ -478,6 +615,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson0]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson0]").invoke("click");
@@ -487,6 +625,7 @@ describe("users screen", () => {
 
       cy.get("[data-cy=user-1]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");
@@ -610,6 +749,7 @@ describe("users screen", () => {
       cy.wait(2000);
       cy.get("[data-cy=user-0]").within(($within) => {
         cy.get("[data-cy=train-mentor-clintanderson1]")
+          .scrollIntoView()
           .should("exist")
           .should("be.visible");
         cy.get("[data-cy=train-mentor-clintanderson1]").invoke("click");

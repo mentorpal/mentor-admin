@@ -240,6 +240,7 @@ export function cyMockDefault(
   cyMockGoogleLogin(cy);
   cyMockXapiInit(cy);
   cyMockThumbnailImage(cy);
+  cyMockAllImageRequests(cy);
 
   const mentors = [];
   if (args.mentor) {
@@ -569,6 +570,18 @@ export function cyMockUploadThumbnail(
         },
       })
     );
+  });
+}
+
+function cyMockAllImageRequests(cy) {
+  cy.intercept("**/*.png", (req) => {
+    req.reply({
+      statusCode: 200,
+      body: "Intercepted PNG response",
+      headers: {
+        "Content-Type": "image/png",
+      },
+    });
   });
 }
 

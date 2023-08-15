@@ -608,6 +608,30 @@ describe("Setup", () => {
     cy.matchImageSnapshot(snapname("welcome-slide"));
   });
 
+  it("non-public-approved mentors show warning", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...baseMock.mentor, isPublicApproved: false },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Mentor_Privacy);
+    cy.getSettled(`[data-cy=slide-${SetupScreen.Mentor_Privacy}]`)
+      .should("be.visible")
+      .within(($slide) => {
+        cy.contains("Your mentor is not yet approved to be public.");
+      });
+  });
+
+  it("public-approved mentors does not show warning", () => {
+    cyMockDefault(cy, {
+      ...baseMock,
+      mentor: { ...baseMock.mentor, isPublicApproved: true },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Mentor_Privacy);
+    cy.getSettled(`[data-cy=slide-${SetupScreen.Mentor_Privacy}]`)
+      .should("be.visible")
+      .should("not.contain", "Your mentor is not yet approved to be public.");
+  });
+
   it("Shows the walkthrough link if receive data from graphql", () => {
     cyMockDefault(cy, {
       ...baseMock,

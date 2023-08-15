@@ -90,6 +90,7 @@ export interface Mentor {
   lastTrainedAt: string;
   lastPreviewedAt: string;
   isDirty: boolean;
+  isPublicApproved: boolean;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
