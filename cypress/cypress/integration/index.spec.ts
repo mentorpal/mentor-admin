@@ -10,7 +10,7 @@ import clint from "../fixtures/mentor/clint_home";
 import clint3 from "../fixtures/mentor/clint_setup3";
 import clint12 from "../fixtures/mentor/clint_setup12";
 import { login as loginDefault } from "../fixtures/login";
-import { UserRole } from "../support/types";
+import { QuestionType, Status, UserRole } from "../support/types";
 
 export function taskListBuild(progressForAllTasks) {
   return {
@@ -296,6 +296,43 @@ describe("Index page", () => {
     cy.get("[data-cy=add-a-subject]").click();
     cy.location("pathname").then(($el) => {
       assert($el, "/subjects");
+    });
+  });
+
+  it("answers that do not belong to any subject exist in their own recording card", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...clint,
+        answers: [
+          ...clint.answers,
+          {
+            previousVersions: [],
+            _id: "A5_5_5",
+            question: {
+              _id: "Q5_5_5",
+              clientId: "C_A5_5_5",
+              question: "This question does not belong to any subject",
+              type: QuestionType.QUESTION,
+              name: null,
+              paraphrases: [],
+            },
+            transcript: "Test transcription.",
+            status: Status.COMPLETE,
+          },
+        ],
+      },
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").click();
+    cy.get("[data-cy=block-4]").within(() => {
+      cy.contains("Orphaned Complete Answers");
+      cy.get("[data-cy=answers-Complete]").within(() => {
+        cy.get("[data-cy=expand-btn]").click();
+        cy.get("[data-cy=answer-list]").within(() => {
+          cy.contains("This question does not belong to any subject");
+        });
+      });
+      cy.get("[data-cy=add-question]").should("be.disabled");
     });
   });
 });

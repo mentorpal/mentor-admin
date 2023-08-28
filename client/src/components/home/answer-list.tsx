@@ -30,6 +30,7 @@ function AnswerList(props: {
   answers: Answer[];
   questions: QuestionEdits[];
   expandLists: boolean;
+  subjectId: string;
   onRecordAll: () => void;
   onRecordOne: (question: QuestionEdits) => void;
   onEditQuestion: (question: QuestionEdits) => void;
@@ -39,6 +40,7 @@ function AnswerList(props: {
     classes,
     header,
     answers,
+    subjectId,
     onRecordAll,
     onRecordOne,
     onEditQuestion,
@@ -86,6 +88,7 @@ function AnswerList(props: {
             {onAddQuestion ? (
               <Button
                 data-cy="add-question"
+                disabled={!subjectId}
                 color="primary"
                 variant="outlined"
                 startIcon={<AddIcon />}

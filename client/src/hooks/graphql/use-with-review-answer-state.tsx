@@ -205,6 +205,34 @@ export function useWithReviewAnswerState(
           });
         }
       });
+
+      // Add a block for complete answers that are not in any subject
+      const _allSubjectsQuestions = mentorSubjects.map((s) =>
+        s.questions.map((sq) => sq.question)
+      );
+      const allSubjectsQuestionIds: string[] = ([] as string[]).concat.apply(
+        [],
+        _allSubjectsQuestions
+      );
+      const answersNotInSubjects = mentorAnswers.filter(
+        (a) =>
+          isAnswerComplete(a, undefined, mentorType) &&
+          !allSubjectsQuestionIds.find((qs) => qs.includes(a.question))
+      );
+      const completeQuestionsNotInSubjects = answersNotInSubjects.map(
+        (a) => a.question
+      );
+      if (completeQuestionsNotInSubjects.length > 0) {
+        _blocks.push({
+          subject: "",
+          category: undefined,
+          name: "Orphaned Complete Answers",
+          description:
+            "Complete answers that do not belong to any subject. This may be the result of a subject being deleted.",
+          questions: completeQuestionsNotInSubjects,
+        });
+      }
+
       // Sort blocks by config priority
       const subjectPriority = configState.config.subjectRecordPriority;
       const prioritizedBlocks = _blocks.filter((block) =>
@@ -234,6 +262,7 @@ export function useWithReviewAnswerState(
         total: mentorAnswers.length,
       });
     }
+
     setBlocks(_blocks);
   }, [
     mentorSubjects,

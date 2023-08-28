@@ -72,6 +72,7 @@ export default function RecordingBlockItem(props: {
         <div style={{ flex: "auto" }}>
           <AnswerList
             classes={classes}
+            subjectId={block.subject}
             mentorId={props.mentorId}
             header="Complete"
             answers={complete}
@@ -89,6 +90,7 @@ export default function RecordingBlockItem(props: {
           />
           <AnswerList
             classes={classes}
+            subjectId={block.subject}
             header="Incomplete"
             answers={incomplete}
             questions={questionEdits}
