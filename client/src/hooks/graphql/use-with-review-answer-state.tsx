@@ -58,7 +58,12 @@ interface UseWithReviewAnswerState {
   setError: (error: LoadingError) => void;
   selectSubject: (sId?: string) => void;
   saveChanges: () => Promise<void> | void;
-  recordAnswers: (status: Status, subject: string, category: string) => void;
+  recordAnswers: (
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) => void;
   recordAnswer: (question: string) => void;
   addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: QuestionEdits) => void;
@@ -269,9 +274,25 @@ export function useWithReviewAnswerState(
     setSelectedSubject(sId || "");
   }
 
-  function recordAnswers(status: Status, subject: string, category: string) {
-    navigate(
-      urlBuild("/record", {
+  function recordAnswers(
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) {
+    let url = "";
+    if (!subject && answers?.length) {
+      const questionIds = answers.map((a) => a.question || a.questionClientId);
+      url = urlBuild("/record", {
+        status,
+        videoId: questionIds,
+        back: urlBuild(
+          "/",
+          selectedSubject ? { subject: selectedSubject } : {}
+        ),
+      });
+    } else {
+      url = urlBuild("/record", {
         status,
         subject,
         category,
@@ -279,8 +300,10 @@ export function useWithReviewAnswerState(
           "/",
           selectedSubject ? { subject: selectedSubject } : {}
         ),
-      })
-    );
+      });
+    }
+
+    navigate(url);
   }
 
   function recordAnswer(question: string) {
