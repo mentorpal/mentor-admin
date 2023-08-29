@@ -91,9 +91,12 @@ export function useWithReviewAnswerState(
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorOrphanedCompleteAnswers: Answer[] = getData(
+    (state) => state.data?.orphanedCompleteAnswers
+  );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    [...(mentorAnswers || []).map((a) => a.question)]
   );
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
@@ -105,7 +108,7 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    setAnswers(mentorAnswers?.map((a) => ({ ...a })));
+    setAnswers([...(mentorAnswers || []).map((a) => ({ ...a }))]);
   }, [mentorAnswers]);
 
   useEffect(() => {
@@ -205,6 +208,20 @@ export function useWithReviewAnswerState(
           });
         }
       });
+      const orphanedCompleteQuestionIds = (
+        mentorOrphanedCompleteAnswers || []
+      ).map((a) => a.question);
+      if (orphanedCompleteQuestionIds.length > 0) {
+        _blocks.push({
+          subject: "",
+          category: undefined,
+          name: "Orphaned Complete Answers",
+          description:
+            "Complete answers that do not belong to any subject. This may be the result of a subject being deleted.",
+          questions: orphanedCompleteQuestionIds,
+        });
+      }
+
       // Sort blocks by config priority
       const subjectPriority = configState.config.subjectRecordPriority;
       const prioritizedBlocks = _blocks.filter((block) =>
@@ -234,6 +251,7 @@ export function useWithReviewAnswerState(
         total: mentorAnswers.length,
       });
     }
+
     setBlocks(_blocks);
   }, [
     mentorSubjects,

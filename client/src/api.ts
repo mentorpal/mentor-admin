@@ -628,6 +628,7 @@ export async function updateSubject(
           categories: subject?.categories,
           topics: subject?.topics,
           questions: subject?.questions,
+          deleted: subject?.deleted,
         },
       },
     },
@@ -1081,6 +1082,53 @@ export async function fetchMentorById(
             }
           }
           answers {
+            _id
+            question {
+              _id
+              clientId
+              mentor
+            }
+            hasEditedTranscript
+            markdownTranscript
+            transcript
+            status
+            hasUntransferredMedia
+            webMedia {
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+              hash
+              duration
+            }
+            mobileMedia{
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+              hash
+              duration
+            }
+            vttMedia{
+              type
+              tag
+              url
+              needsTransfer
+              hash
+              duration
+              vttText
+            }
+            previousVersions{
+              transcript
+              dateVersioned
+              vttText
+              webVideoHash
+              videoDuration
+            }
+          }
+          orphanedCompleteAnswers {
             _id
             question {
               _id

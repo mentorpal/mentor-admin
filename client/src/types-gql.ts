@@ -71,6 +71,7 @@ export interface MentorGQL {
   keywords: string[];
   topics: Topic[];
   answers: AnswerGQL[];
+  orphanedCompleteAnswers: AnswerGQL[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;
   createdAt: string;
@@ -84,6 +85,7 @@ export interface SubjectGQL {
   description: string;
   isRequired: boolean;
   isArchived: boolean;
+  deleted?: boolean;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestionGQL[];
@@ -190,7 +192,13 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
       ? convertSubjectGQL(gql.defaultSubject)
       : undefined,
     subjects: gql.subjects?.map((s) => convertSubjectGQL(s)),
-    answers: gqlAnswers.map((a) => convertAnswerGQL(a)),
+    answers: [
+      ...gqlAnswers.map((a) => convertAnswerGQL(a)),
+      ...(gql.orphanedCompleteAnswers || []).map((a) => convertAnswerGQL(a)),
+    ],
+    orphanedCompleteAnswers: (gql.orphanedCompleteAnswers || []).map((a) =>
+      convertAnswerGQL(a)
+    ),
   };
 }
 

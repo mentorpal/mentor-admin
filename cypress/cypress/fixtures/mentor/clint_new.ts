@@ -286,5 +286,6 @@ export const mentor: Mentor = {
       status: Status.COMPLETE,
     },
   ],
+  orphanedCompleteAnswers: [],
 };
 export default mentor;

@@ -24,10 +24,12 @@ import withLocation from "wrap-with-location";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithSubject } from "hooks/graphql/use-with-subject";
-import { ErrorDialog, LoadingDialog } from "components/dialog";
+import { ErrorDialog, LoadingDialog, TwoOptionDialog } from "components/dialog";
 import { onTextInputChanged } from "helpers";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SubjectTypes } from "types";
+import { updateSubject } from "api";
+import { navigate } from "gatsby";
 
 const useStyles = makeStyles({ name: { SubjectPage } })((theme: Theme) => ({
   root: {
@@ -60,6 +62,9 @@ function SubjectPage(props: {
 }): JSX.Element {
   const { classes } = useStyles();
   const [tab, setTab] = useState<string>("1");
+  const [deleteSubjectDialog, setDeleteSubjectDialog] =
+    useState<boolean>(false);
+  const [deleteInProgress, setDeleteInProgress] = useState<boolean>(false);
   const { getData, isLoading: isMentorLoading } = useActiveMentor();
   const mentorId = getData((state) => state.data?._id);
   const {
@@ -232,19 +237,59 @@ function SubjectPage(props: {
             ? "Loading"
             : isSubjectSaving
             ? "Saving"
+            : deleteInProgress
+            ? "Deleting"
             : ""
         }
       />
-      {userCanArchiveSubjects ? (
-        <label style={{ position: "absolute", bottom: 20 }}>
-          Archived
-          <input
-            data-cy="archive-subject-checkbox"
-            defaultChecked={editedSubject.isArchived}
-            onChange={handleArchiveChange}
-            type="checkbox"
+      {userCanArchiveSubjects && tab === "1" ? (
+        <>
+          <label style={{ position: "absolute", bottom: 60 }}>
+            Archived
+            <input
+              data-cy="archive-subject-checkbox"
+              defaultChecked={editedSubject.isArchived}
+              onChange={handleArchiveChange}
+              type="checkbox"
+            />
+          </label>
+          <Button
+            style={{ position: "absolute", bottom: 20 }}
+            onClick={() => {
+              setDeleteSubjectDialog(true);
+            }}
+          >
+            Delete Subject
+          </Button>
+          <TwoOptionDialog
+            title={`Are you sure you want to delete the subject "${editedSubject.name}"?`}
+            open={deleteSubjectDialog}
+            option1={{
+              display: "Yes",
+              onClick: () => {
+                setDeleteSubjectDialog(false);
+                setDeleteInProgress(true);
+                editSubject({ deleted: true });
+                updateSubject(
+                  { ...editedSubject, deleted: true },
+                  props.accessToken
+                )
+                  .then(() => {
+                    navigate("/author/subjects");
+                  })
+                  .finally(() => {
+                    setDeleteInProgress(false);
+                  });
+              },
+            }}
+            option2={{
+              display: "No",
+              onClick: () => {
+                setDeleteSubjectDialog(false);
+              },
+            }}
           />
-        </label>
+        </>
       ) : undefined}
       <ErrorDialog error={subjectError} />
     </div>
