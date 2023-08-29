@@ -299,7 +299,7 @@ describe("Index page", () => {
     });
   });
 
-  it.only("answers that do not belong to any subject exist in their own recording card", () => {
+  it("answers that do not belong to any subject exist in their own recording card", () => {
     cyMockDefault(cy, {
       mentor: {
         ...clint,

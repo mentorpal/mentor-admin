@@ -194,9 +194,9 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
     subjects: gql.subjects?.map((s) => convertSubjectGQL(s)),
     answers: [
       ...gqlAnswers.map((a) => convertAnswerGQL(a)),
-      ...gql.orphanedCompleteAnswers.map((a) => convertAnswerGQL(a)),
+      ...(gql.orphanedCompleteAnswers || []).map((a) => convertAnswerGQL(a)),
     ],
-    orphanedCompleteAnswers: gql.orphanedCompleteAnswers?.map((a) =>
+    orphanedCompleteAnswers: (gql.orphanedCompleteAnswers || []).map((a) =>
       convertAnswerGQL(a)
     ),
   };
