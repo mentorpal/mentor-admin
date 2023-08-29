@@ -192,7 +192,10 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
       ? convertSubjectGQL(gql.defaultSubject)
       : undefined,
     subjects: gql.subjects?.map((s) => convertSubjectGQL(s)),
-    answers: gqlAnswers.map((a) => convertAnswerGQL(a)),
+    answers: [
+      ...gqlAnswers.map((a) => convertAnswerGQL(a)),
+      ...gql.orphanedCompleteAnswers.map((a) => convertAnswerGQL(a)),
+    ],
     orphanedCompleteAnswers: gql.orphanedCompleteAnswers?.map((a) =>
       convertAnswerGQL(a)
     ),

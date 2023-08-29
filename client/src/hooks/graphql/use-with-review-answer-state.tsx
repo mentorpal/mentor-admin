@@ -96,7 +96,7 @@ export function useWithReviewAnswerState(
   );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    [...(mentorAnswers || []).map((a) => a.question)]
   );
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
@@ -108,10 +108,7 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    setAnswers([
-      ...(mentorAnswers || []).map((a) => ({ ...a })),
-      ...(mentorOrphanedCompleteAnswers || []).map((a) => ({ ...a })),
-    ]);
+    setAnswers([...(mentorAnswers || []).map((a) => ({ ...a }))]);
   }, [mentorAnswers]);
 
   useEffect(() => {
