@@ -303,8 +303,7 @@ describe("Index page", () => {
     cyMockDefault(cy, {
       mentor: {
         ...clint,
-        answers: [
-          ...clint.answers,
+        orphanedCompleteAnswers: [
           {
             previousVersions: [],
             _id: "A5_5_5",

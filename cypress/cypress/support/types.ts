@@ -100,6 +100,7 @@ export interface Mentor {
   keywords: string[];
   topics: Topic[];
   answers: Answer[];
+  orphanedCompleteAnswers: Answer[];
   questions: SubjectQuestion[];
   hasVirtualBackground: boolean;
   virtualBackgroundUrl: string;

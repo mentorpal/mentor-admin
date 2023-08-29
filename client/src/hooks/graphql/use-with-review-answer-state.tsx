@@ -91,6 +91,9 @@ export function useWithReviewAnswerState(
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorOrphanedCompleteAnswers: Answer[] = getData(
+    (state) => state.data?.orphanedCompleteAnswers
+  );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
     mentorAnswers?.map((a) => a.question)
@@ -105,7 +108,10 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    setAnswers(mentorAnswers?.map((a) => ({ ...a })));
+    setAnswers([
+      ...(mentorAnswers || []).map((a) => ({ ...a })),
+      ...(mentorOrphanedCompleteAnswers || []).map((a) => ({ ...a })),
+    ]);
   }, [mentorAnswers]);
 
   useEffect(() => {
@@ -205,31 +211,17 @@ export function useWithReviewAnswerState(
           });
         }
       });
-
-      // Add a block for complete answers that are not in any subject
-      const _allSubjectsQuestions = mentorSubjects.map((s) =>
-        s.questions.map((sq) => sq.question)
-      );
-      const allSubjectsQuestionIds: string[] = ([] as string[]).concat.apply(
-        [],
-        _allSubjectsQuestions
-      );
-      const answersNotInSubjects = mentorAnswers.filter(
-        (a) =>
-          isAnswerComplete(a, undefined, mentorType) &&
-          !allSubjectsQuestionIds.find((qs) => qs.includes(a.question))
-      );
-      const completeQuestionsNotInSubjects = answersNotInSubjects.map(
-        (a) => a.question
-      );
-      if (completeQuestionsNotInSubjects.length > 0) {
+      const orphanedCompleteQuestionIds = (
+        mentorOrphanedCompleteAnswers || []
+      ).map((a) => a.question);
+      if (orphanedCompleteQuestionIds.length > 0) {
         _blocks.push({
           subject: "",
           category: undefined,
           name: "Orphaned Complete Answers",
           description:
             "Complete answers that do not belong to any subject. This may be the result of a subject being deleted.",
-          questions: completeQuestionsNotInSubjects,
+          questions: orphanedCompleteQuestionIds,
         });
       }
 
