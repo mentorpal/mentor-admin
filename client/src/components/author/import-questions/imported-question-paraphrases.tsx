@@ -72,6 +72,7 @@ export function ImportedQuestionParaphrases(props: {
           <ListItemButton
             onClick={handleClick}
             style={{ width: "fit-content" }}
+            data-cy="paraphrases-expand"
           >
             {open ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>

@@ -165,7 +165,7 @@ function ImportQuestionsInstructions(props: {
       </div>
 
       <Button
-        data-cy="upload-questions"
+        data-cy="upload-questions-csv"
         variant="outlined"
         startIcon={<UploadIcon />}
         style={{ marginTop: 10 }}

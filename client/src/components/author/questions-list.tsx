@@ -279,7 +279,7 @@ export function QuestionsList(props: {
       </Button>
       <TwoOptionDialog
         title={
-          "You have unsaved changed. Would you like to save and continue or return to your work?"
+          "You have unsaved changes. Would you like to save and continue or return to your work?"
         }
         open={showSaveDialog}
         option1={{

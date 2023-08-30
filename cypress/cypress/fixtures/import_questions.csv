@@ -1,0 +1,8 @@
+﻿question,topic,category,paraphrase1,paraphrase2,paraphrase3
+What's the hardest decision you've had to make as a leader?,Test topic3,test category3,"paraphrase1, for, question 1,",paraphrase2 for question 1,paraphrase3 for question 1
+Test import question 2,mispelled topic,Covid,paraphrase1 for question 2,paraphrase2 for question2,"paraphrase3, for, qu,estion 2,"
+Hello Again,,,ignored because question text match,,
+ignored because paraphrase match ignored because paraphrase match ignored because paraphrase match,,,What do you go by?,,
+Test import question 4 Test import question 4,mispelled topic,Covid,paraphrase1 for question 2,paraphrase2 for question2,"paraphrase3, for, qu,estion 2,"
+Test import question 5,mispelled topic,Covid,paraphrase1 for question 2,paraphrase2 for question2,"paraphrase3, for, qu,estion 2,"
+Test import question 6 Test import question 6 Test import question 6,mispelled topic,Covid,paraphrase1 for question 2,paraphrase2 for question2,"paraphrase3, for, qu,estion 2,"
