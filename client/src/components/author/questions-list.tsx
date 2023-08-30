@@ -21,23 +21,27 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Autocomplete } from "@mui/material";
-
 import { Category, Question, SubjectTypes, Topic } from "types";
 import CategoryListItem from "./category-list-item";
 import QuestionListItem from "./question-list-item";
 import QuestionEditCard from "./question-edit";
-import { SubjectQuestionGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
 import { useWithQuestions } from "hooks/graphql/use-with-questions";
 import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
+import { navigate } from "gatsby";
+import { TwoOptionDialog } from "components/dialog";
 
 export function QuestionsList(props: {
+  isSubjectEdited: boolean;
+  subject: SubjectGQL;
   subjectType: SubjectTypes;
   classes: Record<string, string>;
   categories: Category[];
   topics: Topic[];
   questions: SubjectQuestionGQL[];
+  saveSubject: () => Promise<SubjectGQL | undefined>;
   addCategory: () => void;
   editCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -46,11 +50,19 @@ export function QuestionsList(props: {
   removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
 }): JSX.Element {
-  const { classes, questions, subjectType } = props;
+  const {
+    classes,
+    questions,
+    subjectType,
+    subject,
+    isSubjectEdited,
+    saveSubject,
+  } = props;
   const [searchInput, setSearchInput] = useState<Question>();
   const [selectedQuestion, setSelectedQuestion] = useState<string>();
   const [selectedCategory, setSelectedCategory] = useState<string>();
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState<boolean>(false);
 
   const uncategorizedQuestions = questions.filter((q) => !q.category) || [];
   const { height: windowHeight } = useWithWindowSize();
@@ -62,6 +74,7 @@ export function QuestionsList(props: {
     filter: {},
   };
   const { data, nextPage, isLoading } = useWithQuestions(searchParams);
+
   useEffect(() => {
     if (!data) {
       return;
@@ -250,6 +263,43 @@ export function QuestionsList(props: {
       >
         Add Category
       </Button>
+      <Button
+        data-cy="import-questions"
+        variant="outlined"
+        className={classes.button}
+        onClick={() => {
+          if (isSubjectEdited) {
+            setShowSaveDialog(true);
+          } else {
+            navigate(`/author/subject/importquestions/?id=${subject._id}`);
+          }
+        }}
+      >
+        Import CSV
+      </Button>
+      <TwoOptionDialog
+        title={
+          "You have unsaved changes. Would you like to save and continue or return to your work?"
+        }
+        open={showSaveDialog}
+        option1={{
+          display: "Return",
+          onClick: () => {
+            setShowSaveDialog(false);
+          },
+        }}
+        option2={{
+          display: "Save and Continue",
+          onClick: () => {
+            setShowSaveDialog(false);
+            saveSubject().then((s) => {
+              if (s) {
+                navigate(`/author/subject/importquestions/?id=${s._id}`);
+              }
+            });
+          },
+        }}
+      />
     </div>
   );
 }

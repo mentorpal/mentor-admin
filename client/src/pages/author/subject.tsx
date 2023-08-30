@@ -202,6 +202,9 @@ function SubjectPage(props: {
         </TabPanel>
         <TabPanel className={classes.tab} value="3">
           <QuestionsList
+            saveSubject={saveSubject}
+            isSubjectEdited={isSubjectEdited}
+            subject={editedSubject}
             subjectType={editedSubject.type}
             classes={classes}
             categories={editedSubject.categories}
@@ -227,7 +230,9 @@ function SubjectPage(props: {
         color="primary"
         className={classes.button}
         disabled={!isSubjectEdited}
-        onClick={() => saveSubject()}
+        onClick={() => {
+          saveSubject();
+        }}
       >
         {subjectExists ? "Save" : "Create"}
       </Button>
