@@ -41,7 +41,7 @@ interface UseWithSubject {
   error: LoadingError | undefined;
   userCanArchiveSubjects: boolean;
   editData: (d: Partial<SubjectGQL>) => void;
-  saveSubject: () => void;
+  saveSubject: (subj?: SubjectGQL) => Promise<SubjectGQL | undefined>;
   addCategory: () => void;
   updateCategory: (val: Category) => void;
   removeCategory: (val: Category) => void;
@@ -93,19 +93,25 @@ export function useWithSubject(
     return fetchSubject(subjectId);
   }
 
-  function saveSubject() {
-    saveAndReturnData({
-      action: async (editedData: SubjectGQL) => {
-        const updated = await updateSubject(editedData, accessToken);
-        // we need to reload the mentor after updating a subject because
-        // the subjects and questions and answers might have changed
-        // would be better to edit in place but for now do the easy (but more expensive) way and
-        // change this later if needed
-        // this doesn't happen very often anyway
-        loadMentor();
-        return updated;
+  async function saveSubject(
+    subject?: SubjectGQL
+  ): Promise<SubjectGQL | undefined> {
+    const newSubj = await saveAndReturnData(
+      {
+        action: async (editedData: SubjectGQL) => {
+          const updated = await updateSubject(editedData, accessToken);
+          // we need to reload the mentor after updating a subject because
+          // the subjects and questions and answers might have changed
+          // would be better to edit in place but for now do the easy (but more expensive) way and
+          // change this later if needed
+          // this doesn't happen very often anyway
+          loadMentor();
+          return updated;
+        },
       },
-    });
+      subject
+    );
+    return newSubj;
   }
 
   function addCategory() {

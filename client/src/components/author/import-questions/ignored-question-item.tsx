@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Card, CardContent, Typography } from "@mui/material";
-import { IgnoredImportedQuestion } from "../questions-list";
+import { IgnoredImportedQuestion } from "pages/author/subject/importquestions";
 
 export function IgnoredQuestionItem(props: {
   classes: Record<string, string>;
