@@ -243,17 +243,13 @@ export function useWithSubject(
   }
 
   function updateQuestion(val: SubjectQuestionGQL) {
-    console.log("here-1");
     if (!editedData) {
       return;
     }
-    console.log("here");
     const idx = editedData.questions.findIndex(
       (q) => q.question._id === val.question._id
     );
     if (idx !== -1) {
-      console.log("here2");
-      console.log(val);
       editData({ questions: copyAndSet(editedData.questions, idx, val) });
     }
   }
