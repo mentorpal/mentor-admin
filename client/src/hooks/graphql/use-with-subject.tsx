@@ -50,6 +50,7 @@ interface UseWithSubject {
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
   addQuestion: (q?: NewQuestionArgs) => void;
+  addQuestions: (qs: SubjectQuestionGQL[]) => void;
   updateQuestion: (val: SubjectQuestionGQL) => void;
   removeQuestion: (val: SubjectQuestionGQL) => void;
   moveQuestion: (toMove: string, moveTo: number, category?: string) => void;
@@ -226,14 +227,27 @@ export function useWithSubject(
     });
   }
 
-  function updateQuestion(val: SubjectQuestionGQL) {
+  function addQuestions(questions: SubjectQuestionGQL[]) {
     if (!editedData) {
       return;
     }
+    editData({
+      questions: [...editedData.questions, ...questions],
+    });
+  }
+
+  function updateQuestion(val: SubjectQuestionGQL) {
+    console.log("here-1");
+    if (!editedData) {
+      return;
+    }
+    console.log("here");
     const idx = editedData.questions.findIndex(
       (q) => q.question._id === val.question._id
     );
     if (idx !== -1) {
+      console.log("here2");
+      console.log(val);
       editData({ questions: copyAndSet(editedData.questions, idx, val) });
     }
   }
@@ -296,6 +310,7 @@ export function useWithSubject(
     removeTopic,
     moveTopic,
     addQuestion,
+    addQuestions,
     updateQuestion,
     removeQuestion,
     moveQuestion,

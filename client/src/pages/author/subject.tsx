@@ -62,6 +62,7 @@ function SubjectPage(props: {
 }): JSX.Element {
   const { classes } = useStyles();
   const [tab, setTab] = useState<string>("1");
+  const [saveCounter, setSaveCounter] = useState<number>(0);
   const [deleteSubjectDialog, setDeleteSubjectDialog] =
     useState<boolean>(false);
   const [deleteInProgress, setDeleteInProgress] = useState<boolean>(false);
@@ -84,6 +85,7 @@ function SubjectPage(props: {
     removeTopic,
     moveTopic,
     addQuestion,
+    addQuestions,
     updateQuestion,
     removeQuestion,
     moveQuestion,
@@ -202,6 +204,8 @@ function SubjectPage(props: {
         </TabPanel>
         <TabPanel className={classes.tab} value="3">
           <QuestionsList
+            saveCounter={saveCounter}
+            subject={editedSubject}
             subjectType={editedSubject.type}
             classes={classes}
             categories={editedSubject.categories}
@@ -211,6 +215,7 @@ function SubjectPage(props: {
                 (!q.question.mentor || q.question.mentor === mentorId)
             )}
             topics={editedSubject.topics}
+            addQuestions={addQuestions}
             addCategory={addCategory}
             editCategory={updateCategory}
             removeCategory={removeCategory}
@@ -227,7 +232,10 @@ function SubjectPage(props: {
         color="primary"
         className={classes.button}
         disabled={!isSubjectEdited}
-        onClick={() => saveSubject()}
+        onClick={() => {
+          saveSubject();
+          setSaveCounter((prevValue) => prevValue + 1);
+        }}
       >
         {subjectExists ? "Save" : "Create"}
       </Button>
