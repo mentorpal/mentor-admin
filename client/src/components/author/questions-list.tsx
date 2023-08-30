@@ -41,6 +41,7 @@ import { NewQuestionArgs } from "hooks/graphql/use-with-subject";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import ImportedQuestionItem from "./import-questions/imported-question-item";
+import IgnoredQuestionItem from "./import-questions/ignored-question-item";
 
 function ImportedQuestionsDisplay(props: {
   categories: Category[];
@@ -48,33 +49,57 @@ function ImportedQuestionsDisplay(props: {
   editQuestion: (val: SubjectQuestionGQL) => void;
   removeQuestion: (val: SubjectQuestionGQL) => void;
   questionsAdded: SubjectQuestionGQL[];
-  questionsIgnored: ImportedQuestions[];
+  questionsIgnored: IgnoredImportedQuestion[];
   classes: Record<string, string>;
 }): JSX.Element {
-  const { classes, questionsAdded, categories, topics } = props;
+  const { classes, questionsAdded, questionsIgnored, categories, topics } =
+    props;
   return (
     <>
-      <Typography variant="h5" style={{ color: "green" }}>
-        Successfully Imported Questions
-      </Typography>
-      <List
-        data-cy="questions-added"
-        className={classes.list}
-        style={{ width: "100%" }}
-      >
-        {questionsAdded.map((q, i) => (
-          <ListItem data-cy={`question-${i}`} key={q.question._id}>
-            <ImportedQuestionItem
-              categories={categories}
-              classes={classes}
-              topics={topics}
-              question={q}
-              editQuestion={props.editQuestion}
-              removeQuestion={props.removeQuestion}
-            />
-          </ListItem>
-        ))}
-      </List>
+      {questionsAdded.length > 0 ? (
+        <>
+          <Typography variant="h5" style={{ color: "green" }}>
+            Successfully Imported Questions
+          </Typography>
+          <List
+            data-cy="questions-added"
+            className={classes.list}
+            style={{ width: "100%" }}
+          >
+            {questionsAdded.map((q, i) => (
+              <ListItem data-cy={`question-${i}`} key={q.question._id}>
+                <ImportedQuestionItem
+                  categories={categories}
+                  classes={classes}
+                  topics={topics}
+                  question={q}
+                  editQuestion={props.editQuestion}
+                  removeQuestion={props.removeQuestion}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      ) : undefined}
+
+      {questionsIgnored.length > 0 ? (
+        <>
+          <Typography variant="h5" style={{ color: "red", marginTop: "50px" }}>
+            Un-successful Imports
+          </Typography>
+          <List
+            data-cy="questions-ignored"
+            className={classes.list}
+            style={{ width: "100%" }}
+          >
+            {questionsIgnored.map((q, i) => (
+              <ListItem data-cy={`question-${i}`} key={q.question}>
+                <IgnoredQuestionItem classes={classes} question={q} />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      ) : undefined}
     </>
   );
 }
@@ -151,6 +176,10 @@ export interface ImportedQuestions {
   paraphrases: string[];
 }
 
+export interface IgnoredImportedQuestion extends ImportedQuestions {
+  existingQuestion: SubjectQuestionGQL;
+}
+
 function ImportQuestionsDisplay(props: {
   subject: SubjectGQL;
   returnAction: () => void;
@@ -172,9 +201,9 @@ function ImportQuestionsDisplay(props: {
   const [_questionsAdded, setQuestionsAdded] = useState<SubjectQuestionGQL[]>(
     []
   );
-  const [questionsIgnored, setQuestionsIgnored] = useState<ImportedQuestions[]>(
-    []
-  );
+  const [questionsIgnored, setQuestionsIgnored] = useState<
+    IgnoredImportedQuestion[]
+  >([]);
   const questionsAdded = subject.questions.filter((q) =>
     _questionsAdded.find((qa) => qa.question._id === q.question._id)
   );
@@ -183,7 +212,7 @@ function ImportQuestionsDisplay(props: {
 
   function addQuestionsToSubject(importedQuestions: ImportedQuestions[]) {
     const newQuestionsToAdd: SubjectQuestionGQL[] = [];
-    const questionsIgnored: ImportedQuestions[] = [];
+    const questionsIgnored: IgnoredImportedQuestion[] = [];
 
     importedQuestions.forEach((importedQuestion) => {
       const {
@@ -204,8 +233,12 @@ function ImportQuestionsDisplay(props: {
           })
         );
       });
+
       if (questionAlreadyExists) {
-        questionsIgnored.push(importedQuestion);
+        questionsIgnored.push({
+          ...importedQuestion,
+          existingQuestion: questionAlreadyExists,
+        });
         return;
       }
       const existingTopic = subject.topics.find((t) => {
@@ -271,48 +304,53 @@ function ImportQuestionsDisplay(props: {
   }
 
   return (
-    <div
-      style={{
-        height: windowHeight - 250,
-        flexGrow: 1,
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        alignItems: "center",
-      }}
-    >
-      {questionsAdded.length > 0 || questionsIgnored.length > 0 ? (
-        <ImportedQuestionsDisplay
-          categories={categories}
-          topics={topics}
-          classes={classes}
-          questionsAdded={questionsAdded}
-          questionsIgnored={questionsIgnored}
-          editQuestion={editQuestion}
-          removeQuestion={removeQuestion}
-        />
-      ) : (
-        <ImportQuestionsInstructions
-          onQuestionsFileUploaded={onQuestionsFileUploaded}
-        />
-      )}
+    <>
+      <div
+        style={{
+          height: windowHeight - 300,
+          flexGrow: 1,
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          alignItems: "center",
+          overflow: "auto",
+          border: "1px solid lightgrey",
+          borderRadius: "5px",
+        }}
+      >
+        {questionsAdded.length > 0 || questionsIgnored.length > 0 ? (
+          <ImportedQuestionsDisplay
+            categories={categories}
+            topics={topics}
+            classes={classes}
+            questionsAdded={questionsAdded}
+            questionsIgnored={questionsIgnored}
+            editQuestion={editQuestion}
+            removeQuestion={removeQuestion}
+          />
+        ) : (
+          <ImportQuestionsInstructions
+            onQuestionsFileUploaded={onQuestionsFileUploaded}
+          />
+        )}
+      </div>
       <Button
         style={{
           position: "absolute",
-          bottom: -40,
+          bottom: 80,
           left: "50%",
           transform: "translate(-50%, -50%)",
           margin: 0,
         }}
-        data-cy="import-questions"
+        data-cy="cancel-import-questions"
         variant="outlined"
         className={classes.button}
         onClick={returnAction}
       >
-        Return
+        Cancel
       </Button>
-    </div>
+    </>
   );
 }
 

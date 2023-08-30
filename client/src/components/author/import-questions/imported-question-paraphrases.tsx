@@ -57,6 +57,7 @@ export function ImportedQuestionParaphrases(props: {
         textAlign: "left",
         borderRadius: 10,
         border: "1px solid #ccc",
+        height: "fit-content",
       }}
     >
       <List data-cy="paraphrases" dense disablePadding>

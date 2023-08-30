@@ -6,11 +6,11 @@ The full terms of this copyright and license should always be found in the root 
 */
 import React from "react";
 import { Card, CardContent, Typography } from "@mui/material";
-import { ImportedQuestions } from "../questions-list";
+import { IgnoredImportedQuestion } from "../questions-list";
 
-export function ImportedQuestionItem(props: {
+export function IgnoredQuestionItem(props: {
   classes: Record<string, string>;
-  question: ImportedQuestions;
+  question: IgnoredImportedQuestion;
 }): JSX.Element {
   const { question } = props;
 
@@ -24,14 +24,90 @@ export function ImportedQuestionItem(props: {
       <CardContent
         style={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: "column",
           justifyContent: "space-around",
         }}
       >
-        <Typography>{question.question}</Typography>
+        <Typography style={{ alignSelf: "center", margin: "10px" }}>
+          <span style={{ fontWeight: "bold" }}>Reason: </span>
+          <span style={{ color: "red", fontWeight: "bold" }}>
+            {question.question === question.existingQuestion.question.question
+              ? "Question already exists"
+              : "Paraphrase Match"}
+          </span>
+        </Typography>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
+          <div
+            data-cy="ignored-imported-question"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "40%",
+              border: "1px solid #ccc",
+              borderRadius: 10,
+              padding: "10px",
+              height: "fit-content",
+            }}
+          >
+            <Typography style={{ alignSelf: "center", marginBottom: "10px" }}>
+              <span style={{ fontWeight: "bold" }}>Imported Question</span>
+            </Typography>
+            <Typography>
+              <span style={{ fontWeight: "bold" }}>Question: </span>
+              {question.question}
+            </Typography>
+            {question.paraphrases.length > 0 && (
+              <Typography>
+                <span style={{ fontWeight: "bold" }}>Paraphrases: </span>
+                <ul>
+                  {question.paraphrases.map((p) => {
+                    return <li key={p}>{p}</li>;
+                  })}
+                </ul>
+              </Typography>
+            )}
+          </div>
+
+          <div
+            data-cy="existing-question"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              width: "40%",
+              border: "1px solid #ccc",
+              borderRadius: 10,
+              padding: "10px",
+              height: "fit-content",
+            }}
+          >
+            <Typography style={{ alignSelf: "center", marginBottom: "10px" }}>
+              <span style={{ fontWeight: "bold" }}>Existing Question</span>
+            </Typography>
+            <Typography>
+              <span style={{ fontWeight: "bold" }}>Question: </span>
+              {question.existingQuestion.question.question}
+            </Typography>
+            {question.existingQuestion.question.paraphrases.length > 0 && (
+              <Typography>
+                <span style={{ fontWeight: "bold" }}>Paraphrases: </span>
+                <ul>
+                  {question.existingQuestion.question.paraphrases.map((p) => {
+                    return <li key={p}>{p}</li>;
+                  })}
+                </ul>
+              </Typography>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-export default ImportedQuestionItem;
+export default IgnoredQuestionItem;
