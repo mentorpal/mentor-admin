@@ -210,9 +210,11 @@ function TableFooter(props: {
   user: User;
   orgs: Organization[];
   viewArchivedMentors: boolean;
+  viewUnapprovedMentors: boolean;
   onToggleArchivedMentors: (v: boolean) => void;
+  onToggleViewUnapprovedMentors: (v: boolean) => void;
 }): JSX.Element {
-  const { userPagin } = props;
+  const { userPagin, viewUnapprovedMentors } = props;
   const { classes: styles } = useStyles();
   const edges = userPagin.searchData?.edges || [];
   const hasNext = userPagin.pageData?.pageInfo.hasNextPage || false;
@@ -289,6 +291,17 @@ function TableFooter(props: {
               data-test={props.viewArchivedMentors}
               checked={props.viewArchivedMentors}
               onChange={(e) => props.onToggleArchivedMentors(e.target.checked)}
+            />
+          </span>
+          <span style={{ margin: "15px" }}>
+            View Unapproved Mentors Only
+            <Switch
+              data-cy="mentors-approval-switch"
+              data-test={viewUnapprovedMentors}
+              checked={viewUnapprovedMentors}
+              onChange={(e) =>
+                props.onToggleViewUnapprovedMentors(e.target.checked)
+              }
             />
           </span>
         </div>
@@ -620,8 +633,11 @@ function UsersTable(props: {
   userPagin: UseUserData;
   user: User;
   viewArchivedMentors: boolean;
+  viewUnapprovedMentors: boolean;
   onToggleArchivedMentors: (v: boolean) => void;
+  onToggleViewUnapprovedMentors: (v: boolean) => void;
 }): JSX.Element {
+  const { viewUnapprovedMentors, onToggleViewUnapprovedMentors } = props;
   const { classes: styles } = useStyles();
   const [columns, setColumns] = useState<ColumnDef[]>([]);
   const { addMentorToPoll, mentorTrainStatusDict } = useWithMentorTrainStatus({
@@ -671,7 +687,9 @@ function UsersTable(props: {
         orgs={props.orgs}
         userPagin={props.userPagin}
         viewArchivedMentors={props.viewArchivedMentors}
+        viewUnapprovedMentors={viewUnapprovedMentors}
         onToggleArchivedMentors={props.onToggleArchivedMentors}
+        onToggleViewUnapprovedMentors={onToggleViewUnapprovedMentors}
       />
     </div>
   );
@@ -684,15 +702,35 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const { switchActiveMentor } = useActiveMentor();
   const [viewArchivedMentors, setViewArchivedMentors] =
     useState<boolean>(false);
+  const [viewUnapprovedMentors, setViewUnapprovedMentors] =
+    useState<boolean>(false);
   const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const viewUnapprovedMentors = params.get("unapproved");
+    if (viewUnapprovedMentors === "true") {
+      setViewUnapprovedMentors(true);
+    }
     switchActiveMentor();
   }, []);
 
   useEffect(() => {
-    userPagin.setPreFilter({ filter: filterEditableUsers });
-  }, [location.search, orgsPagin.data, viewArchivedMentors]);
+    if (!viewUnapprovedMentors) {
+      userPagin.setPreFilter({ filter: filterEditableUsers });
+    } else {
+      userPagin.setPreFilter({
+        filter: (u) => {
+          return !u.defaultMentor.isPublicApproved && filterEditableUsers(u);
+        },
+      });
+    }
+  }, [
+    location.search,
+    orgsPagin.data,
+    viewArchivedMentors,
+    viewUnapprovedMentors,
+  ]);
 
   useEffect(() => {
     if (viewArchivedMentors) {
@@ -704,6 +742,10 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
 
   function onToggleArchivedMentors(tf: boolean) {
     setViewArchivedMentors(tf);
+  }
+
+  function onToggleViewUnapprovedMentors(tf: boolean) {
+    setViewUnapprovedMentors(tf);
   }
 
   function filterEditableUsers(u: User): boolean {
@@ -771,6 +813,8 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         userPagin={userPagin}
         orgs={orgs}
         viewArchivedMentors={viewArchivedMentors}
+        viewUnapprovedMentors={viewUnapprovedMentors}
+        onToggleViewUnapprovedMentors={onToggleViewUnapprovedMentors}
         onToggleArchivedMentors={onToggleArchivedMentors}
       />
       <ErrorDialog error={userPagin.userDataError} />
