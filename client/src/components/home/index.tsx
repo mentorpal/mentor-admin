@@ -45,7 +45,7 @@ import { useWithTraining } from "hooks/task/use-with-train";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
-import { User, Subject, Status } from "types";
+import { User, Subject, Status, Answer } from "types";
 import withLocation from "wrap-with-location";
 import RecordingBlockItem from "./recording-block";
 import { useWithRecordState } from "hooks/graphql/use-with-record-state";
@@ -333,9 +333,14 @@ function HomePage(props: {
     setConfirmSaveBeforeCallback(undefined);
   }
 
-  function recordAnswers(status: Status, subject: string, category: string) {
+  function recordAnswers(
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) {
     onLeave(() => {
-      reviewAnswerState.recordAnswers(status, subject, category);
+      reviewAnswerState.recordAnswers(status, subject, category, answers);
     }, "You have unsaved changes to questions. Would you like to save your changes before proceeding?");
   }
 

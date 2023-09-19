@@ -366,6 +366,20 @@ export function cyAttachUpload(cy, fileName?: string): Promise<void> {
   });
 }
 
+export function cyAttachCsv(cy): Promise<void> {
+  const fileName = "import_questions.csv";
+  cy.intercept("**.csv", {
+    fixture: fileName,
+  });
+  return cy.fixture(fileName).then((fileContent) => {
+    cy.get('input[type="file"]').attachFile({
+      fileContent: fileContent.toString(),
+      fileName: fileName,
+      mimeType: "text/csv",
+    });
+  });
+}
+
 export function cyMockTrain(
   cy,
   params: {

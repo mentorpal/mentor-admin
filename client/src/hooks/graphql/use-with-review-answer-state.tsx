@@ -58,7 +58,12 @@ interface UseWithReviewAnswerState {
   setError: (error: LoadingError) => void;
   selectSubject: (sId?: string) => void;
   saveChanges: () => Promise<void> | void;
-  recordAnswers: (status: Status, subject: string, category: string) => void;
+  recordAnswers: (
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) => void;
   recordAnswer: (question: string) => void;
   addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: QuestionEdits) => void;
@@ -91,9 +96,12 @@ export function useWithReviewAnswerState(
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorSubjects: Subject[] = getData((state) => state.data?.subjects);
   const mentorAnswers: Answer[] = getData((state) => state.data?.answers);
+  const mentorOrphanedCompleteAnswers: Answer[] = getData(
+    (state) => state.data?.orphanedCompleteAnswers
+  );
   const mentorQuestions = useQuestions(
     (state) => state.questions,
-    mentorAnswers?.map((a) => a.question)
+    [...(mentorAnswers || []).map((a) => a.question)]
   );
   const questionsLoading = isQuestionsLoading(
     mentorAnswers?.map((a) => a.question)
@@ -105,7 +113,7 @@ export function useWithReviewAnswerState(
   }, [mentorSubjects]);
 
   useEffect(() => {
-    setAnswers(mentorAnswers?.map((a) => ({ ...a })));
+    setAnswers([...(mentorAnswers || []).map((a) => ({ ...a }))]);
   }, [mentorAnswers]);
 
   useEffect(() => {
@@ -205,6 +213,20 @@ export function useWithReviewAnswerState(
           });
         }
       });
+      const orphanedCompleteQuestionIds = (
+        mentorOrphanedCompleteAnswers || []
+      ).map((a) => a.question);
+      if (orphanedCompleteQuestionIds.length > 0) {
+        _blocks.push({
+          subject: "",
+          category: undefined,
+          name: "Orphaned Complete Answers",
+          description:
+            "Complete answers that do not belong to any subject. This may be the result of a subject being deleted.",
+          questions: orphanedCompleteQuestionIds,
+        });
+      }
+
       // Sort blocks by config priority
       const subjectPriority = configState.config.subjectRecordPriority;
       const prioritizedBlocks = _blocks.filter((block) =>
@@ -234,6 +256,7 @@ export function useWithReviewAnswerState(
         total: mentorAnswers.length,
       });
     }
+
     setBlocks(_blocks);
   }, [
     mentorSubjects,
@@ -251,9 +274,25 @@ export function useWithReviewAnswerState(
     setSelectedSubject(sId || "");
   }
 
-  function recordAnswers(status: Status, subject: string, category: string) {
-    navigate(
-      urlBuild("/record", {
+  function recordAnswers(
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) {
+    let url = "";
+    if (!subject && answers?.length) {
+      const questionIds = answers.map((a) => a.question || a.questionClientId);
+      url = urlBuild("/record", {
+        status,
+        videoId: questionIds,
+        back: urlBuild(
+          "/",
+          selectedSubject ? { subject: selectedSubject } : {}
+        ),
+      });
+    } else {
+      url = urlBuild("/record", {
         status,
         subject,
         category,
@@ -261,8 +300,10 @@ export function useWithReviewAnswerState(
           "/",
           selectedSubject ? { subject: selectedSubject } : {}
         ),
-      })
-    );
+      });
+    }
+
+    navigate(url);
   }
 
   function recordAnswer(question: string) {

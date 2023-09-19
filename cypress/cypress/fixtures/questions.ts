@@ -79,6 +79,14 @@ export const questions: Question[] = [
     name: null,
     paraphrases: [],
   },
+  {
+    _id: "Q5_5_5",
+    clientId: "C_A5_5_5",
+    question: "This question does not belong to any subject",
+    type: QuestionType.QUESTION,
+    name: null,
+    paraphrases: [],
+  },
 ];
 
 export default questions;

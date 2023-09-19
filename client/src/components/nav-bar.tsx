@@ -247,7 +247,7 @@ function NavMenu(props: {
       <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
       <NavItem
-        text={"Create Subject"}
+        text={"Create/Edit Subjects"}
         link={"/author/subjects"}
         icon={<EditIcon />}
         onNav={props.onNav}

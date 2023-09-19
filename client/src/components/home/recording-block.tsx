@@ -23,7 +23,12 @@ export default function RecordingBlockItem(props: {
   expandAllRecordingBlocks: boolean;
   getAnswers: () => Answer[];
   getQuestions: () => QuestionEdits[];
-  recordAnswers: (status: Status, subject: string, category: string) => void;
+  recordAnswers: (
+    status: Status,
+    subject: string,
+    category: string,
+    answers?: Answer[]
+  ) => void;
   recordAnswer: (question: QuestionEdits) => void;
   addNewQuestion: (subject: string, category?: string) => void;
   editQuestion: (question: QuestionEdits) => void;
@@ -72,6 +77,7 @@ export default function RecordingBlockItem(props: {
         <div style={{ flex: "auto" }}>
           <AnswerList
             classes={classes}
+            subjectId={block.subject}
             mentorId={props.mentorId}
             header="Complete"
             answers={complete}
@@ -81,7 +87,8 @@ export default function RecordingBlockItem(props: {
               props.recordAnswers(
                 Status.COMPLETE,
                 block.subject,
-                block.category || ""
+                block.category || "",
+                complete
               )
             }
             onRecordOne={props.recordAnswer}
@@ -89,6 +96,7 @@ export default function RecordingBlockItem(props: {
           />
           <AnswerList
             classes={classes}
+            subjectId={block.subject}
             header="Incomplete"
             answers={incomplete}
             questions={questionEdits}
@@ -98,7 +106,8 @@ export default function RecordingBlockItem(props: {
               props.recordAnswers(
                 Status.INCOMPLETE,
                 block.subject,
-                block.category || ""
+                block.category || "",
+                incomplete
               )
             }
             onRecordOne={props.recordAnswer}
