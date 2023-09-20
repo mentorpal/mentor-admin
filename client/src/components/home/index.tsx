@@ -149,6 +149,7 @@ function HomePage(props: {
   const { setupStatus, navigateToMissingSetup } = useWithSetup();
   const mentorId = getData((m) => m.data?._id || "");
   const mentorType = getData((m) => m.data?.mentorType);
+  const mentorConfig = getData((m) => m.data?.mentorConfig);
   const defaultMentor = props.user.defaultMentor._id;
   const { classes } = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
@@ -383,6 +384,7 @@ function HomePage(props: {
               : `${mentorInfo.name}'s Mentor`
           }
           mentorId={mentorId}
+          mentorConfig={mentorConfig}
           userRole={props.user.userRole}
           uploads={recordState.uploads}
           uploadsButtonVisible={uploadingWidgetVisible}
