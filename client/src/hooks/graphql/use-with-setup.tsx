@@ -230,9 +230,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       return;
     }
     if (isMentorEdited) {
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
+      if (steps[idx].type === SetupStepType.SELECT_KEYWORDS) {
         saveMentorKeywords();
-      } else if (idx === SetupStepType.MENTOR_PRIVACY) {
+      } else if (steps[idx].type === SetupStepType.MENTOR_PRIVACY) {
         saveMentorPrivacy();
       } else {
         saveMentorDetails();
