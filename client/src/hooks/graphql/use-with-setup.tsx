@@ -175,11 +175,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       requiredSubjects,
       isSetupComplete,
     });
-    const mentorSubjectsLocked = mentor.mentorConfig.subjects.length;
+    const mentorSubjectsLocked = mentor.mentorConfig?.subjects.length;
     const mentorPrivacyLocked =
-      mentor.mentorConfig.publiclyVisible !== undefined ||
-      mentor.mentorConfig.orgPermissions.length;
-    const mentorTypeLocked = mentor.mentorConfig.mentorType;
+      mentor.mentorConfig?.publiclyVisible !== undefined ||
+      mentor.mentorConfig?.orgPermissions.length;
+    const mentorTypeLocked = mentor.mentorConfig?.mentorType;
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
@@ -249,7 +249,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     if (!status) {
       return;
     }
-    if (mentor.mentorConfig.configId) {
+    if (mentor.mentorConfig?.configId) {
       // TODO: need to update the way we navigate setup via url, should not
       // be hardcoded carousel indexes, should instead be based off the SetupStepType
       navigate("/setup");
