@@ -45,6 +45,10 @@ export interface UserGQL {
   isDisabled: boolean;
 }
 
+export interface MentorConfig {
+  configId: string;
+}
+
 export interface MentorGQL {
   _id: string;
   name: string;
@@ -65,6 +69,7 @@ export interface MentorGQL {
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
+  mentorConfig: MentorConfig;
   orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];
