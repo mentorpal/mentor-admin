@@ -1040,6 +1040,14 @@ export async function fetchMentorById(
           lastTrainStatus
           mentorConfig{
             configId
+            subjects
+            publiclyVisible
+            mentorType
+            orgPermissions{
+              org
+              viewPermission
+              editPermission
+            }
           }
           orgPermissions {
             orgId
