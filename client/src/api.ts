@@ -1038,6 +1038,17 @@ export async function fetchMentorById(
           hasVirtualBackground
           virtualBackgroundUrl
           lastTrainStatus
+          mentorConfig{
+            configId
+            subjects
+            publiclyVisible
+            mentorType
+            orgPermissions{
+              org
+              viewPermission
+              editPermission
+            }
+          }
           orgPermissions {
             orgId
             viewPermission
@@ -1803,13 +1814,14 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
 }
 
 export async function loginGoogle(
-  accessToken: string
+  accessToken: string,
+  signupCode?: string
 ): Promise<UserAccessToken> {
   return execGql<UserAccessToken>(
     {
       query: `
-      mutation LoginGoogle($accessToken: String!) {
-        loginGoogle(accessToken: $accessToken) {
+      mutation LoginGoogle($accessToken: String!, $signupCode: String, $lockMentorToConfig: Boolean) {
+        loginGoogle(accessToken: $accessToken, mentorConfig: $signupCode, lockMentorToConfig: $lockMentorToConfig) {
           user {
             _id
             name
@@ -1826,7 +1838,11 @@ export async function loginGoogle(
         }
       }
     `,
-      variables: { accessToken },
+      variables: {
+        accessToken: accessToken,
+        signupCode: signupCode,
+        lockMentorToConfig: true,
+      },
     },
     // login responds with set-cookie, w/o withCredentials it doesnt get stored
     { dataPath: "loginGoogle", axiosConfig: { withCredentials: true } }

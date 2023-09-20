@@ -14,7 +14,7 @@ interface UseWithLogin {
   login: (accessToken: string) => void;
   userSawSplashScreen: (accessToken: string) => void;
   userSawTooltips: (accessToken: string) => void;
-  loginWithGoogle: (googleAccessToken: string) => void;
+  loginWithGoogle: (googleAccessToken: string, signupCode?: string) => void;
   logout: () => void;
 }
 
@@ -45,13 +45,15 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
-  function loginWithGoogle(googleAccessToken: string) {
+  function loginWithGoogle(googleAccessToken: string, signupCode?: string) {
     if (
       state.loginStatus === loginActions.LoginStatus.NONE ||
       state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
       state.loginStatus === loginActions.LoginStatus.FAILED
     ) {
-      dispatch(loginActions.googleLogin(googleAccessToken));
+      dispatch(
+        loginActions.googleLogin({ accessToken: googleAccessToken, signupCode })
+      );
     }
   }
 

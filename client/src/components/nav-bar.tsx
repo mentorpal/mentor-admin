@@ -54,6 +54,7 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
+import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
@@ -174,9 +175,10 @@ function NavItem(props: {
 function NavMenu(props: {
   mentorId: string;
   classes: Record<string, string>;
+  mentorSubjectsLocked: boolean;
   onNav?: (cb: () => void) => void;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, mentorSubjectsLocked } = props;
   const { logout, state } = useWithLogin();
   const editPermission = canEditContent(state.user);
 
@@ -196,12 +198,14 @@ function NavMenu(props: {
         icon={<AccountCircle />}
         onNav={props.onNav}
       />
-      <NavItem
-        text={"Select Subjects"}
-        link={"/subjects"}
-        icon={<SubjectIcon />}
-        onNav={props.onNav}
-      />
+      {mentorSubjectsLocked ? undefined : (
+        <NavItem
+          text={"Select Subjects"}
+          link={"/subjects"}
+          icon={<SubjectIcon />}
+          onNav={props.onNav}
+        />
+      )}
       <NavItem
         text={"Export/Import"}
         link={"/importexport"}
@@ -300,6 +304,7 @@ export function NavBar(props: {
   title: string;
   uploads?: UploadTask[];
   uploadsButtonVisible?: boolean;
+  mentorConfig?: MentorConfig;
   toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
@@ -313,6 +318,7 @@ export function NavBar(props: {
     onNav,
     onBack,
     checkForImportTask = true,
+    mentorConfig,
   } = props;
   const importStatus = useWithImportStatus();
   const { importTask } = importStatus;
@@ -395,7 +401,12 @@ export function NavBar(props: {
         swipeAreaWidth={0}
       >
         <Toolbar />
-        <NavMenu classes={classes} mentorId={props.mentorId} onNav={onNav} />
+        <NavMenu
+          mentorSubjectsLocked={Boolean(mentorConfig?.subjects.length)}
+          classes={classes}
+          mentorId={props.mentorId}
+          onNav={onNav}
+        />
       </SwipeableDrawer>
       {checkForImportTask && importTask ? (
         <ImportInProgressDialog importTask={importTask} />

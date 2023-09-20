@@ -28,6 +28,8 @@ import {
   OrgPermission,
   MentorDirtyReason,
   JobState,
+  OrgViewPermissionType,
+  OrgEditPermissionType,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -43,6 +45,20 @@ export interface UserGQL {
   userRole: UserRole;
   defaultMentor: MentorGQL;
   isDisabled: boolean;
+}
+
+export interface OrgPermissionsGQL {
+  org: string;
+  viewPermission: OrgViewPermissionType;
+  editPermission: OrgEditPermissionType;
+}
+
+export interface MentorConfig {
+  configId: string;
+  subjects: string[];
+  publiclyVisible: boolean;
+  mentorType: MentorType;
+  orgPermissions: OrgPermissionsGQL[];
 }
 
 export interface MentorGQL {
@@ -65,6 +81,7 @@ export interface MentorGQL {
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
+  mentorConfig: MentorConfig;
   orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];

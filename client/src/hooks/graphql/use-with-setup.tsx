@@ -62,8 +62,6 @@ interface UseWithSetup {
   error?: LoadingError;
   editMentor: (d: Partial<Mentor>) => void;
   saveMentor: () => void;
-  nextStep: () => void;
-  prevStep: () => void;
   toStep: (i: number) => void;
   clearError: () => void;
   navigateToMissingSetup: () => void;
@@ -177,15 +175,25 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       requiredSubjects,
       isSetupComplete,
     });
-
+    const mentorSubjectsLocked = mentor.mentorConfig.subjects.length;
+    const mentorPrivacyLocked =
+      mentor.mentorConfig.publiclyVisible !== undefined ||
+      mentor.mentorConfig.orgPermissions.length;
+    const mentorTypeLocked = mentor.mentorConfig.mentorType;
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
-      { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
-      { type: SetupStepType.MENTOR_PRIVACY, complete: true },
+      ...(mentorTypeLocked
+        ? []
+        : [{ type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen }]),
+      ...(mentorPrivacyLocked
+        ? []
+        : [{ type: SetupStepType.MENTOR_PRIVACY, complete: true }]),
       { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
       { type: SetupStepType.SELECT_KEYWORDS, complete: true },
-      { type: SetupStepType.SELECT_SUBJECTS, complete: true },
+      ...(mentorSubjectsLocked
+        ? []
+        : [{ type: SetupStepType.SELECT_SUBJECTS, complete: true }]),
       { type: SetupStepType.INTRODUCTION, complete: true },
     ];
     if (idle) {
@@ -203,45 +211,10 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       type: SetupStepType.FINISH_SETUP,
       complete: isSetupComplete,
     });
+    console.log(status);
+    console.log(status.length);
     setSteps(status);
   }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
-
-  function addToIdx(delta = 1): void {
-    // we have to add steps.length below because stupid js
-    // returns negative mods, e.g.
-    //    (0 - 1) % 10 == -1 // should be 9
-    setIdx(
-      !isNaN(Number(idx))
-        ? Number(idx) + ((delta + steps.length) % steps.length)
-        : 0
-    );
-  }
-
-  function nextStep(): void {
-    if (!status) {
-      return;
-    }
-    if (isMentorEdited) {
-      saveMentorDetails();
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
-        saveMentorKeywords();
-      }
-    }
-    addToIdx(1);
-  }
-
-  function prevStep(): void {
-    if (!status) {
-      return;
-    }
-    if (isMentorEdited) {
-      saveMentorDetails();
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
-        saveMentorKeywords();
-      }
-    }
-    addToIdx(-1);
-  }
 
   function onLeave(cb: () => void): void {
     if (isMentorEdited) {
@@ -274,6 +247,12 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
 
   function navigateToMissingSetup(): void {
     if (!status) {
+      return;
+    }
+    if (mentor.mentorConfig.configId) {
+      // TODO: need to update the way we navigate setup via url, should not
+      // be hardcoded carousel indexes, should instead be based off the SetupStepType
+      navigate("/setup");
       return;
     }
     if (!status.isMentorInfoDone) {
@@ -320,8 +299,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,
-    nextStep,
-    prevStep,
     toStep,
     clearError,
     navigateToMissingSetup,
