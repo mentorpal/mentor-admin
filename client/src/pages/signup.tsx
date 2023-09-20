@@ -19,8 +19,11 @@ import withLocation from "wrap-with-location";
  */
 function PrimaryDisplayHolder(): JSX.Element {
   const { state: loginState, loginWithGoogle } = useWithLogin();
-  const urlParams = new URLSearchParams(window.location.search);
-  const signupCode = urlParams.get("code") || "";
+  let signupCode = "";
+  if (typeof window != "undefined") {
+    const urlParams = new URLSearchParams(window.location.search);
+    signupCode = urlParams.get("code") || "";
+  }
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       loginWithGoogle(tokenResponse.access_token, signupCode);
