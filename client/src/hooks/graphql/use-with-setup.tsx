@@ -12,6 +12,7 @@ import {
   MentorType,
   SetupStatus,
   Subject,
+  UploadTaskStatuses,
   UtteranceName,
 } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -22,6 +23,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import { LoadingStatus } from "./generic-loading-reducer";
 import { useAppSelector } from "store/hooks";
+import { useWithUploadStatus } from "./use-with-upload-status";
 
 //order of the slides
 export enum SetupStepType {
@@ -68,7 +70,11 @@ interface UseWithSetup {
   onLeave: (cb: () => void) => void;
 }
 
-export function useWithSetup(search?: { i?: string }): UseWithSetup {
+export function useWithSetup(
+  props: { accessToken: string },
+  search?: { i?: string }
+): UseWithSetup {
+  const { accessToken } = props;
   const [initialSetupStep] = useState<number>(
     search?.i ? parseInt(search.i) : 0
   );
@@ -82,6 +88,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
+  const { uploads } = useWithUploadStatus(accessToken);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -149,12 +156,23 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a: Answer) =>
-            isAnswerComplete(
-              a,
-              getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
-              mentor.mentorType
-            )
+          complete: answers.every(
+            (a: Answer) =>
+              isAnswerComplete(
+                a,
+                getValueIfKeyExists(a.question, mentorQuestions)?.question
+                  ?.name,
+                mentor.mentorType
+              ) ||
+              uploads.find(
+                (u) =>
+                  u.question ==
+                    (getValueIfKeyExists(a.question, mentorQuestions)?.question
+                      ?.question || "") &&
+                  !u.taskList.some(
+                    (t) => t.status === UploadTaskStatuses.FAILED
+                  )
+              )
           ),
         };
       });
@@ -175,11 +193,11 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       requiredSubjects,
       isSetupComplete,
     });
-    const mentorSubjectsLocked = mentor.mentorConfig.subjects.length;
+    const mentorSubjectsLocked = mentor.mentorConfig?.subjects.length;
     const mentorPrivacyLocked =
-      mentor.mentorConfig.publiclyVisible !== undefined ||
-      mentor.mentorConfig.orgPermissions.length;
-    const mentorTypeLocked = mentor.mentorConfig.mentorType;
+      mentor.mentorConfig?.publiclyVisible !== undefined ||
+      mentor.mentorConfig?.orgPermissions.length;
+    const mentorTypeLocked = mentor.mentorConfig?.mentorType;
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
@@ -211,8 +229,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       type: SetupStepType.FINISH_SETUP,
       complete: isSetupComplete,
     });
-    console.log(status);
-    console.log(status.length);
     setSteps(status);
   }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
 
@@ -230,9 +246,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       return;
     }
     if (isMentorEdited) {
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
+      if (steps[idx].type === SetupStepType.SELECT_KEYWORDS) {
         saveMentorKeywords();
-      } else if (idx === SetupStepType.MENTOR_PRIVACY) {
+      } else if (steps[idx].type === SetupStepType.MENTOR_PRIVACY) {
         saveMentorPrivacy();
       } else {
         saveMentorDetails();
@@ -249,7 +265,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     if (!status) {
       return;
     }
-    if (mentor.mentorConfig.configId) {
+    if (mentor.mentorConfig?.configId) {
       // TODO: need to update the way we navigate setup via url, should not
       // be hardcoded carousel indexes, should instead be based off the SetupStepType
       navigate("/setup");

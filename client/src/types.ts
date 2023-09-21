@@ -197,7 +197,7 @@ export interface Mentor {
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
-  mentorConfig: MentorConfig;
+  mentorConfig?: MentorConfig;
   orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];
