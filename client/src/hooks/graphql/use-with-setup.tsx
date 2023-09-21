@@ -12,6 +12,7 @@ import {
   MentorType,
   SetupStatus,
   Subject,
+  UploadTaskStatuses,
   UtteranceName,
 } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -22,6 +23,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import { LoadingStatus } from "./generic-loading-reducer";
 import { useAppSelector } from "store/hooks";
+import { useWithUploadStatus } from "./use-with-upload-status";
 
 //order of the slides
 export enum SetupStepType {
@@ -68,7 +70,11 @@ interface UseWithSetup {
   onLeave: (cb: () => void) => void;
 }
 
-export function useWithSetup(search?: { i?: string }): UseWithSetup {
+export function useWithSetup(
+  props: { accessToken: string },
+  search?: { i?: string }
+): UseWithSetup {
+  const { accessToken } = props;
   const [initialSetupStep] = useState<number>(
     search?.i ? parseInt(search.i) : 0
   );
@@ -82,6 +88,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
+  const { uploads } = useWithUploadStatus(accessToken);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -149,12 +156,23 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a: Answer) =>
-            isAnswerComplete(
-              a,
-              getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
-              mentor.mentorType
-            )
+          complete: answers.every(
+            (a: Answer) =>
+              isAnswerComplete(
+                a,
+                getValueIfKeyExists(a.question, mentorQuestions)?.question
+                  ?.name,
+                mentor.mentorType
+              ) ||
+              uploads.find(
+                (u) =>
+                  u.question ==
+                    (getValueIfKeyExists(a.question, mentorQuestions)?.question
+                      ?.question || "") &&
+                  !u.taskList.some(
+                    (t) => t.status === UploadTaskStatuses.FAILED
+                  )
+              )
           ),
         };
       });
@@ -211,8 +229,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       type: SetupStepType.FINISH_SETUP,
       complete: isSetupComplete,
     });
-    console.log(status);
-    console.log(status.length);
     setSteps(status);
   }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
 
