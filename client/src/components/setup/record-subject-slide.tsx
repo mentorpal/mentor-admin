@@ -7,7 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { navigate } from "gatsby";
 import React from "react";
 import { Typography, Button } from "@mui/material";
-import { Subject, Answer, MentorType } from "types";
+import { Subject, Answer, MentorType, UploadTaskStatuses } from "types";
 import { Slide } from "./slide";
 import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
 import { useAppSelector } from "store/hooks";
@@ -21,14 +21,22 @@ export function RecordSubjectSlide(props: {
   customTitle?: string; // pass in optional slide title
 }): JSX.Element {
   const { classes, subject, answers, i } = props;
+  const uploads = useAppSelector(
+    (state) => state.uploadStatus.uploadsInProgress
+  );
   const mentorQuestions = useAppSelector((state) => state.questions.questions);
-  // TODO: update this so that it checks uploads aswsell
-  const recorded = answers.filter((a) =>
-    isAnswerComplete(
-      a,
-      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
-      props.mentorType
-    )
+  const recorded = answers.filter(
+    (a) =>
+      isAnswerComplete(
+        a,
+        getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+        props.mentorType
+      ) ||
+      uploads.some(
+        (u) =>
+          u.question === a.question &&
+          !u.taskList.some((t) => t.status === UploadTaskStatuses.FAILED)
+      )
   );
   const isRecorded = answers.length === recorded.length;
 

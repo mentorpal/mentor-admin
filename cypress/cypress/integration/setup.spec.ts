@@ -1380,7 +1380,13 @@ describe("Setup", () => {
     // TODO
   });
 
-  it("Select Subjkects slide not shown to mentors with locked subjects", () => {
+  it("Select Subjects slide not shown to mentors with locked subjects", () => {
     // TODO
+  });
+
+  it("Record required subject slide considers answer as complete if upload in progress", () => {
+    // TODO
+    // Check that record subject slide is 3/3 for 2 complete and 1 uploading
+    // Check that Mentor Studio does not recommend returning to setup in this state aswell
   });
 });
