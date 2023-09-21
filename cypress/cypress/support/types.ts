@@ -78,6 +78,10 @@ export interface UserAccessToken {
   expirationDate: string;
 }
 
+export interface MentorConfig {
+  configId: string;
+}
+
 export interface Mentor {
   _id: string;
   name: string;
@@ -95,6 +99,7 @@ export interface Mentor {
   isArchived: boolean;
   isAdvanced: boolean;
   defaultSubject?: Subject;
+  mentorConfig: MentorConfig;
   numAnswersComplete: number;
   subjects: Subject[];
   keywords: string[];

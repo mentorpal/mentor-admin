@@ -56,6 +56,7 @@ import { useWithRecordQueue } from "hooks/graphql/use-with-record-queue";
 import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { BuildMentorTooltip } from "./build-mentor-tooltip";
+import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
@@ -146,9 +147,14 @@ function HomePage(props: {
     error: mentorError,
   } = useActiveMentor();
 
-  const { setupStatus, navigateToMissingSetup } = useWithSetup();
+  const { setupStatus, navigateToMissingSetup } = useWithSetup({
+    accessToken: props.accessToken,
+  });
   const mentorId = getData((m) => m.data?._id || "");
   const mentorType = getData((m) => m.data?.mentorType);
+  const mentorConfig: MentorConfig | undefined = getData(
+    (m) => m.data?.mentorConfig
+  );
   const defaultMentor = props.user.defaultMentor._id;
   const { classes } = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
@@ -383,6 +389,7 @@ function HomePage(props: {
               : `${mentorInfo.name}'s Mentor`
           }
           mentorId={mentorId}
+          mentorConfig={mentorConfig}
           userRole={props.user.userRole}
           uploads={recordState.uploads}
           uploadsButtonVisible={uploadingWidgetVisible}
@@ -503,20 +510,22 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
-            <MenuItem
-              key={"add-subject"}
-              data-cy={"add-subject"}
-              value={"add-subject"}
-            >
-              <Button
-                data-cy="add-a-subject"
-                onClick={() => {
-                  navigate("/subjects");
-                }}
+            {mentorConfig?.subjects.length ? undefined : (
+              <MenuItem
+                key={"add-subject"}
+                data-cy={"add-subject"}
+                value={"add-subject"}
               >
-                + Add a subject
-              </Button>
-            </MenuItem>
+                <Button
+                  data-cy="add-a-subject"
+                  onClick={() => {
+                    navigate("/subjects");
+                  }}
+                >
+                  + Add a subject
+                </Button>
+              </MenuItem>
+            )}
           </Select>
         </ColorTooltip>
       </div>

@@ -9,7 +9,8 @@ import React from "react";
 import { Typography, Button } from "@mui/material";
 import { Subject, Answer, MentorType } from "types";
 import { Slide } from "./slide";
-import { isAnswerComplete, urlBuild } from "helpers";
+import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
+import { useAppSelector } from "store/hooks";
 
 export function RecordSubjectSlide(props: {
   classes: Record<string, string>;
@@ -20,8 +21,14 @@ export function RecordSubjectSlide(props: {
   customTitle?: string; // pass in optional slide title
 }): JSX.Element {
   const { classes, subject, answers, i } = props;
+  const mentorQuestions = useAppSelector((state) => state.questions.questions);
+
   const recorded = answers.filter((a) =>
-    isAnswerComplete(a, undefined, props.mentorType)
+    isAnswerComplete(
+      a,
+      getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
+      props.mentorType
+    )
   );
   const isRecorded = answers.length === recorded.length;
 

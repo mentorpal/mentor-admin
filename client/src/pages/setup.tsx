@@ -131,7 +131,7 @@ function SetupPage(props: {
     virtualBackgroundUrls,
     defaultVirtualBackground,
     onLeave,
-  } = useWithSetup(props.search);
+  } = useWithSetup({ accessToken: props.accessToken }, props.search);
   const accessToken = props.accessToken;
   const { data: keywords, isLoading: keywordsLoading } = useWithKeywords();
   const { state: configState, isConfigLoaded } = useWithConfig();

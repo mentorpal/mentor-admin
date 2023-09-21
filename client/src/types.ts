@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import { CancelTokenSource } from "axios";
 import {
   AnswerGQL,
+  MentorConfig,
   PreviousAnswerVersion,
   SubjectGQL,
   UserQuestionGQL,
@@ -196,6 +197,7 @@ export interface Mentor {
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
+  mentorConfig?: MentorConfig;
   orgPermissions: OrgPermission[];
   defaultSubject?: Subject;
   subjects: Subject[];

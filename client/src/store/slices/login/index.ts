@@ -76,9 +76,18 @@ export const userSawTooltips = createAsyncThunk(
 
 export const googleLogin = createAsyncThunk(
   "login/googleLogin",
-  async (accessToken: string, thunkAPI) => {
+  async (
+    args: {
+      accessToken: string;
+      signupCode?: string;
+    },
+    thunkAPI
+  ) => {
     try {
-      const googleLogin = await api.loginGoogle(accessToken);
+      const googleLogin = await api.loginGoogle(
+        args.accessToken,
+        args.signupCode
+      );
       localStorageStore(ACCESS_TOKEN_KEY, googleLogin.accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(googleLogin.accessToken);

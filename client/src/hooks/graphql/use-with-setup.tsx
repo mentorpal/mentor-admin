@@ -12,6 +12,7 @@ import {
   MentorType,
   SetupStatus,
   Subject,
+  UploadTaskStatuses,
   UtteranceName,
 } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -22,6 +23,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
 import { LoadingStatus } from "./generic-loading-reducer";
 import { useAppSelector } from "store/hooks";
+import { useWithUploadStatus } from "./use-with-upload-status";
 
 //order of the slides
 export enum SetupStepType {
@@ -62,15 +64,17 @@ interface UseWithSetup {
   error?: LoadingError;
   editMentor: (d: Partial<Mentor>) => void;
   saveMentor: () => void;
-  nextStep: () => void;
-  prevStep: () => void;
   toStep: (i: number) => void;
   clearError: () => void;
   navigateToMissingSetup: () => void;
   onLeave: (cb: () => void) => void;
 }
 
-export function useWithSetup(search?: { i?: string }): UseWithSetup {
+export function useWithSetup(
+  props: { accessToken: string },
+  search?: { i?: string }
+): UseWithSetup {
+  const { accessToken } = props;
   const [initialSetupStep] = useState<number>(
     search?.i ? parseInt(search.i) : 0
   );
@@ -84,6 +88,7 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
+  const { uploads } = useWithUploadStatus(accessToken);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -151,12 +156,23 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
         return {
           subject: s,
           answers: answers,
-          complete: answers.every((a: Answer) =>
-            isAnswerComplete(
-              a,
-              getValueIfKeyExists(a.question, mentorQuestions)?.question?.name,
-              mentor.mentorType
-            )
+          complete: answers.every(
+            (a: Answer) =>
+              isAnswerComplete(
+                a,
+                getValueIfKeyExists(a.question, mentorQuestions)?.question
+                  ?.name,
+                mentor.mentorType
+              ) ||
+              uploads.find(
+                (u) =>
+                  u.question ==
+                    (getValueIfKeyExists(a.question, mentorQuestions)?.question
+                      ?.question || "") &&
+                  !u.taskList.some(
+                    (t) => t.status === UploadTaskStatuses.FAILED
+                  )
+              )
           ),
         };
       });
@@ -177,15 +193,25 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       requiredSubjects,
       isSetupComplete,
     });
-
+    const mentorSubjectsLocked = mentor.mentorConfig?.subjects.length;
+    const mentorPrivacyLocked =
+      mentor.mentorConfig?.publiclyVisible !== undefined ||
+      mentor.mentorConfig?.orgPermissions.length;
+    const mentorTypeLocked = mentor.mentorConfig?.mentorType;
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
-      { type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen },
-      { type: SetupStepType.MENTOR_PRIVACY, complete: true },
+      ...(mentorTypeLocked
+        ? []
+        : [{ type: SetupStepType.MENTOR_TYPE, complete: isMentorTypeChosen }]),
+      ...(mentorPrivacyLocked
+        ? []
+        : [{ type: SetupStepType.MENTOR_PRIVACY, complete: true }]),
       { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
       { type: SetupStepType.SELECT_KEYWORDS, complete: true },
-      { type: SetupStepType.SELECT_SUBJECTS, complete: true },
+      ...(mentorSubjectsLocked
+        ? []
+        : [{ type: SetupStepType.SELECT_SUBJECTS, complete: true }]),
       { type: SetupStepType.INTRODUCTION, complete: true },
     ];
     if (idle) {
@@ -206,43 +232,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     setSteps(status);
   }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
 
-  function addToIdx(delta = 1): void {
-    // we have to add steps.length below because stupid js
-    // returns negative mods, e.g.
-    //    (0 - 1) % 10 == -1 // should be 9
-    setIdx(
-      !isNaN(Number(idx))
-        ? Number(idx) + ((delta + steps.length) % steps.length)
-        : 0
-    );
-  }
-
-  function nextStep(): void {
-    if (!status) {
-      return;
-    }
-    if (isMentorEdited) {
-      saveMentorDetails();
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
-        saveMentorKeywords();
-      }
-    }
-    addToIdx(1);
-  }
-
-  function prevStep(): void {
-    if (!status) {
-      return;
-    }
-    if (isMentorEdited) {
-      saveMentorDetails();
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
-        saveMentorKeywords();
-      }
-    }
-    addToIdx(-1);
-  }
-
   function onLeave(cb: () => void): void {
     if (isMentorEdited) {
       saveMentorDetails();
@@ -257,9 +246,9 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
       return;
     }
     if (isMentorEdited) {
-      if (idx === SetupStepType.SELECT_KEYWORDS) {
+      if (steps[idx].type === SetupStepType.SELECT_KEYWORDS) {
         saveMentorKeywords();
-      } else if (idx === SetupStepType.MENTOR_PRIVACY) {
+      } else if (steps[idx].type === SetupStepType.MENTOR_PRIVACY) {
         saveMentorPrivacy();
       } else {
         saveMentorDetails();
@@ -274,6 +263,12 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
 
   function navigateToMissingSetup(): void {
     if (!status) {
+      return;
+    }
+    if (mentor.mentorConfig?.configId) {
+      // TODO: need to update the way we navigate setup via url, should not
+      // be hardcoded carousel indexes, should instead be based off the SetupStepType
+      navigate("/setup");
       return;
     }
     if (!status.isMentorInfoDone) {
@@ -320,8 +315,6 @@ export function useWithSetup(search?: { i?: string }): UseWithSetup {
     error: mentorError,
     editMentor,
     saveMentor: saveMentorDetails,
-    nextStep,
-    prevStep,
     toStep,
     clearError,
     navigateToMissingSetup,
