@@ -22,7 +22,7 @@ export function RecordSubjectSlide(props: {
 }): JSX.Element {
   const { classes, subject, answers, i } = props;
   const mentorQuestions = useAppSelector((state) => state.questions.questions);
-
+  // TODO: update this so that it checks uploads aswsell
   const recorded = answers.filter((a) =>
     isAnswerComplete(
       a,

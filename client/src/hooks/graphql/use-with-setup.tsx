@@ -12,7 +12,6 @@ import {
   MentorType,
   SetupStatus,
   Subject,
-  UploadTaskStatuses,
   UtteranceName,
 } from "types";
 import { LoadingError } from "./loading-reducer";
@@ -88,7 +87,10 @@ export function useWithSetup(
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
-  const { uploads } = useWithUploadStatus(accessToken);
+  const { uploads, initialLoadComplete: uploadsPulled } =
+    useWithUploadStatus(accessToken);
+  console.log("uploads from use with setup");
+  console.log(uploads);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -118,7 +120,8 @@ export function useWithSetup(
       isMentorSaving ||
       isMentorLoading ||
       !isConfigLoaded() ||
-      (!questionsFinishedLoading && mentor.answers.length > 0)
+      (!questionsFinishedLoading && mentor.answers.length > 0) ||
+      !uploadsPulled
     ) {
       return;
     }
@@ -153,7 +156,8 @@ export function useWithSetup(
                 ?.mentorType === mentor.mentorType) &&
             s.questions.map((q) => q.question).includes(a.question)
         );
-        return {
+        console.log(uploads);
+        const returnValue = {
           subject: s,
           answers: answers,
           complete: answers.every(
@@ -163,18 +167,11 @@ export function useWithSetup(
                 getValueIfKeyExists(a.question, mentorQuestions)?.question
                   ?.name,
                 mentor.mentorType
-              ) ||
-              uploads.find(
-                (u) =>
-                  u.question ==
-                    (getValueIfKeyExists(a.question, mentorQuestions)?.question
-                      ?.question || "") &&
-                  !u.taskList.some(
-                    (t) => t.status === UploadTaskStatuses.FAILED
-                  )
-              )
+              ) || uploads.find((u) => u.question == a.question)
           ),
         };
+        console.log(returnValue);
+        return returnValue;
       });
     const isSetupComplete =
       isMentorInfoDone &&
@@ -230,7 +227,13 @@ export function useWithSetup(
       complete: isSetupComplete,
     });
     setSteps(status);
-  }, [mentor, configState.config, isMentorLoading, questionsLoadingStatus]);
+  }, [
+    mentor,
+    configState.config,
+    isMentorLoading,
+    questionsLoadingStatus,
+    uploadsPulled,
+  ]);
 
   function onLeave(cb: () => void): void {
     if (isMentorEdited) {

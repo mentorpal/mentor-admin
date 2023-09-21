@@ -1371,4 +1371,16 @@ describe("Setup", () => {
       cy.get("[data-cy=current-vbg-img]").should("be.visible");
     });
   });
+
+  it("Privacy slide not shown to mentors with locked privacy", () => {
+    // TODO
+  });
+
+  it("Select Mentor Type slide not shown to mentors with locked mentor type", () => {
+    // TODO
+  });
+
+  it("Select Subjkects slide not shown to mentors with locked subjects", () => {
+    // TODO
+  });
 });

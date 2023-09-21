@@ -474,6 +474,7 @@ export interface UploadTask {
   tokenSource?: CancelTokenSource;
   transcript?: string;
   media?: Media[];
+  isPlaceholder?: boolean;
 }
 
 export enum EditType {
