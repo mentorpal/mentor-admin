@@ -1373,6 +1373,74 @@ export async function updateMentorPublicApproval(
   );
 }
 
+export async function queryAnswer(
+  mentorId: string,
+  questionId: string,
+  accessToken: string
+): Promise<Answer> {
+  const gql = await execGql<AnswerGQL>(
+    {
+      query: `
+      query Answer($mentor: ID!, $question: ID!) {
+        answer(mentor: $mentor, question: $question) {
+          _id
+          question {
+            _id
+            clientId
+            mentor
+          }
+          hasEditedTranscript
+          markdownTranscript
+          transcript
+          status
+          hasUntransferredMedia
+          webMedia {
+            type
+            tag
+            url
+            transparentVideoUrl
+            needsTransfer
+            hash
+            duration
+          }
+          mobileMedia{
+            type
+            tag
+            url
+            transparentVideoUrl
+            needsTransfer
+            hash
+            duration
+          }
+          vttMedia{
+            type
+            tag
+            url
+            needsTransfer
+            hash
+            duration
+            vttText
+          }
+          previousVersions{
+            transcript
+            dateVersioned
+            vttText
+            webVideoHash
+            videoDuration
+          }
+        }
+      }
+    `,
+      variables: {
+        mentor: mentorId,
+        question: questionId,
+      },
+    },
+    { accessToken, dataPath: ["answer"] }
+  );
+  return convertAnswerGQL(gql);
+}
+
 export async function updateAnswerUrl(
   accessToken: string,
   mentorId: string,

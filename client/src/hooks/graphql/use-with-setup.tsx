@@ -89,8 +89,6 @@ export function useWithSetup(
   } = useActiveMentor();
   const { uploads, initialLoadComplete: uploadsPulled } =
     useWithUploadStatus(accessToken);
-  console.log("uploads from use with setup");
-  console.log(uploads);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -156,7 +154,6 @@ export function useWithSetup(
                 ?.mentorType === mentor.mentorType) &&
             s.questions.map((q) => q.question).includes(a.question)
         );
-        console.log(uploads);
         const returnValue = {
           subject: s,
           answers: answers,
@@ -170,7 +167,6 @@ export function useWithSetup(
               ) || uploads.find((u) => u.question == a.question)
           ),
         };
-        console.log(returnValue);
         return returnValue;
       });
     const isSetupComplete =

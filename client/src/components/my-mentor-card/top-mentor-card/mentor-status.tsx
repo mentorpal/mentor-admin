@@ -7,6 +7,7 @@ import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@mui/icons-material/Close";
 import { TooltipStep } from "components/home";
+import useQuestions from "store/slices/questions/useQuestions";
 
 const ColorTooltip = withStyles(Tooltip, {
   tooltip: {
@@ -26,9 +27,9 @@ function MentorStatus(props: {
   const { trainMentor, updateThumbnail } = props;
   const { getData } = useActiveMentor();
   const [statusTooltipOpen, setStatusTooltipOpen] = useState<boolean>(false);
-
+  const allQuestions = useQuestions((state) => state.questions);
   const mentorInfo = getData((ms) =>
-    ms.data ? parseMentor(ms.data) : defaultMentorInfo
+    ms.data ? parseMentor(ms.data, allQuestions) : defaultMentorInfo
   );
 
   const leftColumnAlign = "left";

@@ -3360,4 +3360,8 @@ describe("Record", () => {
       'url("https://default.image.url.com/")'
     );
   });
+
+  it("Answers that finish uploading are reflected properly in mentor studio", () => {
+    // TODO
+  });
 });

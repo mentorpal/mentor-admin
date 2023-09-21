@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { useAppSelector, useAppDispatch } from "store/hooks";
 import { RootState } from "store/store";
-import { Mentor } from "types";
+import { Answer, Mentor } from "types";
 import * as mentorActions from ".";
 import {
   ACTIVE_MENTOR_KEY,
@@ -95,6 +95,10 @@ export function useActiveMentor(): UseActiveMentor {
     dispatch(mentorActions.mentorSlice.actions.clearError());
   }
 
+  function updateAnswer(answer: Answer): void {
+    dispatch(mentorActions.updateAnswer(answer));
+  }
+
   return {
     mentor: mentor.data,
     isLoading: mentor.mentorStatus === LoadingStatus.LOADING,
@@ -108,6 +112,7 @@ export function useActiveMentor(): UseActiveMentor {
     saveMentorKeywords,
     saveMentorPrivacy,
     clearMentorError,
+    updateAnswer,
   };
 }
 
@@ -125,6 +130,7 @@ interface UseActiveMentor {
   saveMentorKeywords: (d: Mentor) => void;
   saveMentorPrivacy: (d: Mentor) => void;
   clearMentorError: () => void;
+  updateAnswer: (a: Answer) => void;
 }
 
 export default useActiveMentor;

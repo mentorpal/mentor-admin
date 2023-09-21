@@ -6,7 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
+import {
+  deleteUploadTask,
+  fetchUploadTasks,
+  queryAnswer,
+  uploadVideo,
+} from "api";
 import { UploadTask, UploadTaskStatuses } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
@@ -45,7 +50,7 @@ export function useWithUploadStatus(
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
-  const { getData } = useActiveMentor();
+  const { getData, updateAnswer } = useActiveMentor();
   const { state: configState } = useWithConfig();
   const { newUploadInitCompleted, newUploadInitStarted } =
     useWithUploadInitStatusActions();
@@ -137,8 +142,15 @@ export function useWithUploadStatus(
             ) {
               changes = true;
               updatedUploadsList[findUploadIdx] = newUploadTask;
-              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
-                onUploadedCallback(newUploadTask);
+              if (areAllTasksDone(newUploadTask)) {
+                if (onUploadedCallback) {
+                  onUploadedCallback(newUploadTask);
+                }
+                queryAnswer(mentorId, newUploadTask.question, accessToken).then(
+                  (a) => {
+                    updateAnswer(a);
+                  }
+                );
               }
             }
           });
