@@ -87,8 +87,11 @@ export function useWithSetup(
     isSaving: isMentorSaving,
     error: mentorError,
   } = useActiveMentor();
-  const { uploads, initialLoadComplete: uploadsPulled } =
-    useWithUploadStatus(accessToken);
+  const { uploads, initialLoadComplete: uploadsPulled } = useWithUploadStatus(
+    accessToken,
+    undefined,
+    0
+  );
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(

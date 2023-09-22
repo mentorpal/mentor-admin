@@ -61,7 +61,7 @@ export function useWithUploadStatus(
   const CancelToken = axios.CancelToken;
   useEffect(() => {
     let mounted = true;
-    if (!mentorId || initialPollComplete) {
+    if (!mentorId) {
       return;
     }
     fetchUploadTasks(accessToken, mentorId)
@@ -77,7 +77,7 @@ export function useWithUploadStatus(
     return () => {
       mounted = false;
     };
-  }, [mentorId, initialPollComplete]);
+  }, [mentorId]);
 
   useEffect(() => {
     if (!mentorId) {
