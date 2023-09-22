@@ -1389,4 +1389,12 @@ describe("Setup", () => {
     // Check that record subject slide is 3/3 for 2 complete and 1 uploading
     // Check that Mentor Studio does not recommend returning to setup in this state aswell
   });
+
+  it("welcome slide header and body text can be set from mentor config", () => {
+    // TODO
+  });
+
+  it("my goal slide can be disabled from mentor config", () => {
+    // TODO
+  });
 });

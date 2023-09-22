@@ -294,4 +294,8 @@ describe("generating followups", () => {
     cy.get("[data-cy=generate-followups-button]").invoke("mouseover").click();
     cy.get("[data-cy=no-followups-generated-dialog]").should("be.visible");
   });
+
+  it("follow up generation can be disabled via mentor config", () => {
+    // TODO
+  });
 });

@@ -200,7 +200,11 @@ export function useWithSetup(
       ...(mentorPrivacyLocked
         ? []
         : [{ type: SetupStepType.MENTOR_PRIVACY, complete: true }]),
-      { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
+      ...(mentor.mentorConfig?.disableMyGoalSlide
+        ? []
+        : [
+            { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
+          ]),
       { type: SetupStepType.SELECT_KEYWORDS, complete: true },
       ...(mentorSubjectsLocked
         ? []

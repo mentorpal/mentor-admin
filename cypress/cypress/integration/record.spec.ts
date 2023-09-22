@@ -3363,5 +3363,8 @@ describe("Record", () => {
 
   it("Answers that finish uploading are reflected properly in mentor studio", () => {
     // TODO
+    // Check that the proper recording card gets updated
+    // Check that the transcript gets put in the recording card
+    // check that the mentor card is updated properly
   });
 });

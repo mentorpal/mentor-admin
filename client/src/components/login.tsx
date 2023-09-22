@@ -19,6 +19,7 @@ import { useWithConfig } from "store/slices/config/useWithConfig";
 import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { OverridableTokenClientConfig } from "@react-oauth/google";
+import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
   toolbar: {
@@ -44,7 +45,9 @@ function LoginPage(props: {
   onGoogleLogin: (
     overrideConfig?: OverridableTokenClientConfig | undefined
   ) => void;
+  mentorConfig?: MentorConfig;
 }): JSX.Element {
+  const { mentorConfig } = props;
   const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
   const { state: loginState, login } = useWithLogin();
@@ -95,7 +98,8 @@ function LoginPage(props: {
       </AppBar>
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <Typography variant="h5" className={classes.title}>
-        Please sign in to access the Mentor Studio portal
+        {mentorConfig?.loginHeaderText ||
+          "Please sign in to access the Mentor Studio portal"}
       </Typography>
       {process.env.ACCESS_TOKEN ? (
         <Button

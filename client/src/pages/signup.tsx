@@ -4,7 +4,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import LoginPage from "components/login";
 import HomePage from "components/home";
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -13,17 +13,29 @@ import { LoginStatus } from "store/slices/login";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 
 import withLocation from "wrap-with-location";
+import { fetchMentorConfig } from "api";
+import { MentorConfig } from "types-gql";
 
 /**
  * Separate functional component in order for useGoogleLogin to be nested under GoogleOAuthProvider (This provider did not want to work in gatsby-browser, bug reported by others)
  */
 function PrimaryDisplayHolder(): JSX.Element {
   const { state: loginState, loginWithGoogle } = useWithLogin();
-  let signupCode = "";
-  if (typeof window != "undefined") {
-    const urlParams = new URLSearchParams(window.location.search);
-    signupCode = urlParams.get("code") || "";
-  }
+  const [signupCode, setSignupCode] = useState("");
+  const [mentorConfig, setMentorConfig] = useState<MentorConfig>();
+
+  useEffect(() => {
+    if (typeof window != "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const signupCode = urlParams.get("code") || "";
+      setSignupCode(signupCode);
+      if (signupCode) {
+        fetchMentorConfig(signupCode).then((config) => {
+          setMentorConfig(config);
+        });
+      }
+    }
+  }, []);
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       loginWithGoogle(tokenResponse.access_token, signupCode);
@@ -33,7 +45,7 @@ function PrimaryDisplayHolder(): JSX.Element {
     return <HomePage />;
   } else {
     // Check for url param
-    return <LoginPage onGoogleLogin={login} />;
+    return <LoginPage onGoogleLogin={login} mentorConfig={mentorConfig} />;
   }
 }
 

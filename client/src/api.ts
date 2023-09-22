@@ -50,6 +50,7 @@ import {
   convertMentorGQL,
   convertUploadTaskGQL,
   convertUserQuestionGQL,
+  MentorConfig,
   MentorGQL,
   SubjectGQL,
   SubjectQuestionGQL,
@@ -1048,6 +1049,11 @@ export async function fetchMentorById(
               viewPermission
               editPermission
             }
+            loginHeaderText
+            welcomeSlideHeader
+            welcomeSlideText
+            disableMyGoalSlide
+            disableFollowups
           }
           orgPermissions {
             orgId
@@ -1196,6 +1202,39 @@ export async function fetchMentorById(
     { dataPath: ["mentor"], accessToken }
   );
   return convertMentorGQL(gql);
+}
+
+export async function fetchMentorConfig(
+  mentorConfigId: string
+): Promise<MentorConfig> {
+  return await execGql<MentorConfig>(
+    {
+      query: `
+      query FetchMentorConfig($mentorConfigId: ID!) {
+        fetchMentorConfig(mentorConfigId:$mentorConfigId){
+            configId
+            subjects
+            publiclyVisible
+            mentorType
+            orgPermissions{
+              org
+              viewPermission
+              editPermission
+            }
+            loginHeaderText
+            welcomeSlideHeader
+            welcomeSlideText
+            disableMyGoalSlide
+            disableFollowups
+          }
+      }
+    `,
+      variables: {
+        mentorConfigId: mentorConfigId,
+      },
+    },
+    { dataPath: ["fetchMentorConfig"] }
+  );
 }
 
 export async function sbertEncodeSentences(
