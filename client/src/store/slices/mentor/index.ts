@@ -8,7 +8,7 @@ import * as api from "api";
 import { extractErrorMessageFromError } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
-import { Mentor } from "types";
+import { Answer, Mentor } from "types";
 import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
 
@@ -194,6 +194,13 @@ export const mentorSlice = createSlice({
     clearError: (state: any) => {
       delete state.error;
     },
+    updateAnswer: (state, action: PayloadAction<Answer>) => {
+      if (state.data) {
+        state.data.answers = state.data.answers.map((a) =>
+          a._id === action.payload._id ? action.payload : a
+        );
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -287,6 +294,6 @@ export const mentorSlice = createSlice({
   },
 });
 
-export const { clearError } = mentorSlice.actions;
+export const { clearError, updateAnswer } = mentorSlice.actions;
 
 export default mentorSlice.reducer;

@@ -78,8 +78,35 @@ export interface UserAccessToken {
   expirationDate: string;
 }
 
+export enum OrgViewPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  HIDDEN = "HIDDEN", // org cannot see or use mentor
+  SHARE = "SHARE", // org can use mentor as-is
+}
+
+export enum OrgEditPermissionType {
+  NONE = "NONE", // no custom settings, use "isPrivate"
+  MANAGE = "MANAGE", // org can edit content
+  ADMIN = "ADMIN", // org can edit content and edit sharing settings
+}
+
+export interface OrgPermissionsGQL {
+  org: string;
+  viewPermission: OrgViewPermissionType;
+  editPermission: OrgEditPermissionType;
+}
+
 export interface MentorConfig {
   configId: string;
+  subjects: string[];
+  publiclyVisible: boolean;
+  mentorType: MentorType;
+  orgPermissions: OrgPermissionsGQL[];
+  loginHeaderText: string;
+  welcomeSlideHeader: string;
+  welcomeSlideText: string;
+  disableMyGoalSlide: boolean;
+  disableFollowups: boolean;
 }
 
 export interface Mentor {

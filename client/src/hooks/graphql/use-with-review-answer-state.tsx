@@ -140,6 +140,7 @@ export function useWithReviewAnswerState(
     }
     let _blocks: RecordingBlock[] = [];
     const subject = mentorSubjects?.find((s) => s._id === selectedSubject);
+
     if (subject) {
       subject.categories.forEach((c) => {
         const categoryQuestions = subject.questions
@@ -264,6 +265,7 @@ export function useWithReviewAnswerState(
     selectedSubject,
     configState,
     isMentorLoading,
+    mentorQuestions,
   ]);
 
   function clearError() {

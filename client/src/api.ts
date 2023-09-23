@@ -50,6 +50,7 @@ import {
   convertMentorGQL,
   convertUploadTaskGQL,
   convertUserQuestionGQL,
+  MentorConfig,
   MentorGQL,
   SubjectGQL,
   SubjectQuestionGQL,
@@ -1048,6 +1049,11 @@ export async function fetchMentorById(
               viewPermission
               editPermission
             }
+            loginHeaderText
+            welcomeSlideHeader
+            welcomeSlideText
+            disableMyGoalSlide
+            disableFollowups
           }
           orgPermissions {
             orgId
@@ -1196,6 +1202,39 @@ export async function fetchMentorById(
     { dataPath: ["mentor"], accessToken }
   );
   return convertMentorGQL(gql);
+}
+
+export async function fetchMentorConfig(
+  mentorConfigId: string
+): Promise<MentorConfig> {
+  return await execGql<MentorConfig>(
+    {
+      query: `
+      query FetchMentorConfig($mentorConfigId: ID!) {
+        fetchMentorConfig(mentorConfigId:$mentorConfigId){
+            configId
+            subjects
+            publiclyVisible
+            mentorType
+            orgPermissions{
+              org
+              viewPermission
+              editPermission
+            }
+            loginHeaderText
+            welcomeSlideHeader
+            welcomeSlideText
+            disableMyGoalSlide
+            disableFollowups
+          }
+      }
+    `,
+      variables: {
+        mentorConfigId: mentorConfigId,
+      },
+    },
+    { dataPath: ["fetchMentorConfig"] }
+  );
 }
 
 export async function sbertEncodeSentences(
@@ -1371,6 +1410,74 @@ export async function updateMentorPublicApproval(
     },
     { dataPath: ["me", "updateMentorPublicApproval"], accessToken }
   );
+}
+
+export async function queryAnswer(
+  mentorId: string,
+  questionId: string,
+  accessToken: string
+): Promise<Answer> {
+  const gql = await execGql<AnswerGQL>(
+    {
+      query: `
+      query Answer($mentor: ID!, $question: ID!) {
+        answer(mentor: $mentor, question: $question) {
+          _id
+          question {
+            _id
+            clientId
+            mentor
+          }
+          hasEditedTranscript
+          markdownTranscript
+          transcript
+          status
+          hasUntransferredMedia
+          webMedia {
+            type
+            tag
+            url
+            transparentVideoUrl
+            needsTransfer
+            hash
+            duration
+          }
+          mobileMedia{
+            type
+            tag
+            url
+            transparentVideoUrl
+            needsTransfer
+            hash
+            duration
+          }
+          vttMedia{
+            type
+            tag
+            url
+            needsTransfer
+            hash
+            duration
+            vttText
+          }
+          previousVersions{
+            transcript
+            dateVersioned
+            vttText
+            webVideoHash
+            videoDuration
+          }
+        }
+      }
+    `,
+      variables: {
+        mentor: mentorId,
+        question: questionId,
+      },
+    },
+    { accessToken, dataPath: ["answer"] }
+  );
+  return convertAnswerGQL(gql);
 }
 
 export async function updateAnswerUrl(

@@ -171,6 +171,7 @@ function SetupPage(props: {
             classes={classes}
             userName={props.user.name}
             docSetupUrl={docSetupUrl}
+            mentorConfig={mentor.mentorConfig}
           />
         );
       case SetupStepType.MENTOR_INFO:

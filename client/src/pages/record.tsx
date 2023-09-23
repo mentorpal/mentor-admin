@@ -69,6 +69,7 @@ import { useWithBrowser } from "hooks/use-with-browser";
 import { useWithWindowSize } from "hooks/use-with-window-size";
 import { UploadVtt } from "components/record/upload-vtt";
 import { AnswerVersionsHandler } from "components/record/answer-versioning/answer-versions";
+import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { RecordPage } })(() => ({
   toolbar: {
@@ -199,9 +200,11 @@ function RecordPage(props: {
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
   const { browserSupportsVbg } = useWithBrowser();
-
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
+  const mentorConfig: MentorConfig | undefined = getData(
+    (state) => state.data?.mentorConfig
+  );
   const hasVirtualBackground = getData(
     (state) => state.data?.hasVirtualBackground
   );
@@ -678,7 +681,7 @@ function RecordPage(props: {
             >
               <ArrowForwardIcon fontSize="large" />
             </IconButton>
-          ) : curSubject && curCategory ? (
+          ) : curSubject && curCategory && !mentorConfig?.disableFollowups ? (
             <Button
               data-cy="done-btn"
               variant="contained"

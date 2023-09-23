@@ -109,4 +109,8 @@ describe("Login", () => {
     cy.contains("Please sign in to access the Mentor Studio portal");
     cy.get("[data-cy=nav-bar]").should("not.exist");
   });
+
+  it("login header text can be set from config in url", () => {
+    // TODO
+  });
 });

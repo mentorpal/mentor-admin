@@ -6,7 +6,12 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { deleteUploadTask, fetchUploadTasks, uploadVideo } from "api";
+import {
+  deleteUploadTask,
+  fetchUploadTasks,
+  queryAnswer,
+  uploadVideo,
+} from "api";
 import { UploadTask, UploadTaskStatuses } from "types";
 import { copyAndSet } from "helpers";
 import useInterval from "hooks/task/use-interval";
@@ -23,31 +28,37 @@ import {
 import { useActiveMentor } from "store/slices/mentor/useActiveMentor";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { useWithUploadInitStatusActions } from "store/slices/upload-init-status/upload-init-status-actions";
-import { useAppDispatch } from "store/hooks";
 import {
   fileFinishedUploading,
   newFileUploadStarted,
   uploadFailed,
 } from "store/slices/upload-init-status";
+import { useWithUploadStatusActions } from "store/slices/upload-status/upload-status-actions";
+import { useAppSelector, useAppDispatch } from "store/hooks";
 
 export function useWithUploadStatus(
   accessToken: string,
   onUploadedCallback?: (task: UploadTask) => void,
   pollingInterval = 3000
 ): UseWithUploadStatus {
-  const [uploads, setUploads] = useState<UploadTask[]>([]);
+  const uploads = useAppSelector(
+    (state) => state.uploadStatus.uploadsInProgress
+  );
+  const initialPollComplete = useAppSelector(
+    (state) => state.uploadStatus.initialPollComplete
+  );
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isPolling, setIsPolling] = useState<boolean>(false);
   const [pollStatusCount, setPollStatusCount] = useState<number>(0);
-  const { getData } = useActiveMentor();
+  const { getData, updateAnswer } = useActiveMentor();
   const { state: configState } = useWithConfig();
   const { newUploadInitCompleted, newUploadInitStarted } =
     useWithUploadInitStatusActions();
+  const { newUploadsData } = useWithUploadStatusActions();
   const dispatch = useAppDispatch();
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
-
   useEffect(() => {
     let mounted = true;
     if (!mentorId) {
@@ -58,7 +69,7 @@ export function useWithUploadStatus(
         if (!mounted) {
           return;
         }
-        setUploads(data);
+        newUploadsData(data);
       })
       .catch((err) => {
         console.error(err);
@@ -100,50 +111,52 @@ export function useWithUploadStatus(
             return;
           }
           setPollStatusCount(pollStatusCount + 1);
-          setUploads((prevData) => {
-            const updatedUploadsList: UploadTask[] = JSON.parse(
-              JSON.stringify(prevData)
+          const prevData = uploads;
+          const updatedUploadsList: UploadTask[] = JSON.parse(
+            JSON.stringify(prevData)
+          );
+          let changes = false;
+          data.forEach((u) => {
+            const findUploadIdx = updatedUploadsList.findIndex(
+              (up) => up.question === u.question
             );
-            let changes = false;
-            data.forEach((u) => {
-              const findUploadIdx = updatedUploadsList.findIndex(
-                (up) => up.question === u.question
-              );
-              const newUploadTask = {
-                ...u,
-                isCancelling:
-                  u?.isCancelling ||
-                  isATaskCancelling(u) ||
-                  isATaskCancelled(u),
-                errorMessage: isATaskFailed(u)
-                  ? `Failed to process file: ${whichTaskFailed(u)} task failed`
-                  : "",
-              };
-              if (findUploadIdx < 0) {
-                changes = true;
-                updatedUploadsList.push(newUploadTask);
-                if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
-                  onUploadedCallback(newUploadTask);
-                }
-              } else if (
-                fetchedTaskHasUpdates(
-                  updatedUploadsList[findUploadIdx],
-                  newUploadTask
-                )
-              ) {
-                changes = true;
-                updatedUploadsList[findUploadIdx] = newUploadTask;
-                if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
-                  onUploadedCallback(newUploadTask);
-                }
+            const newUploadTask = {
+              ...u,
+              isCancelling:
+                u?.isCancelling || isATaskCancelling(u) || isATaskCancelled(u),
+              errorMessage: isATaskFailed(u)
+                ? `Failed to process file: ${whichTaskFailed(u)} task failed`
+                : "",
+            };
+            if (findUploadIdx < 0) {
+              changes = true;
+              updatedUploadsList.push(newUploadTask);
+              if (areAllTasksDone(newUploadTask) && onUploadedCallback) {
+                onUploadedCallback(newUploadTask);
               }
-            });
-            if (changes) {
-              return updatedUploadsList;
-            } else {
-              return prevData;
+            } else if (
+              fetchedTaskHasUpdates(
+                updatedUploadsList[findUploadIdx],
+                newUploadTask
+              )
+            ) {
+              changes = true;
+              updatedUploadsList[findUploadIdx] = newUploadTask;
+              if (areAllTasksDone(newUploadTask)) {
+                if (onUploadedCallback) {
+                  onUploadedCallback(newUploadTask);
+                }
+                queryAnswer(mentorId, newUploadTask.question, accessToken).then(
+                  (a) => {
+                    updateAnswer(a);
+                  }
+                );
+              }
             }
           });
+          if (changes) {
+            newUploadsData(updatedUploadsList);
+          }
         })
         .catch((err) => {
           console.error(err);
@@ -153,14 +166,13 @@ export function useWithUploadStatus(
   );
 
   function removeCompletedOrFailedTask(task: UploadTask) {
-    setUploads((prevState) => {
-      const idx = prevState.findIndex((u) => u.question === task.question);
-      if (idx !== -1 && areAllTasksDoneOrOneFailed(prevState[idx])) {
-        const newArray = prevState.filter((u) => u.question !== task.question);
-        return newArray;
-      }
-      return prevState;
-    });
+    const prevState = uploads;
+    const idx = prevState.findIndex((u) => u.question === task.question);
+    if (idx !== -1 && areAllTasksDoneOrOneFailed(prevState[idx])) {
+      const newArray = prevState.filter((u) => u.question !== task.question);
+      newUploadsData(newArray);
+      return;
+    }
   }
 
   function fetchedTaskHasUpdates(
@@ -191,16 +203,17 @@ export function useWithUploadStatus(
   }
 
   function addOrEditTask(task: UploadTask) {
-    setUploads((prevData) => {
-      const idx = prevData.findIndex((u) => u.question === task.question);
-      if (idx === -1) {
-        const newArray = [...prevData, task];
-        return newArray;
-      } else {
-        const newArray = copyAndSet(prevData, idx, task);
-        return newArray;
-      }
-    });
+    const prevData = uploads;
+    const idx = prevData.findIndex((u) => u.question === task.question);
+    if (idx === -1) {
+      const newArray = [...prevData, task];
+      newUploadsData(newArray);
+      return;
+    } else {
+      const newArray = copyAndSet(prevData, idx, task);
+      newUploadsData(newArray);
+      return;
+    }
   }
 
   function upload(
@@ -228,6 +241,7 @@ export function useWithUploadStatus(
       ],
       uploadProgress: 0,
       tokenSource: tokenSource,
+      isPlaceholder: true,
     });
     const uploadId = uuid();
     newUploadInitStarted(uploadId);
@@ -273,6 +287,7 @@ export function useWithUploadStatus(
     isUploading,
     upload,
     removeCompletedOrFailedTask,
+    initialLoadComplete: initialPollComplete,
   };
 }
 
@@ -289,4 +304,5 @@ export interface UseWithUploadStatus {
     hasEditedTranscript?: boolean
   ) => void;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
+  initialLoadComplete: boolean;
 }
