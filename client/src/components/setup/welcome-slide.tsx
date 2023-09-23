@@ -7,25 +7,28 @@ The full terms of this copyright and license should always be found in the root 
 import React from "react";
 import { Typography } from "@mui/material";
 import { Slide } from "./slide";
+import { MentorConfig } from "types-gql";
 
 export function WelcomeSlide(props: {
   classes: Record<string, string>;
   userName: string;
   docSetupUrl: string;
+  mentorConfig?: MentorConfig;
 }): JSX.Element {
-  const { classes, docSetupUrl } = props;
+  const { classes, docSetupUrl, mentorConfig } = props;
 
   return (
     <Slide
       classes={classes}
-      title="Welcome to MentorStudio!"
+      title={mentorConfig?.welcomeSlideHeader || "Welcome to MentorStudio!"}
       content={
         <div>
           <Typography variant="h6" className={classes.text}>
             It&apos;s nice to meet you, {props.userName}!
           </Typography>
           <Typography variant="h6" className={classes.text}>
-            Let&apos;s get started setting up your new mentor.
+            {mentorConfig?.welcomeSlideText ||
+              "Let's get started setting up your new mentor."}
           </Typography>
           <Typography
             data-cy="walkthrough-intro"

@@ -1167,4 +1167,12 @@ describe("My Mentor Page", () => {
       cy.get("[data-cy=answer-0]").should("not.exist");
     });
   });
+
+  it("users with locked subjects cannot see 'select subject' in hamburger menu", () => {
+    // TODO
+  });
+
+  it("users with locked subjects cannot see '+ add a subject' in dropdown menu", () => {
+    // TODO
+  });
 });

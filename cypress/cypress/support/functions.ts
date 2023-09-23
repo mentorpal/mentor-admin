@@ -20,6 +20,7 @@ import { TaskStatus, UserAccessToken } from "./types";
 import questions from "../fixtures/questions";
 import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 import { v4 as uuid } from "uuid";
+import { orphanedAnswer } from "../fixtures/mentor/orphaned_answer";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -333,6 +334,8 @@ export function cyMockDefault(
     mockGQL("UpdateMentorDetails", { me: { updateMentorDetails: true } }),
     mockGQL("UpdateMentorKeywords", { me: { updateMentorKeywords: true } }),
     mockGQL("UpdateMentorPrivacy", { me: { updateMentorPrivacy: true } }),
+    mockGQL("FetchMentorConfig", { fetchMentorConfig: {} }),
+    mockGQL("Answer", { answer: orphanedAnswer }),
   ]);
 }
 

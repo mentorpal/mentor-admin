@@ -29,8 +29,8 @@ const initialState: UploadInitState = {
   warnFailedUpload: false,
 };
 
-export const uploadStatusSlice = createSlice({
-  name: "uploadStatus",
+export const uploadInitStatusSlice = createSlice({
+  name: "uploadInitStatus",
   initialState,
   reducers: {
     uploadInitStarted: (state, action: PayloadAction<string>) => {
@@ -59,6 +59,6 @@ export const {
   newFileUploadStarted,
   fileFinishedUploading,
   uploadFailed,
-} = uploadStatusSlice.actions;
+} = uploadInitStatusSlice.actions;
 
-export default uploadStatusSlice.reducer;
+export default uploadInitStatusSlice.reducer;

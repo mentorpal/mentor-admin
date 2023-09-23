@@ -170,6 +170,7 @@ export function getValueIfKeyExists<T>(
   key: string,
   dict: Record<string, T>
 ): T | null {
+  if (!dict || !key) return null;
   const result = dict[key];
   return typeof result !== "undefined" ? result : null;
 }

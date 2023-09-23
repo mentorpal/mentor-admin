@@ -59,6 +59,11 @@ export interface MentorConfig {
   publiclyVisible: boolean;
   mentorType: MentorType;
   orgPermissions: OrgPermissionsGQL[];
+  loginHeaderText: string;
+  welcomeSlideHeader: string;
+  welcomeSlideText: string;
+  disableMyGoalSlide: boolean;
+  disableFollowups: boolean;
 }
 
 export interface MentorGQL {
