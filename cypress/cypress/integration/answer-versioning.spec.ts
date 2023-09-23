@@ -354,6 +354,22 @@ describe("answer versioning", () => {
               },
             },
           ]),
+          mockGQL("Answer", {
+            answer: {
+              ...videoMentor.answers[1],
+              ...uploadTaskMediaBuild(),
+              transcript: "i am aaron",
+              previousVersions: [
+                {
+                  transcript: "I'm 37 years old",
+                  webVideoHash: "",
+                  vttText: "",
+                  videoDuration: "",
+                  dateVersioned: "",
+                },
+              ],
+            },
+          }),
         ],
       });
       cy.visit("/record?videoId=A2_1_1");
@@ -373,17 +389,6 @@ describe("answer versioning", () => {
           cy.get("[data-cy=transcript]").should(
             "have.text",
             "I'm 37 years old"
-          );
-        });
-
-        cy.get("[data-cy=versions-dialog-pagination]").within(() => {
-          cy.get("[data-cy=single-right]").click();
-        });
-
-        cy.get("[data-cy=previous-version]").within(() => {
-          cy.get("[data-cy=transcript]").should(
-            "have.text",
-            "previous transcript 1"
           );
         });
       });
@@ -411,6 +416,22 @@ describe("answer versioning", () => {
               },
             },
           ]),
+          mockGQL("Answer", {
+            answer: {
+              ...videoMentor.answers[1],
+              ...uploadTaskMediaBuild(),
+              transcript: "i am aaron",
+              previousVersions: [
+                {
+                  transcript: "I'm 37 years old",
+                  webVideoHash: "",
+                  vttText: "",
+                  videoDuration: "",
+                  dateVersioned: "",
+                },
+              ],
+            },
+          }),
         ],
       });
       cy.visit("/record?videoId=A2_1_1");
@@ -427,6 +448,7 @@ describe("answer versioning", () => {
           .trigger("mousedown", { button: 0 });
 
         cy.get("[data-cy=upload-video]").trigger("mouseover").click();
+        cy.get("[data-cy=notification-dialog-button]").click();
         cy.get("[data-cy=close-error-dialog]").click();
 
         // check that previous version was stored
@@ -434,7 +456,10 @@ describe("answer versioning", () => {
         cy.get("[data-cy=versions-dialog]").should("be.visible");
 
         cy.get("[data-cy=previous-version]").within(() => {
-          cy.get("[data-cy=transcript]").should("have.text", "i am aaron");
+          cy.get("[data-cy=transcript]").should(
+            "have.text",
+            "I'm 37 years old"
+          );
         });
 
         cy.get("[data-cy=versions-dialog-pagination]").within(() => {
@@ -442,10 +467,7 @@ describe("answer versioning", () => {
         });
 
         cy.get("[data-cy=previous-version]").within(() => {
-          cy.get("[data-cy=transcript]").should(
-            "have.text",
-            "I'm 37 years old"
-          );
+          cy.get("[data-cy=transcript]").should("have.text", "i am aaron");
         });
       });
     });

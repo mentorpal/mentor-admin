@@ -28,7 +28,7 @@ export function WelcomeSlide(props: {
           </Typography>
           <Typography variant="h6" className={classes.text}>
             {mentorConfig?.welcomeSlideText ||
-              "Let&apos;s get started setting up your new mentor."}
+              "Let's get started setting up your new mentor."}
           </Typography>
           <Typography
             data-cy="walkthrough-intro"

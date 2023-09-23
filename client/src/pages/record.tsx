@@ -200,7 +200,6 @@ function RecordPage(props: {
   const { width: windowWidth, height: windowHeight } = useWithWindowSize();
 
   const { browserSupportsVbg } = useWithBrowser();
-
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
   const mentorConfig: MentorConfig | undefined = getData(
