@@ -36,6 +36,7 @@ export interface UserQuestionGQL {
   createdAt: string;
   feedback: string;
   confidence: number;
+  chatSessionId?: string;
   classifierAnswer: AnswerGQL;
   graderAnswer?: AnswerGQL;
 }
@@ -57,6 +58,7 @@ export async function fetchUserQuestions(
                 createdAt
                 feedback
                 confidence
+                chatSessionId
                 mentor {
                   _id
                   name

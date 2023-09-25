@@ -6,6 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { Statement, Activity } from "@xapi/xapi";
 import { UserQuestionGQL } from "lrs-api";
+import { report } from "process";
 // eslint-disable-next-line  @typescript-eslint/no-var-requires
 const dfd = require("danfojs");
 
@@ -30,6 +31,8 @@ export interface ReportEntry {
   allMentorsAsked: string[];
   answerId: string;
   topics: string[];
+  chatSessionId: string;
+  sessionId: string;
 }
 
 /**
@@ -70,6 +73,8 @@ const generateUserReport = (
         allMentorsAsked: [],
         answerId: "",
         topics: [],
+        chatSessionId: "",
+        sessionId: "",
       };
       const curStatement = statements[statement];
       const username = curStatement["actor"]["name"];
@@ -122,6 +127,12 @@ const generateUserReport = (
 
       // Get answer id from extensions
       reportEntry.answerId = getAnswerId(curStatement);
+
+      // get chatSessionId from extensions
+      reportEntry.chatSessionId = getChatSessionId(curStatement);
+
+      // get sessionId from extensions
+      reportEntry.sessionId = getSessionId(curStatement);
 
       allReportEntries.push(reportEntry);
     }
@@ -207,6 +218,53 @@ const getAllMentorsAsked = (statement: Statement): string[] => {
     return Object.keys(mentorsAsked);
   } catch (err) {
     return [];
+  }
+};
+
+const getChatSessionId = (statement: Statement): string => {
+  try {
+    const extensions = statement.context?.extensions;
+
+    if (!extensions) {
+      return "";
+    }
+    const targetKey = Object.keys(extensions).find((key) =>
+      key.includes("chatSessionId")
+    );
+    if (!targetKey) {
+      console.log("no chatSessionId key found in extensions");
+      return "";
+    }
+    const chatSessionIdFromExtensions = extensions[targetKey];
+    return chatSessionIdFromExtensions || "";
+  } catch (err) {
+    return "";
+  }
+};
+
+const getSessionId = (statement: Statement): string => {
+  try {
+    const extensions = statement.context?.extensions;
+
+    if (!extensions) {
+      return "";
+    }
+    const targetKey = Object.keys(extensions).find((key) =>
+      key.includes("sessionId")
+    );
+    if (!targetKey) {
+      console.log("no sessionId key found in extensions");
+      return "";
+    }
+    const sessionIdFromExtensions = extensions[targetKey];
+
+    if (!sessionIdFromExtensions) {
+      return "";
+    }
+
+    return sessionIdFromExtensions;
+  } catch (err) {
+    return "";
   }
 };
 
@@ -400,6 +458,7 @@ export interface Report {
   source: Array<string>;
   date: Array<string>;
   userId: Array<string>;
+  chatSessionId: Array<string>;
   dataSource: Array<string>;
   topics: Array<string[]>;
 }
@@ -454,6 +513,7 @@ export const reportToCsv = (reportEntries: ReportEntry[]): any => {
     userId: effectiveEntries.map((entry) => entry.userId),
     dataSource: effectiveEntries.map((entry) => entry.dataSource),
     topics: effectiveEntries.map((entry) => entry.topics),
+    chatSessionId: effectiveEntries.map((entry) => entry.chatSessionId),
   };
   const dfReport = new dfd.DataFrame(report);
 
@@ -473,6 +533,7 @@ export interface UserQuestionReport {
   confidence: Array<number>;
   feedback: Array<string>;
   graderQuestionMatch: Array<string>;
+  chatSessionId: Array<string>;
 }
 
 export const userQuestionsToCSV = (userQuestions: UserQuestionGQL[]): void => {
@@ -498,6 +559,7 @@ export const userQuestionsToCSV = (userQuestions: UserQuestionGQL[]): void => {
     graderQuestionMatch: userQuestions.map(
       (uq) => ` "${uq.graderAnswer ? uq.graderAnswer.question.question : "-"}"`
     ),
+    chatSessionId: userQuestions.map((uq) => uq.chatSessionId || ""),
   };
 
   const dfReport = new dfd.DataFrame(report);
