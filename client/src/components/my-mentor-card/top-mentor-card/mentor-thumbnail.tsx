@@ -16,14 +16,6 @@ const ColorTooltip = withStyles(Tooltip, {
   },
 });
 
-const useStyles = makeStyles({ name: { MentorThumbnail } })(() => ({
-  homeThumbnail: {
-    position: "relative",
-    width: "60%",
-    height: 180,
-  },
-}));
-
 function MentorThumbnail(props: {
   handleOpen: () => void;
   editedMentor: Mentor;
@@ -48,6 +40,14 @@ function MentorThumbnail(props: {
     idxTooltip,
     hasSeenTooltips,
   } = props;
+
+  const useStyles = makeStyles({ name: { MentorThumbnail } })(() => ({
+    homeThumbnail: {
+      position: "relative",
+      width: "300px",
+      height: "auto",
+    },
+  }));
   const { getData } = useActiveMentor();
   const mentorId = getData((ms) => ms.data?._id || "");
   const isArchived = getData((ms) => ms.data?.isArchived);
@@ -61,15 +61,23 @@ function MentorThumbnail(props: {
   return (
     <Grid container alignItems="center" justifyContent="center">
       {/* Mentor info / left column */}
-      <Grid data-cy="thumbnail-wrapper" thumbnail-src={thumbnail} item xs={10}>
+      <Grid
+        data-cy="thumbnail-wrapper"
+        thumbnail-src={thumbnail}
+        item
+        xs={10}
+        width={"400px"}
+      >
         <Typography
           gutterBottom
           variant="h5"
           component="h2"
           className="mentorName"
+          justifyContent="center"
+          alignItems="center"
         >
-          <div style={{ display: "flex" }}>
-            <div style={{ margin: "10px 0 0 0" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ margin: "10px 0 0 0", justifyContent: "center" }}>
               <IconButton
                 data-cy="edit-mentor-data"
                 color="primary"
@@ -150,7 +158,7 @@ function MentorThumbnail(props: {
           variant="h6"
           component="h4"
           className="mentorTitle"
-          style={{ margin: "0 0 0 38px" }}
+          style={{ margin: 0 }}
         >
           {editedMentor.title}
         </Typography>
@@ -162,8 +170,14 @@ function MentorThumbnail(props: {
         item
         xs={10}
         className="thumbnail-wrapper"
+        width={"400px"}
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        <div style={{ display: "flex" }}>
+        <div style={{ position: "relative", width: "fit-content" }}>
           <Avatar
             data-cy={thumbnail ? "uploaded-thumbnail" : "placeholder-thumbnail"}
             variant={thumbnail ? "rounded" : "square"}
@@ -176,7 +190,7 @@ function MentorThumbnail(props: {
               position: "absolute",
               zIndex: 2,
               bottom: -2,
-              right: 73,
+              right: -40,
             }}
           >
             <IconButton color="primary" component="span" size="large">
@@ -199,8 +213,8 @@ function MentorThumbnail(props: {
       </Grid>
       <Grid
         container
-        alignItems="flex-start"
-        justifyContent="flex-start"
+        alignItems="center"
+        justifyContent="center"
         style={{ marginTop: 5 }}
       >
         <Grid item>
