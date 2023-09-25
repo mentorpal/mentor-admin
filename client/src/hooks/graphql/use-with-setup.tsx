@@ -172,9 +172,12 @@ export function useWithSetup(
         };
         return returnValue;
       });
+    const isMentorGoalDone = Boolean(
+      mentor.goal || mentor.mentorConfig?.disableMyGoalSlide
+    );
     const isSetupComplete =
       isMentorInfoDone &&
-      Boolean(mentor.goal) &&
+      isMentorGoalDone &&
       isMentorTypeChosen &&
       (!idle || idle.complete) &&
       requiredSubjects.every(
@@ -184,7 +187,15 @@ export function useWithSetup(
     setStatus({
       isMentorInfoDone,
       isMentorTypeChosen,
-      isMentorGoalDone: Boolean(mentor.goal),
+      isMentorGoalDone,
+      idle,
+      requiredSubjects,
+      isSetupComplete,
+    });
+    console.log({
+      isMentorInfoDone,
+      isMentorTypeChosen,
+      isMentorGoalDone,
       idle,
       requiredSubjects,
       isSetupComplete,

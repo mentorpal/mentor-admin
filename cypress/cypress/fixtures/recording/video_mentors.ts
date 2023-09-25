@@ -22,6 +22,7 @@ export const videoMentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.VIDEO,
   lastTrainedAt: null,
+  keywords: [],
   answers: [
     {
       _id: "A1_1_1",

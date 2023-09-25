@@ -9,18 +9,43 @@ import {
   mockGQL,
   cyMockFollowUpQuestions,
 } from "../support/functions";
-import { Mentor, MentorType, Status, QuestionType } from "../support/types";
+import {
+  Mentor,
+  MentorType,
+  Status,
+  QuestionType,
+  MentorConfig,
+} from "../support/types";
 import {
   completeMentor,
   completeQuestion,
   completeSubject,
   completeSubjectQuestion,
 } from "../support/helpers";
+import { videoMentor } from "../fixtures/recording/video_mentors";
+
+export const mentorConfig: MentorConfig = {
+  configId: "testconfigid",
+  subjects: ["fakesubject"],
+  publiclyVisible: true,
+  mentorType: MentorType.VIDEO,
+  orgPermissions: [],
+  loginHeaderText: "test login header text",
+  welcomeSlideHeader: "test welcome slide header text",
+  welcomeSlideText: "test welcome slide body text",
+  disableMyGoalSlide: true,
+  disableFollowups: true,
+};
+export const videoMentorWithConfig: Mentor = {
+  ...videoMentor,
+  mentorConfig,
+};
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
   mentorType: MentorType.CHAT,
   lastTrainedAt: null,
+  keywords: [],
   subjects: [
     completeSubject({
       _id: "background",
@@ -296,6 +321,16 @@ describe("generating followups", () => {
   });
 
   it("follow up generation can be disabled via mentor config", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: [{ ...chatMentor, mentorConfig }],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+        mockGQL("FetchMentorConfig", { fetchMentorConfig: mentorConfig }),
+      ],
+    });
+    cy.visit("/record?subject=background&category=cat&i=3");
+    cy.get("[data-cy=done-btn]").invoke("mouseover").click();
+    cy.wait(3000);
+    cy.get("[data-cy=generate-followups-dialog]").should("not.exist");
   });
 });

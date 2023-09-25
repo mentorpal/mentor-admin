@@ -126,7 +126,7 @@ export interface Mentor {
   isArchived: boolean;
   isAdvanced: boolean;
   defaultSubject?: Subject;
-  mentorConfig: MentorConfig;
+  mentorConfig?: MentorConfig;
   numAnswersComplete: number;
   subjects: Subject[];
   keywords: string[];

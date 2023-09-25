@@ -16,8 +16,18 @@ import {
   UtteranceName,
   UserRole,
   SetupScreen,
+  Mentor,
+  Status,
+  Subject,
 } from "../support/types";
 import { login as loginDefault } from "../fixtures/login";
+import { mentorConfig, videoMentorWithConfig } from "./followups.spec";
+import {
+  completeMentor,
+  taskListBuild,
+  uploadTaskMediaBuild,
+} from "../support/helpers";
+import { videoMentor } from "../fixtures/recording/video_mentors";
 
 const baseMock = {
   mentor: setup0,
@@ -1373,28 +1383,121 @@ describe("Setup", () => {
   });
 
   it("Privacy slide not shown to mentors with locked privacy", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: videoMentorWithConfig,
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Mentor_Privacy);
+    cy.get("[data-cy=slide-title]").should("not.contain.text", "Privacy");
   });
 
   it("Select Mentor Type slide not shown to mentors with locked mentor type", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: videoMentorWithConfig,
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Pick_Mentor_Type);
+    cy.get("[data-cy=slide-title]").should("not.contain.text", "mentor type");
   });
 
   it("Select Subjects slide not shown to mentors with locked subjects", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: videoMentorWithConfig,
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
+    cy.get("[data-cy=slide-title]").should(
+      "not.contain.text",
+      "Select subjects?"
+    );
   });
 
   it("Record required subject slide considers answer as complete if upload in progress", () => {
-    // TODO
-    // Check that record subject slide is 3/3 for 2 complete and 1 uploading
-    // Check that Mentor Studio does not recommend returning to setup in this state aswell
+    const videoWithConfigAndUnansweredQ: Mentor = {
+      ...completeMentor(videoMentor),
+      mentorConfig: mentorConfig,
+      name: "helo",
+      firstName: "world",
+      title: "title",
+      answers: [
+        ...videoMentorWithConfig.answers.map((a, i) => {
+          return i != 0
+            ? a
+            : {
+                ...a,
+                transcript: "",
+                status: Status.NONE,
+              };
+        }),
+      ],
+      subjects: [allSubjects.edges[0].node as Subject],
+    };
+    cyMockDefault(cy, {
+      mentor: [videoWithConfigAndUnansweredQ],
+      // questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoWithConfigAndUnansweredQ.answers[0].question._id,
+                    question:
+                      videoWithConfigAndUnansweredQ.answers[0].question
+                        .question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "new transcript",
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: videoWithConfigAndUnansweredQ.answers[0].question._id,
+                    question:
+                      videoWithConfigAndUnansweredQ.answers[0].question
+                        .question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "new transcript",
+                },
+              ],
+            },
+          },
+        ]),
+        mockGQL("Subjects", { edges: [allSubjects.edges[0]] }),
+      ],
+    });
+    cy.visit(`/setup?i=5`);
+    cy.get("[data-cy=slide-5]").should("contain.text", "2 / 2");
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").should("not.exist");
+    cy.get("[data-cy=nav-bar]").should("contain.text", "My Mentor");
   });
 
   it("welcome slide header and body text can be set from mentor config", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: videoMentorWithConfig,
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=slide-title]").should(
+      "contain.text",
+      "test welcome slide header text"
+    );
   });
 
   it("my goal slide can be disabled from mentor config", () => {
-    // TODO
+    cyMockDefault(cy, {
+      mentor: videoMentorWithConfig,
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=slide-0]").should(
+      "contain.text",
+      "test welcome slide body text"
+    );
   });
 });

@@ -46,7 +46,7 @@ import {
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import withLocation from "wrap-with-location";
-import { UploadTask } from "types";
+import { Mentor, UploadTask } from "types";
 import { canEditContent, launchMentor } from "helpers";
 import {
   areAllTasksDone,
@@ -54,7 +54,6 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
-import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
@@ -304,7 +303,6 @@ export function NavBar(props: {
   title: string;
   uploads?: UploadTask[];
   uploadsButtonVisible?: boolean;
-  mentorConfig?: MentorConfig;
   toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
@@ -318,8 +316,10 @@ export function NavBar(props: {
     onNav,
     onBack,
     checkForImportTask = true,
-    mentorConfig,
   } = props;
+  const { getData } = useActiveMentor();
+  const mentor: Mentor | undefined = getData((state) => state.data);
+
   const importStatus = useWithImportStatus();
   const { importTask } = importStatus;
   const numUploadsInProgress =
@@ -402,7 +402,7 @@ export function NavBar(props: {
       >
         <Toolbar />
         <NavMenu
-          mentorSubjectsLocked={Boolean(mentorConfig?.subjects.length)}
+          mentorSubjectsLocked={Boolean(mentor?.mentorConfig?.subjects.length)}
           classes={classes}
           mentorId={props.mentorId}
           onNav={onNav}
