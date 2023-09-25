@@ -13,10 +13,23 @@ import {
 } from "../support/functions";
 import clint from "../fixtures/mentor/clint_home";
 import clintNewAnswers from "../fixtures/mentor/clint_home_new_questions";
-import { JobState, QuestionType, SetupScreen, Status } from "../support/types";
+import {
+  JobState,
+  Mentor,
+  QuestionType,
+  SetupScreen,
+  Status,
+} from "../support/types";
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
+import { mentorConfig } from "./followups.spec";
+import { taskListBuild, uploadTaskMediaBuild } from "../support/helpers";
+
+const clintWithConfig: Mentor = {
+  ...clint,
+  mentorConfig,
+};
 
 describe("My Mentor Page", () => {
   it("shows all questions for all categories by default", () => {
@@ -1169,10 +1182,142 @@ describe("My Mentor Page", () => {
   });
 
   it("users with locked subjects cannot see 'select subject' in hamburger menu", () => {
-    // TODO
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintWithConfig,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=menu-button]").trigger("mouseover").click();
+    cy.get("[data-cy=Select-Subjects-menu-button]").should("not.exist");
   });
 
   it("users with locked subjects cannot see '+ add a subject' in dropdown menu", () => {
-    // TODO
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: clintWithConfig,
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=select-subject]").trigger("mouseover").click();
+    cy.get("[data-cy=add-a-subject]").should("not.exist");
+  });
+
+  it("Answers that finish uploading are reflected properly in mentor studio", () => {
+    const clintWithConfigUnansweredQ: Mentor = {
+      ...clintWithConfig,
+      answers: [
+        ...clintWithConfig.answers.map((a, i) => {
+          return i != 1
+            ? a
+            : {
+                ...a,
+                transcript: "",
+                status: Status.NONE,
+              };
+        }),
+      ],
+    };
+    cyMockDefault(cy, {
+      mentor: [clintWithConfigUnansweredQ],
+      // questions: videoQuestions,
+      gqlQueries: [
+        mockGQL("FetchUploadTasks", [
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: clintWithConfigUnansweredQ.answers[1].question._id,
+                    question:
+                      clintWithConfigUnansweredQ.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "new transcript",
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: clintWithConfigUnansweredQ.answers[1].question._id,
+                    question:
+                      clintWithConfigUnansweredQ.answers[1].question.question,
+                  },
+                  ...taskListBuild("IN_PROGRESS"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "new transcript",
+                },
+              ],
+            },
+          },
+          {
+            me: {
+              uploadTasks: [
+                {
+                  question: {
+                    _id: clintWithConfigUnansweredQ.answers[1].question._id,
+                    question:
+                      clintWithConfigUnansweredQ.answers[1].question.question,
+                  },
+                  ...taskListBuild("DONE"),
+                  ...uploadTaskMediaBuild(),
+                  transcript: "new transcript",
+                },
+              ],
+            },
+          },
+        ]),
+        mockGQL("Answer", {
+          answer: {
+            ...clintWithConfigUnansweredQ.answers[1],
+            ...uploadTaskMediaBuild(),
+            transcript: "new transcript",
+            previousVersions: [
+              {
+                transcript: "I'm 37 years old",
+                webVideoHash: "",
+                vttText: "",
+                videoDuration: "",
+                dateVersioned: "",
+              },
+            ],
+          },
+        }),
+      ],
+    });
+    cy.visit("/");
+    cy.get("[data-cy=setup-no]").trigger("mouseover").click();
+    cy.get("[data-cy=stage-progress-container]").should("contain.text", "3/5");
+    cy.get("[data-cy=block-1]").within(() => {
+      cy.get("[data-cy=answers-Incomplete]").should(
+        "contain.text",
+        "Incomplete (1)"
+      );
+      cy.get("[data-cy=answers-Complete]").should(
+        "contain.text",
+        "Complete (0)"
+      );
+    });
+    cy.wait(3000);
+    cy.get("[data-cy=stage-progress-container]").should("contain.text", "4/5");
+    cy.get("[data-cy=block-1]").within(() => {
+      cy.get("[data-cy=answers-Incomplete]").should(
+        "contain.text",
+        "Incomplete (0)"
+      );
+      cy.get("[data-cy=answers-Complete]").should(
+        "contain.text",
+        "Complete (1)"
+      );
+      cy.get("[data-cy=answers-Complete]").within(() => {
+        cy.get("[data-cy=expand-btn]").click();
+        cy.contains("new transcript");
+      });
+    });
   });
 });

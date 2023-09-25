@@ -46,7 +46,7 @@ import {
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import withLocation from "wrap-with-location";
-import { UploadTask } from "types";
+import { Mentor, UploadTask } from "types";
 import { canEditContent, launchMentor } from "helpers";
 import {
   areAllTasksDone,
@@ -54,7 +54,6 @@ import {
 } from "hooks/graphql/upload-status-helpers";
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
-import { MentorConfig } from "types-gql";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
@@ -249,44 +248,45 @@ function NavMenu(props: {
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
-      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
-      <NavItem
-        text={"Create/Edit Subjects"}
-        link={"/author/subjects"}
-        icon={<EditIcon />}
-        onNav={props.onNav}
-      />
       {editPermission ? (
-        <NavItem
-          text={"Users"}
-          link={"/users"}
-          icon={<PersonIcon />}
-          onNav={props.onNav}
-        />
+        <>
+          <ListSubheader className={classes.menuHeader}>
+            Management Tools
+          </ListSubheader>
+          <NavItem
+            text={"Create/Edit Subjects"}
+            link={"/author/subjects"}
+            icon={<EditIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Users"}
+            link={"/users"}
+            icon={<PersonIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Organizations"}
+            link={"/organizations"}
+            icon={<GroupIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Config"}
+            link={"/config"}
+            icon={<SettingsIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"LRS Reports"}
+            link={"/lrsreports"}
+            icon={<LRSIcon />}
+            onNav={props.onNav}
+          />
+
+          <Divider style={{ marginTop: 15 }} />
+        </>
       ) : undefined}
-      <NavItem
-        text={"Organizations"}
-        link={"/organizations"}
-        icon={<GroupIcon />}
-        onNav={props.onNav}
-      />
-      {editPermission ? (
-        <NavItem
-          text={"Config"}
-          link={"/config"}
-          icon={<SettingsIcon />}
-          onNav={props.onNav}
-        />
-      ) : undefined}
-      {editPermission ? (
-        <NavItem
-          text={"LRS Reports"}
-          link={"/lrsreports"}
-          icon={<LRSIcon />}
-          onNav={props.onNav}
-        />
-      ) : undefined}
-      <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
         <ListItemIcon>
@@ -304,7 +304,6 @@ export function NavBar(props: {
   title: string;
   uploads?: UploadTask[];
   uploadsButtonVisible?: boolean;
-  mentorConfig?: MentorConfig;
   toggleUploadsButtonVisibility?: (b: boolean) => void;
   onNav?: (cb: () => void) => void;
   onBack?: () => void;
@@ -318,8 +317,10 @@ export function NavBar(props: {
     onNav,
     onBack,
     checkForImportTask = true,
-    mentorConfig,
   } = props;
+  const { getData } = useActiveMentor();
+  const mentor: Mentor | undefined = getData((state) => state.data);
+
   const importStatus = useWithImportStatus();
   const { importTask } = importStatus;
   const numUploadsInProgress =
@@ -402,7 +403,7 @@ export function NavBar(props: {
       >
         <Toolbar />
         <NavMenu
-          mentorSubjectsLocked={Boolean(mentorConfig?.subjects.length)}
+          mentorSubjectsLocked={Boolean(mentor?.mentorConfig?.subjects.length)}
           classes={classes}
           mentorId={props.mentorId}
           onNav={onNav}

@@ -31,6 +31,7 @@ import {
   videoQuestions,
 } from "../fixtures/recording/video_mentors";
 import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
+import clint from "../fixtures/mentor/clint_home";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -3359,12 +3360,5 @@ describe("Record", () => {
       "background-image",
       'url("https://default.image.url.com/")'
     );
-  });
-
-  it("Answers that finish uploading are reflected properly in mentor studio", () => {
-    // TODO
-    // Check that the proper recording card gets updated
-    // Check that the transcript gets put in the recording card
-    // check that the mentor card is updated properly
   });
 });

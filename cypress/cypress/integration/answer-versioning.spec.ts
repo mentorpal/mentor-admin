@@ -448,8 +448,9 @@ describe("answer versioning", () => {
           .trigger("mousedown", { button: 0 });
 
         cy.get("[data-cy=upload-video]").trigger("mouseover").click();
-        cy.get("[data-cy=notification-dialog-button]").click();
+        cy.wait(3000);
         cy.get("[data-cy=close-error-dialog]").click();
+        cy.get("[data-cy=notification-dialog-button]").click();
 
         // check that previous version was stored
         cy.get("[data-cy=versions-icon]").click();

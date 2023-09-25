@@ -16,7 +16,20 @@ export function WelcomeSlide(props: {
   mentorConfig?: MentorConfig;
 }): JSX.Element {
   const { classes, docSetupUrl, mentorConfig } = props;
-
+  function generateWelcomeTextDisplay(welcomeText: string): JSX.Element {
+    return (
+      <div>
+        {welcomeText
+          .split(".")
+          .filter((text) => text.length > 1)
+          .map((text, index) => (
+            <Typography variant="h6" className={classes.text} key={index}>
+              {text}.
+            </Typography>
+          ))}
+      </div>
+    );
+  }
   return (
     <Slide
       classes={classes}
@@ -27,8 +40,10 @@ export function WelcomeSlide(props: {
             It&apos;s nice to meet you, {props.userName}!
           </Typography>
           <Typography variant="h6" className={classes.text}>
-            {mentorConfig?.welcomeSlideText ||
-              "Let's get started setting up your new mentor."}
+            {generateWelcomeTextDisplay(
+              mentorConfig?.welcomeSlideText ||
+                "Let's get started setting up your new mentor."
+            )}
           </Typography>
           <Typography
             data-cy="walkthrough-intro"
