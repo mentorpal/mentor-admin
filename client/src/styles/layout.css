@@ -34,7 +34,7 @@ div.jsoneditor {
 
 .mentorName,
 .mentorTitle {
-  text-align: left !important;
+  text-align: center !important;
 }
 
 .mentorTitle {
@@ -48,7 +48,7 @@ div.jsoneditor {
 
 .thumbnail-wrapper {
   position: relative;
-  width: auto;
+  width: 120px
 }
 
 .upload-thumbnail {
