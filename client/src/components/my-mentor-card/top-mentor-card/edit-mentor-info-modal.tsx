@@ -60,9 +60,14 @@ function EditMentorInfoModal(props: {
             open={open}
             onClose={handleClose}
             closeAfterTransition
-            BackdropComponent={Backdrop}
-            BackdropProps={{
-              timeout: 500,
+            slots={{
+              backdrop: Backdrop,
+            }}
+            slotProps={{
+              backdrop: {
+                timeout: 500,
+                sx: { backgroundColor: "rgba(0, 0, 0, 0)" },
+              },
             }}
             data-cy="edit-mentor-data-modal"
           >

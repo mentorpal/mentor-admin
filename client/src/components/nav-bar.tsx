@@ -248,44 +248,45 @@ function NavMenu(props: {
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
-      <ListSubheader className={classes.menuHeader}>Authoring</ListSubheader>
-      <NavItem
-        text={"Create/Edit Subjects"}
-        link={"/author/subjects"}
-        icon={<EditIcon />}
-        onNav={props.onNav}
-      />
       {editPermission ? (
-        <NavItem
-          text={"Users"}
-          link={"/users"}
-          icon={<PersonIcon />}
-          onNav={props.onNav}
-        />
+        <>
+          <ListSubheader className={classes.menuHeader}>
+            Management Tools
+          </ListSubheader>
+          <NavItem
+            text={"Create/Edit Subjects"}
+            link={"/author/subjects"}
+            icon={<EditIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Users"}
+            link={"/users"}
+            icon={<PersonIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Organizations"}
+            link={"/organizations"}
+            icon={<GroupIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Config"}
+            link={"/config"}
+            icon={<SettingsIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"LRS Reports"}
+            link={"/lrsreports"}
+            icon={<LRSIcon />}
+            onNav={props.onNav}
+          />
+
+          <Divider style={{ marginTop: 15 }} />
+        </>
       ) : undefined}
-      <NavItem
-        text={"Organizations"}
-        link={"/organizations"}
-        icon={<GroupIcon />}
-        onNav={props.onNav}
-      />
-      {editPermission ? (
-        <NavItem
-          text={"Config"}
-          link={"/config"}
-          icon={<SettingsIcon />}
-          onNav={props.onNav}
-        />
-      ) : undefined}
-      {editPermission ? (
-        <NavItem
-          text={"LRS Reports"}
-          link={"/lrsreports"}
-          icon={<LRSIcon />}
-          onNav={props.onNav}
-        />
-      ) : undefined}
-      <Divider style={{ marginTop: 15 }} />
       <ListSubheader className={classes.menuHeader}>Account</ListSubheader>
       <ListItem button onClick={onLogout}>
         <ListItemIcon>

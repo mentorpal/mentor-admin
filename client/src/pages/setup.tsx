@@ -66,7 +66,7 @@ const useStyles = makeStyles({ name: { SetupPage } })(() => ({
     justifyContent: "center",
     alignItems: "center",
     alignContent: "center",
-    height: "500px",
+    height: "700px",
     width: "100%",
     overflow: "visible",
   },
