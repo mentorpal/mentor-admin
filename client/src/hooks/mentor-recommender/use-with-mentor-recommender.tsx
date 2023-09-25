@@ -96,7 +96,10 @@ export function useWithMentorRecommender(
       return !state.mentorData.title || !state.mentorData.name;
     };
     const goalMissing = (state: RecommenderState) => {
-      return !state.mentorData.goal;
+      return (
+        !state.mentorData.goal &&
+        !state.mentorData.mentorConfig?.disableMyGoalSlide
+      );
     };
     const keywordsMissing = (state: RecommenderState) => {
       return !state.mentorData.keywords.length;
@@ -682,6 +685,9 @@ export function useWithMentorRecommender(
       const completeMentorAnswers = state.mentorData.answers.filter((answer) =>
         isAnswerComplete(answer, undefined, state.mentorData.mentorType)
       );
+      if (state.mentorData.mentorConfig?.subjects.length) {
+        return false;
+      }
       // mentorData.answers contains complete AND incomplete answers.
       return targetAnswerAmount
         ? state.mentorData.answers.length < targetAnswerAmount
