@@ -73,11 +73,17 @@ function MentorThumbnail(props: {
           variant="h5"
           component="h2"
           className="mentorName"
+          flexDirection="row"
           justifyContent="center"
-          alignItems="center"
         >
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <div style={{ margin: "10px 0 0 0", justifyContent: "center" }}>
+            <div
+              style={{
+                margin: "10px 0 0 0",
+                justifyContent: "center",
+                position: "relative",
+              }}
+            >
               <IconButton
                 data-cy="edit-mentor-data"
                 color="primary"
@@ -86,10 +92,16 @@ function MentorThumbnail(props: {
                 className="edit-pencil-icon"
                 onClick={handleOpen}
                 size="large"
+                style={{
+                  margin: "10px",
+                  position: "absolute",
+                  left: -50,
+                  top: 0,
+                  bottom: 0,
+                }}
               >
                 <CreateIcon />
               </IconButton>
-
               <ColorTooltip
                 data-cy="profile-tooltip"
                 open={
@@ -133,7 +145,7 @@ function MentorThumbnail(props: {
                 }}
               >
                 <b
-                  style={{ margin: "0 0 0 12px" }}
+                  style={{ margin: 0 }}
                   onMouseEnter={() => {
                     hasSeenTooltips && setProfileTooltipOpen(true);
                   }}
@@ -144,23 +156,23 @@ function MentorThumbnail(props: {
                   {editedMentor.name}
                 </b>
               </ColorTooltip>
+              <Typography
+                gutterBottom
+                variant="h6"
+                component="h4"
+                className="mentorTitle"
+                style={{ margin: 0, padding: 0 }}
+              >
+                {editedMentor.title}
+              </Typography>
             </div>
-            <EditMentorInfoModal
-              handleClose={handleClose}
-              editMentor={editMentor}
-              editedMentor={editedMentor}
-              open={open}
-            />
           </div>
-        </Typography>
-        <Typography
-          gutterBottom
-          variant="h6"
-          component="h4"
-          className="mentorTitle"
-          style={{ margin: 0 }}
-        >
-          {editedMentor.title}
+          <EditMentorInfoModal
+            handleClose={handleClose}
+            editMentor={editMentor}
+            editedMentor={editedMentor}
+            open={open}
+          />
         </Typography>
       </Grid>
       {/* Thumbnail */}
