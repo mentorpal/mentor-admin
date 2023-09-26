@@ -340,6 +340,23 @@ export async function fetchUsers(
                 isAdvanced
                 isPublicApproved
                 lastTrainStatus
+                lockedToConfig
+                mentorConfig{
+                  configId
+                  subjects
+                  publiclyVisible
+                  mentorType
+                  orgPermissions{
+                    org
+                    viewPermission
+                    editPermission
+                  }
+                  loginHeaderText
+                  welcomeSlideHeader
+                  welcomeSlideText
+                  disableMyGoalSlide
+                  disableFollowups
+                }
                 orgPermissions {
                   orgId
                   viewPermission
@@ -1039,6 +1056,7 @@ export async function fetchMentorById(
           hasVirtualBackground
           virtualBackgroundUrl
           lastTrainStatus
+          lockedToConfig
           mentorConfig{
             configId
             subjects
@@ -2017,6 +2035,27 @@ export async function fetchUploadTasks(
     { accessToken, dataPath: ["me", "uploadTasks"] }
   );
   return gql.map((u) => convertUploadTaskGQL(u));
+}
+
+export async function setMentorConfigLock(
+  mentorId: string,
+  accessToken: string,
+  lockedToConfig: boolean
+): Promise<boolean> {
+  return await execGql<boolean>(
+    {
+      query: `
+      mutation SetMentorConfigLock($mentorId: ID!, $lockedToConfig: Boolean!) {
+        me {
+          setMentorConfigLock(mentorId: $mentorId, lockedToConfig: $lockedToConfig){
+            lockedToConfig
+          }
+        }
+      }`,
+      variables: { mentorId, lockedToConfig },
+    },
+    { accessToken, dataPath: ["me", "setMentorConfigLock", "lockedToConfig"] }
+  );
 }
 
 //Fetches the record queue for the mentor that is logged in (using the accessToken to know which mentor to fetch from)

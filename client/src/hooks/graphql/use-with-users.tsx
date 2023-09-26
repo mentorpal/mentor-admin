@@ -7,6 +7,7 @@ The full terms of this copyright and license should always be found in the root 
 import {
   archiveMentorDetails,
   fetchUsers,
+  setMentorConfigLock,
   updateMentorAdvanced,
   updateMentorPrivacy,
   updateMentorPublicApproval,
@@ -29,6 +30,7 @@ export interface UseUserData extends UseStaticDataConnection<User> {
   onUpdateMentorPrivacy: (mentorId: string, isPrivate: boolean) => void;
   onUpdateMentorAdvanced: (mentorId: string, isAdvanced: boolean) => void;
   onArchiveMentor: (mentorId: string, isArchived: boolean) => void;
+  onSetMentorLock: (mentorId: string, locked: boolean) => void;
 }
 
 export function useWithUsers(accessToken: string): UseUserData {
@@ -80,6 +82,19 @@ export function useWithUsers(accessToken: string): UseUserData {
       .catch((err) => {
         setUserDataError({
           message: "Failed to update user",
+          error: `${err}`,
+        });
+      });
+  }
+
+  function onSetMentorLock(mentorId: string, locked: boolean): void {
+    setMentorConfigLock(mentorId, accessToken, locked)
+      .then(() => {
+        reloadData();
+      })
+      .catch((err) => {
+        setUserDataError({
+          message: "Failed to lock mentor",
           error: `${err}`,
         });
       });
@@ -164,5 +179,6 @@ export function useWithUsers(accessToken: string): UseUserData {
     onUpdateUserDisabled,
     onUpdateMentorPublicApproved,
     onArchiveMentor,
+    onSetMentorLock,
   };
 }

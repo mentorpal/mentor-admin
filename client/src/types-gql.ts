@@ -87,6 +87,7 @@ export interface MentorGQL {
   isArchived: boolean;
   isAdvanced: boolean;
   mentorConfig?: MentorConfig;
+  lockedToConfig?: boolean;
   orgPermissions: OrgPermission[];
   defaultSubject?: SubjectGQL;
   subjects: SubjectGQL[];

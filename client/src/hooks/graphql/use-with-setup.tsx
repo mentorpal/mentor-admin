@@ -192,14 +192,6 @@ export function useWithSetup(
       requiredSubjects,
       isSetupComplete,
     });
-    console.log({
-      isMentorInfoDone,
-      isMentorTypeChosen,
-      isMentorGoalDone,
-      idle,
-      requiredSubjects,
-      isSetupComplete,
-    });
     const mentorSubjectsLocked = mentor.mentorConfig?.subjects.length;
     const mentorPrivacyLocked =
       mentor.mentorConfig?.publiclyVisible !== undefined ||
