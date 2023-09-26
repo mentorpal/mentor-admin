@@ -387,6 +387,8 @@ export function useWithMergeReport(): UseWithMergeReport {
             allMentorsAsked: relevantChatSession.mentorIds,
             answerId: effectiveAnswerId,
             topics,
+            chatSessionId: relevantChatSession.relatedEntries[0].chatSessionId,
+            sessionId: relevantChatSession.relatedEntries[0].sessionId,
           });
         } else if (relevantChatSessions.length > 1) {
           relevantChatSessions.forEach((relevantChatSession) => {
@@ -408,6 +410,9 @@ export function useWithMergeReport(): UseWithMergeReport {
               allMentorsAsked: relevantChatSession.mentorIds,
               answerId: effectiveAnswerId,
               topics,
+              chatSessionId:
+                relevantChatSession.relatedEntries[0].chatSessionId,
+              sessionId: relevantChatSession.relatedEntries[0].sessionId,
             });
           });
         } else if (relevantChatSessions.length == 0) {
@@ -430,6 +435,8 @@ export function useWithMergeReport(): UseWithMergeReport {
             allMentorsAsked: [orphanUserQuestion.mentor._id],
             answerId: effectiveAnswerId,
             topics,
+            chatSessionId: orphanUserQuestion.chatSessionId || "",
+            sessionId: "",
           });
         }
       } catch (err) {

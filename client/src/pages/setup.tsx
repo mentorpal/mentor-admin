@@ -68,7 +68,7 @@ const useStyles = makeStyles({ name: { SetupPage } })(() => ({
     alignContent: "center",
     height: "700px",
     width: "100%",
-    overflow: "visible",
+    overflow: "hidden",
   },
   card: {
     minHeight: 450,

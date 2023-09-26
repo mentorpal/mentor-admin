@@ -30,6 +30,8 @@ export interface ReportEntry {
   allMentorsAsked: string[];
   answerId: string;
   topics: string[];
+  chatSessionId: string;
+  sessionId: string;
 }
 
 /**
@@ -70,6 +72,8 @@ const generateUserReport = (
         allMentorsAsked: [],
         answerId: "",
         topics: [],
+        chatSessionId: "",
+        sessionId: "",
       };
       const curStatement = statements[statement];
       const username = curStatement["actor"]["name"];
@@ -122,6 +126,12 @@ const generateUserReport = (
 
       // Get answer id from extensions
       reportEntry.answerId = getAnswerId(curStatement);
+
+      // get chatSessionId from extensions
+      reportEntry.chatSessionId = getChatSessionId(curStatement);
+
+      // get sessionId from extensions
+      reportEntry.sessionId = getSessionId(curStatement);
 
       allReportEntries.push(reportEntry);
     }
@@ -207,6 +217,53 @@ const getAllMentorsAsked = (statement: Statement): string[] => {
     return Object.keys(mentorsAsked);
   } catch (err) {
     return [];
+  }
+};
+
+const getChatSessionId = (statement: Statement): string => {
+  try {
+    const extensions = statement.context?.extensions;
+
+    if (!extensions) {
+      return "";
+    }
+    const targetKey = Object.keys(extensions).find((key) =>
+      key.includes("chatSessionId")
+    );
+    if (!targetKey) {
+      console.log("no chatSessionId key found in extensions");
+      return "";
+    }
+    const chatSessionIdFromExtensions = extensions[targetKey];
+    return chatSessionIdFromExtensions || "";
+  } catch (err) {
+    return "";
+  }
+};
+
+const getSessionId = (statement: Statement): string => {
+  try {
+    const extensions = statement.context?.extensions;
+
+    if (!extensions) {
+      return "";
+    }
+    const targetKey = Object.keys(extensions).find((key) =>
+      key.includes("sessionId")
+    );
+    if (!targetKey) {
+      console.log("no sessionId key found in extensions");
+      return "";
+    }
+    const sessionIdFromExtensions = extensions[targetKey];
+
+    if (!sessionIdFromExtensions) {
+      return "";
+    }
+
+    return sessionIdFromExtensions;
+  } catch (err) {
+    return "";
   }
 };
 
@@ -400,6 +457,8 @@ export interface Report {
   source: Array<string>;
   date: Array<string>;
   userId: Array<string>;
+  chatSessionId: Array<string>;
+  sessionId: Array<string>;
   dataSource: Array<string>;
   topics: Array<string[]>;
 }
@@ -454,6 +513,8 @@ export const reportToCsv = (reportEntries: ReportEntry[]): any => {
     userId: effectiveEntries.map((entry) => entry.userId),
     dataSource: effectiveEntries.map((entry) => entry.dataSource),
     topics: effectiveEntries.map((entry) => entry.topics),
+    chatSessionId: effectiveEntries.map((entry) => entry.chatSessionId),
+    sessionId: effectiveEntries.map((entry) => entry.sessionId),
   };
   const dfReport = new dfd.DataFrame(report);
 
@@ -473,38 +534,45 @@ export interface UserQuestionReport {
   confidence: Array<number>;
   feedback: Array<string>;
   graderQuestionMatch: Array<string>;
+  chatSessionId: Array<string>;
 }
 
 export const userQuestionsToCSV = (userQuestions: UserQuestionGQL[]): void => {
   userQuestions.sort((a, b) =>
     new Date(a.createdAt) > new Date(b.createdAt) ? -1 : 1
   );
+  try {
+    const report: UserQuestionReport = {
+      mentorId: userQuestions.map((uq) => uq.mentor?._id || ""),
+      mentorName: userQuestions.map((uq) => `"${uq.mentor?.name || ""}"`),
+      date: userQuestions.map(
+        (uq) =>
+          `"${new Date(uq.createdAt).toLocaleString("en-US", {
+            timeZone: "America/Los_Angeles",
+          })}"`
+      ),
+      question: userQuestions.map((uq) => `"${uq.question}"`),
+      classifierQuestionMatch: userQuestions.map((uq) =>
+        uq.classifierAnswer
+          ? `"${uq.classifierAnswer.question.question.trim()}"`
+          : "-"
+      ),
+      confidence: userQuestions.map((uq) => uq.confidence),
+      feedback: userQuestions.map((uq) => uq.feedback),
+      graderQuestionMatch: userQuestions.map((uq) =>
+        uq.graderAnswer ? `"${uq.graderAnswer.question.question.trim()}"` : "-"
+      ),
+      chatSessionId: userQuestions.map((uq) => uq.chatSessionId || ""),
+    };
 
-  const report: UserQuestionReport = {
-    mentorId: userQuestions.map((uq) => uq.mentor._id),
-    mentorName: userQuestions.map((uq) => `"${uq.mentor.name}"`),
-    date: userQuestions.map(
-      (uq) =>
-        `"${new Date(uq.createdAt).toLocaleString("en-US", {
-          timeZone: "America/Los_Angeles",
-        })}"`
-    ),
-    question: userQuestions.map((uq) => `"${uq.question}"`),
-    classifierQuestionMatch: userQuestions.map(
-      (uq) => `"${uq.classifierAnswer.question.question}"`
-    ),
-    confidence: userQuestions.map((uq) => uq.confidence),
-    feedback: userQuestions.map((uq) => uq.feedback),
-    graderQuestionMatch: userQuestions.map(
-      (uq) => ` "${uq.graderAnswer ? uq.graderAnswer.question.question : "-"}"`
-    ),
-  };
+    const dfReport = new dfd.DataFrame(report);
 
-  const dfReport = new dfd.DataFrame(report);
-
-  dfd.toCSV(dfReport, {
-    fileName: `user-questions-report`,
-    download: true,
-    header: true,
-  });
+    dfd.toCSV(dfReport, {
+      fileName: `user-questions-report`,
+      download: true,
+      header: true,
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
