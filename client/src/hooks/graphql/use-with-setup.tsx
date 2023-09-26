@@ -139,11 +139,13 @@ export function useWithSetup(
       mentor.mentorType === MentorType.VIDEO && idleAnswer
         ? {
             idle: idleAnswer,
-            complete: isAnswerComplete(
-              idleAnswer,
-              UtteranceName.IDLE,
-              mentor.mentorType
-            ),
+            complete:
+              isAnswerComplete(
+                idleAnswer,
+                UtteranceName.IDLE,
+                mentor.mentorType
+              ) ||
+              Boolean(uploads.find((u) => u.question == idleAnswer.question)),
           }
         : undefined;
     const requiredSubjects = mentor.subjects
@@ -185,14 +187,6 @@ export function useWithSetup(
           s.complete
       );
     setStatus({
-      isMentorInfoDone,
-      isMentorTypeChosen,
-      isMentorGoalDone,
-      idle,
-      requiredSubjects,
-      isSetupComplete,
-    });
-    console.log({
       isMentorInfoDone,
       isMentorTypeChosen,
       isMentorGoalDone,

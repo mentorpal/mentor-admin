@@ -180,6 +180,14 @@ function getTableColumns(
     },
     {
       id: "defaultMentor",
+      subField: ["lockedToConfig"],
+      label: "Locked",
+      minWidth: 0,
+      align: "left",
+      sortable: true,
+    },
+    {
+      id: "defaultMentor",
       subField: ["updatedAt"],
       label: "Last Updated",
       minWidth: 0,
@@ -364,9 +372,14 @@ function UserItem(props: {
     props.userPagin.onUpdateMentorAdvanced(mentor, isAdvanced);
   }
 
+  function handleSetMentorLock(mentor: string, locked: boolean): void {
+    props.userPagin.onSetMentorLock(mentor, locked);
+  }
+
   function handleArchiveChange(mentor: string, isArchived: boolean): void {
     props.userPagin.onArchiveMentor(mentor, isArchived);
   }
+
   return (
     <TableRow data-cy={`user-${i}`} hover role="checkbox" tabIndex={-1}>
       <TableCell data-cy="publicApproved" align="center" key={mentor._id}>
@@ -550,6 +563,22 @@ function UserItem(props: {
           />
         </TableCell>
       ) : undefined}
+      {isAdmin ? (
+        <TableCell data-cy="set-mentor-lock" align="left">
+          <Checkbox
+            checked={Boolean(mentor.lockedToConfig)}
+            disabled={
+              !mentor.mentorConfig ||
+              (props.user.userRole !== UserRole.ADMIN &&
+                props.user.userRole !== UserRole.SUPER_ADMIN)
+            }
+            color="secondary"
+            onClick={() =>
+              handleSetMentorLock(mentor._id, !mentor.lockedToConfig)
+            }
+          />
+        </TableCell>
+      ) : undefined}
       {props.viewArchivedMentors ? (
         <TableCell data-cy="archived" align="left">
           <Checkbox
@@ -561,9 +590,20 @@ function UserItem(props: {
         </TableCell>
       ) : undefined}
       <TableCell data-cy="updatedAt" align="left">
-        {mentor.updatedAt ? new Date(mentor.updatedAt).toLocaleString() : "N/A"}
+        {mentor.updatedAt ? (
+          <>
+            {new Date(mentor.updatedAt)
+              .toLocaleString()
+              .split(",")
+              .map((s) => {
+                return <div key={mentor.updatedAt}>{s}</div>;
+              })}
+          </>
+        ) : (
+          "N/A"
+        )}
       </TableCell>
-      <TableCell data-cy="actions" align="right">
+      <TableCell data-cy="actions" align="right" style={{ padding: 0 }}>
         <TrainDirtyMentorButton
           mentor={mentor}
           accessToken={props.accessToken}
@@ -571,7 +611,7 @@ function UserItem(props: {
           addMentorToPoll={addMentorToPoll}
         />
 
-        <Tooltip style={{ margin: 10 }} title="Launch Mentor" arrow>
+        <Tooltip style={{ margin: 0 }} title="Launch Mentor" arrow>
           <IconButton
             data-cy="launch-default-mentor"
             onClick={() => {
@@ -583,7 +623,7 @@ function UserItem(props: {
             <LaunchIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Import" arrow>
+        <Tooltip style={{ margin: 0 }} title="Import" arrow>
           <IconButton
             data-cy="import-button"
             onClick={() => {
@@ -597,7 +637,7 @@ function UserItem(props: {
             <ImportExport />
           </IconButton>
         </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Export Mentor" arrow>
+        <Tooltip style={{ margin: 0 }} title="Export Mentor" arrow>
           <IconButton
             data-cy="export-button"
             onClick={() => exportMentor(mentor._id, props.accessToken)}
@@ -608,7 +648,7 @@ function UserItem(props: {
             <GetAppIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip style={{ margin: 10 }} title="Edit Mentor" arrow>
+        <Tooltip style={{ margin: 0 }} title="Edit Mentor" arrow>
           <IconButton
             data-cy="edit-button"
             onClick={() => {
