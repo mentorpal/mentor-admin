@@ -107,9 +107,11 @@ function LRSReportsPage(): JSX.Element {
     }
     const userQuestions = await fetchUserQuestions(startDate, endDate);
     if (!userQuestions) {
+      console.log("no user questions");
       return;
     }
     if (!userQuestions.length) {
+      console.log("no user questions");
       setNoReportAlert(true);
       return;
     }

@@ -6,7 +6,6 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { Statement, Activity } from "@xapi/xapi";
 import { UserQuestionGQL } from "lrs-api";
-import { report } from "process";
 // eslint-disable-next-line  @typescript-eslint/no-var-requires
 const dfd = require("danfojs");
 
@@ -459,6 +458,7 @@ export interface Report {
   date: Array<string>;
   userId: Array<string>;
   chatSessionId: Array<string>;
+  sessionId: Array<string>;
   dataSource: Array<string>;
   topics: Array<string[]>;
 }
@@ -514,6 +514,7 @@ export const reportToCsv = (reportEntries: ReportEntry[]): any => {
     dataSource: effectiveEntries.map((entry) => entry.dataSource),
     topics: effectiveEntries.map((entry) => entry.topics),
     chatSessionId: effectiveEntries.map((entry) => entry.chatSessionId),
+    sessionId: effectiveEntries.map((entry) => entry.sessionId),
   };
   const dfReport = new dfd.DataFrame(report);
 
@@ -540,33 +541,38 @@ export const userQuestionsToCSV = (userQuestions: UserQuestionGQL[]): void => {
   userQuestions.sort((a, b) =>
     new Date(a.createdAt) > new Date(b.createdAt) ? -1 : 1
   );
+  try {
+    const report: UserQuestionReport = {
+      mentorId: userQuestions.map((uq) => uq.mentor?._id || ""),
+      mentorName: userQuestions.map((uq) => `"${uq.mentor?.name || ""}"`),
+      date: userQuestions.map(
+        (uq) =>
+          `"${new Date(uq.createdAt).toLocaleString("en-US", {
+            timeZone: "America/Los_Angeles",
+          })}"`
+      ),
+      question: userQuestions.map((uq) => `"${uq.question}"`),
+      classifierQuestionMatch: userQuestions.map((uq) =>
+        uq.classifierAnswer
+          ? `"${uq.classifierAnswer.question.question.trim()}"`
+          : "-"
+      ),
+      confidence: userQuestions.map((uq) => uq.confidence),
+      feedback: userQuestions.map((uq) => uq.feedback),
+      graderQuestionMatch: userQuestions.map((uq) =>
+        uq.graderAnswer ? `"${uq.graderAnswer.question.question.trim()}"` : "-"
+      ),
+      chatSessionId: userQuestions.map((uq) => uq.chatSessionId || ""),
+    };
 
-  const report: UserQuestionReport = {
-    mentorId: userQuestions.map((uq) => uq.mentor._id),
-    mentorName: userQuestions.map((uq) => `"${uq.mentor.name}"`),
-    date: userQuestions.map(
-      (uq) =>
-        `"${new Date(uq.createdAt).toLocaleString("en-US", {
-          timeZone: "America/Los_Angeles",
-        })}"`
-    ),
-    question: userQuestions.map((uq) => `"${uq.question}"`),
-    classifierQuestionMatch: userQuestions.map(
-      (uq) => `"${uq.classifierAnswer.question.question}"`
-    ),
-    confidence: userQuestions.map((uq) => uq.confidence),
-    feedback: userQuestions.map((uq) => uq.feedback),
-    graderQuestionMatch: userQuestions.map(
-      (uq) => ` "${uq.graderAnswer ? uq.graderAnswer.question.question : "-"}"`
-    ),
-    chatSessionId: userQuestions.map((uq) => uq.chatSessionId || ""),
-  };
+    const dfReport = new dfd.DataFrame(report);
 
-  const dfReport = new dfd.DataFrame(report);
-
-  dfd.toCSV(dfReport, {
-    fileName: `user-questions-report`,
-    download: true,
-    header: true,
-  });
+    dfd.toCSV(dfReport, {
+      fileName: `user-questions-report`,
+      download: true,
+      header: true,
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
