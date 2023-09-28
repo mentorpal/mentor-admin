@@ -120,10 +120,10 @@ export function useWithRecordState(
       return;
     }
     const { videoId, subject, category, status } = filter;
-    let answers = mentorAnswers;
+    let _answers = mentorAnswers;
     if (videoId && !subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
-      answers = answers.filter(
+      _answers = _answers.filter(
         (a) => ids.includes(a.question) || ids.includes(a.questionClientId)
       );
     } else if (subject) {
@@ -132,22 +132,30 @@ export function useWithRecordState(
         const sQuestions = s.questions.filter(
           (q) => !category || `${q.category?.id}` === category
         );
-        answers = answers.filter((a) =>
+        _answers = _answers.filter((a) =>
           sQuestions.map((q) => q.question).includes(a.question)
         );
       }
     }
 
     const answerStates: AnswerState[] = [];
-    for (const a of answers) {
+    for (const a of _answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
-      let checkStatus = !status;
+      // we don't want to remove questions that are already in the recording state
+      const answerAlreadyInState = Boolean(
+        answers.find((as) => as.answer.question === a.question)
+      );
+      let checkStatus = !status || answerAlreadyInState;
       if (status === Status.COMPLETE) {
-        checkStatus = isAnswerComplete(a, q?.question?.name, mentorType);
+        checkStatus =
+          isAnswerComplete(a, q?.question?.name, mentorType) ||
+          answerAlreadyInState;
       } else if (status === Status.INCOMPLETE) {
-        checkStatus = !isAnswerComplete(a, q?.question?.name, mentorType);
+        checkStatus =
+          !isAnswerComplete(a, q?.question?.name, mentorType) ||
+          answerAlreadyInState;
       } else if (status === Status.NONE) {
-        checkStatus = a.status === Status.NONE;
+        checkStatus = a.status === Status.NONE || answerAlreadyInState;
       }
       if (
         q?.question &&
@@ -166,7 +174,7 @@ export function useWithRecordState(
       }
     }
     //if after filtering through the answers we end up with none, then go back to My Mentor page
-    if (!answers.length) {
+    if (!_answers.length) {
       navigate("/");
     }
     setAnswers(answerStates);

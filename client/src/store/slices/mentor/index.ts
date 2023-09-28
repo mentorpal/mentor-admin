@@ -197,7 +197,7 @@ export const mentorSlice = createSlice({
     updateAnswer: (state, action: PayloadAction<Answer>) => {
       if (state.data) {
         state.data.answers = state.data.answers.map((a) =>
-          a._id === action.payload._id ? action.payload : a
+          a.question === action.payload.question ? action.payload : a
         );
       }
     },
