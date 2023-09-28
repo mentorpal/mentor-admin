@@ -155,6 +155,7 @@ function HomePage(props: {
   const mentorConfig: MentorConfig | undefined = getData(
     (m) => m.data?.mentorConfig
   );
+  const lockedToConfig: boolean = getData((m) => m.data?.lockedToConfig);
   const defaultMentor = props.user.defaultMentor._id;
   const { classes } = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
@@ -190,7 +191,8 @@ function HomePage(props: {
     useState<ConfirmSave>();
   const [confirmSaveOnRecordOne, setConfirmSaveOnRecordOne] =
     useState<ConfirmSave>();
-
+  const [notifyCompleteAllQuestions, setNotifyCompleteAllQuestions] =
+    useState<boolean>(false);
   const loginState = useWithLogin();
 
   const [localHasSeenSplash, setLocalHasSeenSplash] = useState(false);
@@ -272,6 +274,26 @@ function HomePage(props: {
     configState.config?.classifierLambdaEndpoint,
     mentorId,
   ]);
+
+  useEffect(() => {
+    const lockedToSubjects = mentorConfig?.subjects.length;
+    if (
+      !lockedToConfig ||
+      !mentorConfig ||
+      !lockedToSubjects ||
+      !mentorConfig.completeSubjectsNotificationText
+    ) {
+      return;
+    }
+    if (
+      reviewAnswerState.progress.total != 0 &&
+      reviewAnswerState.progress.complete ===
+        reviewAnswerState.progress.total &&
+      !notifyCompleteAllQuestions
+    ) {
+      setNotifyCompleteAllQuestions(true);
+    }
+  }, [reviewAnswerState.progress, mentorConfig, lockedToConfig]);
 
   // memoized train mentor
   const startTrainingMentor = useCallback(() => {
@@ -744,6 +766,14 @@ function HomePage(props: {
           </Button>
         </DialogContent>
       </Dialog>
+
+      <NotificationDialog
+        title={mentorConfig?.completeSubjectsNotificationText}
+        open={notifyCompleteAllQuestions}
+        closeDialog={() => {
+          setNotifyCompleteAllQuestions(false);
+        }}
+      />
 
       <TwoOptionDialog
         open={Boolean(confirmSaveBeforeCallback)}

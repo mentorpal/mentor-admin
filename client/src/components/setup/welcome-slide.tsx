@@ -55,8 +55,9 @@ export function WelcomeSlide(props: {
           >
             {"If you'd like to view a walkthrough, "}
             <a data-cy="click-here-url" href={docSetupUrl} target="blank">
-              click here.
+              click here
             </a>
+            .
           </Typography>
         </div>
       }

@@ -64,6 +64,10 @@ export interface MentorConfig {
   welcomeSlideText: string;
   disableMyGoalSlide: boolean;
   disableFollowups: boolean;
+  disableKeywordsRecommendation: boolean;
+  disableThumbnailRecommendation: boolean;
+  disableLevelProgressDisplay: boolean;
+  completeSubjectsNotificationText: string;
 }
 
 export interface MentorGQL {
