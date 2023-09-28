@@ -32,7 +32,9 @@ function MentorStatus(props: {
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data, allQuestions) : defaultMentorInfo
   );
-  const mentorConfig: MentorConfig = getData((ms) => ms.data?.mentorConfig);
+  const mentorConfig: MentorConfig | undefined = getData(
+    (ms) => ms.data?.mentorConfig
+  );
 
   const leftColumnAlign = "left";
 
@@ -62,7 +64,7 @@ function MentorStatus(props: {
       </Typography>
 
       {mentorInfo.currentStage.floor != 1000 &&
-        !mentorConfig.disableLevelProgressDisplay && (
+        !mentorConfig?.disableLevelProgressDisplay && (
           <StageProgress
             value={mentorInfo.value}
             max={mentorInfo.currentStage.max || 0}

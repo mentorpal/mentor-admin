@@ -359,6 +359,7 @@ export async function fetchUsers(
                   disableKeywordsRecommendation
                   disableThumbnailRecommendation
                   disableLevelProgressDisplay
+                  completeSubjectsNotificationText
                 }
                 orgPermissions {
                   orgId
@@ -1078,6 +1079,7 @@ export async function fetchMentorById(
             disableKeywordsRecommendation
             disableThumbnailRecommendation
             disableLevelProgressDisplay
+            completeSubjectsNotificationText
           }
           orgPermissions {
             orgId
@@ -1253,6 +1255,7 @@ export async function fetchMentorConfig(
             disableKeywordsRecommendation
             disableThumbnailRecommendation
             disableLevelProgressDisplay
+            completeSubjectsNotificationText
           }
       }
     `,

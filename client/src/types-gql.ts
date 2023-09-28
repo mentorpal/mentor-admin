@@ -67,6 +67,7 @@ export interface MentorConfig {
   disableKeywordsRecommendation: boolean;
   disableThumbnailRecommendation: boolean;
   disableLevelProgressDisplay: boolean;
+  completeSubjectsNotificationText: string;
 }
 
 export interface MentorGQL {
