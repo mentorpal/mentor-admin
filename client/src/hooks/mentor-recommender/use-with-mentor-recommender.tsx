@@ -102,7 +102,10 @@ export function useWithMentorRecommender(
       );
     };
     const keywordsMissing = (state: RecommenderState) => {
-      return !state.mentorData.keywords.length;
+      return (
+        !state.mentorData.keywords.length &&
+        !state.mentorData.mentorConfig?.disableKeywordsRecommendation
+      );
     };
     const noSubject = (state: RecommenderState) => {
       return !state.mentorData.subjects.length;
@@ -138,7 +141,10 @@ export function useWithMentorRecommender(
       );
     };
     const thumbnailMissing = (state: RecommenderState) => {
-      return !state.mentorData.thumbnail;
+      return (
+        !state.mentorData.thumbnail &&
+        !state.mentorData.mentorConfig?.disableThumbnailRecommendation
+      );
     };
 
     // Note: All reccomendations have same weights in this phase, but other phases rec's have different weights
