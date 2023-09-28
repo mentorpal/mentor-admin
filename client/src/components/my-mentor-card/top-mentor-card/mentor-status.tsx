@@ -8,6 +8,7 @@ import parseMentor, { defaultMentorInfo } from "../mentor-info";
 import CloseIcon from "@mui/icons-material/Close";
 import { TooltipStep } from "components/home";
 import useQuestions from "store/slices/questions/useQuestions";
+import { MentorConfig } from "types-gql";
 
 const ColorTooltip = withStyles(Tooltip, {
   tooltip: {
@@ -30,6 +31,9 @@ function MentorStatus(props: {
   const allQuestions = useQuestions((state) => state.questions);
   const mentorInfo = getData((ms) =>
     ms.data ? parseMentor(ms.data, allQuestions) : defaultMentorInfo
+  );
+  const mentorConfig: MentorConfig | undefined = getData(
+    (ms) => ms.data?.mentorConfig
   );
 
   const leftColumnAlign = "left";
@@ -59,13 +63,14 @@ function MentorStatus(props: {
         </span>
       </Typography>
 
-      {mentorInfo.currentStage.floor != 1000 && (
-        <StageProgress
-          value={mentorInfo.value}
-          max={mentorInfo.currentStage.max || 0}
-          percent={mentorInfo.currentStage.percent || 0}
-        />
-      )}
+      {mentorInfo.currentStage.floor != 1000 &&
+        !mentorConfig?.disableLevelProgressDisplay && (
+          <StageProgress
+            value={mentorInfo.value}
+            max={mentorInfo.currentStage.max || 0}
+            percent={mentorInfo.currentStage.percent || 0}
+          />
+        )}
     </Grid>
   );
 

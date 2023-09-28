@@ -356,6 +356,10 @@ export async function fetchUsers(
                   welcomeSlideText
                   disableMyGoalSlide
                   disableFollowups
+                  disableKeywordsRecommendation
+                  disableThumbnailRecommendation
+                  disableLevelProgressDisplay
+                  completeSubjectsNotificationText
                 }
                 orgPermissions {
                   orgId
@@ -1072,6 +1076,10 @@ export async function fetchMentorById(
             welcomeSlideText
             disableMyGoalSlide
             disableFollowups
+            disableKeywordsRecommendation
+            disableThumbnailRecommendation
+            disableLevelProgressDisplay
+            completeSubjectsNotificationText
           }
           orgPermissions {
             orgId
@@ -1244,6 +1252,10 @@ export async function fetchMentorConfig(
             welcomeSlideText
             disableMyGoalSlide
             disableFollowups
+            disableKeywordsRecommendation
+            disableThumbnailRecommendation
+            disableLevelProgressDisplay
+            completeSubjectsNotificationText
           }
       }
     `,
