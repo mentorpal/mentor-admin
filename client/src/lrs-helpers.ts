@@ -231,7 +231,6 @@ const getChatSessionId = (statement: Statement): string => {
       key.includes("chatSessionId")
     );
     if (!targetKey) {
-      console.log("no chatSessionId key found in extensions");
       return "";
     }
     const chatSessionIdFromExtensions = extensions[targetKey];
@@ -252,7 +251,6 @@ const getSessionId = (statement: Statement): string => {
       key.includes("sessionId")
     );
     if (!targetKey) {
-      console.log("no sessionId key found in extensions");
       return "";
     }
     const sessionIdFromExtensions = extensions[targetKey];
@@ -368,13 +366,52 @@ export const getVerb = (statement: Statement): string => {
  * @returns The referrer of the statement.
  */
 const getReferrer = (statement: Statement): string => {
+  const resultExtensions = statement.result?.extensions;
+  if (!resultExtensions) {
+    return "";
+  }
+  let referrer = "";
+  const verbList = [
+    "https://mentorpal.org/xapi/verb/initialized",
+    "https://mentorpal.org/xapi/verb/selected",
+    "https://mentorpal.org/xapi/verb/suspended",
+    "https://mentorpal.org/xapi/verb/answer-playback-started",
+  ];
+  const verb = statement.verb?.id || "";
+
+  if (verb) {
+    try {
+      referrer = resultExtensions[verb]["referrer"] || "";
+    } catch (err) {
+      referrer = "";
+    }
+  }
+
+  if (!referrer) {
+    for (let i = 0; i < verbList.length; i++) {
+      try {
+        referrer = resultExtensions[verbList[i]]["referrer"] || "";
+      } catch (err) {
+        referrer = "";
+      }
+      if (referrer) {
+        break;
+      }
+    }
+  }
+
+  if (referrer && referrer !== "null" && referrer !== "no referrer") {
+    return referrer;
+  }
+
   try {
+    // if no referrer found via extensions, try to find in url
     const object: Activity = statement.object as Activity;
     const url = object.id;
-    const referrer = new URLSearchParams(url).get("referrer") || "-";
-    return referrer;
+    const referrerFromUrl = new URLSearchParams(url).get("referrer") || "-";
+    return referrerFromUrl;
   } catch (err) {
-    return "";
+    return "-";
   }
 };
 
