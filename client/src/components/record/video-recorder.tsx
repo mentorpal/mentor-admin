@@ -47,6 +47,7 @@ function VideoRecorder(props: {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { segmentVideoAndDrawToCanvas } = useWithVideoSegmentation();
   const { aspectRatio: vbgAspectRatio } = useWithImage(virtualBackgroundUrl);
+  const [uploadCounter, setUploaderCounter] = useState(0);
   const videoRecordMimeType = isVirtualBgMentor
     ? "video/webm;codecs=vp9"
     : "video/mp4";
@@ -525,10 +526,12 @@ function VideoRecorder(props: {
           {recordState.isRecording ? "Stop" : "Record"}
         </Button>
         <input
+          key={uploadCounter}
           data-cy="upload-file"
           type="file"
           accept="audio/*,video/*"
           onChange={(e) => {
+            setUploaderCounter((prevState) => prevState + 1);
             if (!e.target.files?.length) {
               return;
             } else {

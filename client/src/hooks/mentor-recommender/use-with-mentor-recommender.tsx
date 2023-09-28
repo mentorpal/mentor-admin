@@ -724,7 +724,7 @@ export function useWithMentorRecommender(
       "Preview your mentor",
       RecommendationName.PREVIEW_MENTOR,
       "Preview your mentor to review its current status.",
-      () => launchMentor(mentorData?._id || "")
+      () => launchMentor(mentorData?._id || "", true)
     );
     const activeCondition = (state: RecommenderState) => {
       const lastPreviewedDate = state.mentorData.lastPreviewedAt
