@@ -360,6 +360,7 @@ export async function fetchUsers(
                   disableThumbnailRecommendation
                   disableLevelProgressDisplay
                   completeSubjectsNotificationText
+                  recordTimeLimitSeconds
                 }
                 orgPermissions {
                   orgId
@@ -1080,6 +1081,7 @@ export async function fetchMentorById(
             disableThumbnailRecommendation
             disableLevelProgressDisplay
             completeSubjectsNotificationText
+            recordTimeLimitSeconds
           }
           orgPermissions {
             orgId
@@ -1256,6 +1258,7 @@ export async function fetchMentorConfig(
             disableThumbnailRecommendation
             disableLevelProgressDisplay
             completeSubjectsNotificationText
+            recordTimeLimitSeconds
           }
       }
     `,

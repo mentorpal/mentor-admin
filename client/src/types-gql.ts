@@ -68,6 +68,7 @@ export interface MentorConfig {
   disableThumbnailRecommendation: boolean;
   disableLevelProgressDisplay: boolean;
   completeSubjectsNotificationText: string;
+  recordTimeLimitSeconds: number;
 }
 
 export interface MentorGQL {

@@ -16,6 +16,8 @@ import { UseWithRecordState } from "types";
 import PermCameraMicIcon from "@mui/icons-material/PermCameraMic";
 import { useWithVideoSegmentation } from "components/record/video-segmentation";
 import { useWithImage } from "hooks/graphql/use-with-image";
+import { MentorConfig } from "types-gql";
+import useActiveMentor from "store/slices/mentor/useActiveMentor";
 
 function VideoRecorder(props: {
   classes: Record<string, string>;
@@ -53,6 +55,10 @@ function VideoRecorder(props: {
     : "video/mp4";
   const videoSaveMimeType = isVirtualBgMentor ? "video/webm" : "video/mp4";
   const videoSaveName = isVirtualBgMentor ? "video.webm" : "video.mp4";
+  const { getData } = useActiveMentor();
+  const mentorConfig: MentorConfig | undefined = getData(
+    (m) => m.data?.mentorConfig
+  );
 
   //Using refs to access states variables in event handler
   const recordStopCountdownRef = useRef(recordStopCountdown);
@@ -129,12 +135,18 @@ function VideoRecorder(props: {
   useEffect(() => {
     if (
       !recordState.isRecording ||
-      !recordState?.curAnswer?.minVideoLength ||
+      (!recordState?.curAnswer?.minVideoLength &&
+        !mentorConfig?.recordTimeLimitSeconds) ||
       autoStoppingIdle
     ) {
       return;
     }
-    if (recordDurationCounter > recordState?.curAnswer?.minVideoLength) {
+    if (
+      (recordState?.curAnswer?.minVideoLength &&
+        recordDurationCounter > recordState.curAnswer.minVideoLength) ||
+      (mentorConfig &&
+        recordDurationCounter > mentorConfig.recordTimeLimitSeconds)
+    ) {
       setAutoStoppingIdle(true);
       beginStopRecordingCountdown();
     }
@@ -289,6 +301,14 @@ function VideoRecorder(props: {
       : null
   );
 
+  function getMinSecondText(minSeconds: number): string {
+    const minutes = Math.trunc(minSeconds / 60);
+    const seconds = Math.trunc(minSeconds % 60);
+    return `${minutes > 0 ? minutes + " min" : ""}${
+      minutes > 0 && seconds > 0 ? " and " : ""
+    }${seconds > 0 ? seconds + " sec" : ""}`;
+  }
+
   function getRecordTimeText(recordTime: number): string {
     const minutes = Math.trunc(recordTime / 60);
     const seconds = Math.trunc(recordTime % 60);
@@ -298,7 +318,7 @@ function VideoRecorder(props: {
       Number(seconds / 10) < 1
         ? `0${seconds.toString()}`
         : `${seconds.toString()}`;
-    return `${minutesString}:${secondsString}`;
+    return `${minutesString}m:${secondsString}s`;
   }
 
   const backgroundImageStyling: React.CSSProperties = isVirtualBgMentor
@@ -321,6 +341,25 @@ function VideoRecorder(props: {
             : "visible",
       }}
     >
+      {mentorConfig?.recordTimeLimitSeconds ||
+      recordState.curAnswer?.minVideoLength ? (
+        <Typography
+          data-cy="instruction"
+          style={{
+            textAlign: "center",
+            visibility: cameraIsOn ? "inherit" : "hidden",
+          }}
+        >
+          <b>Note:</b> You may record a video up to{" "}
+          {getMinSecondText(
+            recordState.curAnswer?.minVideoLength != undefined
+              ? recordState.curAnswer?.minVideoLength
+              : mentorConfig?.recordTimeLimitSeconds || 0
+          )}{" "}
+          long.
+        </Typography>
+      ) : undefined}
+
       <Typography
         data-cy="instruction"
         style={{
