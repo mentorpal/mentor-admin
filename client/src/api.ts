@@ -1847,7 +1847,8 @@ export async function uploadVideo(
   accessToken: string,
   uploadLambdaEndpoint: string,
   trim?: { start: number; end: number },
-  hasEditedTranscript?: boolean
+  hasEditedTranscript?: boolean,
+  generateThumbnail?: boolean
 ): Promise<UploadProcessAsyncJob> {
   const presignedUrl: PresignedUrlResponse = await execHttp(
     "GET",
@@ -1903,6 +1904,7 @@ export async function uploadVideo(
         isVbgVideo: isVbgVideo,
         trim: trim,
         hasEditedTranscript: hasEditedTranscript,
+        generateThumbnail: generateThumbnail,
       }),
       headers: {
         "Content-Type": "multipart/form-data",
