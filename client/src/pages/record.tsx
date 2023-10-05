@@ -432,7 +432,7 @@ function RecordPage(props: {
       ) : undefined}
       <NavBar
         title={
-          categoryTitle
+          categoryTitle && categoryTitle !== subjectTitle
             ? `Recording: ${subjectTitle} - ${categoryTitle}`
             : subjectTitle
             ? `Recording: ${subjectTitle}`
