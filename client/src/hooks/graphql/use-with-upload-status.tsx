@@ -222,7 +222,8 @@ export function useWithUploadStatus(
     video: File,
     isVbgVideo: boolean,
     trim?: { start: number; end: number },
-    hasEditedTranscript?: boolean
+    hasEditedTranscript?: boolean,
+    generateThumbnail?: boolean
   ) {
     dispatch(
       newFileUploadStarted({
@@ -254,7 +255,8 @@ export function useWithUploadStatus(
       accessToken,
       configState.config?.uploadLambdaEndpoint || "",
       trim,
-      hasEditedTranscript
+      hasEditedTranscript,
+      generateThumbnail
     )
       .then((task) => {
         addOrEditTask({
@@ -301,7 +303,8 @@ export interface UseWithUploadStatus {
     video: File,
     isVbgVideo: boolean,
     trim?: { start: number; end: number },
-    hasEditedTranscript?: boolean
+    hasEditedTranscript?: boolean,
+    generateThumbnail?: boolean
   ) => void;
   removeCompletedOrFailedTask: (tasks: UploadTask) => void;
   initialLoadComplete: boolean;

@@ -81,6 +81,7 @@ export function useWithRecordState(
 
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
+  const mentorThumbnail = getData((state) => state.data?.thumbnail);
   const hasVirtualBackground = getData(
     (state) => state.data?.hasVirtualBackground
   );
@@ -537,9 +538,15 @@ export function useWithRecordState(
 
   async function uploadVideo(trim?: { start: number; end: number }) {
     const answer = answers[answerIdx];
+
     if (!mentorId || !answer.answer.question) {
       return;
     }
+    const question = getValueIfKeyExists(
+      answer.answer.question,
+      mentorQuestions
+    );
+
     const editedAnswer: Answer = {
       ...answer.editedAnswer,
       previousVersions: await getUpdatedAnswerVersions(
@@ -596,7 +603,9 @@ export function useWithRecordState(
         answer.answer.question,
         answer.recordedVideo,
         Boolean(hasVirtualBackground),
-        trim
+        trim,
+        undefined,
+        !mentorThumbnail && question?.question?.name === UtteranceName.IDLE
       );
     }
   }
