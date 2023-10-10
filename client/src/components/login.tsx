@@ -20,6 +20,9 @@ import { ConfigStatus } from "store/slices/config";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { OverridableTokenClientConfig } from "@react-oauth/google";
 import { MentorConfig } from "types-gql";
+import { LoginType } from "types";
+import { LoginRejectedReason } from "store/slices/login";
+import { navigate } from "gatsby";
 
 const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
   toolbar: {
@@ -46,8 +49,9 @@ function LoginPage(props: {
     overrideConfig?: OverridableTokenClientConfig | undefined
   ) => void;
   mentorConfig?: MentorConfig;
+  loginType: LoginType;
 }): JSX.Element {
-  const { mentorConfig } = props;
+  const { mentorConfig, loginType } = props;
   const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
   const { state: loginState, login } = useWithLogin();
@@ -99,8 +103,22 @@ function LoginPage(props: {
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <Typography variant="h5" className={classes.title}>
         {mentorConfig?.loginHeaderText ||
-          "Please sign in to access the Mentor Studio portal"}
+          `Please sign ${
+            loginType === LoginType.SIGN_IN ? "in" : "up"
+          } to access the Mentor Studio portal`}
       </Typography>
+      {loginState.rejectedReason && (
+        <Typography variant="h6" color="error">
+          {loginState.rejectedReason ===
+          LoginRejectedReason.NO_ACCOUNT_FOUND ? (
+            <div>
+              No account found, please <a href="/signup">sign up</a>.
+            </div>
+          ) : (
+            "Error signing in"
+          )}
+        </Typography>
+      )}
       {process.env.ACCESS_TOKEN ? (
         <Button
           variant="contained"
@@ -117,11 +135,28 @@ function LoginPage(props: {
           color="primary"
           onClick={() => props.onGoogleLogin()}
           className={classes.button}
+          style={{ fontSize: "16px" }}
           data-cy="login-btn"
         >
-          Sign in with Google
+          Sign {loginType === LoginType.SIGN_IN ? "in" : "up"} with Google
         </Button>
       )}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => {
+          if (loginType === LoginType.SIGN_IN) {
+            navigate("/signup");
+          } else {
+            navigate("/");
+          }
+        }}
+        className={classes.button}
+        style={{ width: "fit-content", textTransform: "none" }}
+        data-cy="signup-btn"
+      >
+        Sign-{loginType === LoginType.SIGN_IN ? "Up" : "In"} page
+      </Button>
     </div>
   );
 }

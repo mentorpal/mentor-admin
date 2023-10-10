@@ -487,6 +487,11 @@ export enum EditType {
   OLD_ANSWER = "OLD_ANSWER",
 }
 
+export enum LoginType {
+  SIGN_IN = "SIGN_IN",
+  SIGN_UP = "SIGN_UP",
+}
+
 export enum LoginStatus {
   NONE = 0,
   IN_PROGRESS = 1,
