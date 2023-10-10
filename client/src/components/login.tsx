@@ -103,9 +103,7 @@ function LoginPage(props: {
       <div className={classes.toolbar} /> {/* create space below app bar */}
       <Typography variant="h5" className={classes.title}>
         {mentorConfig?.loginHeaderText ||
-          `Please sign ${
-            loginType === LoginType.SIGN_IN ? "in" : "up"
-          } to access the Mentor Studio portal`}
+          `Please sign in to access the Mentor Studio portal`}
       </Typography>
       {loginState.rejectedReason && (
         <Typography variant="h6" color="error">
@@ -138,25 +136,23 @@ function LoginPage(props: {
           style={{ fontSize: "16px" }}
           data-cy="login-btn"
         >
-          Sign {loginType === LoginType.SIGN_IN ? "in" : "up"} with Google
+          Sign in with Google
         </Button>
       )}
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => {
-          if (loginType === LoginType.SIGN_IN) {
+      {loginType === LoginType.SIGN_IN && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
             navigate("/signup");
-          } else {
-            navigate("/");
-          }
-        }}
-        className={classes.button}
-        style={{ width: "fit-content", textTransform: "none" }}
-        data-cy="signup-btn"
-      >
-        Sign-{loginType === LoginType.SIGN_IN ? "Up" : "In"} page
-      </Button>
+          }}
+          className={classes.button}
+          style={{ width: "fit-content", textTransform: "none" }}
+          data-cy="signup-btn"
+        >
+          Sign Up
+        </Button>
+      )}
     </div>
   );
 }
