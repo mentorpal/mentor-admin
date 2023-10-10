@@ -40,6 +40,7 @@ import {
   Organization,
   MentorTrainStatusById,
   RegenVttResponse,
+  LoginType,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -1957,13 +1958,14 @@ export async function login(accessToken: string): Promise<UserAccessToken> {
 
 export async function loginGoogle(
   accessToken: string,
-  signupCode?: string
+  signupCode?: string,
+  loginType?: LoginType
 ): Promise<UserAccessToken> {
   return execGql<UserAccessToken>(
     {
       query: `
-      mutation LoginGoogle($accessToken: String!, $signupCode: String, $lockMentorToConfig: Boolean) {
-        loginGoogle(accessToken: $accessToken, mentorConfig: $signupCode, lockMentorToConfig: $lockMentorToConfig) {
+      mutation LoginGoogle($accessToken: String!, $signupCode: String, $lockMentorToConfig: Boolean, $loginType: String) {
+        loginGoogle(accessToken: $accessToken, mentorConfig: $signupCode, lockMentorToConfig: $lockMentorToConfig, loginType: $loginType) {
           user {
             _id
             name
@@ -1984,6 +1986,7 @@ export async function loginGoogle(
         accessToken: accessToken,
         signupCode: signupCode,
         lockMentorToConfig: true,
+        loginType: loginType,
       },
     },
     // login responds with set-cookie, w/o withCredentials it doesnt get stored

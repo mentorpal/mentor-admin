@@ -44,13 +44,14 @@ export const loadQuestionsById = createAsyncThunk(
   ): Promise<CancellabeResult<Question[]>> => {
     const state = thunkAPI.getState() as RootState;
     const ids = args.reload
-      ? args.ids
+      ? args.ids.filter((id) => id)
       : args.ids.filter((id) => {
           const q = getValueIfKeyExists(id, state.questions.questions);
           return (
-            !q ||
-            q.status === LoadingStatus.FAILED ||
-            q.status === LoadingStatus.NONE
+            id &&
+            (!q ||
+              q.status === LoadingStatus.FAILED ||
+              q.status === LoadingStatus.NONE)
           );
         });
     if (ids.length === 0) {

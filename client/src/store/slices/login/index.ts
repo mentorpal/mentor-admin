@@ -14,7 +14,7 @@ import {
   sessionStorageClear,
   sessionStorageStore,
 } from "store/local-storage";
-import { User } from "types";
+import { LoginType, User } from "types";
 import { extractErrorMessageFromError } from "helpers";
 
 /** Store */
@@ -27,11 +27,19 @@ export enum LoginStatus {
   FAILED = 4,
 }
 
+export enum LoginRejectedReason {
+  NONE = "NONE",
+  DISABLED = "DISABLED",
+  FAILED = "FAILED",
+  NO_ACCOUNT_FOUND = "NO_ACCOUNT_FOUND",
+}
+
 export interface LoginState {
   accessToken?: string;
   loginStatus: LoginStatus;
   user?: User;
   isDisabled?: boolean;
+  rejectedReason?: LoginRejectedReason;
 }
 
 const initialState: LoginState = {
@@ -80,13 +88,15 @@ export const googleLogin = createAsyncThunk(
     args: {
       accessToken: string;
       signupCode?: string;
+      loginType?: LoginType;
     },
     thunkAPI
   ) => {
     try {
       const googleLogin = await api.loginGoogle(
         args.accessToken,
-        args.signupCode
+        args.signupCode,
+        args.loginType
       );
       localStorageStore(ACCESS_TOKEN_KEY, googleLogin.accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
@@ -182,8 +192,13 @@ export const loginSlice = createSlice({
           );
         }
       })
-      .addCase(googleLogin.rejected, (state) => {
+      .addCase(googleLogin.rejected, (state, action) => {
         delete state.user;
+        if (action.error.message?.includes("No user found")) {
+          state.rejectedReason = LoginRejectedReason.NO_ACCOUNT_FOUND;
+        } else {
+          state.rejectedReason = LoginRejectedReason.FAILED;
+        }
         state.loginStatus = LoginStatus.FAILED;
       })
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
