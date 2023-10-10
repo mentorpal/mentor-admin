@@ -112,7 +112,7 @@ function LoginPage(props: {
           {loginState.rejectedReason ===
           LoginRejectedReason.NO_ACCOUNT_FOUND ? (
             <div>
-              No account found, please <a href="/signup">sign up</a>.
+              No account found, please <a href="/admin/signup">sign up</a>.
             </div>
           ) : (
             "Error signing in"
