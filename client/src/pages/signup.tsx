@@ -15,6 +15,7 @@ import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import withLocation from "wrap-with-location";
 import { fetchMentorConfig } from "api";
 import { MentorConfig } from "types-gql";
+import { LoginType } from "types";
 
 /**
  * Separate functional component in order for useGoogleLogin to be nested under GoogleOAuthProvider (This provider did not want to work in gatsby-browser, bug reported by others)
@@ -38,14 +39,24 @@ function PrimaryDisplayHolder(): JSX.Element {
   }, []);
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
-      loginWithGoogle(tokenResponse.access_token, signupCode);
+      loginWithGoogle(
+        tokenResponse.access_token,
+        signupCode,
+        LoginType.SIGN_UP
+      );
     },
   });
   if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
     return <HomePage />;
   } else {
     // Check for url param
-    return <LoginPage onGoogleLogin={login} mentorConfig={mentorConfig} />;
+    return (
+      <LoginPage
+        onGoogleLogin={login}
+        mentorConfig={mentorConfig}
+        loginType={LoginType.SIGN_UP}
+      />
+    );
   }
 }
 

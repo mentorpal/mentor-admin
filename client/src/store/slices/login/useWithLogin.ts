@@ -8,13 +8,18 @@ import { useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "store/hooks";
 import { ACCESS_TOKEN_KEY, localStorageGet } from "store/local-storage";
 import * as loginActions from ".";
+import { LoginType } from "types";
 
 interface UseWithLogin {
   state: loginActions.LoginState;
   login: (accessToken: string) => void;
   userSawSplashScreen: (accessToken: string) => void;
   userSawTooltips: (accessToken: string) => void;
-  loginWithGoogle: (googleAccessToken: string, signupCode?: string) => void;
+  loginWithGoogle: (
+    googleAccessToken: string,
+    signupCode?: string,
+    loginType?: LoginType
+  ) => void;
   logout: () => void;
 }
 
@@ -45,14 +50,22 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
-  function loginWithGoogle(googleAccessToken: string, signupCode?: string) {
+  function loginWithGoogle(
+    googleAccessToken: string,
+    signupCode?: string,
+    loginType?: LoginType
+  ) {
     if (
       state.loginStatus === loginActions.LoginStatus.NONE ||
       state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
       state.loginStatus === loginActions.LoginStatus.FAILED
     ) {
       dispatch(
-        loginActions.googleLogin({ accessToken: googleAccessToken, signupCode })
+        loginActions.googleLogin({
+          accessToken: googleAccessToken,
+          signupCode,
+          loginType,
+        })
       );
     }
   }
