@@ -56,6 +56,7 @@ export function useWithUploadStatus(
     useWithUploadInitStatusActions();
   const { newUploadsData } = useWithUploadStatusActions();
   const dispatch = useAppDispatch();
+  const [deletedUploadTasks, setDeletedUploadTasks] = useState<string[]>([]);
 
   const mentorId = getData((state) => state.data?._id);
   const CancelToken = axios.CancelToken;
@@ -84,9 +85,30 @@ export function useWithUploadStatus(
       return;
     }
     uploads.forEach((u) => {
-      if (areAllTasksDone(u) || isATaskCancelled(u)) {
-        deleteUploadTask(u.question, accessToken, mentorId).catch((error) => {
-          console.error(error);
+      const taskDeletedFromDb = deletedUploadTasks.includes(u.question);
+      if (!taskDeletedFromDb && (areAllTasksDone(u) || isATaskCancelled(u))) {
+        deleteUploadTask(u.question, accessToken, mentorId)
+          .catch((error) => {
+            console.error(error);
+          })
+          .then(() => {
+            setDeletedUploadTasks((prevState) => {
+              if (prevState.includes(u.question)) {
+                return prevState;
+              }
+              return [...prevState, u.question];
+            });
+          });
+      } else if (
+        taskDeletedFromDb &&
+        !areAllTasksDone(u) &&
+        !isATaskCancelled(u)
+      ) {
+        setDeletedUploadTasks((prevState) => {
+          if (!prevState.includes(u.question)) {
+            return prevState;
+          }
+          return prevState.filter((q) => q !== u.question);
         });
       }
       if (isATaskFailed(u)) {
