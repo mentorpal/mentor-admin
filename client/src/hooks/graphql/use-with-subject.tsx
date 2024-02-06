@@ -22,7 +22,7 @@ import {
   Question,
   SubjectTypes,
 } from "types";
-import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -235,7 +235,7 @@ export function useWithSubject(
             ? editedData.categories.find((c) => c.id == args.categoryId)
             : undefined,
           topics: [],
-          useDefaultTopics: true,
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     });

@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -33,6 +34,7 @@ export const mentor: Mentor = {
       },
       topics: [],
       category: null,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
   ],
   subjects: [
@@ -70,6 +72,7 @@ export const mentor: Mentor = {
             name: "Category",
             description: "A category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -81,6 +84,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
@@ -114,6 +118,7 @@ export const mentor: Mentor = {
             clientId: "",
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -126,6 +131,7 @@ export const mentor: Mentor = {
             clientId: "",
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -138,6 +144,7 @@ export const mentor: Mentor = {
             clientId: "",
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
           category: {
             defaultTopics: [],
             id: "category2",

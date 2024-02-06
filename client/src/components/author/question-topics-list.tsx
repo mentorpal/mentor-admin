@@ -15,19 +15,22 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   ListSubheader,
-  FormControlLabel,
-  Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Category, Topic } from "types";
 import { RowDiv } from "components/styled-components";
+import { UseDefaultTopics } from "types-gql";
 
 export function TopicsList(props: {
   classes: Record<string, string>;
-  useDefaultTopics: boolean;
-  updateUseDefaultTopics: (val: boolean) => void;
+  useDefaultTopics: UseDefaultTopics;
+  updateUseDefaultTopics: (val: UseDefaultTopics) => void;
   allTopics: Topic[];
   questionTopics: Topic[];
   questionCategory?: Category;
@@ -42,7 +45,10 @@ export function TopicsList(props: {
     questionCategory,
   } = props;
   const [topicSearch, setTopicSearch] = useState<Topic>();
-  console.log(questionCategory);
+  const shouldUseDefaultTopics =
+    useDefaultTopics === UseDefaultTopics.TRUE ||
+    (useDefaultTopics === UseDefaultTopics.DEFAULT &&
+      questionTopics.length === 0);
 
   function addTopic(val: Topic) {
     props.updateTopics([...questionTopics, val]);
@@ -67,25 +73,30 @@ export function TopicsList(props: {
       }}
     >
       <List data-cy="question-topics-list">
-        <ListSubheader>Topics</ListSubheader>
-        {questionCategory ? (
-          <RowDiv>
-            <FormControlLabel
-              label="Use Default Topics"
-              style={{ height: "fit-content", textAlign: "center", margin: 0 }}
-              control={
-                <Checkbox
-                  checked={useDefaultTopics}
-                  indeterminate={false}
-                  onChange={(e) => {
-                    updateUseDefaultTopics(e.target.checked);
-                  }}
-                />
-              }
-            />
-          </RowDiv>
-        ) : undefined}
-        {useDefaultTopics &&
+        <RowDiv>
+          <ListSubheader>Topics</ListSubheader>
+          {questionCategory ? (
+            <FormControl variant="standard" style={{ width: "150px" }}>
+              <InputLabel id="select-default-topic-config-label">
+                Use Default Topics
+              </InputLabel>
+              <Select
+                labelId="select-default-topic-config-label"
+                id="select-default-topic-config"
+                value={useDefaultTopics}
+                label="Age"
+                onChange={(e) =>
+                  updateUseDefaultTopics(e.target.value as UseDefaultTopics)
+                }
+              >
+                <MenuItem value={UseDefaultTopics.DEFAULT}>DEFAULT</MenuItem>
+                <MenuItem value={UseDefaultTopics.TRUE}>TRUE</MenuItem>
+                <MenuItem value={UseDefaultTopics.FALSE}>FALSE</MenuItem>
+              </Select>
+            </FormControl>
+          ) : undefined}
+        </RowDiv>
+        {shouldUseDefaultTopics &&
           questionCategory?.defaultTopics?.map((t, i) => {
             const topicName =
               allTopics.find((topic) => topic.id === t)?.name ||

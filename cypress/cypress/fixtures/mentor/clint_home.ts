@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -60,6 +61,7 @@ export const mentor: Mentor = {
             name: "Category",
             description: "A category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -71,6 +73,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
@@ -104,6 +107,7 @@ export const mentor: Mentor = {
             minVideoLength: 10,
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -116,6 +120,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -134,6 +139,7 @@ export const mentor: Mentor = {
             name: "Category2",
             description: "Another category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },

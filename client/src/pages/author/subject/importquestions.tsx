@@ -32,7 +32,7 @@ import {
   UtteranceName,
 } from "types";
 import { navigate } from "gatsby";
-import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import ImportedQuestionItem from "components/author/import-questions/imported-question-item";
 import IgnoredQuestionItem from "components/author/import-questions/ignored-question-item";
 import Papa from "papaparse";
@@ -280,6 +280,7 @@ function ImportQuestionsDisplay(props: {
         },
         category: existingCategory,
         topics: existingTopic ? [existingTopic] : [],
+        useDefaultTopics: UseDefaultTopics.DEFAULT,
       };
       newQuestionsToAdd.push(newQuestion);
     });
