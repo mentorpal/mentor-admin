@@ -5,5 +5,5 @@ COPY package-lock.json .
 COPY tsconfig.json .
 RUN npm ci 
 COPY cypress ./cypress
-COPY cypress.json .
+COPY cypress.config.ts .
 ENTRYPOINT ["tail", "-f", "/dev/null"]
