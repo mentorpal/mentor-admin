@@ -40,6 +40,7 @@ export const mentor: Mentor = {
   ],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       type: SubjectTypes.SUBJECT,
@@ -50,10 +51,12 @@ export const mentor: Mentor = {
         {
           id: "category1",
           name: "Category1",
+          defaultTopics: [],
           description: "A category",
         },
         {
           id: "category3",
+          defaultTopics: [],
           name: "Category3",
           description: "",
         },
@@ -85,6 +88,7 @@ export const mentor: Mentor = {
             id: "category",
             name: "Category",
             description: "A category",
+            defaultTopics: [],
           },
         },
         {
@@ -101,6 +105,7 @@ export const mentor: Mentor = {
       ],
     },
     {
+      isArchived: false,
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
@@ -111,11 +116,13 @@ export const mentor: Mentor = {
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
         {
           id: "category4",
           name: "Category4",
           description: "",
+          defaultTopics: [],
         },
       ],
       topics: [
@@ -172,6 +179,7 @@ export const mentor: Mentor = {
             id: "category2",
             name: "Category2",
             description: "Another category",
+            defaultTopics: [],
           },
         },
         {
@@ -189,6 +197,7 @@ export const mentor: Mentor = {
             id: "category2",
             name: "Category2",
             description: "Another category",
+            defaultTopics: [],
           },
         },
       ],

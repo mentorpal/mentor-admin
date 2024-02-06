@@ -37,6 +37,7 @@ export const mentor: Mentor = {
   ],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       type: SubjectTypes.SUBJECT,
@@ -47,6 +48,7 @@ export const mentor: Mentor = {
         {
           id: "category",
           name: "Category",
+          defaultTopics: [],
           description: "A category",
         },
       ],
@@ -63,6 +65,7 @@ export const mentor: Mentor = {
           },
           topics: [],
           category: {
+            defaultTopics: [],
             id: "category",
             name: "Category",
             description: "A category",
@@ -82,6 +85,7 @@ export const mentor: Mentor = {
       ],
     },
     {
+      isArchived: false,
       _id: "repeat_after_me",
       name: "Repeat After Me",
       type: SubjectTypes.UTTERANCES,
@@ -89,6 +93,7 @@ export const mentor: Mentor = {
       isRequired: true,
       categories: [
         {
+          defaultTopics: [],
           id: "category2",
           name: "Category2",
           description: "Another category",
@@ -106,6 +111,7 @@ export const mentor: Mentor = {
             paraphrases: [],
             mentorType: MentorType.VIDEO,
             minVideoLength: 10,
+            clientId: "",
           },
           topics: [],
         },
@@ -117,6 +123,7 @@ export const mentor: Mentor = {
             type: QuestionType.UTTERANCE,
             name: UtteranceName.INTRO,
             paraphrases: [],
+            clientId: "",
           },
           topics: [],
         },
@@ -128,9 +135,15 @@ export const mentor: Mentor = {
             type: QuestionType.UTTERANCE,
             name: UtteranceName.OFF_TOPIC,
             paraphrases: [],
+            clientId: "",
           },
           topics: [],
-          category: { id: "category2" },
+          category: {
+            defaultTopics: [],
+            id: "category2",
+            name: "Category2",
+            description: "Another category",
+          },
         },
       ],
     },

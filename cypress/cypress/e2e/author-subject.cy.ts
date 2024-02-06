@@ -9,6 +9,7 @@ import {
   Connection,
   Question,
   QuestionType,
+  Subject,
   SubjectTypes,
   UserRole,
 } from "../support/types";
@@ -18,9 +19,10 @@ const mentor = {
   _id: "clint",
 };
 
-const subject = {
+const subject: Subject = {
   _id: "background",
   name: "Background",
+  isArchived: false,
   type: SubjectTypes.SUBJECT,
   description:
     "These questions will ask general questions about your background that might be relevant to how people understand your career.",
@@ -30,6 +32,7 @@ const subject = {
       id: "c1",
       name: "Category1",
       description: "1",
+      defaultTopics: [],
     },
   ],
   topics: [
@@ -48,9 +51,10 @@ const subject = {
         name: "",
         paraphrases: ["paraphrase1"],
         mentor: null,
+        clientId: "",
       },
-      topics: [{ id: "t1" }],
-      category: { id: "c1" },
+      topics: [{ id: "t1", name: "", description: "" }],
+      category: { id: "c1", name: "", description: "", defaultTopics: [] },
     },
     {
       question: {
@@ -60,6 +64,7 @@ const subject = {
         name: "",
         paraphrases: [],
         mentor: "clint",
+        clientId: "",
       },
       topics: [],
       category: null,
@@ -72,6 +77,7 @@ const subject = {
         name: "",
         paraphrases: [],
         mentor: "notclint",
+        clientId: "",
       },
       topics: [],
       category: null,
@@ -79,7 +85,7 @@ const subject = {
   ],
 };
 
-const utteranceSubject = {
+const utteranceSubject: Subject = {
   ...subject,
   type: SubjectTypes.UTTERANCES,
   isArchived: false,
@@ -645,6 +651,7 @@ describe("Edit subject", () => {
                 id: "c2",
                 name: "category 2",
                 description: "2",
+                defaultTopics: [],
               },
             ],
           },
@@ -660,6 +667,7 @@ describe("Edit subject", () => {
                   {
                     id: "c2",
                     name: "category 2",
+                    defaultTopics: [],
                     description: "2",
                   },
                 ],
@@ -767,6 +775,7 @@ describe("Edit subject", () => {
               {
                 id: "c1",
                 name: "Category1 Edited",
+                defaultTopics: [],
                 description: "1 Edited",
               },
             ],
