@@ -159,7 +159,7 @@ export function CategoryListItem(props: {
               if (!topic) {
                 return null;
               }
-              let topicName =
+              const topicName =
                 topic.categoryParent === category.id
                   ? `${category.name}`
                   : topic.name || "";

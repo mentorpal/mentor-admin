@@ -49,7 +49,7 @@ export function TopicCard(props: {
             label="Topic"
             variant="outlined"
             value={
-              Boolean(topic.categoryParent)
+              topic.categoryParent
                 ? `(Category Default) ${topic.name}`
                 : topic.name
             }
@@ -118,7 +118,6 @@ export function TopicsList(props: {
 }): JSX.Element {
   const { classes, topics } = props;
   const { height: windowHeight } = useWithWindowSize();
-  const topicsToDisplay = topics.filter((t) => !t.categoryParent);
 
   function onDragEnd(result: DropResult) {
     if (!result.destination) {

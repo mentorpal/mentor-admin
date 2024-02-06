@@ -27,7 +27,6 @@ import {
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 import { SubjectQuestionGQL } from "types-gql";
-import questions from "store/slices/questions";
 
 export function QuestionEditCard(props: {
   subjectType: SubjectTypes;
