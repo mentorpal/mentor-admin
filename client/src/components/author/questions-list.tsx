@@ -139,6 +139,7 @@ export function QuestionsList(props: {
                 >
                   <CategoryListItem
                     category={category}
+                    topics={props.topics}
                     questions={questions.filter(
                       (q) => q.category?.id === category.id
                     )}

@@ -123,12 +123,14 @@ export interface SubjectQuestionGQL {
   question: Question;
   category?: Category;
   topics: Topic[];
+  useDefaultTopics?: boolean;
 }
 
 export interface AddOrUpdateQuestionGQL {
   question: string;
   category?: string;
   topics: string[];
+  useDefaultTopics?: boolean;
 }
 
 export interface ExternalVideoIdsGQL {

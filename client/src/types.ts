@@ -265,12 +265,14 @@ export interface Category {
   id: string;
   name: string;
   description: string;
+  defaultTopics: string[];
 }
 
 export interface Topic {
   id: string;
   name: string;
   description: string;
+  categoryParent?: string;
 }
 
 export interface Question {

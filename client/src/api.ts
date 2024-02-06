@@ -473,13 +473,16 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
               id
               name
               description
+              defaultTopics
             }
             topics {
               id
               name
               description
+              categoryParent
             }
             questions {
+              useDefaultTopics
               question {
                 _id
                 question
@@ -494,11 +497,13 @@ export async function fetchSubject(id: string): Promise<SubjectGQL> {
                 id
                 name
                 description
+                defaultTopics
               }
               topics {
                 id
                 name
                 description
+                categoryParent
               }
             }
           }
@@ -538,13 +543,16 @@ export async function fetchSubjects(
                 id
                 name
                 description
+                defaultTopics
               }
               topics {
                 id
                 name
                 description
+                categoryParent
               }
               questions {
+                useDefaultTopics
                 question {
                   _id
                   question
@@ -559,12 +567,14 @@ export async function fetchSubjects(
                   id
                   name
                   description
+                  defaultTopics
                 }
                 topics {
                   id
                   name
                   description
-                }
+                categoryParent
+              }
               }
             }
           }
@@ -609,13 +619,16 @@ export async function updateSubject(
               id
               name
               description
+              defaultTopics
             }
             topics {
               id
               name
-              description
+                categoryParent
+                description
             }
             questions {
+              useDefaultTopics
               question {
                 _id
                 question
@@ -630,11 +643,13 @@ export async function updateSubject(
                 id
                 name
                 description
+                defaultTopics
               }
               topics {
                 id
                 name
                 description
+                categoryParent
               }
             }
           }
@@ -674,6 +689,7 @@ export async function addOrUpdateSubjectQuestions(
             question
             category
             topics
+            useDefaultTopics
           }
         }
       }
@@ -1104,13 +1120,16 @@ export async function fetchMentorById(
               id
               name
               description
+              defaultTopics
             }
             topics {
               id
               name
               description
+              categoryParent
             }
             questions(mentor:$mentor) {
+              useDefaultTopics
               question {
                 _id
                 clientId
@@ -1119,10 +1138,12 @@ export async function fetchMentorById(
                 id
                 name
                 description
+                defaultTopics
               }
               topics {
                 id
                 name
+                categoryParent
                 description
               }
             }
@@ -2222,14 +2243,17 @@ export async function exportMentor(
               topics {
                 id
                 name
+                categoryParent
                 description
               }
               categories {
                 id
                 name
                 description
+                defaultTopics
               }
               questions {
+                useDefaultTopics
                 question {
                   _id
                   question
@@ -2244,11 +2268,13 @@ export async function exportMentor(
                   id
                   name
                   description
+                  defaultTopics
                 }
                 topics {
                   id
                   name
-                  description
+                categoryParent
+                description
                 }
               }
             }
@@ -2358,14 +2384,17 @@ export async function importMentorPreview(
                 topics {
                   id
                   name
-                  description
+                categoryParent
+                description
                 }
                 categories {
                   id
                   name
                   description
+                  defaultTopics
                 }
                 questions {
+                  useDefaultTopics
                   question {
                     _id
                     question
@@ -2380,11 +2409,13 @@ export async function importMentorPreview(
                     id
                     name
                     description
+                    defaultTopics
                   }
                   topics {
                     id
                     name
-                    description
+                categoryParent
+                description
                   }
                 }
               }
@@ -2396,7 +2427,8 @@ export async function importMentorPreview(
                 isRequired
                 isArchived
                 topics {
-                  id
+                categoryParent
+                id
                   name
                   description
                 }
@@ -2404,8 +2436,10 @@ export async function importMentorPreview(
                   id
                   name
                   description
+                  defaultTopics
                 }
                 questions {
+                  useDefaultTopics
                   question {
                     _id
                     question
@@ -2420,11 +2454,13 @@ export async function importMentorPreview(
                     id
                     name
                     description
+                    defaultTopics
                   }
                   topics {
                     id
                     name
-                    description
+                categoryParent
+                description
                   }
                 }
               }

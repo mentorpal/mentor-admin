@@ -27,6 +27,7 @@ import {
 import ParaphraseList from "components/author/question-paraphrase-list";
 import TopicsList from "components/author/question-topics-list";
 import { SubjectQuestionGQL } from "types-gql";
+import questions from "store/slices/questions";
 
 export function QuestionEditCard(props: {
   subjectType: SubjectTypes;
@@ -178,9 +179,17 @@ export function QuestionEditCard(props: {
         <TopicsList
           classes={classes}
           allTopics={props.topics}
+          updateUseDefaultTopics={(val: boolean) =>
+            props.updateQuestion({
+              ...question,
+              useDefaultTopics: val,
+            })
+          }
+          useDefaultTopics={Boolean(question.useDefaultTopics)}
           questionTopics={question.topics.filter((t) =>
             props.topics.map((t) => t.id).includes(t.id)
           )}
+          questionCategory={question.category}
           updateTopics={(t: Topic[]) =>
             props.updateQuestion({ ...question, topics: t })
           }
