@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 import { status1 } from "../mentor";
@@ -43,6 +44,7 @@ export const hasSubjects: Mentor = {
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
       ],
       topics: [],
@@ -60,6 +62,7 @@ export const hasSubjects: Mentor = {
             minVideoLength: 10,
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -72,6 +75,7 @@ export const hasSubjects: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -84,6 +88,7 @@ export const hasSubjects: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
@@ -106,7 +111,7 @@ export const hasIdle: Mentor = {
         name: UtteranceName.IDLE,
         paraphrases: [],
       },
-      webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+      webMedia: { url: "video.mp4", tag: "intro", type: "video", vttText: "" },
       transcript: "",
       status: Status.COMPLETE,
     },
@@ -129,7 +134,7 @@ export const hasIntroNoTranscript: Mentor = {
         name: UtteranceName.INTRO,
         paraphrases: [],
       },
-      webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+      webMedia: { url: "video.mp4", tag: "intro", type: "video", vttText: "" },
       transcript: "",
       status: Status.NONE,
     },

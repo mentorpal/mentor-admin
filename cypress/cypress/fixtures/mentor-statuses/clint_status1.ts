@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -27,6 +28,7 @@ export const mentor: Mentor = {
   keywords: [],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       description:
@@ -38,6 +40,7 @@ export const mentor: Mentor = {
           id: "category",
           name: "Category",
           description: "A category",
+          defaultTopics: [],
         },
       ],
       topics: [],
@@ -56,7 +59,9 @@ export const mentor: Mentor = {
             id: "category",
             name: "Category",
             description: "A category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -68,10 +73,12 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
     {
+      isArchived: false,
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
@@ -82,6 +89,7 @@ export const mentor: Mentor = {
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
       ],
       topics: [],
@@ -99,6 +107,7 @@ export const mentor: Mentor = {
             minVideoLength: 10,
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -111,6 +120,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -127,7 +137,9 @@ export const mentor: Mentor = {
             id: "category2",
             name: "Category2",
             description: "Another category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
@@ -175,8 +187,8 @@ export const mentor: Mentor = {
         name: UtteranceName.IDLE,
         paraphrases: [],
       },
-      media: [{ url: "video.mp4", tag: "idle", type: "video" }],
-      webMedia: { url: "video.mp4", tag: "idle", type: "video" },
+      media: [{ url: "video.mp4", tag: "idle", type: "video", vttText: "" }],
+      webMedia: { url: "video.mp4", tag: "idle", type: "video", vttText: "" },
       transcript: "",
       status: Status.COMPLETE,
     },
@@ -192,7 +204,7 @@ export const mentor: Mentor = {
         name: UtteranceName.INTRO,
         paraphrases: [],
       },
-      webMedia: { url: "video.mp4", tag: "intro", type: "video" },
+      webMedia: { url: "video.mp4", tag: "intro", type: "video", vttText: "" },
       transcript: "My name is Clint Anderson I'm a Nuclear Electrician's Mate",
       status: Status.COMPLETE,
     },
@@ -208,7 +220,12 @@ export const mentor: Mentor = {
         name: UtteranceName.OFF_TOPIC,
         paraphrases: [],
       },
-      webMedia: { url: "video.mp4", tag: "off_topic", type: "video" },
+      webMedia: {
+        url: "video.mp4",
+        tag: "off_topic",
+        type: "video",
+        vttText: "",
+      },
       transcript:
         "I couldn't understand the question. Try asking me something else.'",
       status: Status.COMPLETE,

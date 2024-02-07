@@ -19,21 +19,26 @@ import {
   Mentor,
   Status,
   Subject,
+  UseDefaultTopics,
 } from "../support/types";
 import { login as loginDefault } from "../fixtures/login";
-import { mentorConfig, videoMentorWithConfig } from "./followups.spec";
 import {
   completeMentor,
   taskListBuild,
   uploadTaskMediaBuild,
 } from "../support/helpers";
-import { videoMentor } from "../fixtures/recording/video_mentors";
+import {
+  mentorConfig,
+  videoMentor,
+  videoMentorWithConfig,
+} from "../fixtures/recording/video_mentors";
+// import { videoMentorWithConfig } from "./followups.cy";
 
 const baseMock = {
   mentor: setup0,
 };
 
-const subjectData = [
+const subjectData: Subject[] = [
   {
     _id: "idle_and_initial_recordings",
     name: "Idle and Initial Recordings",
@@ -46,6 +51,7 @@ const subjectData = [
         id: "category2",
         name: "Category2",
         description: "Another category",
+        defaultTopics: [],
       },
     ],
     topics: [],
@@ -63,6 +69,7 @@ const subjectData = [
           minVideoLength: 10,
         },
         topics: [],
+        useDefaultTopics: UseDefaultTopics.DEFAULT,
       },
       {
         question: {
@@ -75,6 +82,7 @@ const subjectData = [
           paraphrases: [],
         },
         topics: [],
+        useDefaultTopics: UseDefaultTopics.DEFAULT,
       },
       {
         question: {
@@ -91,7 +99,9 @@ const subjectData = [
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
+        useDefaultTopics: UseDefaultTopics.DEFAULT,
       },
       {
         question: {
@@ -108,7 +118,9 @@ const subjectData = [
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
+        useDefaultTopics: UseDefaultTopics.DEFAULT,
       },
     ],
   },
@@ -1109,6 +1121,7 @@ describe("Setup", () => {
             categories: [],
             topics: [],
             questions: [],
+            isArchived: false,
           },
           subjects: [
             ...setup3.subjects,
@@ -1122,6 +1135,7 @@ describe("Setup", () => {
               categories: [],
               topics: [],
               questions: [],
+              isArchived: false,
             },
           ],
         },

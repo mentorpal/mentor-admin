@@ -13,6 +13,7 @@ import {
 import {
   MediaType,
   Mentor,
+  MentorConfig,
   MentorType,
   QuestionType,
   Status,
@@ -56,6 +57,7 @@ export const videoMentor: Mentor = completeMentor({
           type: MediaType.VIDEO,
           tag: "web",
           url: "A2_1_1.mp4",
+          vttText: "",
         },
       ],
       status: Status.COMPLETE,
@@ -77,6 +79,7 @@ export const videoMentor: Mentor = completeMentor({
           type: MediaType.VIDEO,
           tag: "web",
           url: "A3_1_1.mp4",
+          vttText: "",
         },
       ],
       status: Status.COMPLETE,
@@ -98,6 +101,7 @@ export const videoMentor: Mentor = completeMentor({
           type: MediaType.VIDEO,
           tag: "web",
           url: "A4_1_1.mp4",
+          vttText: "",
         },
       ],
       status: Status.COMPLETE,
@@ -117,7 +121,12 @@ export const videoMentor: Mentor = completeMentor({
             type: QuestionType.QUESTION,
             paraphrases: [],
           },
-          category: { id: "cat", name: "cat", description: "cat" },
+          category: {
+            id: "cat",
+            name: "cat",
+            description: "cat",
+            defaultTopics: [],
+          },
         }),
         completeSubjectQuestion({
           question: {
@@ -128,10 +137,17 @@ export const videoMentor: Mentor = completeMentor({
             type: QuestionType.QUESTION,
             paraphrases: [],
           },
-          category: { id: "cat", name: "cat", description: "cat" },
+          category: {
+            id: "cat",
+            name: "cat",
+            description: "cat",
+            defaultTopics: [],
+          },
         }),
       ],
-      categories: [{ id: "cat", name: "cat", description: "cat" }],
+      categories: [
+        { id: "cat", name: "cat", description: "cat", defaultTopics: [] },
+      ],
     }),
     completeSubject({
       _id: "subject_2",
@@ -183,3 +199,20 @@ export const videoQuestions = [
     name: "_IDLE_",
   }),
 ];
+
+export const mentorConfig: MentorConfig = {
+  configId: "testconfigid",
+  subjects: ["fakesubject"],
+  publiclyVisible: true,
+  mentorType: MentorType.VIDEO,
+  orgPermissions: [],
+  loginHeaderText: "test login header text",
+  welcomeSlideHeader: "test welcome slide header text",
+  welcomeSlideText: "test welcome slide body text",
+  disableMyGoalSlide: true,
+  disableFollowups: true,
+};
+export const videoMentorWithConfig: Mentor = {
+  ...videoMentor,
+  mentorConfig,
+};

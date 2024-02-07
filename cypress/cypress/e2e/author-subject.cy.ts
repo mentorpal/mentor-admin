@@ -11,6 +11,7 @@ import {
   QuestionType,
   Subject,
   SubjectTypes,
+  UseDefaultTopics,
   UserRole,
 } from "../support/types";
 import { login as loginDefault } from "../fixtures/login";
@@ -55,6 +56,7 @@ const subject: Subject = {
       },
       topics: [{ id: "t1", name: "", description: "" }],
       category: { id: "c1", name: "", description: "", defaultTopics: [] },
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
     {
       question: {
@@ -68,6 +70,7 @@ const subject: Subject = {
       },
       topics: [],
       category: null,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
     {
       question: {
@@ -81,6 +84,7 @@ const subject: Subject = {
       },
       topics: [],
       category: null,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
   ],
 };
@@ -792,6 +796,7 @@ describe("Edit subject", () => {
                     id: "c1",
                     name: "Category1 Edited",
                     description: "1 Edited",
+                    defaultTopics: [],
                   },
                 ],
               },

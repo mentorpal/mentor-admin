@@ -6,7 +6,7 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { cySetup, cyMockDefault, mockGQL } from "../support/functions";
 import mentor from "../fixtures/mentor/clint_new";
-import { mentorConfig } from "./followups.spec";
+import { mentorConfig } from "../fixtures/recording/video_mentors";
 
 describe("Login", () => {
   describe("redirects to login page if the user is not logged in", () => {

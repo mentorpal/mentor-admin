@@ -23,8 +23,8 @@ import {
 import { setup0, setup3, setup4 } from "../fixtures/mentor";
 import questions from "../fixtures/questions";
 import loginUserNotSeenSplash from "../fixtures/login-user-not-viewed-splash";
-import { mentorConfig } from "./followups.spec";
 import { taskListBuild, uploadTaskMediaBuild } from "../support/helpers";
+import { mentorConfig } from "../fixtures/recording/video_mentors";
 
 const clintWithConfig: Mentor = {
   ...clint,

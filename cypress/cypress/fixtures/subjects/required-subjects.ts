@@ -9,6 +9,7 @@ import {
   QuestionType,
   Subject,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -17,6 +18,7 @@ export const subjects: Connection<Subject> = {
     {
       cursor: "",
       node: {
+        isArchived: false,
         _id: "idle_and_initial_recordings",
         name: "Idle and Initial Recordings",
         type: SubjectTypes.UTTERANCES,
@@ -37,6 +39,7 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
           {
             question: {
@@ -49,6 +52,7 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
           {
             question: {
@@ -61,6 +65,7 @@ export const subjects: Connection<Subject> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
         ],
       },

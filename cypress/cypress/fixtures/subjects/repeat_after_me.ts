@@ -8,6 +8,7 @@ import {
   QuestionType,
   Subject,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -31,6 +32,7 @@ export const subject: Partial<Subject> = {
         paraphrases: [],
       },
       topics: [],
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
     {
       question: {
@@ -43,6 +45,7 @@ export const subject: Partial<Subject> = {
         paraphrases: [],
       },
       topics: [],
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
     {
       question: {
@@ -55,6 +58,7 @@ export const subject: Partial<Subject> = {
         paraphrases: [],
       },
       topics: [],
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
   ],
 };

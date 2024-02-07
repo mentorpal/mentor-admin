@@ -9,6 +9,7 @@ import {
   QuestionType,
   Subject,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -37,6 +38,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
           {
             question: {
@@ -48,6 +50,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
         ],
       },
@@ -76,6 +79,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
           {
             question: {
@@ -88,6 +92,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
           {
             question: {
@@ -100,6 +105,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
         ],
       },
@@ -128,6 +134,7 @@ export const subjects: Connection<Partial<Subject>> = {
               paraphrases: [],
             },
             topics: [],
+            useDefaultTopics: UseDefaultTopics.DEFAULT,
           },
         ],
       },
