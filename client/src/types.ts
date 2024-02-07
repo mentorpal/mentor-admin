@@ -195,6 +195,7 @@ export interface Mentor {
   dirtyReason: MentorDirtyReason;
   isPublicApproved: boolean;
   isPrivate: boolean;
+  directLinkPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
   lockedToConfig?: boolean;

@@ -340,6 +340,7 @@ export async function fetchUsers(
                 isArchived
                 isAdvanced
                 isPublicApproved
+                directLinkPrivate
                 lastTrainStatus
                 lockedToConfig
                 mentorConfig{
@@ -1074,6 +1075,7 @@ export async function fetchMentorById(
           isPrivate
           isArchived
           isPublicApproved
+          directLinkPrivate
           isAdvanced
           hasVirtualBackground
           virtualBackgroundUrl
@@ -1632,9 +1634,9 @@ export async function updateMentorPrivacy(
 ): Promise<boolean> {
   return execGql<boolean>(
     {
-      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, $orgPermissions: [OrgPermissionInputType]) {
+      query: `mutation UpdateMentorPrivacy($mentorId: ID!, $isPrivate: Boolean!, $orgPermissions: [OrgPermissionInputType], $directLinkPrivate: Boolean) {
         me {
-          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate, orgPermissions: $orgPermissions)
+          updateMentorPrivacy(mentorId: $mentorId, isPrivate: $isPrivate, orgPermissions: $orgPermissions, directLinkPrivate: $directLinkPrivate)
         }
       }`,
       variables: {
@@ -1647,6 +1649,9 @@ export async function updateMentorPrivacy(
               editPermission: op.editPermission,
             }))
           : [],
+        ...(mentor.directLinkPrivate !== undefined
+          ? { directLinkPrivate: mentor.directLinkPrivate }
+          : {}),
       },
     },
     { dataPath: ["me", "updateMentorPrivacy"], accessToken }
@@ -2642,6 +2647,7 @@ export async function fetchMentors(
                 isPrivate
                 isArchived
                 isPublicApproved
+                directLinkPrivate
                 isAdvanced
                 orgPermissions {
                   orgId
