@@ -12,11 +12,12 @@ import { builtMentor } from "./recommender-incomplete-phase-statuses";
 export const hasSubjectQuestionsOver20 = (): [Mentor, Question[]] => {
   const { questions: newQuestions, answers: newAnswers } =
     getUniqueQuestionAndAnswer(15);
-  const newMentor = {
+  const newMentor: Mentor = {
     ...builtMentor,
     subjects: [
       ...builtMentor.subjects,
       {
+        isArchived: false,
         _id: "new_subject_1",
         name: "Subject 1",
         type: SubjectTypes.SUBJECT,
@@ -27,11 +28,13 @@ export const hasSubjectQuestionsOver20 = (): [Mentor, Question[]] => {
             id: "category1",
             name: "Category1",
             description: "A category",
+            defaultTopics: [],
           },
           {
             id: "category3",
             name: "Category3",
             description: "",
+            defaultTopics: [],
           },
         ],
         topics: [],

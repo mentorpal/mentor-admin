@@ -22,24 +22,7 @@ import {
   completeSubject,
   completeSubjectQuestion,
 } from "../support/helpers";
-import { videoMentor } from "../fixtures/recording/video_mentors";
-
-export const mentorConfig: MentorConfig = {
-  configId: "testconfigid",
-  subjects: ["fakesubject"],
-  publiclyVisible: true,
-  mentorType: MentorType.VIDEO,
-  orgPermissions: [],
-  loginHeaderText: "test login header text",
-  welcomeSlideHeader: "test welcome slide header text",
-  welcomeSlideText: "test welcome slide body text",
-  disableMyGoalSlide: true,
-  disableFollowups: true,
-};
-export const videoMentorWithConfig: Mentor = {
-  ...videoMentor,
-  mentorConfig,
-};
+import { mentorConfig } from "../fixtures/recording/video_mentors";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -50,7 +33,9 @@ const chatMentor: Mentor = completeMentor({
     completeSubject({
       _id: "background",
       name: "background",
-      categories: [{ id: "cat", name: "cat", description: "cat" }],
+      categories: [
+        { id: "cat", name: "cat", description: "cat", defaultTopics: [] },
+      ],
       questions: [
         completeSubjectQuestion({
           question: {
@@ -61,7 +46,12 @@ const chatMentor: Mentor = completeMentor({
             type: QuestionType.QUESTION,
             paraphrases: [],
           },
-          category: { id: "cat", name: "cat", description: "cat" },
+          category: {
+            id: "cat",
+            name: "cat",
+            description: "cat",
+            defaultTopics: [],
+          },
           topics: [],
         }),
         completeSubjectQuestion({

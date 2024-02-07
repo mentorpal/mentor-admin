@@ -13,7 +13,7 @@ import { urlBuild } from "helpers";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { Category, QuestionType, Subject, UtteranceName } from "types";
-import { SubjectQuestionGQL } from "types-gql";
+import { SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import {
   FollowupsPageStatusType,
   FollowupsPageState,
@@ -116,6 +116,7 @@ export function useWithFollowups(props: {
           },
           category: curCategory,
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         };
       }
     );

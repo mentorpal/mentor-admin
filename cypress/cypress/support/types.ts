@@ -161,22 +161,31 @@ export interface Subject {
   questions: SubjectQuestion[];
 }
 
+export enum UseDefaultTopics {
+  TRUE = "TRUE",
+  FALSE = "FALSE",
+  DEFAULT = "DEFAULT",
+}
+
 export interface SubjectQuestion {
   question: Question;
   category?: Category;
   topics: Topic[];
+  useDefaultTopics: UseDefaultTopics;
 }
 
 export interface Category {
   id: string;
   name: string;
   description: string;
+  defaultTopics: string[];
 }
 
 export interface Topic {
   id: string;
   name: string;
   description: string;
+  categoryParent?: string;
 }
 
 export interface Question {

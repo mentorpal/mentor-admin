@@ -97,6 +97,7 @@ describe("Import Questions", () => {
           id: "test-category",
           name: "test category",
           description: "test category",
+          defaultTopics: [],
         },
       ],
       topics: [

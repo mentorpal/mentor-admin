@@ -32,6 +32,7 @@ import { useWithWindowSize } from "hooks/use-with-window-size";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import { navigate } from "gatsby";
 import { TwoOptionDialog } from "components/dialog";
+import { RowDiv } from "components/styled-components";
 
 export function QuestionsList(props: {
   isSubjectEdited: boolean;
@@ -109,89 +110,95 @@ export function QuestionsList(props: {
 
   return (
     <div style={{ height: windowHeight - 250 }}>
-      <Grid
-        container
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          height: windowHeight - 350,
-          overflow: "auto",
-        }}
-      >
-        <Grid item xs={selectedQuestion ? 6 : 12}>
-          <DragDropContext onDragEnd={onDragEnd}>
-            <List data-cy="categories" className={classes.list}>
-              {props.categories.map((category, i) => (
-                <ListItem
-                  data-cy={`category-${i}`}
-                  key={category.id}
-                  onFocus={() => setSelectedCategory(category.id)}
-                  onBlur={(e) => {
-                    if (e.relatedTarget) {
-                      const element = e.relatedTarget as Element;
-                      if (element.getAttribute("data-cy") !== "add-question") {
+      <RowDiv>
+        <Grid
+          container
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            height: windowHeight - 350,
+            overflow: "auto",
+            width: selectedQuestion ? "50%" : "100%",
+          }}
+        >
+          <Grid item xs={12}>
+            <DragDropContext onDragEnd={onDragEnd}>
+              <List data-cy="categories" className={classes.list}>
+                {props.categories.map((category, i) => (
+                  <ListItem
+                    data-cy={`category-${i}`}
+                    key={category.id}
+                    onFocus={() => setSelectedCategory(category.id)}
+                    onBlur={(e) => {
+                      if (e.relatedTarget) {
+                        const element = e.relatedTarget as Element;
+                        if (
+                          element.getAttribute("data-cy") !== "add-question"
+                        ) {
+                          setSelectedCategory(undefined);
+                        }
+                      } else {
                         setSelectedCategory(undefined);
                       }
-                    } else {
-                      setSelectedCategory(undefined);
-                    }
-                  }}
-                >
-                  <CategoryListItem
-                    category={category}
-                    questions={questions.filter(
-                      (q) => q.category?.id === category.id
-                    )}
-                    selectedQuestion={selectedQuestion}
-                    selectedCategory={selectedCategory}
-                    removeCategory={props.removeCategory}
-                    updateCategory={props.editCategory}
-                    updateQuestion={props.editQuestion}
-                    removeQuestion={props.removeQuestion}
-                    selectQuestion={selectQuestion}
-                    deselectQuestion={() => selectQuestion(undefined)}
-                  />
-                </ListItem>
-              ))}
-            </List>
-            <Droppable droppableId="questions">
-              {(provided) => (
-                <List
-                  data-cy="questions"
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={classes.list}
-                >
-                  {uncategorizedQuestions.map((q, i) => (
-                    <Draggable
-                      key={`question-${q.question._id}`}
-                      draggableId={`question-${q.question._id}`}
-                      index={i}
-                    >
-                      {(provided) => (
-                        <ListItem
-                          data-cy={`question-${i}`}
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                        >
-                          <QuestionListItem
-                            question={q}
-                            isSelected={selectedQuestion === q.question._id}
-                            updateQuestion={props.editQuestion}
-                            removeQuestion={props.removeQuestion}
-                            selectQuestion={selectQuestion}
-                            deselectQuestion={() => selectQuestion(undefined)}
-                          />
-                        </ListItem>
+                    }}
+                  >
+                    <CategoryListItem
+                      category={category}
+                      topics={props.topics}
+                      questions={questions.filter(
+                        (q) => q.category?.id === category.id
                       )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </List>
-              )}
-            </Droppable>
-          </DragDropContext>
+                      selectedQuestion={selectedQuestion}
+                      selectedCategory={selectedCategory}
+                      removeCategory={props.removeCategory}
+                      updateCategory={props.editCategory}
+                      updateQuestion={props.editQuestion}
+                      removeQuestion={props.removeQuestion}
+                      selectQuestion={selectQuestion}
+                      deselectQuestion={() => selectQuestion(undefined)}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <Droppable droppableId="questions">
+                {(provided) => (
+                  <List
+                    data-cy="questions"
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={classes.list}
+                  >
+                    {uncategorizedQuestions.map((q, i) => (
+                      <Draggable
+                        key={`question-${q.question._id}`}
+                        draggableId={`question-${q.question._id}`}
+                        index={i}
+                      >
+                        {(provided) => (
+                          <ListItem
+                            data-cy={`question-${i}`}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <QuestionListItem
+                              question={q}
+                              isSelected={selectedQuestion === q.question._id}
+                              updateQuestion={props.editQuestion}
+                              removeQuestion={props.removeQuestion}
+                              selectQuestion={selectQuestion}
+                              deselectQuestion={() => selectQuestion(undefined)}
+                            />
+                          </ListItem>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </List>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </Grid>
         </Grid>
         {selectedQuestion ? (
           <Grid
@@ -199,6 +206,8 @@ export function QuestionsList(props: {
             xs={6}
             style={{
               overflow: "auto",
+              width: "50%",
+              height: windowHeight - 350,
             }}
           >
             <QuestionEditCard
@@ -213,7 +222,7 @@ export function QuestionsList(props: {
             />
           </Grid>
         ) : undefined}
-      </Grid>
+      </RowDiv>
       <Autocomplete
         data-cy="select-question"
         options={allQuestions || []}

@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -33,10 +34,12 @@ export const mentor: Mentor = {
       },
       topics: [],
       category: null,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
   ],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       type: SubjectTypes.SUBJECT,
@@ -47,6 +50,7 @@ export const mentor: Mentor = {
         {
           id: "category",
           name: "Category",
+          defaultTopics: [],
           description: "A category",
         },
       ],
@@ -63,10 +67,12 @@ export const mentor: Mentor = {
           },
           topics: [],
           category: {
+            defaultTopics: [],
             id: "category",
             name: "Category",
             description: "A category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -78,10 +84,12 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
     {
+      isArchived: false,
       _id: "repeat_after_me",
       name: "Repeat After Me",
       type: SubjectTypes.UTTERANCES,
@@ -89,6 +97,7 @@ export const mentor: Mentor = {
       isRequired: true,
       categories: [
         {
+          defaultTopics: [],
           id: "category2",
           name: "Category2",
           description: "Another category",
@@ -106,8 +115,10 @@ export const mentor: Mentor = {
             paraphrases: [],
             mentorType: MentorType.VIDEO,
             minVideoLength: 10,
+            clientId: "",
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -117,8 +128,10 @@ export const mentor: Mentor = {
             type: QuestionType.UTTERANCE,
             name: UtteranceName.INTRO,
             paraphrases: [],
+            clientId: "",
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -128,9 +141,16 @@ export const mentor: Mentor = {
             type: QuestionType.UTTERANCE,
             name: UtteranceName.OFF_TOPIC,
             paraphrases: [],
+            clientId: "",
           },
           topics: [],
-          category: { id: "category2" },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
+          category: {
+            defaultTopics: [],
+            id: "category2",
+            name: "Category2",
+            description: "Another category",
+          },
         },
       ],
     },

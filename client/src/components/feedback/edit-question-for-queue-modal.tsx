@@ -34,7 +34,7 @@ import { onTextInputChanged } from "helpers";
 import { v4 as uuid } from "uuid";
 import { Autocomplete } from "@mui/material";
 import { addOrUpdateSubjectQuestions } from "api";
-import { SubjectQuestionGQL } from "types-gql";
+import { SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import { useQuestionActions } from "store/slices/questions/useQuestions";
 
 const useStyles = makeStyles({ name: { EditQuestionForQueueModal } })(
@@ -114,6 +114,7 @@ function EditQuestionForQueueModal(props: {
       question: newQuestion,
       topics: selectedTopics,
       category: selectedCategory,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     };
     // add to DB
     const subjectQuestionsReturned = await addOrUpdateSubjectQuestions(

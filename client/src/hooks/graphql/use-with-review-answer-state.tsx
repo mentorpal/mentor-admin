@@ -27,7 +27,7 @@ import {
   Subject,
   UtteranceName,
 } from "types";
-import { SubjectQuestionGQL } from "types-gql";
+import { SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 
@@ -436,7 +436,11 @@ export function useWithReviewAnswerState(
           )) {
             const mq = editedQuestions.find((q) => q._id === question.question);
             if (mq) {
-              subjectQuestionsGQL.push({ ...question, question: mq });
+              subjectQuestionsGQL.push({
+                ...question,
+                question: mq,
+                useDefaultTopics: UseDefaultTopics.DEFAULT,
+              });
             }
           }
           return addOrUpdateSubjectQuestions(

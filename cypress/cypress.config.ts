@@ -4,36 +4,18 @@ Permission to use, copy, modify, and distribute this software and its documentat
 
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
-import { Subject, SubjectTypes, UseDefaultTopics } from "../../support/types";
+import { defineConfig } from "cypress";
 
-export const subject: Subject = {
-  isArchived: false,
-  _id: "stem",
-  name: "STEM",
-  description: "These questions will ask about STEM careers.",
-  type: SubjectTypes.SUBJECT,
-  categories: [],
-  topics: [],
-  isRequired: false,
-  questions: [
-    {
-      question: {
-        _id: "A6_1_1",
-        clientId: "C6_1_1",
-        question: "What does STEM mean?",
-        type: null,
-        name: null,
-        paraphrases: [],
-      },
-      category: {
-        id: "STEM",
-        name: "STEM",
-        description: "STEM",
-        defaultTopics: [],
-      },
-      topics: [],
-      useDefaultTopics: UseDefaultTopics.DEFAULT,
+export default defineConfig({
+  video: false,
+  chromeWebSecurity: false,
+  requestTimeout: 10000,
+  e2e: {
+    // We've imported your old cypress plugins here.
+    // You may want to clean this up later by importing these.
+    setupNodeEvents(on, config) {
+      return require("./cypress/plugins/index.ts")(on, config);
     },
-  ],
-};
-export default subject;
+    baseUrl: "http://localhost:80",
+  },
+});

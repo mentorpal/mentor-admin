@@ -48,7 +48,12 @@ export function TopicCard(props: {
             data-test={topic.name}
             label="Topic"
             variant="outlined"
-            value={topic.name}
+            value={
+              topic.categoryParent
+                ? `(Category Default) ${topic.name}`
+                : topic.name
+            }
+            disabled={Boolean(topic.categoryParent)}
             onChange={(e) =>
               onTextInputChanged(e, () => {
                 props.editTopic({ ...topic, name: e.target.value });
@@ -111,7 +116,7 @@ export function TopicsList(props: {
   removeTopic: (val: Topic) => void;
   moveTopic: (toMove: number, moveTo: number) => void;
 }): JSX.Element {
-  const { classes } = props;
+  const { classes, topics } = props;
   const { height: windowHeight } = useWithWindowSize();
 
   function onDragEnd(result: DropResult) {
@@ -133,7 +138,7 @@ export function TopicsList(props: {
               style={{ height: windowHeight - 300, overflow: "auto" }}
               {...provided.droppableProps}
             >
-              {props.topics.map((t, i) => (
+              {topics.map((t, i) => (
                 <Draggable
                   index={i}
                   key={`topic-${i}`}

@@ -16,11 +16,13 @@ export const importJson = {
           id: "c",
           name: "Category",
           description: "A category",
+          defaultTopics: [],
         },
         {
           id: "nc",
           name: "New Category",
           description: "A new category added to the subject",
+          defaultTopics: [],
         },
       ],
       topics: [

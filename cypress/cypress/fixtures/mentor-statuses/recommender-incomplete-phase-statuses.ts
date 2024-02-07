@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
 } from "../../support/types";
 import { hasThumbnail } from "./recommender-any-phase-statuses";
 
@@ -30,11 +31,13 @@ export const hasSubjectQuestionsOver5: Mentor = {
           id: "category1",
           name: "Category1",
           description: "A category",
+          defaultTopics: [],
         },
         {
           id: "category3",
           name: "Category3",
           description: "",
+          defaultTopics: [],
         },
       ],
       topics: [
@@ -64,7 +67,9 @@ export const hasSubjectQuestionsOver5: Mentor = {
             id: "category",
             name: "Category",
             description: "A category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -76,6 +81,7 @@ export const hasSubjectQuestionsOver5: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },

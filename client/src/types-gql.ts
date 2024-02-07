@@ -119,16 +119,24 @@ export interface SubjectGQL {
   questions: SubjectQuestionGQL[];
 }
 
+export enum UseDefaultTopics {
+  TRUE = "TRUE",
+  FALSE = "FALSE",
+  DEFAULT = "DEFAULT",
+}
+
 export interface SubjectQuestionGQL {
   question: Question;
   category?: Category;
   topics: Topic[];
+  useDefaultTopics: UseDefaultTopics;
 }
 
 export interface AddOrUpdateQuestionGQL {
   question: string;
   category?: string;
   topics: string[];
+  useDefaultTopics: UseDefaultTopics;
 }
 
 export interface ExternalVideoIdsGQL {

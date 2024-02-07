@@ -16,16 +16,20 @@ import {
   IconButton,
   Collapse,
   ListSubheader,
+  Autocomplete,
+  ListItemText,
+  ListItemSecondaryAction,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Category } from "types";
+import { Category, Topic } from "types";
 import QuestionListItem from "./question-list-item";
 import { SubjectQuestionGQL } from "types-gql";
 import { onTextInputChanged } from "helpers";
 
 export function CategoryListItem(props: {
   category: Category;
+  topics: Topic[];
   questions: SubjectQuestionGQL[];
   selectedQuestion?: string;
   selectedCategory?: string;
@@ -38,6 +42,7 @@ export function CategoryListItem(props: {
 }): JSX.Element {
   const {
     category,
+    topics,
     questions,
     selectedQuestion,
     selectedCategory,
@@ -121,6 +126,73 @@ export function CategoryListItem(props: {
               shrink: true,
             }}
           />
+          <ListSubheader>Default Topics</ListSubheader>
+          <Autocomplete
+            data-cy="default-topic-input"
+            options={topics.filter(
+              (t) =>
+                !category.defaultTopics.find((id) => id === t.id) &&
+                !t.categoryParent
+            )}
+            getOptionLabel={(option: Topic) => option.name}
+            onChange={(e, v) => {
+              if (!v?.id) {
+                return;
+              }
+              updateCategory({
+                ...category,
+                defaultTopics: [...category.defaultTopics, v.id],
+              });
+            }}
+            style={{ width: "100%" }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                placeholder="Add a default topic"
+              />
+            )}
+          />
+          <List data-cy="default-topics-list">
+            {category.defaultTopics.map((t, i) => {
+              const topic = topics.find((topic) => topic.id === t);
+              if (!topic) {
+                return null;
+              }
+              const topicName =
+                topic.categoryParent === category.id
+                  ? `${category.name}`
+                  : topic.name || "";
+              return (
+                <ListItem key={`topic-${i}`} data-cy={`topic-${i}`}>
+                  <div>
+                    <ListItemText
+                      data-cy="topic-name"
+                      data-test={topicName}
+                      primary={topicName}
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        data-cy="delete-topic"
+                        edge="end"
+                        size="small"
+                        onClick={() => {
+                          updateCategory({
+                            ...category,
+                            defaultTopics: category.defaultTopics.filter(
+                              (topicId) => topicId !== topic.id
+                            ),
+                          });
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </div>
+                </ListItem>
+              );
+            })}
+          </List>
           <Droppable droppableId={`category-${category.id}`}>
             {(provided) => (
               <List

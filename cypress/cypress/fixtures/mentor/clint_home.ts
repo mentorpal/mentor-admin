@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -27,6 +28,7 @@ export const mentor: Mentor = {
   keywords: [],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       type: SubjectTypes.SUBJECT,
@@ -37,6 +39,7 @@ export const mentor: Mentor = {
         {
           id: "category",
           name: "Category",
+          defaultTopics: [],
           description: "A category",
         },
       ],
@@ -53,10 +56,12 @@ export const mentor: Mentor = {
           },
           topics: [],
           category: {
+            defaultTopics: [],
             id: "category",
             name: "Category",
             description: "A category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -68,10 +73,12 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
     {
+      isArchived: false,
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
@@ -80,6 +87,7 @@ export const mentor: Mentor = {
       categories: [
         {
           id: "category2",
+          defaultTopics: [],
           name: "Category2",
           description: "Another category",
         },
@@ -99,6 +107,7 @@ export const mentor: Mentor = {
             minVideoLength: 10,
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -111,6 +120,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -124,10 +134,12 @@ export const mentor: Mentor = {
           },
           topics: [],
           category: {
+            defaultTopics: [],
             id: "category2",
             name: "Category2",
             description: "Another category",
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
@@ -175,7 +187,7 @@ export const mentor: Mentor = {
         name: UtteranceName.IDLE,
         paraphrases: [],
       },
-      media: [{ url: "video.mp4", tag: "idle", type: "video" }],
+      media: [{ url: "video.mp4", tag: "idle", type: "video", vttText: "" }],
       transcript: "",
       status: Status.COMPLETE,
     },

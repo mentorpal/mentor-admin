@@ -10,6 +10,7 @@ import {
   QuestionType,
   Status,
   SubjectTypes,
+  UseDefaultTopics,
   UtteranceName,
 } from "../../support/types";
 
@@ -36,10 +37,12 @@ export const mentor: Mentor = {
       },
       topics: [],
       category: null,
+      useDefaultTopics: UseDefaultTopics.DEFAULT,
     },
   ],
   subjects: [
     {
+      isArchived: false,
       _id: "background",
       name: "Background",
       type: SubjectTypes.SUBJECT,
@@ -50,10 +53,12 @@ export const mentor: Mentor = {
         {
           id: "category1",
           name: "Category1",
+          defaultTopics: [],
           description: "A category",
         },
         {
           id: "category3",
+          defaultTopics: [],
           name: "Category3",
           description: "",
         },
@@ -85,7 +90,9 @@ export const mentor: Mentor = {
             id: "category",
             name: "Category",
             description: "A category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -97,10 +104,12 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },
     {
+      isArchived: false,
       _id: "idle_and_initial_recordings",
       name: "Idle and Initial Recordings",
       type: SubjectTypes.UTTERANCES,
@@ -111,11 +120,13 @@ export const mentor: Mentor = {
           id: "category2",
           name: "Category2",
           description: "Another category",
+          defaultTopics: [],
         },
         {
           id: "category4",
           name: "Category4",
           description: "",
+          defaultTopics: [],
         },
       ],
       topics: [
@@ -144,6 +155,7 @@ export const mentor: Mentor = {
             minVideoLength: 10,
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -156,6 +168,7 @@ export const mentor: Mentor = {
             paraphrases: [],
           },
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -172,7 +185,9 @@ export const mentor: Mentor = {
             id: "category2",
             name: "Category2",
             description: "Another category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
         {
           question: {
@@ -189,7 +204,9 @@ export const mentor: Mentor = {
             id: "category2",
             name: "Category2",
             description: "Another category",
+            defaultTopics: [],
           },
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     },

@@ -23,15 +23,15 @@ import {
   completeQuestion,
   completeSubject,
   completeSubjectQuestion,
+  taskListBuild,
   updateMentorAnswer,
+  uploadTaskMediaBuild,
 } from "../support/helpers";
 import clintMarkdown from "../fixtures/mentor/clint_markdown";
 import {
   videoMentor,
   videoQuestions,
 } from "../fixtures/recording/video_mentors";
-import { taskListBuild, uploadTaskMediaBuild } from "./index.spec";
-import clint from "../fixtures/mentor/clint_home";
 
 const chatMentor: Mentor = completeMentor({
   _id: "clintanderson",
@@ -42,7 +42,9 @@ const chatMentor: Mentor = completeMentor({
     completeSubject({
       _id: "background",
       name: "background",
-      categories: [{ id: "cat", name: "cat", description: "cat" }],
+      categories: [
+        { id: "cat", name: "cat", description: "cat", defaultTopics: [] },
+      ],
       questions: [
         completeSubjectQuestion({
           question: {
@@ -53,7 +55,12 @@ const chatMentor: Mentor = completeMentor({
             type: QuestionType.QUESTION,
             paraphrases: [],
           },
-          category: { id: "cat", name: "cat", description: "cat" },
+          category: {
+            id: "cat",
+            name: "cat",
+            description: "cat",
+            defaultTopics: [],
+          },
           topics: [],
         }),
         completeSubjectQuestion({
@@ -532,7 +539,14 @@ describe("Record", () => {
             completeSubject({
               _id: "background",
               name: "background",
-              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              categories: [
+                {
+                  id: "cat",
+                  name: "cat",
+                  description: "cat",
+                  defaultTopics: [],
+                },
+              ],
               questions: [
                 completeSubjectQuestion({
                   question: {
@@ -543,7 +557,12 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                   topics: [],
                 }),
                 completeSubjectQuestion({
@@ -731,7 +750,14 @@ describe("Record", () => {
             completeSubject({
               _id: "background",
               name: "background",
-              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              categories: [
+                {
+                  id: "cat",
+                  name: "cat",
+                  description: "cat",
+                  defaultTopics: [],
+                },
+              ],
               questions: [
                 completeSubjectQuestion({
                   question: {
@@ -742,7 +768,12 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                   topics: [],
                 }),
                 completeSubjectQuestion({
@@ -938,6 +969,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A1_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -971,6 +1003,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A3_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -990,6 +1023,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A4_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -1008,7 +1042,12 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                 }),
                 completeSubjectQuestion({
                   question: {
@@ -1019,10 +1058,22 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                 }),
               ],
-              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              categories: [
+                {
+                  id: "cat",
+                  name: "cat",
+                  description: "cat",
+                  defaultTopics: [],
+                },
+              ],
             }),
             completeSubject({
               _id: "subject_2",
@@ -1092,6 +1143,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A1_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -1125,6 +1177,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A3_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -1144,6 +1197,7 @@ describe("Record", () => {
                 type: MediaType.VIDEO,
                 tag: "web",
                 url: "A4_1_1.mp4",
+                vttText: "",
               },
               status: Status.NONE,
             },
@@ -1162,7 +1216,12 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                 }),
                 completeSubjectQuestion({
                   question: {
@@ -1173,10 +1232,22 @@ describe("Record", () => {
                     type: QuestionType.QUESTION,
                     paraphrases: [],
                   },
-                  category: { id: "cat", name: "cat", description: "cat" },
+                  category: {
+                    id: "cat",
+                    name: "cat",
+                    description: "cat",
+                    defaultTopics: [],
+                  },
                 }),
               ],
-              categories: [{ id: "cat", name: "cat", description: "cat" }],
+              categories: [
+                {
+                  id: "cat",
+                  name: "cat",
+                  description: "cat",
+                  defaultTopics: [],
+                },
+              ],
             }),
             completeSubject({
               _id: "subject_2",

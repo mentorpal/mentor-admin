@@ -22,7 +22,7 @@ import {
   Question,
   SubjectTypes,
 } from "types";
-import { SubjectGQL, SubjectQuestionGQL } from "types-gql";
+import { SubjectGQL, SubjectQuestionGQL, UseDefaultTopics } from "types-gql";
 import { LoadingError } from "./loading-reducer";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithLogin } from "store/slices/login/useWithLogin";
@@ -118,15 +118,22 @@ export function useWithSubject(
     if (!editedData) {
       return;
     }
+    const newCategory: Category = {
+      id: uuid(),
+      name: "",
+      description: "",
+      defaultTopics: [],
+    };
+    const newTopic: Topic = {
+      id: uuid(),
+      name: "",
+      description: "",
+      categoryParent: newCategory.id,
+    };
+    newCategory.defaultTopics.push(newTopic.id);
     editData({
-      categories: [
-        ...editedData.categories,
-        {
-          id: uuid(),
-          name: "",
-          description: "",
-        },
-      ],
+      categories: [...editedData.categories, newCategory],
+      topics: [...editedData.topics, newTopic],
     });
   }
 
@@ -228,6 +235,7 @@ export function useWithSubject(
             ? editedData.categories.find((c) => c.id == args.categoryId)
             : undefined,
           topics: [],
+          useDefaultTopics: UseDefaultTopics.DEFAULT,
         },
       ],
     });
