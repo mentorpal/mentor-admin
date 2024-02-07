@@ -114,7 +114,7 @@ function ImportedQuestionsDisplay(props: {
             style={{ width: "100%" }}
           >
             {questionsIgnored.map((q, i) => (
-              <ListItem data-cy={`question-${i}`} key={q.question}>
+              <ListItem data-cy={`question-ignored-${i}`} key={q.question}>
                 <IgnoredQuestionItem classes={classes} question={q} />
               </ListItem>
             ))}
