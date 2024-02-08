@@ -1195,7 +1195,13 @@ describe("My Mentor Page", () => {
   it("users with locked subjects cannot see '+ add a subject' in dropdown menu", () => {
     cySetup(cy);
     cyMockDefault(cy, {
-      mentor: clintWithConfig,
+      mentor: {
+        ...clintWithConfig,
+        mentorConfig: {
+          ...clintWithConfig.mentorConfig,
+          lockedToSubjects: true,
+        },
+      },
     });
     cy.visit("/");
     cy.get("[data-cy=setup-no]").trigger("mouseover").click();

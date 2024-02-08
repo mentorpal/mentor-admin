@@ -363,11 +363,7 @@ describe("Select Subjects", () => {
 });
 
 describe("mentors with configs", () => {
-  it("page is not visible to mentors with locked subjects", () => {
-    // TODO
-  });
-
-  it.only("only show subjects that are part of config, with dropdown for others", () => {
+  it("only show subjects that are part of config, with dropdown for others", () => {
     cySetup(cy);
     cyMockDefault(cy, {
       mentor: {

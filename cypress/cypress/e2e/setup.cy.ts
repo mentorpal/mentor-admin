@@ -1506,8 +1506,8 @@ describe("Setup", () => {
         mockGQL("Subjects", { edges: [allSubjects.edges[0]] }),
       ],
     });
-    cy.visit(`/setup?i=5`);
-    cy.get("[data-cy=slide-5]").should("contain.text", "2 / 2");
+    cy.visit(`/setup?i=6`);
+    cy.get("[data-cy=slide-6]").should("contain.text", "2 / 2");
     cy.visit("/");
     cy.get("[data-cy=setup-no]").should("not.exist");
     cy.get("[data-cy=nav-bar]").should("contain.text", "My Mentor");

@@ -227,7 +227,6 @@ function RecordPage(props: {
   const curAnswerBelongsToMentor = curEditedQuestion?.mentor === mentorId;
   const warnEmptyTranscript =
     curAnswer?.attentionNeeded === AnswerAttentionNeeded.NEEDS_TRANSCRIPT;
-
   useEffect(() => {
     if (!curAnswer) {
       return;
