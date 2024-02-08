@@ -56,6 +56,7 @@ export interface OrgPermissionsGQL {
 export interface MentorConfig {
   configId: string;
   subjects: string[];
+  lockedToSubjects: boolean;
   publiclyVisible: boolean;
   mentorType: MentorType;
   orgPermissions: OrgPermissionsGQL[];
@@ -88,6 +89,7 @@ export interface MentorGQL {
   lastTrainStatus: JobState;
   dirtyReason: MentorDirtyReason;
   isPublicApproved: boolean;
+  directLinkPrivate: boolean;
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;

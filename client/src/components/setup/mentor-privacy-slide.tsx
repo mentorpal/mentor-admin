@@ -12,6 +12,8 @@ import {
   FormControl,
   SelectChangeEvent,
   InputLabel,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import {
   Mentor,
@@ -194,6 +196,26 @@ export function MentorPrivacySlide(props: {
               Private
             </MenuItem>
           </Select>
+
+          <div>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  data-cy="toggle-mentor-direct-links"
+                  checked={mentor.directLinkPrivate}
+                  onChange={() =>
+                    editMentor({
+                      directLinkPrivate: !mentor.directLinkPrivate,
+                    })
+                  }
+                  color="primary"
+                  style={{ padding: 0 }}
+                />
+              }
+              label="Hide Mentor Direct Links"
+              labelPlacement="end"
+            />
+          </div>
           <Typography style={{ marginTop: 20, marginBottom: 5 }}>
             Organization Privacy Permissions:
           </Typography>

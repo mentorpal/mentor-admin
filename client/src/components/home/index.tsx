@@ -276,7 +276,7 @@ function HomePage(props: {
   ]);
 
   useEffect(() => {
-    const lockedToSubjects = mentorConfig?.subjects.length;
+    const lockedToSubjects = mentorConfig?.lockedToSubjects;
     if (
       !lockedToConfig ||
       !mentorConfig ||
@@ -532,7 +532,7 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
-            {mentorConfig?.subjects.length ? undefined : (
+            {mentorConfig?.lockedToSubjects ? undefined : (
               <MenuItem
                 key={"add-subject"}
                 data-cy={"add-subject"}

@@ -16,6 +16,7 @@ import {
 } from "../support/types";
 import { completeSubjectQuestion } from "../support/helpers";
 import { login as loginDefault } from "../fixtures/login";
+import { mentorConfig } from "../fixtures/recording/video_mentors";
 
 const mentor: Mentor = {
   _id: "clintanderson",
@@ -358,6 +359,37 @@ describe("Select Subjects", () => {
           .and("not.be.checked");
       });
     });
+  });
+});
+
+describe("mentors with configs", () => {
+  it("only show subjects that are part of config, with dropdown for others", () => {
+    cySetup(cy);
+    cyMockDefault(cy, {
+      mentor: {
+        ...mentor,
+        mentorConfig: {
+          ...mentorConfig,
+          subjects: ["background"],
+        },
+      },
+      subjects: [allSubjects],
+      gqlQueries: [
+        mockGQL("UpdateMentorSubjects", { me: { updateMentorSubjects: true } }),
+      ],
+    });
+    cy.visit("/subjects");
+    cy.get("[data-cy=subjects]").children().should("have.length", 1);
+    cy.get("[data-cy=subjects-page]").should("contain.text", "Background");
+    cy.get("[data-cy=subjects-page]").should("not.contain.text", "Leadership");
+    cy.get("[data-cy=show-all-subjects-button]").click();
+    cy.get("[data-cy=subjects]").children().should("have.length", 2);
+    cy.get("[data-cy=subjects-page]").should("contain.text", "Background");
+    cy.get("[data-cy=subjects-page]").should("contain.text", "Leadership");
+    cy.get("[data-cy=show-all-subjects-button]").click();
+    cy.get("[data-cy=subjects]").children().should("have.length", 1);
+    cy.get("[data-cy=subjects-page]").should("contain.text", "Background");
+    cy.get("[data-cy=subjects-page]").should("not.contain.text", "Leadership");
   });
 });
 
