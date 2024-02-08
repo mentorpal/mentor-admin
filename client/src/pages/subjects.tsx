@@ -18,6 +18,7 @@ import {
   TableRow,
   Toolbar,
   Theme,
+  Button,
 } from "@mui/material";
 import { makeStyles } from "tss-react/mui";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
@@ -35,7 +36,7 @@ import withLocation from "wrap-with-location";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import ButtonGroupDropdown from "components/ButtonGroupDropdown";
-import { convertSubjectGQL } from "types-gql";
+import { MentorConfig, convertSubjectGQL } from "types-gql";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 
 const useStyles = makeStyles({ name: { SubjectsPage } })((theme: Theme) => ({
@@ -109,6 +110,7 @@ function SubjectsPage(props: {
     isLoading: isMentorLoading,
     isSaving: isMentorSaving,
     error: mentorError,
+    getData,
   } = useActiveMentor();
   const [viewUtteranceSubjects, setViewUtteranceSubjects] =
     useState<boolean>(false);
@@ -120,6 +122,12 @@ function SubjectsPage(props: {
     useMentorEdits();
   const mentorSubjectIds =
     editedMentor?.subjects.map((subject) => subject._id) || [];
+  const mentorConfig: MentorConfig | undefined = getData(
+    (state) => state.data?.mentorConfig
+  );
+  const [showAllSubjects, setShowAllSubjects] = useState<boolean>(false);
+  const filterToConfigSubjects =
+    mentorConfig && !mentorConfig.lockedToSubjects && !showAllSubjects;
   const {
     pageData: subjects,
     isLoading: isSubjectsLoading,
@@ -143,7 +151,13 @@ function SubjectsPage(props: {
 
   useEffect(() => {
     if (viewArchivedSubjects) {
-      setPreFilter();
+      setPreFilter({
+        filter: (s) => {
+          return filterToConfigSubjects
+            ? mentorConfig.subjects.includes(s._id)
+            : true;
+        },
+      });
       setPostSort({
         sort: (a, b) => {
           if (a.isArchived === b.isArchived) {
@@ -157,11 +171,23 @@ function SubjectsPage(props: {
       });
     } else {
       setPreFilter({
-        filter: (s) => !s.isArchived || mentorSubjectIds.includes(s._id),
+        filter: (s) => {
+          return (
+            (!s.isArchived || mentorSubjectIds.includes(s._id)) &&
+            (filterToConfigSubjects
+              ? mentorConfig.subjects.includes(s._id)
+              : true)
+          );
+        },
       });
       setPostSort();
     }
-  }, [viewArchivedSubjects, mentorSubjectIds.length]);
+  }, [
+    viewArchivedSubjects,
+    mentorSubjectIds.length,
+    mentorConfig,
+    filterToConfigSubjects,
+  ]);
 
   function toggleSubject(subject: Subject) {
     if (!editedMentor) {
@@ -208,7 +234,7 @@ function SubjectsPage(props: {
   return (
     <div>
       <NavBar title="Subjects" mentor={editedMentor?._id} onBack={onBack} />
-      <div className={classes.root}>
+      <div className={classes.root} data-cy="subjects-page">
         <Paper className={classes.container}>
           <TableContainer>
             <Table stickyHeader aria-label="sticky table">
@@ -275,6 +301,15 @@ function SubjectsPage(props: {
                 })}
               </TableBody>
             </Table>
+            {mentorConfig && (
+              <Button
+                onClick={() => setShowAllSubjects(!showAllSubjects)}
+                style={{ margin: "15px" }}
+                data-cy="show-all-subjects-button"
+              >
+                {showAllSubjects ? "Less" : "More"}
+              </Button>
+            )}
           </TableContainer>
         </Paper>
         <AppBar position="sticky" color="default" className={classes.appBar}>

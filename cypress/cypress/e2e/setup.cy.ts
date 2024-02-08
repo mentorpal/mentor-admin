@@ -1414,13 +1414,33 @@ describe("Setup", () => {
 
   it("Select Subjects slide not shown to mentors with locked subjects", () => {
     cyMockDefault(cy, {
-      mentor: videoMentorWithConfig,
+      mentor: {
+        ...videoMentorWithConfig,
+        mentorConfig: {
+          ...videoMentorWithConfig.mentorConfig,
+          lockedToSubjects: true,
+        },
+      },
     });
-    cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
-    cy.get("[data-cy=slide-title]").should(
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=setup-page]").should(
       "not.contain.text",
       "Select subjects?"
     );
+  });
+
+  it("Select Subjects slide shown to mentors without locked subjects", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...videoMentorWithConfig,
+        mentorConfig: {
+          ...videoMentorWithConfig.mentorConfig,
+          lockedToSubjects: false,
+        },
+      },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=setup-page]").should("contain.text", "Select subjects?");
   });
 
   it("Record required subject slide considers answer as complete if upload in progress", () => {
