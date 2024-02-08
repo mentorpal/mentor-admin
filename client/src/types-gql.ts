@@ -56,6 +56,7 @@ export interface OrgPermissionsGQL {
 export interface MentorConfig {
   configId: string;
   subjects: string[];
+  lockedToSubjects: boolean;
   publiclyVisible: boolean;
   mentorType: MentorType;
   orgPermissions: OrgPermissionsGQL[];

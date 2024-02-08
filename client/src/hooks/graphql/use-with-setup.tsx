@@ -194,7 +194,7 @@ export function useWithSetup(
       requiredSubjects,
       isSetupComplete,
     });
-    const mentorSubjectsLocked = mentor.mentorConfig?.subjects.length;
+    const mentorSubjectsLocked = mentor.mentorConfig?.lockedToSubjects;
     const mentorPrivacyLocked =
       mentor.mentorConfig?.publiclyVisible !== undefined ||
       mentor.mentorConfig?.orgPermissions.length;

@@ -691,7 +691,7 @@ export function useWithMentorRecommender(
       const completeMentorAnswers = state.mentorData.answers.filter((answer) =>
         isAnswerComplete(answer, undefined, state.mentorData.mentorType)
       );
-      if (state.mentorData.mentorConfig?.subjects.length) {
+      if (state.mentorData.mentorConfig?.lockedToSubjects) {
         return false;
       }
       // mentorData.answers contains complete AND incomplete answers.

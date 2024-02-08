@@ -346,6 +346,7 @@ export async function fetchUsers(
                 mentorConfig{
                   configId
                   subjects
+                  lockedToSubjects
                   publiclyVisible
                   mentorType
                   orgPermissions{
@@ -1084,6 +1085,7 @@ export async function fetchMentorById(
           mentorConfig{
             configId
             subjects
+            lockedToSubjects
             publiclyVisible
             mentorType
             orgPermissions{
@@ -1266,6 +1268,7 @@ export async function fetchMentorConfig(
         fetchMentorConfig(mentorConfigId:$mentorConfigId){
             configId
             subjects
+            lockedToSubjects
             publiclyVisible
             mentorType
             orgPermissions{

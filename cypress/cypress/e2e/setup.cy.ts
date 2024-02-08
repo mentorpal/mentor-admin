@@ -1414,13 +1414,33 @@ describe("Setup", () => {
 
   it("Select Subjects slide not shown to mentors with locked subjects", () => {
     cyMockDefault(cy, {
-      mentor: videoMentorWithConfig,
+      mentor: {
+        ...videoMentorWithConfig,
+        mentorConfig: {
+          ...videoMentorWithConfig.mentorConfig,
+          lockedToSubjects: true,
+        },
+      },
     });
-    cyVisitSetupScreen(cy, SetupScreen.Select_Subjects);
-    cy.get("[data-cy=slide-title]").should(
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=setup-page]").should(
       "not.contain.text",
       "Select subjects?"
     );
+  });
+
+  it("Select Subjects slide shown to mentors without locked subjects", () => {
+    cyMockDefault(cy, {
+      mentor: {
+        ...videoMentorWithConfig,
+        mentorConfig: {
+          ...videoMentorWithConfig.mentorConfig,
+          lockedToSubjects: false,
+        },
+      },
+    });
+    cyVisitSetupScreen(cy, SetupScreen.Welcome);
+    cy.get("[data-cy=setup-page]").should("contain.text", "Select subjects?");
   });
 
   it("Record required subject slide considers answer as complete if upload in progress", () => {
@@ -1486,8 +1506,8 @@ describe("Setup", () => {
         mockGQL("Subjects", { edges: [allSubjects.edges[0]] }),
       ],
     });
-    cy.visit(`/setup?i=5`);
-    cy.get("[data-cy=slide-5]").should("contain.text", "2 / 2");
+    cy.visit(`/setup?i=6`);
+    cy.get("[data-cy=slide-6]").should("contain.text", "2 / 2");
     cy.visit("/");
     cy.get("[data-cy=setup-no]").should("not.exist");
     cy.get("[data-cy=nav-bar]").should("contain.text", "My Mentor");

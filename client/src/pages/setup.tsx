@@ -266,7 +266,7 @@ function SetupPage(props: {
   }
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} data-cy="setup-page">
       <NavBar onNav={onLeave} title="Mentor Setup" mentorId={mentor?._id} />
       <Carousel
         // key={steps.length} // ensure carousel re-renders if # steps change
