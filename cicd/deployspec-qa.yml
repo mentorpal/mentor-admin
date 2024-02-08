@@ -4,11 +4,9 @@ env:
   variables:
     GRAPHQL_ENDPOINT: 'https://api.qamentorpal.org/graphql/graphql'
     SBERT_ENDPOINT: 'https://sbert-qa.mentorpal.org/'
-    STAGE: 'v2'
+    STAGE: 'qa'
     IS_SENTRY_ENABLED: true
   parameter-store:
-    S3_DEPLOY_BUCKET_V2: "/mentorpal/v2/s3-websites/NAME"
-    CDN_ID_V2: "/mentorpal/v2/CLOUDFRONT_DISTRIBUTION_ID"
     S3_DEPLOY_BUCKET_QA: "/qamentorpal/s3-websites/NAME"
     CDN_ID_QA: "/qamentorpal/CLOUDFRONT_DISTRIBUTION_ID"
     LRS_ENDPOINT: "/mentorpal/lrs/qa/LRS_ENDPOINT"
@@ -26,9 +24,6 @@ phases:
   build:
     commands:
       - cd client && npm run build
-      - echo Deploying to $S3_DEPLOY_BUCKET_V2
-      - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET_V2/admin
-      - aws cloudfront create-invalidation --distribution-id $CDN_ID_V2 --paths "/admin*"
       - echo Deploying to $S3_DEPLOY_BUCKET_QA
       - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET_QA/admin
       - aws cloudfront create-invalidation --distribution-id $CDN_ID_QA --paths "/admin*"
