@@ -403,7 +403,7 @@ export function NavBar(props: {
       >
         <Toolbar />
         <NavMenu
-          mentorSubjectsLocked={Boolean(mentor?.mentorConfig?.subjects.length)}
+          mentorSubjectsLocked={Boolean(mentor?.mentorConfig?.lockedToSubjects)}
           classes={classes}
           mentorId={props.mentorId}
           onNav={onNav}
