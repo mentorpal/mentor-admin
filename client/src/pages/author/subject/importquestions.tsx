@@ -240,6 +240,9 @@ function ImportQuestionsDisplay(props: {
         paraphrases: importedParaphrases,
       } = importedQuestion;
       const questionAlreadyExists = subject.questions.find((subjQ) => {
+        if (subjQ.question.mentor) {
+          return false;
+        }
         return (
           subjQ.question.question === importedQuestionText ||
           subjQ.question.paraphrases.includes(importedQuestionText) ||

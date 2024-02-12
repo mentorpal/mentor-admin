@@ -1,9 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    GRAPHQL_ENDPOINT: 'https://v2.mentorpal.org/graphql'
-
 phases:
   install:
     runtime-versions:

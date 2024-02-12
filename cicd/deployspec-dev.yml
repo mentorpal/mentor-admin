@@ -7,8 +7,6 @@ env:
     STAGE: 'dev'
     IS_SENTRY_ENABLED: false
   parameter-store:
-    S3_DEPLOY_BUCKET_NEWDEV: "/mentorpal/newdev/s3-websites/NAME"
-    CDN_ID_NEWDEV: "/mentorpal/newdev/CLOUDFRONT_DISTRIBUTION_ID"
     S3_DEPLOY_BUCKET_DEV: "/devmentorpal/s3-websites/NAME"
     CDN_ID_DEV: "/devmentorpal/CLOUDFRONT_DISTRIBUTION_ID"
     LRS_ENDPOINT: "/mentorpal/lrs/dev/LRS_ENDPOINT"
@@ -26,9 +24,6 @@ phases:
   build:
     commands:
       - cd client && npm run build
-      - echo Deploying to $S3_DEPLOY_BUCKET_NEWDEV
-      - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET_NEWDEV/admin
-      - aws cloudfront create-invalidation --distribution-id $CDN_ID_NEWDEV --paths "/admin*"
       - echo Deploying to $S3_DEPLOY_BUCKET_DEV
       - aws s3 sync ./public s3://$S3_DEPLOY_BUCKET_DEV/admin
       - aws cloudfront create-invalidation --distribution-id $CDN_ID_DEV --paths "/admin*"
