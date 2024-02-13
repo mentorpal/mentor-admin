@@ -139,6 +139,7 @@ export function useWithRecordState(
       }
     }
 
+    // Insert answers that are not already in state
     const answerStates: AnswerState[] = [];
     for (const a of _answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
@@ -146,18 +147,15 @@ export function useWithRecordState(
       const answerAlreadyInState = Boolean(
         answers.find((as) => as.answer.question === a.question)
       );
-      let checkStatus = !status || answerAlreadyInState;
+      let checkStatus = !status;
       if (status === Status.COMPLETE) {
-        checkStatus =
-          isAnswerComplete(a, q?.question?.name, mentorType) ||
-          answerAlreadyInState;
+        checkStatus = isAnswerComplete(a, q?.question?.name, mentorType);
       } else if (status === Status.INCOMPLETE) {
-        checkStatus =
-          !isAnswerComplete(a, q?.question?.name, mentorType) ||
-          answerAlreadyInState;
+        checkStatus = !isAnswerComplete(a, q?.question?.name, mentorType);
       } else if (status === Status.NONE) {
-        checkStatus = a.status === Status.NONE || answerAlreadyInState;
+        checkStatus = a.status === Status.NONE;
       }
+      checkStatus = checkStatus && !answerAlreadyInState;
       if (
         q?.question &&
         (!q.question.mentorType || q.question.mentorType === mentorType) &&
@@ -178,7 +176,7 @@ export function useWithRecordState(
     if (!_answers.length) {
       navigate("/");
     }
-    setAnswers(answerStates);
+    setAnswers((prevValues) => [...prevValues, ...answerStates]);
     if (videoId && subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       const idx = retrieveAnswerIdx(answerStates, ids[0]);
