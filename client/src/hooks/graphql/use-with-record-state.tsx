@@ -139,13 +139,16 @@ export function useWithRecordState(
       }
     }
 
+    // Insert answers that are not already in state
     const answerStates: AnswerState[] = [];
     for (const a of _answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
       // we don't want to remove questions that are already in the recording state
-      const answerAlreadyInState = Boolean(
-        answers.find((as) => as.answer.question === a.question)
+      const answerInState = answers.find(
+        (as) => as.answer.question === a.question
       );
+
+      const answerAlreadyInState = Boolean(answerInState);
       let checkStatus = !status || answerAlreadyInState;
       if (status === Status.COMPLETE) {
         checkStatus =
@@ -167,10 +170,11 @@ export function useWithRecordState(
           answer: a,
           editedAnswer: a,
           editedQuestion: q.question,
-          recordedVideo: undefined,
+          recordedVideo: answerInState?.recordedVideo || undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
           localTranscriptChanges: false,
+          ...(answerInState || {}),
         });
       }
     }
