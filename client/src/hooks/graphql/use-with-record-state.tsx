@@ -144,18 +144,23 @@ export function useWithRecordState(
     for (const a of _answers) {
       const q = getValueIfKeyExists(a.question, mentorQuestions);
       // we don't want to remove questions that are already in the recording state
-      const answerAlreadyInState = Boolean(
-        answers.find((as) => as.answer.question === a.question)
+      const answerInState = answers.find(
+        (as) => as.answer.question === a.question
       );
-      let checkStatus = !status;
+
+      const answerAlreadyInState = Boolean(answerInState);
+      let checkStatus = !status || answerAlreadyInState;
       if (status === Status.COMPLETE) {
-        checkStatus = isAnswerComplete(a, q?.question?.name, mentorType);
+        checkStatus =
+          isAnswerComplete(a, q?.question?.name, mentorType) ||
+          answerAlreadyInState;
       } else if (status === Status.INCOMPLETE) {
-        checkStatus = !isAnswerComplete(a, q?.question?.name, mentorType);
+        checkStatus =
+          !isAnswerComplete(a, q?.question?.name, mentorType) ||
+          answerAlreadyInState;
       } else if (status === Status.NONE) {
-        checkStatus = a.status === Status.NONE;
+        checkStatus = a.status === Status.NONE || answerAlreadyInState;
       }
-      checkStatus = checkStatus && !answerAlreadyInState;
       if (
         q?.question &&
         (!q.question.mentorType || q.question.mentorType === mentorType) &&
@@ -165,10 +170,11 @@ export function useWithRecordState(
           answer: a,
           editedAnswer: a,
           editedQuestion: q.question,
-          recordedVideo: undefined,
+          recordedVideo: answerInState?.recordedVideo || undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
           localTranscriptChanges: false,
+          ...(answerInState || {}),
         });
       }
     }
@@ -176,7 +182,7 @@ export function useWithRecordState(
     if (!_answers.length) {
       navigate("/");
     }
-    setAnswers((prevValues) => [...prevValues, ...answerStates]);
+    setAnswers(answerStates);
     if (videoId && subject) {
       const ids = Array.isArray(videoId) ? videoId : [videoId];
       const idx = retrieveAnswerIdx(answerStates, ids[0]);
