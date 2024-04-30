@@ -51,6 +51,7 @@ export interface Config {
   defaultVirtualBackground: string;
   urlDocSetup: string;
   urlVideoIdleTips: string;
+  filterEmailMentorAddress: string;
   // style settings
   styleHeaderTitle: string;
   styleHeaderText: string;
@@ -152,6 +153,7 @@ export interface Organization {
   uuid: string;
   name: string;
   subdomain: string;
+  email: string;
   isPrivate: boolean;
   accessCodes: string[];
   members: OrgMember[];

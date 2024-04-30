@@ -254,6 +254,7 @@ export async function fetchConfig(): Promise<Config> {
       query FetchConfig{
         config {
           classifierLambdaEndpoint
+          filterEmailMentorAddress
           uploadLambdaEndpoint
           subjectRecordPriority
           videoRecorderMaxLength
@@ -2833,6 +2834,7 @@ export async function fetchOrganizations(
                 }
                 config {
                   classifierLambdaEndpoint
+                  filterEmailMentorAddress
                   uploadLambdaEndpoint
                   subjectRecordPriority
                   videoRecorderMaxLength
@@ -2932,6 +2934,7 @@ export async function addOrUpdateOrganization(
             }
             config {
               classifierLambdaEndpoint
+              filterEmailMentorAddress
               uploadLambdaEndpoint
               subjectRecordPriority
               videoRecorderMaxLength
@@ -3016,6 +3019,7 @@ export async function updateOrgConfig(
         me {
           updateOrgConfig(id: $id, config: $config) {
             classifierLambdaEndpoint
+            filterEmailMentorAddress
             uploadLambdaEndpoint
             subjectRecordPriority
             videoRecorderMaxLength
@@ -3073,6 +3077,7 @@ export async function updateOrgConfig(
         id,
         config: {
           styleHeaderTitle: config.styleHeaderTitle,
+          filterEmailMentorAddress: config.filterEmailMentorAddress,
           styleHeaderText: config.styleHeaderText,
           styleHeaderColor: config.styleHeaderColor,
           styleHeaderTextColor: config.styleHeaderTextColor,
@@ -3131,6 +3136,7 @@ export async function updateConfig(
         me {
           updateConfig(config: $config) {
             classifierLambdaEndpoint
+            filterEmailMentorAddress
             uploadLambdaEndpoint
             subjectRecordPriority
             videoRecorderMaxLength
@@ -3187,6 +3193,7 @@ export async function updateConfig(
       variables: {
         config: {
           styleHeaderTitle: config.styleHeaderTitle,
+          filterEmailMentorAddress: config.filterEmailMentorAddress,
           styleHeaderText: config.styleHeaderText,
           styleHeaderColor: config.styleHeaderColor,
           styleHeaderTextColor: config.styleHeaderTextColor,
