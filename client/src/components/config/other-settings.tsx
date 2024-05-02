@@ -161,6 +161,18 @@ export function Settings(props: {
           shrink: true,
         }}
       />
+      <TextField
+        fullWidth
+        data-cy="org-email-input"
+        data-test={config.filterEmailMentorAddress}
+        variant="outlined"
+        label="'Email Mentor' Email Address"
+        value={config.filterEmailMentorAddress}
+        onChange={(e) =>
+          updateConfig({ filterEmailMentorAddress: e.target.value })
+        }
+        style={{ marginBottom: 20 }}
+      />
       <FormControl variant="outlined" fullWidth>
         <InputLabel>Question Sort Order</InputLabel>
         <Select

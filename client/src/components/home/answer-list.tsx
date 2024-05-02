@@ -22,6 +22,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Answer } from "types";
 import AnswerItem from "./answer-item";
 import { QuestionEdits } from "hooks/graphql/use-with-review-answer-state";
+import { COMPLETE_ANSWER_HEADER } from "./recording-block";
 
 function AnswerList(props: {
   classes: Record<string, string>;
@@ -47,6 +48,7 @@ function AnswerList(props: {
     onAddQuestion,
   } = props;
   const [isExpanded, setExpanded] = React.useState(false);
+  const isCompleteAnswers = header === COMPLETE_ANSWER_HEADER;
 
   useEffect(() => {
     setExpanded(props.expandLists);
@@ -83,7 +85,7 @@ function AnswerList(props: {
               onClick={onRecordAll}
               disabled={answers.length === 0}
             >
-              Record All
+              {isCompleteAnswers ? "Review All" : "Record All"}
             </Button>
             {onAddQuestion ? (
               <Button
@@ -129,6 +131,7 @@ function AnswerList(props: {
                     question={question}
                     onEditQuestion={onEditQuestion}
                     onRecordOne={onRecordOne}
+                    isCompleteAnswer={isCompleteAnswers}
                   />
                 </ListItem>
               );

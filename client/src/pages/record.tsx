@@ -39,7 +39,11 @@ import NavBar from "components/nav-bar";
 import ProgressBar from "components/progress-bar";
 import UploadingWidget from "components/record/uploading-widget";
 import VideoPlayer from "components/record/video-player";
-import { getValueIfKeyExists, sanitizeWysywigString } from "helpers";
+import {
+  doesVideoExist,
+  getValueIfKeyExists,
+  sanitizeWysywigString,
+} from "helpers";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
 import { ConfigStatus } from "store/slices/config";
 import { useWithConfig } from "store/slices/config/useWithConfig";
@@ -202,6 +206,7 @@ function RecordPage(props: {
   const { browserSupportsVbg } = useWithBrowser();
   const mentorId = getData((state) => state.data?._id);
   const mentorType = getData((state) => state.data?.mentorType);
+  const isVideoMentor = mentorType === MentorType.VIDEO;
   const mentorConfig: MentorConfig | undefined = getData(
     (state) => state.data?.mentorConfig
   );
@@ -347,6 +352,11 @@ function RecordPage(props: {
       return;
     }
     const { isRecording } = recordState;
+    const placeHolder = isVideoMentor
+      ? doesVideoExist(curAnswer.answer)
+        ? "Enter your transcript here..."
+        : "Transcript will be auto-generated and shown here once you upload the video"
+      : "Enter your response here...";
     return (
       // relative so overlay can fit
       <div
@@ -370,7 +380,7 @@ function RecordPage(props: {
             saveAnswer={recordState.saveAnswer}
             accessToken={props.accessToken}
           />
-          {warnEmptyTranscript ? (
+          {warnEmptyTranscript && isVideoMentor ? (
             <text
               data-cy="warn-empty-transcript"
               style={{ fontWeight: "normal" }}
@@ -385,6 +395,7 @@ function RecordPage(props: {
           wrapperClassName="wrapper-class"
           editorClassName="editor-class"
           toolbarClassName="toolbar-class"
+          placeholder={placeHolder}
           toolbar={toolBarOpts}
           onEditorStateChange={(editorState: EditorState) => {
             const contentState = editorState.getCurrentContent();
@@ -470,7 +481,7 @@ function RecordPage(props: {
           </span>
         ) : undefined}
 
-        {mentorType === MentorType.VIDEO ? (
+        {isVideoMentor ? (
           <div
             data-cy="videoplayer-container"
             className={classes.block}
@@ -568,7 +579,8 @@ function RecordPage(props: {
               }}
             >
               <Typography data-cy="question-text">
-                {curEditedQuestion?.question}
+                {curAnswer.customDisplayQuestionText ||
+                  curEditedQuestion?.question}
               </Typography>
               {curAnswerBelongsToMentor ? (
                 <IconButton

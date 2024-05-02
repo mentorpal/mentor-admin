@@ -205,12 +205,15 @@ export const mentorConfig: MentorConfig = {
   subjects: ["fakesubject"],
   publiclyVisible: true,
   mentorType: MentorType.VIDEO,
+  idleRecordingDuration: 10,
+  introRecordingText: "",
   orgPermissions: [],
   loginHeaderText: "test login header text",
   welcomeSlideHeader: "test welcome slide header text",
   welcomeSlideText: "test welcome slide body text",
   disableMyGoalSlide: true,
   disableFollowups: true,
+  lockedToSubjects: false,
 };
 export const videoMentorWithConfig: Mentor = {
   ...videoMentor,
