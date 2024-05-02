@@ -355,6 +355,8 @@ export async function fetchUsers(
                     viewPermission
                     editPermission
                   }
+                  idleRecordingDuration
+                  introRecordingText
                   loginHeaderText
                   welcomeSlideHeader
                   welcomeSlideText
@@ -1089,6 +1091,8 @@ export async function fetchMentorById(
             lockedToSubjects
             publiclyVisible
             mentorType
+            idleRecordingDuration
+            introRecordingText
             orgPermissions{
               org
               viewPermission
@@ -1272,6 +1276,8 @@ export async function fetchMentorConfig(
             lockedToSubjects
             publiclyVisible
             mentorType
+            introRecordingText
+            idleRecordingDuration
             orgPermissions{
               org
               viewPermission

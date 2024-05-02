@@ -579,7 +579,8 @@ function RecordPage(props: {
               }}
             >
               <Typography data-cy="question-text">
-                {curEditedQuestion?.question}
+                {curAnswer.customDisplayQuestionText ||
+                  curEditedQuestion?.question}
               </Typography>
               {curAnswerBelongsToMentor ? (
                 <IconButton

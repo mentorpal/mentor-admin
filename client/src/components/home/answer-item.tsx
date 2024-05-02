@@ -78,7 +78,9 @@ function AnswerItem(props: {
         </span>
       ) : (
         <ListItemText
-          primary={question?.originalQuestion.question}
+          primary={
+            question?.customQuestionText || question.originalQuestion.question
+          }
           secondary={`${answer.transcript.substring(0, 100)}${
             answer.transcript.length > 100 ? "..." : ""
           }`}

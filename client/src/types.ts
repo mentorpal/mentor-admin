@@ -675,6 +675,7 @@ export interface AnswerState {
   answer: Answer;
   editedAnswer: Answer;
   editedQuestion: Question;
+  customDisplayQuestionText?: string;
   attentionNeeded: AnswerAttentionNeeded;
   localTranscriptChanges: boolean;
   recordedVideo?: File;

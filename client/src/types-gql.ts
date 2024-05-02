@@ -61,6 +61,8 @@ export interface MentorConfig {
   mentorType: MentorType;
   orgPermissions: OrgPermissionsGQL[];
   loginHeaderText: string;
+  idleRecordingDuration: number;
+  introRecordingText: string;
   welcomeSlideHeader: string;
   welcomeSlideText: string;
   disableMyGoalSlide: boolean;

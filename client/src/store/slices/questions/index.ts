@@ -8,18 +8,22 @@ import { fetchQuestionsById, updateQuestion } from "api";
 import { getValueIfKeyExists } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
-import { Question } from "types";
+import { Question, UtteranceName } from "types";
+import { MentorConfig } from "types-gql";
 
 /** Store */
 
+type QuestionsRecord = Record<string, QuestionState>;
+
 export interface QuestionsState {
-  questions: Record<string, QuestionState>;
+  questions: QuestionsRecord;
   batchLoadStatus: LoadingStatus;
   batchLoadError?: LoadingError;
 }
 
 export interface QuestionState {
   question?: Question;
+  customQuestionText?: string;
   status: LoadingStatus;
   error?: LoadingError;
 }
@@ -36,12 +40,16 @@ interface CancellabeResult<T> {
 
 /** Actions */
 
+interface LoadQuestionsByIdRes<T> extends CancellabeResult<T> {
+  mentorConfig?: MentorConfig;
+}
+
 export const loadQuestionsById = createAsyncThunk(
   "questions/loadQuestionsById",
   async (
-    args: { ids: string[]; reload?: boolean },
+    args: { ids: string[]; reload?: boolean; mentorConfig?: MentorConfig },
     thunkAPI
-  ): Promise<CancellabeResult<Question[]>> => {
+  ): Promise<LoadQuestionsByIdRes<Question[]>> => {
     const state = thunkAPI.getState() as RootState;
     const ids = args.reload
       ? args.ids.filter((id) => id)
@@ -58,7 +66,11 @@ export const loadQuestionsById = createAsyncThunk(
       return { isCancelled: true };
     }
     thunkAPI.dispatch(questionsSlice.actions.loadingQuestionsInProgress(ids));
-    return { result: await fetchQuestionsById(ids) };
+    const questions = await fetchQuestionsById(ids);
+    return {
+      result: questions,
+      mentorConfig: args.mentorConfig,
+    };
   }
 );
 
@@ -74,8 +86,36 @@ export const saveQuestion = createAsyncThunk(
   }
 );
 
-/** Reducer */
+function applyQuestionConfigData(
+  mentorConfig: MentorConfig,
+  data: QuestionsRecord
+): QuestionsRecord {
+  if (
+    !mentorConfig?.introRecordingText &&
+    !mentorConfig?.idleRecordingDuration
+  ) {
+    return data;
+  }
+  const dataCopy: QuestionsRecord = JSON.parse(JSON.stringify(data));
+  for (const [k, v] of Object.entries(dataCopy)) {
+    const isintroQuestion = v.question?.name === UtteranceName.INTRO;
+    const isIdleQuestion = v.question?.name === UtteranceName.IDLE;
+    const customQuestionText = mentorConfig.introRecordingText;
+    if (isintroQuestion && customQuestionText) {
+      dataCopy[k].customQuestionText = customQuestionText;
+    }
+    if (
+      isIdleQuestion &&
+      mentorConfig.idleRecordingDuration &&
+      dataCopy[k].question
+    ) {
+      dataCopy[k].question!.minVideoLength = mentorConfig.idleRecordingDuration;
+    }
+  }
+  return dataCopy;
+}
 
+/** Reducer */
 export const questionsSlice = createSlice({
   name: "questions",
   initialState,
@@ -135,6 +175,12 @@ export const questionsSlice = createSlice({
           };
         }
         stateCopy["batchLoadStatus"] = LoadingStatus.SUCCEEDED;
+        if (action.payload.mentorConfig) {
+          stateCopy.questions = applyQuestionConfigData(
+            action.payload.mentorConfig,
+            stateCopy.questions
+          );
+        }
         return stateCopy;
       })
       .addCase(loadQuestionsById.rejected, (state, action) => {

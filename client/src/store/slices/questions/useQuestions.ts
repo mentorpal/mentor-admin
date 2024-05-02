@@ -91,6 +91,9 @@ export function useQuestionActions(): QuestionActions {
   const data = useAppSelector((state) => {
     return state.questions.questions;
   });
+  const mentorConfig = useAppSelector(
+    (state) => state.mentor.data?.mentorConfig
+  );
 
   function loadQuestions(ids: string[], reload = false) {
     if (!reload) {
@@ -100,7 +103,7 @@ export function useQuestionActions(): QuestionActions {
     if (ids.length === 0) {
       return;
     }
-    return dispatch(loadQuestionsById({ ids, reload }));
+    return dispatch(loadQuestionsById({ ids, reload, mentorConfig }));
   }
 
   async function saveQuestion(data: Question): Promise<void> {

@@ -170,6 +170,7 @@ export function useWithRecordState(
           answer: a,
           editedAnswer: a,
           editedQuestion: q.question,
+          customDisplayQuestionText: q.customQuestionText,
           recordedVideo: answerInState?.recordedVideo || undefined,
           minVideoLength: q.question.minVideoLength,
           attentionNeeded: doesAnswerNeedAttention(a),
