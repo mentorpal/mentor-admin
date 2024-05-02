@@ -15,6 +15,9 @@ import {
 } from "hooks/graphql/use-with-review-answer-state";
 import { isAnswerComplete } from "helpers";
 
+export const INCOMPLETE_ANSWER_HEADER = "Incomplete";
+export const COMPLETE_ANSWER_HEADER = "Complete";
+
 export default function RecordingBlockItem(props: {
   classes: Record<string, string>;
   block: RecordingBlock;
@@ -79,7 +82,7 @@ export default function RecordingBlockItem(props: {
             classes={classes}
             subjectId={block.subject}
             mentorId={props.mentorId}
-            header="Complete"
+            header={COMPLETE_ANSWER_HEADER}
             answers={complete}
             questions={questionEdits}
             expandLists={props.expandAllRecordingBlocks}
@@ -97,7 +100,7 @@ export default function RecordingBlockItem(props: {
           <AnswerList
             classes={classes}
             subjectId={block.subject}
-            header="Incomplete"
+            header={INCOMPLETE_ANSWER_HEADER}
             answers={incomplete}
             questions={questionEdits}
             expandLists={props.expandAllRecordingBlocks}

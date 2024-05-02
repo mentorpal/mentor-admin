@@ -507,11 +507,11 @@ function VideoRecorder(props: {
           style={{
             color: "white",
             position: "absolute",
-            top: height / 2,
+            top: height / 4,
             bottom: height / 2,
             left: width / 2,
             right: width / 2,
-            visibility: countdownInProgress ? "visible" : "hidden",
+            visibility: countdownInProgress ? "visible" : "visible",
           }}
         >
           {recordStartCountdown ||
@@ -525,6 +525,23 @@ function VideoRecorder(props: {
             ) ||
             ""}
         </Typography>
+        {recordStartCountdown && (
+          <Typography
+            data-cy="countdown-message"
+            variant="h2"
+            align="center"
+            style={{
+              color: "white",
+              position: "absolute",
+
+              bottom: 0,
+              width: width,
+              visibility: countdownInProgress ? "visible" : "visible",
+            }}
+          >
+            Press Spacebar to stop recording.
+          </Typography>
+        )}
       </div>
       <div
         data-cy="controls"

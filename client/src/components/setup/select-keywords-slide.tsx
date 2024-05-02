@@ -117,6 +117,9 @@ export function SelectKeywordsSlide(props: {
                       renderInput={(params) => (
                         <TextField
                           {...params}
+                          style={{
+                            marginLeft: 10,
+                          }}
                           variant="outlined"
                           placeholder={`Choose ${kw.type.toLowerCase()}`}
                         />
