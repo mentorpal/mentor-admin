@@ -22,8 +22,16 @@ function AnswerItem(props: {
   question: QuestionEdits;
   onEditQuestion: (question: QuestionEdits) => void;
   onRecordOne: (question: QuestionEdits) => void;
+  isCompleteAnswer: boolean;
 }): JSX.Element {
-  const { mentorId, answer, question, onEditQuestion, onRecordOne } = props;
+  const {
+    mentorId,
+    answer,
+    question,
+    onEditQuestion,
+    onRecordOne,
+    isCompleteAnswer,
+  } = props;
   const [questionInput, setQuestionInput] = useState<string>(
     question.newQuestionText
   );
@@ -78,7 +86,9 @@ function AnswerItem(props: {
         </span>
       ) : (
         <ListItemText
-          primary={question?.originalQuestion.question}
+          primary={
+            question?.customQuestionText || question.originalQuestion.question
+          }
           secondary={`${answer.transcript.substring(0, 100)}${
             answer.transcript.length > 100 ? "..." : ""
           }`}
@@ -93,7 +103,7 @@ function AnswerItem(props: {
           endIcon={<PlayArrowIcon />}
           onClick={() => onRecordOne(question)}
         >
-          Record
+          {isCompleteAnswer ? "Edit" : "Record"}
         </Button>
       </ListItemSecondaryAction>
     </div>

@@ -117,6 +117,9 @@ export function SelectKeywordsSlide(props: {
                       renderInput={(params) => (
                         <TextField
                           {...params}
+                          style={{
+                            marginLeft: 10,
+                          }}
                           variant="outlined"
                           placeholder={`Choose ${kw.type.toLowerCase()}`}
                         />
@@ -156,8 +159,26 @@ export function SelectKeywordsSlide(props: {
                   )}
                 </div>
               ))}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
+              >
+                {mentor.keywords.map((k) => (
+                  <Chip
+                    key={`keyword-${k}`}
+                    data-cy={`keyword-${k}`}
+                    label={k}
+                    onDelete={() => removeKeyword(k)}
+                    style={{ margin: 5 }}
+                  />
+                ))}
+              </div>
               <Autocomplete
                 data-cy="keyword-input"
+                title="Your Keywords"
                 multiple
                 freeSolo
                 value={mentor.keywords}
@@ -168,23 +189,15 @@ export function SelectKeywordsSlide(props: {
                     keywords: v,
                   })
                 }
-                renderTags={(value: readonly string[], getTagProps) =>
-                  value.map((option: string, index: number) => (
-                    <Chip
-                      data-cy={`keyword-${option}`}
-                      label={option}
-                      {...getTagProps({ index })}
-                      key={`keyword-${option}`}
-                    />
-                  ))
-                }
+                renderTags={() => <></>}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     variant="outlined"
-                    placeholder="Enter your own keyword"
+                    placeholder="Enter your own keywords"
                   />
                 )}
+                disableClearable
                 renderOption={(props, option) => (
                   <Typography
                     {...props}

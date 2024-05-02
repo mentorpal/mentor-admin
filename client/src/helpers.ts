@@ -255,6 +255,10 @@ export function isAnswerComplete(
   );
 }
 
+export function doesVideoExist(answer: Answer): boolean {
+  return Boolean(answer.media?.find((m) => m.type === MediaType.VIDEO)?.url);
+}
+
 export function getFileSizeInMb(file: File): number {
   return file.size / 1024 / 1024;
 }

@@ -9,6 +9,7 @@ import {
   mockGQL,
   cyAttachUpload,
   cyMockUpload,
+  cySetup,
 } from "../support/functions";
 import {
   Mentor,
@@ -29,6 +30,7 @@ import {
 } from "../support/helpers";
 import clintMarkdown from "../fixtures/mentor/clint_markdown";
 import {
+  mentorConfig,
   videoMentor,
   videoQuestions,
 } from "../fixtures/recording/video_mentors";
@@ -1324,6 +1326,139 @@ describe("Record", () => {
       cy.get("[data-cy=next-btn]").should("not.exist");
       cy.get("[data-cy=done-btn]").should("exist");
       cy.get("[data-cy=done-btn]").trigger("mouseover").click();
+    });
+  });
+
+  describe("mentors with configs", () => {
+    it("shows mentor config intro recording text if set", () => {
+      cyMockDefault(cy, {
+        mentor: {
+          ...videoMentor,
+          mentorConfig: {
+            ...mentorConfig,
+            introRecordingText: "Custom intro recording text",
+          },
+        },
+        questions: videoQuestions.map((q) => {
+          if (q._id === "A2_1_1") {
+            return {
+              ...q,
+              name: UtteranceName.INTRO,
+            };
+          }
+          return q;
+        }),
+        gqlQueries: [
+          mockGQL("UpdateMentorSubjects", {
+            me: { updateMentorSubjects: true },
+          }),
+        ],
+      });
+      cy.visit("/record?videoId=A2_1_1");
+      cy.get("[data-cy=question-text]").should(
+        "contain.text",
+        "Custom intro recording text"
+      );
+    });
+
+    it("does not show mentor config intro recording text if empty", () => {
+      cyMockDefault(cy, {
+        mentor: {
+          ...videoMentor,
+          mentorConfig: {
+            ...mentorConfig,
+            introRecordingText: "",
+          },
+        },
+        questions: videoQuestions.map((q) => {
+          if (q._id === "A2_1_1") {
+            return {
+              ...q,
+              name: UtteranceName.INTRO,
+            };
+          }
+          return q;
+        }),
+        gqlQueries: [
+          mockGQL("UpdateMentorSubjects", {
+            me: { updateMentorSubjects: true },
+          }),
+        ],
+      });
+      cy.visit("/record?videoId=A2_1_1");
+      cy.get("[data-cy=question-text]").should(
+        "not.contain.text",
+        "Custom intro recording text"
+      );
+      cy.get("[data-cy=question-text]").should(
+        "contain.text",
+        "How old are you now?"
+      );
+    });
+
+    it("idle recording duration defaults to config if provided", () => {
+      cyMockDefault(cy, {
+        mentor: {
+          ...videoMentor,
+          mentorConfig: {
+            ...mentorConfig,
+            idleRecordingDuration: 60,
+          },
+        },
+        questions: videoQuestions.map((q) => {
+          if (q._id === "A2_1_1") {
+            return {
+              ...q,
+              name: UtteranceName.IDLE,
+            };
+          }
+          return q;
+        }),
+        gqlQueries: [
+          mockGQL("UpdateMentorSubjects", {
+            me: { updateMentorSubjects: true },
+          }),
+        ],
+      });
+      cy.visit("/record?videoId=A2_1_1");
+      cy.get("[data-cy=question-text]").should(
+        "contain.text",
+        "How old are you now?"
+      );
+      cy.get("[data-cy=idle-duration]").should("contain.text", "60 seconds");
+    });
+
+    it("idle recording duration defaults to question level minVideoLength if no config provided", () => {
+      cyMockDefault(cy, {
+        mentor: {
+          ...videoMentor,
+          mentorConfig: {
+            ...mentorConfig,
+            idleRecordingDuration: 0,
+          },
+        },
+        questions: videoQuestions.map((q) => {
+          if (q._id === "A2_1_1") {
+            return {
+              ...q,
+              name: UtteranceName.IDLE,
+              minVideoLength: 30,
+            };
+          }
+          return q;
+        }),
+        gqlQueries: [
+          mockGQL("UpdateMentorSubjects", {
+            me: { updateMentorSubjects: true },
+          }),
+        ],
+      });
+      cy.visit("/record?videoId=A2_1_1");
+      cy.get("[data-cy=question-text]").should(
+        "contain.text",
+        "How old are you now?"
+      );
+      cy.get("[data-cy=idle-duration]").should("contain.text", "30 seconds");
     });
   });
 

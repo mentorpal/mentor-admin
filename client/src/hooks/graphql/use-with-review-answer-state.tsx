@@ -73,6 +73,7 @@ interface UseWithReviewAnswerState {
 export interface QuestionEdits {
   originalQuestion: Question;
   newQuestionText: string;
+  customQuestionText?: string;
   unsavedChanges: boolean;
 }
 
@@ -123,6 +124,7 @@ export function useWithReviewAnswerState(
         .map((q) => ({
           originalQuestion: q.question!,
           newQuestionText: q.question!.question,
+          customQuestionText: q.customQuestionText,
           // freshly loaded questions cannot have unsaved changes
           unsavedChanges: false,
         }))

@@ -54,6 +54,11 @@ export function useWithUploadListItem(
     }
   }
 
+  const question = getValueIfKeyExists(
+    upload.question,
+    recordState.mentorQuestions
+  );
+
   return {
     upload,
     isJobDone,
@@ -65,8 +70,7 @@ export function useWithUploadListItem(
     cancelling,
     needsAttention,
     jobTitle:
-      getValueIfKeyExists(upload.question, recordState.mentorQuestions)
-        ?.question?.question || "",
+      question?.customQuestionText || question?.question?.question || "",
     pollStatusCount: recordState.pollStatusCount,
     onClose,
   };

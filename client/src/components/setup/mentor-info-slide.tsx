@@ -5,11 +5,11 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import React, { useEffect, useState } from "react";
-import { Checkbox, FormControlLabel, TextField } from "@mui/material";
+import { Checkbox, FormControlLabel, TextField, Tooltip } from "@mui/material";
 import { Mentor } from "types";
 import { Slide } from "./slide";
 import { onTextInputChanged } from "helpers";
-
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 export function MentorInfoSlide(props: {
   classes: Record<string, string>;
   mentor: Mentor;
@@ -37,7 +37,13 @@ export function MentorInfoSlide(props: {
       classes={props.classes}
       title="Tell us a little about yourself."
       content={
-        <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+          }}
+        >
           <TextField
             style={{
               width: "90%",
@@ -100,19 +106,44 @@ export function MentorInfoSlide(props: {
             }}
             className={classes.inputField}
           />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={mentor.allowContact}
-                onChange={() =>
-                  editMentor({ allowContact: !mentor.allowContact })
-                }
-                color="secondary"
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={mentor.allowContact}
+                  onChange={() =>
+                    editMentor({ allowContact: !mentor.allowContact })
+                  }
+                  color="secondary"
+                />
+              }
+              label="Allow people to contact me"
+              style={{
+                width: "fit-content",
+                alignSelf: "flex-start",
+                marginLeft: 0,
+                marginRight: 2,
+              }}
+            />
+            <Tooltip
+              title="Your organization will screen emails before you receive them."
+              placement="top"
+            >
+              <HelpOutlineIcon
+                style={{
+                  color: "gray",
+                  cursor: "pointer",
+                  margin: 0,
+                }}
               />
-            }
-            label="Allow people to contact me"
-            style={{ width: "89%", alignSelf: "left" }}
-          />
+            </Tooltip>
+          </div>
         </div>
       }
     />

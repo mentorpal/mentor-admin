@@ -22,15 +22,31 @@ export function MentorGoalSlide(props: {
       classes={props.classes}
       title="My Goal"
       content={
-        <div>
-          <Typography variant="h4">
-            What do you really want someone to take away from talking to your
-            mentor? (1-2 sentences)
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Typography
+            variant="h4"
+            style={{
+              width: "80%",
+              textAlign: "center",
+              alignSelf: "center",
+            }}
+          >
+            Think how you would describe yourself to a mentee, what do you
+            really want someone to take away from talking to your mentor?
           </Typography>
           <TextField
             required
             data-cy="goal-input"
             variant="outlined"
+            placeholder="Enter your goal here..."
             multiline
             minRows={6}
             value={mentor.goal || ""}
