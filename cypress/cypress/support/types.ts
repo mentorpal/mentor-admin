@@ -102,6 +102,8 @@ export interface MentorConfig {
   lockedToSubjects: boolean;
   publiclyVisible: boolean;
   mentorType: MentorType;
+  idleRecordingDuration: number;
+  introRecordingText: string;
   orgPermissions: OrgPermissionsGQL[];
   loginHeaderText: string;
   welcomeSlideHeader: string;
