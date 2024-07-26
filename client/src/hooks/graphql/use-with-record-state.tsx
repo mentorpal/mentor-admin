@@ -790,7 +790,15 @@ export function useWithRecordState(
 
   function downloadCurAnswerVideo() {
     if (!curAnswer) return;
-    downloadVideoForQuestion(curAnswer?.answer.question);
+    if (curAnswer.recordedVideo) {
+      downloadVideoBlob(
+        curAnswer.recordedVideo,
+        `${curAnswer.answer.question}_video`,
+        document
+      );
+    } else {
+      downloadVideoForQuestion(curAnswer?.answer.question);
+    }
   }
 
   return {
