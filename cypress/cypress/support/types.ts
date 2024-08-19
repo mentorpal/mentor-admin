@@ -128,6 +128,7 @@ export interface Mentor {
   isPrivate: boolean;
   isArchived: boolean;
   isAdvanced: boolean;
+  lockedToConfig?: boolean;
   defaultSubject?: Subject;
   mentorConfig?: MentorConfig;
   numAnswersComplete: number;

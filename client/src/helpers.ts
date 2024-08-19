@@ -496,3 +496,9 @@ export function isDateWithinLastMonth(date: string): boolean {
   const diffDays = Math.ceil(diff / (1000 * 3600 * 24));
   return diffDays < 30;
 }
+
+export function isAdmin(user?: User): boolean {
+  return (
+    user?.userRole === UserRole.ADMIN || user?.userRole === UserRole.SUPER_ADMIN
+  );
+}
