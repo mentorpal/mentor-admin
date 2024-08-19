@@ -261,7 +261,9 @@ describe("config screen", () => {
         cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
           "be.checked"
         );
-        cy.get("[data-cy=launch-mentor]").trigger("mouseover").click();
+        cy.get("[data-cy=launch-mentor-62aa503082f27ce347bdc7f4]")
+          .should("exist")
+          .should("be.enabled");
       });
     });
   });
@@ -323,7 +325,9 @@ describe("config screen", () => {
         cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
           "not.be.checked"
         );
-        cy.get("[data-cy=launch-mentor]").trigger("mouseover").click();
+        cy.get("[data-cy=launch-mentor-62b4f62482f27ce347ba02e2]")
+          .should("exist")
+          .should("be.enabled");
       });
     });
   });
@@ -381,7 +385,11 @@ describe("config screen", () => {
         cy.get('[data-cy=toggle-active] [type="checkbox"]').should(
           "be.checked"
         );
-        cy.get("[data-cy=launch-mentor-panel]").trigger("mouseover").click();
+        cy.get(
+          "[data-cy=launch-mentor-panel-62b4f62482f27ce347ba02e2-62aa503082f27ce347bdc7f4-62aa503082f27ce347bdc7f8]"
+        )
+          .should("exist")
+          .should("be.enabled");
       });
     });
   });
@@ -434,7 +442,11 @@ describe("config screen", () => {
         cy.get('[data-cy=toggle-featured] [type="checkbox"]').should(
           "not.be.checked"
         );
-        cy.get("[data-cy=launch-mentor-panel]").trigger("mouseover").click();
+        cy.get(
+          "[data-cy=launch-mentor-panel-62b4f62482f27ce347ba02e2-62aa503082f27ce347bdc7f4-62aa503082f27ce347bdc7f8]"
+        )
+          .should("exist")
+          .should("be.enabled");
       });
     });
   });

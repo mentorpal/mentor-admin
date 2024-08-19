@@ -1186,6 +1186,7 @@ describe("My Mentor Page", () => {
     cyMockDefault(cy, {
       mentor: {
         ...clintWithConfig,
+        lockedToConfig: true,
         mentorConfig: {
           ...clintWithConfig.mentorConfig,
           lockedToSubjects: true,
@@ -1203,6 +1204,7 @@ describe("My Mentor Page", () => {
     cyMockDefault(cy, {
       mentor: {
         ...clintWithConfig,
+        lockedToConfig: true,
         mentorConfig: {
           ...clintWithConfig.mentorConfig,
           lockedToSubjects: true,

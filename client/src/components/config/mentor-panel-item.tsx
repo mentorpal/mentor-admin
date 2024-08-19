@@ -109,7 +109,7 @@ export function MentorPanelItem(props: {
           <FormControlLabel
             control={
               <IconButton
-                data-cy="launch-mentor-panel"
+                data-cy={`launch-mentor-panel-${mentorPanel.mentors.join("-")}`}
                 size="small"
                 onClick={() =>
                   launchMentorPanel(

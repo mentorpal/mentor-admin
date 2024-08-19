@@ -217,5 +217,6 @@ export const mentorConfig: MentorConfig = {
 };
 export const videoMentorWithConfig: Mentor = {
   ...videoMentor,
+  lockedToConfig: true,
   mentorConfig,
 };
