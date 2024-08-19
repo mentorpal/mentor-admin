@@ -35,7 +35,7 @@ import parseMentor, {
   defaultMentorInfo,
 } from "components/my-mentor-card/mentor-info";
 import NavBar from "components/nav-bar";
-import { canEditContent, launchMentor } from "helpers";
+import { canEditContent, isAdmin, launchMentor } from "helpers";
 import {
   QuestionEdits,
   useWithReviewAnswerState,
@@ -57,6 +57,7 @@ import { trainMentor } from "api";
 import { useWithConfig } from "store/slices/config/useWithConfig";
 import { BuildMentorTooltip } from "./build-mentor-tooltip";
 import { MentorConfig } from "types-gql";
+import { useAppSelector } from "store/hooks";
 
 const useStyles = makeStyles({ name: { HomePage } })((theme: Theme) => ({
   toolbar: {
@@ -155,7 +156,9 @@ function HomePage(props: {
   const mentorConfig: MentorConfig | undefined = getData(
     (m) => m.data?.mentorConfig
   );
-  const lockedToConfig: boolean = getData((m) => m.data?.lockedToConfig);
+  const user = useAppSelector((state) => state.login.user);
+  const lockedToConfig: boolean =
+    !isAdmin(user) && getData((m) => m.data?.lockedToConfig);
   const defaultMentor = props.user.defaultMentor._id;
   const { classes } = useStyles();
   const [showSetupAlert, setShowSetupAlert] = useState(true);
@@ -532,7 +535,7 @@ function HomePage(props: {
                 {name}
               </MenuItem>
             ))}
-            {mentorConfig?.lockedToSubjects ? undefined : (
+            {lockedToConfig && mentorConfig?.lockedToSubjects ? undefined : (
               <MenuItem
                 key={"add-subject"}
                 data-cy={"add-subject"}

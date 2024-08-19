@@ -16,7 +16,12 @@ import {
 } from "types";
 import { LoadingError } from "./loading-reducer";
 import { useWithConfig } from "store/slices/config/useWithConfig";
-import { getValueIfKeyExists, isAnswerComplete, urlBuild } from "helpers";
+import {
+  getValueIfKeyExists,
+  isAdmin,
+  isAnswerComplete,
+  urlBuild,
+} from "helpers";
 import { useMentorEdits } from "store/slices/mentor/useMentorEdits";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import useQuestions from "store/slices/questions/useQuestions";
@@ -194,11 +199,17 @@ export function useWithSetup(
       requiredSubjects,
       isSetupComplete,
     });
-    const mentorSubjectsLocked = mentor.mentorConfig?.lockedToSubjects;
+    const user = useAppSelector((state) => state.login.user);
+    const lockedToConfig = !isAdmin(user) && mentor.lockedToConfig;
+    const mentorSubjectsLocked =
+      lockedToConfig && mentor.mentorConfig?.lockedToSubjects;
     const mentorPrivacyLocked =
-      mentor.mentorConfig?.publiclyVisible !== undefined ||
-      mentor.mentorConfig?.orgPermissions.length;
-    const mentorTypeLocked = mentor.mentorConfig?.mentorType;
+      lockedToConfig &&
+      (mentor.mentorConfig?.publiclyVisible !== undefined ||
+        mentor.mentorConfig?.orgPermissions.length);
+    const mentorTypeLocked = lockedToConfig && mentor.mentorConfig?.mentorType;
+    const disabledMyGoalSlide =
+      lockedToConfig && mentor.mentorConfig?.disableMyGoalSlide;
     const status: SetupStep[] = [
       { type: SetupStepType.WELCOME, complete: true },
       { type: SetupStepType.MENTOR_INFO, complete: isMentorInfoDone },
@@ -208,7 +219,7 @@ export function useWithSetup(
       ...(mentorPrivacyLocked
         ? []
         : [{ type: SetupStepType.MENTOR_PRIVACY, complete: true }]),
-      ...(mentor.mentorConfig?.disableMyGoalSlide
+      ...(disabledMyGoalSlide
         ? []
         : [
             { type: SetupStepType.MENTOR_GOAL, complete: Boolean(mentor.goal) },
