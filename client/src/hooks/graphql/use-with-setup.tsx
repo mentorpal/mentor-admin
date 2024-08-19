@@ -97,6 +97,7 @@ export function useWithSetup(
     undefined,
     0
   );
+  const user = useAppSelector((state) => state.login.user);
 
   const mentor: Mentor = getData((state) => state.data);
   useQuestions(
@@ -199,7 +200,6 @@ export function useWithSetup(
       requiredSubjects,
       isSetupComplete,
     });
-    const user = useAppSelector((state) => state.login.user);
     const lockedToConfig = !isAdmin(user) && mentor.lockedToConfig;
     const mentorSubjectsLocked =
       lockedToConfig && mentor.mentorConfig?.lockedToSubjects;

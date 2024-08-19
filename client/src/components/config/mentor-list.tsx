@@ -118,7 +118,7 @@ function MentorItem(props: {
           <FormControlLabel
             control={
               <IconButton
-                data-cy="launch-mentor"
+                data-cy={`launch-mentor-${mentor._id}`}
                 size="small"
                 onClick={() =>
                   launchMentor(
