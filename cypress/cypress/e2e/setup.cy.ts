@@ -1446,6 +1446,7 @@ describe("Setup", () => {
   it("Record required subject slide considers answer as complete if upload in progress", () => {
     const videoWithConfigAndUnansweredQ: Mentor = {
       ...completeMentor(videoMentor),
+      lockedToConfig: true,
       mentorConfig: mentorConfig,
       name: "helo",
       firstName: "world",
