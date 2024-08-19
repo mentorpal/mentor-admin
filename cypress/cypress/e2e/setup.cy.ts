@@ -1292,10 +1292,7 @@ describe("Setup", () => {
       .get("[data-cy=nav-btn-avatar]")
       .should("have.css", "backgroundColor", "rgb(255, 0, 0)");
     cy.contains("1 / 3");
-    cy.getSettled("[data-cy=record-btn]", { retries: 4 })
-      .trigger("mouseover")
-      .click();
-    // go to record
+    cy.getSettled("[data-cy=record-btn]", { delay: 1000 }).click();
     cy.location("pathname").then(($el) =>
       assert($el.replace("/admin", ""), "/record")
     );
