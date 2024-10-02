@@ -113,6 +113,30 @@ export const googleLogin = createAsyncThunk(
   }
 );
 
+export const firebaseLogin = createAsyncThunk(
+  "login/firebaseLogin",
+  async (params:{
+    signupCode?: string;
+    loginType?: LoginType;
+    accessToken: string;
+  }, thunkAPI) => {
+    try {
+      const firebaseLogin = await api.loginFirebase(params.accessToken, params.signupCode, params.loginType);
+      localStorageStore(ACCESS_TOKEN_KEY, firebaseLogin.accessToken);
+      sessionStorageClear(ACTIVE_MENTOR_KEY);
+      return await api.login(firebaseLogin.accessToken);
+    } catch (err: unknown) {
+      if (
+        err instanceof Error &&
+        err.message.includes("Your account has been disabled")
+      ) {
+        thunkAPI.dispatch(loginSlice.actions.setIsDisabled(true));
+      }
+      throw new Error(extractErrorMessageFromError(err));
+    }
+  }
+);
+
 export const login = createAsyncThunk(
   "login/login",
   async (accessToken: string, thunkAPI) => {
@@ -176,7 +200,8 @@ export const loginSlice = createSlice({
         delete state.user;
         state.loginStatus = LoginStatus.FAILED;
       })
-      // Look at these googleLogin cases and do similar for userSawSplashScreen
+
+      // Google Login
       .addCase(googleLogin.pending, (state) => {
         delete state.user;
         state.loginStatus = LoginStatus.IN_PROGRESS;
@@ -201,6 +226,34 @@ export const loginSlice = createSlice({
         }
         state.loginStatus = LoginStatus.FAILED;
       })
+
+      // Firebase Login
+      .addCase(firebaseLogin.pending, (state) => {
+        delete state.user;
+        state.loginStatus = LoginStatus.IN_PROGRESS;
+      })
+      .addCase(firebaseLogin.fulfilled, (state, action) => {
+        state.user = action.payload?.user;
+        state.accessToken = action.payload?.accessToken;
+        state.loginStatus = LoginStatus.AUTHENTICATED;
+        if (action.payload.user) {
+          sessionStorageStore(
+            ACTIVE_MENTOR_KEY,
+            action.payload.user.defaultMentor._id
+          );
+        }
+      })
+      .addCase(firebaseLogin.rejected, (state, action) => {
+        delete state.user;
+        if (action.error.message?.includes("No user found")) {
+          state.rejectedReason = LoginRejectedReason.NO_ACCOUNT_FOUND;
+        } else {
+          state.rejectedReason = LoginRejectedReason.FAILED;
+        }
+        state.loginStatus = LoginStatus.FAILED;
+      })
+
+
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
       .addCase(userSawSplashScreen.fulfilled, (state, action) => {
         if (state.user != undefined && action.payload != undefined) {

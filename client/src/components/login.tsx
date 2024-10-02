@@ -45,13 +45,14 @@ const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
 }));
 
 function LoginPage(props: {
+  firebasePopupLogin: (signupCode?: string, loginType?: LoginType) => void;
   onGoogleLogin: (
     overrideConfig?: OverridableTokenClientConfig | undefined
   ) => void;
   mentorConfig?: MentorConfig;
   loginType: LoginType;
 }): JSX.Element {
-  const { mentorConfig, loginType } = props;
+  const { mentorConfig, loginType, firebasePopupLogin } = props;
   const { classes } = useStyles();
   const { state: configState, loadConfig } = useWithConfig();
   const { state: loginState, login } = useWithLogin();
@@ -128,16 +129,28 @@ function LoginPage(props: {
           Test Login
         </Button>
       ) : (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => props.onGoogleLogin()}
-          className={classes.button}
-          style={{ fontSize: "16px" }}
-          data-cy="login-btn"
-        >
-          Sign in with Google
-        </Button>
+        <>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => props.onGoogleLogin()}
+            className={classes.button}
+            style={{ fontSize: "16px" }}
+            data-cy="login-btn"
+          >
+            Sign in with Google
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => firebasePopupLogin()}
+            className={classes.button}
+            style={{ fontSize: "16px" }}
+            data-cy="login-btn"
+          >
+            Sign in with Microsoft
+          </Button>
+        </>
       )}
       {loginType === LoginType.SIGN_IN && (
         <Button

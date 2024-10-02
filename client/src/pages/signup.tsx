@@ -21,7 +21,7 @@ import { LoginType } from "types";
  * Separate functional component in order for useGoogleLogin to be nested under GoogleOAuthProvider (This provider did not want to work in gatsby-browser, bug reported by others)
  */
 function PrimaryDisplayHolder(): JSX.Element {
-  const { state: loginState, loginWithGoogle } = useWithLogin();
+  const { state: loginState, loginWithGoogle, firebasePopupLogin } = useWithLogin();
   const [signupCode, setSignupCode] = useState("");
   const [mentorConfig, setMentorConfig] = useState<MentorConfig>();
 
@@ -52,6 +52,7 @@ function PrimaryDisplayHolder(): JSX.Element {
     // Check for url param
     return (
       <LoginPage
+        firebasePopupLogin={firebasePopupLogin}
         onGoogleLogin={login}
         mentorConfig={mentorConfig}
         loginType={LoginType.SIGN_UP}

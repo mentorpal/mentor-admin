@@ -2030,6 +2030,43 @@ export async function loginGoogle(
   );
 }
 
+export async function loginFirebase(
+  accessToken: string,
+  signupCode?: string,
+  loginType?: LoginType
+): Promise<UserAccessToken> {
+  return execGql<UserAccessToken>(
+    {
+      query: `
+      mutation LoginFirebase($signupCode: String, $lockMentorToConfig: Boolean, $loginType: String) {
+        loginFirebase(mentorConfig: $signupCode, lockMentorToConfig: $lockMentorToConfig, loginType: $loginType) {
+          user {
+            _id
+            name
+            userRole
+            defaultMentor{
+              _id
+            }
+            firstTimeTracking{
+              myMentorSplash,
+              tooltips,
+            }
+          }
+          accessToken
+        }
+      }
+    `,
+      variables: {
+        signupCode: signupCode,
+        lockMentorToConfig: true,
+        loginType: loginType,
+      },
+    },
+    // login responds with set-cookie, w/o withCredentials it doesnt get stored
+    { dataPath: "loginFirebase", axiosConfig: { withCredentials: true }, accessToken }
+  );
+}
+
 export async function fetchUploadTasks(
   accessToken: string,
   mentorId: string
