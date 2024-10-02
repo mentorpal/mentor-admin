@@ -115,13 +115,20 @@ export const googleLogin = createAsyncThunk(
 
 export const firebaseLogin = createAsyncThunk(
   "login/firebaseLogin",
-  async (params:{
-    signupCode?: string;
-    loginType?: LoginType;
-    accessToken: string;
-  }, thunkAPI) => {
+  async (
+    params: {
+      signupCode?: string;
+      loginType?: LoginType;
+      accessToken: string;
+    },
+    thunkAPI
+  ) => {
     try {
-      const firebaseLogin = await api.loginFirebase(params.accessToken, params.signupCode, params.loginType);
+      const firebaseLogin = await api.loginFirebase(
+        params.accessToken,
+        params.signupCode,
+        params.loginType
+      );
       localStorageStore(ACCESS_TOKEN_KEY, firebaseLogin.accessToken);
       sessionStorageClear(ACTIVE_MENTOR_KEY);
       return await api.login(firebaseLogin.accessToken);
@@ -252,7 +259,6 @@ export const loginSlice = createSlice({
         }
         state.loginStatus = LoginStatus.FAILED;
       })
-
 
       // Add cases for userSawSplashScreen action here, all you need for this one is the fulfilled case
       .addCase(userSawSplashScreen.fulfilled, (state, action) => {

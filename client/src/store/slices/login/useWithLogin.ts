@@ -11,11 +11,9 @@ import * as loginActions from ".";
 import { LoginType } from "types";
 import {
   OAuthProvider,
-  connectAuthEmulator,
   getAuth,
-  onAuthStateChanged,
   signInWithPopup,
-  signOut
+  signOut,
 } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 
@@ -26,10 +24,10 @@ const firebaseConfig = {
   storageBucket: "mentorpal.appspot.com",
   messagingSenderId: "74006070443",
   appId: "1:74006070443:web:deff11e732e0ae05fc63ee",
-  measurementId: "G-PLBFTQJFFD"
+  measurementId: "G-PLBFTQJFFD",
 };
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 
 interface UseWithLogin {
   state: loginActions.LoginState;
@@ -92,30 +90,35 @@ export function useWithLogin(): UseWithLogin {
     }
   }
 
-  function firebasePopupLogin(signupCode?: string, loginType?: LoginType){
-    const provider = new OAuthProvider('microsoft.com');
-    provider.addScope('User.Read');
-    signInWithPopup(auth, provider)
-    .then((result) => {
-      const credential = OAuthProvider.credentialFromResult(result);
-      const token = credential?.accessToken;
-      const idToken = credential?.idToken;
-      console.log(token);
-      console.log(idToken);
-      if(!idToken){
-        throw new Error("No idToken");
+  function firebasePopupLogin(signupCode?: string, loginType?: LoginType) {
+    const provider = new OAuthProvider("microsoft.com");
+    provider.addScope("User.Read");
+    signInWithPopup(auth, provider).then(async (result) => {
+      const userToken = await result.user.getIdToken();
+      if (!userToken) {
+        throw new Error("No userToken");
       }
-      loginWithFirebase(idToken, signupCode, loginType);
+      loginWithFirebase(userToken, signupCode, loginType);
     });
   }
 
-  function loginWithFirebase(firebaseAccessToken: string, signupCode?: string, loginType?: LoginType) {
+  function loginWithFirebase(
+    firebaseAccessToken: string,
+    signupCode?: string,
+    loginType?: LoginType
+  ) {
     if (
       state.loginStatus === loginActions.LoginStatus.NONE ||
       state.loginStatus === loginActions.LoginStatus.NOT_LOGGED_IN ||
       state.loginStatus === loginActions.LoginStatus.FAILED
     ) {
-      dispatch(loginActions.firebaseLogin({ signupCode, loginType, accessToken: firebaseAccessToken }));
+      dispatch(
+        loginActions.firebaseLogin({
+          signupCode,
+          loginType,
+          accessToken: firebaseAccessToken,
+        })
+      );
     }
   }
 
@@ -133,6 +136,7 @@ export function useWithLogin(): UseWithLogin {
   function logout() {
     if (state.loginStatus === loginActions.LoginStatus.AUTHENTICATED) {
       dispatch(loginActions.logout());
+      signOut(auth);
     }
   }
 

@@ -2063,7 +2063,11 @@ export async function loginFirebase(
       },
     },
     // login responds with set-cookie, w/o withCredentials it doesnt get stored
-    { dataPath: "loginFirebase", axiosConfig: { withCredentials: true }, accessToken }
+    {
+      dataPath: "loginFirebase",
+      axiosConfig: { withCredentials: true },
+      accessToken,
+    }
   );
 }
 

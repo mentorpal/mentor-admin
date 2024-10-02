@@ -10,7 +10,6 @@ import LoginPage from "components/login";
 import HomePage from "components/home";
 import { useWithLogin } from "store/slices/login/useWithLogin";
 import { LoginStatus } from "store/slices/login";
-import { initializeApp } from "firebase/app";
 import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
 import { LoginType } from "types";
 
@@ -18,7 +17,11 @@ import { LoginType } from "types";
  * Separate functional component in order for useGoogleLogin to be nested under GoogleOAuthProvider (This provider did not want to work in gatsby-browser, bug reported by others)
  */
 function PrimaryDisplayHolder(): JSX.Element {
-  const { state: loginState, loginWithGoogle, firebasePopupLogin} = useWithLogin();
+  const {
+    state: loginState,
+    loginWithGoogle,
+    firebasePopupLogin,
+  } = useWithLogin();
   const login = useGoogleLogin({
     onSuccess: (tokenResponse) => {
       loginWithGoogle(tokenResponse.access_token, undefined, LoginType.SIGN_IN);
@@ -27,7 +30,15 @@ function PrimaryDisplayHolder(): JSX.Element {
   if (loginState.loginStatus === LoginStatus.AUTHENTICATED) {
     return <HomePage />;
   } else {
-    return <LoginPage firebasePopupLogin={firebasePopupLogin} onGoogleLogin={login} loginType={LoginType.SIGN_IN} />;
+    return (
+      <LoginPage
+        firebasePopupLogin={() => {
+          firebasePopupLogin();
+        }}
+        onGoogleLogin={login}
+        loginType={LoginType.SIGN_IN}
+      />
+    );
   }
 }
 

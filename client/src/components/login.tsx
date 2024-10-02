@@ -45,7 +45,7 @@ const useStyles = makeStyles({ name: { LoginPage } })((theme: Theme) => ({
 }));
 
 function LoginPage(props: {
-  firebasePopupLogin: (signupCode?: string, loginType?: LoginType) => void;
+  firebasePopupLogin: () => void;
   onGoogleLogin: (
     overrideConfig?: OverridableTokenClientConfig | undefined
   ) => void;
