@@ -11,9 +11,9 @@ import NavBar from "components/nav-bar";
 import { ErrorDialog, LoadingDialog } from "components/dialog";
 import { useWithUsers } from "hooks/graphql/use-with-users";
 import withAuthorizationOnly from "hooks/wrap-with-authorization-only";
-import { OrgEditPermissionType, User } from "types";
+import { User } from "types";
 import withLocation from "wrap-with-location";
-import { canEditMentor } from "../helpers";
+import { canEditMentor, isOrgMember } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 import { UsersTable } from "components/users/users-table";
@@ -31,8 +31,9 @@ const useStyles = makeStyles({ name: { UsersPage } })(() => ({
 }));
 
 function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
-  const userPagin = useWithUsers(props.accessToken);
-  const orgsPagin = useWithOrganizations(props.accessToken);
+  const { accessToken } = props;
+  const userPagin = useWithUsers(accessToken);
+  const orgsPagin = useWithOrganizations(accessToken);
   const { classes: styles } = useStyles();
   const { switchActiveMentor } = useActiveMentor();
   const [viewArchivedMentors, setViewArchivedMentors] =
@@ -40,9 +41,14 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
   const [viewUnapprovedMentors, setViewUnapprovedMentors] =
     useState<boolean>(false);
   const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
+  const [selectedOrg, setSelectedOrg] = useState<string>("");
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
+
+    const orgParam = params.get("org");
+    setSelectedOrg(orgParam || "");
+
     const viewUnapprovedMentors = params.get("unapproved");
     if (viewUnapprovedMentors === "true") {
       setViewUnapprovedMentors(true);
@@ -87,25 +93,13 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     if (!viewArchivedMentors && u.defaultMentor.isArchived) {
       return false;
     }
-    const params = new URLSearchParams(location.search);
-    // filter users related to org only (member or gave permission to org)
-    if (params.get("org")) {
-      const org = orgs.find((o) => o._id === params.get("org"));
+    if (selectedOrg) {
+      const org = orgs.find((o) => o._id === selectedOrg);
       if (org) {
-        const isMember = org.members.find((m) => m.user._id === u._id);
-        if (isMember) {
-          return true;
-        }
-        const hasOrgPerms = u.defaultMentor.orgPermissions.find(
-          (op) => op.orgId === org._id
+        const _isOrgMemeber = isOrgMember(org, u);
+        return (
+          _isOrgMemeber && canEditMentor(u.defaultMentor, props.user, [org])
         );
-        if (hasOrgPerms) {
-          return (
-            hasOrgPerms.editPermission === OrgEditPermissionType.ADMIN ||
-            hasOrgPerms.editPermission === OrgEditPermissionType.MANAGE
-          );
-        }
-        return false;
       }
     }
     return canEditMentor(u.defaultMentor, props.user, orgs);

@@ -141,7 +141,11 @@ export function getTableColumns(
   }
   if (!isAdmin) {
     columns = columns.filter(
-      (c) => c.label !== "Disabled" && c.label !== "Disabled"
+      (c) =>
+        c.label !== "Disabled" &&
+        c.label !== "Disabled" &&
+        c.label !== "Locked" &&
+        c.label !== "Advanced"
     );
   }
   return columns;
@@ -163,6 +167,7 @@ export function TableFooter(props: {
   const hasPrev = userPagin.pageData?.pageInfo.hasPreviousPage || false;
   const pageSizes = [10, 20, 50, 100];
 
+  // TODO: create dropdown that allows us to select an org
   return (
     <AppBar position="sticky" color="default" className={styles.appBar}>
       <Toolbar>

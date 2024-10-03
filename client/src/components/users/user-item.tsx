@@ -39,6 +39,7 @@ import {
   GetApp as GetAppIcon,
   Launch as LaunchIcon,
 } from "@mui/icons-material";
+import { v4 as uuid } from "uuid";
 const useStyles = makeStyles({ name: { UserItem } })((theme: Theme) => ({
   dropdown: {
     width: 170,
@@ -328,7 +329,7 @@ export function UserItem(props: {
               .toLocaleString()
               .split(",")
               .map((s) => {
-                return <div key={mentor.updatedAt}>{s}</div>;
+                return <div key={`${mentor.updatedAt}${uuid()}`}>{s}</div>;
               })}
           </>
         ) : (
