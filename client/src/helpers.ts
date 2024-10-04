@@ -503,6 +503,12 @@ export function isAdmin(user?: User): boolean {
 }
 
 export function managesOrg(org: Organization, user: User): boolean {
+  if (
+    user.userRole === UserRole.SUPER_ADMIN ||
+    user.userRole === UserRole.SUPER_CONTENT_MANAGER
+  ) {
+    return true;
+  }
   return Boolean(
     org.members.find(
       (m) =>
