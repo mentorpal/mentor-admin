@@ -69,7 +69,6 @@ import {
   copyAndRemove,
   copyAndSet,
   getOrgHomeUrl,
-  managesOrg,
 } from "../helpers";
 import { uuid4 } from "@sentry/utils";
 
@@ -671,11 +670,6 @@ function OrganizationsPage(props: {
 
   useEffect(() => {
     switchActiveMentor();
-    orgsPagin.setPreFilter({
-      filter: (o) => {
-        return managesOrg(o, props.user);
-      },
-    });
   }, []);
 
   if (!orgsPagin.data) {
