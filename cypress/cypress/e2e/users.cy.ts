@@ -16,7 +16,7 @@ describe("users screen", () => {
       mentor: [newMentor],
       login: {
         ...loginDefault,
-        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
       },
       gqlQueries: [mockGQL("Users", { users })],
     });
@@ -43,7 +43,7 @@ describe("users screen", () => {
       mentor: [newMentor],
       login: {
         ...loginDefault,
-        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
       },
       gqlQueries: [
         mockGQL("Users", { users }),
@@ -317,7 +317,7 @@ describe("users screen", () => {
       mentor: [newMentor],
       login: {
         ...loginDefault,
-        user: { ...loginDefault.user, userRole: UserRole.ADMIN },
+        user: { ...loginDefault.user, userRole: UserRole.SUPER_ADMIN },
       },
       gqlQueries: [
         mockGQL("Users", {
