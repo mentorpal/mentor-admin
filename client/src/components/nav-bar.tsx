@@ -5,7 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import { navigate } from "gatsby";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   AppBar,
   Button,
@@ -47,7 +47,7 @@ import { useWithLogin } from "store/slices/login/useWithLogin";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import withLocation from "wrap-with-location";
 import { Mentor, UploadTask } from "types";
-import { canEditContent, isAdmin, launchMentor } from "helpers";
+import { canEditContent, isAdmin, launchMentor, managesOrg } from "helpers";
 import {
   areAllTasksDone,
   isATaskCancelled,
@@ -55,6 +55,7 @@ import {
 import { useWithImportStatus } from "hooks/graphql/use-with-import-status";
 import ImportInProgressDialog from "./import-export/import-in-progress";
 import { useAppSelector } from "store/hooks";
+import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 
 const useStyles = makeStyles({ name: { Login } })((theme: Theme) => ({
   toolbar: {
@@ -177,10 +178,11 @@ function NavMenu(props: {
   classes: Record<string, string>;
   mentorSubjectsLocked: boolean;
   onNav?: (cb: () => void) => void;
+  managesOrgs: boolean;
 }): JSX.Element {
-  const { classes, mentorSubjectsLocked } = props;
+  const { classes, mentorSubjectsLocked, managesOrgs } = props;
   const { logout, state } = useWithLogin();
-  const editPermission = canEditContent(state.user);
+  const isSuperManagerPlus = canEditContent(state.user);
 
   function onLogout(): void {
     logout();
@@ -249,27 +251,19 @@ function NavMenu(props: {
         <ListItemText primary="Chat with Mentor" />
       </ListItem>
       <Divider style={{ marginTop: 15 }} />
-      {editPermission ? (
+
+      {isSuperManagerPlus || managesOrgs ? (
+        <ListSubheader className={classes.menuHeader}>
+          Management Tools
+        </ListSubheader>
+      ) : undefined}
+
+      {isSuperManagerPlus ? (
         <>
-          <ListSubheader className={classes.menuHeader}>
-            Management Tools
-          </ListSubheader>
           <NavItem
             text={"Create/Edit Subjects"}
             link={"/author/subjects"}
             icon={<EditIcon />}
-            onNav={props.onNav}
-          />
-          <NavItem
-            text={"Users"}
-            link={"/users"}
-            icon={<PersonIcon />}
-            onNav={props.onNav}
-          />
-          <NavItem
-            text={"Organizations"}
-            link={"/organizations"}
-            icon={<GroupIcon />}
             onNav={props.onNav}
           />
           <NavItem
@@ -284,7 +278,22 @@ function NavMenu(props: {
             icon={<LRSIcon />}
             onNav={props.onNav}
           />
-
+        </>
+      ) : undefined}
+      {isSuperManagerPlus || managesOrgs ? (
+        <>
+          <NavItem
+            text={"Users"}
+            link={"/users"}
+            icon={<PersonIcon />}
+            onNav={props.onNav}
+          />
+          <NavItem
+            text={"Organizations"}
+            link={"/organizations"}
+            icon={<GroupIcon />}
+            onNav={props.onNav}
+          />
           <Divider style={{ marginTop: 15 }} />
         </>
       ) : undefined}
@@ -321,6 +330,8 @@ export function NavBar(props: {
   } = props;
   const { getData } = useActiveMentor();
   const mentor: Mentor | undefined = getData((state) => state.data);
+  const accessToken = useAppSelector((state) => state.login.accessToken);
+  const { data: orgs } = useWithOrganizations(accessToken || "");
   const user = useAppSelector((state) => state.login.user);
   const lockedToConfig = mentor?.lockedToConfig && !isAdmin(user);
   const importStatus = useWithImportStatus();
@@ -331,6 +342,13 @@ export function NavBar(props: {
     ).length || 0;
   const numUploadsComplete =
     uploads?.filter((upload) => areAllTasksDone(upload)).length || 0;
+  const managedOrgs = useMemo(() => {
+    const orgNodes = orgs?.edges.map((e) => e.node) || [];
+    if (!user) {
+      return [];
+    }
+    return orgNodes.filter((org) => managesOrg(org, user));
+  }, [orgs, Boolean(user)]);
 
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   //if there are no uploads, defaults to true, else if there are any uploads that aren't yet cancelled, should not be disabled
@@ -411,6 +429,7 @@ export function NavBar(props: {
           classes={classes}
           mentorId={props.mentorId}
           onNav={onNav}
+          managesOrgs={managedOrgs.length > 0}
         />
       </SwipeableDrawer>
       {checkForImportTask && importTask ? (

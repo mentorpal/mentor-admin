@@ -47,15 +47,15 @@ jobs:
           git add $(git ls-files --others --exclude-standard -- cypress/cypress/snapshots) # git add only files that are under snapshots and untracked in git
           git commit -m "gha, adding new snapshots"
           git push
-      - name: If Cypress failed, retrieve image diffs
-        run: make test-e2e-copy-failed_diffs
-        if: ${{ failure() }}
-      - name: If Cypress failed, upload image-diff artifacts
-        uses: actions/upload-artifact@v1
-        if: ${{ failure() }}
-        with:
-          name: snapshot_failed_diffs
-          path: cypress/cypress/snapshots/snapshot_failed_diffs
+      # - name: If Cypress failed, retrieve image diffs
+      #   run: make test-e2e-copy-failed_diffs
+      #   if: ${{ failure() }}
+      # - name: If Cypress failed, upload image-diff artifacts
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ failure() }}
+      #   with:
+      #     name: snapshot_failed_diffs
+      #     path: cypress/cypress/snapshots/snapshot_failed_diffs
   publish-check:
     name: publish check
     needs:

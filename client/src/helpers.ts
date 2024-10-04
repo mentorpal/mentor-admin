@@ -336,21 +336,20 @@ export function canEditMentor(
   if (!mentor || !user) {
     return false;
   }
-  const ops = mentor.orgPermissions?.filter(
+  const orgPermsThatManageMentor = mentor.orgPermissions?.filter(
     (op) =>
       op.editPermission === OrgEditPermissionType.MANAGE ||
       op.editPermission === OrgEditPermissionType.ADMIN
   );
-  if (ops) {
-    const os = ops.map((op) => op.orgId);
-    for (const org of orgs.filter((o) => os.includes(o._id))) {
-      if (
-        org.members.find(
-          (m) =>
-            m.user._id === user._id &&
-            (m.role === UserRole.ADMIN || m.role === UserRole.CONTENT_MANAGER)
-        )
-      ) {
+  if (orgPermsThatManageMentor) {
+    const orgIdsThatManageMentor = orgPermsThatManageMentor.map(
+      (op) => op.orgId
+    );
+    const orgsThatManageMentor = orgs.filter((o) =>
+      orgIdsThatManageMentor.includes(o._id)
+    );
+    for (const org of orgsThatManageMentor) {
+      if (managesOrg(org, user)) {
         return true;
       }
     }
@@ -500,5 +499,26 @@ export function isDateWithinLastMonth(date: string): boolean {
 export function isAdmin(user?: User): boolean {
   return (
     user?.userRole === UserRole.ADMIN || user?.userRole === UserRole.SUPER_ADMIN
+  );
+}
+
+export function managesOrg(org: Organization, user: User): boolean {
+  return Boolean(
+    org.members.find(
+      (m) =>
+        m.user._id === user._id &&
+        (m.role === UserRole.ADMIN || m.role === UserRole.CONTENT_MANAGER)
+    )
+  );
+}
+
+export function isOrgMember(org: Organization, user: User): boolean {
+  const usersOrgPermissions = user.defaultMentor.orgPermissions.find(
+    (op) => op.orgId === org._id
+  );
+  return Boolean(
+    org.members.find((m) => m.user._id === user._id) ||
+      usersOrgPermissions?.editPermission === OrgEditPermissionType.ADMIN ||
+      usersOrgPermissions?.editPermission === OrgEditPermissionType.MANAGE
   );
 }
