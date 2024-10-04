@@ -179,7 +179,8 @@ export function UserItem(props: {
         {edge.node.email}
       </TableCell>
       <TableCell data-cy="role" align="left">
-        {userRole === UserRole.ADMIN || userRole === UserRole.SUPER_ADMIN ? (
+        {userRole === UserRole.SUPER_CONTENT_MANAGER ||
+        userRole === UserRole.SUPER_ADMIN ? (
           <Select
             data-cy="select-role"
             value={edge.node.userRole || UserRole.USER}
@@ -194,26 +195,6 @@ export function UserItem(props: {
               disabled={!canEditUserRole(props.user, edge.node, UserRole.USER)}
             >
               User
-            </MenuItem>
-            <MenuItem
-              data-cy={`role-dropdown-${UserRole.CONTENT_MANAGER}`}
-              value={UserRole.CONTENT_MANAGER}
-              disabled={
-                !canEditUserRole(
-                  props.user,
-                  edge.node,
-                  UserRole.CONTENT_MANAGER
-                )
-              }
-            >
-              Content Manager
-            </MenuItem>
-            <MenuItem
-              data-cy={`role-dropdown-${UserRole.ADMIN}`}
-              value={UserRole.ADMIN}
-              disabled={!canEditUserRole(props.user, edge.node, UserRole.ADMIN)}
-            >
-              Admin
             </MenuItem>
             <MenuItem
               data-cy={`role-dropdown-${UserRole.SUPER_CONTENT_MANAGER}`}

@@ -17,6 +17,7 @@ import { canEditMentor, isOrgMember } from "../helpers";
 import useActiveMentor from "store/slices/mentor/useActiveMentor";
 import { useWithOrganizations } from "hooks/graphql/use-with-organizations";
 import { UsersTable } from "components/users/users-table";
+import { ALL_ORGS } from "components/users/table-footer";
 
 const useStyles = makeStyles({ name: { UsersPage } })(() => ({
   root: {
@@ -42,19 +43,32 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     useState<boolean>(false);
   const orgs = orgsPagin.data?.edges.map((e) => e.node) || [];
   const [selectedOrg, setSelectedOrg] = useState<string>("");
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-
     const orgParam = params.get("org");
-    setSelectedOrg(orgParam || "");
-
+    setSelectedOrg(orgParam || ALL_ORGS);
     const viewUnapprovedMentors = params.get("unapproved");
     if (viewUnapprovedMentors === "true") {
       setViewUnapprovedMentors(true);
     }
     switchActiveMentor();
   }, []);
+
+  function filterEditableUsers(u: User): boolean {
+    if (!viewArchivedMentors && u.defaultMentor.isArchived) {
+      return false;
+    }
+    if (selectedOrg) {
+      const org = orgs.find((o) => o._id === selectedOrg);
+      if (org) {
+        const _isOrgMemeber = isOrgMember(org, u);
+        return (
+          _isOrgMemeber && canEditMentor(u.defaultMentor, props.user, [org])
+        );
+      }
+    }
+    return canEditMentor(u.defaultMentor, props.user, orgs);
+  }
 
   useEffect(() => {
     if (!viewUnapprovedMentors) {
@@ -71,6 +85,7 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
     orgsPagin.data,
     viewArchivedMentors,
     viewUnapprovedMentors,
+    selectedOrg,
   ]);
 
   useEffect(() => {
@@ -87,22 +102,6 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
 
   function onToggleViewUnapprovedMentors(tf: boolean) {
     setViewUnapprovedMentors(tf);
-  }
-
-  function filterEditableUsers(u: User): boolean {
-    if (!viewArchivedMentors && u.defaultMentor.isArchived) {
-      return false;
-    }
-    if (selectedOrg) {
-      const org = orgs.find((o) => o._id === selectedOrg);
-      if (org) {
-        const _isOrgMemeber = isOrgMember(org, u);
-        return (
-          _isOrgMemeber && canEditMentor(u.defaultMentor, props.user, [org])
-        );
-      }
-    }
-    return canEditMentor(u.defaultMentor, props.user, orgs);
   }
 
   function sortArchivedMentors(a: User, b: User): number {
@@ -141,6 +140,8 @@ function UsersPage(props: { accessToken: string; user: User }): JSX.Element {
         user={props.user}
         userPagin={userPagin}
         orgs={orgs}
+        selectedOrg={selectedOrg}
+        setSelectedOrg={setSelectedOrg}
         viewArchivedMentors={viewArchivedMentors}
         viewUnapprovedMentors={viewUnapprovedMentors}
         onToggleViewUnapprovedMentors={onToggleViewUnapprovedMentors}

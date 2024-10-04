@@ -28,6 +28,8 @@ const useStyles = makeStyles({ name: { UsersTable } })(() => ({
 export function UsersTable(props: {
   accessToken: string;
   orgs: Organization[];
+  selectedOrg: string;
+  setSelectedOrg: (orgId: string) => void;
   userPagin: UseUserData;
   user: User;
   viewArchivedMentors: boolean;
@@ -35,7 +37,8 @@ export function UsersTable(props: {
   onToggleArchivedMentors: (v: boolean) => void;
   onToggleViewUnapprovedMentors: (v: boolean) => void;
 }): JSX.Element {
-  const { viewUnapprovedMentors, onToggleViewUnapprovedMentors } = props;
+  const { viewUnapprovedMentors, onToggleViewUnapprovedMentors, selectedOrg } =
+    props;
   const { classes: styles } = useStyles();
   const [columns, setColumns] = useState<ColumnDef[]>([]);
   const { addMentorToPoll, mentorTrainStatusDict } = useWithMentorTrainStatus({
@@ -83,6 +86,8 @@ export function UsersTable(props: {
       <TableFooter
         user={props.user}
         orgs={props.orgs}
+        selectedOrg={selectedOrg}
+        setSelectedOrg={props.setSelectedOrg}
         userPagin={props.userPagin}
         viewArchivedMentors={props.viewArchivedMentors}
         viewUnapprovedMentors={viewUnapprovedMentors}

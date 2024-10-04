@@ -25,6 +25,7 @@ import {
   KeyboardArrowRight as KeyboardArrowRightIcon,
 } from "@mui/icons-material";
 import { v4 as uuid4 } from "uuid";
+import { managesOrg } from "helpers";
 const useStyles = makeStyles({ name: { TableFooter } })(() => ({
   appBar: {
     height: "10%",
@@ -38,6 +39,8 @@ const useStyles = makeStyles({ name: { TableFooter } })(() => ({
     marginRight: "auto",
   },
 }));
+
+export const ALL_ORGS = "All Orgs";
 
 export function getTableColumns(
   viewArchivedMentors: boolean,
@@ -155,19 +158,28 @@ export function TableFooter(props: {
   userPagin: UseUserData;
   user: User;
   orgs: Organization[];
+  selectedOrg: string;
+  setSelectedOrg: (orgId: string) => void;
   viewArchivedMentors: boolean;
   viewUnapprovedMentors: boolean;
   onToggleArchivedMentors: (v: boolean) => void;
   onToggleViewUnapprovedMentors: (v: boolean) => void;
 }): JSX.Element {
-  const { userPagin, viewUnapprovedMentors } = props;
+  const {
+    userPagin,
+    viewUnapprovedMentors,
+    setSelectedOrg,
+    orgs,
+    selectedOrg,
+  } = props;
+  const orgsUserManages = orgs.filter((o) => managesOrg(o, props.user));
+  const _selectedOrg = orgs.find((o) => o._id === selectedOrg);
   const { classes: styles } = useStyles();
   const edges = userPagin.searchData?.edges || [];
   const hasNext = userPagin.pageData?.pageInfo.hasNextPage || false;
   const hasPrev = userPagin.pageData?.pageInfo.hasPreviousPage || false;
   const pageSizes = [10, 20, 50, 100];
 
-  // TODO: create dropdown that allows us to select an org
   return (
     <AppBar position="sticky" color="default" className={styles.appBar}>
       <Toolbar>
@@ -181,6 +193,20 @@ export function TableFooter(props: {
             {pageSizes.map((p) => (
               <MenuItem key={p} value={p}>
                 {p}
+              </MenuItem>
+            ))}
+          </Select>
+          <Select
+            value={_selectedOrg?.name || ALL_ORGS}
+            onChange={(e: SelectChangeEvent<string>) => {
+              const org = orgs.find((o) => o.name === e.target.value);
+              setSelectedOrg(org?._id || "");
+            }}
+          >
+            <MenuItem value={ALL_ORGS}>All Orgs</MenuItem>
+            {orgsUserManages.map((org) => (
+              <MenuItem key={org.name} value={org.name}>
+                {org.name}
               </MenuItem>
             ))}
           </Select>
