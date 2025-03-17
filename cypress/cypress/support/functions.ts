@@ -21,6 +21,7 @@ import questions from "../fixtures/questions";
 import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 import { v4 as uuid } from "uuid";
 import { orphanedAnswer } from "../fixtures/mentor/orphaned_answer";
+import { getAnswerChunks, splitArrayIntoChunksOfN } from "./helpers";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -221,7 +222,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Mentor | _Ref | Mentor[];
+    mentor?: Mentor | Mentor[] | _Ref;
     subject?: any;
     subjects?: any[];
     questions?: any[];
@@ -244,21 +245,64 @@ export function cyMockDefault(
   cyMockAllImageRequests(cy);
 
   const mentors = [];
+  const answerQueries = [];
   if (args.mentor) {
     if (Array.isArray(args.mentor)) {
       args.mentor.forEach((mentor) => {
         mentors.push({ mentor: mentor });
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+          mentor.answers,
+          mentor.orphanedCompleteAnswers
+        );
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
       });
     } else {
       mentors.push({ mentor: args.mentor });
+      if (args.mentor && "answers" in args.mentor) {
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+          args.mentor.answers,
+          args.mentor.orphanedCompleteAnswers
+        );
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+      }
     }
   } else {
     if (Array.isArray(mentorDefault)) {
       mentorDefault.forEach((mentor) => {
         mentors.push({ mentor: mentor });
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+          mentor.answers,
+          mentor.orphanedCompleteAnswers
+        );
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
       });
     } else {
       mentors.push({ mentor: mentorDefault });
+      const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+        mentorDefault.answers,
+        mentorDefault.orphanedCompleteAnswers
+      );
+      answerChunks.forEach((chunk) => {
+        answerQueries.push({ answers: chunk });
+      });
+      orphanedAnswerChunks.forEach((chunk) => {
+        answerQueries.push({ answers: chunk });
+      });
     }
   }
 
@@ -307,6 +351,14 @@ export function cyMockDefault(
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
     ...[mockGQL("MentorFindOne", mentors)],
+    ...[
+      mockGQL(
+        "Answers",
+        answerQueries.map((a) => ({
+          answers: { edges: a.answers.map((answer) => ({ node: answer })) },
+        }))
+      ),
+    ],
     ...(args.subject
       ? [mockGQL("Subject", subjectList)]
       : [mockGQL("Subject", {})]),

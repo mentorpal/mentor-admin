@@ -41,6 +41,8 @@ import {
   MentorTrainStatusById,
   RegenVttResponse,
   LoginType,
+  DehydratedMentor,
+  DehydratedMentorGQL,
 } from "types";
 import { SearchParams } from "hooks/graphql/use-with-data-connection";
 import {
@@ -48,6 +50,7 @@ import {
   AnswerGQL,
   convertAnswerGQL,
   convertConnectionGQL,
+  convertDehydratedMentorGQL,
   convertMentorGQL,
   convertUploadTaskGQL,
   convertUserQuestionGQL,
@@ -1054,14 +1057,8 @@ export async function updateUserQuestion(
   );
 }
 
-export async function fetchMentorById(
-  accessToken: string,
-  mentorId: string
-): Promise<Mentor> {
-  const gql = await execGql<MentorGQL>(
-    {
-      query: `
-      query MentorFindOne($mentor: ID!) {
+export const mentorDehydratedAnswersQuery = `
+     query MentorFindOne($mentor: ID!) {
         mentor (id: $mentor){
           _id
           name
@@ -1157,110 +1154,108 @@ export async function fetchMentorById(
               }
             }
           }
-          answers {
+          answers{
             _id
-            question {
+                        question {
               _id
               clientId
               mentor
             }
-            hasEditedTranscript
-            markdownTranscript
-            transcript
-            status
-            hasUntransferredMedia
-            webMedia {
-              type
-              tag
-              url
-              transparentVideoUrl
-              needsTransfer
-              hash
-              duration
-            }
-            mobileMedia{
-              type
-              tag
-              url
-              transparentVideoUrl
-              needsTransfer
-              hash
-              duration
-            }
-            vttMedia{
-              type
-              tag
-              url
-              needsTransfer
-              hash
-              duration
-              vttText
-            }
-            previousVersions{
-              transcript
-              dateVersioned
-              vttText
-              webVideoHash
-              videoDuration
-            }
+            docMissing
           }
-          orphanedCompleteAnswers {
+          orphanedCompleteAnswers{
             _id
-            question {
+                        question {
               _id
               clientId
               mentor
             }
-            hasEditedTranscript
-            markdownTranscript
-            transcript
-            status
-            hasUntransferredMedia
-            webMedia {
-              type
-              tag
-              url
-              transparentVideoUrl
-              needsTransfer
-              hash
-              duration
-            }
-            mobileMedia{
-              type
-              tag
-              url
-              transparentVideoUrl
-              needsTransfer
-              hash
-              duration
-            }
-            vttMedia{
-              type
-              tag
-              url
-              needsTransfer
-              hash
-              duration
-              vttText
-            }
-            previousVersions{
-              transcript
-              dateVersioned
-              vttText
-              webVideoHash
-              videoDuration
-            }
+            docMissing
           }
         }  
       }
-    `,
-      variables: {
-        mentor: mentorId,
-      },
+    `;
+
+export const answersQuery = `
+  query Answers($filter: Object!){
+    answers(filter: $filter){
+        edges{
+            node{
+                
+            _id
+            question {
+              _id
+              clientId
+              mentor
+            }
+            hasEditedTranscript
+            markdownTranscript
+            transcript
+            status
+            hasUntransferredMedia
+            webMedia {
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+              hash
+              duration
+            }
+            mobileMedia{
+              type
+              tag
+              url
+              transparentVideoUrl
+              needsTransfer
+              hash
+              duration
+            }
+            vttMedia{
+              type
+              tag
+              url
+              needsTransfer
+              hash
+              duration
+              vttText
+            }
+            previousVersions{
+              transcript
+              dateVersioned
+              vttText
+              webVideoHash
+              videoDuration
+            }
+          }
+            
+        }
+    }
+}`;
+
+export async function fetchDehydratedMentor(
+  accessToken: string,
+  mentorId: string
+): Promise<DehydratedMentor> {
+  const gql = await execGql<DehydratedMentorGQL>(
+    {
+      query: mentorDehydratedAnswersQuery,
+      variables: { mentor: mentorId },
     },
     { dataPath: ["mentor"], accessToken }
   );
-  return convertMentorGQL(gql);
+  return convertDehydratedMentorGQL(gql);
+}
+
+export async function fetchAnswers(
+  accessToken: string,
+  answerIds: string[]
+): Promise<Answer[]> {
+  const gql = await execGql<Connection<AnswerGQL>>(
+    { query: answersQuery, variables: { filter: { _id: { $in: answerIds } } } },
+    { dataPath: ["answers"], accessToken }
+  );
+  return gql.edges.map((edge) => convertAnswerGQL(edge.node));
 }
 
 export async function fetchMentorConfig(

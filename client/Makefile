@@ -4,7 +4,7 @@ clean:
 
 .PHONY: develop
 develop: node_modules/gatsby
-	npx gatsby develop -p 80
+	npx gatsby develop -p 3000
 
 .PHONY: pretty
 pretty: 
@@ -61,3 +61,9 @@ test-lint: node_modules/eslint
 .PHONY: test-types
 test-types: node_modules/typescript
 	npm run test:types
+
+.PHONY: build-deploy
+build-deploy:
+	npm run build
+	aws s3 sync ./public/ s3://devmentorpal-us-east-1-devmentorpal-origin/admin --profile mentorpal
+	aws cloudfront create-invalidation --distribution-id E1US4AC36O0EBT --paths "/admin*" --profile mentorpal

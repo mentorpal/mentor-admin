@@ -8,6 +8,7 @@ import { CancelTokenSource } from "axios";
 import {
   AnswerGQL,
   MentorConfig,
+  MentorGQL,
   PreviousAnswerVersion,
   SubjectGQL,
   UserQuestionGQL,
@@ -216,6 +217,38 @@ export interface Mentor {
   numAnswersComplete: number;
 }
 
+export interface DehydratedMentorGQL
+  extends Omit<MentorGQL, "answers" | "orphanedCompleteAnswers"> {
+  answers: {
+    _id: string;
+    docMissing: boolean;
+    question: {
+      _id: string;
+      clientId: string;
+      mentor: string;
+    };
+  }[];
+  orphanedCompleteAnswers: {
+    _id: string;
+    docMissing: boolean;
+    question: {
+      _id: string;
+      clientId: string;
+      mentor: string;
+    };
+  }[];
+  question: {
+    _id: string;
+    clientId: string;
+    mentor: string;
+  };
+}
+
+export interface DehydratedMentor
+  extends Omit<DehydratedMentorGQL, "question"> {
+  question: string;
+}
+
 export enum OrgViewPermissionType {
   NONE = "NONE", // no custom settings, use "isPrivate"
   HIDDEN = "HIDDEN", // org cannot see or use mentor
@@ -227,6 +260,16 @@ export enum OrgEditPermissionType {
   MANAGE = "MANAGE", // org can edit content
   ADMIN = "ADMIN", // org can edit content and edit sharing settings
 }
+
+export interface IExternalVideoIds {
+  wistiaId: string;
+  paraproId: string;
+}
+
+export const externalVideoIdsDefault: IExternalVideoIds = {
+  wistiaId: "",
+  paraproId: "",
+};
 
 export interface OrgPermission {
   orgId: string;

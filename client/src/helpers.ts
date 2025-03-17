@@ -528,3 +528,11 @@ export function isOrgMember(org: Organization, user: User): boolean {
       usersOrgPermissions?.editPermission === OrgEditPermissionType.MANAGE
   );
 }
+
+export function splitArrayIntoChunksOfN<T>(arr: T[], n: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += n) {
+    chunks.push(arr.slice(i, i + n));
+  }
+  return chunks;
+}
