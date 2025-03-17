@@ -244,8 +244,6 @@ export function cyMockDefault(
   cyMockThumbnailImage(cy);
   cyMockAllImageRequests(cy);
 
-  // answers all get pulled, then it pulls all the questions from the answers and fetches the documents
-
   const mentors = [];
   const answerQueries = [];
   if (args.mentor) {
