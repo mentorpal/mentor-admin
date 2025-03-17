@@ -221,7 +221,7 @@ export interface DehydratedMentorGQL
   extends Omit<MentorGQL, "answers" | "orphanedCompleteAnswers"> {
   answers: {
     _id: string;
-    docExists: boolean;
+    docMissing: boolean;
     question: {
       _id: string;
       clientId: string;
@@ -230,7 +230,7 @@ export interface DehydratedMentorGQL
   }[];
   orphanedCompleteAnswers: {
     _id: string;
-    docExists: boolean;
+    docMissing: boolean;
     question: {
       _id: string;
       clientId: string;

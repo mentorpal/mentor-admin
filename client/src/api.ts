@@ -1161,7 +1161,7 @@ export const mentorDehydratedAnswersQuery = `
               clientId
               mentor
             }
-            docExists
+            docMissing
           }
           orphanedCompleteAnswers{
             _id
@@ -1170,7 +1170,7 @@ export const mentorDehydratedAnswersQuery = `
               clientId
               mentor
             }
-            docExists
+            docMissing
           }
         }  
       }

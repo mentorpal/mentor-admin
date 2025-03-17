@@ -43,7 +43,7 @@ async function loadAndHydrateMentor(
   accessToken: string
 ): Promise<Mentor> {
   const mentor = await api.fetchDehydratedMentor(accessToken, mentorId);
-  const tempAnswers = mentor.answers.filter((a) => !a.docExists);
+  const tempAnswers = (mentor.answers || []).filter((a) => a.docMissing);
   const hydratedTempAnswers: Answer[] = tempAnswers.map((a) => {
     return {
       ...a,
@@ -56,15 +56,17 @@ async function loadAndHydrateMentor(
       vttMedia: undefined,
       externalVideoIds: externalVideoIdsDefault,
       previousVersions: [],
-      docExists: false,
+      docMissing: true,
       questionClientId: "",
       hasEditedTranscript: false,
       hasUntransferredMedia: false,
     };
   });
-  const answerIds = mentor.answers.filter((a) => a.docExists).map((a) => a._id);
+  const answerIds = (mentor.answers || [])
+    .filter((a) => !a.docMissing)
+    .map((a) => a._id);
   const answerChunks = splitArrayIntoChunksOfN(answerIds, 100);
-  const orphanedAnswerIds = mentor.orphanedCompleteAnswers
+  const orphanedAnswerIds = (mentor.orphanedCompleteAnswers || [])
     .filter((a) => Boolean(a._id))
     .map((a) => a._id);
   const orphanChunks = splitArrayIntoChunksOfN(orphanedAnswerIds, 100);

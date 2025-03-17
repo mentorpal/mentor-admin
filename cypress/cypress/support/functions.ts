@@ -221,7 +221,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Mentor | _Ref | Mentor[];
+    mentor?: Mentor | Mentor[];
     subject?: any;
     subjects?: any[];
     questions?: any[];
@@ -243,22 +243,29 @@ export function cyMockDefault(
   cyMockThumbnailImage(cy);
   cyMockAllImageRequests(cy);
 
+  // answers all get pulled, then it pulls all the questions from the answers and fetches the documents
+
   const mentors = [];
+  const answerQueries = [];
   if (args.mentor) {
     if (Array.isArray(args.mentor)) {
       args.mentor.forEach((mentor) => {
         mentors.push({ mentor: mentor });
+        answerQueries.push({ answers: mentor.answers });
       });
     } else {
       mentors.push({ mentor: args.mentor });
+      answerQueries.push({ answers: args.mentor.answers });
     }
   } else {
     if (Array.isArray(mentorDefault)) {
       mentorDefault.forEach((mentor) => {
         mentors.push({ mentor: mentor });
+        answerQueries.push({ answers: mentor.answers });
       });
     } else {
       mentors.push({ mentor: mentorDefault });
+      answerQueries.push({ answers: mentorDefault.answers });
     }
   }
 
@@ -307,6 +314,14 @@ export function cyMockDefault(
     //   ? [mockGQL("mentor", args.mentor, true)]
     //   : [mockGQL("mentor", mentorDefault, true)]),
     ...[mockGQL("MentorFindOne", mentors)],
+    ...[
+      mockGQL(
+        "Answers",
+        answerQueries.map((a) => ({
+          answers: { edges: a.answers.map((answer) => ({ node: answer })) },
+        }))
+      ),
+    ],
     ...(args.subject
       ? [mockGQL("Subject", subjectList)]
       : [mockGQL("Subject", {})]),
