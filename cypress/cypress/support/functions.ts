@@ -21,6 +21,7 @@ import questions from "../fixtures/questions";
 import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 import { v4 as uuid } from "uuid";
 import { orphanedAnswer } from "../fixtures/mentor/orphaned_answer";
+import { splitArrayIntoChunksOfN } from "./helpers";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -251,23 +252,41 @@ export function cyMockDefault(
     if (Array.isArray(args.mentor)) {
       args.mentor.forEach((mentor) => {
         mentors.push({ mentor: mentor });
-        answerQueries.push({ answers: mentor.answers });
+        const answerQueryChunks = splitArrayIntoChunksOfN(mentor.answers, 100);
+        answerQueryChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
       });
     } else {
       mentors.push({ mentor: args.mentor });
       if (args.mentor && "answers" in args.mentor) {
-        answerQueries.push({ answers: args.mentor.answers });
+        const answerQueryChunks = splitArrayIntoChunksOfN(
+          args.mentor.answers,
+          100
+        );
+        answerQueryChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
       }
     }
   } else {
     if (Array.isArray(mentorDefault)) {
       mentorDefault.forEach((mentor) => {
         mentors.push({ mentor: mentor });
-        answerQueries.push({ answers: mentor.answers });
+        const answerQueryChunks = splitArrayIntoChunksOfN(mentor.answers, 100);
+        answerQueryChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
       });
     } else {
       mentors.push({ mentor: mentorDefault });
-      answerQueries.push({ answers: mentorDefault.answers });
+      const answerQueryChunks = splitArrayIntoChunksOfN(
+        mentorDefault.answers,
+        100
+      );
+      answerQueryChunks.forEach((chunk) => {
+        answerQueries.push({ answers: chunk });
+      });
     }
   }
 

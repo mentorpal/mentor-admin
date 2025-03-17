@@ -154,3 +154,11 @@ export function uploadTaskMediaBuild() {
     },
   };
 }
+
+export function splitArrayIntoChunksOfN(array: any[], n: number) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += n) {
+    chunks.push(array.slice(i, i + n));
+  }
+  return chunks;
+}
