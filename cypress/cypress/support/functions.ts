@@ -221,7 +221,7 @@ export function cyMockDefault(
     gqlQueries?: MockGraphQLQuery[];
     noAccessTokenStored?: boolean;
     login?: UserAccessToken;
-    mentor?: Mentor | Mentor[];
+    mentor?: Mentor | Mentor[] | _Ref;
     subject?: any;
     subjects?: any[];
     questions?: any[];
@@ -255,7 +255,9 @@ export function cyMockDefault(
       });
     } else {
       mentors.push({ mentor: args.mentor });
-      answerQueries.push({ answers: args.mentor.answers });
+      if (args.mentor && "answers" in args.mentor) {
+        answerQueries.push({ answers: args.mentor.answers });
+      }
     }
   } else {
     if (Array.isArray(mentorDefault)) {
