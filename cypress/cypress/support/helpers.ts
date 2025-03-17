@@ -5,6 +5,7 @@ Permission to use, copy, modify, and distribute this software and its documentat
 The full terms of this copyright and license should always be found in the root directory of this software deliverable as "license.txt" and if these terms are not found with this software, please contact the USC Stevens Center for the full license.
 */
 import {
+  Answer,
   Mentor,
   MentorType,
   Question,
@@ -161,4 +162,13 @@ export function splitArrayIntoChunksOfN(array: any[], n: number) {
     chunks.push(array.slice(i, i + n));
   }
   return chunks;
+}
+
+export function getAnswerChunks(answers: Answer[], orphanedAnswers: Answer[]) {
+  const answerChunks = splitArrayIntoChunksOfN(answers || [], 100);
+  const orphanedAnswerChunks = splitArrayIntoChunksOfN(
+    orphanedAnswers || [],
+    100
+  );
+  return { answerChunks, orphanedAnswerChunks };
 }

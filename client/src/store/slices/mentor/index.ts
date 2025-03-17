@@ -86,7 +86,7 @@ async function loadAndHydrateMentor(
       ? convertSubjectGQL(mentor.defaultSubject)
       : undefined,
     subjects: mentor.subjects?.map((s) => convertSubjectGQL(s)),
-    answers: [...answers, ...hydratedTempAnswers],
+    answers: [...answers, ...hydratedTempAnswers, ...orphanedAnswers],
     orphanedCompleteAnswers: orphanedAnswers,
   };
   return hydratedMentor;

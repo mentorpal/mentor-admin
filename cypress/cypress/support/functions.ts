@@ -21,7 +21,7 @@ import questions from "../fixtures/questions";
 import { encodedSentences } from "../fixtures/feedback/trendingFeedbackEncodedResults";
 import { v4 as uuid } from "uuid";
 import { orphanedAnswer } from "../fixtures/mentor/orphaned_answer";
-import { splitArrayIntoChunksOfN } from "./helpers";
+import { getAnswerChunks, splitArrayIntoChunksOfN } from "./helpers";
 
 const TRAIN_STATUS_URL = `/train/status`;
 const UPLOAD_STATUS_URL = `/upload/answer/status`;
@@ -252,19 +252,28 @@ export function cyMockDefault(
     if (Array.isArray(args.mentor)) {
       args.mentor.forEach((mentor) => {
         mentors.push({ mentor: mentor });
-        const answerQueryChunks = splitArrayIntoChunksOfN(mentor.answers, 100);
-        answerQueryChunks.forEach((chunk) => {
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+          mentor.answers,
+          mentor.orphanedCompleteAnswers
+        );
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
           answerQueries.push({ answers: chunk });
         });
       });
     } else {
       mentors.push({ mentor: args.mentor });
       if (args.mentor && "answers" in args.mentor) {
-        const answerQueryChunks = splitArrayIntoChunksOfN(
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
           args.mentor.answers,
-          100
+          args.mentor.orphanedCompleteAnswers
         );
-        answerQueryChunks.forEach((chunk) => {
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
           answerQueries.push({ answers: chunk });
         });
       }
@@ -273,18 +282,27 @@ export function cyMockDefault(
     if (Array.isArray(mentorDefault)) {
       mentorDefault.forEach((mentor) => {
         mentors.push({ mentor: mentor });
-        const answerQueryChunks = splitArrayIntoChunksOfN(mentor.answers, 100);
-        answerQueryChunks.forEach((chunk) => {
+        const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
+          mentor.answers,
+          mentor.orphanedCompleteAnswers
+        );
+        answerChunks.forEach((chunk) => {
+          answerQueries.push({ answers: chunk });
+        });
+        orphanedAnswerChunks.forEach((chunk) => {
           answerQueries.push({ answers: chunk });
         });
       });
     } else {
       mentors.push({ mentor: mentorDefault });
-      const answerQueryChunks = splitArrayIntoChunksOfN(
+      const { answerChunks, orphanedAnswerChunks } = getAnswerChunks(
         mentorDefault.answers,
-        100
+        mentorDefault.orphanedCompleteAnswers
       );
-      answerQueryChunks.forEach((chunk) => {
+      answerChunks.forEach((chunk) => {
+        answerQueries.push({ answers: chunk });
+      });
+      orphanedAnswerChunks.forEach((chunk) => {
         answerQueries.push({ answers: chunk });
       });
     }
