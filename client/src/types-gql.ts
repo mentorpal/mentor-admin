@@ -30,6 +30,8 @@ import {
   JobState,
   OrgViewPermissionType,
   OrgEditPermissionType,
+  DehydratedMentorGQL,
+  DehydratedMentor,
 } from "types";
 
 export interface UserAccessTokenGQL {
@@ -239,6 +241,15 @@ export function convertMentorGQL(gql: MentorGQL): Mentor {
     orphanedCompleteAnswers: (gql.orphanedCompleteAnswers || []).map((a) =>
       convertAnswerGQL(a)
     ),
+  };
+}
+
+export function convertDehydratedMentorGQL(
+  gql: DehydratedMentorGQL
+): DehydratedMentor {
+  return {
+    ...gql,
+    question: gql.question?._id,
   };
 }
 
