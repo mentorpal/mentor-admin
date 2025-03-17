@@ -5,12 +5,18 @@ The full terms of this copyright and license should always be found in the root 
 */
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as api from "api";
-import { extractErrorMessageFromError } from "helpers";
+import { extractErrorMessageFromError, splitArrayIntoChunksOfN } from "helpers";
 import { LoadingError, LoadingStatus } from "hooks/graphql/loading-reducer";
 import { RootState } from "store/store";
-import { Answer, Mentor } from "types";
+import {
+  Answer,
+  externalVideoIdsDefault,
+  Mentor,
+  Status,
+} from "../../../types";
 import { LoginState } from "../login";
 import { selectActiveMentor } from "./useActiveMentor";
+import { convertSubjectGQL } from "types-gql";
 
 /** Store */
 
@@ -32,6 +38,58 @@ const initialState: MentorState = {
 
 /** Actions */
 
+async function loadAndHydrateMentor(
+  mentorId: string,
+  accessToken: string
+): Promise<Mentor> {
+  const mentor = await api.fetchDehydratedMentor(accessToken, mentorId);
+  const tempAnswers = mentor.answers.filter((a) => !a.docExists);
+  const hydratedTempAnswers: Answer[] = tempAnswers.map((a) => {
+    return {
+      ...a,
+      mentor: mentorId,
+      question: a.question._id,
+      transcript: "",
+      status: Status.NONE,
+      webMedia: undefined,
+      mobileMedia: undefined,
+      vttMedia: undefined,
+      externalVideoIds: externalVideoIdsDefault,
+      previousVersions: [],
+      docExists: false,
+      questionClientId: "",
+      hasEditedTranscript: false,
+      hasUntransferredMedia: false,
+    };
+  });
+  const answerIds = mentor.answers.filter((a) => a.docExists).map((a) => a._id);
+  const answerChunks = splitArrayIntoChunksOfN(answerIds, 100);
+  const orphanedAnswerIds = mentor.orphanedCompleteAnswers
+    .filter((a) => Boolean(a._id))
+    .map((a) => a._id);
+  const orphanChunks = splitArrayIntoChunksOfN(orphanedAnswerIds, 100);
+  const answerPromises = answerChunks.map((chunk) =>
+    api.fetchAnswers(accessToken, chunk)
+  );
+  const orphanedAnswerPromises = orphanChunks.map((chunk) =>
+    api.fetchAnswers(accessToken, chunk)
+  );
+  const answerResults = await Promise.all(answerPromises);
+  const orphanedAnswerResults = await Promise.all(orphanedAnswerPromises);
+  const answers = answerResults.flat();
+  const orphanedAnswers = orphanedAnswerResults.flat();
+  const hydratedMentor: Mentor = {
+    ...mentor,
+    defaultSubject: mentor.defaultSubject
+      ? convertSubjectGQL(mentor.defaultSubject)
+      : undefined,
+    subjects: mentor.subjects?.map((s) => convertSubjectGQL(s)),
+    answers: [...answers, ...hydratedTempAnswers],
+    orphanedCompleteAnswers: orphanedAnswers,
+  };
+  return hydratedMentor;
+}
+
 export const loadMentor = createAsyncThunk(
   "mentor/loadMentor",
   async (
@@ -48,20 +106,14 @@ export const loadMentor = createAsyncThunk(
     thunkAPI.dispatch(mentorSlice.actions.loadingInProgress(state.login));
     if (!state.login.accessToken || !state.login.user?.defaultMentor._id) {
       return Promise.reject("no access token");
-    } else
-      return headers.mentorId
-        ? {
-            result: await api.fetchMentorById(
-              state.login.accessToken,
-              headers.mentorId
-            ),
-          }
-        : {
-            result: await api.fetchMentorById(
-              state.login.accessToken,
-              state.login.user?.defaultMentor._id
-            ),
-          };
+    } else {
+      const mentorId = headers.mentorId || state.login.user?.defaultMentor._id;
+      const HydratedMentor = await loadAndHydrateMentor(
+        mentorId,
+        state.login.accessToken
+      );
+      return { result: HydratedMentor };
+    }
   }
 );
 
@@ -96,7 +148,7 @@ export const saveMentorSubjects = createAsyncThunk(
           editedData._id
         );
         // need to fetch the updated mentor because the questions/answers might have changed
-        return api.fetchMentorById(state.login.accessToken, editedData._id);
+        return loadAndHydrateMentor(editedData._id, state.login.accessToken);
       } catch (err) {
         throw new Error(extractErrorMessageFromError(err));
       }
@@ -116,7 +168,7 @@ export const saveMentorKeywords = createAsyncThunk(
           editedData._id
         );
         // need to fetch the updated mentor
-        return api.fetchMentorById(state.login.accessToken, editedData._id);
+        return loadAndHydrateMentor(editedData._id, state.login.accessToken);
       } catch (err) {
         throw new Error(extractErrorMessageFromError(err));
       }
@@ -136,7 +188,7 @@ export const saveMentorPrivacy = createAsyncThunk(
           editedData._id
         );
         // need to fetch the updated mentor
-        return api.fetchMentorById(state.login.accessToken, editedData._id);
+        return loadAndHydrateMentor(editedData._id, state.login.accessToken);
       } catch (err) {
         throw new Error(extractErrorMessageFromError(err));
       }
