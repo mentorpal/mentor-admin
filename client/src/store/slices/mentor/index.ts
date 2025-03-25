@@ -47,19 +47,20 @@ async function loadAndHydrateMentor(
   const hydratedTempAnswers: Answer[] = tempAnswers.map((a) => {
     return {
       ...a,
-      mentor: mentorId,
       question: a.question._id,
+      hasEditedTranscript: false,
+      markdownTranscript: "",
       transcript: "",
       status: Status.NONE,
+      hasUntransferredMedia: false,
       webMedia: undefined,
       mobileMedia: undefined,
       vttMedia: undefined,
-      externalVideoIds: externalVideoIdsDefault,
       previousVersions: [],
+      questionClientId: a.question.clientId,
+      externalVideoIds: externalVideoIdsDefault,
+      media: [],
       docMissing: true,
-      questionClientId: "",
-      hasEditedTranscript: false,
-      hasUntransferredMedia: false,
     };
   });
   const answerIds = (mentor.answers || [])
