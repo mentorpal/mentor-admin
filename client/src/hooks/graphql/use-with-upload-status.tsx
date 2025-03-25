@@ -86,7 +86,10 @@ export function useWithUploadStatus(
     }
     uploads.forEach((u) => {
       const taskDeletedFromDb = deletedUploadTasks.includes(u.question);
-      if (!taskDeletedFromDb && (areAllTasksDone(u) || isATaskCancelled(u))) {
+      if (
+        !taskDeletedFromDb &&
+        (areAllTasksDone(u) || isATaskCancelled(u) || isATaskFailed(u))
+      ) {
         deleteUploadTask(u.question, accessToken, mentorId)
           .catch((error) => {
             console.error(error);
