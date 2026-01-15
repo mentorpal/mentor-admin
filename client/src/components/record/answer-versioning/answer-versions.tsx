@@ -139,7 +139,10 @@ export function AnswerVersionsHandler(props: {
     <span>
       <IconButton
         data-cy="versions-icon"
-        disabled={editedAnswer.previousVersions.length === 0}
+        disabled={
+          !editedAnswer?.previousVersions ||
+          editedAnswer.previousVersions.length === 0
+        }
         onClick={() => {
           setOpen(true);
         }}
