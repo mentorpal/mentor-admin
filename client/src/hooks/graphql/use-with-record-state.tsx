@@ -517,7 +517,7 @@ export function useWithRecordState(
     answer: Answer,
     editedAnswer: Answer
   ): Promise<PreviousAnswerVersion[]> {
-    const firstUpload = !answer.previousVersions.length && !answer.transcript;
+    const firstUpload = !answer?.previousVersions?.length && !answer.transcript;
     if (firstUpload) {
       return [];
     }
