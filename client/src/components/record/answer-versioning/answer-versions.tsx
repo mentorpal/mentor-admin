@@ -66,7 +66,7 @@ export function AnswerVersionsHandler(props: {
     setLoading(true);
     let answerUpdatedVttInfo: Answer = {
       ...editedAnswer,
-      previousVersions: editedAnswer.previousVersions.filter(
+      previousVersions: editedAnswer?.previousVersions?.filter(
         (version) =>
           version.transcript !== selectedVersion.transcript ||
           version.dateVersioned !== selectedVersion.dateVersioned ||
@@ -127,8 +127,8 @@ export function AnswerVersionsHandler(props: {
   function sortPreviousVersionByDate(
     previousVersions: PreviousAnswerVersion[]
   ): PreviousAnswerVersion[] {
-    if (previousVersions.length === 0) {
-      return previousVersions;
+    if (!previousVersions || previousVersions?.length === 0) {
+      return [];
     }
     return [...previousVersions].sort((a, b) => {
       return parseInt(b.dateVersioned) - parseInt(a.dateVersioned);
@@ -141,7 +141,7 @@ export function AnswerVersionsHandler(props: {
         data-cy="versions-icon"
         disabled={
           !editedAnswer?.previousVersions ||
-          editedAnswer.previousVersions.length === 0
+          editedAnswer?.previousVersions?.length === 0
         }
         onClick={() => {
           setOpen(true);
