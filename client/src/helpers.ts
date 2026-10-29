@@ -512,7 +512,7 @@ export function managesOrg(org: Organization, user: User): boolean {
   return Boolean(
     org.members.find(
       (m) =>
-        m.user._id === user._id &&
+        m.user?._id === user?._id &&
         (m.role === UserRole.ADMIN || m.role === UserRole.CONTENT_MANAGER)
     )
   );
